@@ -420,6 +420,19 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private int                   hrZone9                        = -1;                     // db-version 16
 
    /**
+    * Time spent (in seconds) in the "Slow" cadence zone (for example: Hiking).
+    */
+   private int                   cadenceZone_SlowTime                        = -1;                     // db-version 40
+   /**
+    * Time spent (in seconds) in the "Fast" cadence zone (for example: Running).
+    */
+   private int                   cadenceZone_FastTime                        = -1;                     // db-version 40
+   /**
+    * The delimiter used when computing the existing values of cadenceZone_SlowTime & cadenceZone_FastTime
+    */
+   private int                   cadenceZones_DelimiterValue;
+
+   /**
     * A flag indicating that the pulse is from a sensor. This is the state of the device which is
     * not related to the availability of pulse data. Pulse data should be available but is not
     * checked.<br>
@@ -862,7 +875,10 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /**
     * Person which created this tour or <code>null</code> when the tour is not saved in the
-    * database
+    * database.
+    * <p>
+    * SQL access to this field:
+    * <pre>tourPerson_personId</pre>
     */
    @ManyToOne
    private TourPerson                  tourPerson;
@@ -1439,6 +1455,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    @Transient
    public boolean             multipleTour_IsCadenceSpm;
+
+   /**
+    * Contains the cadence multiplier for each tour to display the unit correctly.
+    */
+   @Transient
+   public float[]             multipleTours_CadenceMultiplier;
 
    /**
     * Contains the swim start index in the swim data series for each tour.
@@ -3234,6 +3256,63 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
+    * Computes time (seconds) spent in each cadence zone (slow and fast).
+    */
+   public boolean computeCadenceZonesTimes() {
+
+      if (timeSerie == null || cadenceSerie == null) {
+         return false;
+      }
+
+      if (breakTimeSerie == null) {
+         getBreakTime();
+      }
+
+      int prevTime = 0;
+
+      final int cadenceZonesDelimiter = _prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER);
+      cadenceZone_FastTime = 0;
+      cadenceZone_SlowTime = 0;
+
+      // compute zone values
+      for (int serieIndex = 0; serieIndex < timeSerie.length; serieIndex++) {
+
+         final float cadence = cadenceSerie[serieIndex];
+         final int time = timeSerie[serieIndex];
+
+         final int timeDiff = time - prevTime;
+         prevTime = time;
+
+         // check if a break occurred, break time is ignored
+         if (breakTimeSerie != null) {
+
+            /*
+             * break time requires distance data, so it's possible that break time data are not
+             * available
+             */
+
+            if (breakTimeSerie[serieIndex] == true) {
+               // cadence zones are not set for break time
+               continue;
+            }
+         }
+
+         if (cadence >= cadenceZonesDelimiter) {
+            cadenceZone_FastTime += timeDiff;
+         } else {
+            cadenceZone_SlowTime += timeDiff;
+         }
+      }
+
+      // If the cadence zones times were computed, we store the delimiter value used
+      if (cadenceZone_SlowTime > 0 || cadenceZone_FastTime > 0) {
+         cadenceZones_DelimiterValue = cadenceZonesDelimiter;
+      }
+
+      return true;
+   }
+
+   /**
     * Compute min/max/avg and other computed fields.
     */
    public void computeComputedValues() {
@@ -3250,6 +3329,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       computeAvg_Temperature();
 
       computeHrZones();
+      computeCadenceZonesTimes();
       computeRunningDynamics();
 
       computeGeo_Bounds();
@@ -3945,7 +4025,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final int timeDiff = time - prevTime;
          prevTime = time;
 
-         // check if a break occured, break time is ignored
+         // check if a break occurred, break time is ignored
          if (breakTimeSerie != null) {
 
             /*
@@ -6743,6 +6823,18 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       }
    }
 
+   public int getCadenceZone_FastTime() {
+      return cadenceZone_FastTime;
+   }
+
+   public int getCadenceZone_SlowTime() {
+      return cadenceZone_SlowTime;
+   }
+
+   public int getCadenceZones_DelimiterValue() {
+      return cadenceZones_DelimiterValue;
+   }
+
    /**
     * @return Returns the calories or <code>0</code> when calories are not available.
     */
@@ -8893,6 +8985,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public void setCadenceSerie(final float[] cadenceSerieData) {
       cadenceSerie = cadenceSerieData;
+   }
+
+   public void setCadenceZone_FastTime(final int cadenceZone_FastTime) {
+      this.cadenceZone_FastTime = cadenceZone_FastTime;
+   }
+
+   public void setCadenceZone_SlowTime(final int cadenceZone_SlowTime) {
+      this.cadenceZone_SlowTime = cadenceZone_SlowTime;
    }
 
    /**

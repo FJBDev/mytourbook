@@ -781,22 +781,19 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _rootItem = new TVITourBookRoot(this);
 
       // delay loading, that the app filters are initialized
-      Display.getCurrent().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getCurrent().asyncExec(() -> {
 
-            if (_tourViewer.getTree().isDisposed()) {
-               return;
-            }
-
-            _isInStartup = true;
-
-            _tourViewer.setInput(this);
-
-            reselectTourViewer();
-
-            restoreState_AfterUI();
+         if (_tourViewer.getTree().isDisposed()) {
+            return;
          }
+
+         _isInStartup = true;
+
+         _tourViewer.setInput(this);
+
+         reselectTourViewer();
+
+         restoreState_AfterUI();
       });
    }
 
@@ -950,7 +947,9 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       defineColumn_Tour_Marker();
       defineColumn_Tour_Photos();
       defineColumn_Tour_Tags();
-//      defineColumn_Tour_TagIds();
+      defineColumn_Tour_Location_Start();
+      defineColumn_Tour_Location_End();
+//    defineColumn_Tour_TagIds();            // for debugging
 
       // Motion / Bewegung
       defineColumn_Motion_Distance();
@@ -965,7 +964,9 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       // Weather
       defineColumn_Weather_Clouds();
-      defineColumn_Weather_AvgTemperature();
+      defineColumn_Weather_Temperature_Avg();
+      defineColumn_Weather_Temperature_Min();
+      defineColumn_Weather_Temperature_Max();
       defineColumn_Weather_WindSpeed();
       defineColumn_Weather_WindDirection();
 
@@ -985,6 +986,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       // Powertrain - Antrieb/Pedal
       defineColumn_Powertrain_AvgCadence();
+      defineColumn_Powertrain_SlowVsFastCadencePercentage();
+      defineColumn_Powertrain_SlowVsFastCadenceZonesDelimiter();
       defineColumn_Powertrain_CadenceMultiplier();
       defineColumn_Powertrain_Gear_FrontShiftCount();
       defineColumn_Powertrain_Gear_RearShiftCount();
@@ -1850,9 +1853,29 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    /**
     * Column: Pedal left/right balance
     */
-   private void defineColumn_Powertrain_PedalLeftRightBalance() {
 
-      final TreeColumnDefinition colDef = TreeColumnFactory.POWERTRAIN_PEDAL_LEFT_RIGHT_BALANCE.createColumn(//
+   private void defineColumn_Powertrain_PedalLeftRightBalance() {
+      final TreeColumnDefinition colDef =
+            TreeColumnFactory.POWERTRAIN_PEDAL_LEFT_RIGHT_BALANCE.createColumn(//
+                  _columnManager,
+                  _pc);
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+            final Object element = cell.getElement();
+            final int value = ((TVITourBookItem) element).colPower_PedalLeftRightBalance;
+            colDef.printValue_0(cell, value);
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Slow vs fast cadence Percentage
+    */
+   private void defineColumn_Powertrain_SlowVsFastCadencePercentage() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES.createColumn(
             _columnManager,
             _pc);
 
@@ -1861,7 +1884,30 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
-            final int value = ((TVITourBookItem) element).colPower_PedalLeftRightBalance;
+            final String value = ((TVITourBookItem) element).colSlowVsFastCadence;
+
+            cell.setText(value);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Cadence zones delimiter value
+    */
+   private void defineColumn_Powertrain_SlowVsFastCadenceZonesDelimiter() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.POWERTRAIN_SLOW_VS_FAST_CADENCE_ZONES_DELIMITER.createColumn(
+            _columnManager,
+            _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final int value = ((TVITourBookItem) element).colCadenceZonesDelimiter;
 
             colDef.printValue_0(cell, value);
 
@@ -2613,6 +2659,58 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    }
 
    /**
+    * Column: Tour end location
+    */
+   private void defineColumn_Tour_Location_End() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_LOCATION_END.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final String tourLocation = ((TVITourBookItem) element).colTourLocation_End;
+
+            if (tourLocation == null) {
+               cell.setText(UI.EMPTY_STRING);
+            } else {
+               cell.setText(tourLocation);
+            }
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Tour start location
+    */
+   private void defineColumn_Tour_Location_Start() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_LOCATION_START.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final String tourLocation = ((TVITourBookItem) element).colTourLocation_Start;
+
+            if (tourLocation == null) {
+               cell.setText(UI.EMPTY_STRING);
+            } else {
+               cell.setText(tourLocation);
+            }
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
     * column: markers
     */
    private void defineColumn_Tour_Marker() {
@@ -2663,11 +2761,11 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       });
    }
 
-//   /**
-//    * Column for debugging: Tag ids
-//    */
-//   private void defineColumn_Tour_TagIds() {
-//
+   /**
+    * Column for debugging: Tag ids
+    */
+   private void defineColumn_Tour_TagIds() {
+
 //      final TreeColumnDefinition colDef = new TreeColumnDefinition(_columnManager, "TOUR_TAG_IDS", SWT.TRAIL); //$NON-NLS-1$
 //
 //      colDef.setColumnCategory(net.tourbook.ui.Messages.ColumnFactory_Category_Tour);
@@ -2699,7 +2797,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 //            }
 //         }
 //      });
-//   }
+   }
 
    /**
     * Column: Tags
@@ -2856,9 +2954,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
     */
    private void defineColumn_Training_IntensityFactor() {
 
-      final TreeColumnDefinition colDef = TreeColumnFactory.TRAINING_INTENSITY_FACTOR.createColumn(
-            _columnManager,
-            _pc);
+      final TreeColumnDefinition colDef = TreeColumnFactory.TRAINING_INTENSITY_FACTOR.createColumn(_columnManager, _pc);
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -2876,8 +2972,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
    private void defineColumn_Training_PowerToWeightRatio() {
 
-      final TreeColumnDefinition colDef = TreeColumnFactory.TRAINING_POWER_TO_WEIGHT
-            .createColumn(_columnManager, _pc);
+      final TreeColumnDefinition colDef = TreeColumnFactory.TRAINING_POWER_TO_WEIGHT.createColumn(_columnManager, _pc);
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -2978,29 +3073,6 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    }
 
    /**
-    * column: avg temperature
-    */
-   private void defineColumn_Weather_AvgTemperature() {
-
-      final TreeColumnDefinition colDef = TreeColumnFactory.WEATHER_AVG_TEMPERATURE.createColumn(_columnManager, _pc);
-
-      colDef.setLabelProvider(new CellLabelProvider() {
-         @Override
-         public void update(final ViewerCell cell) {
-
-            final Object element = cell.getElement();
-
-            final double value = UI.convertTemperatureFromMetric(//
-                  ((TVITourBookItem) element).colAvgTemperature);
-
-            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
-
-            setCellColor(cell, element);
-         }
-      });
-   }
-
-   /**
     * column: clouds
     */
    private void defineColumn_Weather_Clouds() {
@@ -3027,6 +3099,72 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                   cell.setText(windClouds);
                }
             }
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Avg temperature
+    */
+   private void defineColumn_Weather_Temperature_Avg() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.WEATHER_TEMPERATURE_AVG.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            final double value = UI.convertTemperatureFromMetric(((TVITourBookItem) element).colTemperature_Avg);
+
+            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Max temperature
+    */
+   private void defineColumn_Weather_Temperature_Max() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.WEATHER_TEMPERATURE_MAX.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            final double value = UI.convertTemperatureFromMetric(((TVITourBookItem) element).colTemperature_Max);
+
+            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
+    * Column: Min temperature
+    */
+   private void defineColumn_Weather_Temperature_Min() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.WEATHER_TEMPERATURE_MIN.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            final double value = UI.convertTemperatureFromMetric(((TVITourBookItem) element).colTemperature_Min);
+
+            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
 
             setCellColor(cell, element);
          }
@@ -3124,6 +3262,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       final int selectedItems = selection.size();
       final boolean isTourSelected = tourItems > 0;
       final boolean isOneTour = tourItems == 1;
+      final boolean isAllToursSelected = _actionSelectAllTours.isChecked();
       boolean isDeviceTour = false;
       boolean canMergeTours = false;
 
@@ -3155,8 +3294,9 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _tourDoubleClickState.canEditMarker = isOneTour;
       _tourDoubleClickState.canAdjustAltitude = isOneTour;
 
-      _action_AdjustTourValues_SubMenu.setEnabled(isTourSelected);
+      _action_AdjustTourValues_SubMenu.setEnabled(isTourSelected || isAllToursSelected);
       _action_AdjustTourValues_SubMenu.getActionRetrieveWeatherData().setEnabled(useWeatherRetrieval);
+
       _action_Reimport_SubMenu.setEnabled(isTourSelected);
 
       _actionDeleteTour.setEnabled(isTourSelected);
@@ -3685,7 +3825,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       // CSV_HEADER_AVERAGE_TEMPERATURE
       {
-         float temperature = tviItem.colAvgTemperature;
+         float temperature = tviItem.colTemperature_Avg;
 
          if (temperature != 0) {
             if (net.tourbook.ui.UI.UNIT_VALUE_TEMPERATURE != 1) {
@@ -3784,6 +3924,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
        */
       final IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
 
+      menuMgr.add(_actionRefreshView);
+      menuMgr.add(new Separator());
       menuMgr.add(_actionModifyColumns);
 
       /*
@@ -3800,8 +3942,6 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       tbm.add(_actionLinkWithOtherViews);
       tbm.add(_actionTourBookOptions);
 
-      tbm.add(new Separator());
-      tbm.add(_actionRefreshView);
 
       // update that actions are fully created otherwise action enable will fail
       tbm.update(true);
@@ -3854,63 +3994,43 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       return _postSelectionProvider;
    }
 
-   private void getSelectedTourData(final ArrayList<TourData> selectedTourData, final Set<Long> tourIdSet) {
-      for (final Long tourId : tourIdSet) {
-         selectedTourData.add(TourManager.getInstance().getTourData(tourId));
-      }
-   }
-
    @Override
    public Set<Long> getSelectedTourIDs() {
 
       final Set<Long> tourIds = new HashSet<>();
-
       final IStructuredSelection selectedTours = ((IStructuredSelection) _tourViewer.getSelection());
-      if (selectedTours.size() < 2) {
 
-         // one item is selected
+      for (final Iterator<?> tourIterator = selectedTours.iterator(); tourIterator.hasNext();) {
 
-         final Object selectedItem = selectedTours.getFirstElement();
-         if (selectedItem instanceof TVITourBookYear) {
+         final Object viewItem = tourIterator.next();
+
+         if (viewItem instanceof TVITourBookYear) {
 
             // one year is selected
 
             if (_actionSelectAllTours.isChecked()) {
 
                // loop: all months
-               for (final TreeViewerItem viewerItem : ((TVITourBookYear) selectedItem).getFetchedChildren()) {
+               for (final TreeViewerItem viewerItem : ((TVITourBookYear) viewItem).getFetchedChildren()) {
                   if (viewerItem instanceof TVITourBookYearSub) {
                      getYearSubTourIDs((TVITourBookYearSub) viewerItem, tourIds);
                   }
                }
             }
 
-         } else if (selectedItem instanceof TVITourBookYearSub) {
+         } else if (viewItem instanceof TVITourBookYearSub) {
 
             // one month/week is selected
 
             if (_actionSelectAllTours.isChecked()) {
-               getYearSubTourIDs((TVITourBookYearSub) selectedItem, tourIds);
+               getYearSubTourIDs((TVITourBookYearSub) viewItem, tourIds);
             }
 
-         } else if (selectedItem instanceof TVITourBookTour) {
+         } else if (viewItem instanceof TVITourBookTour) {
 
             // one tour is selected
 
-            tourIds.add(((TVITourBookTour) selectedItem).getTourId());
-         }
-
-      } else {
-
-         // multiple items are selected
-
-         // get all selected tours, ignore year and month items
-         for (final Iterator<?> tourIterator = selectedTours.iterator(); tourIterator.hasNext();) {
-            final Object viewItem = tourIterator.next();
-
-            if (viewItem instanceof TVITourBookTour) {
-               tourIds.add(((TVITourBookTour) viewItem).getTourId());
-            }
+            tourIds.add(((TVITourBookTour) viewItem).getTourId());
          }
       }
 
@@ -3921,24 +4041,13 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    public ArrayList<TourData> getSelectedTours() {
 
       // get selected tour id's
-
       final Set<Long> tourIds = getSelectedTourIDs();
 
-      /*
-       * show busyindicator when multiple tours needs to be retrieved from the database
-       */
       final ArrayList<TourData> selectedTourData = new ArrayList<>();
 
-      if (tourIds.size() > 1) {
-         BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-            @Override
-            public void run() {
-               getSelectedTourData(selectedTourData, tourIds);
-            }
-         });
-      } else {
-         getSelectedTourData(selectedTourData, tourIds);
-      }
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+         TourManager.loadTourData(new ArrayList<>(tourIds), selectedTourData, false);
+      });
 
       return selectedTourData;
    }
