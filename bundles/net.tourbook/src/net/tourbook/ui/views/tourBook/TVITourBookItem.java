@@ -156,6 +156,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
    long         colAltitudeUp;
    long         colAltitudeDown;
+   float        colAltitude_AvgChange;
 
    float        colMaxSpeed;
    long         colMaxAltitude;
@@ -272,6 +273,11 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       colAltitudeUp        = result.getLong(startIndex + 3);
       colAltitudeDown      = result.getLong(startIndex + 4);
 
+      // VERY IMPORTANT !
+      // Note that we don't do an AVG(avgAltitudeChange) as it would return wrong results.
+      // Indeed, we can't do an mean average as we need to do a distance-weighted average.
+      colAltitude_AvgChange  = colTourDistance <= 0 ? 0 : (colAltitudeUp + colAltitudeDown) / (colTourDistance / 1000f);
+
       colCounter           = result.getLong(startIndex + 5);
 
       colMaxSpeed          = result.getFloat(startIndex + 6);
@@ -314,13 +320,11 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       colPausedTime = colTourRecordingTime - colTourDrivingTime;
 
       colSlowVsFastCadence = UI.EMPTY_STRING;
-      final int totalCadenceZone_SlowTime = cadenceZone_SlowTime == -1 ? 0 : cadenceZone_SlowTime;
-      final int totalCadenceZone_FastTime = cadenceZone_FastTime == -1 ? 0 : cadenceZone_FastTime;
 
-      final int totalCadenceTime = totalCadenceZone_SlowTime + totalCadenceZone_FastTime;
-      if (totalCadenceTime != 0) {
-         final int cadenceZone_SlowPercentage = Math.round(totalCadenceZone_SlowTime * 100f / totalCadenceTime);
-         final int cadenceZone_FastPercentage = Math.round(totalCadenceZone_FastTime * 100f / totalCadenceTime);
+      final int totalCadenceTime = cadenceZone_SlowTime + cadenceZone_FastTime;
+      if (totalCadenceTime > 0) {
+         final int cadenceZone_SlowPercentage = Math.round(cadenceZone_SlowTime * 100f / totalCadenceTime);
+         final int cadenceZone_FastPercentage = Math.round(cadenceZone_FastTime * 100f / totalCadenceTime);
 
          colSlowVsFastCadence = cadenceZone_SlowPercentage + " - " + cadenceZone_FastPercentage; //$NON-NLS-1$
       }
