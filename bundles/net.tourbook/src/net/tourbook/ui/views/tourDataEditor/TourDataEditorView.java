@@ -81,7 +81,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
 import net.tourbook.tour.ActionOpenMarkerDialog;
-import net.tourbook.tour.DialogQuickEdit;
+import net.tourbook.tour.DialogEditTimeSlicesValues;
 import net.tourbook.tour.ITourEventListener;
 import net.tourbook.tour.ITourSaveListener;
 import net.tourbook.tour.SelectionDeletedTours;
@@ -5773,7 +5773,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final Object[] selectedTimeSlices = selection.toArray();
 
-      if (new DialogQuickEdit(Display.getCurrent().getActiveShell(), _tourData).open() == Window.OK) {
+      if (new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData).open() == Window.OK) {
 
          // save all tours with the new tour type
          TourManager.saveModifiedTour(_tourData);
