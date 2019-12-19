@@ -81,6 +81,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
 import net.tourbook.tour.ActionOpenMarkerDialog;
+import net.tourbook.tour.DialogQuickEdit;
 import net.tourbook.tour.ITourEventListener;
 import net.tourbook.tour.ITourSaveListener;
 import net.tourbook.tour.SelectionDeletedTours;
@@ -485,6 +486,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private ActionDeleteDistanceValues       _actionDeleteDistanceValues;
    private ActionDeleteTimeSlicesKeepTime   _actionDeleteTimeSlicesKeepTime;
    private ActionDeleteTimeSlicesRemoveTime _actionDeleteTimeSlicesRemoveTime;
+   private ActionEditTimeSlicesValues       _actionEditTimeSlicesValues;
    private ActionExport                     _actionExportTour;
    private ActionExtractTour                _actionExtractTour;
    private ActionModifyColumns              _actionModify_TimeSliceColumns;
@@ -2588,6 +2590,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    private void createActions() {
+
+      _actionEditTimeSlicesValues = new ActionEditTimeSlicesValues(this);
 
       _actionDeleteDistanceValues = new ActionDeleteDistanceValues(this);
       _actionComputeDistanceValues = new ActionComputeDistanceValues(this);
@@ -5730,6 +5734,143 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    @Override
    public void doSaveAs() {}
 
+   /**
+    * Edit time slices values :
+    * Altitude, Heartbeat, Temperature, Cadence, Latitude, Longitude
+    */
+   void editTimeSlicesValues() {
+
+      // a tour with reference tours is currently not supported
+      if (_isReferenceTourAvailable) {
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.tour_editor_dlg_delete_rows_title,
+               Messages.tour_editor_dlg_delete_rows_message);
+
+         return;
+      }
+
+      // swimming data series have a different number of time slices
+      if (_tourData.swim_Time != null) {
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.Tour_Editor_Dialog_DeleteSwimTimeSlices_Title,
+               Messages.Tour_Editor_Dialog_DeleteSwimTimeSlices_Message);
+         return;
+      }
+
+      if (isRowSelectionMode() == false) {
+         return;
+      }
+
+      // get selected time slices
+      final StructuredSelection selection = (StructuredSelection) _timeSlice_Viewer.getSelection();
+      if (selection.size() == 0) {
+         return;
+      }
+
+      final Object[] selectedTimeSlices = selection.toArray();
+
+      if (new DialogQuickEdit(Display.getCurrent().getActiveShell(), _tourData).open() == Window.OK) {
+
+         // save all tours with the new tour type
+         TourManager.saveModifiedTour(_tourData);
+      }
+
+      /*
+       * check if time slices have a successive selection
+       */
+      int lastIndex = -1;
+      int firstIndex = -1;
+
+      for (final Object selectedItem : selectedTimeSlices) {
+
+         final TimeSlice timeSlice = (TimeSlice) selectedItem;
+
+         if (lastIndex == -1) {
+
+            // first slice
+
+            firstIndex = lastIndex = timeSlice.serieIndex;
+
+         } else {
+
+            // 2...n slices
+
+            if (lastIndex - timeSlice.serieIndex == -1) {
+
+               // successive selection
+
+               lastIndex = timeSlice.serieIndex;
+
+            } else {
+
+               MessageDialog.openInformation(
+                     Display.getCurrent().getActiveShell(),
+                     Messages.tour_editor_dlg_delete_rows_title,
+                     Messages.tour_editor_dlg_delete_rows_not_successive);
+               return;
+            }
+         }
+      }
+
+      // check if markers are within the selection
+      if (canDeleteMarkers(firstIndex, lastIndex) == false) {
+         return;
+      }
+
+      /*
+       * get first selection index to select a time slice after removal
+       */
+      final Table table = (Table) _timeSlice_Viewer.getControl();
+      final int[] indices = table.getSelectionIndices();
+      Arrays.sort(indices);
+      int lastSelectionIndex = indices[0];
+
+
+      getDataSeriesFromTourData();
+
+      // update UI
+      updateUI_Tab_1_Tour();
+      updateUI_ReferenceTourRanges();
+
+      // update slice viewer
+      _timeSlice_ViewerItems = getRemainingSliceItems(_timeSlice_ViewerItems, firstIndex, lastIndex);
+
+      _timeSlice_Viewer.getControl().setRedraw(false);
+      {
+         // update viewer
+         _timeSlice_Viewer.remove(selectedTimeSlices);
+
+         // update serie index label
+         _timeSlice_Viewer.refresh(true);
+      }
+      _timeSlice_Viewer.getControl().setRedraw(true);
+
+      setTourDirty();
+
+      // notify other viewers
+      fireModifyNotification();
+
+      /*
+       * select next available time slice
+       */
+      final int itemCount = table.getItemCount();
+      if (itemCount > 0) {
+
+         // adjust to array bounds
+         lastSelectionIndex = Math.max(0, Math.min(lastSelectionIndex, itemCount - 1));
+
+         table.setSelection(lastSelectionIndex);
+         table.showSelection();
+
+         // fire selection position
+         _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
+      }
+   }
+
    private void enableActions() {
 
       final boolean isTourInDb = isTourInDb();
@@ -5988,6 +6129,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    private void fillContextMenu_TimeSlice(final IMenuManager menuMgr) {
+
+      menuMgr.add(_actionEditTimeSlicesValues);
+      menuMgr.add(new Separator());
 
       menuMgr.add(_actionCreateTourMarker);
       menuMgr.add(_actionOpenMarkerDialog);

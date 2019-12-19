@@ -2845,6 +2845,7 @@ public class Messages extends NLS {
 
    public static String TourEditor_Action_ComputeDistanceValuesFromGeoPosition;
    public static String TourEditor_Action_DeleteDistanceValues;
+   public static String TourEditor_Action_EditTimeSlicesValues;
    public static String TourEditor_Action_RemoveSwimStyle;
    public static String TourEditor_Action_SetAltitudeValuesFromSRTM;
    public static String TourEditor_Action_SetStartDistanceTo0;
