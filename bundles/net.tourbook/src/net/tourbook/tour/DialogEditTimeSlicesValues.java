@@ -23,7 +23,6 @@ import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.Util;
-import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -33,17 +32,12 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -56,9 +50,6 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class DialogEditTimeSlicesValues extends TitleAreaDialog {
-
-   private static final String      GRAPH_LABEL_HEARTBEAT_UNIT     = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
-   private static final String      VALUE_UNIT_K_CALORIES          = net.tourbook.ui.Messages.Value_Unit_KCalories;
 
    private final boolean            _isOSX                         = UI.IS_OSX;
    private final boolean            _isLinux                       = UI.IS_LINUX;
@@ -90,26 +81,23 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private FormToolkit        _tk;
    private Form               _formContainer;
 
-   private CLabel             _lblWeather_CloudIcon;
-
+   private Button             _button_NewValues;
+   private Button             _button_OffsetValues;
    private Button             _checkBox_Altitude_NewValue;
    private Button             _checkBox_Altitude_OffsetValue;
+   private Button             _checkBox_Pulse_NewValue;
+   private Button             _checkBox_Pulse_OffsetValue;
+   private Button             _checkBox_Cadence_NewValue;
+   private Button             _checkBox_Cadence_OffsetValue;
+   private Button             _checkBox_Temperature_NewValue;
+   private Button             _checkBox_Temperature_OffsetValue;
 
-   private Combo              _comboLocation_Start;
-   private Combo              _comboLocation_End;
    private Combo              _comboTitle;
-   private Combo              _comboWeather_Clouds;
-   private Combo              _comboWeather_Wind_DirectionText;
    private Combo              _comboNewValue_All;
    private Combo              _comboOffset_All;
 
-   private Spinner            _spinBodyWeight;
-   private Spinner            _spinFTP;
-   private Spinner            _spinRestPuls;
-   private Spinner            _spinCalories;
-   private Spinner            _spinWeather_Temperature_Avg;
    private Spinner            _spinAltitudeValue;
-   private Spinner            _spinHeartRateValue;
+   private Spinner            _spinPulseValue;
    private Spinner            _spinCadenceValue;
    private Spinner            _spinTemperatureValue;
 
@@ -160,7 +148,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
       super.create();
 
-      setTitle(Messages.dialog_quick_edit_dialog_area_title);
+      setTitle(Messages.Dialog_Edit_Timeslices_Values_Area_Title);
 
       final ZonedDateTime tourStart = _tourData.getTourStartTime();
 
@@ -212,6 +200,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       final Composite tourContainer = _formContainer.getBody();
       GridLayoutFactory.swtDefaults().applyTo(tourContainer);
       {
+         //createUI_100_Headers(tourContainer);
          createUI_200_Values(tourContainer);
       }
 
@@ -227,17 +216,59 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       UI.setEqualizeColumWidths(_firstColumnContainerControls);
    }
 
-   private void createUI_142_Weather(final Composite parent) {
+   private void createUI_200_Values(final Composite parent) {
 
       final Composite container = _tk.createComposite(parent);
       GridDataFactory.fillDefaults().span(2, 1).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(5).applyTo(container);
       {
+         /*
+          * Main checkboxes
+          */
          {
-            /*
-             * Altitude
-             */
+            _button_NewValues = new Button(container, SWT.CHECK);
+            _button_NewValues.setText("New values");
+            GridDataFactory.fillDefaults().span(4, 1).align(SWT.END, SWT.FILL).applyTo(_button_NewValues);
+            _button_NewValues.addSelectionListener(new SelectionListener() {
 
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  ToggleCheckBoxes(!_button_NewValues.getSelection());
+
+                  if (_button_NewValues.getSelection()) {
+                     _button_OffsetValues.setSelection(false);
+                  }
+               }
+
+            });
+
+            _button_OffsetValues = new Button(container, SWT.CHECK);
+            _button_OffsetValues.setText("Offset");
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_button_OffsetValues);
+            _button_OffsetValues.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  ToggleCheckBoxes(!_button_OffsetValues.getSelection());
+
+                  if (_button_OffsetValues.getSelection()) {
+                     _button_NewValues.setSelection(false);
+                  }
+               }
+
+            });
+         }
+
+         /*
+          * Altitude
+          */
+         {
             // label
             Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
@@ -252,32 +283,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _spinAltitudeValue.setMinimum(0);
             _spinAltitudeValue.setMaximum(120);
             _spinAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-
-            _spinAltitudeValue.addModifyListener(new ModifyListener() {
-               @Override
-               public void modifyText(final ModifyEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinAltitudeValue.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinAltitudeValue.addMouseWheelListener(new MouseWheelListener() {
-               @Override
-               public void mouseScrolled(final MouseEvent event) {
-                  Util.adjustSpinnerValueOnMouseScroll(event);
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
+            _spinAltitudeValue.addMouseWheelListener(_mouseWheelListener);
 
             // label: m or ft
             label = _tk.createLabel(container, UI.UNIT_LABEL_ALTITUDE);
@@ -329,64 +335,82 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
          }
 
+         /*
+          * Heart rate
+          */
          {
-            /*
-             * Heart rate
-             */
-
             // label
-            Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
+            Label label = _tk.createLabel(container, "heart rate");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _firstColumnControls.add(label);
 
             // spinner
-            _spinHeartRateValue = new Spinner(container, SWT.BORDER);
+            _spinPulseValue = new Spinner(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinAltitudeValue);
-            _spinHeartRateValue.setMinimum(0);
-            _spinHeartRateValue.setMaximum(120);
-            _spinHeartRateValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
+                  .applyTo(_spinPulseValue);
+            _spinPulseValue.setMinimum(0);
+            _spinPulseValue.setMaximum(120);
+            _spinPulseValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
+            _spinPulseValue.addMouseWheelListener(_mouseWheelListener);
 
-            _spinHeartRateValue.addModifyListener(new ModifyListener() {
-               @Override
-               public void modifyText(final ModifyEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinHeartRateValue.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinHeartRateValue.addMouseWheelListener(new MouseWheelListener() {
-               @Override
-               public void mouseScrolled(final MouseEvent event) {
-                  Util.adjustSpinnerValueOnMouseScroll(event);
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-
-            // label: m or ft
+            // label: bpm
             label = _tk.createLabel(container, "bpm");
+
+            /*
+             * checkbox: new value
+             */
+            _checkBox_Pulse_NewValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_NewValue);
+            _checkBox_Pulse_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Pulse_NewValue.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Pulse_NewValue.getSelection()) {
+                     _checkBox_Pulse_OffsetValue.setSelection(false);
+                     _spinPulseValue.setSelection(0);
+                  } else {
+                     _checkBox_Pulse_NewValue.setSelection(true);
+                  }
+               }
+            });
+
+            /*
+             * checkbox: offset
+             */
+            _checkBox_Pulse_OffsetValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_OffsetValue);
+            _checkBox_Pulse_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Pulse_OffsetValue.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Pulse_OffsetValue.getSelection()) {
+                     _checkBox_Pulse_NewValue.setSelection(false);
+                     _spinPulseValue.setSelection(0);
+                  } else {
+                     _checkBox_Pulse_OffsetValue.setSelection(true);
+                  }
+
+               }
+            });
 
          }
 
+         /*
+          * Cadence
+          */
          {
-            /*
-             * Cadence
-             */
-
             // label
-            Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
+            Label label = _tk.createLabel(container, "Cadecne");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _firstColumnControls.add(label);
 
@@ -395,39 +419,59 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinAltitudeValue);
+                  .applyTo(_spinCadenceValue);
             _spinCadenceValue.setMinimum(0);
+            //TODO
             _spinCadenceValue.setMaximum(120);
-            _spinCadenceValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-
-            _spinCadenceValue.addModifyListener(new ModifyListener() {
-               @Override
-               public void modifyText(final ModifyEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinCadenceValue.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinCadenceValue.addMouseWheelListener(new MouseWheelListener() {
-               @Override
-               public void mouseScrolled(final MouseEvent event) {
-                  Util.adjustSpinnerValueOnMouseScroll(event);
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
+            _spinCadenceValue.addMouseWheelListener(_mouseWheelListener);
 
             // label: m or ft
             label = _tk.createLabel(container, "spm");
+
+            /*
+             * checkbox: new value
+             */
+            _checkBox_Cadence_NewValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Cadence_NewValue);
+            _checkBox_Cadence_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Cadence_NewValue.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Cadence_NewValue.getSelection()) {
+                     _checkBox_Cadence_OffsetValue.setSelection(false);
+                     _spinCadenceValue.setSelection(0);
+                  } else {
+                     _checkBox_Cadence_NewValue.setSelection(true);
+                  }
+               }
+            });
+
+            /*
+             * checkbox: offset
+             */
+            _checkBox_Cadence_OffsetValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Cadence_OffsetValue);
+            _checkBox_Cadence_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Cadence_OffsetValue.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Cadence_OffsetValue.getSelection()) {
+                     _checkBox_Cadence_NewValue.setSelection(false);
+                     _spinCadenceValue.setSelection(0);
+                  } else {
+                     _checkBox_Cadence_OffsetValue.setSelection(true);
+                  }
+
+               }
+            });
 
          }
 
@@ -437,7 +481,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              */
 
             // label
-            Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
+            Label label = _tk.createLabel(container, "Temperature");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _firstColumnControls.add(label);
 
@@ -446,36 +490,11 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinAltitudeValue);
+                  .applyTo(_spinTemperatureValue);
             _spinTemperatureValue.setMinimum(0);
             _spinTemperatureValue.setMaximum(120);
             _spinTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-
-            _spinTemperatureValue.addModifyListener(new ModifyListener() {
-               @Override
-               public void modifyText(final ModifyEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinTemperatureValue.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-            _spinTemperatureValue.addMouseWheelListener(new MouseWheelListener() {
-               @Override
-               public void mouseScrolled(final MouseEvent event) {
-                  Util.adjustSpinnerValueOnMouseScroll(event);
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
+            _spinTemperatureValue.addMouseWheelListener(_mouseWheelListener);
 
             // label: m or ft
             label = _tk.createLabel(container, "spm");
@@ -484,37 +503,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
          {
             /*
-             * wind direction
+             * Latitude
              */
 
             // label
             final Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_direction);
             label.setToolTipText(Messages.tour_editor_label_wind_direction_Tooltip);
             _firstColumnControls.add(label);
-
-            // combo: wind direction text
-            _comboWeather_Wind_DirectionText = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
-            _tk.adapt(_comboWeather_Wind_DirectionText, true, false);
-            _comboWeather_Wind_DirectionText.setToolTipText(Messages.tour_editor_label_WindDirectionNESW_Tooltip);
-            _comboWeather_Wind_DirectionText.setVisibleItemCount(16);
-            GridDataFactory.fillDefaults()
-                  .align(SWT.BEGINNING, SWT.FILL)
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
-                  .applyTo(_comboWeather_Wind_DirectionText);
-            _comboWeather_Wind_DirectionText.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-
-                  if (_isUpdateUI) {
-                     return;
-                  }
-               }
-            });
-
-            // fill combobox
-            for (final String fComboCloudsUIValue : IWeather.windDirectionText) {
-               _comboWeather_Wind_DirectionText.add(fComboCloudsUIValue);
-            }
 
             // spacer
             new Label(container, SWT.NONE);
@@ -523,32 +518,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _tk.createLabel(container, Messages.Tour_Editor_Label_WindDirection_Unit);
          }
       }
-   }
-
-   private void createUI_200_Values(final Composite parent) {
-
-      GridLayoutFactory.fillDefaults()
-            .numColumns(2)
-            .spacing(20, 5)
-            .applyTo(parent);
-      {
-         createUI_142_Weather(parent);
-      }
-   }
-
-   private void createUI_SectionSeparator(final Composite parent) {
-      final Composite sep = _tk.createComposite(parent);
-      GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 5).applyTo(sep);
-   }
-
-   private void displayCloudIcon() {
-
-      final int selectionIndex = _comboWeather_Clouds.getSelectionIndex();
-
-      final String cloudKey = IWeather.cloudIcon[selectionIndex];
-      final Image cloundIcon = UI.IMAGE_REGISTRY.get(cloudKey);
-
-      _lblWeather_CloudIcon.setImage(cloundIcon);
    }
 
    private void enableControls(final SelectionEvent e) {
@@ -589,6 +558,11 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       _firstColumnContainerControls.clear();
    }
 
+   private void ToggleCheckBoxes(final boolean selection) {
+      _checkBox_Altitude_NewValue.setEnabled(selection);
+      _checkBox_Altitude_OffsetValue.setEnabled(selection);
+   }
+
    /**
     * update tourdata from the fields
     */
@@ -596,15 +570,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
       _tourData.setTourTitle(_comboTitle.getText().trim());
       //TODO_tourData.s(_txtLatitude.getText().trim());
-
-      _tourData.setTourStartPlace(_comboLocation_Start.getText().trim());
-      _tourData.setTourEndPlace(_comboLocation_End.getText().trim());
-
-      final float bodyWeight = UI.convertBodyWeightToMetric(_spinBodyWeight.getSelection());
-      _tourData.setBodyWeight(bodyWeight / 10.0f);
-      _tourData.setPower_FTP(_spinFTP.getSelection());
-      _tourData.setRestPulse(_spinRestPuls.getSelection());
-      _tourData.setCalories(_spinCalories.getSelection());
 
       if (_isWindSpeedManuallyModified) {
          /*
@@ -615,24 +580,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
          _tourData.setWeatherWindSpeed((int) (_spinAltitudeValue.getSelection() * _unitValueDistance));
       }
 
-      final int cloudIndex = _comboWeather_Clouds.getSelectionIndex();
-      String cloudValue = IWeather.cloudIcon[cloudIndex];
-      if (cloudValue.equals(UI.IMAGE_EMPTY_16)) {
-         // replace invalid cloud key
-         cloudValue = UI.EMPTY_STRING;
-      }
-      _tourData.setWeatherClouds(cloudValue);
       //TODO_tourData.setWeather(_txtLatitude.getText().trim());
-
-      if (_isTemperatureManuallyModified) {
-         float temperature = (float) _spinWeather_Temperature_Avg.getSelection() / 10;
-         if (_unitValueTemperature != 1) {
-
-            temperature = ((temperature - net.tourbook.ui.UI.UNIT_FAHRENHEIT_ADD)
-                  / net.tourbook.ui.UI.UNIT_FAHRENHEIT_MULTI);
-         }
-         _tourData.setAvgTemperature(temperature);
-      }
 
    }
 

@@ -5777,7 +5777,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          // save all tours with the new tour type
          TourManager.saveModifiedTour(_tourData);
-      }
 
       /*
        * check if time slices have a successive selection
@@ -5868,6 +5867,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          // fire selection position
          _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
+      }
       }
    }
 
