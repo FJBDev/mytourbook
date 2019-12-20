@@ -5736,7 +5736,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    /**
     * Edit time slices values :
-    * Altitude, Heartbeat, Temperature, Cadence, Latitude, Longitude
+    * Altitude, Heartbeat, Temperature, Cadence
     */
    void editTimeSlicesValues() {
 
@@ -5773,101 +5773,76 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final Object[] selectedTimeSlices = selection.toArray();
 
-      if (new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData).open() == Window.OK) {
+      if (new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData).open() != Window.OK) {
 
-         // save all tours with the new tour type
-         TourManager.saveModifiedTour(_tourData);
+         //   final check if time slices have final a successive selection
 
-      /*
-       * check if time slices have a successive selection
-       */
-      int lastIndex = -1;
-      int firstIndex = -1;
-
-      for (final Object selectedItem : selectedTimeSlices) {
-
-         final TimeSlice timeSlice = (TimeSlice) selectedItem;
-
-         if (lastIndex == -1) {
-
-            // first slice
-
-            firstIndex = lastIndex = timeSlice.serieIndex;
-
-         } else {
-
-            // 2...n slices
-
-            if (lastIndex - timeSlice.serieIndex == -1) {
-
-               // successive selection
-
-               lastIndex = timeSlice.serieIndex;
-
+         int lastIndex = -1;
+         int firstIndex = -1;
+         for (final Object selectedItem : selectedTimeSlices) {
+            final TimeSlice timeSlice = (TimeSlice) selectedItem;
+            if (lastIndex == -1) {
+               // first slice
+               firstIndex = lastIndex = timeSlice.serieIndex;
             } else {
-
-               MessageDialog.openInformation(
-                     Display.getCurrent().getActiveShell(),
-                     Messages.tour_editor_dlg_delete_rows_title,
-                     Messages.tour_editor_dlg_delete_rows_not_successive);
-               return;
+               // 2...n slices
+               if (lastIndex - timeSlice.serieIndex == -1) {
+                  // successive selection
+                  lastIndex = timeSlice.serieIndex;
+               } else {
+                  MessageDialog.openInformation(
+                        Display.getCurrent().getActiveShell(),
+                        Messages.tour_editor_dlg_delete_rows_title,
+                        Messages.tour_editor_dlg_delete_rows_not_successive);
+                  return;
+               }
             }
          }
+         // check if markers are within the selection
+         if (canDeleteMarkers(firstIndex, lastIndex) == false) {
+            return;
+         }
+         // final get first selection final index to select final a time slice final after removal
+         final Table table = (Table) _timeSlice_Viewer.getControl();
+         final int[] indices = table.getSelectionIndices();
+         Arrays.sort(indices);
+         int lastSelectionIndex = indices[0];
+         getDataSeriesFromTourData();
+         // update UI
+         updateUI_Tab_1_Tour();
+         updateUI_ReferenceTourRanges();
+         // update slice viewer
+         _timeSlice_ViewerItems = getRemainingSliceItems(_timeSlice_ViewerItems,
+               firstIndex,
+               lastIndex);
+         _timeSlice_Viewer.getControl().setRedraw(false);
+         {
+            // update viewer
+            _timeSlice_Viewer.remove(selectedTimeSlices);
+            // update serie index label
+            _timeSlice_Viewer.refresh(true);
+         }
+         _timeSlice_Viewer.getControl().setRedraw(true);
+         setTourDirty();
+         // notify other viewers
+         fireModifyNotification();
+         //   final select next available final time slice
+         final int itemCount = table.getItemCount();
+         if (itemCount > 0) {
+            // adjust to array bounds
+            lastSelectionIndex = Math.max(0, Math.min(lastSelectionIndex, itemCount - 1));
+            table.setSelection(lastSelectionIndex);
+            table.showSelection();
+            // fire selection position
+            _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
+         }
+
       }
-
-      // check if markers are within the selection
-      if (canDeleteMarkers(firstIndex, lastIndex) == false) {
-         return;
-      }
-
-      /*
-       * get first selection index to select a time slice after removal
-       */
-      final Table table = (Table) _timeSlice_Viewer.getControl();
-      final int[] indices = table.getSelectionIndices();
-      Arrays.sort(indices);
-      int lastSelectionIndex = indices[0];
-
-
-      getDataSeriesFromTourData();
-
-      // update UI
-      updateUI_Tab_1_Tour();
-      updateUI_ReferenceTourRanges();
-
-      // update slice viewer
-      _timeSlice_ViewerItems = getRemainingSliceItems(_timeSlice_ViewerItems, firstIndex, lastIndex);
-
-      _timeSlice_Viewer.getControl().setRedraw(false);
-      {
-         // update viewer
-         _timeSlice_Viewer.remove(selectedTimeSlices);
-
-         // update serie index label
-         _timeSlice_Viewer.refresh(true);
-      }
-      _timeSlice_Viewer.getControl().setRedraw(true);
-
-      setTourDirty();
-
-      // notify other viewers
-      fireModifyNotification();
-
-      /*
-       * select next available time slice
-       */
-      final int itemCount = table.getItemCount();
-      if (itemCount > 0) {
-
-         // adjust to array bounds
-         lastSelectionIndex = Math.max(0, Math.min(lastSelectionIndex, itemCount - 1));
-
-         table.setSelection(lastSelectionIndex);
-         table.showSelection();
-
-         // fire selection position
-         _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
-      }
+      else {
+         _timeSlice_Viewer.getControl().setRedraw(true);
+         setTourDirty();
+         // notify other viewers
+         fireModifyNotification();
       }
    }
 
