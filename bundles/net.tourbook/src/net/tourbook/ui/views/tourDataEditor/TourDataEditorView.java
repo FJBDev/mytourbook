@@ -5786,6 +5786,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          final int firstIndex = Integer.MAX_VALUE;
          final int lastIndex = -1;
          final int[] selectedRows = new int[selectedTimeSlices.length];
+         boolean tourDataModified = false;
          for (int index = 0; index < selectedTimeSlices.length; ++index) {
 
             final int currentTimeSliceIndex = ((TimeSlice) selectedTimeSlices[index]).serieIndex;
@@ -5795,14 +5796,20 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             if (newAltitudeValue != Float.MIN_VALUE) {
                _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
+               tourDataModified = true;
             }
+         }
+
+         if (!tourDataModified) {
+            return;
          }
 
          getDataSeriesFromTourData();
          // update UI
          updateUI_Tab_1_Tour();
          updateUI_ReferenceTourRanges();
-         // _timeSlice_Viewer.refresh(true);
+         _timeSlice_Viewer.refresh(true);
+         _timeSlice_Viewer.getTable().setSelection(12);
          //_timeSlice_Viewer.setsgetTable().select(selectedRows);
          //_timeSlice_Viewer.setsgetTable().select(selectedRows);
          //_timeSlice_Viewer.getTable().setFocus();

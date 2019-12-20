@@ -249,7 +249,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           */
          {
             // label
-            Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
+            Label label = _tk.createLabel(container, "altitude");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // spinner
