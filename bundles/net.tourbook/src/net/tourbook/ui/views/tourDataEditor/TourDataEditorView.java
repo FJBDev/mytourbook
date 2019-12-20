@@ -5773,73 +5773,39 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final Object[] selectedTimeSlices = selection.toArray();
 
-      if (new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData).open() != Window.OK) {
+      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData);
+      if (dialogEditTimeSlicesValues.open() == Window.OK) {
+
+         final float newAltitudeValue = dialogEditTimeSlicesValues.get_newAltitudeValue();
+
+         //for in the selected interval
+         //update the values in the tour data
 
          //   final check if time slices have final a successive selection
 
-         int lastIndex = -1;
-         int firstIndex = -1;
-         for (final Object selectedItem : selectedTimeSlices) {
-            final TimeSlice timeSlice = (TimeSlice) selectedItem;
-            if (lastIndex == -1) {
-               // first slice
-               firstIndex = lastIndex = timeSlice.serieIndex;
-            } else {
-               // 2...n slices
-               if (lastIndex - timeSlice.serieIndex == -1) {
-                  // successive selection
-                  lastIndex = timeSlice.serieIndex;
-               } else {
-                  MessageDialog.openInformation(
-                        Display.getCurrent().getActiveShell(),
-                        Messages.tour_editor_dlg_delete_rows_title,
-                        Messages.tour_editor_dlg_delete_rows_not_successive);
-                  return;
-               }
+         final int firstIndex = Integer.MAX_VALUE;
+         final int lastIndex = -1;
+         final int[] selectedRows = new int[selectedTimeSlices.length];
+         for (int index = 0; index < selectedTimeSlices.length; ++index) {
+
+            final int currentTimeSliceIndex = ((TimeSlice) selectedTimeSlices[index]).serieIndex;
+
+            selectedRows[index] = currentTimeSliceIndex + 1;
+            // +1 because the tableviewer rows indices start at 1
+
+            if (newAltitudeValue != Float.MIN_VALUE) {
+               _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
             }
          }
-         // check if markers are within the selection
-         if (canDeleteMarkers(firstIndex, lastIndex) == false) {
-            return;
-         }
-         // final get first selection final index to select final a time slice final after removal
-         final Table table = (Table) _timeSlice_Viewer.getControl();
-         final int[] indices = table.getSelectionIndices();
-         Arrays.sort(indices);
-         int lastSelectionIndex = indices[0];
+
          getDataSeriesFromTourData();
          // update UI
          updateUI_Tab_1_Tour();
          updateUI_ReferenceTourRanges();
-         // update slice viewer
-         _timeSlice_ViewerItems = getRemainingSliceItems(_timeSlice_ViewerItems,
-               firstIndex,
-               lastIndex);
-         _timeSlice_Viewer.getControl().setRedraw(false);
-         {
-            // update viewer
-            _timeSlice_Viewer.remove(selectedTimeSlices);
-            // update serie index label
-            _timeSlice_Viewer.refresh(true);
-         }
-         _timeSlice_Viewer.getControl().setRedraw(true);
-         setTourDirty();
-         // notify other viewers
-         fireModifyNotification();
-         //   final select next available final time slice
-         final int itemCount = table.getItemCount();
-         if (itemCount > 0) {
-            // adjust to array bounds
-            lastSelectionIndex = Math.max(0, Math.min(lastSelectionIndex, itemCount - 1));
-            table.setSelection(lastSelectionIndex);
-            table.showSelection();
-            // fire selection position
-            _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
-         }
-
-      }
-      else {
-         _timeSlice_Viewer.getControl().setRedraw(true);
+         // _timeSlice_Viewer.refresh(true);
+         //_timeSlice_Viewer.setsgetTable().select(selectedRows);
+         //_timeSlice_Viewer.setsgetTable().select(selectedRows);
+         //_timeSlice_Viewer.getTable().setFocus();
          setTourDirty();
          // notify other viewers
          fireModifyNotification();

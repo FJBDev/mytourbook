@@ -33,6 +33,8 @@ import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -87,8 +89,11 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private Spinner            _spinCadenceValue;
    private Spinner            _spinTemperatureValue;
 
+   private boolean            _isSpinAltitudeValueModified;
+
    private MouseWheelListener _mouseWheelListener;
 
+   private float              _newAltitudeValue;
 
    public DialogEditTimeSlicesValues(final Shell parentShell, final TourData tourData) {
 
@@ -153,7 +158,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       createUI(dlgAreaContainer);
 
       updateUIFromModel();
-      // enableControls();
+      enableControls();
 
       return dlgAreaContainer;
    }
@@ -257,6 +262,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _spinAltitudeValue.setMaximum(120);
             _spinAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _spinAltitudeValue.addMouseWheelListener(_mouseWheelListener);
+            _spinAltitudeValue.addModifyListener(new ModifyListener() {
+
+               @Override
+               public void modifyText(final ModifyEvent arg0) {
+                 _isSpinAltitudeValueModified = true;
+
+               }
+            });
 
             // label: m or ft
             label = _tk.createLabel(container, UI.UNIT_LABEL_ALTITUDE);
@@ -516,12 +529,16 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       }
    }
 
-   private void enableControls(final SelectionEvent e) {
+   private void enableControls() {
       //TODO If only one selected, prefill the boxes with the values
       //otherwise set the values to 0
       if (_checkBox_Altitude_NewValue.getSelection()) {
          _checkBox_Altitude_OffsetValue.setSelection(false);
       }
+   }
+
+   public float get_newAltitudeValue() {
+      return _newAltitudeValue;
    }
 
    @Override
@@ -535,12 +552,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      if (_tourData.isValidForSave() == false) {
-         // data are not valid to be saved which is done in the action which opened this dialog
-         return;
-      }
-
-      TourManager.fireEvent(TourEventId.TOUR_CHANGED, new TourEvent(_tourData));
+      _newAltitudeValue = _isSpinAltitudeValueModified ? _spinAltitudeValue.getSelection() : Float.MIN_VALUE;
 
       super.okPressed();
    }
