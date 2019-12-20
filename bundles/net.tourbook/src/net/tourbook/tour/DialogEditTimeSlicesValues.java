@@ -16,7 +16,6 @@
 package net.tourbook.tour;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -51,29 +50,22 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
-   private final boolean            _isOSX                         = UI.IS_OSX;
-   private final boolean            _isLinux                       = UI.IS_LINUX;
+   private final boolean         _isOSX                         = UI.IS_OSX;
+   private final boolean         _isLinux                       = UI.IS_LINUX;
 
-   private final TourData           _tourData;
+   private final TourData        _tourData;
 
-   private final IDialogSettings    _state;
-   private PixelConverter           _pc;
+   private final IDialogSettings _state;
+   private PixelConverter        _pc;
 
-   /**
-    * contains the controls which are displayed in the first column, these controls are used to get
-    * the maximum width and set the first column within the different section to the same width
-    */
-   private final ArrayList<Control> _firstColumnControls           = new ArrayList<>();
-   private final ArrayList<Control> _firstColumnContainerControls  = new ArrayList<>();
-   private final ArrayList<Control> _secondColumnControls          = new ArrayList<>();
+   private int                   _hintDefaultSpinnerWidth;
+   private int                   _defaultCheckBoxIndent;
 
-   private int                      _hintDefaultSpinnerWidth;
-
-   private boolean                  _isUpdateUI                    = false;
-   private boolean                  _isTemperatureManuallyModified = false;
-   private boolean                  _isWindSpeedManuallyModified   = false;
-   private float                    _unitValueDistance;
-   private float                    _unitValueTemperature;
+   private boolean               _isUpdateUI                    = false;
+   private boolean               _isTemperatureManuallyModified = false;
+   private boolean               _isWindSpeedManuallyModified   = false;
+   private float                 _unitValueDistance;
+   private float                 _unitValueTemperature;
 
    /*
     * UI controls
@@ -186,6 +178,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
       _pc = new PixelConverter(parent);
       _hintDefaultSpinnerWidth = _isLinux ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
+      _defaultCheckBoxIndent = 100;
 
       _unitValueDistance = net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
       _unitValueTemperature = net.tourbook.ui.UI.UNIT_VALUE_TEMPERATURE;
@@ -207,13 +200,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       final Label label = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
-      // compute width for all controls and equalize column width for the different sections
       tourContainer.layout(true, true);
-      UI.setEqualizeColumWidths(_firstColumnControls);
-      UI.setEqualizeColumWidths(_secondColumnControls);
-
-      tourContainer.layout(true, true);
-      UI.setEqualizeColumWidths(_firstColumnContainerControls);
    }
 
    private void createUI_200_Values(final Composite parent) {
@@ -272,7 +259,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             // label
             Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_speed);
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _firstColumnControls.add(label);
 
             // spinner
             _spinAltitudeValue = new Spinner(container, SWT.BORDER);
@@ -292,7 +278,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: new value
              */
             _checkBox_Altitude_NewValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_NewValue);
+            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_NewValue);
             _checkBox_Altitude_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Altitude_NewValue.addSelectionListener(new SelectionListener() {
 
@@ -314,7 +300,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Altitude_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_OffsetValue);
             _checkBox_Altitude_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Altitude_OffsetValue.addSelectionListener(new SelectionListener() {
 
@@ -342,7 +328,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             // label
             Label label = _tk.createLabel(container, "heart rate");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _firstColumnControls.add(label);
 
             // spinner
             _spinPulseValue = new Spinner(container, SWT.BORDER);
@@ -362,7 +347,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: new value
              */
             _checkBox_Pulse_NewValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_NewValue);
+            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_NewValue);
             _checkBox_Pulse_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Pulse_NewValue.addSelectionListener(new SelectionListener() {
 
@@ -384,7 +369,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Pulse_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_OffsetValue);
             _checkBox_Pulse_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Pulse_OffsetValue.addSelectionListener(new SelectionListener() {
 
@@ -412,7 +397,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             // label
             Label label = _tk.createLabel(container, "Cadecne");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _firstColumnControls.add(label);
 
             // spinner
             _spinCadenceValue = new Spinner(container, SWT.BORDER);
@@ -475,15 +459,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
          }
 
+         /*
+          * Temperature
+          */
          {
-            /*
-             * Temperature
-             */
-
             // label
             Label label = _tk.createLabel(container, "Temperature");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _firstColumnControls.add(label);
 
             // spinner
             _spinTemperatureValue = new Spinner(container, SWT.BORDER);
@@ -496,23 +478,70 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _spinTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _spinTemperatureValue.addMouseWheelListener(_mouseWheelListener);
 
-            // label: m or ft
-            label = _tk.createLabel(container, "spm");
+            // label: Celsius or Fahrenheit
+            label = _tk.createLabel(container, UI.UNIT_LABEL_TEMPERATURE);
+            /*
+             * checkbox: new value
+             */
+            _checkBox_Temperature_NewValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Temperature_NewValue);
+            _checkBox_Temperature_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Temperature_NewValue.addSelectionListener(new SelectionListener() {
 
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Temperature_NewValue.getSelection()) {
+                     _checkBox_Temperature_OffsetValue.setSelection(false);
+                     _spinTemperatureValue.setSelection(0);
+                  } else {
+                     _checkBox_Temperature_NewValue.setSelection(true);
+                  }
+               }
+            });
+
+            /*
+             * checkbox: offset
+             */
+            _checkBox_Temperature_OffsetValue = new Button(container, SWT.CHECK);
+            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Temperature_OffsetValue);
+            _checkBox_Temperature_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
+            _checkBox_Temperature_OffsetValue.addSelectionListener(new SelectionListener() {
+
+               @Override
+               public void widgetDefaultSelected(final SelectionEvent arg0) {}
+
+               @Override
+               public void widgetSelected(final SelectionEvent arg0) {
+                  if (_checkBox_Temperature_OffsetValue.getSelection()) {
+                     _checkBox_Temperature_NewValue.setSelection(false);
+                     _spinTemperatureValue.setSelection(0);
+                  } else {
+                     _checkBox_Temperature_OffsetValue.setSelection(true);
+                  }
+
+               }
+            });
          }
 
+         /*
+          * Latitude
+          */
          {
-            /*
-             * Latitude
-             */
 
             // label
-            final Label label = _tk.createLabel(container, Messages.tour_editor_label_wind_direction);
+            final Label label = _tk.createLabel(container, "Latitude");
             label.setToolTipText(Messages.tour_editor_label_wind_direction_Tooltip);
-            _firstColumnControls.add(label);
 
-            // spacer
-            new Label(container, SWT.NONE);
+            // spinner
+            _txtLatitude = new Text(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .applyTo(_txtLatitude);
+            _txtLatitude.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // label: direction unit = degree
             _tk.createLabel(container, Messages.Tour_Editor_Label_WindDirection_Unit);
@@ -553,9 +582,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
          _tk.dispose();
       }
 
-      _firstColumnControls.clear();
-      _secondColumnControls.clear();
-      _firstColumnContainerControls.clear();
    }
 
    private void ToggleCheckBoxes(final boolean selection) {
