@@ -5779,21 +5779,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          final float newAltitudeValue = dialogEditTimeSlicesValues.get_newAltitudeValue();
 
-         //for in the selected interval
-         //update the values in the tour data
-
-         //   final check if time slices have final a successive selection
-
-         final int firstIndex = Integer.MAX_VALUE;
-         final int lastIndex = -1;
          final int[] selectedRows = new int[selectedTimeSlices.length];
          boolean tourDataModified = false;
          for (int index = 0; index < selectedTimeSlices.length; ++index) {
 
             final int currentTimeSliceIndex = ((TimeSlice) selectedTimeSlices[index]).serieIndex;
 
-            selectedRows[index] = currentTimeSliceIndex + 1;
-            // +1 because the tableviewer rows indices start at 1
+            selectedRows[index] = currentTimeSliceIndex;
 
             if (newAltitudeValue != Float.MIN_VALUE) {
                _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
@@ -5816,14 +5808,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
          _timeSlice_Viewer.getControl().setRedraw(true);
 
-         //_timeSlice_Viewer.setsgetTable().select(selectedRows);
-         //_timeSlice_Viewer.setsgetTable().select(selectedRows);
-         //_timeSlice_Viewer.getTable().setFocus();
          setTourDirty();
          // notify other viewers
          fireModifyNotification();
 
-         selectTimeSlice_InViewer(4, 10);
+         //We select back the previously selected indices
+         final Table table = (Table) _timeSlice_Viewer.getControl();
+         table.setSelection(selectedRows);
+         table.showSelection();
       }
    }
 
