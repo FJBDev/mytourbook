@@ -5816,13 +5816,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
          _timeSlice_Viewer.getControl().setRedraw(true);
 
-         selectTimeSlice_InViewer(4, 10);
          //_timeSlice_Viewer.setsgetTable().select(selectedRows);
          //_timeSlice_Viewer.setsgetTable().select(selectedRows);
          //_timeSlice_Viewer.getTable().setFocus();
          setTourDirty();
          // notify other viewers
          fireModifyNotification();
+
+         selectTimeSlice_InViewer(4, 10);
       }
    }
 
