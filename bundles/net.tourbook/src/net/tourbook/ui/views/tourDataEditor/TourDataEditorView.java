@@ -5813,7 +5813,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _timeSlice_Viewer.getControl().setRedraw(false);
          {
             _timeSlice_Viewer.refresh(true);
-            _timeSlice_Viewer.getTable().select(12);
+            final ArrayList<Object> modifiedRowsToHighlight = new ArrayList<>();
+            for (final int selectedRow : selectedRows) {
+               modifiedRowsToHighlight.add(_timeSlice_Viewer.getElementAt(selectedRow));
+
+            }
+            //_timeSlice_Viewer.setSelection(new StructuredSelection(modifiedRowsToHighlight.toArray()), true);
+            _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection(), true);
+            //works only for 1 row : https://stackoverflow.com/questions/12889423/how-to-set-selection-in-a-tableviewer-to-a-specified-index
          }
          _timeSlice_Viewer.getControl().setRedraw(true);
          //_timeSlice_Viewer.setsgetTable().select(selectedRows);
