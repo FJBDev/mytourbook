@@ -5777,7 +5777,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData);
       if (dialogEditTimeSlicesValues.open() == Window.OK) {
 
-         final float newAltitudeValue = dialogEditTimeSlicesValues.get_newAltitudeValue();
+         final float newAltitudeValue = dialogEditTimeSlicesValues.getNewAltitudeValue();
+         final float newPulseValue = dialogEditTimeSlicesValues.getNewPulseValue();
+         final float newCadenceValue = dialogEditTimeSlicesValues.getNewCadenceValue();
+         final float newTemperatureValue = dialogEditTimeSlicesValues.getNewTemperatureValue();
 
          final int[] selectedRows = new int[selectedTimeSlices.length];
          boolean tourDataModified = false;
@@ -5787,8 +5790,41 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             selectedRows[index] = currentTimeSliceIndex;
 
-            if (newAltitudeValue != Float.MIN_VALUE) {
-               _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
+            if (newAltitudeValue != Float.MIN_VALUE && _tourData.altitudeSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsAltitudeValueOffset()) {
+                  _tourData.altitudeSerie[currentTimeSliceIndex] += newAltitudeValue;
+               } else {
+                  _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
+               }
+               tourDataModified = true;
+            }
+
+            if (newPulseValue != Float.MIN_VALUE && _tourData.pulseSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsPulseValueOffset()) {
+                  _tourData.pulseSerie[currentTimeSliceIndex] += newPulseValue;
+               } else {
+                  _tourData.pulseSerie[currentTimeSliceIndex] = newPulseValue;
+               }
+               tourDataModified = true;
+            }
+
+            final float[] cadenceSerie = _tourData.getCadenceSerie();
+            if (newCadenceValue != Float.MIN_VALUE && cadenceSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsCadenceValueOffset()) {
+                  cadenceSerie[currentTimeSliceIndex] += newCadenceValue;
+               } else {
+                  cadenceSerie[currentTimeSliceIndex] = newCadenceValue;
+               }
+               _tourData.setCadenceSerie(cadenceSerie);
+               tourDataModified = true;
+            }
+
+            if (newTemperatureValue != Float.MIN_VALUE & _tourData.temperatureSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsTemperatureValueOffset()) {
+                  _tourData.temperatureSerie[currentTimeSliceIndex] += newTemperatureValue;
+               } else {
+                  _tourData.temperatureSerie[currentTimeSliceIndex] = newTemperatureValue;
+               }
                tourDataModified = true;
             }
          }

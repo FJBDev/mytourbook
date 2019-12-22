@@ -40,7 +40,6 @@ import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -50,6 +49,7 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class DialogEditTimeSlicesValues extends TitleAreaDialog {
+//TODO enable spinner to have neative values. Do spinner support that ?
 
    private final boolean         _isOSX      = UI.IS_OSX;
    private final boolean         _isLinux    = UI.IS_LINUX;
@@ -70,8 +70,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private FormToolkit        _tk;
    private Form               _formContainer;
 
-   private Button             _button_NewValues;
-   private Button             _button_OffsetValues;
+   private Button             _checkBox_NewValues;
+   private Button             _checkBox_OffsetValues;
    private Button             _checkBox_Altitude_NewValue;
    private Button             _checkBox_Altitude_OffsetValue;
    private Button             _checkBox_Pulse_NewValue;
@@ -81,19 +81,29 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private Button             _checkBox_Temperature_NewValue;
    private Button             _checkBox_Temperature_OffsetValue;
 
-   private Combo              _comboNewValue_All;
-   private Combo              _comboOffset_All;
-
    private Spinner            _spinAltitudeValue;
    private Spinner            _spinPulseValue;
    private Spinner            _spinCadenceValue;
    private Spinner            _spinTemperatureValue;
 
+   private int                _defaultMinimumSpinnerValue = -10000;
+   private int                _defaultMaximumSpinnerValue;
+
    private boolean            _isSpinAltitudeValueModified;
+   private boolean            _isSpinPulseValueModified;
+   private boolean            _isSpinCadenceValueModified;
+   private boolean            _isSpinTemperatureValueModified;
 
    private MouseWheelListener _mouseWheelListener;
 
    private float              _newAltitudeValue;
+   private boolean            _isAltitudeValueOffset;
+   private float              _newPulseValue;
+   private boolean            _isPulseValueOffset;
+   private float              _newCadenceValue;
+   private boolean            _isCadenceValueOffset;
+   private float              _newTemperatureValue;
+   private boolean            _isTemperatureValueOffset;
 
    public DialogEditTimeSlicesValues(final Shell parentShell, final TourData tourData) {
 
@@ -205,39 +215,39 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * Main checkboxes
           */
          {
-            _button_NewValues = new Button(container, SWT.CHECK);
-            _button_NewValues.setText("New values");
-            GridDataFactory.fillDefaults().span(4, 1).indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_button_NewValues);
-            _button_NewValues.addSelectionListener(new SelectionListener() {
+            _checkBox_NewValues = new Button(container, SWT.CHECK);
+            _checkBox_NewValues.setText("New values");
+            GridDataFactory.fillDefaults().span(4, 1).indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_checkBox_NewValues);
+            _checkBox_NewValues.addSelectionListener(new SelectionListener() {
 
                @Override
                public void widgetDefaultSelected(final SelectionEvent arg0) {}
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  ToggleCheckBoxes(!_button_NewValues.getSelection());
+                  ToggleCheckBoxes(!_checkBox_NewValues.getSelection());
 
-                  if (_button_NewValues.getSelection()) {
-                     _button_OffsetValues.setSelection(false);
+                  if (_checkBox_NewValues.getSelection()) {
+                     _checkBox_OffsetValues.setSelection(false);
                   }
                }
 
             });
 
-            _button_OffsetValues = new Button(container, SWT.CHECK);
-            _button_OffsetValues.setText("Offset");
-            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_button_OffsetValues);
-            _button_OffsetValues.addSelectionListener(new SelectionListener() {
+            _checkBox_OffsetValues = new Button(container, SWT.CHECK);
+            _checkBox_OffsetValues.setText("Offset");
+            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_checkBox_OffsetValues);
+            _checkBox_OffsetValues.addSelectionListener(new SelectionListener() {
 
                @Override
                public void widgetDefaultSelected(final SelectionEvent arg0) {}
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  ToggleCheckBoxes(!_button_OffsetValues.getSelection());
+                  ToggleCheckBoxes(!_checkBox_OffsetValues.getSelection());
 
-                  if (_button_OffsetValues.getSelection()) {
-                     _button_NewValues.setSelection(false);
+                  if (_checkBox_OffsetValues.getSelection()) {
+                     _checkBox_NewValues.setSelection(false);
                   }
                }
 
@@ -258,7 +268,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_spinAltitudeValue);
-            _spinAltitudeValue.setMinimum(0);
+            _spinAltitudeValue.setMinimum(-10000000);
             _spinAltitudeValue.setMaximum(120);
             _spinAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _spinAltitudeValue.addMouseWheelListener(_mouseWheelListener);
@@ -266,7 +276,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                 _isSpinAltitudeValueModified = true;
+                  _isSpinAltitudeValueModified = true;
 
                }
             });
@@ -339,6 +349,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _spinPulseValue.setMaximum(120);
             _spinPulseValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _spinPulseValue.addMouseWheelListener(_mouseWheelListener);
+            _spinPulseValue.addModifyListener(new ModifyListener() {
+
+               @Override
+               public void modifyText(final ModifyEvent arg0) {
+                  _isSpinPulseValueModified = true;
+
+               }
+            });
 
             // label: bpm
             label = _tk.createLabel(container, "bpm");
@@ -408,6 +426,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             //TODO
             _spinCadenceValue.setMaximum(120);
             _spinCadenceValue.addMouseWheelListener(_mouseWheelListener);
+            _spinCadenceValue.addModifyListener(new ModifyListener() {
+
+               @Override
+               public void modifyText(final ModifyEvent arg0) {
+                  _isSpinCadenceValueModified = true;
+
+               }
+            });
 
             // label: m or ft
             label = _tk.createLabel(container, "spm");
@@ -477,6 +503,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _spinTemperatureValue.setMaximum(120);
             _spinTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
             _spinTemperatureValue.addMouseWheelListener(_mouseWheelListener);
+            _spinTemperatureValue.addModifyListener(new ModifyListener() {
+
+               @Override
+               public void modifyText(final ModifyEvent arg0) {
+                  _isSpinTemperatureValueModified = true;
+
+               }
+            });
 
             // label: Celsius or Fahrenheit
             label = _tk.createLabel(container, UI.UNIT_LABEL_TEMPERATURE);
@@ -535,24 +569,60 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       if (_checkBox_Altitude_NewValue.getSelection()) {
          _checkBox_Altitude_OffsetValue.setSelection(false);
       }
-   }
 
-   public float get_newAltitudeValue() {
-      return _newAltitudeValue;
+      //TODO if Hr is not available in tour, disable the fields
    }
 
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
-
-      // keep window size and position
       return _state;
-//      return null;
+   }
+
+   public boolean getIsAltitudeValueOffset() {
+      return _isAltitudeValueOffset;
+   }
+
+   public boolean getIsCadenceValueOffset() {
+      return _isCadenceValueOffset;
+   }
+
+   public boolean getIsPulseValueOffset() {
+      return _isPulseValueOffset;
+   }
+
+   public boolean getIsTemperatureValueOffset() {
+      return _isTemperatureValueOffset;
+   }
+
+   public float getNewAltitudeValue() {
+      return _newAltitudeValue;
+   }
+
+   public float getNewCadenceValue() {
+      return _newCadenceValue;
+   }
+
+   public float getNewPulseValue() {
+      return _newPulseValue;
+   }
+
+   public float getNewTemperatureValue() {
+      return _newTemperatureValue;
    }
 
    @Override
    protected void okPressed() {
 
+      //TODO convert the values to metric if needed
       _newAltitudeValue = _isSpinAltitudeValueModified ? _spinAltitudeValue.getSelection() : Float.MIN_VALUE;
+      _newPulseValue = _isSpinPulseValueModified ? _spinPulseValue.getSelection() : Float.MIN_VALUE;
+      _newCadenceValue = _isSpinCadenceValueModified ? _spinCadenceValue.getSelection() : Float.MIN_VALUE;
+      _newTemperatureValue = _isSpinTemperatureValueModified ? _spinTemperatureValue.getSelection() : Float.MIN_VALUE;
+
+      _isAltitudeValueOffset = _checkBox_OffsetValues.getSelection() || _checkBox_Altitude_OffsetValue.getSelection();
+      _isPulseValueOffset = _checkBox_OffsetValues.getSelection() || _checkBox_Pulse_OffsetValue.getSelection();
+      _isCadenceValueOffset = _checkBox_OffsetValues.getSelection() || _checkBox_Cadence_OffsetValue.getSelection();
+      _isTemperatureValueOffset = _checkBox_OffsetValues.getSelection() || _checkBox_Temperature_OffsetValue.getSelection();
 
       super.okPressed();
    }
