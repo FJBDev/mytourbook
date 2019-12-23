@@ -2500,7 +2500,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Compute altitude up/down since version 9.08
     * <p>
-    * This algorithm is abandond because it can cause very wrong values dependend on the terrain. DP
+    * This algorithm is abandoned because it can cause very wrong values depending on the terrain.
+    * DP
     * is the preferred algorithm since 14.7.
     *
     * @param segmentSerie
