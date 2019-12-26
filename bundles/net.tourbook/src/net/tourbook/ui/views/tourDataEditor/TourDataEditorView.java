@@ -5774,7 +5774,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final Object[] selectedTimeSlices = selection.toArray();
 
-      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData);
+      final int selectedIndex = selectedTimeSlices.length == 1 ? ((TimeSlice) selectedTimeSlices[0]).serieIndex : -1;
+
+      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(),
+            _tourData,
+            selectedIndex);
       if (dialogEditTimeSlicesValues.open() == Window.OK) {
 
          final float newAltitudeValue = dialogEditTimeSlicesValues.getNewAltitudeValue();
