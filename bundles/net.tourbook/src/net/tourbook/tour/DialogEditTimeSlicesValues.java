@@ -44,12 +44,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class DialogEditTimeSlicesValues extends TitleAreaDialog {
-//TODO enable spinner to have neative values. Do spinner support that ?
 
    private final boolean         _isOSX      = UI.IS_OSX;
    private final boolean         _isLinux    = UI.IS_LINUX;
@@ -83,18 +82,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private Button             _radioButton_Temperature_NewValue;
    private Button             _radioButton_Temperature_OffsetValue;
 
-   private Spinner            _spinAltitudeValue;
-   private Spinner            _spinPulseValue;
-   private Spinner            _spinCadenceValue;
-   private Spinner            _spinTemperatureValue;
+   private Text               _textAltitudeValue;
+   private Text               _textPulseValue;
+   private Text               _textCadenceValue;
+   private Text               _textTemperatureValue;
 
    private int                _defaultMinimumSpinnerValue = -10000;
    private int                _defaultMaximumSpinnerValue;
-
-   private boolean            _isSpinAltitudeValueModified;
-   private boolean            _isSpinPulseValueModified;
-   private boolean            _isSpinCadenceValueModified;
-   private boolean            _isSpinTemperatureValueModified;
 
    private MouseWheelListener _mouseWheelListener;
 
@@ -171,7 +165,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       createUI(dlgAreaContainer);
 
       updateUIFromModel();
-      enableControls();
+      //   enableControls();
 
       return dlgAreaContainer;
    }
@@ -180,7 +174,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
       _pc = new PixelConverter(parent);
       _hintDefaultSpinnerWidth = _isLinux ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
-      _defaultCheckBoxIndent = 90;
+      _defaultCheckBoxIndent = 150;
 
       _tk = new FormToolkit(parent.getDisplay());
 
@@ -228,11 +222,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  ToggleCheckBoxes(!_checkBox_NewValues.getSelection());
 
+                  //    ToggleCheckBoxes(!_checkBox_NewValues.getSelection());
                   if (_checkBox_NewValues.getSelection()) {
                      _checkBox_OffsetValues.setSelection(false);
                   }
+
+                  enableControls();
                }
 
             });
@@ -247,11 +243,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  ToggleCheckBoxes(!_checkBox_OffsetValues.getSelection());
 
+                  // ToggleCheckBoxes(!_checkBox_OffsetValues.getSelection());
                   if (_checkBox_OffsetValues.getSelection()) {
                      _checkBox_NewValues.setSelection(false);
                   }
+
+                  enableControls();
                }
 
             });
@@ -266,21 +264,17 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // spinner
-            _spinAltitudeValue = new Spinner(container, SWT.BORDER);
+            _textAltitudeValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinAltitudeValue);
-            _spinAltitudeValue.setMinimum(-10000000);
-            _spinAltitudeValue.setMaximum(120);
-            _spinAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _spinAltitudeValue.addMouseWheelListener(_mouseWheelListener);
-            _spinAltitudeValue.addModifyListener(new ModifyListener() {
+                  .applyTo(_textAltitudeValue);
+            _textAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
+            _textAltitudeValue.addMouseWheelListener(_mouseWheelListener);
+            _textAltitudeValue.addModifyListener(new ModifyListener() {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  _isSpinAltitudeValueModified = true;
-
                }
             });
 
@@ -300,12 +294,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Altitude_NewValue.getSelection()) {
-                     _radioButton_Altitude_OffsetValue.setSelection(false);
-                     _spinAltitudeValue.setSelection(0);
-                  } else {
-                     _radioButton_Altitude_NewValue.setSelection(true);
-                  }
+                  enableControls();
                }
             });
 
@@ -322,13 +311,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Altitude_OffsetValue.getSelection()) {
-                     _radioButton_Altitude_NewValue.setSelection(false);
-                     _spinAltitudeValue.setSelection(0);
-                  } else {
-                     _radioButton_Altitude_OffsetValue.setSelection(true);
-                  }
-
+                  enableControls();
                }
             });
 
@@ -343,20 +326,18 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // spinner
-            _spinPulseValue = new Spinner(container, SWT.BORDER);
+            _textPulseValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinPulseValue);
-            _spinPulseValue.setMinimum(0);
-            _spinPulseValue.setMaximum(120);
-            _spinPulseValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _spinPulseValue.addMouseWheelListener(_mouseWheelListener);
-            _spinPulseValue.addModifyListener(new ModifyListener() {
+                  .applyTo(_textPulseValue);
+            _textPulseValue.setEnabled(false);
+            _textPulseValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
+            _textPulseValue.addMouseWheelListener(_mouseWheelListener);
+            _textPulseValue.addModifyListener(new ModifyListener() {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  _isSpinPulseValueModified = true;
 
                }
             });
@@ -377,12 +358,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Pulse_NewValue.getSelection()) {
-                     _radioButton_Pulse_OffsetValue.setSelection(false);
-                     _spinPulseValue.setSelection(0);
-                  } else {
-                     _radioButton_Pulse_NewValue.setSelection(true);
-                  }
+                  enableControls();
                }
             });
 
@@ -399,13 +375,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Pulse_OffsetValue.getSelection()) {
-                     _radioButton_Pulse_NewValue.setSelection(false);
-                     _spinPulseValue.setSelection(0);
-                  } else {
-                     _radioButton_Pulse_OffsetValue.setSelection(true);
-                  }
-
+                  enableControls();
                }
             });
 
@@ -420,20 +390,16 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // spinner
-            _spinCadenceValue = new Spinner(container, SWT.BORDER);
+            _textCadenceValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinCadenceValue);
-            _spinCadenceValue.setMinimum(0);
-            //TODO
-            _spinCadenceValue.setMaximum(120);
-            _spinCadenceValue.addMouseWheelListener(_mouseWheelListener);
-            _spinCadenceValue.addModifyListener(new ModifyListener() {
+                  .applyTo(_textCadenceValue);
+            _textCadenceValue.addMouseWheelListener(_mouseWheelListener);
+            _textCadenceValue.addModifyListener(new ModifyListener() {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  _isSpinCadenceValueModified = true;
 
                }
             });
@@ -454,12 +420,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Cadence_NewValue.getSelection()) {
-                     _radioButton_Cadence_OffsetValue.setSelection(false);
-                     _spinCadenceValue.setSelection(0);
-                  } else {
-                     _radioButton_Cadence_NewValue.setSelection(true);
-                  }
+                  enableControls();
                }
             });
 
@@ -476,13 +437,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Cadence_OffsetValue.getSelection()) {
-                     _radioButton_Cadence_NewValue.setSelection(false);
-                     _spinCadenceValue.setSelection(0);
-                  } else {
-                     _radioButton_Cadence_OffsetValue.setSelection(true);
-                  }
-
+                  enableControls();
                }
             });
 
@@ -497,19 +452,17 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
             // spinner
-            _spinTemperatureValue = new Spinner(container, SWT.BORDER);
+            _textTemperatureValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinTemperatureValue);
-            _spinTemperatureValue.setMaximum(120);
-            _spinTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
-            _spinTemperatureValue.addMouseWheelListener(_mouseWheelListener);
-            _spinTemperatureValue.addModifyListener(new ModifyListener() {
+                  .applyTo(_textTemperatureValue);
+            _textTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
+            _textTemperatureValue.addMouseWheelListener(_mouseWheelListener);
+            _textTemperatureValue.addModifyListener(new ModifyListener() {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  _isSpinTemperatureValueModified = true;
 
                }
             });
@@ -530,12 +483,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Temperature_NewValue.getSelection()) {
-                     _radioButton_Temperature_OffsetValue.setSelection(false);
-                     _spinTemperatureValue.setSelection(0);
-                  } else {
-                     _radioButton_Temperature_NewValue.setSelection(true);
-                  }
+                  enableControls();
                }
             });
 
@@ -552,55 +500,72 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_radioButton_Temperature_OffsetValue.getSelection()) {
-                     _radioButton_Temperature_NewValue.setSelection(false);
-                     _spinTemperatureValue.setSelection(0);
-                  } else {
-                     _radioButton_Temperature_OffsetValue.setSelection(true);
-                  }
-
+                  enableControls();
                }
             });
          }
       }
    }
 
-   private void disableCadenceControls() {
-      _spinCadenceValue.setEnabled(false);
-      _radioButton_Cadence_NewValue.setEnabled(false);
-      _radioButton_Cadence_OffsetValue.setEnabled(false);
+   private void enableAltitudeControls(final boolean enableText, final boolean enableRadioButtons) {
+      _textAltitudeValue.setEnabled(enableText);
+      _radioButton_Altitude_NewValue.setEnabled(enableRadioButtons);
+      _radioButton_Altitude_OffsetValue.setEnabled(enableRadioButtons);
 
    }
 
-   private void disablePulseControls() {
-      _spinPulseValue.setEnabled(false);
-      _radioButton_Pulse_NewValue.setEnabled(false);
-      _radioButton_Pulse_OffsetValue.setEnabled(false);
-   }
-
-   private void disableTemperatureControls() {
-      _spinTemperatureValue.setEnabled(false);
-      _radioButton_Temperature_NewValue.setEnabled(false);
-      _radioButton_Temperature_OffsetValue.setEnabled(false);
+   private void enableCadenceControls(final boolean enableText, final boolean enableRadioButtons) {
+      _textCadenceValue.setEnabled(enableText);
+      _radioButton_Cadence_NewValue.setEnabled(enableRadioButtons);
+      _radioButton_Cadence_OffsetValue.setEnabled(enableRadioButtons);
 
    }
 
    private void enableControls() {
-      //TODO If only one selected, prefill the boxes with the values
-      //otherwise set the values to 0
-      if (_radioButton_Altitude_NewValue.getSelection()) {
-         _radioButton_Altitude_OffsetValue.setSelection(false);
+      final boolean isOverallButtonChecked = _checkBox_NewValues.getSelection() ||
+            _checkBox_OffsetValues.getSelection();
+
+      if (_tourData.altitudeSerie == null) {
+         enableAltitudeControls(false, false);
+      } else {
+         final boolean enableRadioButtons = !isOverallButtonChecked;
+         enableAltitudeControls(true, enableRadioButtons);
       }
 
-      if (_tourData.pulseSerie == null) {
-         disablePulseControls();
+      if (_tourData.pulseSerie == null ) {
+         enablePulseControls(false, false);
+      } else {
+         final boolean enableRadioButtons = !isOverallButtonChecked;
+         enablePulseControls(true, enableRadioButtons);
       }
-      if (_tourData.temperatureSerie == null) {
-         disableTemperatureControls();
-      }
+
       if (_tourData.getCadenceSerie() == null) {
-         disableCadenceControls();
+         enableCadenceControls(false, false);
+      } else {
+         final boolean enableRadioButtons = !isOverallButtonChecked;
+         enableCadenceControls(true, enableRadioButtons);
       }
+
+      if (_tourData.temperatureSerie == null) {
+         enableTemperatureControls(false, false);
+      } else {
+         final boolean enableRadioButtons = !isOverallButtonChecked;
+         enableTemperatureControls(true, enableRadioButtons);
+      }
+
+   }
+
+   private void enablePulseControls(final boolean enableText, final boolean enableRadioButtons) {
+      _textPulseValue.setEnabled(enableText);
+      _radioButton_Pulse_NewValue.setEnabled(enableRadioButtons);
+      _radioButton_Pulse_OffsetValue.setEnabled(enableRadioButtons);
+   }
+
+   private void enableTemperatureControls(final boolean enableText, final boolean enableRadioButtons) {
+      _textTemperatureValue.setEnabled(enableText);
+      _radioButton_Temperature_NewValue.setEnabled(enableRadioButtons);
+      _radioButton_Temperature_OffsetValue.setEnabled(enableRadioButtons);
+
    }
 
    @Override
@@ -644,10 +609,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    protected void okPressed() {
 
       //TODO convert the values to metric if needed
-      _newAltitudeValue = _isSpinAltitudeValueModified ? _spinAltitudeValue.getSelection() : Float.MIN_VALUE;
-      _newPulseValue = _isSpinPulseValueModified ? _spinPulseValue.getSelection() : Float.MIN_VALUE;
-      _newCadenceValue = _isSpinCadenceValueModified ? _spinCadenceValue.getSelection() : Float.MIN_VALUE;
-      _newTemperatureValue = _isSpinTemperatureValueModified ? _spinTemperatureValue.getSelection() : Float.MIN_VALUE;
+      final String altitudeValue = _textAltitudeValue.getText();
+      _newAltitudeValue = !altitudeValue.equals("") ? Float.parseFloat(altitudeValue) : Float.MIN_VALUE;
+      final String pulseValue = _textPulseValue.getText();
+      _newPulseValue = !pulseValue.equals("") ? Float.parseFloat(pulseValue) : Float.MIN_VALUE;
+      final String cadenceValue = _textCadenceValue.getText();
+      _newCadenceValue = !cadenceValue.equals("") ? Float.parseFloat(cadenceValue) : Float.MIN_VALUE;
+      final String temperatureValue = _textTemperatureValue.getText();
+      _newTemperatureValue = !temperatureValue.equals("") ? Float.parseFloat(temperatureValue) : Float.MIN_VALUE;
 
       _isAltitudeValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Altitude_OffsetValue.getSelection();
       _isPulseValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Pulse_OffsetValue.getSelection();
@@ -689,14 +658,14 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
    private void updateUIFromModel() {
 
-      if(_selectedIndex ==-1) {
+      if (_selectedIndex == -1) {
          return;
       }
 
       _isUpdateUI = true;
       {
          final int altitudeUnit = (int) (_tourData.altitudeSerie[_selectedIndex] * 10 / UI.UNIT_VALUE_TEMPERATURE);
-         _spinAltitudeValue.setSelection(altitudeUnit);
+         // _spinAltitudeValue.setSelection(altitudeUnit);
 
       }
       _isUpdateUI = false;
