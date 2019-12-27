@@ -49,8 +49,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
-   private final boolean         _isOSX                     = UI.IS_OSX;
-   private final boolean         _isLinux                   = UI.IS_LINUX;
+   private final boolean         _isOSX                          = UI.IS_OSX;
+   private final boolean         _isLinux                        = UI.IS_LINUX;
 
    private final TourData        _tourData;
    private final boolean         _isAltitudeSerieValid;
@@ -62,9 +62,9 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private final IDialogSettings _state;
    private PixelConverter        _pc;
 
-   private int                   _hintDefaultSpinnerWidth;
-   private int                   _newValuesRadioButtonsIndent = 40;
-   private int                   _offsetValuesRadioButtonsIndent    = 100;
+   private int                   _hintDefaultTextWidth;
+   private int                   _newValuesRadioButtonsIndent    = 40;
+   private int                   _offsetValuesRadioButtonsIndent = 100;
 
    /*
     * UI controls
@@ -180,7 +180,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * radio button: offset
           */
          _radioButton_Altitude_OffsetValue = new Button(container, SWT.RADIO);
-         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_radioButton_Altitude_OffsetValue);
+         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(
+               _radioButton_Altitude_OffsetValue);
          _radioButton_Altitude_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
          _radioButton_Altitude_OffsetValue.addSelectionListener(_radioButtonSelectionListener);
       }
@@ -205,7 +206,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * radio button: offset
           */
          _radioButton_Pulse_OffsetValue = new Button(container, SWT.RADIO);
-         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_radioButton_Pulse_OffsetValue);
+         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(
+               _radioButton_Pulse_OffsetValue);
          _radioButton_Pulse_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
          _radioButton_Pulse_OffsetValue.addSelectionListener(_radioButtonSelectionListener);
       }
@@ -230,7 +232,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * radio button: offset
           */
          _radioButton_Cadence_OffsetValue = new Button(container, SWT.RADIO);
-         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_radioButton_Cadence_OffsetValue);
+         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(
+               _radioButton_Cadence_OffsetValue);
          _radioButton_Cadence_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
          _radioButton_Cadence_OffsetValue.addSelectionListener(_radioButtonSelectionListener);
       }
@@ -245,7 +248,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * radio button: new value
           */
          _radioButton_Temperature_NewValue = new Button(container, SWT.RADIO);
-         GridDataFactory.fillDefaults().indent(_newValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_radioButton_Temperature_NewValue);
+         GridDataFactory.fillDefaults().indent(_newValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(
+               _radioButton_Temperature_NewValue);
          _radioButton_Temperature_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
          _radioButton_Temperature_NewValue.setSelection(_isTemperatureSerieValid);
          _radioButton_Temperature_NewValue.addSelectionListener(_radioButtonSelectionListener);
@@ -254,7 +258,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
           * radio button: offset
           */
          _radioButton_Temperature_OffsetValue = new Button(container, SWT.RADIO);
-         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_radioButton_Temperature_OffsetValue);
+         GridDataFactory.fillDefaults().indent(_offsetValuesRadioButtonsIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(
+               _radioButton_Temperature_OffsetValue);
          _radioButton_Temperature_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
          _radioButton_Temperature_OffsetValue.addSelectionListener(_radioButtonSelectionListener);
       }
@@ -288,8 +293,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
    private void createUI(final Composite parent) {
 
+      //TODO : Strings to externalize and englih / french translation
+      //TODO general clean up : variable names....
       _pc = new PixelConverter(parent);
-      _hintDefaultSpinnerWidth = _isLinux ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
+      _hintDefaultTextWidth = _isLinux ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
 
       _tk = new FormToolkit(parent.getDisplay());
 
@@ -370,10 +377,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             Label label = _tk.createLabel(container, "altitude");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
-            // spinner
+            // text
             _textAltitudeValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .hint(_hintDefaultTextWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_textAltitudeValue);
             _textAltitudeValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
@@ -404,10 +411,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             Label label = _tk.createLabel(container, "heart rate");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
-            // spinner
+            // text
             _textPulseValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .hint(_hintDefaultTextWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_textPulseValue);
             _textPulseValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
@@ -437,10 +444,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             Label label = _tk.createLabel(container, "Cadecne");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
-            // spinner
+            // text
             _textCadenceValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .hint(_hintDefaultTextWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_textCadenceValue);
             _textCadenceValue.addModifyListener(new ModifyListener() {
@@ -467,10 +474,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             Label label = _tk.createLabel(container, "Temperature");
             label.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
 
-            // spinner
+            // text
             _textTemperatureValue = new Text(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .hint(_hintDefaultTextWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_textTemperatureValue);
             _textTemperatureValue.setToolTipText(Messages.tour_editor_label_wind_speed_Tooltip);
@@ -535,7 +542,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       _textTemperatureValue.setEnabled(enable);
       _radioButton_Temperature_NewValue.setEnabled(enable);
       _radioButton_Temperature_OffsetValue.setEnabled(enable);
-
    }
 
    @Override
@@ -610,15 +616,19 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      //TODO convert the values to metric if needed
       final String altitudeValue = _textAltitudeValue.getText();
-      _newAltitudeValue = !altitudeValue.equals("") ? StringToNumberConverter.toFloat(true).convert(altitudeValue) : Float.MIN_VALUE;
+      _newAltitudeValue = !altitudeValue.equals("") ? StringToNumberConverter.toFloat(true).convert(altitudeValue)
+            * net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE : Float.MIN_VALUE;
+
       final String pulseValue = _textPulseValue.getText();
       _newPulseValue = !pulseValue.equals("") ? StringToNumberConverter.toInteger(true).convert(pulseValue) : Float.MIN_VALUE;
+
       final String cadenceValue = _textCadenceValue.getText();
       _newCadenceValue = !cadenceValue.equals("") ? StringToNumberConverter.toFloat(true).convert(cadenceValue) : Float.MIN_VALUE;
+
       final String temperatureValue = _textTemperatureValue.getText();
-      _newTemperatureValue = !temperatureValue.equals("") ? StringToNumberConverter.toFloat(true).convert(temperatureValue) : Float.MIN_VALUE;
+      _newTemperatureValue = !temperatureValue.equals("") ? UI.convertTemperatureToMetric(StringToNumberConverter.toFloat(true).convert(
+            temperatureValue)) : Float.MIN_VALUE;
 
       _isAltitudeValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Altitude_OffsetValue.getSelection();
       _isPulseValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Pulse_OffsetValue.getSelection();
@@ -633,7 +643,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       if (_tk != null) {
          _tk.dispose();
       }
-
    }
 
    private void ToggleRadioButtons(final boolean checkAllNewValues) {
@@ -676,11 +685,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
    private void updateUIFromModel() {
 
+      //If several rows were selected, we don't need to update the UI
       if (_selectedIndex == -1) {
          return;
       }
 
-      final float altitudeToUnit = _tourData.altitudeSerie[_selectedIndex] / UI.UNIT_VALUE_TEMPERATURE;
+      float altitudeToUnit = _tourData.altitudeSerie[_selectedIndex] / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+      altitudeToUnit = (float) (Math.round(altitudeToUnit * 10.0) / 10.0);
       _textAltitudeValue.setText(NumberToStringConverter.fromFloat(true).convert(altitudeToUnit));
 
       final int pulse = (int) (_tourData.pulseSerie[_selectedIndex]);
@@ -689,7 +700,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       final float cadence = _tourData.getCadenceSerie()[_selectedIndex];
       _textCadenceValue.setText(NumberToStringConverter.fromFloat(true).convert(cadence));
 
-      final float temperatureToUnit = _tourData.temperatureSerie[_selectedIndex] / UI.UNIT_VALUE_TEMPERATURE;
+      float temperatureToUnit = UI.convertTemperatureFromMetric(_tourData.temperatureSerie[_selectedIndex]);
+      temperatureToUnit = (float) (Math.round(temperatureToUnit * 10.0) / 10.0);
       _textTemperatureValue.setText(NumberToStringConverter.fromFloat(true).convert(temperatureToUnit));
 
    }
