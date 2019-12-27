@@ -65,7 +65,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private PixelConverter        _pc;
 
    private int                   _hintDefaultSpinnerWidth;
-   private int                   _defaultCheckBoxIndent;
+   private int                   _offsetCheckboxesIndent = 35;
 
    private boolean               _isUpdateUI = false;
 
@@ -189,7 +189,6 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
       _pc = new PixelConverter(parent);
       _hintDefaultSpinnerWidth = _isLinux ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
-      _defaultCheckBoxIndent = 150;
 
       _tk = new FormToolkit(parent.getDisplay());
 
@@ -229,7 +228,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
          {
             _checkBox_NewValues = new Button(container, SWT.CHECK);
             _checkBox_NewValues.setText("New values");
-            GridDataFactory.fillDefaults().span(4, 1).indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_checkBox_NewValues);
+            GridDataFactory.fillDefaults().span(4, 1).indent(175, 0).align(SWT.END, SWT.FILL).applyTo(_checkBox_NewValues);
             _checkBox_NewValues.setSelection(true);
             _checkBox_NewValues.addSelectionListener(new SelectionListener() {
 
@@ -249,8 +248,8 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             });
 
             _checkBox_OffsetValues = new Button(container, SWT.CHECK);
-            _checkBox_OffsetValues.setText("Offset");
-            GridDataFactory.fillDefaults().indent(_defaultCheckBoxIndent, 0).align(SWT.END, SWT.FILL).applyTo(_checkBox_OffsetValues);
+            _checkBox_OffsetValues.setText("Offset values");
+            GridDataFactory.fillDefaults().indent(_offsetCheckboxesIndent, 0).align(SWT.BEGINNING, SWT.FILL).applyTo(_checkBox_OffsetValues);
             _checkBox_OffsetValues.addSelectionListener(new SelectionListener() {
 
                @Override
@@ -319,7 +318,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Altitude_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_offsetCheckboxesIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_OffsetValue);
             _checkBox_Altitude_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Altitude_OffsetValue.addSelectionListener(new SelectionListener() {
 
@@ -388,7 +387,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Pulse_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_offsetCheckboxesIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_OffsetValue);
             _checkBox_Pulse_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Pulse_OffsetValue.addSelectionListener(new SelectionListener() {
 
@@ -456,7 +455,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Cadence_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Cadence_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_offsetCheckboxesIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Cadence_OffsetValue);
             _checkBox_Cadence_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Cadence_OffsetValue.addSelectionListener(new SelectionListener() {
 
@@ -525,7 +524,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
              * checkbox: offset
              */
             _checkBox_Temperature_OffsetValue = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Temperature_OffsetValue);
+            GridDataFactory.fillDefaults().indent(_offsetCheckboxesIndent, 0).align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Temperature_OffsetValue);
             _checkBox_Temperature_OffsetValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
             _checkBox_Temperature_OffsetValue.addSelectionListener(new SelectionListener() {
 
