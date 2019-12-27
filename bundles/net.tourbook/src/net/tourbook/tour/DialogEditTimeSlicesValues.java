@@ -27,7 +27,6 @@ import net.tourbook.data.TourData;
 import org.eclipse.core.databinding.conversion.StringToNumberConverter;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -56,6 +55,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private final boolean         _isLinux    = UI.IS_LINUX;
 
    private final TourData        _tourData;
+   private final boolean         _isAltitudeSerieValid;
+   private final boolean         _isPulseSerieValid;
+   private final boolean         _isCadenceSerieValid;
+   private final boolean         _isTemperatureSerieValid;
    private final int             _selectedIndex;
 
    private final IDialogSettings _state;
@@ -117,6 +120,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
 
       _tourData = tourData;
+      _isAltitudeSerieValid = _tourData.altitudeSerie != null;
+      _isPulseSerieValid = _tourData.pulseSerie != null;
+      _isCadenceSerieValid = _tourData.getCadenceSerie() != null;
+      _isTemperatureSerieValid = _tourData.temperatureSerie != null;
       _selectedIndex = selectedIndex;
 
       _state = TourbookPlugin.getDefault().getDialogSettingsSection(getClass().getName());
@@ -282,12 +289,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  try {
-                     Float.parseFloat(_textAltitudeValue.getText());
-                     _isAltitudeValueValid = true;
-                  } catch (final NumberFormatException e) {
-                     _isAltitudeValueValid = false;
-                  }
+                  _isAltitudeValueValid = isFloatValid(_textAltitudeValue.getText());
                   enableSaveButton();
                }
             });
@@ -301,7 +303,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _checkBox_Altitude_NewValue = new Button(container, SWT.CHECK);
             GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Altitude_NewValue);
             _checkBox_Altitude_NewValue.setToolTipText("toto");
-            _checkBox_Altitude_NewValue.setSelection(true);
+            _checkBox_Altitude_NewValue.setSelection(_isAltitudeSerieValid);
             _checkBox_Altitude_NewValue.addSelectionListener(new SelectionListener() {
 
                @Override
@@ -309,9 +311,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_checkBox_Altitude_NewValue.getSelection()) {
-                     _checkBox_Altitude_OffsetValue.setSelection(false);
-                  }
+                  _checkBox_Altitude_OffsetValue.setSelection(!_checkBox_Altitude_NewValue.getSelection());
                }
             });
 
@@ -328,9 +328,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void widgetSelected(final SelectionEvent arg0) {
-                  if (_checkBox_Altitude_OffsetValue.getSelection()) {
-                     _checkBox_Altitude_NewValue.setSelection(false);
-                  }
+                  _checkBox_Altitude_NewValue.setSelection(!_checkBox_Altitude_OffsetValue.getSelection());
                }
             });
 
@@ -356,66 +354,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  try {
-                     final String toto = _textPulseValue.getText();
-                     Float.parseFloat(_textPulseValue.getText());
-                     _isPulseValueValid = true;
-                  } catch (final NumberFormatException e) {
-                     _isPulseValueValid = false;
-                  }
-                  final Text titi = (Text) arg0.getSource();
-                  final String tata = titi.getText();
 
-                  //reuse this
-                  if (_isSetField || _isSavingInProgress) {
-                     return;
-                  }
-
-                  final Text widget = (Text) event.widget;
-                  final String valueText = widget.getText().trim();
-
-                  if (valueText.length() > 0) {
-                     try {
-
-                        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        //
-                        // Float.parseFloat() ignores localized strings therefore the databinding converter is used
-                        // which provides also a good error message
-                        //
-                        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                        StringToNumberConverter.toFloat(true).convert(valueText);
-
-                        _messageManager.removeMessage(widget.getData(WIDGET_KEY), widget);
-
-                     } catch (final IllegalArgumentException e) {
-
-                        // wrong characters are entered, display an error message
-
-                        _messageManager.addMessage(
-                              widget.getData(WIDGET_KEY),
-                              e.getLocalizedMessage(),
-                              null,
-                              IMessageProvider.ERROR,
-                              widget);
-                     }
-                  }
-
-                  /*
-                   * tour dirty must be set after validation because an error can occur which
-                   * enables
-                   * actions
-                   */
-                  if (_isTourDirty) {
-                     /*
-                      * when an error occurred previously and is now solved, the save action must be
-                      * enabled
-                      */
-                     enableActions();
-                  } else {
-                     setTourDirty();
-                  }
+                  _isPulseValueValid = isFloatValid(_textPulseValue.getText());
                   enableSaveButton();
+
                }
             });
 
@@ -428,7 +370,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _checkBox_Pulse_NewValue = new Button(container, SWT.CHECK);
             GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Pulse_NewValue);
             //_radioButton_Pulse_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
-            _checkBox_Pulse_NewValue.setSelection(true);
+            _checkBox_Pulse_NewValue.setSelection(_isPulseSerieValid);
             _checkBox_Pulse_NewValue.addSelectionListener(new SelectionListener() {
 
                @Override
@@ -482,12 +424,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  try {
-                     Float.parseFloat(_textCadenceValue.getText());
-                     _isCadenceValueValid = true;
-                  } catch (final NumberFormatException e) {
-                     _isCadenceValueValid = false;
-                  }
+                  _isCadenceValueValid = isFloatValid(_textCadenceValue.getText());
                   enableSaveButton();
                }
             });
@@ -501,7 +438,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _checkBox_Cadence_NewValue = new Button(container, SWT.CHECK);
             GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Cadence_NewValue);
             _checkBox_Cadence_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
-            _checkBox_Cadence_NewValue.setSelection(true);
+            _checkBox_Cadence_NewValue.setSelection(_isCadenceSerieValid);
             _checkBox_Cadence_NewValue.addSelectionListener(new SelectionListener() {
 
                @Override
@@ -556,12 +493,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
 
                @Override
                public void modifyText(final ModifyEvent arg0) {
-                  try {
-                     Float.parseFloat(_textTemperatureValue.getText());
-                     _isTemperatureValueValid = true;
-                  } catch (final NumberFormatException e) {
-                     _isTemperatureValueValid = false;
-                  }
+                  _isTemperatureValueValid = isFloatValid(_textTemperatureValue.getText());
                   enableSaveButton();
                }
             });
@@ -575,7 +507,7 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
             _checkBox_Temperature_NewValue = new Button(container, SWT.CHECK);
             GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_checkBox_Temperature_NewValue);
             _checkBox_Temperature_NewValue.setToolTipText(Messages.Dialog_HRZone_Label_Trash_Tooltip);
-            _checkBox_Temperature_NewValue.setSelection(true);
+            _checkBox_Temperature_NewValue.setSelection(_isTemperatureSerieValid);
             _checkBox_Temperature_NewValue.addSelectionListener(new SelectionListener() {
 
                @Override
@@ -611,58 +543,35 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       }
    }
 
-   private void enableAltitudeControls(final boolean enableText, final boolean enableRadioButtons) {
-      _textAltitudeValue.setEnabled(enableText);
-      _checkBox_Altitude_NewValue.setEnabled(enableRadioButtons);
-      _checkBox_Altitude_OffsetValue.setEnabled(enableRadioButtons);
+   private void enableAltitudeControls(final boolean enable) {
+      _textAltitudeValue.setEnabled(enable);
+      _checkBox_Altitude_NewValue.setEnabled(enable);
+      _checkBox_Altitude_OffsetValue.setEnabled(enable);
 
    }
 
-   private void enableCadenceControls(final boolean enableText, final boolean enableRadioButtons) {
-      _textCadenceValue.setEnabled(enableText);
-      _checkBox_Cadence_NewValue.setEnabled(enableRadioButtons);
-      _checkBox_Cadence_OffsetValue.setEnabled(enableRadioButtons);
+   private void enableCadenceControls(final boolean enable) {
+      _textCadenceValue.setEnabled(enable);
+      _checkBox_Cadence_NewValue.setEnabled(enable);
+      _checkBox_Cadence_OffsetValue.setEnabled(enable);
 
    }
 
    private void enableControls() {
-      final boolean isOverallButtonChecked = _checkBox_NewValues.getSelection() ||
-            _checkBox_OffsetValues.getSelection();
+      enableAltitudeControls(_isAltitudeSerieValid);
 
-      if (_tourData.altitudeSerie == null) {
-         enableAltitudeControls(false, false);
-      } else {
-         final boolean enableRadioButtons = !isOverallButtonChecked;
-         enableAltitudeControls(true, enableRadioButtons);
-      }
+      enablePulseControls(_isPulseSerieValid);
 
-      if (_tourData.pulseSerie == null) {
-         enablePulseControls(false, false);
-      } else {
-         final boolean enableRadioButtons = !isOverallButtonChecked;
-         enablePulseControls(true, enableRadioButtons);
-      }
+      enableCadenceControls(_isCadenceSerieValid);
 
-      if (_tourData.getCadenceSerie() == null) {
-         enableCadenceControls(false, false);
-      } else {
-         final boolean enableRadioButtons = !isOverallButtonChecked;
-         enableCadenceControls(true, enableRadioButtons);
-      }
-
-      if (_tourData.temperatureSerie == null) {
-         enableTemperatureControls(false, false);
-      } else {
-         final boolean enableRadioButtons = !isOverallButtonChecked;
-         enableTemperatureControls(true, enableRadioButtons);
-      }
+      enableTemperatureControls(_isTemperatureSerieValid);
 
    }
 
-   private void enablePulseControls(final boolean enableText, final boolean enableRadioButtons) {
-      _textPulseValue.setEnabled(enableText);
-      _checkBox_Pulse_NewValue.setEnabled(enableRadioButtons);
-      _checkBox_Pulse_OffsetValue.setEnabled(enableRadioButtons);
+   private void enablePulseControls(final boolean enable) {
+      _textPulseValue.setEnabled(enable);
+      _checkBox_Pulse_NewValue.setEnabled(enable);
+      _checkBox_Pulse_OffsetValue.setEnabled(enable);
    }
 
    private void enableSaveButton() {
@@ -674,10 +583,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       }
    }
 
-   private void enableTemperatureControls(final boolean enableText, final boolean enableRadioButtons) {
-      _textTemperatureValue.setEnabled(enableText);
-      _checkBox_Temperature_NewValue.setEnabled(enableRadioButtons);
-      _checkBox_Temperature_OffsetValue.setEnabled(enableRadioButtons);
+   private void enableTemperatureControls(final boolean enable) {
+      _textTemperatureValue.setEnabled(enable);
+      _checkBox_Temperature_NewValue.setEnabled(enable);
+      _checkBox_Temperature_OffsetValue.setEnabled(enable);
 
    }
 
@@ -718,6 +627,25 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       return _newTemperatureValue;
    }
 
+   private boolean isFloatValid(final String floatValueText) {
+
+      boolean isFloatValid = false;
+
+      final String valueText = floatValueText.trim();
+
+      try {
+
+         StringToNumberConverter.toFloat(true).convert(valueText);
+
+         isFloatValid = true;
+
+      } catch (final IllegalArgumentException e) {
+
+      }
+
+      return isFloatValid;
+   }
+
    @Override
    protected void okPressed() {
 
@@ -748,15 +676,16 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    }
 
    private void ToggleCheckBoxes(final boolean checkAllNewValues) {
-      _checkBox_Altitude_NewValue.setSelection(checkAllNewValues);
-      _checkBox_Pulse_NewValue.setSelection(checkAllNewValues);
-      _checkBox_Cadence_NewValue.setSelection(checkAllNewValues);
-      _checkBox_Temperature_NewValue.setSelection(checkAllNewValues);
 
-      _checkBox_Altitude_OffsetValue.setSelection(!checkAllNewValues);
-      _checkBox_Pulse_OffsetValue.setSelection(!checkAllNewValues);
-      _checkBox_Cadence_OffsetValue.setSelection(!checkAllNewValues);
-      _checkBox_Temperature_OffsetValue.setSelection(!checkAllNewValues);
+      _checkBox_Altitude_NewValue.setSelection(checkAllNewValues && _isAltitudeSerieValid);
+      _checkBox_Pulse_NewValue.setSelection(checkAllNewValues && _isPulseSerieValid);
+      _checkBox_Cadence_NewValue.setSelection(checkAllNewValues && _isCadenceSerieValid);
+      _checkBox_Temperature_NewValue.setSelection(checkAllNewValues && _isTemperatureSerieValid);
+
+      _checkBox_Altitude_OffsetValue.setSelection(!checkAllNewValues && _isAltitudeSerieValid);
+      _checkBox_Pulse_OffsetValue.setSelection(!checkAllNewValues && _isPulseSerieValid);
+      _checkBox_Cadence_OffsetValue.setSelection(!checkAllNewValues && _isCadenceSerieValid);
+      _checkBox_Temperature_OffsetValue.setSelection(!checkAllNewValues && _isTemperatureSerieValid);
 
    }
 
