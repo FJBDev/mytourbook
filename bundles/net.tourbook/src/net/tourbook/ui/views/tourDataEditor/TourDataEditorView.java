@@ -4530,6 +4530,12 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
       });
 
+      for (int index = 0; index < table.getColumns().length; ++index) {
+         if (index == 3) {
+            table.getColumns()[3].addSelectionListener(new TimeSliceColumnHeaderListener());
+         }
+      }
+
       // hide first column, this is a hack to align the "first" visible column to right
       table.getColumn(0).setWidth(0);
 
@@ -4958,6 +4964,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             }
          }
       });
+
    }
 
    /**
