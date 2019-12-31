@@ -1,4 +1,4 @@
-19.next.0                                                 ?. Month 2019
+20.?.0                                                 ?. Month 2020
 
 
 TODO's
@@ -7,7 +7,7 @@ TODO's
 * Website
   - Update contributor/translator list
   - Show cheatsheet
-
+  - Wrong text: The comparison is done by altitude, comparing by geo position is not yet supported.
 
 Bugs
 ----
