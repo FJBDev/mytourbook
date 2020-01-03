@@ -36,6 +36,8 @@ Changes
   - GPX: Set default to absolute distance that the defaults for export/import are the same
   - FIT: Starting marker label from 1 instead of 0
 
+* Tour Editor
+  - Added the ability to retrieve the weather data by clicking on the weather description label
  
 Fixes   
 =====
@@ -55,7 +57,6 @@ Fixes
 
 * Preferences
   - Fixed a regression, in the "Measurement System" tab, that appeared in 19.3.0 where the metric radio buttons had disappeared
-
   - Fixed bugs in the Computed values preference page (Break Time and Elevation Gain tabs) where the speed and altitude values were not properly converted when switching between metric and imperial system units
   
    
