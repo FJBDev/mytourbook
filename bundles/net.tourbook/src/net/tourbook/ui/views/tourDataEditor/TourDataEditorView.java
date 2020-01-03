@@ -609,6 +609,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Link              _linkRemoveTimeZone;
    private Link              _linkTag;
    private Link              _linkTourType;
+   private Link              _linkWeather;
    //
    private Spinner           _spinPerson_BodyWeight;
    private Spinner           _spinPerson_Calories;
@@ -3771,9 +3772,24 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          /*
           * weather description
           */
-         final Label label = _tk.createLabel(container, Messages.Tour_Editor_Label_Weather);
-         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(label);
-         _firstColumnControls.add(label);
+         _linkWeather = new Link(container, SWT.NONE);
+         _linkWeather.setText(Messages.Tour_Editor_Link_RetrieveWeather);
+         _linkWeather.setToolTipText(Messages.Tour_Editor_Link_RetrieveWeather_Tooltip);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(_linkWeather);
+         _linkWeather.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+               //Retrieve the weather
+
+               if (_isSetField || _isSavingInProgress) {
+                  return;
+               }
+               onSelect_Weather_Text();
+            }
+         });
+         _tk.adapt(_linkWeather, true, true);
+         _firstColumnControls.add(_linkWeather);
 
          _txtWeather = _tk.createText(
                container, //
@@ -6065,6 +6081,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _comboLocation_End.setEnabled(canEdit);
 
       // weather
+      final boolean enableWeatherRetrieval = _prefStore.getBoolean(ITourbookPreferences.WEATHER_USE_WEATHER_RETRIEVAL) &&
+            !_prefStore.getString(ITourbookPreferences.WEATHER_API_KEY).equals(UI.EMPTY_STRING);
+
+      _linkWeather.setEnabled(canEdit && enableWeatherRetrieval);
       _comboWeather_Clouds.setEnabled(canEdit);
       _comboWeather_WindDirectionText.setEnabled(canEdit);
       _comboWeather_WindSpeedText.setEnabled(canEdit);
@@ -6812,6 +6832,27 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void onResizeTab1() {
       _tab1Container.setMinSize(_tourContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+   }
+
+   private void onSelect_Weather_Text() {
+      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+         @Override
+         public void run() {
+            final boolean isDataRetrieved = TourManager.retrieveWeatherData(_tourData);
+
+            if (isDataRetrieved) {
+               setTourDirty();
+               updateUI_FromModel(_tourData, false, true);
+            } else {
+               MessageDialog.openInformation(
+                     Display.getCurrent().getActiveShell(),
+                     Messages.Dialog_RetrieveWeather_Dialog_Title,
+                     Messages.Dialog_RetrieveWeather_Label_WeatherDataNotRetrieved);
+            }
+
+         };
+      });
+
    }
 
    private void onSelectionChanged(final ISelection selection) {

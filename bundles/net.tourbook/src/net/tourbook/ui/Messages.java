@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -165,6 +165,7 @@ public class Messages extends NLS {
    public static String        ColumnFactory_tour_title;
    public static String        ColumnFactory_tour_title_label;
    public static String        ColumnFactory_tour_title_tooltip;
+   public static String        ColumnFactory_tour_type_header;
    public static String        ColumnFactory_tour_type_label;
    public static String        ColumnFactory_tour_type_tooltip;
    public static String        ColumnFactory_wind_speed_label;
