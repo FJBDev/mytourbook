@@ -81,6 +81,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
 import net.tourbook.tour.ActionOpenMarkerDialog;
+import net.tourbook.tour.DialogEditTimeSlicesValues;
 import net.tourbook.tour.ITourEventListener;
 import net.tourbook.tour.ITourSaveListener;
 import net.tourbook.tour.SelectionDeletedTours;
@@ -485,6 +486,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private ActionDeleteDistanceValues       _actionDeleteDistanceValues;
    private ActionDeleteTimeSlicesKeepTime   _actionDeleteTimeSlicesKeepTime;
    private ActionDeleteTimeSlicesRemoveTime _actionDeleteTimeSlicesRemoveTime;
+   private ActionEditTimeSlicesValues       _actionEditTimeSlicesValues;
    private ActionExport                     _actionExportTour;
    private ActionExtractTour                _actionExtractTour;
    private ActionModifyColumns              _actionModify_TimeSliceColumns;
@@ -2591,6 +2593,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void createActions() {
 
+      _actionEditTimeSlicesValues = new ActionEditTimeSlicesValues(this);
+
       _actionDeleteDistanceValues = new ActionDeleteDistanceValues(this);
       _actionComputeDistanceValues = new ActionComputeDistanceValues(this);
       _actionToggleRowSelectMode = new ActionToggleRowSelectMode(this);
@@ -4542,6 +4546,12 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
       });
 
+      for (int index = 0; index < table.getColumns().length; ++index) {
+         if (index == 3) {
+            table.getColumns()[3].addSelectionListener(new TimeSliceColumnHeaderListener());
+         }
+      }
+
       // hide first column, this is a hack to align the "first" visible column to right
       table.getColumn(0).setWidth(0);
 
@@ -4970,6 +4980,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             }
          }
       });
+
    }
 
    /**
@@ -5747,6 +5758,130 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    @Override
    public void doSaveAs() {}
 
+   /**
+    * Edit time slices values :
+    * Altitude, Heartbeat, Temperature, Cadence
+    */
+   void editTimeSlicesValues() {
+
+      // a tour with reference tours is currently not supported
+      if (_isReferenceTourAvailable) {
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.tour_editor_dlg_delete_rows_title,
+               Messages.tour_editor_dlg_delete_rows_message);
+
+         return;
+      }
+
+      // swimming data series have a different number of time slices
+      if (_tourData.swim_Time != null) {
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.Tour_Editor_Dialog_DeleteSwimTimeSlices_Title,
+               Messages.Tour_Editor_Dialog_DeleteSwimTimeSlices_Message);
+         return;
+      }
+
+      if (isRowSelectionMode() == false) {
+         return;
+      }
+
+      // get selected time slices
+      final StructuredSelection selection = (StructuredSelection) _timeSlice_Viewer.getSelection();
+      if (selection.size() == 0) {
+         return;
+      }
+
+      final Object[] selectedTimeSlices = selection.toArray();
+
+      final int selectedIndex = selectedTimeSlices.length == 1 ? ((TimeSlice) selectedTimeSlices[0]).serieIndex : -1;
+
+      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(),
+            _tourData,
+            selectedIndex);
+      if (dialogEditTimeSlicesValues.open() == Window.OK) {
+
+         final float newAltitudeValue = dialogEditTimeSlicesValues.getNewAltitudeValue();
+         final float newPulseValue = dialogEditTimeSlicesValues.getNewPulseValue();
+         final float newCadenceValue = dialogEditTimeSlicesValues.getNewCadenceValue();
+         final float newTemperatureValue = dialogEditTimeSlicesValues.getNewTemperatureValue();
+
+         final int[] selectedRows = new int[selectedTimeSlices.length];
+         boolean tourDataModified = false;
+         for (int index = 0; index < selectedTimeSlices.length; ++index) {
+
+            final int currentTimeSliceIndex = ((TimeSlice) selectedTimeSlices[index]).serieIndex;
+
+            selectedRows[index] = currentTimeSliceIndex;
+
+            if (newAltitudeValue != Float.MIN_VALUE && _tourData.altitudeSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsAltitudeValueOffset()) {
+                  _tourData.altitudeSerie[currentTimeSliceIndex] += newAltitudeValue;
+               } else {
+                  _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
+               }
+               tourDataModified = true;
+            }
+
+            if (newPulseValue != Float.MIN_VALUE && _tourData.pulseSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsPulseValueOffset()) {
+                  _tourData.pulseSerie[currentTimeSliceIndex] += newPulseValue;
+               } else {
+                  _tourData.pulseSerie[currentTimeSliceIndex] = newPulseValue;
+               }
+               tourDataModified = true;
+            }
+
+            final float[] cadenceSerie = _tourData.getCadenceSerie();
+            if (newCadenceValue != Float.MIN_VALUE && cadenceSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsCadenceValueOffset()) {
+                  cadenceSerie[currentTimeSliceIndex] += newCadenceValue;
+               } else {
+                  cadenceSerie[currentTimeSliceIndex] = newCadenceValue;
+               }
+               _tourData.setCadenceSerie(cadenceSerie);
+               tourDataModified = true;
+            }
+
+            if (newTemperatureValue != Float.MIN_VALUE & _tourData.temperatureSerie != null) {
+               if (dialogEditTimeSlicesValues.getIsTemperatureValueOffset()) {
+                  _tourData.temperatureSerie[currentTimeSliceIndex] += newTemperatureValue;
+               } else {
+                  _tourData.temperatureSerie[currentTimeSliceIndex] = newTemperatureValue;
+               }
+               tourDataModified = true;
+            }
+         }
+
+         if (!tourDataModified) {
+            return;
+         }
+
+         getDataSeriesFromTourData();
+         // update UI
+         updateUI_Tab_1_Tour();
+         updateUI_ReferenceTourRanges();
+
+         _timeSlice_Viewer.getControl().setRedraw(false);
+         {
+            _timeSlice_Viewer.refresh(true);
+         }
+         _timeSlice_Viewer.getControl().setRedraw(true);
+
+         setTourDirty();
+         // notify other viewers
+         fireModifyNotification();
+
+         //We select back the previously selected indices
+         final Table table = (Table) _timeSlice_Viewer.getControl();
+         table.setSelection(selectedRows);
+         table.showSelection();
+      }
+   }
+
    private void enableActions() {
 
       final boolean isTourInDb = isTourInDb();
@@ -6009,6 +6144,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    private void fillContextMenu_TimeSlice(final IMenuManager menuMgr) {
+
+      menuMgr.add(_actionEditTimeSlicesValues);
+      menuMgr.add(new Separator());
 
       menuMgr.add(_actionCreateTourMarker);
       menuMgr.add(_actionOpenMarkerDialog);
