@@ -2653,6 +2653,7 @@ public class PrefPage_Map2_Providers extends PreferencePage implements IWorkbenc
 
    private void onSelect_SortColumn(final SelectionEvent e) {
 
+      //TODO TRIAGE
       _viewerContainer.setRedraw(false);
       {
          // keep selection
