@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (C) 2019 Frédéric Bard and Contributors
+ *  Copyright (C) 2020 Frédéric Bard and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,22 +21,22 @@ import org.eclipse.jface.action.Action;
 
 class ActionEditTimeSlicesValues extends Action {
 
-	/**
-	 *
-	 */
-	private final TourDataEditorView	_tourDataEditor;
+   /**
+    *
+    */
+   private final TourDataEditorView _tourDataEditor;
 
-	public ActionEditTimeSlicesValues(final TourDataEditorView tourDataEditor) {
+   public ActionEditTimeSlicesValues(final TourDataEditorView tourDataEditor) {
 
-		super(null, AS_PUSH_BUTTON);
+      super(null, AS_PUSH_BUTTON);
 
-		_tourDataEditor = tourDataEditor;
+      _tourDataEditor = tourDataEditor;
 
       setText(Messages.TourEditor_Action_EditTimeSlicesValues);
-	}
+   }
 
-	@Override
-	public void run() {
+   @Override
+   public void run() {
       _tourDataEditor.editTimeSlicesValues();
-	}
+   }
 }
