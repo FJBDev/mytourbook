@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tourDataEditor;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -147,6 +149,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -168,6 +171,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -184,6 +188,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Widget;
@@ -371,6 +376,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private MouseWheelListener                 _mouseWheelListener_Temperature;
    private SelectionAdapter                   _selectionListener;
    private SelectionAdapter                   _selectionListener_Temperature;
+   private SelectionListener                  _columnSortListener;
    private SelectionAdapter                   _tourTimeListener;
    private ModifyListener                     _verifyFloatValue;
    private ModifyListener                     _verifyIntValue;
@@ -555,6 +561,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    //
    private Label                    _timeSlice_Label;
    private TableViewer              _timeSlice_Viewer;
+   private TimeSliceComparator      _tsComparator                 = new TimeSliceComparator();
    private Object[]                 _timeSlice_ViewerItems;
    private ColumnManager            _timeSlice_ColumnManager;
    private TimeSlice_TourViewer     _timeSlice_TourViewer         = new TimeSlice_TourViewer();
@@ -1662,6 +1669,96 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _timeViewer_ContextMenu = createUI_Tab_26_TimeSliceViewerContextMenu_Menu();
 
          return _timeViewer_ContextMenu;
+      }
+   }
+
+   private class TimeSliceComparator extends ViewerComparator {
+
+      private static final int ASCENDING       = 0;
+      private static final int DESCENDING      = 1;
+
+      private String           __sortColumnId  = "BODY_PULSE";
+      private int              __sortDirection = ASCENDING;
+
+      @Override
+      public int compare(final Viewer viewer, final Object e1, final Object e2) {
+
+         final boolean isDescending = __sortDirection == DESCENDING;
+
+         final TimeSlice ts1 = (TimeSlice) e1;
+         final TimeSlice ts2 = (TimeSlice) e2;
+
+         long rc = 0;
+
+         // Determine which column and do the appropriate sort
+         switch (__sortColumnId) {
+
+         case "BODY_PULSE":
+            if (_seriePulse == null) {
+               break;
+            }
+
+            final float pulse1 = _seriePulse[ts1.serieIndex];
+            final float pulse2 = _seriePulse[ts2.serieIndex];
+            rc = (int) (pulse1 - pulse2);
+            break;
+
+         }
+         // if descending order, flip the direction
+         if (isDescending) {
+            rc = -rc;
+         }
+
+         /*
+          * MUST return 1 or -1 otherwise long values are not sorted correctly.
+          */
+         return rc > 0 //
+               ? 1
+               : rc < 0 //
+                     ? -1
+                     : 0;
+      }
+
+      @Override
+      public final boolean isSorterProperty(final Object element, final String property) {
+
+         // force resorting when a name is renamed
+         return true;
+      }
+
+      public void setSortColumn(final Widget widget) {
+
+         final ColumnDefinition columnDefinition = (ColumnDefinition) widget.getData();
+         final String columnId = columnDefinition.getColumnId();
+
+         if (columnId == null) {
+            return;
+         }
+
+         if (columnId.equals(__sortColumnId)) {
+
+            // Same column as last sort -> select next sorting
+
+            switch (__sortDirection) {
+            case ASCENDING:
+               __sortDirection = DESCENDING;
+               break;
+
+            case DESCENDING:
+            default:
+               __sortDirection = ASCENDING;
+               break;
+            }
+
+         } else {
+
+            // New column; do an ascent sorting
+
+            __sortColumnId = columnId;
+            __sortDirection = ASCENDING;
+         }
+
+         updateUI_SetSortDirection(__sortColumnId, __sortDirection);
       }
    }
 
@@ -4534,6 +4631,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _timeSlice_ColumnManager.createColumns(_timeSlice_Viewer);
 
       _timeSlice_Viewer.setContentProvider(new TimeSlice_ViewerContentProvider());
+      _timeSlice_Viewer.setComparator(_tsComparator);
       _timeSlice_Viewer.setUseHashlookup(true);
 
       _timeSlice_Viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -4545,12 +4643,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             }
          }
       });
-
-      for (int index = 0; index < table.getColumns().length; ++index) {
-         if (index == 3) {
-            table.getColumns()[3].addSelectionListener(new TimeSliceColumnHeaderListener());
-         }
-      }
 
       // hide first column, this is a hack to align the "first" visible column to right
       table.getColumn(0).setWidth(0);
@@ -5019,6 +5111,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _timeSlice_ColDef_Pulse = colDef = TableColumnFactory.BODY_PULSE.createColumn(_timeSlice_ColumnManager, _pc);
 
       colDef.disableValueFormatter();
+
+      colDef.setColumnSelectionListener(_columnSortListener);
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -5817,40 +5911,39 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             selectedRows[index] = currentTimeSliceIndex;
 
-            if (newAltitudeValue != Float.MIN_VALUE && _tourData.altitudeSerie != null) {
+            if (newAltitudeValue != Float.MIN_VALUE && _serieAltitude != null) {
                if (dialogEditTimeSlicesValues.getIsAltitudeValueOffset()) {
-                  _tourData.altitudeSerie[currentTimeSliceIndex] += newAltitudeValue;
+                  _serieAltitude[currentTimeSliceIndex] += newAltitudeValue;
                } else {
-                  _tourData.altitudeSerie[currentTimeSliceIndex] = newAltitudeValue;
+                  _serieAltitude[currentTimeSliceIndex] = newAltitudeValue;
                }
                tourDataModified = true;
             }
 
-            if (newPulseValue != Float.MIN_VALUE && _tourData.pulseSerie != null) {
+            if (newPulseValue != Float.MIN_VALUE && _seriePulse != null) {
                if (dialogEditTimeSlicesValues.getIsPulseValueOffset()) {
-                  _tourData.pulseSerie[currentTimeSliceIndex] += newPulseValue;
+                  _seriePulse[currentTimeSliceIndex] += newPulseValue;
                } else {
-                  _tourData.pulseSerie[currentTimeSliceIndex] = newPulseValue;
+                  _seriePulse[currentTimeSliceIndex] = newPulseValue;
                }
                tourDataModified = true;
             }
 
-            final float[] cadenceSerie = _tourData.getCadenceSerie();
-            if (newCadenceValue != Float.MIN_VALUE && cadenceSerie != null) {
+            if (newCadenceValue != Float.MIN_VALUE && _serieCadence != null) {
                if (dialogEditTimeSlicesValues.getIsCadenceValueOffset()) {
-                  cadenceSerie[currentTimeSliceIndex] += newCadenceValue;
+                  _serieCadence[currentTimeSliceIndex] += newCadenceValue;
                } else {
-                  cadenceSerie[currentTimeSliceIndex] = newCadenceValue;
+                  _serieCadence[currentTimeSliceIndex] = newCadenceValue;
                }
-               _tourData.setCadenceSerie(cadenceSerie);
+               _tourData.setCadenceSerie(_serieCadence);
                tourDataModified = true;
             }
 
-            if (newTemperatureValue != Float.MIN_VALUE & _tourData.temperatureSerie != null) {
+            if (newTemperatureValue != Float.MIN_VALUE & _serieTemperature != null) {
                if (dialogEditTimeSlicesValues.getIsTemperatureValueOffset()) {
-                  _tourData.temperatureSerie[currentTimeSliceIndex] += newTemperatureValue;
+                  _serieTemperature[currentTimeSliceIndex] += newTemperatureValue;
                } else {
-                  _tourData.temperatureSerie[currentTimeSliceIndex] = newTemperatureValue;
+                  _serieTemperature[currentTimeSliceIndex] = newTemperatureValue;
                }
                tourDataModified = true;
             }
@@ -6580,6 +6673,27 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    /**
+    * @param sortColumnId
+    * @return Returns the column widget by it's column id, when column id is not found then the
+    *         first column is returned.
+    */
+   private TableColumn getSortColumn(final String sortColumnId) {
+
+      final TableColumn[] allColumns = _timeSlice_Viewer.getTable().getColumns();
+
+      for (final TableColumn column : allColumns) {
+
+         final String columnId = ((ColumnDefinition) column.getData()).getColumnId();
+
+         if (columnId != null && columnId.equals(sortColumnId)) {
+            return column;
+         }
+      }
+
+      return allColumns[0];
+   }
+
+   /**
     * @return Returns {@link TourData} for the tour in the tour data editor or <code>null</code>
     *         when a tour is not in the tour data editor
     */
@@ -6654,6 +6768,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
 
       _hintValueFieldWidth = _pc.convertWidthInCharsToPixels(10);
+
+      _columnSortListener = widgetSelectedAdapter(e -> onSelect_SortColumn(e));
    }
 
    private void invalidateSliceViewers() {
@@ -6832,6 +6948,24 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void onResizeTab1() {
       _tab1Container.setMinSize(_tourContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+   }
+
+   private void onSelect_SortColumn(final SelectionEvent e) {
+
+      _timeSlice_Viewer.getTable().setRedraw(false);
+      {
+         // keep selection
+         final ISelection selectionBackup = _timeSlice_Viewer.getSelection();
+
+         // toggle sorting
+         _tsComparator.setSortColumn(e.widget);
+         _timeSlice_Viewer.refresh();
+
+         // reselect selection
+         _timeSlice_Viewer.setSelection(selectionBackup, true);
+         _timeSlice_Viewer.getTable().showSelection();
+      }
+      _timeSlice_Viewer.getTable().setRedraw(true);
    }
 
    private void onSelect_Weather_Text() {
@@ -8315,6 +8449,26 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          _refTourRange = null;
       }
+   }
+
+   /**
+    * Set the sort column direction indicator for a column
+    *
+    * @param sortColumnId
+    * @param isAscendingSort
+    */
+   private void updateUI_SetSortDirection(final String sortColumnId, final int sortDirection) {
+
+      final int direction =
+            sortDirection == TimeSliceComparator.ASCENDING ? SWT.UP
+                  : sortDirection == TimeSliceComparator.DESCENDING ? SWT.DOWN
+                        : SWT.NONE;
+
+      final Table table = _timeSlice_Viewer.getTable();
+      final TableColumn tc = getSortColumn(sortColumnId);
+
+      table.setSortColumn(tc);
+      table.setSortDirection(direction);
    }
 
    private void updateUI_Tab_1_Tour() {
