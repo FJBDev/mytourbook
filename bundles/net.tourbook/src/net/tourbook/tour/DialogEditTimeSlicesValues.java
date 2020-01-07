@@ -53,6 +53,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    private final boolean         _isLinux                        = UI.IS_LINUX;
 
    private final TourData        _tourData;
+   private float[]               _serieAltitude;
+   private float[]               _serieTemperature;
+   private float[]               _serieCadence;
+   private float[]               _seriePulse;
    private final boolean         _isAltitudeSerieValid;
    private final boolean         _isPulseSerieValid;
    private final boolean         _isCadenceSerieValid;
@@ -113,9 +117,13 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
 
       _tourData = tourData;
+      _serieAltitude = _tourData.altitudeSerie;
+      _seriePulse = _tourData.pulseSerie;
+      _serieCadence = _tourData.getCadenceSerie();
+      _serieTemperature = _tourData.temperatureSerie;
       _isAltitudeSerieValid = _tourData.altitudeSerie != null;
       _isPulseSerieValid = _tourData.pulseSerie != null;
-      _isCadenceSerieValid = _tourData.getCadenceSerie() != null;
+      _isCadenceSerieValid = _serieAltitude != null;
       _isTemperatureSerieValid = _tourData.temperatureSerie != null;
       _selectedIndex = selectedIndex;
 
@@ -684,17 +692,20 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
          return;
       }
 
-      float altitudeToUnit = _tourData.altitudeSerie[_selectedIndex] / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+      float altitudeToUnit = _serieAltitude[_selectedIndex] / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
       altitudeToUnit = (float) (Math.round(altitudeToUnit * 10.0) / 10.0);
       _textAltitudeValue.setText(NumberToStringConverter.fromFloat(true).convert(altitudeToUnit));
 
-      final int pulse = (int) (_tourData.pulseSerie[_selectedIndex]);
+      final int pulse = (int) (_seriePulse[_selectedIndex]);
       _textPulseValue.setText(String.valueOf(pulse));
 
-      final float cadence = _tourData.getCadenceSerie()[_selectedIndex];
-      _textCadenceValue.setText(NumberToStringConverter.fromFloat(true).convert(cadence));
+      //TODO WIP, do the same for other lines
+      if (_isCadenceSerieValid) {
+         final float cadence = _serieCadence[_selectedIndex];
+         _textCadenceValue.setText(NumberToStringConverter.fromFloat(true).convert(cadence));
+      }
 
-      float temperatureToUnit = UI.convertTemperatureFromMetric(_tourData.temperatureSerie[_selectedIndex]);
+      float temperatureToUnit = UI.convertTemperatureFromMetric(_serieTemperature[_selectedIndex]);
       temperatureToUnit = (float) (Math.round(temperatureToUnit * 10.0) / 10.0);
       _textTemperatureValue.setText(NumberToStringConverter.fromFloat(true).convert(temperatureToUnit));
 

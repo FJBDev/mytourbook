@@ -189,6 +189,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Widget;
@@ -1674,11 +1675,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private class TimeSliceComparator extends ViewerComparator {
 
-      private static final int ASCENDING       = 0;
-      private static final int DESCENDING      = 1;
+      private static final int ASCENDING  = 0;
+      private static final int DESCENDING = 1;
 
-      private String           __sortColumnId  = "BODY_PULSE";
-      private int              __sortDirection = ASCENDING;
+      //TODO
+      // can one disable a column ? lets say if pulseis null for example ?
+      private String __sortColumnId  = "BODY_PULSE";
+      private int    __sortDirection = ASCENDING;
 
       @Override
       public int compare(final Viewer viewer, final Object e1, final Object e2) {
@@ -1704,6 +1707,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             break;
 
          }
+
          // if descending order, flip the direction
          if (isDescending) {
             rc = -rc;
@@ -5970,6 +5974,12 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          //We select back the previously selected indices
          final Table table = (Table) _timeSlice_Viewer.getControl();
+         final TableItem[] toto = table.getItems();
+         final Object titi = toto[6].getData();
+         //TODO WIP for each object make sure to retrieve its actual index in the table so we select the ones we just modified
+         // make a function for it
+
+         //TODO WIP did I adapt the window for metric/imperial ?
          table.setSelection(selectedRows);
          table.showSelection();
       }
