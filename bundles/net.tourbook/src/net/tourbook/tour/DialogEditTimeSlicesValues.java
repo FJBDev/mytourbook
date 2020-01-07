@@ -121,10 +121,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       _seriePulse = _tourData.pulseSerie;
       _serieCadence = _tourData.getCadenceSerie();
       _serieTemperature = _tourData.temperatureSerie;
-      _isAltitudeSerieValid = _tourData.altitudeSerie != null;
-      _isPulseSerieValid = _tourData.pulseSerie != null;
-      _isCadenceSerieValid = _serieAltitude != null;
-      _isTemperatureSerieValid = _tourData.temperatureSerie != null;
+      _isAltitudeSerieValid = _serieAltitude != null;
+      _isPulseSerieValid = _seriePulse != null;
+      _isCadenceSerieValid = _serieCadence != null;
+      _isTemperatureSerieValid = _serieTemperature != null;
       _selectedIndex = selectedIndex;
 
       _radioButtonSelectionListener = new SelectionListener() {
@@ -531,10 +531,10 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       final Button saveButton = getButton(IDialogConstants.OK_ID);
       if (saveButton != null) {
 
-         final boolean enable = (_isAltitudeValueValid || _textAltitudeValue.getText().equals("")) && //$NON-NLS-1$
-               (_isPulseValueValid || _textPulseValue.getText().equals("")) && //$NON-NLS-1$
-               (_isCadenceValueValid || _textCadenceValue.getText().equals("")) && //$NON-NLS-1$
-               (_isTemperatureValueValid || _textTemperatureValue.getText().equals("")); //$NON-NLS-1$
+         final boolean enable = (_isAltitudeValueValid || _textAltitudeValue.getText().equals(UI.EMPTY_STRING)) &&
+               (_isPulseValueValid || _textPulseValue.getText().equals(UI.EMPTY_STRING)) &&
+               (_isCadenceValueValid || _textCadenceValue.getText().equals(UI.EMPTY_STRING)) &&
+               (_isTemperatureValueValid || _textTemperatureValue.getText().equals(UI.EMPTY_STRING));
 
          saveButton.setEnabled(enable);
       }
@@ -619,17 +619,17 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
    protected void okPressed() {
 
       final String altitudeValue = _textAltitudeValue.getText();
-      _newAltitudeValue = !altitudeValue.equals("") ? StringToNumberConverter.toFloat(true).convert(altitudeValue) //$NON-NLS-1$
+      _newAltitudeValue = !altitudeValue.equals(UI.EMPTY_STRING) ? StringToNumberConverter.toFloat(true).convert(altitudeValue)
             * net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE : Float.MIN_VALUE;
 
       final String pulseValue = _textPulseValue.getText();
-      _newPulseValue = !pulseValue.equals("") ? StringToNumberConverter.toInteger(true).convert(pulseValue) : Float.MIN_VALUE; //$NON-NLS-1$
+      _newPulseValue = !pulseValue.equals(UI.EMPTY_STRING) ? StringToNumberConverter.toInteger(true).convert(pulseValue) : Float.MIN_VALUE;
 
       final String cadenceValue = _textCadenceValue.getText();
-      _newCadenceValue = !cadenceValue.equals("") ? StringToNumberConverter.toFloat(true).convert(cadenceValue) : Float.MIN_VALUE; //$NON-NLS-1$
+      _newCadenceValue = !cadenceValue.equals(UI.EMPTY_STRING) ? StringToNumberConverter.toFloat(true).convert(cadenceValue) : Float.MIN_VALUE;
 
       final String temperatureValue = _textTemperatureValue.getText();
-      _newTemperatureValue = !temperatureValue.equals("") ? UI.convertTemperatureToMetric(StringToNumberConverter.toFloat(true).convert( //$NON-NLS-1$
+      _newTemperatureValue = !temperatureValue.equals(UI.EMPTY_STRING) ? UI.convertTemperatureToMetric(StringToNumberConverter.toFloat(true).convert(
             temperatureValue)) : Float.MIN_VALUE;
 
       _isAltitudeValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Altitude_OffsetValue.getSelection();
@@ -692,22 +692,27 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
          return;
       }
 
-      float altitudeToUnit = _serieAltitude[_selectedIndex] / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
-      altitudeToUnit = (float) (Math.round(altitudeToUnit * 10.0) / 10.0);
-      _textAltitudeValue.setText(NumberToStringConverter.fromFloat(true).convert(altitudeToUnit));
+      if (_isAltitudeSerieValid) {
+         float altitudeToUnit = _serieAltitude[_selectedIndex] / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+         altitudeToUnit = (float) (Math.round(altitudeToUnit * 10.0) / 10.0);
+         _textAltitudeValue.setText(NumberToStringConverter.fromFloat(true).convert(altitudeToUnit));
+      }
 
-      final int pulse = (int) (_seriePulse[_selectedIndex]);
-      _textPulseValue.setText(String.valueOf(pulse));
+      if (_isPulseSerieValid) {
+         final int pulse = (int) (_seriePulse[_selectedIndex]);
+         _textPulseValue.setText(String.valueOf(pulse));
+      }
 
-      //TODO WIP, do the same for other lines
       if (_isCadenceSerieValid) {
          final float cadence = _serieCadence[_selectedIndex];
          _textCadenceValue.setText(NumberToStringConverter.fromFloat(true).convert(cadence));
       }
 
-      float temperatureToUnit = UI.convertTemperatureFromMetric(_serieTemperature[_selectedIndex]);
-      temperatureToUnit = (float) (Math.round(temperatureToUnit * 10.0) / 10.0);
-      _textTemperatureValue.setText(NumberToStringConverter.fromFloat(true).convert(temperatureToUnit));
+      if (_isTemperatureSerieValid) {
+         float temperatureToUnit = UI.convertTemperatureFromMetric(_serieTemperature[_selectedIndex]);
+         temperatureToUnit = (float) (Math.round(temperatureToUnit * 10.0) / 10.0);
+         _textTemperatureValue.setText(NumberToStringConverter.fromFloat(true).convert(temperatureToUnit));
+      }
 
    }
 }
