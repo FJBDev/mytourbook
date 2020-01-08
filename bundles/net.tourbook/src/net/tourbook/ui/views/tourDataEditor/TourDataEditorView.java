@@ -263,6 +263,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private static final String    COLUMN_PULSE                  = "BODY_PULSE";                                           //$NON-NLS-1$
    private static final String    COLUMN_CADENCE                = "POWERTRAIN_CADENCE";                                   //$NON-NLS-1$
    private static final String    COLUMN_TEMPERATURE            = "WEATHER_TEMPERATURE";                                  //$NON-NLS-1$
+   private static final String    COLUMN_POWER                  = "POWER";                                                //$NON-NLS-1$
+   private static final String    COLUMN_PACE                   = "MOTION_PACE";                                          //$NON-NLS-1$
    //
    private final IPreferenceStore _prefStore                    = TourbookPlugin.getPrefStore();
    private final IPreferenceStore _prefStoreCommon              = CommonActivator.getPrefStore();
@@ -1684,8 +1686,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       private static final int ASCENDING  = 0;
       private static final int DESCENDING = 1;
 
-      //TODO
-      // can one disable a column ? lets say if pulseis null for example ?
       private String __sortColumnId  = COLUMN_DATA_SEQUENCE;
       private int    __sortDirection = ASCENDING;
 
@@ -1703,14 +1703,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          switch (__sortColumnId) {
 
          case COLUMN_DATA_SEQUENCE:
-            final TableItem[] tableItems = ((Table) _timeSlice_Viewer.getControl()).getItems();
-            if (tableItems == null || tableItems.length < ts1.serieIndex || tableItems.length < ts2.serieIndex) {
-               break;
-            }
 
-            final int index1 = ((TimeSlice) tableItems[ts1.serieIndex].getData()).uniqueCreateIndex;
-            final int index2 = ((TimeSlice) tableItems[ts2.serieIndex].getData()).uniqueCreateIndex;
-            rc = index1 - index2;
+            rc = ts1.serieIndex - ts2.serieIndex;
             break;
 
          case COLUMN_ALTITUDE:
@@ -1753,7 +1747,27 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             rc = Float.compare(temperature1, temperature2);
             break;
 
+         case COLUMN_POWER:
+            if (_seriePower == null) {
+               break;
+            }
+
+            final float power1 = _seriePower[ts1.serieIndex];
+            final float power2 = _seriePower[ts2.serieIndex];
+            rc = Float.compare(power1, power2);
+            break;
+
+         case COLUMN_PACE:
+            if (_seriePace == null) {
+               break;
+            }
+
+            final float pace1 = _seriePace[ts1.serieIndex];
+            final float pace2 = _seriePace[ts2.serieIndex];
+            rc = Float.compare(pace1, pace2);
+            break;
          }
+
 
          // if descending order, flip the direction
          if (isDescending) {
@@ -5372,6 +5386,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private void defineColumn_TimeSlice_Motion_Pace() {
 
       final ColumnDefinition colDef = TableColumnFactory.MOTION_PACE.createColumn(_timeSlice_ColumnManager, _pc);
+      colDef.setColumnSelectionListener(_columnSortListener);
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -5456,6 +5471,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private void defineColumn_TimeSlice_Power() {
 
       final ColumnDefinition colDef = TableColumnFactory.POWER.createColumn(_timeSlice_ColumnManager, _pc);
+      colDef.setColumnSelectionListener(_columnSortListener);
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -6031,7 +6047,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          //TODO WIP did I adapt the window for metric/imperial ?
          //TODO WIP When editing manually a cell, the next selected cell is not the original modified one
-         //TODO WIP When sorting the first column, it only works 1 out of 10times
          //TODO WIP When modifying a column, it only works the first time
          table.setSelection(mappedTimeSlicesIndices);
          table.showSelection();
