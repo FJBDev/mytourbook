@@ -1703,13 +1703,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          switch (__sortColumnId) {
 
          case COLUMN_DATA_SEQUENCE:
-            if (_serieTime == null) {
+            final TableItem[] tableItems = ((Table) _timeSlice_Viewer.getControl()).getItems();
+            if (tableItems == null || tableItems.length < ts1.serieIndex || tableItems.length < ts2.serieIndex) {
                break;
             }
 
-            final int time1 = _serieTime[ts1.serieIndex];
-            final int time2 = _serieTime[ts2.serieIndex];
-            rc = time1 - time2;
+            final int index1 = ((TimeSlice) tableItems[ts1.serieIndex].getData()).uniqueCreateIndex;
+            final int index2 = ((TimeSlice) tableItems[ts2.serieIndex].getData()).uniqueCreateIndex;
+            rc = index1 - index2;
             break;
 
          case COLUMN_ALTITUDE:
@@ -6029,6 +6030,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          final Table table = (Table) _timeSlice_Viewer.getControl();
 
          //TODO WIP did I adapt the window for metric/imperial ?
+         //TODO WIP When editing manually a cell, the next selected cell is not the original modified one
+         //TODO WIP When sorting the first column, it only works 1 out of 10times
+         //TODO WIP When modifying a column, it only works the first time
          table.setSelection(mappedTimeSlicesIndices);
          table.showSelection();
       }
