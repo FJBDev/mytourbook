@@ -7830,6 +7830,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
       _isSavingInProgress = false;
 
+      getDataSeriesFromTourData();
+
       return true;
    }
 
