@@ -629,13 +629,17 @@ public class DialogEditTimeSlicesValues extends TitleAreaDialog {
       _newCadenceValue = !cadenceValue.equals(UI.EMPTY_STRING) ? StringToNumberConverter.toFloat(true).convert(cadenceValue) : Float.MIN_VALUE;
 
       final String temperatureValue = _textTemperatureValue.getText();
-      _newTemperatureValue = !temperatureValue.equals(UI.EMPTY_STRING) ? UI.convertTemperatureToMetric(StringToNumberConverter.toFloat(true).convert(
-            temperatureValue)) : Float.MIN_VALUE;
+      _newTemperatureValue = !temperatureValue.equals(UI.EMPTY_STRING) ? StringToNumberConverter.toFloat(true).convert(temperatureValue)
+            : Float.MIN_VALUE;
 
       _isAltitudeValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Altitude_OffsetValue.getSelection();
       _isPulseValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Pulse_OffsetValue.getSelection();
       _isCadenceValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Cadence_OffsetValue.getSelection();
       _isTemperatureValueOffset = _checkBox_OffsetValues.getSelection() || _radioButton_Temperature_OffsetValue.getSelection();
+
+      if (!_isTemperatureValueOffset) {
+         _newTemperatureValue = UI.convertTemperatureToMetric(_newTemperatureValue);
+      }
 
       super.okPressed();
    }

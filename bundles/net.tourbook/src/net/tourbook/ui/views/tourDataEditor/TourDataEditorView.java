@@ -6011,7 +6011,22 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             if (newTemperatureValue != Float.MIN_VALUE & _serieTemperature != null) {
                if (dialogEditTimeSlicesValues.getIsTemperatureValueOffset()) {
-                  _serieTemperature[currentTimeSliceIndex] += newTemperatureValue;
+
+                  //If we are currently in imperial system, we can't just convert the offset as it will lead to errors.
+                  // For example : If the user has asked for an offset of 1°F, then it could offset the metric temperature to -17.22222 °C!!!
+
+                  if (UI.UNIT_VALUE_TEMPERATURE != 1) {
+
+                     final float currentTemperatureMetric = _serieTemperature[currentTimeSliceIndex];
+                     float currentTemperatureFahrenheit = (currentTemperatureMetric * UI.UNIT_FAHRENHEIT_MULTI) + UI.UNIT_FAHRENHEIT_ADD;
+                     currentTemperatureFahrenheit += newTemperatureValue;
+                     final float newTemperatureMetric = UI.convertTemperatureToMetric(currentTemperatureFahrenheit);
+                     _serieTemperature[currentTimeSliceIndex] = newTemperatureMetric;
+
+                  } else {
+                     _serieTemperature[currentTimeSliceIndex] += newTemperatureValue;
+                  }
+
                } else {
                   _serieTemperature[currentTimeSliceIndex] = newTemperatureValue;
                }
