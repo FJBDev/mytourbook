@@ -1683,11 +1683,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private class TimeSliceComparator extends ViewerComparator {
 
-      private static final int ASCENDING  = 0;
-      private static final int DESCENDING = 1;
+      private static final int ASCENDING       = 0;
+      private static final int DESCENDING      = 1;
 
-      private String __sortColumnId  = COLUMN_DATA_SEQUENCE;
-      private int    __sortDirection = ASCENDING;
+      private String           __sortColumnId  = COLUMN_DATA_SEQUENCE;
+      private int              __sortDirection = ASCENDING;
 
       @Override
       public int compare(final Viewer viewer, final Object e1, final Object e2) {
@@ -1767,7 +1767,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             rc = Float.compare(pace1, pace2);
             break;
          }
-
 
          // if descending order, flip the direction
          if (isDescending) {
@@ -6045,9 +6044,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          final Table table = (Table) _timeSlice_Viewer.getControl();
 
-         //TODO WIP did I adapt the window for metric/imperial ?
-         //TODO WIP When editing manually a cell, the next selected cell is not the original modified one
-         //TODO WIP When modifying a column, it only works the first time
          table.setSelection(mappedTimeSlicesIndices);
          table.showSelection();
       }
@@ -7021,8 +7017,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          final TableItem[] tableItems = ((Table) _timeSlice_Viewer.getControl()).getItems();
          for (int tableIndex = 0; index < tableItems.length; ++tableIndex) {
 
-            final TimeSlice tata = (TimeSlice) tableItems[tableIndex].getData();
-            if (tata.serieIndex == currentTimeSliceIndex) {
+            final TimeSlice timeSlice = (TimeSlice) tableItems[tableIndex].getData();
+            if (timeSlice.serieIndex == currentTimeSliceIndex) {
                mappedTimeSlicesIndices[index] = tableIndex;
                break;
             }
