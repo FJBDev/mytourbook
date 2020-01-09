@@ -38,7 +38,6 @@ public class ActionHandlerDb_CompressDB extends AbstractHandler {
 
    private void checkConsistency() {
 
-      final String[] resultInfo = new String[1];
       final String[] error = new String[1];
 
       BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
