@@ -569,6 +569,9 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
       defineColumn_Motion_Distance();
       defineColumn_Motion_DistanceDelta();
 
+      //defineColumn_Altitude_TimeDelta();
+      //defineColumn_XXX_Pace();
+
       defineColumn_Waypoint_Name();
       defineColumn_Waypoint_Description();
       defineColumn_Marker_Url();
@@ -764,7 +767,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
          @Override
          public void update(final ViewerCell cell) {
 
-            //HERE
+            //TODO WIP
             final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
             int lastTime = 0;
             if (null != lastRow) {
