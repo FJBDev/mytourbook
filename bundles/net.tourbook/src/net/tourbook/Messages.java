@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -89,6 +89,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_TourBorder_Top;
    public static String        Calendar_Profile_TourBorder_TopBottom;
    public static String        Calendar_Profile_Value_Altitude;
+   public static String        Calendar_Profile_Value_CadenceZones_TimePercentages;
    public static String        Calendar_Profile_Value_Description;
    public static String        Calendar_Profile_Value_Distance;
    public static String        Calendar_Profile_Value_Elevation_Change;
@@ -266,6 +267,19 @@ public class Messages extends NLS {
    public static String        Dialog_DoubleClickAction_InvalidAction_Title;
    public static String        Dialog_DoubleClickAction_NoAction_Message;
    public static String        Dialog_DoubleClickAction_NoAction_Title;
+
+   public static String        Dialog_Edit_Timeslices_Values_Title;
+   public static String        Dialog_Edit_Timeslices_Values_Area_Title;
+   public static String        Dialog_Edit_Checkbox_NewValues;
+   public static String        Dialog_Edit_Checkbox_OffsetValues;
+   public static String        Dialog_Edit_Label_Altitude;
+   public static String        Dialog_Edit_Label_Pulse;
+   public static String        Dialog_Edit_Label_Cadence;
+   public static String        Dialog_Edit_Label_Temperature;
+   public static String        Dialog_Edit_Label_Altitude_Tooltip;
+   public static String        Dialog_Edit_Label_Pulse_Tooltip;
+   public static String        Dialog_Edit_Label_Cadence_Tooltip;
+   public static String        Dialog_Edit_Label_Temperature_Tooltip;
 
    public static String        Dialog_Export_Checkbox_Description;
    public static String        Dialog_Export_Checkbox_SurfingWaves;
@@ -2457,6 +2471,8 @@ public class Messages extends NLS {
    public static String Tour_Editor_Link_SetDefautTimeZone_Tooltip;
    public static String Tour_Editor_Link_SetGeoTimeZone;
    public static String Tour_Editor_Link_SetGeoTimeZone_Tooltip;
+   public static String Tour_Editor_Link_RetrieveWeather;
+   public static String Tour_Editor_Link_RetrieveWeather_Tooltip;
    public static String Tour_Editor_NoSwimData;
    public static String Tour_Editor_Radio_Cadence_Rpm;
    public static String Tour_Editor_Radio_Cadence_Spm;
@@ -2844,6 +2860,7 @@ public class Messages extends NLS {
 
    public static String TourEditor_Action_ComputeDistanceValuesFromGeoPosition;
    public static String TourEditor_Action_DeleteDistanceValues;
+   public static String TourEditor_Action_EditTimeSlicesValues;
    public static String TourEditor_Action_RemoveSwimStyle;
    public static String TourEditor_Action_SetAltitudeValuesFromSRTM;
    public static String TourEditor_Action_SetStartDistanceTo0;
