@@ -17,7 +17,10 @@ package net.tourbook.ui.views.tourMarker;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.OptionalDouble;
+import java.util.stream.IntStream;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -27,6 +30,7 @@ import net.tourbook.common.util.ColumnManager;
 import net.tourbook.common.util.IContextMenuProvider;
 import net.tourbook.common.util.ITourViewer;
 import net.tourbook.common.util.PostSelectionProvider;
+import net.tourbook.data.AltitudeUpDown;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.database.TourDatabase;
@@ -568,15 +572,89 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
       defineColumn_Motion_Distance();
       defineColumn_Motion_DistanceDelta();
+      defineColumn_Motion_PaceDelta();
 
-      //defineColumn_Altitude_TimeDelta();
-      //defineColumn_XXX_Pace();
+      defineColumn_Altitude_ElevationGainDelta();
+      defineColumn_Altitude_ElevationLossDelta();
 
       defineColumn_Waypoint_Name();
       defineColumn_Waypoint_Description();
       defineColumn_Marker_Url();
 
       defineColumn_Data_SerieIndex();
+   }
+
+   /**
+    * Column: Elevation gain
+    */
+   private void defineColumn_Altitude_ElevationGainDelta() {
+
+      final ColumnDefinition colDef = TableColumnFactory.MARKER_ALTITUDE_ELEVATIONGAINDELTA.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
+            int previousMarkerIndex = 0;
+            if (null != lastRow) {
+               final Object element = lastRow.getElement();
+               if (element instanceof TourMarker) {
+                  previousMarkerIndex = ((TourMarker) element).getSerieIndex();
+               }
+            }
+
+            final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
+
+            //It's not the best to have to worry here about retrieving the DP tolerance but for now I don't see a better solution
+            final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
+            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance, previousMarkerIndex, currentMarkerIndex);
+
+            final double value = elevationGainLoss.getAltitudeUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+
+            colDef.printValue_0(cell, value);
+         }
+      });
+
+   }
+
+   /**
+    * Column: Elevation loss
+    */
+   private void defineColumn_Altitude_ElevationLossDelta() {
+      final ColumnDefinition colDef = TableColumnFactory.MARKER_ALTITUDE_ELEVATIONLOSSDELTA.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
+            int previousMarkerIndex = 0;
+            if (null != lastRow) {
+               final Object element = lastRow.getElement();
+               if (element instanceof TourMarker) {
+                  previousMarkerIndex = ((TourMarker) element).getSerieIndex();
+               }
+            }
+
+            final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
+
+            //It's not the best to have to worry here about retrieving the DP tolerance but for now I don't see a better solution
+            final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
+            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance,
+                  previousMarkerIndex,
+                  currentMarkerIndex);
+
+            //TODO WIP
+            // It seems like those loss values can be wrong at times.....
+            //is it because i broke down the DP algorithm ?
+
+            final double value = elevationGainLoss.getAltitudeDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+
+            colDef.printValue_0(cell, value);
+         }
+      });
+
    }
 
    /**
@@ -728,6 +806,40 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
                      / 1000
                      / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE));
             }
+         }
+      });
+   }
+
+   /**
+    * Column: Pace delta
+    */
+   private void defineColumn_Motion_PaceDelta() {
+      final ColumnDefinition colDef = TableColumnFactory.MARKER_PACE_DELTA.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
+            int previousMarkerIndex = 0;
+            if (null != lastRow) {
+               final Object element = lastRow.getElement();
+               if (element instanceof TourMarker) {
+                  previousMarkerIndex = ((TourMarker) element).getSerieIndex();
+               }
+            }
+
+            final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
+
+            final float[] seriePace = _tourData.getPaceSerieSeconds();
+            if (seriePace == null) {
+               return;
+            }
+
+            final double[] seriePaceDouble = IntStream.range(previousMarkerIndex, currentMarkerIndex).mapToDouble(i -> seriePace[i]).toArray();
+            final OptionalDouble averagePace = Arrays.stream(seriePaceDouble).average();
+
+            cell.setText(UI.format_mm_ss((long) averagePace.getAsDouble()));
          }
       });
    }
