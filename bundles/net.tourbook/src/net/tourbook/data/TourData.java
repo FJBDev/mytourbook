@@ -2405,6 +2405,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    public boolean computeAltitudeUpDown() {
 
+      //TODO WIP maybe we should call this function and return the altitudeupdown. And then the functions that dont care for it just wont use the returned values
       float prefDPTolerance;
 
       if (_isImportedMTTour) {
