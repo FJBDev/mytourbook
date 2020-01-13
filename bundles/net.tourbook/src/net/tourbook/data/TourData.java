@@ -2405,7 +2405,29 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    public boolean computeAltitudeUpDown() {
 
-      //TODO WIP maybe we should call this function and return the altitudeupdown. And then the functions that dont care for it just wont use the returned values
+      if (altitudeSerie == null) {
+         return false;
+      }
+
+      final AltitudeUpDown altiUpDown = computeAltitudeUpDown(0, altitudeSerie.length - 1);
+
+      return altiUpDown != null;
+   }
+
+   public AltitudeUpDown computeAltitudeUpDown(final ArrayList<AltitudeUpDownSegment> segmentSerieIndexParameter,
+                                               final float selectedMinAltiDiff) {
+
+      return computeAltitudeUpDown_30_Algorithm_9_08(segmentSerieIndexParameter, selectedMinAltiDiff);
+   }
+
+   /**
+    * Computes and sets the altitude up/down values into {@link TourData}
+    *
+    * @return Returns an <code>AltitudeUpDown</code> when altitude was computed otherwise
+    *         <code>null</code>
+    */
+   public AltitudeUpDown computeAltitudeUpDown(final int startIndex, final int endIndex) {
+
       float prefDPTolerance;
 
       if (_isImportedMTTour) {
@@ -2420,7 +2442,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
          // DP needs distance
 
-         altiUpDown = computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance, 0, altitudeSerie.length - 1);
+         altiUpDown = computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance, startIndex, endIndex - 1);
 
          // keep this value to see in the UI (tour segmenter) the value and how it is computed
          dpTolerance = (short) (prefDPTolerance * 10);
@@ -2430,20 +2452,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          altiUpDown = computeAltitudeUpDown_30_Algorithm_9_08(null, prefDPTolerance);
       }
 
-      if (altiUpDown == null) {
-         return false;
+      if (altiUpDown != null) {
+         setTourAltUp(altiUpDown.altitudeUp);
+         setTourAltDown(altiUpDown.altitudeDown);
       }
 
-      setTourAltUp(altiUpDown.altitudeUp);
-      setTourAltDown(altiUpDown.altitudeDown);
-
-      return true;
-   }
-
-   public AltitudeUpDown computeAltitudeUpDown(final ArrayList<AltitudeUpDownSegment> segmentSerieIndexParameter,
-                                               final float selectedMinAltiDiff) {
-
-      return computeAltitudeUpDown_30_Algorithm_9_08(segmentSerieIndexParameter, selectedMinAltiDiff);
+      return altiUpDown;
    }
 
    /**
@@ -2457,7 +2471,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     *           The end of the section for which to compute the elevation gain/loss
     * @return Returns <code>null</code> when altitude up/down cannot be computed
     */
-   public AltitudeUpDown computeAltitudeUpDown_20_Algorithm_DP(final float dpTolerance, final int startIndex, int endIndex) {
+   private AltitudeUpDown computeAltitudeUpDown_20_Algorithm_DP(final float dpTolerance, final int startIndex, int endIndex) {
 
       // check if all necessary data are available
       if (altitudeSerie == null || altitudeSerie.length < 2 ||

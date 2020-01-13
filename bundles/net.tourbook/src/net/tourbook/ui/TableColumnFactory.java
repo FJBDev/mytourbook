@@ -766,12 +766,14 @@ public abstract class TableColumnFactory {
                   columnManager,
                   "MARKER_ALTITUDE_ELEVATIONGAINDELTA", //$NON-NLS-1$
                   SWT.TRAIL);
-//TODO WIP
+
+            final String unitLabel = UI.SYMBOL_DIFFERENCE_WITH_SPACE + UI.UNIT_LABEL_ALTITUDE + UI.SPACE + UI.SYMBOL_ARROW_UP;
+
             colDef.setColumnCategory(Messages.ColumnFactory_Category_Altitude);
-            colDef.setColumnLabel("Elevation Gain Differencre");//(Messages.ColumnFactory_TimeDelta_Label);
-            colDef.setColumnHeaderText("Delta ft/m");//(Messages.ColumnFactory_TimeDelta_Header);
-            colDef.setColumnHeaderToolTipText("Tooltip");//(Messages.ColumnFactory_TimeDelta_Tooltip);
-            colDef.setColumnUnit(UI.UNIT_LABEL_ALTITUDE);
+            colDef.setColumnLabel(Messages.ColumnFactory_ElevationGainDelta_Label);
+            colDef.setColumnHeaderText(unitLabel);
+            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_ElevationGainDelta_Tooltip);
+            colDef.setColumnUnit(unitLabel);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(12));
 
@@ -789,12 +791,14 @@ public abstract class TableColumnFactory {
                   columnManager,
                   "MARKER_ALTITUDE_ELEVATIONLOSSDELTA", //$NON-NLS-1$
                   SWT.TRAIL);
-//TODO WIP
+
+            final String unitLabel = UI.SYMBOL_DIFFERENCE_WITH_SPACE + UI.UNIT_LABEL_ALTITUDE + UI.SPACE + UI.SYMBOL_ARROW_DOWN;
+
             colDef.setColumnCategory(Messages.ColumnFactory_Category_Altitude);
-            colDef.setColumnLabel("Elevation loss Differencre");//(Messages.ColumnFactory_TimeDelta_Label);
-            colDef.setColumnHeaderText("Delta ft/m");//(Messages.ColumnFactory_TimeDelta_Header);
-            colDef.setColumnHeaderToolTipText("Tooltip");//(Messages.ColumnFactory_TimeDelta_Tooltip);
-            colDef.setColumnUnit(UI.UNIT_LABEL_ALTITUDE);
+            colDef.setColumnLabel(Messages.ColumnFactory_ElevationLossDelta_Label);
+            colDef.setColumnHeaderText(unitLabel);
+            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_ElevationLossDelta_Tooltip);
+            colDef.setColumnUnit(unitLabel);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(12));
 
@@ -836,12 +840,14 @@ public abstract class TableColumnFactory {
                   columnManager,
                   "MARKER_PACE_DELTA", //$NON-NLS-1$
                   SWT.TRAIL);
-//TODO WIP
+
+            final String unitLabel = UI.SYMBOL_DIFFERENCE_WITH_SPACE + UI.UNIT_LABEL_PACE;
+
             colDef.setColumnCategory(Messages.ColumnFactory_Category_Motion);
-            colDef.setColumnLabel("Pace");//(Messages.ColumnFactory_TimeDelta_Label);
-            colDef.setColumnHeaderText("Average symbol min/mile");//(Messages.ColumnFactory_TimeDelta_Header);
-            colDef.setColumnHeaderToolTipText("Tooltip");//(Messages.ColumnFactory_TimeDelta_Tooltip);
-            colDef.setColumnUnit(UI.UNIT_LABEL_PACE);
+            colDef.setColumnLabel(Messages.ColumnFactory_PaceDelta_Label);
+            colDef.setColumnHeaderText(unitLabel);
+            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_PaceDelta_Tooltip);
+            colDef.setColumnUnit(unitLabel);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(12));
 

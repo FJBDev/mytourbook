@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -606,9 +606,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
             final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
 
-            //It's not the best to have to worry here about retrieving the DP tolerance but for now I don't see a better solution
-            final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
-            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance, previousMarkerIndex, currentMarkerIndex);
+            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown(previousMarkerIndex, currentMarkerIndex);
 
             final double value = elevationGainLoss.getAltitudeUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
 
@@ -639,15 +637,9 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
             final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
 
-            //It's not the best to have to worry here about retrieving the DP tolerance but for now I don't see a better solution
-            final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
-            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown_20_Algorithm_DP(prefDPTolerance,
+            final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown(
                   previousMarkerIndex,
                   currentMarkerIndex);
-
-            //TODO WIP
-            // It seems like those loss values can be wrong at times.....
-            //is it because i broke down the DP algorithm ?
 
             final double value = elevationGainLoss.getAltitudeDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
 
@@ -879,7 +871,6 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
          @Override
          public void update(final ViewerCell cell) {
 
-            //TODO WIP
             final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
             int lastTime = 0;
             if (null != lastRow) {
