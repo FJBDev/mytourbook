@@ -2471,16 +2471,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     *           The end of the section for which to compute the elevation gain/loss
     * @return Returns <code>null</code> when altitude up/down cannot be computed
     */
-   private AltitudeUpDown computeAltitudeUpDown_20_Algorithm_DP(final float dpTolerance, final int startIndex, int endIndex) {
+   private AltitudeUpDown computeAltitudeUpDown_20_Algorithm_DP(final float dpTolerance, final int startIndex, final int endIndex) {
 
       // check if all necessary data are available
       if (altitudeSerie == null || altitudeSerie.length < 2 ||
-            startIndex > altitudeSerie.length) {
+            startIndex > altitudeSerie.length || endIndex >= altitudeSerie.length) {
          return null;
-      }
-
-      if (endIndex >= altitudeSerie.length) {
-         --endIndex;
       }
 
       // convert data series into DP points
