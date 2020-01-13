@@ -2479,8 +2479,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          return null;
       }
 
-      if (endIndex > altitudeSerie.length) {
-         endIndex = altitudeSerie.length - 1;
+      if (endIndex >= altitudeSerie.length) {
+         --endIndex;
       }
 
       // convert data series into DP points
