@@ -133,7 +133,7 @@ public class TourCompareResultView extends ViewPart implements ITourViewer, ITou
 
    private boolean                            _isToolbarCreated;
 
-   private boolean                            _isToolTipInTime;
+   private boolean                            _isToolTipInTour;
 
    private ColumnManager                      _columnManager;
 
@@ -664,7 +664,7 @@ public class TourCompareResultView extends ViewPart implements ITourViewer, ITou
 
          @Override
          public Long getTourId(final ViewerCell cell) {
-            if (_isToolTipInTime == false) {
+            if (_isToolTipInTour == false) {
                return null;
             }
 
@@ -1691,7 +1691,7 @@ public class TourCompareResultView extends ViewPart implements ITourViewer, ITou
 
    private void updateToolTipState() {
 
-      _isToolTipInTime = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TIME);
+      _isToolTipInTour = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCOMPARERESULT_TIME);
    }
 
    /**
