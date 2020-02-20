@@ -80,6 +80,7 @@ public class PrefPageExportKml extends PreferencePage implements IWorkbenchPrefe
    private Spinner   _spinnerTemperatureAdjustment;
 
    private TabFolder _tabFolder;
+   "\"C:\\Program Files\\Google\\Google Earth Pro\\client\\googleearth.exe\" -Embedding"
 
    @Override
    protected Control createContents(final Composite parent) {
