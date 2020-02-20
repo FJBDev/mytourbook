@@ -435,6 +435,16 @@
          id="net.tourbook.preferences.PrefPageWeather"
          class="net.tourbook.preferences.PrefPageWeather"
       />
+      
+      
+       <!--
+         Import
+      -->
+      <page
+         name="%Pref_Page_Export"
+         class="net.tourbook.preferences.PrefPageExport"
+         id="net.tourbook.preferences.PrefPageExport"
+      />
 
    </extension>
 

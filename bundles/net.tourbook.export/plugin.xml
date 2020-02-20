@@ -19,5 +19,16 @@
 		/>
 		
 	</extension>
+	
+	 <extension   point="org.eclipse.ui.preferencePages">
+
+      <page
+         category    ="net.tourbook.preferences.PrefPageExport"
+         class       ="net.tourbook.export.PrefPageExportKml"
+         id          ="net.tourbook.export.PrefPageExportKml"
+         name        ="Kml"
+      />
+      
+	</extension>
 
 </plugin>
