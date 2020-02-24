@@ -591,7 +591,6 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
       final ColumnDefinition colDef = TableColumnFactory.ALTITUDE_AVG_GRADIENT.createColumn(_columnManager, _pc);
 
-
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
          public void update(final ViewerCell cell) {
