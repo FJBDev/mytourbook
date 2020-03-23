@@ -1599,6 +1599,7 @@ public class TourFilterManager {
       case SEASON_CURRENT_DAY:
       case SEASON_MONTH:
       case SEASON_TODAY_UNTIL_YEAR_END:
+         // no additional controls
          break;
       }
    }
@@ -1938,6 +1939,7 @@ public class TourFilterManager {
       case SEASON_CURRENT_MONTH:
       case SEASON_CURRENT_DAY:
       case SEASON_TODAY_UNTIL_YEAR_END:
+         // no additional controls
          break;
       }
    }
