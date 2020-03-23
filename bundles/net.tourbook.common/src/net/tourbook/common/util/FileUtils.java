@@ -12,11 +12,8 @@
 
 package net.tourbook.common.util;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A collection of file related utilities.
@@ -147,7 +144,7 @@ public final class FileUtils
      * @return file encoding..
      * @throws IOException
      */
-    public static final String consumeBOM(InputStream in, String default_encoding) throws IOException
+    public static final String consumeBOM(final InputStream in, final String default_encoding) throws IOException
     {
         return consumeBOM(in, default_encoding, false);
     }
@@ -164,9 +161,9 @@ public final class FileUtils
      * @return file encoding..
      * @throws IOException
      */
-	public static final String consumeBOM(InputStream in, 
-                                        String default_encoding,
-                                        boolean alwaysConsumeBOM) throws IOException
+	public static final String consumeBOM(final InputStream in, 
+                                        final String default_encoding,
+                                        final boolean alwaysConsumeBOM) throws IOException
 	{
 		in.mark(3);
 		// Determine file encoding...
@@ -188,8 +185,8 @@ public final class FileUtils
 		else
 	    {
 	        in.reset();
-	        int b0 = in.read();
-	        int b1 = in.read();
+	        final int b0 = in.read();
+	        final int b1 = in.read();
 	        if (b0 == 0xff && b1 == 0xfe || b0 == 0xfe && b1 == 0xff)
 	        {
                 // If we don't consume the BOM is its assumed a
