@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Reader for different devices
+Bundle-SymbolicName: net.tourbook.cloud;singleton:=true
+Bundle-Version: 20.3.0.qualifier
+Bundle-Activator: net.tourbook.cloud.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ net.tourbook,
+ net.tourbook.common
+Bundle-ActivationPolicy: lazy
+Export-Package: net.tourbook.cloud
+Bundle-Vendor: MyTourbook
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: de.byteholder.geoclipse.map,
+ net.tourbook,
+ net.tourbook.application,
+ net.tourbook.importdata,
+ net.tourbook.preferences,
+ net.tourbook.tour,
+ net.tourbook.ui
+Automatic-Module-Name: net.tourbook.cloud
