@@ -12,7 +12,10 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.tourbook.cloud
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: de.byteholder.geoclipse.map,
+Import-Package: com.microsoft.alm.oauth2.useragent,
+ com.dropbox.core,
+ com.dropbox.core.v2,
+ de.byteholder.geoclipse.map,
  net.tourbook,
  net.tourbook.application,
  net.tourbook.importdata,

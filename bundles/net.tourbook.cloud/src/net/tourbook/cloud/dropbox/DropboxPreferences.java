@@ -15,6 +15,14 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import com.microsoft.alm.oauth2.useragent.AuthorizationException;
+import com.microsoft.alm.oauth2.useragent.AuthorizationResponse;
+import com.microsoft.alm.oauth2.useragent.UserAgent;
+import com.microsoft.alm.oauth2.useragent.UserAgentImpl;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import net.tourbook.application.TourbookPlugin;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -81,7 +89,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
          _btnShowMap.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
-               onClickAuthorize();
+                  onClickAuthorize();
             }
 
          });
@@ -102,8 +110,38 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    public void init(final IWorkbench workbench) {}
 
    private void onClickAuthorize() {
-      // TODO Auto-generated method stub
-      System.out.print("dd");
+      final UserAgent userAgent = new UserAgentImpl();
+      AuthorizationResponse authorizationResponse;
+      try {
+         final URI authorizationEndpoint = new URI("https://www.dropbox.com/oauth2/authorize?" +
+               "client_id=MYCLIENTID" +
+               "&response_type=code" +
+               "&force_reapprove=true");
+         final URI redirectUri = new URI("https://sourceforge.net/projects/mytourbook");
+         authorizationResponse = userAgent.requestAuthorizationCode(authorizationEndpoint,
+               redirectUri);
+         final String code = authorizationResponse.getCode();
+         System.out.print("Authorization Code: ");
+         System.out.println(code);
+      } catch (final AuthorizationException | URISyntaxException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
+
+      /*
+       * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
+       * final DbxAppClientV2 toto = new DbxAppClientV2(titi, "vye6ci8xzzsuiao", "ovxyfwr544wrdvg");
+       * final DbxAppAuthRequests tttt = toto.auth();
+       * final DbxCredential credential = new DbxCredential("accesstoken",
+       * 2 * DbxCredential.EXPIRE_MARGIN,
+       * "refresh_token",
+       * "appkey",
+       * "app_secret");
+       */
+
+      // Create Dropbox client
+      //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
    }
 
    @Override
