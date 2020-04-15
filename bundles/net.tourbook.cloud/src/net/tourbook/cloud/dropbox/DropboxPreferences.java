@@ -15,15 +15,9 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
-import com.microsoft.alm.oauth2.useragent.AuthorizationException;
-import com.microsoft.alm.oauth2.useragent.AuthorizationResponse;
-import com.microsoft.alm.oauth2.useragent.UserAgent;
-import com.microsoft.alm.oauth2.useragent.UserAgentImpl;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.authentication.OAuth2Client;
+import net.tourbook.cloud.authentication.OAuth2RequestAction;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -110,23 +104,38 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    public void init(final IWorkbench workbench) {}
 
    private void onClickAuthorize() {
-      final UserAgent userAgent = new UserAgentImpl();
-      AuthorizationResponse authorizationResponse;
-      try {
-         final URI authorizationEndpoint = new URI("https://www.dropbox.com/oauth2/authorize?" +
-               "client_id=MYCLIENTID" +
-               "&response_type=code" +
-               "&force_reapprove=true");
-         final URI redirectUri = new URI("https://sourceforge.net/projects/mytourbook");
-         authorizationResponse = userAgent.requestAuthorizationCode(authorizationEndpoint,
-               redirectUri);
-         final String code = authorizationResponse.getCode();
-         System.out.print("Authorization Code: ");
-         System.out.println(code);
-      } catch (final AuthorizationException | URISyntaxException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
+
+      final OAuth2Client client = new OAuth2Client();
+      client.setId("vye6ci8xzzsuiao"); // client_id
+      client.setSecret("0000000000000000000000000000000000000000"); // client_secret
+      client.setAccessTokenUrl("https://github.com/login/oauth/access_token");
+      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
+
+      //Opens the dialog
+      final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
+      request.run();
+
+      final String token = request.getAccessToken(); // access_token
+
+      /*
+       * final UserAgent userAgent = new UserAgentImpl();
+       * AuthorizationResponse authorizationResponse;
+       * try {
+       * final URI authorizationEndpoint = new URI("https://www.dropbox.com/oauth2/authorize?" +
+       * "client_id=MYCLIENTID" +
+       * "&response_type=code" +
+       * "&force_reapprove=true");
+       * final URI redirectUri = new URI("https://sourceforge.net/projects/mytourbook");
+       * authorizationResponse = userAgent.requestAuthorizationCode(authorizationEndpoint,
+       * redirectUri);
+       * final String code = authorizationResponse.getCode();
+       * System.out.print("Authorization Code: ");
+       * System.out.println(code);
+       * } catch (final AuthorizationException | URISyntaxException e) {
+       * // TODO Auto-generated catch block
+       * e.printStackTrace();
+       * }
+       */
 
 
       /*
