@@ -147,7 +147,7 @@ public class OAuth2BrowserDialog extends Dialog {
             } catch (final URISyntaxException ignored) {
                return;
             }
-            final List<NameValuePair> params = URLEncodedUtils.parse(uri, null);
+            final List<NameValuePair> params = URLEncodedUtils.parse(uri, java.nio.charset.Charset.defaultCharset());
             for (final NameValuePair param : params) {
                if (paramName.equals(param.getName())) {
                   code = param.getValue();
