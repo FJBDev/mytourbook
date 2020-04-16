@@ -31,6 +31,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -43,18 +44,20 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
     * UI controls
     */
    private Button _btnAuthorizeConnection;
-   private Text  _textAccessToken;
+   private Text   _textAccessToken;
+   private Button _btnChooseFolder;
+   private Text   _textFolderPath;
 
    @Override
    protected void createFieldEditors() {
 
       createUI();
 
+      restoreState();
+
    }
 
    private void createUI() {
-
-      final int defaultHIndent = 16;
 
       final Composite parent = getFieldEditorParent();
       GridLayoutFactory.fillDefaults().applyTo(parent);
@@ -87,42 +90,54 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
                   .grab(true, false)
                   .applyTo(_textAccessToken);
          }
-         /*
-          * {
-          * WWO Api Sign-up page
-          * // Link - see http(s)://www.worldweatheronline.com/developer/signup.aspx
-          * _linkApiSignup = new Link(container, SWT.PUSH);
-          * _linkApiSignup.setText(Messages.Pref_Weather_Link_ApiSignup);
-          * _linkApiSignup.setEnabled(true);
-          * _linkApiSignup.addListener(SWT.Selection, new Listener() {
-          * @Override
-          * public void handleEvent(final Event event) {
-          * WEB.openUrl(Messages.External_Link_Weather_ApiSignup);
-          * }
-          * });
-          * GridDataFactory.fillDefaults()
-          * .span(2, 1)
-          * .indent(defaultHIndent, 0)
-          * .applyTo(_linkApiSignup);
-          * }
-          * {
-          * Button: test connection
-          * _btnTestConnection = new Button(container, SWT.NONE);
-          * _btnTestConnection.setText(Messages.Pref_Weather_Button_TestHTTPConnection);
-          * _btnTestConnection.addSelectionListener(new SelectionAdapter() {
-          * @Override
-          * public void widgetSelected(final SelectionEvent e) {
-          * onCheckConnection();
-          * }
-          * });
-          * GridDataFactory.fillDefaults()
-          * .indent(defaultHIndent, 0)
-          * .align(SWT.BEGINNING, SWT.FILL)
-          * .span(2, 1)
-          * .applyTo(_btnTestConnection);
-          * }
-          */
+         {
+            /*
+             * Choose Dropbox folder
+             */
+            _btnChooseFolder = new Button(container, SWT.NONE);
+            _btnChooseFolder.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+            _btnChooseFolder.addSelectionListener(new SelectionAdapter() {
+
+               @Override
+               public void widgetSelected(final SelectionEvent e) {
+                  onClickChooseFolder();
+               }
+            });
+
+            /*
+             * Dropbox folder path
+             */
+            _textFolderPath = new Text(container, SWT.BORDER);
+            _textFolderPath.setEnabled(false);
+            _textFolderPath.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+            GridDataFactory.fillDefaults()
+                  .grab(true, false)
+                  .applyTo(_textFolderPath);
+         }
       }
+   }
+
+   private void enableControls() {
+
+      /*
+       * final boolean isSplitTour = _chkRemoveExceededDuration.getSelection();
+       * final boolean isIgnoreSpeed = _chkIgnoreSpeedValues.getSelection();
+       * final boolean isIgnorLastMarker = _chkIgnoreLastMarker.getSelection();
+       * final boolean isFitImportTourType = _chkFitImportTourType.getSelection();
+       * _lblIgnorSpeedValues_Info.setEnabled(isIgnoreSpeed);
+       * _lblIgnorLastMarker_Info.setEnabled(isIgnorLastMarker);
+       * _lblIgnorLastMarker_TimeSlices.setEnabled(isIgnorLastMarker);
+       * _spinnerIgnorLastMarker_TimeSlices.setEnabled(isIgnorLastMarker);
+       * _lblSplitTour_DurationUnit.setEnabled(isSplitTour);
+       * _lblSplitTour_Duration.setEnabled(isSplitTour);
+       * _lblSplitTour_Info.setEnabled(isSplitTour);
+       * _spinnerExceededDuration.setEnabled(isSplitTour);
+       * _rdoTourTypeFromSport.setEnabled(isFitImportTourType);
+       * _rdoTourTypeFromProfile.setEnabled(isFitImportTourType);
+       * _rdoTourTypeFromProfileElseSport.setEnabled(isFitImportTourType);
+       * _rdoTourTypeFromSportAndProfile.setEnabled(isFitImportTourType);
+       * updateUI_SplitTour();
+       */
    }
 
    @Override
@@ -131,22 +146,23 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId(""); // client_id
-      client.setSecret(""); // client_secret
+      client.setId("TOINSERTATBUILDTIME"); // client_id
+      client.setSecret("TOINSERTATBUILDTIME"); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
 
-      //Opens the dialog
       final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
+      //Opens the dialog
       request.run();
 
-      final String token = request.getAccessToken(); // access_token
+      final String token = request.getAccessToken();
 
       if (!StringUtils.isNullOrEmpty(token)) {
          _textAccessToken.setText(token);
       }
 
       /*
+       * WHere to get the 20.3.0 string ???
        * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
        * final DbxAppClientV2 toto = new DbxAppClientV2(titi, "vye6ci8xzzsuiao", "ovxyfwr544wrdvg");
        * final DbxAppAuthRequests tttt = toto.auth();
@@ -159,6 +175,22 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
       // Create Dropbox client
       //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
+   }
+
+   protected void onClickChooseFolder() {
+      //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
+      try
+      {
+         final DirectoryDialog dialog = new DirectoryDialog(getShell());
+            dialog.setText("Choose Dropbox Directory");
+         dialog.setFilterPath("www.dropbox.com");
+         dialog.open();
+         //text_dropboxPath.setText(dialog.open());
+
+      } catch (final Exception e)
+      {
+      }
+
    }
 
    @Override
@@ -181,6 +213,12 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       }
 
       return isOK;
+   }
+
+   private void restoreState() {
+      _textAccessToken.setText(_prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
+
+      enableControls();
    }
 
 }

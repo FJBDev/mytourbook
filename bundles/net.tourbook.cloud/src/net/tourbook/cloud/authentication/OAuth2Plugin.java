@@ -20,24 +20,24 @@ public class OAuth2Plugin extends AbstractUIPlugin {
 
    private static OAuth2Plugin INSTANCE = new OAuth2Plugin();
 
-	/**
-	 * Get default plug-in
-	 *
-	 * @return plug-in
-	 */
-	public static OAuth2Plugin getDefault() {
-		return INSTANCE;
-	}
+   /**
+    * Get default plug-in
+    *
+    * @return plug-in
+    */
+   public static OAuth2Plugin getDefault() {
+      return INSTANCE;
+   }
 
-	@Override
-	public void start(final BundleContext context) throws Exception {
-		super.start(context);
-		INSTANCE = this;
-	}
+   @Override
+   public void start(final BundleContext context) throws Exception {
+      super.start(context);
+      INSTANCE = this;
+   }
 
-	@Override
-	public void stop(final BundleContext context) throws Exception {
-		super.stop(context);
-		INSTANCE = null;
-	}
+   @Override
+   public void stop(final BundleContext context) throws Exception {
+      super.stop(context);
+      INSTANCE = null;
+   }
 }

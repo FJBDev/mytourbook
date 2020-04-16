@@ -12,6 +12,8 @@ package net.tourbook.cloud.authentication;
 
 import java.io.IOException;
 
+import net.tourbook.common.util.StatusUtil;
+
 import org.eclipse.jface.action.Action;
 
 /**
@@ -19,41 +21,41 @@ import org.eclipse.jface.action.Action;
  */
 public class OAuth2RequestAction extends Action {
 
-	private final OAuth2Client client;
+   private final OAuth2Client client;
 
-	private final String scope;
+   private final String       scope;
 
-	private String token;
+   private String             token;
 
-	/**
-	 * Create request for client and scope
-	 *
-	 * @param client
-	 * @param scope
-	 */
-	public OAuth2RequestAction(final OAuth2Client client, final String scope) {
-		this.client = client;
-		this.scope = scope;
-	}
+   /**
+    * Create request for client and scope
+    *
+    * @param client
+    * @param scope
+    */
+   public OAuth2RequestAction(final OAuth2Client client, final String scope) {
+      this.client = client;
+      this.scope = scope;
+   }
 
-	/**
-	 * Get token
-	 *
-	 * @return token
-	 */
-	public String getAccessToken() {
-		return token;
-	}
+   /**
+    * Get token
+    *
+    * @return token
+    */
+   public String getAccessToken() {
+      return token;
+   }
 
-	@Override
-	public void run() {
-		final String code = OAuth2BrowserDialog.getCode(client, scope);
-		if (code != null) {
+   @Override
+   public void run() {
+      final String code = OAuth2BrowserDialog.getCode(client, scope);
+      if (code != null) {
          try {
-				token = new AccessTokenClient(client).fetch(code);
-			} catch (final IOException ignored) {
-				// Ignored
-			}
+            token = new AccessTokenClient(client).fetch(code);
+         } catch (final IOException e) {
+            StatusUtil.log(e);
+         }
       }
-	}
+   }
 }

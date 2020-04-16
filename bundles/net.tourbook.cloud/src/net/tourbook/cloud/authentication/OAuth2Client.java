@@ -15,89 +15,89 @@ package net.tourbook.cloud.authentication;
  */
 public class OAuth2Client {
 
-	private String accessTokenUrl;
+   private String accessTokenUrl;
 
-	private String authorizeUrl;
+   private String authorizeUrl;
 
-	private String id;
+   private String id;
 
-	private String redirectUri = IOAuth2Constants.FAKE_REDIRECT;
+   private String redirectUri = IOAuth2Constants.FAKE_REDIRECT;
 
-	private String secret;
+   private String secret;
 
-	/**
-	 * @return accessTokenUrl
-	 */
-	public String getAccessTokenUrl() {
-		return accessTokenUrl;
-	}
+   /**
+    * @return accessTokenUrl
+    */
+   public String getAccessTokenUrl() {
+      return accessTokenUrl;
+   }
 
-	/**
-	 * @return authorizeUrl
-	 */
-	public String getAuthorizeUrl() {
-		return authorizeUrl;
-	}
+   /**
+    * @return authorizeUrl
+    */
+   public String getAuthorizeUrl() {
+      return authorizeUrl;
+   }
 
-	/**
-	 * @return id
-	 */
-	public String getId() {
-		return id;
-	}
+   /**
+    * @return id
+    */
+   public String getId() {
+      return id;
+   }
 
-	/**
-	 * @return redirectUri
-	 */
-	public String getRedirectUri() {
-		return redirectUri;
-	}
+   /**
+    * @return redirectUri
+    */
+   public String getRedirectUri() {
+      return redirectUri;
+   }
 
-	/**
-	 * @return secret
-	 */
-	public String getSecret() {
-		return secret;
-	}
+   /**
+    * @return secret
+    */
+   public String getSecret() {
+      return secret;
+   }
 
-	/**
-	 * @param accessTokenUrl
-	 */
-	public void setAccessTokenUrl(final String accessTokenUrl) {
-		this.accessTokenUrl = accessTokenUrl;
-	}
+   /**
+    * @param accessTokenUrl
+    */
+   public void setAccessTokenUrl(final String accessTokenUrl) {
+      this.accessTokenUrl = accessTokenUrl;
+   }
 
-	/**
-	 * @param authorizeUrl
-	 */
-	public void setAuthorizeUrl(final String authorizeUrl) {
-		this.authorizeUrl = authorizeUrl;
-	}
+   /**
+    * @param authorizeUrl
+    */
+   public void setAuthorizeUrl(final String authorizeUrl) {
+      this.authorizeUrl = authorizeUrl;
+   }
 
-	/**
-	 * @param id
-	 * @return this client
-	 */
-	public OAuth2Client setId(final String id) {
-		this.id = id;
-		return this;
-	}
+   /**
+    * @param id
+    * @return this client
+    */
+   public OAuth2Client setId(final String id) {
+      this.id = id;
+      return this;
+   }
 
-	/**
-	 * @param redirectUri
-	 * @return this client
-	 */
-	public OAuth2Client setRedirectUri(final String redirectUri) {
-		this.redirectUri = redirectUri;
-		return this;
-	}
+   /**
+    * @param redirectUri
+    * @return this client
+    */
+   public OAuth2Client setRedirectUri(final String redirectUri) {
+      this.redirectUri = redirectUri;
+      return this;
+   }
 
-	/**
-	 * @param secret
-	 * @return this client
-	 */
-	public OAuth2Client setSecret(final String secret) {
-		this.secret = secret;
-		return this;
-	}
+   /**
+    * @param secret
+    * @return this client
+    */
+   public OAuth2Client setSecret(final String secret) {
+      this.secret = secret;
+      return this;
+   }
 }

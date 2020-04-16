@@ -36,11 +36,11 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OAuth2BrowserDialog extends Dialog {
 
-	private final String url;
+   private final String url;
 
-	private final String redirectUri;
+   private final String redirectUri;
 
-	private final String paramName;
+   private final String paramName;
 
    private String       code;
 
@@ -94,31 +94,35 @@ public class OAuth2BrowserDialog extends Dialog {
                   .getActiveShell());
    }
 
-	/**
-	 * Get code for client, scope, and shell
-	 *
-	 * @param client
-	 * @param scope
-	 * @param shell
-	 * @return code
-	 */
-	public static String getCode(final OAuth2Client client, final String scope,
-			final Shell shell) {
+   /**
+    * Get code for client, scope, and shell
+    *
+    * @param client
+    * @param scope
+    * @param shell
+    * @return code
+    */
+   public static String getCode(final OAuth2Client client,
+                                final String scope,
+                                final Shell shell) {
       final String url = "https://www.dropbox.com/oauth2/authorize?client_id=vye6ci8xzzsuiao&response_type=code" +
             "&redirect_uri=https://sourceforge.net/projects/mytourbook";// OAuth2Utils.getAuthorizeUrl(client, scope);
-		final OAuth2BrowserDialog dialog = new OAuth2BrowserDialog(shell, url,
-				client.getRedirectUri());
-		if (dialog.open() == Window.OK) {
+      final OAuth2BrowserDialog dialog = new OAuth2BrowserDialog(shell,
+            url,
+            client.getRedirectUri());
+      if (dialog.open() == Window.OK) {
          return dialog.getCode();
       }
-		return null;
-	}
+      return null;
+   }
 
-	@Override
+   @Override
    protected void createButtonsForButtonBar(final Composite parent) {
-		createButton(parent, IDialogConstants.CANCEL_ID,
-				IDialogConstants.CANCEL_LABEL, false);
-	}
+      createButton(parent,
+            IDialogConstants.CANCEL_ID,
+            IDialogConstants.CANCEL_LABEL,
+            false);
+   }
 
    @Override
    protected Control createDialogArea(final Composite parent) {
@@ -163,28 +167,28 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    /**
-	 * Get code
-	 *
-	 * @return code
-	 */
-	public String getCode() {
-		return code;
-	}
-
-	@Override
-	protected IDialogSettings getDialogBoundsSettings() {
-		final String sectionName = getClass().getName() + ".dialogBounds"; //$NON-NLS-1$
-      final IDialogSettings settings = OAuth2Plugin.getDefault()
-				.getDialogSettings();
-		IDialogSettings section = settings.getSection(sectionName);
-		if (section == null) {
-         section = settings.addNewSection(sectionName);
-      }
-		return section;
-	}
+    * Get code
+    *
+    * @return code
+    */
+   public String getCode() {
+      return code;
+   }
 
    @Override
-	protected boolean isResizable() {
-		return true;
-	}
+   protected IDialogSettings getDialogBoundsSettings() {
+      final String sectionName = getClass().getName() + ".dialogBounds"; //$NON-NLS-1$
+      final IDialogSettings settings = OAuth2Plugin.getDefault()
+            .getDialogSettings();
+      IDialogSettings section = settings.getSection(sectionName);
+      if (section == null) {
+         section = settings.addNewSection(sectionName);
+      }
+      return section;
+   }
+
+   @Override
+   protected boolean isResizable() {
+      return true;
+   }
 }
