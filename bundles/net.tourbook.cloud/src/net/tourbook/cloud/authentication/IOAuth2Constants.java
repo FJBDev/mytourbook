@@ -35,6 +35,11 @@ public interface IOAuth2Constants {
 	 */
 	String PARAM_CODE = "code"; //$NON-NLS-1$
 
+   /**
+    * PARAM_GRANT_TYPE
+    */
+   String PARAM_GRANT_TYPE    = "grant_type";                                  //$NON-NLS-1$
+
 	/**
 	 * PARAM_REDIRECT_URI
 	 */

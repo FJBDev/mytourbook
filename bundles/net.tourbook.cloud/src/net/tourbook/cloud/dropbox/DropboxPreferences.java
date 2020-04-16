@@ -15,9 +15,12 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.authentication.OAuth2Client;
 import net.tourbook.cloud.authentication.OAuth2RequestAction;
+import net.tourbook.common.util.StringUtils;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -27,76 +30,98 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class DropboxPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-
-   private final IPreferenceStore _prefStore   = TourbookPlugin.getDefault().getPreferenceStore();
+   private final IPreferenceStore _prefStore = TourbookPlugin.getDefault().getPreferenceStore();
 
    /*
     * UI controls
     */
-   private Group _groupData;
-
-   private Combo _comboDistanceDataSource;
-
-   private Label _lblAltitudeDataSource;
-   private Label _lblDistanceDataSource;
+   private Button _btnAuthorizeConnection;
+   private Text  _textAccessToken;
 
    @Override
    protected void createFieldEditors() {
 
       createUI();
 
-      setupUI();
-
    }
 
    private void createUI() {
 
+      final int defaultHIndent = 16;
+
       final Composite parent = getFieldEditorParent();
       GridLayoutFactory.fillDefaults().applyTo(parent);
 
-      /*
-       * Data
-       */
-      _groupData = new Group(parent, SWT.NONE);
-      _groupData.setText("dd");//Messages.pref_data_source);
-      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_groupData);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(_groupData);
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
-         // label: Altitude data source
-         _lblAltitudeDataSource = new Label(_groupData, SWT.NONE);
-         _lblAltitudeDataSource.setText("Authorize");
-         /*
-          * combo: Altitude source
-          */
-         // button: update map
-         final Button _btnShowMap = new Button(_groupData, SWT.NONE);
-         _btnShowMap.setText("click");
-         _btnShowMap.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
+         {
+            /*
+             * Authorize button
+             */
+            _btnAuthorizeConnection = new Button(container, SWT.NONE);
+            _btnAuthorizeConnection.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+            _btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
+
+               @Override
+               public void widgetSelected(final SelectionEvent e) {
                   onClickAuthorize();
-            }
+               }
+            });
 
-         });
-
-         // label: Distance data source
-         _lblDistanceDataSource = new Label(_groupData, SWT.NONE);
-         _lblDistanceDataSource.setText("");//Messages.pref_distance_source);
-
+            /*
+             * Access Token
+             */
+            _textAccessToken = new Text(container, SWT.BORDER);
+            _textAccessToken.setEnabled(false);
+            _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+            GridDataFactory.fillDefaults()
+                  .grab(true, false)
+                  .applyTo(_textAccessToken);
+         }
          /*
-          * combo: Distance source
+          * {
+          * WWO Api Sign-up page
+          * // Link - see http(s)://www.worldweatheronline.com/developer/signup.aspx
+          * _linkApiSignup = new Link(container, SWT.PUSH);
+          * _linkApiSignup.setText(Messages.Pref_Weather_Link_ApiSignup);
+          * _linkApiSignup.setEnabled(true);
+          * _linkApiSignup.addListener(SWT.Selection, new Listener() {
+          * @Override
+          * public void handleEvent(final Event event) {
+          * WEB.openUrl(Messages.External_Link_Weather_ApiSignup);
+          * }
+          * });
+          * GridDataFactory.fillDefaults()
+          * .span(2, 1)
+          * .indent(defaultHIndent, 0)
+          * .applyTo(_linkApiSignup);
+          * }
+          * {
+          * Button: test connection
+          * _btnTestConnection = new Button(container, SWT.NONE);
+          * _btnTestConnection.setText(Messages.Pref_Weather_Button_TestHTTPConnection);
+          * _btnTestConnection.addSelectionListener(new SelectionAdapter() {
+          * @Override
+          * public void widgetSelected(final SelectionEvent e) {
+          * onCheckConnection();
+          * }
+          * });
+          * GridDataFactory.fillDefaults()
+          * .indent(defaultHIndent, 0)
+          * .align(SWT.BEGINNING, SWT.FILL)
+          * .span(2, 1)
+          * .applyTo(_btnTestConnection);
+          * }
           */
-         _comboDistanceDataSource = new Combo(_groupData, SWT.READ_ONLY | SWT.BORDER);
-         _comboDistanceDataSource.setVisibleItemCount(2);
       }
    }
 
@@ -107,7 +132,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
       final OAuth2Client client = new OAuth2Client();
       client.setId("vye6ci8xzzsuiao"); // client_id
-      client.setSecret("0000000000000000000000000000000000000000"); // client_secret
+      client.setSecret("ovxyfwr544wrdvg"); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
 
@@ -117,26 +142,9 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
       final String token = request.getAccessToken(); // access_token
 
-      /*
-       * final UserAgent userAgent = new UserAgentImpl();
-       * AuthorizationResponse authorizationResponse;
-       * try {
-       * final URI authorizationEndpoint = new URI("https://www.dropbox.com/oauth2/authorize?" +
-       * "client_id=MYCLIENTID" +
-       * "&response_type=code" +
-       * "&force_reapprove=true");
-       * final URI redirectUri = new URI("https://sourceforge.net/projects/mytourbook");
-       * authorizationResponse = userAgent.requestAuthorizationCode(authorizationEndpoint,
-       * redirectUri);
-       * final String code = authorizationResponse.getCode();
-       * System.out.print("Authorization Code: ");
-       * System.out.println(code);
-       * } catch (final AuthorizationException | URISyntaxException e) {
-       * // TODO Auto-generated catch block
-       * e.printStackTrace();
-       * }
-       */
-
+      if (!StringUtils.isNullOrEmpty(token)) {
+         _textAccessToken.setText(token);
+      }
 
       /*
        * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
@@ -156,25 +164,23 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    @Override
    protected void performDefaults() {
 
+      _textAccessToken.setText(_prefStore.getDefaultString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
+
+      //enableControls();
+
+      super.performDefaults();
    }
+
    @Override
    public boolean performOk() {
 
       final boolean isOK = super.performOk();
 
-      /*
-       * if (isOK) {
-       * _prefStore.setValue(IPreferences.ALTITUDE_DATA_SOURCE,
-       * _comboAltitudeDataSource.getSelectionIndex());
-       * _prefStore.setValue(IPreferences.DISTANCE_DATA_SOURCE,
-       * _comboDistanceDataSource.getSelectionIndex());
-       * }
-       */
+      if (isOK) {
+         _prefStore.setValue(ICloudPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
+      }
+
       return isOK;
-   }
-
-   private void setupUI() {
-
    }
 
 }

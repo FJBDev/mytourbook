@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Reader for different devices
+Bundle-Name: Connectivity to clouds applications
 Bundle-SymbolicName: net.tourbook.cloud;singleton:=true
 Bundle-Version: 20.3.0.qualifier
 Bundle-Activator: net.tourbook.cloud.Activator
@@ -12,14 +12,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.tourbook.cloud
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: de.byteholder.geoclipse.map,
- net.tourbook,
- net.tourbook.application,
- net.tourbook.importdata,
- net.tourbook.preferences,
- net.tourbook.tour,
- net.tourbook.ui,
- org.apache.http,
+Import-Package: org.apache.http,
  org.apache.http.client.entity,
  org.apache.http.client.methods,
  org.apache.http.client.utils,
@@ -30,5 +23,6 @@ Import-Package: de.byteholder.geoclipse.map,
  org.apache.http.impl.conn,
  org.apache.http.message,
  org.apache.http.protocol,
- org.apache.http.util
+ org.apache.http.util,
+ org.json
 Automatic-Module-Name: net.tourbook.cloud
