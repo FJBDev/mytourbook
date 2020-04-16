@@ -95,7 +95,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
              * Choose Dropbox folder
              */
             _btnChooseFolder = new Button(container, SWT.NONE);
-            _btnChooseFolder.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+            _btnChooseFolder.setEnabled(false);
+            _btnChooseFolder.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_ChooseFolder);
             _btnChooseFolder.addSelectionListener(new SelectionAdapter() {
 
                @Override
@@ -109,7 +110,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
              */
             _textFolderPath = new Text(container, SWT.BORDER);
             _textFolderPath.setEnabled(false);
-            _textFolderPath.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+            _textFolderPath.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip);
             GridDataFactory.fillDefaults()
                   .grab(true, false)
                   .applyTo(_textFolderPath);
@@ -119,25 +120,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    private void enableControls() {
 
-      /*
-       * final boolean isSplitTour = _chkRemoveExceededDuration.getSelection();
-       * final boolean isIgnoreSpeed = _chkIgnoreSpeedValues.getSelection();
-       * final boolean isIgnorLastMarker = _chkIgnoreLastMarker.getSelection();
-       * final boolean isFitImportTourType = _chkFitImportTourType.getSelection();
-       * _lblIgnorSpeedValues_Info.setEnabled(isIgnoreSpeed);
-       * _lblIgnorLastMarker_Info.setEnabled(isIgnorLastMarker);
-       * _lblIgnorLastMarker_TimeSlices.setEnabled(isIgnorLastMarker);
-       * _spinnerIgnorLastMarker_TimeSlices.setEnabled(isIgnorLastMarker);
-       * _lblSplitTour_DurationUnit.setEnabled(isSplitTour);
-       * _lblSplitTour_Duration.setEnabled(isSplitTour);
-       * _lblSplitTour_Info.setEnabled(isSplitTour);
-       * _spinnerExceededDuration.setEnabled(isSplitTour);
-       * _rdoTourTypeFromSport.setEnabled(isFitImportTourType);
-       * _rdoTourTypeFromProfile.setEnabled(isFitImportTourType);
-       * _rdoTourTypeFromProfileElseSport.setEnabled(isFitImportTourType);
-       * _rdoTourTypeFromSportAndProfile.setEnabled(isFitImportTourType);
-       * updateUI_SplitTour();
-       */
+      _btnChooseFolder.setEnabled(!StringUtils.isNullOrEmpty(_textAccessToken.getText()));
    }
 
    @Override
@@ -198,7 +181,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
       _textAccessToken.setText(_prefStore.getDefaultString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
 
-      //enableControls();
+      enableControls();
 
       super.performDefaults();
    }
