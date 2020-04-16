@@ -131,8 +131,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId("vye6ci8xzzsuiao"); // client_id
-      client.setSecret("ovxyfwr544wrdvg"); // client_secret
+      client.setId(""); // client_id
+      client.setSecret(""); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
 
