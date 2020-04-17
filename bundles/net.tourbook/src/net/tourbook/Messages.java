@@ -1005,6 +1005,7 @@ public class Messages extends NLS {
    public static String        Image__RawData_DeviceFolder_NotSetup;
    public static String        Image__RawData_DeviceFolderDisabled;
    public static String        Image__RawData_Import;
+   public static String        Image__RawData_Import_Dropbox;
    public static String        Image__RawData_Transfer;
    public static String        Image__RawData_TransferDirect;
    public static String        Image__Remove;

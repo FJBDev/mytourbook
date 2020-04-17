@@ -464,6 +464,12 @@
             mnemonic="%command_device_importFromFile_mnemonic"/>
             
          <command
+            commandId="net.tourbook.command.device.importFromDropbox"
+            icon="icons/import-tours-from-dropbox.png"
+            label="%command_device_importFromDropbox"
+            mnemonic="%command_device_importFromDropboxFile_mnemonic"/>
+            
+         <command
             commandId="net.tourbook.command.device.synchronize"
             icon="icons/device-synchronize.png"
             label="%Command_Device_ReceiveFromSerialPort_Configured"
@@ -1065,6 +1071,12 @@ THIS IS NOT YET FULLY IMPLEMENTED
             label="%command_device_importFromFile"
             mnemonic="%command_device_importFromFile_mnemonic"
          />
+         
+         <command
+            commandId="net.tourbook.command.device.importFromDropbox"
+            icon="icons/import-tours-from-dropbox.png"
+            label="%command_device_importFromDropbox"
+            mnemonic="%command_device_importFromDropboxFile_mnemonic"/>
 
          <command
             commandId="net.tourbook.command.device.synchronize"
@@ -1296,7 +1308,13 @@ THIS IS NOT YET FULLY IMPLEMENTED
          name           ="%command_device_importFromFile"
          defaultHandler ="net.tourbook.importdata.ActionHandlerImportFromFile"
       />
-
+      
+       <command
+         id             ="net.tourbook.command.device.importFromDropbox"
+         name           ="%command_device_importFromDropbox"
+         defaultHandler ="net.tourbook.importdata.ActionHandlerImportFromDropbox"
+      />
+      
       <command
          id             ="net.tourbook.command.device.synchronize.direct"
          name           ="%Command_Device_ReceiveFromSerialPort_Directly"

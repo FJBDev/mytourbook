@@ -15,6 +15,11 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.oauth.DbxCredential;
+import com.dropbox.core.v2.DbxAppClientV2;
+import com.dropbox.core.v2.auth.DbxAppAuthRequests;
+
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
@@ -26,12 +31,13 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -144,17 +150,15 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
          _textAccessToken.setText(token);
       }
 
-      /*
-       * WHere to get the 20.3.0 string ???
-       * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
-       * final DbxAppClientV2 toto = new DbxAppClientV2(titi, "vye6ci8xzzsuiao", "ovxyfwr544wrdvg");
-       * final DbxAppAuthRequests tttt = toto.auth();
-       * final DbxCredential credential = new DbxCredential("accesstoken",
-       * 2 * DbxCredential.EXPIRE_MARGIN,
-       * "refresh_token",
-       * "appkey",
-       * "app_secret");
-       */
+      // WHere to get the 20.3.0 string ???
+      final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
+      final DbxAppClientV2 toto = new DbxAppClientV2(titi, "vye6ci8xzzsuiao", "ovxyfwr544wrdvg");
+      final DbxAppAuthRequests tttt = toto.auth();
+      final DbxCredential credential = new DbxCredential("accesstoken",
+            2 * DbxCredential.EXPIRE_MARGIN,
+            "refresh_token",
+            "appkey",
+            "app_secret");
 
       // Create Dropbox client
       //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
@@ -162,18 +166,11 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    protected void onClickChooseFolder() {
       //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
-      try
-      {
-         final DirectoryDialog dialog = new DirectoryDialog(getShell());
-            dialog.setText("Choose Dropbox Directory");
-         dialog.setFilterPath("www.dropbox.com");
-         dialog.open();
-         //text_dropboxPath.setText(dialog.open());
+      final DropboxFolderChooser dropboxFolderChooser = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
+      if (dropboxFolderChooser.open() == Window.OK) {
 
-      } catch (final Exception e)
-      {
+         final float newAltitudeValue = dropboxFolderChooser.getReturnCode();//TODO get folder
       }
-
    }
 
    @Override

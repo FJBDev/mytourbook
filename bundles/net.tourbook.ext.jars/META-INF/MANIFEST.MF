@@ -25,10 +25,14 @@ Bundle-ClassPath:
  httpcore-4.4.13.jar,
  httpclient-4.5.12.jar
 Export-Package: 
+ com.dropbox.core,
+ com.dropbox.core.oauth,
+ com.dropbox.core.v2,
+ com.dropbox.core.v2.auth,
  com.enterprisedt.net.ftp,
+ com.fasterxml.jackson.annotation,
  com.fasterxml.jackson.core.type,
  com.fasterxml.jackson.databind,
- com.fasterxml.jackson.annotation,
  com.github.benmanes.caffeine.cache,
  com.javadocmd.simplelatlng,
  com.javadocmd.simplelatlng.util,

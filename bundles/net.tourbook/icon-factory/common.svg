@@ -3671,17 +3671,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="8.795625"
-     inkscape:cx="288.06858"
-     inkscape:cy="954.74045"
+     inkscape:zoom="2.1989063"
+     inkscape:cx="135.93356"
+     inkscape:cy="817.85066"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1545"
-     inkscape:window-height="1103"
-     inkscape:window-x="222"
-     inkscape:window-y="30"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1518"
+     inkscape:window-height="900"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:snap-grids="true"
      inkscape:snap-page="true"
      inkscape:snap-to-guides="true"
@@ -3719,7 +3719,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -7510,5 +7510,13 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96"
        sodipodi:nodetypes="ccccc" />
+    <path
+       id="path1937"
+       d="m 196.34684,277.36218 -4.74684,3.07595 3.3038,2.65823 4.74683,-2.96203 z m -4.74684,8.31646 4.74684,3.11392 3.30379,-2.77215 -4.74683,-2.92405 z m 8.05063,0.34177 3.34178,2.77215 4.70886,-3.07595 -3.26582,-2.62025 z m 8.05064,-5.58228 -4.70886,-3.07595 -3.34178,2.77215 4.78482,2.96203 z m -8.01266,6.18987 -3.34177,2.77216 -1.40507,-0.94937 v 1.06329 l 4.74684,2.8481 4.74684,-2.8481 v -1.06329 l -1.44304,0.94937 z"
+       inkscape:connector-curvature="0"
+       style="fill:#007ee5;stroke-width:0.37974691"
+       inkscape:export-filename="C:\Users\frederic\git\MT\mytourbook\bundles\net.tourbook\icons\import-tours-from-dropbox.png"
+       inkscape:export-xdpi="95.396278"
+       inkscape:export-ydpi="95.396278" />
   </g>
 </svg>
