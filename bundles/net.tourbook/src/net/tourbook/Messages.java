@@ -268,6 +268,8 @@ public class Messages extends NLS {
    public static String        Dialog_DoubleClickAction_NoAction_Message;
    public static String        Dialog_DoubleClickAction_NoAction_Title;
 
+   public static String Dialog_DropboxFolderChooser_Area_Title;
+
    public static String        Dialog_EditTimeslicesValues_Title;
    public static String        Dialog_EditTimeslicesValues_Area_Title;
    public static String        Dialog_EditTimeslicesValues_Label_NewValues;
@@ -907,6 +909,8 @@ public class Messages extends NLS {
    public static String        Image__database_other_person;
    public static String        Image__delete;
    public static String        Image__delete_disabled;
+
+   public static String Image__Dropbox_folder;
    public static String        Image__edit_adjust_altitude;
    public static String        Image__edit_adjust_altitude_disabled;
    public static String        Image__edit_row;

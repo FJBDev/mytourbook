@@ -21,7 +21,6 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.TableLayoutComposite;
 import net.tourbook.data.TourType;
-import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourTypeFilterManager;
 import net.tourbook.ui.TourTypeFilter;
@@ -30,7 +29,6 @@ import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -45,10 +43,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -58,7 +52,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxFolderChooser extends TitleAreaDialog {
@@ -71,23 +64,18 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    //TODO remove unused imports
    private final IPreferenceStore    _prefStore = TourbookPlugin.getDefault().getPreferenceStore();
 
-   private SelectionAdapter          _defaultSelectionAdapter;
-   private MouseWheelListener        _defaultMouseWheelListener;
-   private IPropertyChangeListener   _prefChangeListener;
-
-   private long                      _dragStartViewerLeft;
-
    private boolean                   _isModified;
 
-   private ArrayList<TourType>       _tourTypes;
    private ArrayList<TourTypeFilter> _filterList;
 
    private TourTypeFilter            _activeFilter;
+   private String                    _selectedFolder;
 
    /*
     * UI controls
     */
-   private TableViewer _filterViewer;
+   private TableViewer _contentViewer;
+   private Text        _textAccessToken;
 
    private Button      _chkTourTypeContextMenu;
 
@@ -118,10 +106,9 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       final Composite dlgAreaContainer = (Composite) super.createDialogArea(parent);
 
-      initUI();
       createUI(dlgAreaContainer);
 
-      _filterViewer.add("dd");
+      updateViewers();
 
       // enableControls();
 
@@ -142,13 +129,13 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          /*
           * Dropbox folder path
           */
-         final Text _textAccessToken = new Text(container, SWT.BORDER);
+         _textAccessToken = new Text(container, SWT.BORDER);
          _textAccessToken.setEditable(false);
          _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
                .grab(true, false)
                .applyTo(_textAccessToken);
-         _textAccessToken.setText("/");
+         _textAccessToken.setText("/"); //$NON-NLS-1$
 
          createUI_10_FilterViewer(container);
       }
@@ -172,24 +159,27 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       final Table table = new Table(layouter, (SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION));
       table.setHeaderVisible(false);
       table.setLinesVisible(false);
-      final TableItem item = new TableItem(table, SWT.NONE);
-      item.setText("ddsss");
-      TableViewerColumn tvc;
+      /*
+       * final TableItem item = new TableItem(table, SWT.NONE);
+       * item.setText("dkehfkjefgbakj");
+       * item.setImage(TourbookPlugin.getImageDescriptor(net.tourbook.cloud.dropbox.Messages.
+       * Image__Dropbox_folder).createImage());
+       */ TableViewerColumn tvc;
 
-      _filterViewer = new TableViewer(table);
+      _contentViewer = new TableViewer(table);
 
       // column: name + image
-      tvc = new TableViewerColumn(_filterViewer, SWT.NONE);
+      tvc = new TableViewerColumn(_contentViewer, SWT.NONE);
       tvc.setLabelProvider(new CellLabelProvider() {
          @Override
          public void update(final ViewerCell cell) {
 
-            final String filter = ((String) cell.getElement());
-            final String filterName = null;
-            final Image filterImage = null;
+            String filterName = null;
+            Image filterImage = null;
 
             //TODO Detect if it's a folder or a file to change the icon
             // set filter name/image
+
             /*
              * switch (filterType) {
              * case TourTypeFilter.FILTER_TYPE_DB:
@@ -209,14 +199,15 @@ public class DropboxFolderChooser extends TitleAreaDialog {
              * break;
              * }
              */
-
+            filterName = "fdlkenfgkjgbahrsk";
+            filterImage = TourbookPlugin.getImageDescriptor(net.tourbook.cloud.dropbox.Messages.Image__Dropbox_folder).createImage();
             cell.setText(filterName);
             cell.setImage(filterImage);
          }
       });
       layouter.addColumnData(new ColumnWeightData(1));
 
-      _filterViewer.setContentProvider(new IStructuredContentProvider() {
+      _contentViewer.setContentProvider(new IStructuredContentProvider() {
          @Override
          public void dispose() {}
 
@@ -229,114 +220,64 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
       });
 
-      _filterViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+      _contentViewer.addSelectionChangedListener(new ISelectionChangedListener() {
          @Override
          public void selectionChanged(final SelectionChangedEvent event) {
             onSelectFolder();
-            System.out.println("selection");
          }
       });
 
-      _filterViewer.addDoubleClickListener(new IDoubleClickListener() {
+      _contentViewer.addDoubleClickListener(new IDoubleClickListener() {
          @Override
          public void doubleClick(final DoubleClickEvent arg0) {
             onSelectFolder();
-            System.out.println("DOUBLECLICK");
-
+            //Update the path string above
          }
 
       });
 
    }
 
-   private void initUI() {
-
-      _defaultSelectionAdapter = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onChangeProperty();
-         }
-      };
-
-      _defaultMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            net.tourbook.common.UI.adjustSpinnerValueOnMouseScroll(event);
-            onChangeProperty();
-         }
-      };
+   public String getSelectedFolder() {
+      return _selectedFolder;
    }
 
-   /**
-    * Property was changed, fire a property change event
-    */
-   private void onChangeProperty() {
-      _isModified = true;
-   }
+   @Override
+   protected void okPressed() {
 
-   private void onDeleteFilterSet() {
-
-      final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection) _filterViewer.getSelection())
-            .getFirstElement();
-
-      if (filterItem == null || filterItem.getFilterType() != TourTypeFilter.FILTER_TYPE_TOURTYPE_SET) {
-         return;
+      // get selected table item
+      final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
+      if (selection.size() == 0) {
+         _selectedFolder = "/"; //$NON-NLS-1$
+      } else {
+         //TODO if multiple items selected, disable to OK button so that we are sure to be here with only 1 element.
+         final Object[] selectedFolder = selection.toArray();
+         _selectedFolder = ((TourTypeFilter) selectedFolder[0]).getFilterName();
       }
-
-      final Table filterTable = _filterViewer.getTable();
-      final int selectionIndex = filterTable.getSelectionIndex();
-
-      _filterViewer.remove(filterItem);
-
-      // select next filter item
-      final int nextIndex = Math.min(filterTable.getItemCount() - 1, selectionIndex);
-      _filterViewer.setSelection(new StructuredSelection(_filterViewer.getElementAt(nextIndex)));
-
-      _isModified = true;
+      super.okPressed();
    }
+
+
 
    private void onMoveDown() {
-
-      final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection) _filterViewer.getSelection())
+//TODO on selection changed rather than moving up and down, open the folder content if folder
+      final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection) _contentViewer.getSelection())
             .getFirstElement();
 
       if (filterItem == null) {
          return;
       }
 
-      final Table filterTable = _filterViewer.getTable();
+      final Table filterTable = _contentViewer.getTable();
       final int selectionIndex = filterTable.getSelectionIndex();
 
       if (selectionIndex < filterTable.getItemCount() - 1) {
 
-         _filterViewer.remove(filterItem);
-         _filterViewer.insert(filterItem, selectionIndex + 1);
+         _contentViewer.remove(filterItem);
+         _contentViewer.insert(filterItem, selectionIndex + 1);
 
          // reselect moved item
-         _filterViewer.setSelection(new StructuredSelection(filterItem));
-
-         _isModified = true;
-      }
-   }
-
-   private void onMoveUp() {
-
-      final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection) _filterViewer.getSelection())
-            .getFirstElement();
-
-      if (filterItem == null) {
-         return;
-      }
-
-      final Table filterTable = _filterViewer.getTable();
-
-      final int selectionIndex = filterTable.getSelectionIndex();
-      if (selectionIndex > 0) {
-         _filterViewer.remove(filterItem);
-         _filterViewer.insert(filterItem, selectionIndex - 1);
-
-         // reselect moved item
-         _filterViewer.setSelection(new StructuredSelection(filterItem));
+         _contentViewer.setSelection(new StructuredSelection(filterItem));
 
          _isModified = true;
       }
@@ -344,7 +285,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
    private void onSelectFolder() {
 //TODO we display the folder and files inside that new selected folder
-      final TourTypeFilter filterItem = (TourTypeFilter) ((StructuredSelection) _filterViewer.getSelection())
+      final TourTypeFilter filterItem = (TourTypeFilter) ((StructuredSelection) _contentViewer.getSelection())
             .getFirstElement();
 
       if (filterItem == null) {
@@ -395,7 +336,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
          _isModified = false;
 
-         TourTypeFilterManager.writeXMLFilterFile(_filterViewer);
+         TourTypeFilterManager.writeXMLFilterFile(_contentViewer);
 
          _prefStore.setValue(ITourbookPreferences.APPEARANCE_SHOW_TOUR_TYPE_CONTEXT_MENU, _chkTourTypeContextMenu.getSelection());
          _prefStore.setValue(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TOUR_TYPES, _spinnerRecentTourTypes.getSelection());
@@ -408,11 +349,10 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    private void updateViewers() {
 
       _filterList = TourTypeFilterManager.readTourTypeFilters();
-      _tourTypes = TourDatabase.getAllTourTypes();
 
-      // show contents in the viewers
-      _filterViewer.setInput(new Object());
+      // show contents in the viewer
+      _contentViewer.setInput(new Object());
 
+      //    enableButtons();
    }
-
 }

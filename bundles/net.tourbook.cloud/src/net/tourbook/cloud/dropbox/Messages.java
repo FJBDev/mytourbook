@@ -23,6 +23,10 @@ public class Messages extends NLS {
 
    public static String        Dialog_DropboxFolderChooser_Area_Title;
 
+   public static String        Image__Dropbox_file;
+   public static String        Image__Dropbox_folder;
+   public static String        Image__Dropbox_folder_open;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

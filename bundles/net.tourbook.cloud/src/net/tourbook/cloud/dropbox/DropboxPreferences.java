@@ -91,7 +91,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
              * Access Token
              */
             _textAccessToken = new Text(container, SWT.BORDER);
-            _textAccessToken.setEnabled(false);
+            _textAccessToken.setEditable(false);
             _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
             GridDataFactory.fillDefaults()
                   .grab(true, false)
@@ -116,7 +116,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
              * Dropbox folder path
              */
             _textFolderPath = new Text(container, SWT.BORDER);
-            _textFolderPath.setEnabled(false);
+            _textFolderPath.setEditable(false);
             _textFolderPath.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip);
             GridDataFactory.fillDefaults()
                   .grab(true, false)
@@ -192,7 +192,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       final DropboxFolderChooser dropboxFolderChooser = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
       if (dropboxFolderChooser.open() == Window.OK) {
 
-         final float newAltitudeValue = dropboxFolderChooser.getReturnCode();//TODO get folder
+         _textFolderPath.setText(dropboxFolderChooser.getSelectedFolder());
       }
    }
 
