@@ -4238,6 +4238,10 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          action_Easy_SetDeviceWatching_OnOff();
 
+      } else if (ACTION_IMPORT_FROM_DROPBOX.equals(hrefAction)) {
+
+         _rawDataMgr.actionImportFromDropbox();
+
       } else if (ACTION_IMPORT_FROM_FILES.equals(hrefAction)) {
 
          _rawDataMgr.actionImportFromFile();

@@ -377,6 +377,7 @@ public class RawDataManager {
  * DropboxFolderChooser(Display.getCurrent().getActiveShell());
  * test.open();
  */
+System.out.println("deffrfg");
 
       // runImport(osFiles, false, null);
    }

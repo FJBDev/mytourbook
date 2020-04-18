@@ -27,8 +27,10 @@ Bundle-ClassPath:
 Export-Package: 
  com.dropbox.core,
  com.dropbox.core.oauth,
+ com.dropbox.core.util,
  com.dropbox.core.v2,
  com.dropbox.core.v2.auth,
+ com.dropbox.core.v2.files,
  com.enterprisedt.net.ftp,
  com.fasterxml.jackson.annotation,
  com.fasterxml.jackson.core.type,

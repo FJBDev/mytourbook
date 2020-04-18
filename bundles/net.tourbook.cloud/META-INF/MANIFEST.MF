@@ -12,7 +12,10 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.tourbook.cloud
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.apache.commons.logging,
+Import-Package: com.dropbox.core,
+ com.dropbox.core.v2,
+ com.dropbox.core.v2.files,
+ org.apache.commons.logging,
  org.apache.http,
  org.apache.http.client.entity,
  org.apache.http.client.methods,

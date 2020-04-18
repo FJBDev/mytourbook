@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class DropboxFolderChooser extends TitleAreaDialog {
 //TODO Add the absolutepath ontop in a text field
@@ -125,6 +126,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       // enableControls();
 
       return dlgAreaContainer;
+
    }
 
    private Composite createUI(final Composite parent) {
@@ -135,8 +137,19 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-      GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
       {
+         /*
+          * Dropbox folder path
+          */
+         final Text _textAccessToken = new Text(container, SWT.BORDER);
+         _textAccessToken.setEditable(false);
+         _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+         GridDataFactory.fillDefaults()
+               .grab(true, false)
+               .applyTo(_textAccessToken);
+         _textAccessToken.setText("/");
+
          createUI_10_FilterViewer(container);
       }
 

@@ -15,14 +15,19 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+
+import java.util.List;
+
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
-import net.tourbook.cloud.authentication.OAuth2Client;
-import net.tourbook.cloud.authentication.OAuth2RequestAction;
 import net.tourbook.common.util.StringUtils;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -130,31 +135,28 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    private void onClickAuthorize() {
 
-      final OAuth2Client client = new OAuth2Client();
-      client.setId("TOINSERTATBUILDTIME"); // client_id
-      client.setSecret("TOINSERTATBUILDTIME"); // client_secret
-      client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
-      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
-
-      final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
-      //Opens the dialog
-      request.run();
-
-      final String token = request.getAccessToken();
-
-      final String dialogMessage = StringUtils.isNullOrEmpty(token) ? Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved
-            : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
-      if (!StringUtils.isNullOrEmpty(token)) {
-         _textAccessToken.setText(token);
-      }
-
-      MessageDialog.openInformation(
-            Display.getCurrent().getActiveShell(),
-            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
-            dialogMessage);
-
-      enableControls();
-
+      /*
+       * final OAuth2Client client = new OAuth2Client();
+       * client.setId("TOINSERTATBUILDTIME"); // client_id
+       * client.setSecret("TOINSERTATBUILDTIME"); // client_secret
+       * client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
+       * client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
+       * final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
+       * //Opens the dialog
+       * request.run();
+       * final String token = request.getAccessToken();
+       * final String dialogMessage = StringUtils.isNullOrEmpty(token) ?
+       * Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved
+       * : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
+       * if (!StringUtils.isNullOrEmpty(token)) {
+       * _textAccessToken.setText(token);
+       * }
+       * MessageDialog.openInformation(
+       * Display.getCurrent().getActiveShell(),
+       * Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
+       * dialogMessage);
+       * enableControls();
+       */
       // WHere to get the 20.3.0 string ???
       /*
        * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
@@ -166,6 +168,20 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
        * "appkey",
        * "app_secret");
        */
+
+
+      final DbxRequestConfig config = DbxRequestConfig.newBuilder("mytourbook/20.3.0").build();
+
+      final DbxClientV2 clientsss = new DbxClientV2(config,
+            _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
+      try {
+         final ListFolderResult list = clientsss.files().listFolder("");
+         final List<Metadata> entries = list.getEntries();
+      } catch (final DbxException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
 
       // Create Dropbox client
       //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
