@@ -13,20 +13,20 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud.dropbox;
+package net.tourbook.importdata;
 
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 
-public class Messages extends NLS {
+public class ActionHandlerImportFromDropbox extends AbstractHandler {
 
-   private static final String BUNDLE_NAME = "net.tourbook.cloud.dropbox.messages"; //$NON-NLS-1$
+	@Override
+   public Object execute(final ExecutionEvent arg0) throws ExecutionException {
 
-   public static String        Dialog_DropboxFolderChooser_Area_Title;
+      RawDataManager.getInstance().actionImportFromDropbox();
 
-	static {
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+		return null;
 	}
 
-	private Messages() {}
 }

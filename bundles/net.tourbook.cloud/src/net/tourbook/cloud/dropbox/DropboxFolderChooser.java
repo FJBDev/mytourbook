@@ -86,20 +86,16 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    /*
     * UI controls
     */
-   private TableViewer         _filterViewer;
+   private TableViewer _filterViewer;
 
-   private Button              _btnNew;
-   private Button              _btnRename;
-   private Button              _btnRemove;
-   private Button              _btnUp;
-   private Button              _btnDown;
+   private Button      _chkTourTypeContextMenu;
 
-   private Button              _chkTourTypeContextMenu;
-
-   private Spinner             _spinnerRecentTourTypes;
+   private Spinner     _spinnerRecentTourTypes;
 
    public DropboxFolderChooser(final Shell parentShell) {
+
       super(parentShell);
+
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       //TODO put a dropbox image
@@ -111,6 +107,8 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    public void create() {
 
       super.create();
+
+      setTitle(net.tourbook.cloud.dropbox.Messages.Dialog_DropboxFolderChooser_Area_Title);
 
    }
 
@@ -140,7 +138,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
       {
          createUI_10_FilterViewer(container);
-         createUI_30_Buttons(container);
       }
 
       // hint to use drag & drop
@@ -237,84 +234,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       });
 
-
    }
-
-   private void createUI_30_Buttons(final Composite parent) {
-
-      final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().applyTo(container);
-      GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(container);
-      {
-         // button: new
-         _btnNew = new Button(container, SWT.NONE);
-         _btnNew.setText(Messages.Pref_TourTypeFilter_button_new);
-         _btnNew.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               // onNewFilterSet();
-            }
-         });
-
-         // button: rename
-         _btnRename = new Button(container, SWT.NONE);
-         _btnRename.setText(Messages.Pref_TourTypeFilter_button_rename);
-         _btnRename.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               // onRenameFilterSet();
-            }
-         });
-
-         // button: delete
-         _btnRemove = new Button(container, SWT.NONE);
-         _btnRemove.setText(Messages.Pref_TourTypeFilter_button_remove);
-         _btnRemove.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onDeleteFilterSet();
-            }
-         });
-
-         // spacer
-         new Label(container, SWT.NONE);
-
-         // button: up
-         _btnUp = new Button(container, SWT.NONE);
-         _btnUp.setText(Messages.PrefPageTourTypeFilterList_Pref_TourTypeFilter_button_up);
-         _btnUp.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onMoveUp();
-            }
-         });
-
-         // button: down
-         _btnDown = new Button(container, SWT.NONE);
-         _btnDown.setText(Messages.PrefPageTourTypeFilterList_Pref_TourTypeFilter_button_down);
-         _btnDown.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onMoveDown();
-            }
-         });
-      }
-   }
-
-   private void enableButtons() {
-
-      final IStructuredSelection selection = (IStructuredSelection) _filterViewer.getSelection();
-
-      final TourTypeFilter filterItem = (TourTypeFilter) selection.getFirstElement();
-      final Table filterTable = _filterViewer.getTable();
-
-      _btnUp.setEnabled(filterItem != null && filterTable.getSelectionIndex() > 0);
-      _btnDown.setEnabled(filterItem != null && filterTable.getSelectionIndex() < filterTable.getItemCount() - 1);
-
-      _btnRename.setEnabled(filterItem != null && filterItem.getFilterType() == TourTypeFilter.FILTER_TYPE_TOURTYPE_SET);
-      _btnRemove.setEnabled(filterItem != null && filterItem.getFilterType() == TourTypeFilter.FILTER_TYPE_TOURTYPE_SET);
-   }
-
 
    private void initUI() {
 
@@ -333,7 +253,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          }
       };
    }
-
 
    /**
     * Property was changed, fire a property change event
@@ -383,12 +302,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          // reselect moved item
          _filterViewer.setSelection(new StructuredSelection(filterItem));
 
-         if (filterTable.getSelectionIndex() == filterTable.getItemCount() - 1) {
-            _btnUp.setFocus();
-         } else {
-            _btnDown.setFocus();
-         }
-
          _isModified = true;
       }
    }
@@ -412,18 +325,9 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          // reselect moved item
          _filterViewer.setSelection(new StructuredSelection(filterItem));
 
-         if (filterTable.getSelectionIndex() == 0) {
-            _btnDown.setFocus();
-         } else {
-            _btnUp.setFocus();
-         }
-
          _isModified = true;
       }
    }
-
-
-
 
    private void onSelectFolder() {
 //TODO we display the folder and files inside that new selected folder
@@ -456,7 +360,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          break;
       }
 
-      enableButtons();
    }
 
    private void onSelectTourType() {
@@ -466,7 +369,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       }
 
    }
-
 
    private void restoreState() {
 
@@ -498,7 +400,6 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       // show contents in the viewers
       _filterViewer.setInput(new Object());
 
-      enableButtons();
    }
 
 }

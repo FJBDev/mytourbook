@@ -131,7 +131,8 @@ public class OAuth2BrowserDialog extends Dialog {
       final Composite displayArea = new Composite(control, SWT.NONE);
       GridLayoutFactory.fillDefaults().applyTo(displayArea);
       GridDataFactory.fillDefaults()
-            .hint(600, 400)
+            .hint(600,
+                  600)
             .grab(true, true)
             .applyTo(displayArea);
 

@@ -264,6 +264,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
    private static String       ACTION_DEVICE_IMPORT                       = "DeviceImport";                                                   //$NON-NLS-1$
    private static String       ACTION_DEVICE_WATCHING_ON_OFF              = "DeviceOnOff";                                                    //$NON-NLS-1$
+   private static final String ACTION_IMPORT_FROM_DROPBOX                 = "ImportFromDropbox";                                              //$NON-NLS-1$
    private static final String ACTION_IMPORT_FROM_FILES                   = "ImportFromFiles";                                                //$NON-NLS-1$
    private static final String ACTION_OLD_UI                              = "OldUI";                                                          //$NON-NLS-1$
    private static final String ACTION_SERIAL_PORT_CONFIGURED              = "SerialPortConfigured";                                           //$NON-NLS-1$
@@ -282,6 +283,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    //
    private static String       HREF_ACTION_DEVICE_IMPORT;
    private static String       HREF_ACTION_DEVICE_WATCHING_ON_OFF;
+   private static String       HREF_ACTION_IMPORT_FROM_DROPBOX;
    private static String       HREF_ACTION_IMPORT_FROM_FILES;
    private static String       HREF_ACTION_OLD_UI;
    private static String       HREF_ACTION_SERIAL_PORT_CONFIGURED;
@@ -292,6 +294,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       HREF_ACTION_DEVICE_IMPORT = HREF_TOKEN + ACTION_DEVICE_IMPORT;
       HREF_ACTION_DEVICE_WATCHING_ON_OFF = HREF_TOKEN + ACTION_DEVICE_WATCHING_ON_OFF;
+      HREF_ACTION_IMPORT_FROM_DROPBOX = HREF_TOKEN + ACTION_IMPORT_FROM_DROPBOX;
       HREF_ACTION_IMPORT_FROM_FILES = HREF_TOKEN + ACTION_IMPORT_FROM_FILES;
       HREF_ACTION_OLD_UI = HREF_TOKEN + ACTION_OLD_UI;
       HREF_ACTION_SERIAL_PORT_CONFIGURED = HREF_TOKEN + ACTION_SERIAL_PORT_CONFIGURED;
@@ -2044,9 +2047,10 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          createHTML_92_TileAction(
                sb,
-               "Import from Dropbox", //Messages.Import_Data_HTML_ImportFromFiles_Action,
-               Messages.Import_Data_HTML_ImportFromFiles_ActionTooltip,
-               (HTTP_DUMMY + HREF_ACTION_IMPORT_FROM_FILES),
+               Messages.Import_Data_HTML_ImportFromDropbox_Action,
+               Messages.Import_Data_HTML_ImportFromDropbox_ActionTooltip,
+               (HTTP_DUMMY
+                     + HREF_ACTION_IMPORT_FROM_DROPBOX),
                _imageUrl_ImportFromDropbox);
 
          createHTML_92_TileAction(

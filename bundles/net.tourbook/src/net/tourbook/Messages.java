@@ -1183,6 +1183,8 @@ public class Messages extends NLS {
    public static String        Import_Data_HTML_GetTours;
    public static String        Import_Data_HTML_ImportFromFiles_Action;
    public static String        Import_Data_HTML_ImportFromFiles_ActionTooltip;
+   public static String        Import_Data_HTML_ImportFromDropbox_Action;
+   public static String        Import_Data_HTML_ImportFromDropbox_ActionTooltip;
    public static String        Import_Data_HTML_LastMarker_No;
    public static String        Import_Data_HTML_LastMarker_Yes;
    public static String        Import_Data_HTML_MovedFiles;
@@ -1457,6 +1459,9 @@ public class Messages extends NLS {
    public static String        Pref_ChartColors_unit_min;
 
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip;
+   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved;
+   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title;
+   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
    public static String        Pref_CloudConnectivity_Dropbox_Button_Authorize;
    public static String        Pref_CloudConnectivity_Dropbox_Button_ChooseFolder;
    public static String        Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip;

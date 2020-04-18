@@ -367,6 +367,21 @@ public class RawDataManager {
    }
 
    /**
+    * Import tours from a Dropbox folder.
+    */
+   public void actionImportFromDropbox() {
+//TODO if dropbox access token not retrieved and folder not chosen, display the proper error message
+
+/*
+ * final DropboxFolderChooser test = new
+ * DropboxFolderChooser(Display.getCurrent().getActiveShell());
+ * test.open();
+ */
+
+      // runImport(osFiles, false, null);
+   }
+
+   /**
     * Import tours from files which are selected in a file selection dialog.
     */
    public void actionImportFromFile() {

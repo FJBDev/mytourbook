@@ -16,6 +16,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tourbook.common.util.StringUtils;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -28,6 +32,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.osgi.util.NLS;
 import org.json.JSONObject;
 
 /**
@@ -82,9 +87,7 @@ public class AccessTokenClient {
       }
       final HttpResponse response = execute(target, request);
       final String token = getToken(response.getEntity());
-      if (token == null) {
-         throw new IOException("Access token not present in response"); //$NON-NLS-1$
-      }
+
       return token;
    }
 
@@ -101,7 +104,7 @@ public class AccessTokenClient {
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_SECRET,
             client.getSecret()));
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CODE, code));
-      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_GRANT_TYPE, "authorization_code"));
+      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_GRANT_TYPE, "authorization_code")); //$NON-NLS-1$
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_REDIRECT_URI, client.getRedirectUri()));
       return params;
    }
@@ -124,6 +127,13 @@ public class AccessTokenClient {
       try {
          token = currentSampleJson.get(IOAuth2Constants.PARAM_ACCESS_TOKEN).toString();
       } catch (final Exception e) {}
+
+      if (StringUtils.isNullOrEmpty(token)) {
+         TourLogManager
+               .addLog(
+                     TourLogState.INFO,
+                     NLS.bind("Dropbox response: {0}", content)); //$NON-NLS-1$
+      }
 
       return token;
    }

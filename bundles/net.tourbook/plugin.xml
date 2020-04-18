@@ -467,7 +467,7 @@
             commandId="net.tourbook.command.device.importFromDropbox"
             icon="icons/import-tours-from-dropbox.png"
             label="%command_device_importFromDropbox"
-            mnemonic="%command_device_importFromDropboxFile_mnemonic"/>
+            mnemonic="%command_device_importFromDropbox_mnemonic"/>
             
          <command
             commandId="net.tourbook.command.device.synchronize"
@@ -1076,7 +1076,7 @@ THIS IS NOT YET FULLY IMPLEMENTED
             commandId="net.tourbook.command.device.importFromDropbox"
             icon="icons/import-tours-from-dropbox.png"
             label="%command_device_importFromDropbox"
-            mnemonic="%command_device_importFromDropboxFile_mnemonic"/>
+            mnemonic="%command_device_importFromDropbox_mnemonic"/>
 
          <command
             commandId="net.tourbook.command.device.synchronize"
