@@ -23,8 +23,7 @@ import com.dropbox.core.v2.files.Metadata;
 
 import java.util.List;
 
-import net.tourbook.Messages;
-import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.common.util.StringUtils;
 
@@ -45,7 +44,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class DropboxPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private final IPreferenceStore _prefStore = TourbookPlugin.getDefault().getPreferenceStore();
+   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    /*
     * UI controls
@@ -169,7 +168,6 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
        * "app_secret");
        */
 
-
       final DbxRequestConfig config = DbxRequestConfig.newBuilder("mytourbook/20.3.0").build();
 
       final DbxClientV2 clientsss = new DbxClientV2(config,
@@ -181,7 +179,6 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-
 
       // Create Dropbox client
       //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);

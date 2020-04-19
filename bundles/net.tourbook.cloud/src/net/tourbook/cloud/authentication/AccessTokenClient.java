@@ -16,9 +16,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
-import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -129,10 +128,7 @@ public class AccessTokenClient {
       } catch (final Exception e) {}
 
       if (StringUtils.isNullOrEmpty(token)) {
-         TourLogManager
-               .addLog(
-                     TourLogState.INFO,
-                     NLS.bind("Dropbox response: {0}", content)); //$NON-NLS-1$
+         StatusUtil.log(NLS.bind("Dropbox response: {0}", content)); //$NON-NLS-1$
       }
 
       return token;

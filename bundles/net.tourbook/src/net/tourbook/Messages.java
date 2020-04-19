@@ -1462,14 +1462,6 @@ public class Messages extends NLS {
    public static String        Pref_ChartColors_unit_mid;
    public static String        Pref_ChartColors_unit_min;
 
-   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip;
-   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved;
-   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title;
-   public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
-   public static String        Pref_CloudConnectivity_Dropbox_Button_Authorize;
-   public static String        Pref_CloudConnectivity_Dropbox_Button_ChooseFolder;
-   public static String        Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip;
-
    public static String        Pref_DisplayFormat_Label_Altitude;
    public static String        Pref_DisplayFormat_Label_BreakTime;
    public static String        Pref_DisplayFormat_Label_Cadence;

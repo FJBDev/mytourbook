@@ -37,6 +37,7 @@ import java.util.Scanner;
 import net.tourbook.Messages;
 import net.tourbook.application.PerspectiveFactoryRawData;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.dropbox.DropboxFolderChooser;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -367,17 +368,13 @@ public class RawDataManager {
    }
 
    /**
-    * Import tours from a Dropbox folder.
+    * Import tours from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
 //TODO if dropbox access token not retrieved and folder not chosen, display the proper error message
 
-/*
- * final DropboxFolderChooser test = new
- * DropboxFolderChooser(Display.getCurrent().getActiveShell());
- * test.open();
- */
-System.out.println("deffrfg");
+      final DropboxFolderChooser test = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
+      test.open();
 
       // runImport(osFiles, false, null);
    }

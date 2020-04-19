@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.cloud;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
@@ -28,7 +27,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
    @Override
    public void initializeDefaultPreferences() {
 
-      final IPreferenceStore store = TourbookPlugin.getDefault().getPreferenceStore();
+      final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
       store.setDefault(ICloudPreferences.DROPBOX_ACCESSTOKEN, UI.EMPTY_STRING);
    }

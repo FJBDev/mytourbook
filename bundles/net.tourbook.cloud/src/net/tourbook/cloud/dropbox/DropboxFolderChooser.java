@@ -17,25 +17,18 @@ package net.tourbook.cloud.dropbox;
 
 import java.util.ArrayList;
 
-import net.tourbook.Messages;
-import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.Activator;
 import net.tourbook.common.util.TableLayoutComposite;
-import net.tourbook.data.TourType;
-import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.tour.TourTypeFilterManager;
-import net.tourbook.ui.TourTypeFilter;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -62,13 +55,11 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    //TODO Import configuration to detect new files from Dropbox acount ?
    //TODO Revert to original oauth2 browser and add only my necessary code
    //TODO remove unused imports
-   private final IPreferenceStore    _prefStore = TourbookPlugin.getDefault().getPreferenceStore();
 
    private boolean                   _isModified;
 
-   private ArrayList<TourTypeFilter> _filterList;
+   private ArrayList<String> _filterList;
 
-   private TourTypeFilter            _activeFilter;
    private String                    _selectedFolder;
 
    /*
@@ -88,7 +79,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       //TODO put a dropbox image
-      setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
+      //setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
 
    }
 
@@ -119,7 +110,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    private Composite createUI(final Composite parent) {
 
       Label label = new Label(parent, SWT.WRAP);
-      label.setText(Messages.Pref_TourTypes_root_title);
+      // label.setText(Messages.Pref_TourTypes_root_title);
       label.setLayoutData(new GridData(SWT.NONE, SWT.NONE, true, false));
 
       final Composite container = new Composite(parent, SWT.NONE);
@@ -131,7 +122,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
           */
          _textAccessToken = new Text(container, SWT.BORDER);
          _textAccessToken.setEditable(false);
-         _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+         // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
                .grab(true, false)
                .applyTo(_textAccessToken);
@@ -142,7 +133,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       // hint to use drag & drop
       label = new Label(parent, SWT.WRAP);
-      label.setText(Messages.Pref_TourTypes_dnd_hint);
+      // label.setText(Messages.Pref_TourTypes_dnd_hint);
       label.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 
       // spacer
@@ -200,7 +191,9 @@ public class DropboxFolderChooser extends TitleAreaDialog {
              * }
              */
             filterName = "fdlkenfgkjgbahrsk";
-            filterImage = TourbookPlugin.getImageDescriptor(net.tourbook.cloud.dropbox.Messages.Image__Dropbox_folder).createImage();
+            filterImage =
+                  Activator.getImageDescriptor(Messages.Image__Dropbox_folder).createImage();
+
             cell.setText(filterName);
             cell.setImage(filterImage);
          }
@@ -252,7 +245,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       } else {
          //TODO if multiple items selected, disable to OK button so that we are sure to be here with only 1 element.
          final Object[] selectedFolder = selection.toArray();
-         _selectedFolder = ((TourTypeFilter) selectedFolder[0]).getFilterName();
+         //  _selectedFolder = ((TourTypeFilter) selectedFolder[0]).getFilterName();
       }
       super.okPressed();
    }
@@ -261,73 +254,59 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
    private void onMoveDown() {
 //TODO on selection changed rather than moving up and down, open the folder content if folder
-      final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection) _contentViewer.getSelection())
-            .getFirstElement();
-
-      if (filterItem == null) {
-         return;
-      }
-
-      final Table filterTable = _contentViewer.getTable();
-      final int selectionIndex = filterTable.getSelectionIndex();
-
-      if (selectionIndex < filterTable.getItemCount() - 1) {
-
-         _contentViewer.remove(filterItem);
-         _contentViewer.insert(filterItem, selectionIndex + 1);
-
-         // reselect moved item
-         _contentViewer.setSelection(new StructuredSelection(filterItem));
-
-         _isModified = true;
-      }
+/*
+ * final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection)
+ * _contentViewer.getSelection())
+ * .getFirstElement();
+ * if (filterItem == null) {
+ * return;
+ * }
+ * final Table filterTable = _contentViewer.getTable();
+ * final int selectionIndex = filterTable.getSelectionIndex();
+ * if (selectionIndex < filterTable.getItemCount() - 1) {
+ * _contentViewer.remove(filterItem);
+ * _contentViewer.insert(filterItem, selectionIndex + 1);
+ * // reselect moved item
+ * _contentViewer.setSelection(new StructuredSelection(filterItem));
+ * _isModified = true;
+ * }
+ */
    }
 
    private void onSelectFolder() {
 //TODO we display the folder and files inside that new selected folder
-      final TourTypeFilter filterItem = (TourTypeFilter) ((StructuredSelection) _contentViewer.getSelection())
-            .getFirstElement();
-
-      if (filterItem == null) {
-         return;
-      }
-
-      _activeFilter = filterItem;
-
-      final int filterType = filterItem.getFilterType();
-
-      final Object[] tourTypes;
-      switch (filterType) {
-      case TourTypeFilter.FILTER_TYPE_SYSTEM:
-         final int systemFilter = filterItem.getSystemFilterId();
-
-         break;
-
-      case TourTypeFilter.FILTER_TYPE_DB:
-         final TourType tourType = filterItem.getTourType();
-         break;
-
-      case TourTypeFilter.FILTER_TYPE_TOURTYPE_SET:
-         break;
-
-      default:
-         break;
-      }
+/*
+ * final TourTypeFilter filterItem = (TourTypeFilter) ((StructuredSelection)
+ * _contentViewer.getSelection())
+ * .getFirstElement();
+ * if (filterItem == null) {
+ * return;
+ * }
+ * final int filterType = filterItem.getFilterType();
+ * final Object[] tourTypes;
+ * switch (filterType) {
+ * case TourTypeFilter.FILTER_TYPE_SYSTEM:
+ * final int systemFilter = filterItem.getSystemFilterId();
+ * break;
+ * case TourTypeFilter.FILTER_TYPE_DB:
+ * final TourType tourType = filterItem.getTourType();
+ * break;
+ * case TourTypeFilter.FILTER_TYPE_TOURTYPE_SET:
+ * break;
+ * default:
+ * break;
+ * }
+ */
 
    }
 
    private void onSelectTourType() {
 
-      if (_activeFilter == null) {
-         return;
-      }
 
    }
 
    private void restoreState() {
 
-      _chkTourTypeContextMenu.setSelection(_prefStore.getBoolean(ITourbookPreferences.APPEARANCE_SHOW_TOUR_TYPE_CONTEXT_MENU));
-      _spinnerRecentTourTypes.setSelection(_prefStore.getInt(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TOUR_TYPES));
    }
 
    private void saveState() {
@@ -336,19 +315,13 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
          _isModified = false;
 
-         TourTypeFilterManager.writeXMLFilterFile(_contentViewer);
-
-         _prefStore.setValue(ITourbookPreferences.APPEARANCE_SHOW_TOUR_TYPE_CONTEXT_MENU, _chkTourTypeContextMenu.getSelection());
-         _prefStore.setValue(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TOUR_TYPES, _spinnerRecentTourTypes.getSelection());
-
-         // fire modify event
-         _prefStore.setValue(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED, Math.random());
       }
    }
 
    private void updateViewers() {
 
-      _filterList = TourTypeFilterManager.readTourTypeFilters();
+      _filterList = new ArrayList<>();
+      _filterList.add("TOTO");
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());

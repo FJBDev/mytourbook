@@ -15,6 +15,10 @@
  *******************************************************************************/
 package net.tourbook.cloud;
 
+import java.util.Optional;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -41,6 +45,19 @@ public class Activator extends AbstractUIPlugin {
     */
    public static Activator getDefault() {
       return plugin;
+   }
+
+   /**
+    * Returns an image descriptor for images in the plug-in path.
+    *
+    * @param path
+    *           the path
+    * @return the axisImage descriptor
+    */
+   public static ImageDescriptor getImageDescriptor(final String path) {
+      final Optional<ImageDescriptor> imageDescriptor = ResourceLocator.imageDescriptorFromBundle(PLUGIN_ID, "icons/" + path); //$NON-NLS-1$
+
+      return imageDescriptor.isPresent() ? imageDescriptor.get() : null;
    }
 
    @Override

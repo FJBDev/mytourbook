@@ -6,10 +6,10 @@ Bundle-Version: 20.3.0.qualifier
 Bundle-Activator: net.tourbook.cloud.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- net.tourbook,
  net.tourbook.common
 Bundle-ActivationPolicy: lazy
-Export-Package: net.tourbook.cloud
+Export-Package: net.tourbook.cloud,
+ net.tourbook.cloud.dropbox
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.dropbox.core,
