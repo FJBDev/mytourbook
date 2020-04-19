@@ -30,6 +30,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
       store.setDefault(ICloudPreferences.DROPBOX_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(ICloudPreferences.DROPBOX_FOLDER, UI.EMPTY_STRING);
    }
-
 }

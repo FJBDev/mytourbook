@@ -18,4 +18,5 @@ package net.tourbook.cloud;
 public interface ICloudPreferences {
 
    public static final String DROPBOX_ACCESSTOKEN = "DROPBOX_ACCESSTOKEN"; //$NON-NLS-1$
+   public static final String DROPBOX_FOLDER      = "DROPBOX_FOLDER";      //$NON-NLS-1$
 }

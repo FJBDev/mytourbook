@@ -37,11 +37,13 @@ import java.util.Scanner;
 import net.tourbook.Messages;
 import net.tourbook.application.PerspectiveFactoryRawData;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.dropbox.DropboxFolderChooser;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ITourViewer3;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.widgets.ComboEnumEntry;
 import net.tourbook.data.TourData;
@@ -368,15 +370,27 @@ public class RawDataManager {
    }
 
    /**
-    * Import tours from a Dropbox folder specified in the preferences.
+    * Import tours selected from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
-//TODO if dropbox access token not retrieved and folder not chosen, display the proper error message
 
-      final DropboxFolderChooser test = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
-      test.open();
+      final String accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+      final String dropboxFolder = _prefStore.getString(ICloudPreferences.DROPBOX_FOLDER);
+//TODO dropbfolder is empty because we don't read the correct preference store. Hence we need to do this check in the DropboxFolderChooser
 
-      // runImport(osFiles, false, null);
+      if (StringUtils.isNullOrEmpty(accessToken) ||
+            StringUtils.isNullOrEmpty(dropboxFolder)) {
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.Dialog_DropboxFolderChooser_Area_Title, //TODO
+               Messages.Dialog_DropboxFolderChooser_AccessToken_Or_Folder_Missing);
+//TODO Open dropbox preference page
+      } else {
+
+         final DropboxFolderChooser test = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
+         test.open();
+         // runImport(osFiles, false, null);
+      }
    }
 
    /**

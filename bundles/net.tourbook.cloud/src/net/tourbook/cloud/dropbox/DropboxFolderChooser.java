@@ -15,18 +15,29 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
-import java.util.ArrayList;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+
+import java.util.List;
 
 import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.common.util.TableLayoutComposite;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -38,39 +49,38 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxFolderChooser extends TitleAreaDialog {
-//TODO Add the absolutepath ontop in a text field
-   // TODO Add the parent ".." to go back a folder
    //TODO activate the "Choose"/OK button only when a folder is selected
    //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO Import configuration to detect new files from Dropbox acount ?
    //TODO Revert to original oauth2 browser and add only my necessary code
    //TODO remove unused imports
+//TODO Add button to go back to the parent folder (API call for that ?)
+   //TODO double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
+   //TODO put the SVG of Dropbox in cloud.svg
 
-   private boolean                   _isModified;
+   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
-   private ArrayList<String> _filterList;
+   private DbxRequestConfig _requestConfig;
+   private DbxClientV2      _dropboxClient;
 
-   private String                    _selectedFolder;
+   private List<Metadata>   _folderList;
+   private TableViewer      _contentViewer;
+
+   private String           _selectedFolder;
+   private String           _accessToken;
 
    /*
     * UI controls
     */
-   private TableViewer _contentViewer;
-   private Text        _textAccessToken;
-
-   private Button      _chkTourTypeContextMenu;
-
-   private Spinner     _spinnerRecentTourTypes;
+   private Text _textSelectedAbsolutePath;
 
    public DropboxFolderChooser(final Shell parentShell) {
 
@@ -99,6 +109,13 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       createUI(dlgAreaContainer);
 
+      _accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+
+      //TODO How to get the current MT version !?
+      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/20.3.0").build();
+
+      _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
+
       updateViewers();
 
       // enableControls();
@@ -120,13 +137,13 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          /*
           * Dropbox folder path
           */
-         _textAccessToken = new Text(container, SWT.BORDER);
-         _textAccessToken.setEditable(false);
+         _textSelectedAbsolutePath = new Text(container, SWT.BORDER);
+         _textSelectedAbsolutePath.setEditable(false);
          // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
                .grab(true, false)
-               .applyTo(_textAccessToken);
-         _textAccessToken.setText("/"); //$NON-NLS-1$
+               .applyTo(_textSelectedAbsolutePath);
+         _textSelectedAbsolutePath.setText("/"); //$NON-NLS-1$
 
          createUI_10_FilterViewer(container);
       }
@@ -165,34 +182,22 @@ public class DropboxFolderChooser extends TitleAreaDialog {
          @Override
          public void update(final ViewerCell cell) {
 
+            final Metadata entry = ((Metadata) cell.getElement());
+
             String filterName = null;
             Image filterImage = null;
 
-            //TODO Detect if it's a folder or a file to change the icon
-            // set filter name/image
+            filterName = entry.getName();
 
-            /*
-             * switch (filterType) {
-             * case TourTypeFilter.FILTER_TYPE_DB:
-             * final TourType tourType = filter.getTourType();
-             * filterName = tourType.getName();
-             * //filterImage = "";//TODO TourTypeImage.getTourTypeImage(tourType.getTypeId());
-             * break;
-             * case TourTypeFilter.FILTER_TYPE_SYSTEM:
-             * filterName = filter.getSystemFilterName();
-             * filterImage = UI.IMAGE_REGISTRY.get(UI.IMAGE_TOUR_TYPE_FILTER_SYSTEM);
-             * break;
-             * case TourTypeFilter.FILTER_TYPE_TOURTYPE_SET:
-             * filterName = filter.getTourTypeSet().getName();
-             * filterImage = UI.IMAGE_REGISTRY.get(UI.IMAGE_TOUR_TYPE_FILTER);
-             * break;
-             * default:
-             * break;
-             * }
-             */
-            filterName = "fdlkenfgkjgbahrsk";
-            filterImage =
-                  Activator.getImageDescriptor(Messages.Image__Dropbox_folder).createImage();
+            if (entry instanceof FolderMetadata) {
+
+               filterImage =
+                     Activator.getImageDescriptor(Messages.Image__Dropbox_folder).createImage();
+            } else if (entry instanceof FileMetadata) {
+
+               filterImage =
+                     Activator.getImageDescriptor(Messages.Image__Dropbox_file).createImage();
+            }
 
             cell.setText(filterName);
             cell.setImage(filterImage);
@@ -206,7 +211,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
          @Override
          public Object[] getElements(final Object inputElement) {
-            return _filterList.toArray();
+            return _folderList.toArray();
          }
 
          @Override
@@ -216,15 +221,14 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       _contentViewer.addSelectionChangedListener(new ISelectionChangedListener() {
          @Override
          public void selectionChanged(final SelectionChangedEvent event) {
-            onSelectFolder();
+            onSelectItem(event.getSelection(), false);
          }
       });
 
       _contentViewer.addDoubleClickListener(new IDoubleClickListener() {
          @Override
-         public void doubleClick(final DoubleClickEvent arg0) {
-            onSelectFolder();
-            //Update the path string above
+         public void doubleClick(final DoubleClickEvent event) {
+            onSelectItem(event.getSelection(), true);
          }
 
       });
@@ -238,94 +242,51 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      // get selected table item
-      final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
-      if (selection.size() == 0) {
-         _selectedFolder = "/"; //$NON-NLS-1$
-      } else {
-         //TODO if multiple items selected, disable to OK button so that we are sure to be here with only 1 element.
-         final Object[] selectedFolder = selection.toArray();
-         //  _selectedFolder = ((TourTypeFilter) selectedFolder[0]).getFilterName();
-      }
+      _selectedFolder = _textSelectedAbsolutePath.getText();
+
       super.okPressed();
    }
 
+   protected void onSelectItem(final ISelection selectedItem, final boolean doubleClick) {
+      final StructuredSelection selection = (StructuredSelection) selectedItem;
+      final Object[] selectionArray = selection.toArray();
+      if (selectionArray.length == 0) {
+         return;
+      }
 
+      final Metadata item = ((Metadata) selection.toArray()[0]);
 
-   private void onMoveDown() {
-//TODO on selection changed rather than moving up and down, open the folder content if folder
-/*
- * final TourTypeFilter filterItem = (TourTypeFilter) ((IStructuredSelection)
- * _contentViewer.getSelection())
- * .getFirstElement();
- * if (filterItem == null) {
- * return;
- * }
- * final Table filterTable = _contentViewer.getTable();
- * final int selectionIndex = filterTable.getSelectionIndex();
- * if (selectionIndex < filterTable.getItemCount() - 1) {
- * _contentViewer.remove(filterItem);
- * _contentViewer.insert(filterItem, selectionIndex + 1);
- * // reselect moved item
- * _contentViewer.setSelection(new StructuredSelection(filterItem));
- * _isModified = true;
- * }
- */
+      if (item instanceof FolderMetadata) {
+
+         if (doubleClick) {
+            selectFolder(item.getPathDisplay());
+         }
+      }
    }
 
-   private void onSelectFolder() {
-//TODO we display the folder and files inside that new selected folder
-/*
- * final TourTypeFilter filterItem = (TourTypeFilter) ((StructuredSelection)
- * _contentViewer.getSelection())
- * .getFirstElement();
- * if (filterItem == null) {
- * return;
- * }
- * final int filterType = filterItem.getFilterType();
- * final Object[] tourTypes;
- * switch (filterType) {
- * case TourTypeFilter.FILTER_TYPE_SYSTEM:
- * final int systemFilter = filterItem.getSystemFilterId();
- * break;
- * case TourTypeFilter.FILTER_TYPE_DB:
- * final TourType tourType = filterItem.getTourType();
- * break;
- * case TourTypeFilter.FILTER_TYPE_TOURTYPE_SET:
- * break;
- * default:
- * break;
- * }
- */
+   private void selectFolder(final String folderAbsolutePath) {
 
-   }
+      try {
+         final ListFolderResult list = _dropboxClient.files().listFolder(folderAbsolutePath);
+         _folderList = list.getEntries();
 
-   private void onSelectTourType() {
+         _textSelectedAbsolutePath.setText(folderAbsolutePath);
 
+         _contentViewer.refresh();
 
-   }
-
-   private void restoreState() {
-
-   }
-
-   private void saveState() {
-
-      if (_isModified) {
-
-         _isModified = false;
+      } catch (final DbxException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
 
       }
    }
 
    private void updateViewers() {
 
-      _filterList = new ArrayList<>();
-      _filterList.add("TOTO");
+      selectFolder("");
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());
 
-      //    enableButtons();
    }
 }
