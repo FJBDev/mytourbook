@@ -38,6 +38,7 @@ import net.tourbook.Messages;
 import net.tourbook.application.PerspectiveFactoryRawData;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
+import net.tourbook.cloud.dropbox.ChooserType;
 import net.tourbook.cloud.dropbox.DropboxChooser;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
@@ -386,9 +387,30 @@ public class RawDataManager {
          //TODO Open dropbox preference page
       } else {
 
-         final DropboxChooser test = new DropboxChooser(Display.getCurrent().getActiveShell());
-         test.open();
-         // runImport(osFiles, false, null);
+         final DropboxChooser dropboxChooser = new DropboxChooser(Display.getCurrent().getActiveShell(), ChooserType.File);
+         dropboxChooser.open();
+
+         final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();
+         if (selectedFiles == null || selectedFiles.size() == 0) {
+            return;
+         }
+
+         final ArrayList<OSFile> osFiles = new ArrayList<>();
+
+         for (final String filePath : selectedFiles) {
+
+            final OSFile osFile = new OSFile(Paths.get(filePath));
+
+            osFiles.add(osFile);
+         }
+
+         if (_importState_IsAutoOpenImportLog) {
+            TourLogManager.showLogView();
+         }
+
+         //TODO How to import files that dont have a local path !? give the base 64 representation ?
+         //=> ImportRawDAta function :-)
+         runImport(osFiles, false, null);
       }
    }
 

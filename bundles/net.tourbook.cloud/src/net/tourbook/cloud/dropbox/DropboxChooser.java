@@ -23,6 +23,7 @@ import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.cloud.Activator;
@@ -69,16 +70,23 @@ public class DropboxChooser extends TitleAreaDialog {
 //TODO Add button to go back to the parent folder (API call for that ?)
    //TODO double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
 
-   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
+   //TODO enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
 
-   private DbxRequestConfig _requestConfig;
-   private DbxClientV2      _dropboxClient;
+   private static final String ROOT_FOLDER = "/";                                        //$NON-NLS-1$
 
-   private List<Metadata>   _folderList;
-   private TableViewer      _contentViewer;
+   private IPreferenceStore    _prefStore  = Activator.getDefault().getPreferenceStore();
+   private DbxRequestConfig    _requestConfig;
 
-   private String           _selectedFolder;
-   private String           _accessToken;
+   private DbxClientV2         _dropboxClient;
+   private List<Metadata>      _folderList;
+
+   private TableViewer         _contentViewer;
+   private String              _selectedFolder;
+   private ArrayList<String>   _selectedFiles;
+
+   private String              _accessToken;
+
+   private ChooserType         _chooserType;
 
    /*
     * UI controls
@@ -88,11 +96,13 @@ public class DropboxChooser extends TitleAreaDialog {
    private Label  _labelCurrentFolder;
    private Button _buttonParentFolder;
 
-   public DropboxChooser(final Shell parentShell) {
+   public DropboxChooser(final Shell parentShell, final ChooserType chooserType) {
 
       super(parentShell);
 
       setShellStyle(getShellStyle() | SWT.RESIZE);
+
+      _chooserType = chooserType;
 
       //TODO put a dropbox image
       //setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
@@ -173,7 +183,7 @@ public class DropboxChooser extends TitleAreaDialog {
          // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
                .applyTo(_textSelectedAbsolutePath);
-         _textSelectedAbsolutePath.setText("/"); //$NON-NLS-1$
+         _textSelectedAbsolutePath.setText(ROOT_FOLDER);
 
          createUI_10_FilterViewer(container);
       }
@@ -259,6 +269,10 @@ public class DropboxChooser extends TitleAreaDialog {
 
    }
 
+   public ArrayList<String> getSelectedFiles() {
+      return _selectedFiles;
+   }
+
    public String getSelectedFolder() {
       return _selectedFolder;
    }
@@ -266,7 +280,19 @@ public class DropboxChooser extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      _selectedFolder = _textSelectedAbsolutePath.getText();
+      if (_chooserType == ChooserType.Folder) {
+         _selectedFolder = _textSelectedAbsolutePath.getText();
+      } else if (_chooserType == ChooserType.File) {
+         final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
+         final Object[] selectionArray = selection.toArray();
+         if (selectionArray.length > 0) {
+            _selectedFiles = new ArrayList<>();
+
+            final Metadata item = ((Metadata) selection.toArray()[0]);
+
+            _selectedFiles.add(item.getPathDisplay());
+         }
+      }
 
       super.okPressed();
    }
@@ -275,7 +301,7 @@ public class DropboxChooser extends TitleAreaDialog {
 
       final String currentFolder = _textSelectedAbsolutePath.getText();
 
-      final int endIndex = currentFolder.lastIndexOf("/");
+      final int endIndex = currentFolder.lastIndexOf(ROOT_FOLDER);
       if (endIndex != -1) {
          final String parentFolder = currentFolder.substring(0, endIndex);
          selectFolder(parentFolder);
