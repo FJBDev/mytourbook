@@ -130,8 +130,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId("vye6ci8xzzsuiao"); // client_id
-      client.setSecret("ovxyfwr544wrdvg"); // client_secret
+      client.setId("TOINPUTATBUILD"); // client_id
+      client.setSecret("TOINPUTATBUILD"); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
       final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
@@ -140,34 +140,22 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       final String token = request.getAccessToken();
       final String dialogMessage = StringUtils.isNullOrEmpty(token) ? Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved
             : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
+
       if (!StringUtils.isNullOrEmpty(token)) {
          _textAccessToken.setText(token);
       }
+
       MessageDialog.openInformation(
             Display.getCurrent().getActiveShell(),
             Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
             dialogMessage);
+
       enableControls();
-
-      // WHere to get the 20.3.0 string ???
-      /*
-       * final DbxRequestConfig titi = new DbxRequestConfig("mytourbook/20.3.0");
-       * final DbxAppClientV2 toto = new DbxAppClientV2(titi, "vye6ci8xzzsuiao", "ovxyfwr544wrdvg");
-       * final DbxAppAuthRequests tttt = toto.auth();
-       * final DbxCredential credential = new DbxCredential("accesstoken",
-       * 2 * DbxCredential.EXPIRE_MARGIN,
-       * "refresh_token",
-       * "appkey",
-       * "app_secret");
-       */
-
-      // Create Dropbox client
-      //    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
    }
 
    protected void onClickChooseFolder() {
       //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
-      final DropboxFolderChooser dropboxFolderChooser = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
+      final DropboxChooser dropboxFolderChooser = new DropboxChooser(Display.getCurrent().getActiveShell());
       if (dropboxFolderChooser.open() == Window.OK) {
 
          _textFolderPath.setText(dropboxFolderChooser.getSelectedFolder());

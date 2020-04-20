@@ -38,7 +38,7 @@ import net.tourbook.Messages;
 import net.tourbook.application.PerspectiveFactoryRawData;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
-import net.tourbook.cloud.dropbox.DropboxFolderChooser;
+import net.tourbook.cloud.dropbox.DropboxChooser;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -373,10 +373,9 @@ public class RawDataManager {
     * Import tours selected from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
-
-      final String accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
-      final String dropboxFolder = _prefStore.getString(ICloudPreferences.DROPBOX_FOLDER);
-//TODO dropbfolder is empty because we don't read the correct preference store. Hence we need to do this check in the DropboxFolderChooser
+      final IPreferenceStore cloudPreferenceStore = net.tourbook.cloud.Activator.getDefault().getPreferenceStore();
+      final String accessToken = cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+      final String dropboxFolder = cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_FOLDER);
 
       if (StringUtils.isNullOrEmpty(accessToken) ||
             StringUtils.isNullOrEmpty(dropboxFolder)) {
@@ -384,10 +383,10 @@ public class RawDataManager {
                Display.getCurrent().getActiveShell(),
                Messages.Dialog_DropboxFolderChooser_Area_Title, //TODO
                Messages.Dialog_DropboxFolderChooser_AccessToken_Or_Folder_Missing);
-//TODO Open dropbox preference page
+         //TODO Open dropbox preference page
       } else {
 
-         final DropboxFolderChooser test = new DropboxFolderChooser(Display.getCurrent().getActiveShell());
+         final DropboxChooser test = new DropboxChooser(Display.getCurrent().getActiveShell());
          test.open();
          // runImport(osFiles, false, null);
       }

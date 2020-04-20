@@ -47,24 +47,27 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.Version;
 
-public class DropboxFolderChooser extends TitleAreaDialog {
-   //TODO activate the "Choose"/OK button only when a folder is selected
+public class DropboxChooser extends TitleAreaDialog {
    //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO Import configuration to detect new files from Dropbox acount ?
    //TODO Revert to original oauth2 browser and add only my necessary code
    //TODO remove unused imports
 //TODO Add button to go back to the parent folder (API call for that ?)
    //TODO double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
-   //TODO put the SVG of Dropbox in cloud.svg
 
    private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
@@ -80,9 +83,12 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    /*
     * UI controls
     */
-   private Text _textSelectedAbsolutePath;
+   private Text   _textSelectedAbsolutePath;
 
-   public DropboxFolderChooser(final Shell parentShell) {
+   private Label  _labelCurrentFolder;
+   private Button _buttonParentFolder;
+
+   public DropboxChooser(final Shell parentShell) {
 
       super(parentShell);
 
@@ -111,8 +117,10 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
       _accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
 
-      //TODO How to get the current MT version !?
-      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/20.3.0").build();
+      //Getting the current version of MyTourbook
+      final Version version = FrameworkUtil.getBundle(getClass()).getVersion();
+
+      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", "")).build(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
       _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
 
@@ -131,17 +139,39 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       label.setLayoutData(new GridData(SWT.NONE, SWT.NONE, true, false));
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.fillDefaults().margins(20, 20).numColumns(3).applyTo(container);
       {
+         /*
+          * Label
+          */
+         _labelCurrentFolder = new Label(container, SWT.LEFT);
+         _labelCurrentFolder.setText("TODO");
+         GridDataFactory.fillDefaults()
+               .applyTo(_labelCurrentFolder);
+
+         /*
+          * Parent folder button
+          */
+         _buttonParentFolder = new Button(container, SWT.LEFT);
+         _buttonParentFolder.setToolTipText("TODO: Go to Parent folder");
+         _buttonParentFolder.setImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Parentfolder).createImage());
+         GridDataFactory.fillDefaults().applyTo(_buttonParentFolder);
+         _buttonParentFolder.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(final SelectionEvent event) {
+               onClickParentFolder();
+            }
+         });
+         _buttonParentFolder.setEnabled(false);
+
          /*
           * Dropbox folder path
           */
-         _textSelectedAbsolutePath = new Text(container, SWT.BORDER);
+         _textSelectedAbsolutePath = new Text(container, SWT.LEFT);
          _textSelectedAbsolutePath.setEditable(false);
          // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
-               .grab(true, false)
                .applyTo(_textSelectedAbsolutePath);
          _textSelectedAbsolutePath.setText("/"); //$NON-NLS-1$
 
@@ -162,22 +192,16 @@ public class DropboxFolderChooser extends TitleAreaDialog {
    private void createUI_10_FilterViewer(final Composite parent) {
 
       final TableLayoutComposite layouter = new TableLayoutComposite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).hint(200, SWT.DEFAULT).applyTo(layouter);
+      GridDataFactory.fillDefaults().span(3, 1).grab(true, true).hint(600, 300).applyTo(layouter);
 
       final Table table = new Table(layouter, (SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION));
       table.setHeaderVisible(false);
       table.setLinesVisible(false);
-      /*
-       * final TableItem item = new TableItem(table, SWT.NONE);
-       * item.setText("dkehfkjefgbakj");
-       * item.setImage(TourbookPlugin.getImageDescriptor(net.tourbook.cloud.dropbox.Messages.
-       * Image__Dropbox_folder).createImage());
-       */ TableViewerColumn tvc;
 
       _contentViewer = new TableViewer(table);
 
       // column: name + image
-      tvc = new TableViewerColumn(_contentViewer, SWT.NONE);
+      final TableViewerColumn tvc = new TableViewerColumn(_contentViewer, SWT.NONE);
       tvc.setLabelProvider(new CellLabelProvider() {
          @Override
          public void update(final ViewerCell cell) {
@@ -192,11 +216,11 @@ public class DropboxFolderChooser extends TitleAreaDialog {
             if (entry instanceof FolderMetadata) {
 
                filterImage =
-                     Activator.getImageDescriptor(Messages.Image__Dropbox_folder).createImage();
+                     Activator.getImageDescriptor(Messages.Image__Dropbox_Folder).createImage();
             } else if (entry instanceof FileMetadata) {
 
                filterImage =
-                     Activator.getImageDescriptor(Messages.Image__Dropbox_file).createImage();
+                     Activator.getImageDescriptor(Messages.Image__Dropbox_File).createImage();
             }
 
             cell.setText(filterName);
@@ -247,6 +271,17 @@ public class DropboxFolderChooser extends TitleAreaDialog {
       super.okPressed();
    }
 
+   protected void onClickParentFolder() {
+
+      final String currentFolder = _textSelectedAbsolutePath.getText();
+
+      final int endIndex = currentFolder.lastIndexOf("/");
+      if (endIndex != -1) {
+         final String parentFolder = currentFolder.substring(0, endIndex);
+         selectFolder(parentFolder);
+      }
+   }
+
    protected void onSelectItem(final ISelection selectedItem, final boolean doubleClick) {
       final StructuredSelection selection = (StructuredSelection) selectedItem;
       final Object[] selectionArray = selection.toArray();
@@ -272,6 +307,8 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
          _textSelectedAbsolutePath.setText(folderAbsolutePath);
 
+         _buttonParentFolder.setEnabled(_textSelectedAbsolutePath.getText().length() > 1);
+
          _contentViewer.refresh();
 
       } catch (final DbxException e) {
@@ -283,7 +320,7 @@ public class DropboxFolderChooser extends TitleAreaDialog {
 
    private void updateViewers() {
 
-      selectFolder("");
+      selectFolder(""); //$NON-NLS-1$
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());
