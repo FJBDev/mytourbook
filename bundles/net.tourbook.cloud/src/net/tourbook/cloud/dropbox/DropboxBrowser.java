@@ -28,6 +28,7 @@ import java.util.List;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.ICloudPreferences;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -72,6 +73,9 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    //TODO enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
 
+   //TODO enable file import when double clicking on it
+   //TODO enable file extension filtering for file import
+
    private static final String ROOT_FOLDER = "/";                                        //$NON-NLS-1$
 
    private IPreferenceStore    _prefStore  = Activator.getDefault().getPreferenceStore();
@@ -96,13 +100,21 @@ public class DropboxBrowser extends TitleAreaDialog {
    private Label  _labelCurrentFolder;
    private Button _buttonParentFolder;
 
-   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType) {
+   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType, final String accessToken) {
 
       super(parentShell);
 
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       _chooserType = chooserType;
+
+      _accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+      //It is possible that the user just retrieved an access token but hasn't saved it yet
+      //in the preferences
+      if (StringUtils.isNullOrEmpty(_accessToken) &&
+            !StringUtils.isNullOrEmpty(accessToken)) {
+         _accessToken = accessToken;
+      }
 
       //TODO put a dropbox image
       //setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
@@ -125,7 +137,6 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       createUI(dlgAreaContainer);
 
-      _accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
 
       //Getting the current version of MyTourbook
       final Version version = FrameworkUtil.getBundle(getClass()).getVersion();
@@ -290,7 +301,12 @@ public class DropboxBrowser extends TitleAreaDialog {
 
             final Metadata item = ((Metadata) selection.toArray()[0]);
 
-            _selectedFiles.add(item.getPathDisplay());
+
+            try {
+               final String downloadedFile = _dropboxClient.files().getTemporaryLink(item.getPathDisplay()).getLink();
+               _selectedFiles.add(downloadedFile);
+            } catch (final DbxException e) {} finally {
+            }
          }
       }
 

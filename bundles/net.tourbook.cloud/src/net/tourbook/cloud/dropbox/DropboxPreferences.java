@@ -130,8 +130,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId("TOINPUTATBUILD"); // client_id
-      client.setSecret("TOINPUTATBUILD"); // client_secret
+      client.setId("vye6ci8xzzsuiao"); // client_id
+      client.setSecret("ovxyfwr544wrdvg"); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
       final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
@@ -155,7 +155,9 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    protected void onClickChooseFolder() {
       //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
-      final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.Folder);
+      final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(),
+            ChooserType.Folder,
+            _textAccessToken.getText());
       if (dropboxFolderChooser.open() == Window.OK) {
 
          _textFolderPath.setText(dropboxFolderChooser.getSelectedFolder());

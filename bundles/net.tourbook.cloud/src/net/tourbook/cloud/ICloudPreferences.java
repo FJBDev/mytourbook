@@ -17,6 +17,9 @@ package net.tourbook.cloud;
 
 public interface ICloudPreferences {
 
+   //TODO rename DropboxPreferences into PrefPageDropbox ??
+   public static final String PREF_PAGE_DROPBOX   = "net.tourbook.cloud.dropbox.DropboxPreferences"; //$NON-NLS-1$
+
    public static final String DROPBOX_ACCESSTOKEN = "DROPBOX_ACCESSTOKEN"; //$NON-NLS-1$
    public static final String DROPBOX_FOLDER      = "DROPBOX_FOLDER";      //$NON-NLS-1$
 }
