@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
-public class DropboxChooser extends TitleAreaDialog {
+public class DropboxBrowser extends TitleAreaDialog {
    //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO Import configuration to detect new files from Dropbox acount ?
    //TODO Revert to original oauth2 browser and add only my necessary code
@@ -96,7 +96,7 @@ public class DropboxChooser extends TitleAreaDialog {
    private Label  _labelCurrentFolder;
    private Button _buttonParentFolder;
 
-   public DropboxChooser(final Shell parentShell, final ChooserType chooserType) {
+   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType) {
 
       super(parentShell);
 

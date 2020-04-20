@@ -39,7 +39,7 @@ import net.tourbook.application.PerspectiveFactoryRawData;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.dropbox.ChooserType;
-import net.tourbook.cloud.dropbox.DropboxChooser;
+import net.tourbook.cloud.dropbox.DropboxBrowser;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -387,7 +387,7 @@ public class RawDataManager {
          //TODO Open dropbox preference page
       } else {
 
-         final DropboxChooser dropboxChooser = new DropboxChooser(Display.getCurrent().getActiveShell(), ChooserType.File);
+         final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File);
          dropboxChooser.open();
 
          final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();

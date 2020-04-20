@@ -155,7 +155,7 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    protected void onClickChooseFolder() {
       //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
-      final DropboxChooser dropboxFolderChooser = new DropboxChooser(Display.getCurrent().getActiveShell(), ChooserType.Folder);
+      final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.Folder);
       if (dropboxFolderChooser.open() == Window.OK) {
 
          _textFolderPath.setText(dropboxFolderChooser.getSelectedFolder());
