@@ -22,18 +22,9 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
-import com.github.fge.fs.dropbox.provider.DropBoxFileSystemProvider;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.ICloudPreferences;
@@ -71,10 +62,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
-
-import vavi.net.auth.oauth2.BasicAppCredential;
-import vavi.net.auth.oauth2.dropbox.DropBoxLocalAppCredential;
-import vavi.util.properties.annotation.PropsEntity;
 
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
@@ -127,40 +114,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       if (StringUtils.isNullOrEmpty(_accessToken) &&
             !StringUtils.isNullOrEmpty(accessToken)) {
          _accessToken = accessToken;
-      }
-
-      final String toto = System.getProperty("user.home");
-      final URI uri = URI.create("dropbox:///?id=vye6ci8xzzsuiao");
-      final BasicAppCredential appCredential = new DropBoxLocalAppCredential();
-      try {
-         PropsEntity.Util.bind(appCredential);
-      } catch (final IOException e2) {
-         // TODO Auto-generated catch block
-         e2.printStackTrace();
-      }
-      final Map<String, Object> env = new HashMap<>();
-      env.put(DropBoxFileSystemProvider.ENV_CREDENTIAL, appCredential);
-
-      try (final FileSystem dropboxfs = new DropBoxFileSystemProvider().newFileSystem(uri, env)) {
-         /*
-          * And use it! You should of course adapt this code...
-          */
-         // Equivalent to FileSystems.getDefault().getPath(...)
-         final Path src = Paths.get(System.getProperty("user.home"), "Example3.java");
-         // Here we create a path for our DropBox fs...
-         final Path dst = dropboxfs.getPath("/Example3.java");
-         // Here we copy the file from our local fs to dropbox!
-         try {
-            Files.copy(src, dst);
-         } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
-      }
-      //if a dropbox token has been entered and a folder selected, then we create the dropbox file system
-      catch (final IOException e1) {
-         // TODO Auto-generated catch block
-         e1.printStackTrace();
       }
 
       //TODO put a dropbox image

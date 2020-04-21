@@ -30,8 +30,5 @@ Import-Package: com.dropbox.core,
  org.apache.http.message,
  org.apache.http.protocol,
  org.apache.http.util,
- org.json,
- vavi.net.auth.oauth2,
- vavi.net.auth.oauth2.dropbox,
- vavi.util.properties.annotation
+ org.json
 Automatic-Module-Name: net.tourbook.cloud

@@ -15,13 +15,24 @@
  *******************************************************************************/
 package net.tourbook.common;
 
+import com.github.fge.filesystem.provider.FileSystemRepository;
+import com.github.fge.fs.dropbox.provider.DropBoxFileSystemProvider;
+import com.github.fge.fs.dropbox.provider.DropBoxFileSystemRepository;
+
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,7 +93,6 @@ public class NIO {
                break;
             }
          }
-
       } else if (isDeviceNameCloudFolder(folder)) {
          final String workingDirectory = Platform.getInstanceLocation().getURL().getPath();
 
@@ -108,15 +118,15 @@ public class NIO {
 
 //		final long start = System.nanoTime();
 //
-      final Iterable<FileStore> fileStores = FileSystems.getDefault().getFileStores();
+      final Iterable<FileStore> systemFileStore = FileSystems.getDefault().getFileStores();
 
       //create new list
-      final ArrayList<FileStore> myList = new ArrayList<>();
+      final ArrayList<FileStore> fileStores = new ArrayList<>();
 
       //iterate through current objects and add them to new list
-      final Iterator<FileStore> fileStoresIterator = fileStores.iterator();
+      Iterator<FileStore> fileStoresIterator = systemFileStore.iterator();
       while (fileStoresIterator.hasNext()) {
-         myList.add(fileStoresIterator.next());
+         fileStores.add(fileStoresIterator.next());
       }
 
       /*
@@ -126,36 +136,28 @@ public class NIO {
        * final String accessToken =
        * cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
        */
-      /*
-       * final URI uri = URI.create("dropbox://?id=value?&credential=value2");
-       * final Map<String, String> env = new HashMap<>();
-       * env.put("accessToken", "dd");
-       * final FileSystemProvider provider = new DropBoxFileSystemProvider();
-       * final Map<String, String> result = new HashMap<>();
-       * if (uri.getQuery() != null) {
-       * final String params = uri.getQuery().split("#")[0];
-       * final String[] pairs = params.split("\\?&");
-       * for (final String pair : pairs) {
-       * final String[] parts = pair.split("=");
-       * result.put(parts[0], parts[1]);
-       * }
-       * }
-       * try (
-       * Create the filesystem...
-       * final FileSystem dropboxfs = provider.newFileSystem(uri, env)) {
-       * And use it! You should of course adapt this code...
-       * // Equivalent to FileSystems.getDefault().getPath(...)
-       * final Path src = Paths.get(System.getProperty("user.home"), "Example3.java");
-       * // Here we create a path for our DropBox fs...
-       * final Path dst = dropboxfs.getPath("/Example3.java");
-       * final Iterable<FileStore> fileStorese = dropboxfs.getFileStores();
-       * // Here we copy the file from our local fs to dropbox!
-       * Files.copy(src, dst);
-       * } catch (final IOException e) {
-       * // TODO Auto-generated catch block
-       * e.printStackTrace();
-       * }
-       */
+      final URI uri = URI.create("dropbox://root");
+      final Map<String, String> env = new HashMap<>();
+      env.put("accessToken", "");
+
+      final FileSystemRepository repository = new DropBoxFileSystemRepository();
+      final FileSystemProvider provider = new DropBoxFileSystemProvider(repository);
+
+      final String testDirectoryPath = "/YOUPI-" + UUID.randomUUID().toString();
+
+      final Iterable<FileStore> dropboxFileStore;
+      try (final FileSystem dropboxfs = provider.newFileSystem(uri, env)) {
+         dropboxFileStore = dropboxfs.getFileStores();
+
+         //iterate through current objects and add them to new list
+         fileStoresIterator = dropboxFileStore.iterator();
+         while (fileStoresIterator.hasNext()) {
+            fileStores.add(fileStoresIterator.next());
+         }
+      } catch (final IOException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
       //add object you would like to the list
       //myList.add(dropboxRepository.);
@@ -190,7 +192,7 @@ public class NIO {
    }
 
    public static boolean isDeviceNameCloudFolder(final String folder) {
-      return folder.equalsIgnoreCase("dropbox");
+      return folder.equalsIgnoreCase("dropboxFolder://");
    }
 
    /**
