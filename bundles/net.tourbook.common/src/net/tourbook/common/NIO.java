@@ -19,7 +19,6 @@ import com.github.fge.filesystem.provider.FileSystemRepository;
 import com.github.fge.fs.dropbox.provider.DropBoxFileSystemProvider;
 import com.github.fge.fs.dropbox.provider.DropBoxFileSystemRepository;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileStore;
@@ -38,16 +37,12 @@ import java.util.regex.Pattern;
 
 import net.tourbook.common.util.StatusUtil;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
-
 /**
  * Tools for the java.nio package.
  */
 public class NIO {
 
    public static final String   DEVICE_FOLDER_NAME_START = "[";                                  //$NON-NLS-1$
-
    private final static Pattern DRIVE_LETTER_PATTERN     = Pattern.compile("\\s*\\(([^(]*)\\)"); //$NON-NLS-1$
 
    /** Extracts <code>W530</code> from <code>[W530]\temp\other</code> */
@@ -55,6 +50,8 @@ public class NIO {
 
    /** <code>([\\].*)</code> */
    private final static Pattern DEVICE_NAME_PATH_PATTERN = Pattern.compile("([\\\\].*)");        //$NON-NLS-1$
+
+   public static FileSystem     _dropboxFileSystem;
 
    /**
     * Replace device name with drive letter, e.g. [MEDIA]\CACHE -> D:\CACHE. This do not validate if
@@ -94,16 +91,8 @@ public class NIO {
             }
          }
       } else if (isDeviceNameCloudFolder(folder)) {
-         final String workingDirectory = Platform.getInstanceLocation().getURL().getPath();
-
-         final IPath dropboxPath = new org.eclipse.core.runtime.Path(workingDirectory).append("Dropbox");
-
-         final File droboxFilePath = dropboxPath.toFile();
-         if (droboxFilePath.exists() == false) {
-            droboxFilePath.mkdirs();
-         }
-
-         osPath = droboxFilePath.getAbsolutePath();
+//TODO unnecesary since the line below does the same ?!?!
+         osPath = folder;
       } else {
 
          // OS path is contained in the folder path
@@ -143,21 +132,29 @@ public class NIO {
       final FileSystemRepository repository = new DropBoxFileSystemRepository();
       final FileSystemProvider provider = new DropBoxFileSystemProvider(repository);
 
-      final String testDirectoryPath = "/YOUPI-" + UUID.randomUUID().toString();
+      //final String testDirectoryPath = "/YOUPI-" + UUID.randomUUID().toString();
 
       final Iterable<FileStore> dropboxFileStore;
-      try (final FileSystem dropboxfs = provider.newFileSystem(uri, env)) {
-         dropboxFileStore = dropboxfs.getFileStores();
+      try {
+         _dropboxFileSystem = provider.newFileSystem(uri, env);
+         final String testDirectoryPath = "/test-" + UUID.randomUUID().toString();
+
+
+         dropboxFileStore = _dropboxFileSystem.getFileStores();
 
          //iterate through current objects and add them to new list
          fileStoresIterator = dropboxFileStore.iterator();
          while (fileStoresIterator.hasNext()) {
             fileStores.add(fileStoresIterator.next());
          }
+
+         //Can I do sthing with a filestore ?
+         // fileStores.get(0).
       } catch (final IOException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
+      //TODO when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
 
       //add object you would like to the list
       //myList.add(dropboxRepository.);

@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantLock;
@@ -204,7 +206,7 @@ public class EasyImportManager {
                return returnState;
             }
 
-            getImportFiles();
+            getImportFiles(fileStores, NIO._dropboxFileSystem);
 
          } finally {
             STORE_LOCK.unlock();
@@ -216,11 +218,11 @@ public class EasyImportManager {
       return returnState;
    }
 
-   private HashSet<String> getBackupFiles(final String folder) {
+   private HashSet<String> getBackupFiles(final String folder, final Iterable<FileStore> fileStores, final FileSystem dropboxFileSystem) {
 
       final HashSet<String> backupFiles = new HashSet<>();
 
-      final Path validPath = getValidPath(folder);
+      final Path validPath = getValidPath(folder, fileStores, dropboxFileSystem);
       if (validPath == null) {
          return backupFiles;
       }
@@ -322,7 +324,7 @@ public class EasyImportManager {
 
    /**
     */
-   private void getImportFiles() {
+   private void getImportFiles(final Iterable<FileStore> fileStores, final FileSystem dropboxFileSystem) {
 
       final ArrayList<OSFile> movedFiles = new ArrayList<>();
       final ArrayList<OSFile> notImportedFiles = new ArrayList<>();
@@ -341,7 +343,7 @@ public class EasyImportManager {
       HashSet<String> availableBackupFiles = null;
       if (importConfig.isCreateBackup) {
 
-         availableBackupFiles = getBackupFiles(importConfig.getBackupOSFolder());
+         availableBackupFiles = getBackupFiles(importConfig.getBackupOSFolder(), fileStores, dropboxFileSystem);
       }
 
       /*
@@ -349,7 +351,9 @@ public class EasyImportManager {
        */
       final List<OSFile> existingDeviceFiles = getOSFiles(
             importConfig.getDeviceOSFolder(),
-            importConfig.fileGlobPattern);
+            importConfig.fileGlobPattern,
+            fileStores,
+            dropboxFileSystem);
 
       easyConfig.numDeviceFiles = existingDeviceFiles.size();
 
@@ -364,7 +368,9 @@ public class EasyImportManager {
 
          final List<OSFile> existingBackupFiles = getOSFiles(
                importConfig.getBackupOSFolder(),
-               importConfig.fileGlobPattern);
+               importConfig.fileGlobPattern,
+               fileStores,
+               dropboxFileSystem);
 
          for (final OSFile backupFile : existingBackupFiles) {
 
@@ -428,11 +434,14 @@ public class EasyImportManager {
       });
    }
 
-   private List<OSFile> getOSFiles(final String folder, final String globFilePattern) {
+   private List<OSFile> getOSFiles(final String folder,
+                                   final String globFilePattern,
+                                   final Iterable<FileStore> fileStores,
+                                   final FileSystem dropboxFileSystem) {
 
       final List<OSFile> osFiles = new ArrayList<>();
 
-      final Path validPath = getValidPath(folder);
+      final Path validPath = getValidPath(folder, fileStores, dropboxFileSystem);
       if (validPath == null) {
          return osFiles;
       }
@@ -443,7 +452,7 @@ public class EasyImportManager {
          globPattern = ImportConfig.DEVICE_FILES_DEFAULT;
       }
 
-      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dropboxFileSystem.getPath("/UserFiles"), globPattern)) {
 
          for (final Path path : directoryStream) {
 
@@ -484,19 +493,27 @@ public class EasyImportManager {
     * @param osFolder
     * @return Returns the device OS path or <code>null</code> when this folder is not valid.
     */
-   private Path getValidPath(final String osFolder) {
+   private Path getValidPath(final String osFolder, final Iterable<FileStore> fileStores, final FileSystem dropboxFileSytem) {
+      //create new list
+      final ArrayList<FileStore> fileStoressss = new ArrayList<>();
 
+      //iterate through current objects and add them to new list
+      final Iterator<FileStore> fileStoresssds = fileStores.iterator();
+      while (fileStoresssds.hasNext()) {
+         fileStoressss.add(fileStoresssds.next());
+      }
       if (osFolder != null && osFolder.trim().length() > 0) {
 
          try {
 
-            final Path devicePath = Paths.get(osFolder);
-
+            final Path devicePath = dropboxFileSytem.getPath("/UserFiles");
             if (Files.exists(devicePath)) {
                return devicePath;
             }
 
-         } catch (final Exception e) {}
+         } catch (final Exception e) {
+            System.out.println("dd");
+         }
       }
 
       return null;
@@ -515,7 +532,14 @@ public class EasyImportManager {
          // check file
          try {
 
-            final Path deviceFolderPath = Paths.get(osFolder);
+            /*
+             * final Path deviceFolderPath = Paths.get(osFolder);
+             * if (Files.exists(deviceFolderPath)) {
+             * isFolderValid = true;
+             * }
+             */
+
+            final Path deviceFolderPath = NIO._dropboxFileSystem.getPath("/UserFiles");
             if (Files.exists(deviceFolderPath)) {
                isFolderValid = true;
             }

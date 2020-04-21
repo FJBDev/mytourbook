@@ -47,6 +47,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.formatter.FormatManager;
@@ -4146,10 +4147,13 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       try {
 
-         if (osFolder != null && osFolder.trim().length() > 0 && Files.exists(Paths.get(osFolder))) {
-
-            // device folder exists
-            return true;
+         if (osFolder != null && osFolder.trim().length() > 0 ) {
+            if (!osFolder.contains("Dropbox")) {
+               return Files.exists(Paths.get(osFolder));
+            } else{
+               //TODO replace the directory with what was configued in the preferences
+               return Files.exists(NIO._dropboxFileSystem.getPath("/UserFiles"));
+               }
          }
 
       } catch (final Exception e) {}
