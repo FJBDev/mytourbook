@@ -79,6 +79,7 @@ Export-Package:
  org.joda.time.format,
  org.json,
  vavi.net.auth.oauth2,
+ vavi.net.auth.oauth2.dropbox,
  vavi.util.properties.annotation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.tourbook.ext.jars

@@ -30,7 +30,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +71,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
+
+import vavi.net.auth.oauth2.BasicAppCredential;
+import vavi.net.auth.oauth2.dropbox.DropBoxLocalAppCredential;
+import vavi.util.properties.annotation.PropsEntity;
 
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
@@ -126,12 +129,19 @@ public class DropboxBrowser extends TitleAreaDialog {
          _accessToken = accessToken;
       }
 
-      final URI uri = URI.create("dropbox://?id=client_id");
-      final Map<String, String> env = new HashMap<>();
-      env.put("credential", "client_secret");
-      final FileSystemProvider provider = new DropBoxFileSystemProvider();
+      final String toto = System.getProperty("user.home");
+      final URI uri = URI.create("dropbox:///?id=vye6ci8xzzsuiao");
+      final BasicAppCredential appCredential = new DropBoxLocalAppCredential();
+      try {
+         PropsEntity.Util.bind(appCredential);
+      } catch (final IOException e2) {
+         // TODO Auto-generated catch block
+         e2.printStackTrace();
+      }
+      final Map<String, Object> env = new HashMap<>();
+      env.put(DropBoxFileSystemProvider.ENV_CREDENTIAL, appCredential);
 
-      try (final FileSystem dropboxfs = provider.newFileSystem(uri, env)) {
+      try (final FileSystem dropboxfs = new DropBoxFileSystemProvider().newFileSystem(uri, env)) {
          /*
           * And use it! You should of course adapt this code...
           */
