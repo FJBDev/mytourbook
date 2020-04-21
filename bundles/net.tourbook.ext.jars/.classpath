@@ -21,5 +21,9 @@
 	<classpathentry exported="true" kind="lib" path="oauth2-useragent-0.11.3.jar"/> <!-- https://mvnrepository.com/artifact/com.microsoft.alm/oauth2-useragent -->
 	<classpathentry exported="true" kind="lib" path="httpcore-4.4.13.jar"/> <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
 	<classpathentry exported="true" kind="lib" path="httpclient-4.5.12.jar"/> <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+	<classpathentry exported="true" kind="lib" path="java7-fs-dropbox-0.0.7v.jar"/> <!-- https://jitpack.io/com/github/umjammer/java7-fs-dropbox/0.0.7v/java7-fs-dropbox-0.0.7v.jar -->
+	<classpathentry exported="true" kind="lib" path="vavi-commons-1.0.10.jar"/> <!-- https://jitpack.io/com/github/umjammer/vavi-commons-net/1.0.4/vavi-commons-net-1.0.4.jar -->
+	<classpathentry exported="true" kind="lib" path="java7-fs-base-0.0.4v.jar"/> <!-- https://jitpack.io/com/github/umjammer/java7-fs-base/0.0.4v/java7-fs-base-0.0.4v.jar -->
+	<classpathentry exported="true" kind="lib" path="vavi-net-auth-0.0.3.jar"/> <!-- https://jitpack.io/com/github/umjammer/vavi-net-auth/0.0.3/vavi-net-auth-0.0.3.jar -->
 	<classpathentry kind="output" path="bin"/>
 </classpath>

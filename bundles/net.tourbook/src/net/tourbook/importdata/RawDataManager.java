@@ -411,6 +411,9 @@ public class RawDataManager {
 
             final String temporaryDirectory = org.apache.commons.io.FileUtils.getTempDirectoryPath();
             //TODO Ask wolfgang if it's ok to get a local file name because I dont think I have other choices
+            //Show him the log screenshot
+
+            //TODO Get the file name
             final Path filePath = Paths.get(temporaryDirectory, "toto.fit");
 
             //Downloading the file from Dropbox to the local disk

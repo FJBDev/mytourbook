@@ -15,14 +15,20 @@
  *******************************************************************************/
 package net.tourbook.common;
 
+import java.io.File;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.tourbook.common.util.StatusUtil;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 
 /**
  * Tools for the java.nio package.
@@ -77,6 +83,17 @@ public class NIO {
             }
          }
 
+      } else if (isDeviceNameCloudFolder(folder)) {
+         final String workingDirectory = Platform.getInstanceLocation().getURL().getPath();
+
+         final IPath dropboxPath = new org.eclipse.core.runtime.Path(workingDirectory).append("Dropbox");
+
+         final File droboxFilePath = dropboxPath.toFile();
+         if (droboxFilePath.exists() == false) {
+            droboxFilePath.mkdirs();
+         }
+
+         osPath = droboxFilePath.getAbsolutePath();
       } else {
 
          // OS path is contained in the folder path
@@ -92,7 +109,58 @@ public class NIO {
 //		final long start = System.nanoTime();
 //
       final Iterable<FileStore> fileStores = FileSystems.getDefault().getFileStores();
-//
+
+      //create new list
+      final ArrayList<FileStore> myList = new ArrayList<>();
+
+      //iterate through current objects and add them to new list
+      final Iterator<FileStore> fileStoresIterator = fileStores.iterator();
+      while (fileStoresIterator.hasNext()) {
+         myList.add(fileStoresIterator.next());
+      }
+
+      /*
+       * TODO put the acess token in commn preferences
+       * final IPreferenceStore cloudPreferenceStore =
+       * net.tourbook.cloud.Activator.getDefault().getPreferenceStore();
+       * final String accessToken =
+       * cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+       */
+      /*
+       * final URI uri = URI.create("dropbox://?id=value?&credential=value2");
+       * final Map<String, String> env = new HashMap<>();
+       * env.put("accessToken", "dd");
+       * final FileSystemProvider provider = new DropBoxFileSystemProvider();
+       * final Map<String, String> result = new HashMap<>();
+       * if (uri.getQuery() != null) {
+       * final String params = uri.getQuery().split("#")[0];
+       * final String[] pairs = params.split("\\?&");
+       * for (final String pair : pairs) {
+       * final String[] parts = pair.split("=");
+       * result.put(parts[0], parts[1]);
+       * }
+       * }
+       * try (
+       * Create the filesystem...
+       * final FileSystem dropboxfs = provider.newFileSystem(uri, env)) {
+       * And use it! You should of course adapt this code...
+       * // Equivalent to FileSystems.getDefault().getPath(...)
+       * final Path src = Paths.get(System.getProperty("user.home"), "Example3.java");
+       * // Here we create a path for our DropBox fs...
+       * final Path dst = dropboxfs.getPath("/Example3.java");
+       * final Iterable<FileStore> fileStorese = dropboxfs.getFileStores();
+       * // Here we copy the file from our local fs to dropbox!
+       * Files.copy(src, dst);
+       * } catch (final IOException e) {
+       * // TODO Auto-generated catch block
+       * e.printStackTrace();
+       * }
+       */
+
+      //add object you would like to the list
+      //myList.add(dropboxRepository.);
+
+      //
 //		System.out.println((UI.timeStampNano() + " " + NIO.class.getName() + " \t")
 //				+ (((float) (System.nanoTime() - start) / 1000000) + " ms"));
 //		// TODO remove SYSTEM.OUT.PRINTLN
@@ -102,7 +170,7 @@ public class NIO {
 
    /**
     * @param fileName
-    * @return Returns a path or <code>null</code> when an exception occures.
+    * @return Returns a path or <code>null</code> when an exception occurs.
     */
    public static Path getPath(final String fileName) {
 
@@ -119,6 +187,10 @@ public class NIO {
       }
 
       return null;
+   }
+
+   public static boolean isDeviceNameCloudFolder(final String folder) {
+      return folder.equalsIgnoreCase("dropbox");
    }
 
    /**
