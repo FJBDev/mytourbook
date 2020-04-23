@@ -27,6 +27,7 @@ import java.util.List;
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -73,7 +74,7 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO Fix : The regex match pattern doesnt work for dropbox
    //see easyimportmanager.java  try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
 
-   //Several bugs : Choosing the root folder doesn't add "/" to the UI.
+   //Several bugs :
    //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
@@ -112,7 +113,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       super.configureShell(shell);
 
       shell.setText(net.tourbook.cloud.dropbox.Messages.Dialog_DropboxFolderChooser_Area_Title);
-
    }
 
    @Override
@@ -310,7 +310,8 @@ public class DropboxBrowser extends TitleAreaDialog {
          final ListFolderResult list = DropboxClient.getDefault().files().listFolder(folderAbsolutePath);
          _folderList = list.getEntries();
 
-         _textSelectedAbsolutePath.setText(folderAbsolutePath);
+         _textSelectedAbsolutePath.setText(
+               StringUtils.isNullOrEmpty(folderAbsolutePath) ? ROOT_FOLDER : folderAbsolutePath);
 
          _buttonParentFolder.setEnabled(_textSelectedAbsolutePath.getText().length() > 1);
 
