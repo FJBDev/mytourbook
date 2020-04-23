@@ -76,6 +76,10 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
 
+   //Several bugs : Choosing the root folder doesn't add "/" to the UI.
+   //Choosing the root folder creates a red message for the easyimporter
+   //choosing the USerFiles directory shows 0 files to be imported !?
+   //changing the user folder doesn't trigger an update on the easyimport
    private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();

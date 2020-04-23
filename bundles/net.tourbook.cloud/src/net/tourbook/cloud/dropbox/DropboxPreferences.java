@@ -149,6 +149,10 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
       if (!StringUtils.isNullOrEmpty(token)) {
          _textAccessToken.setText(token);
+
+         // Once we retrieve a valid token, by default, we set the user folder to the root folder of
+         // their Dropbox account.
+         _textFolderPath.setText("/");//$NON-NLS-1$
       }
 
       MessageDialog.openInformation(
