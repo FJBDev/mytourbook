@@ -20,11 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +41,9 @@ import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.dropbox.ChooserType;
 import net.tourbook.cloud.dropbox.DropboxBrowser;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.common.util.StringUtils;
@@ -143,6 +142,7 @@ public class RawDataManager {
    private static RawDataManager           _instance                           = null;
 
    private static ArrayList<String>        _invalidFilesList                   = new ArrayList<>();
+   final static IPreferenceStore           _commonPrefStore                    = CommonActivator.getPrefStore();
    private final IPreferenceStore          _prefStore                          = TourbookPlugin.getPrefStore();
 
    private final IDialogSettings           _importState                        = TourbookPlugin.getState(RawDataView.ID);
@@ -378,9 +378,8 @@ public class RawDataManager {
     * Import tours selected from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
-      final IPreferenceStore cloudPreferenceStore = net.tourbook.cloud.Activator.getDefault().getPreferenceStore();
-      final String accessToken = cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
-      final String dropboxFolder = cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_FOLDER);
+      final String accessToken = _commonPrefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
+      final String dropboxFolder = _commonPrefStore.getString(ICommonPreferences.DROPBOX_FOLDER);
 
       if (StringUtils.isNullOrEmpty(accessToken) ||
             StringUtils.isNullOrEmpty(dropboxFolder)) {
@@ -409,24 +408,7 @@ public class RawDataManager {
 
          for (final String fileName : selectedFiles) {
 
-            final String temporaryDirectory = org.apache.commons.io.FileUtils.getTempDirectoryPath();
-            //TODO Ask wolfgang if it's ok to get a local file name because I dont think I have other choices
-            //Show him the log screenshot
-
-            //TODO Get the file name
-            final Path filePath = Paths.get(temporaryDirectory, "toto.fit");
-
-            //Downloading the file from Dropbox to the local disk
-            try (InputStream in = URI.create(fileName).toURL().openStream()) {
-               Files.copy(in, filePath);
-            } catch (final MalformedURLException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-            } catch (final IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-            }
-            final OSFile osFile = new OSFile(filePath);
+            final OSFile osFile = new OSFile(NIO.getDropboxFilePath(fileName));
 
             osFiles.add(osFile);
          }
@@ -436,7 +418,6 @@ public class RawDataManager {
          }
 
          runImport(osFiles, false, null);
-
       }
    }
 
@@ -1459,24 +1440,28 @@ public class RawDataManager {
       // check if importFile exist
       if (importFile.exists() == false) {
 
-         display.syncExec(new Runnable() {
-            @Override
-            public void run() {
+         // check if importFile exist
+         if (importFile.exists() == false) {
 
-               final Shell activeShell = display.getActiveShell();
+            display.syncExec(new Runnable() {
+               @Override
+               public void run() {
 
-               // during initialization there is no active shell
-               if (activeShell != null) {
+                  final Shell activeShell = display.getActiveShell();
 
-                  MessageDialog.openError(
-                        activeShell,
-                        Messages.DataImport_Error_file_does_not_exist_title,
-                        NLS.bind(Messages.DataImport_Error_file_does_not_exist_msg, importFilePathName));
+                  // during initialization there is no active shell
+                  if (activeShell != null) {
+
+                     MessageDialog.openError(
+                           activeShell,
+                           Messages.DataImport_Error_file_does_not_exist_title,
+                           NLS.bind(Messages.DataImport_Error_file_does_not_exist_msg, importFilePathName));
+                  }
                }
-            }
-         });
+            });
 
-         return false;
+            return false;
+         }
       }
 
       // find the file extension in the filename

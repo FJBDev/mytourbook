@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2018 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.common;
 
-import com.github.fge.filesystem.provider.FileSystemRepository;
 import com.github.fge.fs.dropbox.provider.DropBoxFileSystemProvider;
 import com.github.fge.fs.dropbox.provider.DropBoxFileSystemRepository;
 
@@ -31,27 +30,53 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 
 /**
  * Tools for the java.nio package.
  */
 public class NIO {
 
-   public static final String   DEVICE_FOLDER_NAME_START = "[";                                  //$NON-NLS-1$
-   private final static Pattern DRIVE_LETTER_PATTERN     = Pattern.compile("\\s*\\(([^(]*)\\)"); //$NON-NLS-1$
+   public static final String    DEVICE_FOLDER_NAME_START    = "[";                                  //$NON-NLS-1$
+   public static final String    VIRTUAL_DROPBOX_FOLDER_NAME = "dropbox://";                         //$NON-NLS-1$
 
+   private final static Pattern  DRIVE_LETTER_PATTERN        = Pattern.compile("\\s*\\(([^(]*)\\)"); //$NON-NLS-1$
    /** Extracts <code>W530</code> from <code>[W530]\temp\other</code> */
-   private final static Pattern DEVICE_NAME_PATTERN      = Pattern.compile("\\s*\\[([^]]*)");    //$NON-NLS-1$
+   private final static Pattern  DEVICE_NAME_PATTERN         = Pattern.compile("\\s*\\[([^]]*)");    //$NON-NLS-1$
 
    /** <code>([\\].*)</code> */
-   private final static Pattern DEVICE_NAME_PATH_PATTERN = Pattern.compile("([\\\\].*)");        //$NON-NLS-1$
+   private final static Pattern  DEVICE_NAME_PATH_PATTERN    = Pattern.compile("([\\\\].*)");        //$NON-NLS-1$
 
-   public static FileSystem     _dropboxFileSystem;
+   private static FileSystem     _dropboxFileSystem;
+
+   final static IPreferenceStore _prefStore                  = CommonActivator.getPrefStore();
+
+   static {
+
+      final IPropertyChangeListener prefChangeListenerCommon = new IPropertyChangeListener() {
+         @Override
+         public void propertyChange(final PropertyChangeEvent event) {
+
+            if (event.getProperty().equals(ICommonPreferences.DROPBOX_ACCESSTOKEN)) {
+
+               // Re create the Dropbox file system
+               createDropboxFileSystem();
+            }
+         }
+      };
+
+      // register the listener
+      _prefStore.addPropertyChangeListener(prefChangeListenerCommon);
+   }
 
    /**
     * Replace device name with drive letter, e.g. [MEDIA]\CACHE -> D:\CACHE. This do not validate if
@@ -90,9 +115,6 @@ public class NIO {
                break;
             }
          }
-      } else if (isDeviceNameCloudFolder(folder)) {
-//TODO unnecesary since the line below does the same ?!?!
-         osPath = folder;
       } else {
 
          // OS path is contained in the folder path
@@ -103,66 +125,96 @@ public class NIO {
       return osPath;
    }
 
+   /**
+    * Creates a Java 7 FileSystem over DropBox using the library
+    * https://github.com/S1eth/java7-fs-dropbox
+    *
+    * @return True if the file system was created successfully, false otherwise.
+    */
+   public static boolean createDropboxFileSystem() {
+
+      boolean result = false;
+
+      final URI uri = URI.create("dropbox://root"); //$NON-NLS-1$
+      final Map<String, String> env = new HashMap<>();
+
+      final String accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
+      if (StringUtils.isNullOrEmpty(accessToken)) {
+         return result;
+      }
+
+      env.put("accessToken", accessToken); //$NON-NLS-1$
+
+      final FileSystemProvider provider = new DropBoxFileSystemProvider(new DropBoxFileSystemRepository());
+
+      try {
+         _dropboxFileSystem = provider.newFileSystem(uri, env);
+
+         result = true;
+         //TODO when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+
+      return result;
+   }
+
+   public static Path getDropboxFilePath(final String fileName) {
+      if (_dropboxFileSystem == null) {
+         return null;
+      }
+
+      final String dropboxFilePath = _prefStore.getString(ICommonPreferences.DROPBOX_FOLDER) + "/" + fileName; //$NON-NLS-1$
+      return _dropboxFileSystem.getPath(dropboxFilePath);
+   }
+
+   /**
+    * Creates a Java 7 FileSystem over DropBox using the library
+    * https://github.com/S1eth/java7-fs-dropbox
+    *
+    * @return True if the filesystem was created successfully, false otherwise.
+    */
+   public static Iterable<FileStore> getDropboxFileStores() {
+      if (_dropboxFileSystem != null) {
+         return _dropboxFileSystem.getFileStores();
+      } else {
+         if (createDropboxFileSystem()) {
+            return _dropboxFileSystem.getFileStores();
+         }
+      }
+
+      return null;
+   }
+
+   public static FileSystem getDropboxFileSystem() {
+      return _dropboxFileSystem;
+   }
+
+   public static Path getDropboxFolderPath() {
+      return getDropboxFilePath(UI.EMPTY_STRING);
+   }
+
    public static Iterable<FileStore> getFileStores() {
 
 //		final long start = System.nanoTime();
 //
       final Iterable<FileStore> systemFileStore = FileSystems.getDefault().getFileStores();
 
-      //create new list
       final ArrayList<FileStore> fileStores = new ArrayList<>();
 
-      //iterate through current objects and add them to new list
       Iterator<FileStore> fileStoresIterator = systemFileStore.iterator();
       while (fileStoresIterator.hasNext()) {
          fileStores.add(fileStoresIterator.next());
       }
 
-      /*
-       * TODO put the acess token in commn preferences
-       * final IPreferenceStore cloudPreferenceStore =
-       * net.tourbook.cloud.Activator.getDefault().getPreferenceStore();
-       * final String accessToken =
-       * cloudPreferenceStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
-       */
-      final URI uri = URI.create("dropbox://root");
-      final Map<String, String> env = new HashMap<>();
-      env.put("accessToken", "");
+      final Iterable<FileStore> dropboxFileStore = getDropboxFileStores();
 
-      final FileSystemRepository repository = new DropBoxFileSystemRepository();
-      final FileSystemProvider provider = new DropBoxFileSystemProvider(repository);
-
-      //final String testDirectoryPath = "/YOUPI-" + UUID.randomUUID().toString();
-
-      final Iterable<FileStore> dropboxFileStore;
-      try {
-         _dropboxFileSystem = provider.newFileSystem(uri, env);
-         final String testDirectoryPath = "/test-" + UUID.randomUUID().toString();
-
-
-         dropboxFileStore = _dropboxFileSystem.getFileStores();
-
-         //iterate through current objects and add them to new list
+      if (dropboxFileStore != null) {
          fileStoresIterator = dropboxFileStore.iterator();
          while (fileStoresIterator.hasNext()) {
             fileStores.add(fileStoresIterator.next());
          }
-
-         //Can I do sthing with a filestore ?
-         // fileStores.get(0).
-      } catch (final IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
       }
-      //TODO when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
-
-      //add object you would like to the list
-      //myList.add(dropboxRepository.);
-
-      //
-//		System.out.println((UI.timeStampNano() + " " + NIO.class.getName() + " \t")
-//				+ (((float) (System.nanoTime() - start) / 1000000) + " ms"));
-//		// TODO remove SYSTEM.OUT.PRINTLN
 
       return fileStores;
    }
@@ -188,12 +240,9 @@ public class NIO {
       return null;
    }
 
-   public static boolean isDeviceNameCloudFolder(final String folder) {
-      return folder.equalsIgnoreCase("dropboxFolder://");
-   }
-
    /**
     * @param folderName
+    *           A given folder name
     * @return Returns <code>true</code> when the folder name starts with
     *         {@value #DEVICE_FOLDER_NAME_START}.
     */
@@ -204,6 +253,23 @@ public class NIO {
       }
 
       return folderName.startsWith(DEVICE_FOLDER_NAME_START);
+   }
+
+   /**
+    * Gives an indication whether a given folder name is a virtual Dropbox
+    * file system
+    *
+    * @param folderName
+    *           A given folder name
+    * @return Returns true when the folder name is equal to
+    *         {@value #VIRTUAL_DROPBOX_FOLDER_NAME}.
+    */
+   public static boolean isDropboxDevice(final String folderName) {
+      if (folderName == null) {
+         return false;
+      }
+
+      return folderName.equalsIgnoreCase(VIRTUAL_DROPBOX_FOLDER_NAME);
    }
 
    private static String parseDeviceName(final String fullName) {

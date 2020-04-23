@@ -15,10 +15,10 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
-import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.authentication.OAuth2Client;
 import net.tourbook.cloud.authentication.OAuth2RequestAction;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StringUtils;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -39,7 +39,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class DropboxPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
+   final IPreferenceStore _prefStore = CommonActivator.getPrefStore();
 
    /*
     * UI controls
@@ -130,8 +130,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId("vye6ci8xzzsuiao"); // client_id
-      client.setSecret("ovxyfwr544wrdvg"); // client_secret
+      client.setId(""); // client_id
+      client.setSecret(""); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
       final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
@@ -167,8 +167,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    @Override
    protected void performDefaults() {
 
-      _textAccessToken.setText(_prefStore.getDefaultString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
-      _textFolderPath.setText(_prefStore.getDefaultString(ICloudPreferences.DROPBOX_FOLDER));
+      _textAccessToken.setText(_prefStore.getDefaultString(ICommonPreferences.DROPBOX_ACCESSTOKEN));
+      _textFolderPath.setText(_prefStore.getDefaultString(ICommonPreferences.DROPBOX_FOLDER));
 
       enableControls();
 
@@ -181,8 +181,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(ICloudPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
-         _prefStore.setValue(ICloudPreferences.DROPBOX_FOLDER, _textFolderPath.getText());
+         _prefStore.setValue(ICommonPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
+         _prefStore.setValue(ICommonPreferences.DROPBOX_FOLDER, _textFolderPath.getText());
 
       }
 
@@ -190,10 +190,9 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    }
 
    private void restoreState() {
-      _textAccessToken.setText(_prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN));
-      _textFolderPath.setText(_prefStore.getString(ICloudPreferences.DROPBOX_FOLDER));
+      _textAccessToken.setText(_prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN));
+      _textFolderPath.setText(_prefStore.getString(ICommonPreferences.DROPBOX_FOLDER));
 
       enableControls();
    }
-
 }

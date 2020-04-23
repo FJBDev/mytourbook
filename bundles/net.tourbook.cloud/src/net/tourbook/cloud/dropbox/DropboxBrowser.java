@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.ICloudPreferences;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
@@ -78,7 +79,8 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    private static final String ROOT_FOLDER = "/";                                        //$NON-NLS-1$
 
-   private IPreferenceStore    _prefStore  = Activator.getDefault().getPreferenceStore();
+   final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();
+
    private DbxRequestConfig    _requestConfig;
 
    private DbxClientV2         _dropboxClient;
@@ -108,7 +110,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       _chooserType = chooserType;
 
-      _accessToken = _prefStore.getString(ICloudPreferences.DROPBOX_ACCESSTOKEN);
+      _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
       //It is possible that the user just retrieved an access token but hasn't saved it yet
       //in the preferences
       if (StringUtils.isNullOrEmpty(_accessToken) &&

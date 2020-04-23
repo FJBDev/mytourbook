@@ -4147,13 +4147,11 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       try {
 
-         if (osFolder != null && osFolder.trim().length() > 0 ) {
-            if (!osFolder.contains("Dropbox")) {
-               return Files.exists(Paths.get(osFolder));
-            } else{
-               //TODO replace the directory with what was configued in the preferences
-               return Files.exists(NIO._dropboxFileSystem.getPath("/UserFiles"));
-               }
+         if (osFolder != null && osFolder.trim().length() > 0) {
+
+            final Path folderPath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
+
+            return Files.exists(folderPath);
          }
 
       } catch (final Exception e) {}
