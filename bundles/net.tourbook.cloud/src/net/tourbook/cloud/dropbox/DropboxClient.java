@@ -27,12 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
 public class DropboxClient {
@@ -47,9 +49,9 @@ public class DropboxClient {
       _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
 
       //Getting the current version of MyTourbook
-      final Version version = new Version("20.3");//FrameworkUtil.getBundle(getClass()).getVersion();
+      final Version version = FrameworkUtil.getBundle(DropboxClient.class).getVersion();
 
-      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", "")).build(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", UI.EMPTY_STRING)).build(); //$NON-NLS-1$ //$NON-NLS-2$
 
       _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
    }
@@ -70,7 +72,7 @@ public class DropboxClient {
       }
 
       final String fileName = Paths.get(dropboxFilefilePath).getFileName().toString();
-      final Path filePath = Paths.get(FileUtils.getTempDirectoryPath(), "FromDropbox-" + fileName);
+      final Path filePath = Paths.get(FileUtils.getTempDirectoryPath(), fileName);
 
       //Downloading the file from Dropbox to the local disk
       try (InputStream inputStream = URI.create(fileLink).toURL().openStream()) {
@@ -85,6 +87,10 @@ public class DropboxClient {
       }
 
       return null;
+   }
+
+   public static DbxClientV2 getDefault() {
+      return _dropboxClient;
    }
 
    /**

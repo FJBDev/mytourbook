@@ -16,8 +16,6 @@
 package net.tourbook.cloud.dropbox;
 
 import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
@@ -29,8 +27,6 @@ import java.util.List;
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
-import net.tourbook.common.preferences.ICommonPreferences;
-import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -60,8 +56,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.Version;
 
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
@@ -79,9 +73,6 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO Fix : The regex match pattern doesnt work for dropbox
    //see easyimportmanager.java  try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
 
-   //TOOD will my dropbox easy import implementation be able to detect if a file is already imported ?
-   // i dont remember how that check is performed
-
    //Several bugs : Choosing the root folder doesn't add "/" to the UI.
    //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?
@@ -90,16 +81,11 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();
 
-   private DbxRequestConfig    _requestConfig;
-
-   private DbxClientV2         _dropboxClient;
    private List<Metadata>      _folderList;
 
    private TableViewer         _contentViewer;
    private String              _selectedFolder;
    private ArrayList<String>   _selectedFiles;
-
-   private String              _accessToken;
 
    private ChooserType         _chooserType;
 
@@ -116,15 +102,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       _chooserType = chooserType;
-
-      _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
-
-      //It is possible that the user just retrieved an access token but hasn't saved it yet
-      //in the preferences
-      if (StringUtils.isNullOrEmpty(_accessToken) &&
-            !StringUtils.isNullOrEmpty(accessToken)) {
-         _accessToken = accessToken;
-      }
 
       setDefaultImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Logo).createImage());
    }
@@ -153,13 +130,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       final Composite dlgAreaContainer = (Composite) super.createDialogArea(parent);
 
       createUI(dlgAreaContainer);
-
-      //Getting the current version of MyTourbook
-      final Version version = FrameworkUtil.getBundle(getClass()).getVersion();
-
-      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", "")).build(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-      _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
 
       updateViewers();
 
@@ -337,7 +307,7 @@ public class DropboxBrowser extends TitleAreaDialog {
    private void selectFolder(final String folderAbsolutePath) {
 
       try {
-         final ListFolderResult list = _dropboxClient.files().listFolder(folderAbsolutePath);
+         final ListFolderResult list = DropboxClient.getDefault().files().listFolder(folderAbsolutePath);
          _folderList = list.getEntries();
 
          _textSelectedAbsolutePath.setText(folderAbsolutePath);
