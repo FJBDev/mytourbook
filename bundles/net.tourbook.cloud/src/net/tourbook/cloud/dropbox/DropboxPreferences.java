@@ -15,8 +15,8 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
-import net.tourbook.cloud.authentication.OAuth2Client;
-import net.tourbook.cloud.authentication.OAuth2RequestAction;
+import net.tourbook.cloud.oauth2.OAuth2Client;
+import net.tourbook.cloud.oauth2.OAuth2RequestAction;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StringUtils;

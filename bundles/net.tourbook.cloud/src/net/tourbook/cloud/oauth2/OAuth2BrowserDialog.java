@@ -8,7 +8,7 @@
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
  *****************************************************************************/
-package net.tourbook.cloud.authentication;
+package net.tourbook.cloud.oauth2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
