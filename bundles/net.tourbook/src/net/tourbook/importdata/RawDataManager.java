@@ -20,10 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +32,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import net.tourbook.Messages;
@@ -405,33 +402,22 @@ public class RawDataManager {
       final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, null);
       dropboxChooser.open();
 
-      final Map<String, String> selectedFiles = dropboxChooser.getSelectedFiles();
+      final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();
       if (selectedFiles == null || selectedFiles.size() == 0) {
          return;
       }
 
       final ArrayList<OSFile> osFiles = new ArrayList<>();
-      Path temporaryDirectory = null;
 
-      for (final Map.Entry<String, String> dropboxFile : selectedFiles.entrySet()) {
-         final String fileName = dropboxFile.getKey();
-         final String fileLink = dropboxFile.getValue();
+      for (final String dropboxFilePath : selectedFiles) {
 
-         //Downloading the file from Dropbox to the local disk
-         try (InputStream inputStream = URI.create(fileLink).toURL().openStream()) {
-
-            temporaryDirectory = Files.createTempDirectory("DropboxFiles"); //$NON-NLS-1$
-            final Path filePath = Paths.get(temporaryDirectory.toString(), fileName);
-
-            final long writtenBytes = Files.copy(inputStream, filePath);
-
-            if (writtenBytes > 0) {
-               final OSFile osFile = new OSFile(filePath);
-               osFiles.add(osFile);
-            }
-         } catch (final IOException e) {
-            StatusUtil.log(e);
+         final Path filePath = DropboxClient.CopyLocally(dropboxFilePath);
+         if (filePath == null) {
+            continue;
          }
+
+         final OSFile osFile = new OSFile(filePath);
+         osFiles.add(osFile);
       }
 
       if (_importState_IsAutoOpenImportLog) {
@@ -448,14 +434,6 @@ public class RawDataManager {
             StatusUtil.log(e);
          }
       });
-
-      // Delete the temporary folder
-      try {
-         Files.deleteIfExists(temporaryDirectory);
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-
    }
 
    /**

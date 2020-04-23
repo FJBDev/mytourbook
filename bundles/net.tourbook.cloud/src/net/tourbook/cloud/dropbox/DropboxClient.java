@@ -54,16 +54,11 @@ public class DropboxClient {
       _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
    }
 
-
    /**
     * Downloads a remote Dropbox file to a local temporary location
     *
     * @param dropboxFilefilePath
     *           The Dropbox path of the file
-    * @param temporaryDirectoryPath
-    *           The Dropbox path of the temporary directory
-    * @param fileName
-    *           The name of the file
     * @return The local path of the downloaded file
     */
    public static Path CopyLocally(final String dropboxFilefilePath) {

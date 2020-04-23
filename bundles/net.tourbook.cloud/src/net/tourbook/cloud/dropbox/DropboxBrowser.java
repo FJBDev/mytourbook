@@ -23,15 +23,13 @@ import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
@@ -99,7 +97,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    private TableViewer         _contentViewer;
    private String              _selectedFolder;
-   private Map<String, String> _selectedFiles;
+   private ArrayList<String>   _selectedFiles;
 
    private String              _accessToken;
 
@@ -280,7 +278,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    }
 
-   public Map<String, String> getSelectedFiles() {
+   public ArrayList<String> getSelectedFiles() {
       return _selectedFiles;
    }
 
@@ -297,16 +295,11 @@ public class DropboxBrowser extends TitleAreaDialog {
          final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
          final Object[] selectionArray = selection.toArray();
          if (selectionArray.length > 0) {
-            _selectedFiles = new HashMap<>();
+            _selectedFiles = new ArrayList<>();
 
             final Metadata item = ((Metadata) selection.toArray()[0]);
 
-            try {
-               final String fileLink = _dropboxClient.files().getTemporaryLink(item.getPathDisplay()).getLink();
-               _selectedFiles.put(item.getName(), fileLink);
-            } catch (final DbxException e) {
-               StatusUtil.log(e);
-            }
+            _selectedFiles.add(item.getPathDisplay());
          }
       }
 
