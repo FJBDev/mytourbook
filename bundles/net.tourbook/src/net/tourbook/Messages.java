@@ -911,6 +911,7 @@ public class Messages extends NLS {
    public static String        Image__delete;
    public static String        Image__delete_disabled;
 
+   //TODO FB to be used somewhere !?
    public static String        Image__Dropbox_folder;
    public static String        Image__edit_adjust_altitude;
    public static String        Image__edit_adjust_altitude_disabled;

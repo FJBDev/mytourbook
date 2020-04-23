@@ -7,7 +7,11 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
 import java.io.IOException;
@@ -23,8 +27,6 @@ public class OAuth2RequestAction extends Action {
 
    private final OAuth2Client client;
 
-   private final String       scope;
-
    private String             token;
 
    private String             response;
@@ -35,9 +37,8 @@ public class OAuth2RequestAction extends Action {
     * @param client
     * @param scope
     */
-   public OAuth2RequestAction(final OAuth2Client client, final String scope) {
+   public OAuth2RequestAction(final OAuth2Client client) {
       this.client = client;
-      this.scope = scope;
    }
 
    /**
@@ -60,7 +61,7 @@ public class OAuth2RequestAction extends Action {
 
    @Override
    public void run() {
-      final String code = OAuth2BrowserDialog.getCode(client, scope);
+      final String code = OAuth2BrowserDialog.getCode(client);
       if (code != null) {
          try {
             final AccessTokenClient accessTokenClient = new AccessTokenClient(client);

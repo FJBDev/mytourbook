@@ -7,7 +7,11 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
 import java.net.URI;
@@ -70,25 +74,14 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    /**
-    * Get code for client
-    *
-    * @param client
-    * @return code
-    */
-   public static String getCode(final OAuth2Client client) {
-      return getCode(client, null);
-   }
-
-   /**
     * Get code for client and scope
     *
     * @param client
     * @param scope
     * @return code
     */
-   public static String getCode(final OAuth2Client client, final String scope) {
+   public static String getCode(final OAuth2Client client) {
       return getCode(client,
-            scope,
             PlatformUI.getWorkbench()
                   .getDisplay()
                   .getActiveShell());
@@ -98,18 +91,18 @@ public class OAuth2BrowserDialog extends Dialog {
     * Get code for client, scope, and shell
     *
     * @param client
-    * @param scope
     * @param shell
     * @return code
     */
    public static String getCode(final OAuth2Client client,
-                                final String scope,
                                 final Shell shell) {
-      final String url = "https://www.dropbox.com/oauth2/authorize?client_id=vye6ci8xzzsuiao&response_type=code" +
-            "&redirect_uri=https://sourceforge.net/projects/mytourbook";// OAuth2Utils.getAuthorizeUrl(client, scope);
-      final OAuth2BrowserDialog dialog = new OAuth2BrowserDialog(shell,
-            url,
-            client.getRedirectUri());
+      final String url = OAuth2Utils.getAuthorizeUrl(client);
+
+      final OAuth2BrowserDialog dialog =
+            new OAuth2BrowserDialog(
+                  shell,
+                  url,
+                  client.getRedirectUri());
       if (dialog.open() == Window.OK) {
          return dialog.getCode();
       }

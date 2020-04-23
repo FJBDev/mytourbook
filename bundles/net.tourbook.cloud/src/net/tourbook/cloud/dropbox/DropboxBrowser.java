@@ -28,6 +28,7 @@ import java.util.List;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
@@ -66,7 +67,6 @@ import org.osgi.framework.Version;
 
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
-   //TODO FB Revert to original oauth2 browser and add only my necessary code
    //TODO FB remove unused imports
 //TODO FB Add button to go back to the parent folder (API call for that ?)
    //TODO FB double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
@@ -76,6 +76,9 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB enable file import when double clicking on it
    //TODO FB enable file extension filtering for file import
    //TODO FB extarnizlie strings
+
+   //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
+   //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
 
    private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
 
@@ -194,6 +197,7 @@ public class DropboxBrowser extends TitleAreaDialog {
           */
          _textSelectedAbsolutePath = new Text(container, SWT.LEFT);
          _textSelectedAbsolutePath.setEditable(false);
+         //TODO FB
          // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
          GridDataFactory.fillDefaults()
                .applyTo(_textSelectedAbsolutePath);
@@ -363,7 +367,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    private void updateViewers() {
 
-      selectFolder(""); //$NON-NLS-1$
+      selectFolder(UI.EMPTY_STRING);
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());

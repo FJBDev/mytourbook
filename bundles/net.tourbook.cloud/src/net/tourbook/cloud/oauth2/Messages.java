@@ -7,7 +7,11 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
 import org.eclipse.osgi.util.NLS;
@@ -17,7 +21,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS {
 
-   private static final String BUNDLE_NAME = "net.tourbook.cloud.authentication.messages"; //$NON-NLS-1$
+   private static final String BUNDLE_NAME = "net.tourbook.cloud.oauth2.messages"; //$NON-NLS-1$
 
    public static String        OAuth2BrowserDialog_Title;
 

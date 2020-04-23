@@ -7,11 +7,14 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
 import java.io.IOException;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +27,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
@@ -58,13 +61,9 @@ public class AccessTokenClient {
     */
    protected HttpResponse execute(final HttpHost target, final HttpRequest request)
          throws IOException {
-      final DefaultHttpClient client = new DefaultHttpClient();
-      client.setRoutePlanner(new ProxySelectorRoutePlanner(client
-            .getConnectionManager()
-            .getSchemeRegistry(),
-            ProxySelector
-                  .getDefault()));
-      return client.execute(target, request);
+      try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+         return httpClient.execute(target, request);
+      }
    }
 
    /**
@@ -89,10 +88,11 @@ public class AccessTokenClient {
    }
 
    /**
-    * Get params for access token request
+    * Get parameters for access token request
+    * See {link https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token}
     *
     * @param code
-    * @return list of params
+    * @return list of parameters
     */
    protected List<NameValuePair> getParams(final String code) {
       final List<NameValuePair> params = new ArrayList<>();

@@ -7,7 +7,11 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;

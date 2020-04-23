@@ -131,11 +131,14 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
+      //TODO Ask Wolfgang to populate it at build time.
       client.setId(""); // client_id
       client.setSecret(""); // client_secret
-      client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token");
-      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize");
-      final OAuth2RequestAction request = new OAuth2RequestAction(client, "repo");
+      client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token"); //$NON-NLS-1$
+      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
+      client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
+
+      final OAuth2RequestAction request = new OAuth2RequestAction(client);
       //Opens the dialog
       request.run();
       final String token = request.getAccessToken();
@@ -157,7 +160,6 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    }
 
    protected void onClickChooseFolder() {
-      //https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Chooser-for-directory/td-p/236634
       final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(),
             ChooserType.Folder,
             _textAccessToken.getText());

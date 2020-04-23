@@ -7,13 +7,19 @@
  *
  *  Contributors:
  *    Kevin Sawicki (GitHub Inc.) - initial API and implementation
+ *    https://github.com/kevinsawicki/eclipse-oauth2
  *****************************************************************************/
+/*
+ * Modified for MyTourbook by Frédéric Bard
+ */
 package net.tourbook.cloud.oauth2;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
 /**
@@ -22,33 +28,25 @@ import org.apache.http.message.BasicNameValuePair;
 public class OAuth2Utils {
 
    /**
-    * Generate authorize url for given client with default scope
+    * Generate authorize url for given client
+    * See {#link
+    * https://www.dropbox.com/developers/documentation/http/documentation#oauth2-authorize}
     *
     * @param client
     * @return authorize url
     */
    public static String getAuthorizeUrl(final OAuth2Client client) {
-      return getAuthorizeUrl(client, null);
-   }
 
-   /**
-    * Generate authorize url for given client with given scope
-    *
-    * @param client
-    * @param scope
-    * @return authorize url
-    */
-   public static String getAuthorizeUrl(final OAuth2Client client, final String scope) {
       final List<NameValuePair> params = new ArrayList<>();
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_REDIRECT_URI,
             client.getRedirectUri()));
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_ID,
             client.getId()));
-      if (scope != null && scope.length() > 0) {
-         params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_SCOPE,
-               scope));
-      }
-      //final String query = URLEncodedUtils.format(params, null);
-      return client.getAuthorizeUrl() + '?';// + query;
+      params.add(new BasicNameValuePair(
+            IOAuth2Constants.RESPONSE_TYPE,
+            IOAuth2Constants.PARAM_CODE));
+
+      final String query = URLEncodedUtils.format(params, StandardCharsets.UTF_8);
+      return client.getAuthorizeUrl() + '?' + query;
    }
 }
