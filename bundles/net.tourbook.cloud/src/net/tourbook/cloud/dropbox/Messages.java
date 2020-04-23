@@ -32,6 +32,7 @@ public class Messages extends NLS {
    public static String        Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip;
 
 
+   public static String        Image__Dropbox_Logo;
    public static String        Image__Dropbox_File;
    public static String        Image__Dropbox_Folder;
    public static String        Image__Dropbox_Parentfolder;

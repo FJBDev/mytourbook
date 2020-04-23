@@ -23,13 +23,15 @@ import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
@@ -54,11 +56,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
@@ -72,9 +72,11 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
    //TODO FB enable file import when double clicking on it
    //TODO FB enable file extension filtering for file import
-   //TODO FB extarnizlie strings
+   //TODO FB externalize strings
    //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
+   //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
+//TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs : Choosing the root folder doesn't add "/" to the UI.
    //Choosing the root folder creates a red message for the easyimporter
@@ -91,7 +93,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    private TableViewer         _contentViewer;
    private String              _selectedFolder;
-   private ArrayList<String>   _selectedFiles;
+   private Map<String, String> _selectedFiles;
 
    private String              _accessToken;
 
@@ -101,8 +103,6 @@ public class DropboxBrowser extends TitleAreaDialog {
     * UI controls
     */
    private Text   _textSelectedAbsolutePath;
-
-   private Label  _labelCurrentFolder;
    private Button _buttonParentFolder;
 
    public DropboxBrowser(final Shell parentShell, final ChooserType chooserType, final String accessToken) {
@@ -114,6 +114,7 @@ public class DropboxBrowser extends TitleAreaDialog {
       _chooserType = chooserType;
 
       _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
+
       //It is possible that the user just retrieved an access token but hasn't saved it yet
       //in the preferences
       if (StringUtils.isNullOrEmpty(_accessToken) &&
@@ -121,8 +122,15 @@ public class DropboxBrowser extends TitleAreaDialog {
          _accessToken = accessToken;
       }
 
-      //TODO FB put a dropbox image
-      //setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
+      setDefaultImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Logo).createImage());
+   }
+
+   @Override
+   protected void configureShell(final Shell shell) {
+
+      super.configureShell(shell);
+
+      shell.setText(net.tourbook.cloud.dropbox.Messages.Dialog_DropboxFolderChooser_Area_Title);
 
    }
 
@@ -159,23 +167,10 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    private Composite createUI(final Composite parent) {
 
-      Label label = new Label(parent, SWT.WRAP);
-      // label.setText(Messages.Pref_TourTypes_root_title);
-      label.setLayoutData(new GridData(SWT.NONE, SWT.NONE, true, false));
-
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().applyTo(container);
-      GridLayoutFactory.fillDefaults().margins(20, 20).numColumns(3).applyTo(container);
+      GridLayoutFactory.fillDefaults().margins(20, 20).numColumns(2).applyTo(container);
       {
-         /*
-          * Label
-          */
-         _labelCurrentFolder = new Label(container, SWT.LEFT);
-         //TODO FB
-         _labelCurrentFolder.setText("TODO");
-         GridDataFactory.fillDefaults()
-               .applyTo(_labelCurrentFolder);
-
          /*
           * Parent folder button
           */
@@ -205,14 +200,6 @@ public class DropboxBrowser extends TitleAreaDialog {
 
          createUI_10_FilterViewer(container);
       }
-
-      // hint to use drag & drop
-      label = new Label(parent, SWT.WRAP);
-      // label.setText(Messages.Pref_TourTypes_dnd_hint);
-      label.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-
-      // spacer
-      new Label(parent, SWT.WRAP);
 
       return container;
    }
@@ -287,7 +274,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
    }
 
-   public ArrayList<String> getSelectedFiles() {
+   public Map<String, String> getSelectedFiles() {
       return _selectedFiles;
    }
 
@@ -304,14 +291,16 @@ public class DropboxBrowser extends TitleAreaDialog {
          final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
          final Object[] selectionArray = selection.toArray();
          if (selectionArray.length > 0) {
-            _selectedFiles = new ArrayList<>();
+            _selectedFiles = new HashMap<>();
 
             final Metadata item = ((Metadata) selection.toArray()[0]);
 
             try {
-               final String downloadedFile = _dropboxClient.files().getTemporaryLink(item.getPathDisplay()).getLink();
-               _selectedFiles.add(downloadedFile);
-            } catch (final DbxException e) {} finally {}
+               final String fileLink = _dropboxClient.files().getTemporaryLink(item.getPathDisplay()).getLink();
+               _selectedFiles.put(item.getName(), fileLink);
+            } catch (final DbxException e) {
+               StatusUtil.log(e);
+            }
          }
       }
 

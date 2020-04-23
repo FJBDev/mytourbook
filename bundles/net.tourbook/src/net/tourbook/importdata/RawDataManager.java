@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +34,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import net.tourbook.Messages;
@@ -41,11 +44,11 @@ import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.dropbox.ChooserType;
 import net.tourbook.cloud.dropbox.DropboxBrowser;
 import net.tourbook.common.CommonActivator;
-import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ITourViewer3;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.widgets.ComboEnumEntry;
@@ -394,31 +397,63 @@ public class RawDataManager {
                null,
                null).open();
 
-      } else {
-
-         final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, null);
-         dropboxChooser.open();
-
-         final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();
-         if (selectedFiles == null || selectedFiles.size() == 0) {
-            return;
-         }
-
-         final ArrayList<OSFile> osFiles = new ArrayList<>();
-
-         for (final String fileName : selectedFiles) {
-
-            final OSFile osFile = new OSFile(NIO.getDropboxFilePath(fileName));
-
-            osFiles.add(osFile);
-         }
-
-         if (_importState_IsAutoOpenImportLog) {
-            TourLogManager.showLogView();
-         }
-
-         runImport(osFiles, false, null);
+         return;
       }
+
+      final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, null);
+      dropboxChooser.open();
+
+      final Map<String, String> selectedFiles = dropboxChooser.getSelectedFiles();
+      if (selectedFiles == null || selectedFiles.size() == 0) {
+         return;
+      }
+
+      final ArrayList<OSFile> osFiles = new ArrayList<>();
+      Path temporaryDirectory = null;
+
+      for (final Map.Entry<String, String> dropboxFile : selectedFiles.entrySet()) {
+         final String fileName = dropboxFile.getKey();
+         final String fileLink = dropboxFile.getValue();
+
+         //Downloading the file from Dropbox to the local disk
+         try (InputStream inputStream = URI.create(fileLink).toURL().openStream()) {
+
+            temporaryDirectory = Files.createTempDirectory("DropboxFiles"); //$NON-NLS-1$
+            final Path filePath = Paths.get(temporaryDirectory.toString(), fileName);
+
+            final long writtenBytes = Files.copy(inputStream, filePath);
+
+            if (writtenBytes > 0) {
+               final OSFile osFile = new OSFile(filePath);
+               osFiles.add(osFile);
+            }
+         } catch (final IOException e) {
+            StatusUtil.log(e);
+         }
+      }
+
+      if (_importState_IsAutoOpenImportLog) {
+         TourLogManager.showLogView();
+      }
+
+      runImport(osFiles, false, null);
+
+      // Delete the temporary created files
+      osFiles.forEach(file -> {
+         try {
+            Files.deleteIfExists(file.getPath());
+         } catch (final IOException e) {
+            StatusUtil.log(e);
+         }
+      });
+
+      // Delete the temporary folder
+      try {
+         Files.deleteIfExists(temporaryDirectory);
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+
    }
 
    /**
@@ -1223,20 +1258,20 @@ public class RawDataManager {
 
 //SET_FORMATTING_OFF
 
-				oldTourData.setPower_Avg(									reimportedTourData.getPower_Avg());
-				oldTourData.setPower_Max(									reimportedTourData.getPower_Max());
-				oldTourData.setPower_Normalized(							reimportedTourData.getPower_Normalized());
-				oldTourData.setPower_FTP(									reimportedTourData.getPower_FTP());
+            oldTourData.setPower_Avg(                          reimportedTourData.getPower_Avg());
+            oldTourData.setPower_Max(                          reimportedTourData.getPower_Max());
+            oldTourData.setPower_Normalized(                   reimportedTourData.getPower_Normalized());
+            oldTourData.setPower_FTP(                          reimportedTourData.getPower_FTP());
 
-				oldTourData.setPower_TotalWork(							reimportedTourData.getPower_TotalWork());
-				oldTourData.setPower_TrainingStressScore(				reimportedTourData.getPower_TrainingStressScore());
-				oldTourData.setPower_IntensityFactor(					reimportedTourData.getPower_IntensityFactor());
+            oldTourData.setPower_TotalWork(                    reimportedTourData.getPower_TotalWork());
+            oldTourData.setPower_TrainingStressScore(          reimportedTourData.getPower_TrainingStressScore());
+            oldTourData.setPower_IntensityFactor(              reimportedTourData.getPower_IntensityFactor());
 
-				oldTourData.setPower_PedalLeftRightBalance(			reimportedTourData.getPower_PedalLeftRightBalance());
-				oldTourData.setPower_AvgLeftPedalSmoothness(			reimportedTourData.getPower_AvgLeftPedalSmoothness());
-				oldTourData.setPower_AvgLeftTorqueEffectiveness(	reimportedTourData.getPower_AvgLeftTorqueEffectiveness());
-				oldTourData.setPower_AvgRightPedalSmoothness(		reimportedTourData.getPower_AvgRightPedalSmoothness());
-				oldTourData.setPower_AvgRightTorqueEffectiveness(	reimportedTourData.getPower_AvgRightTorqueEffectiveness());
+            oldTourData.setPower_PedalLeftRightBalance(        reimportedTourData.getPower_PedalLeftRightBalance());
+            oldTourData.setPower_AvgLeftPedalSmoothness(       reimportedTourData.getPower_AvgLeftPedalSmoothness());
+            oldTourData.setPower_AvgLeftTorqueEffectiveness(   reimportedTourData.getPower_AvgLeftTorqueEffectiveness());
+            oldTourData.setPower_AvgRightPedalSmoothness(      reimportedTourData.getPower_AvgRightPedalSmoothness());
+            oldTourData.setPower_AvgRightTorqueEffectiveness(  reimportedTourData.getPower_AvgRightTorqueEffectiveness());
 
 //SET_FORMATTING_ON
          }
