@@ -68,15 +68,11 @@ import org.osgi.framework.Version;
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO FB remove unused imports
-//TODO FB Add button to go back to the parent folder (API call for that ?)
    //TODO FB double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
-
    //TODO FB enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
-
    //TODO FB enable file import when double clicking on it
    //TODO FB enable file extension filtering for file import
    //TODO FB extarnizlie strings
-
    //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
 
