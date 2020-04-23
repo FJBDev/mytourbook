@@ -27,6 +27,8 @@ public class OAuth2RequestAction extends Action {
 
    private String             token;
 
+   private String             response;
+
    /**
     * Create request for client and scope
     *
@@ -47,12 +49,23 @@ public class OAuth2RequestAction extends Action {
       return token;
    }
 
+   /**
+    * Get response
+    *
+    * @return response
+    */
+   public String getResponse() {
+      return response;
+   }
+
    @Override
    public void run() {
       final String code = OAuth2BrowserDialog.getCode(client, scope);
       if (code != null) {
          try {
-            token = new AccessTokenClient(client).fetch(code);
+            final AccessTokenClient accessTokenClient = new AccessTokenClient(client);
+            token = accessTokenClient.fetch(code);
+            response = accessTokenClient.getResponse();
          } catch (final IOException e) {
             StatusUtil.log(e);
          }

@@ -385,8 +385,8 @@ public class RawDataManager {
             StringUtils.isNullOrEmpty(dropboxFolder)) {
          MessageDialog.openInformation(
                Display.getCurrent().getActiveShell(),
-               Messages.Dialog_DropboxFolderChooser_Area_Title, //TODO
-               Messages.Dialog_DropboxFolderChooser_AccessToken_Or_Folder_Missing);
+               Messages.Dialog_DropboxFileChooser_Title,
+               Messages.Dialog_DropboxFileChooser_AccessToken_Missing);
 
          PreferencesUtil.createPreferenceDialogOn(
                Display.getCurrent().getActiveShell(),

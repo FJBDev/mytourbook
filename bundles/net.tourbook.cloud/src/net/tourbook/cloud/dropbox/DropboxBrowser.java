@@ -65,19 +65,19 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
 public class DropboxBrowser extends TitleAreaDialog {
-   //TODO add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
-   //TODO Import configuration to detect new files from Dropbox acount ?
-   //TODO Revert to original oauth2 browser and add only my necessary code
-   //TODO remove unused imports
-//TODO Add button to go back to the parent folder (API call for that ?)
-   //TODO double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
+   //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
+   //TODO FB Revert to original oauth2 browser and add only my necessary code
+   //TODO FB remove unused imports
+//TODO FB Add button to go back to the parent folder (API call for that ?)
+   //TODO FB double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
 
-   //TODO enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
+   //TODO FB enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
 
-   //TODO enable file import when double clicking on it
-   //TODO enable file extension filtering for file import
+   //TODO FB enable file import when double clicking on it
+   //TODO FB enable file extension filtering for file import
+   //TODO FB extarnizlie strings
 
-   private static final String ROOT_FOLDER = "/";                                        //$NON-NLS-1$
+   private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();
 
@@ -118,7 +118,7 @@ public class DropboxBrowser extends TitleAreaDialog {
          _accessToken = accessToken;
       }
 
-      //TODO put a dropbox image
+      //TODO FB put a dropbox image
       //setDefaultImage(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit).createImage());
 
    }
@@ -138,7 +138,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       final Composite dlgAreaContainer = (Composite) super.createDialogArea(parent);
 
       createUI(dlgAreaContainer);
-
 
       //Getting the current version of MyTourbook
       final Version version = FrameworkUtil.getBundle(getClass()).getVersion();
@@ -169,6 +168,7 @@ public class DropboxBrowser extends TitleAreaDialog {
           * Label
           */
          _labelCurrentFolder = new Label(container, SWT.LEFT);
+         //TODO FB
          _labelCurrentFolder.setText("TODO");
          GridDataFactory.fillDefaults()
                .applyTo(_labelCurrentFolder);
@@ -177,6 +177,7 @@ public class DropboxBrowser extends TitleAreaDialog {
           * Parent folder button
           */
          _buttonParentFolder = new Button(container, SWT.LEFT);
+         //TODO FB
          _buttonParentFolder.setToolTipText("TODO: Go to Parent folder");
          _buttonParentFolder.setImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Parentfolder).createImage());
          GridDataFactory.fillDefaults().applyTo(_buttonParentFolder);
@@ -303,12 +304,10 @@ public class DropboxBrowser extends TitleAreaDialog {
 
             final Metadata item = ((Metadata) selection.toArray()[0]);
 
-
             try {
                final String downloadedFile = _dropboxClient.files().getTemporaryLink(item.getPathDisplay()).getLink();
                _selectedFiles.add(downloadedFile);
-            } catch (final DbxException e) {} finally {
-            }
+            } catch (final DbxException e) {} finally {}
          }
       }
 

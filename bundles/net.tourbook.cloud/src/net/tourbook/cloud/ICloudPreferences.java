@@ -17,6 +17,6 @@ package net.tourbook.cloud;
 
 public interface ICloudPreferences {
 
-   //TODO F rename DropboxPreferences into PrefPageDropbox ??
+   //TODO FB rename DropboxPreferences into PrefPageDropbox ??
    public static final String PREF_PAGE_DROPBOX = "net.tourbook.cloud.dropbox.DropboxPreferences";//$NON-NLS-1$
 }

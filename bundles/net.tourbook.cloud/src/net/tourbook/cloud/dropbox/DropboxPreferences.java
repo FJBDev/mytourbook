@@ -27,6 +27,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -138,7 +139,9 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       //Opens the dialog
       request.run();
       final String token = request.getAccessToken();
-      final String dialogMessage = StringUtils.isNullOrEmpty(token) ? Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved
+      final String dialogMessage = StringUtils.isNullOrEmpty(token) ? NLS.bind(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved,
+            request
+                  .getResponse())
             : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
 
       if (!StringUtils.isNullOrEmpty(token)) {

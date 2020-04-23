@@ -268,8 +268,8 @@ public class Messages extends NLS {
    public static String        Dialog_DoubleClickAction_NoAction_Message;
    public static String        Dialog_DoubleClickAction_NoAction_Title;
 
-   public static String        Dialog_DropboxFolderChooser_Area_Title;
-   public static String        Dialog_DropboxFolderChooser_AccessToken_Or_Folder_Missing;
+   public static String        Dialog_DropboxFileChooser_Title;
+   public static String        Dialog_DropboxFileChooser_AccessToken_Missing;
 
    public static String        Dialog_EditTimeslicesValues_Title;
    public static String        Dialog_EditTimeslicesValues_Area_Title;

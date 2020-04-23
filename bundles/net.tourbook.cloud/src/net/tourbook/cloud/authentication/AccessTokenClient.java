@@ -16,9 +16,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.tourbook.common.util.StatusUtil;
-import net.tourbook.common.util.StringUtils;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -31,7 +28,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.eclipse.osgi.util.NLS;
 import org.json.JSONObject;
 
 /**
@@ -40,6 +36,8 @@ import org.json.JSONObject;
 public class AccessTokenClient {
 
    private final OAuth2Client client;
+
+   private String             response;
 
    /**
     * Create access token client
@@ -108,6 +106,10 @@ public class AccessTokenClient {
       return params;
    }
 
+   public String getResponse() {
+      return response;
+   }
+
    /**
     * Get token from response entity
     *
@@ -116,20 +118,16 @@ public class AccessTokenClient {
     * @throws IOException
     */
    protected String getToken(final HttpEntity entity) throws IOException {
-      final String content = EntityUtils.toString(entity);
-      if (content == null || content.length() == 0) {
+      response = EntityUtils.toString(entity);
+      if (response == null || response.length() == 0) {
          return null;
       }
 
-      final JSONObject currentSampleJson = new JSONObject(content);
+      final JSONObject currentSampleJson = new JSONObject(response);
       String token = null;
       try {
          token = currentSampleJson.get(IOAuth2Constants.PARAM_ACCESS_TOKEN).toString();
       } catch (final Exception e) {}
-
-      if (StringUtils.isNullOrEmpty(token)) {
-         StatusUtil.log(NLS.bind("Dropbox response: {0}", content)); //$NON-NLS-1$
-      }
 
       return token;
    }
