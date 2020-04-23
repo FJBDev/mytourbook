@@ -78,6 +78,12 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
+   //TODO Fix : The regex match pattern doesnt work for dropbox
+   //see easyimportmanager.java  try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
+
+   //TOOD will my dropbox easy import implementation be able to detect if a file is already imported ?
+   // i dont remember how that check is performed
+
    //Several bugs : Choosing the root folder doesn't add "/" to the UI.
    //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?

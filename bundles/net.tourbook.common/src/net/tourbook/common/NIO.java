@@ -47,7 +47,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 public class NIO {
 
    public static final String    DEVICE_FOLDER_NAME_START    = "[";                                  //$NON-NLS-1$
-   public static final String    VIRTUAL_DROPBOX_FOLDER_NAME = "dropbox://";                         //$NON-NLS-1$
+   public static final String    VIRTUAL_DROPBOX_FOLDER_NAME = "dropbox";                            //$NON-NLS-1$
 
    private final static Pattern  DRIVE_LETTER_PATTERN        = Pattern.compile("\\s*\\(([^(]*)\\)"); //$NON-NLS-1$
    /** Extracts <code>W530</code> from <code>[W530]\temp\other</code> */

@@ -245,7 +245,7 @@ public class EasyImportManager {
                }
 
             } catch (final Exception e) {
-// this can occure too often
+// this can occur too often
 //					TourLogManager.logEx(e);
             }
 
@@ -357,7 +357,7 @@ public class EasyImportManager {
 
       /*
        * Get moved files, these are files which are available in the backup folder but not in the
-       * device folder. This case can occure when files are imported, deleted in the device folder
+       * device folder. This case can occur when files are imported, deleted in the device folder
        * but not saved in MT.
        */
       if (importConfig.isCreateBackup) {
@@ -448,6 +448,19 @@ public class EasyImportManager {
          globPattern = ImportConfig.DEVICE_FILES_DEFAULT;
       }
 
+      // create a matcher and return a filter that uses it.
+
+      /*
+       * try (DirectoryStream<Path> directoryStream2 =
+       * Files.newDirectoryStream(NIO.getDropboxFolderPath(), globPattern)) {
+       * for (final Path path : directoryStream2) {
+       * final String totot = path.getFileName().toString();
+       * }
+       * } catch (final IOException e1) {
+       * // TODO FB Auto-generated catch block
+       * e1.printStackTrace();
+       * }
+       */
       try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
 
          for (final Path path : directoryStream) {
@@ -463,8 +476,13 @@ public class EasyImportManager {
                // ignore not regular files
                if (fileAttributes.isRegularFile()) {
 
-                  final OSFile deviceFile = NIO.isDropboxDevice(folder) ? new OSFile(NIO.getDropboxFilePath(path.getFileName().toString()))
-                        : new OSFile(path);
+                  OSFile deviceFile;
+
+                  if (NIO.isDropboxDevice(folder)) {
+                     deviceFile = new OSFile(Paths.get(folder, path.toString()));
+                  } else {
+                     deviceFile = new OSFile(path);
+                  }
 
                   deviceFile.size = fileAttributes.size();
                   deviceFile.modifiedTime = fileAttributes.lastModifiedTime().toMillis();
@@ -473,8 +491,8 @@ public class EasyImportManager {
                }
 
             } catch (final Exception e) {
-// this can occure too often
-//					TourLogManager.logEx(e);
+// this can occur too often
+               //              TourLogManager.logEx(e);
             }
 
          }
@@ -995,8 +1013,8 @@ public class EasyImportManager {
          if (tourData.getTourPerson() != null) {
 
             /*
-             * Do not change already saved tours. This case can occure when the device is not
-             * watched any more but an import launcher is still startet.
+             * Do not change already saved tours. This case can occur when the device is not
+             * watched any more but an import launcher is still started.
              */
 
             continue;

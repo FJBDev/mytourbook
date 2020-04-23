@@ -43,7 +43,9 @@ import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.ICloudPreferences;
 import net.tourbook.cloud.dropbox.ChooserType;
 import net.tourbook.cloud.dropbox.DropboxBrowser;
+import net.tourbook.cloud.dropbox.DropboxClient;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
@@ -1998,7 +2000,14 @@ public class RawDataManager {
                   continue;
                }
 
-               if (importRawData(new File(osFilePath), null, false, null, true)) {
+               File importFile = new File(osFilePath);
+               final boolean isDropboxFile = osFilePath.toLowerCase().startsWith(NIO.VIRTUAL_DROPBOX_FOLDER_NAME);
+               if (isDropboxFile) {
+                  final String dropboxFilePath = filePath.filePath.toString().substring(NIO.VIRTUAL_DROPBOX_FOLDER_NAME.length());
+                  importFile = DropboxClient.CopyLocally(dropboxFilePath).toFile();
+               }
+
+               if (importRawData(importFile, null, false, null, true)) {
 
                   importCounter++;
 
@@ -2018,6 +2027,14 @@ public class RawDataManager {
                         TourLogState.INFO,
                         NLS.bind(LOG_IMPORT_TOURS_IMPORTED_FROM_FILE, _newlyImportedTours.size(), osFilePath));
 
+                  if (isDropboxFile) {
+                     // Delete the temporary created file
+                     try {
+                        Files.deleteIfExists(importFile.toPath());
+                     } catch (final IOException e) {
+                        StatusUtil.log(e);
+                     }
+                  }
                } else {
 
                   _invalidFilesList.add(osFilePath);
