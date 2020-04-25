@@ -71,12 +71,12 @@ public class DropboxBrowser extends TitleAreaDialog {
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs :
-   //choosing the USerFiles directory shows 0 files to be imported !?
+   //Debian choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
    //When clicking on OK in the easyimport ocnfig, sortly a red message is displayed ot say that the dropbox folder is not available
    // adding files in the dropbox remote folder does not update the number of files to be imported
 
-   //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "?"
+   //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
    private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();
@@ -148,10 +148,9 @@ public class DropboxBrowser extends TitleAreaDialog {
           * Parent folder button
           */
          _buttonParentFolder = new Button(container, SWT.LEFT);
-         //TODO FB
-         _buttonParentFolder.setToolTipText("TODO: Go to Parent folder");
+         _buttonParentFolder.setToolTipText(Messages.Dialog_DropboxBrowser_Button_ParentFolder_Tooltip);
          _buttonParentFolder.setImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Parentfolder).createImage());
-         GridDataFactory.fillDefaults().applyTo(_buttonParentFolder);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(_buttonParentFolder);
          _buttonParentFolder.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent event) {
@@ -165,10 +164,8 @@ public class DropboxBrowser extends TitleAreaDialog {
           */
          _textSelectedAbsolutePath = new Text(container, SWT.LEFT);
          _textSelectedAbsolutePath.setEditable(false);
-         //TODO FB
-         // _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
-         GridDataFactory.fillDefaults()
-               .applyTo(_textSelectedAbsolutePath);
+         _textSelectedAbsolutePath.setToolTipText(Messages.Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(_textSelectedAbsolutePath);
          _textSelectedAbsolutePath.setText(ROOT_FOLDER);
 
          createUI_10_FilterViewer(container);
@@ -242,9 +239,7 @@ public class DropboxBrowser extends TitleAreaDialog {
          public void doubleClick(final DoubleClickEvent event) {
             onSelectItem(event.getSelection(), true);
          }
-
       });
-
    }
 
    public ArrayList<String> getSelectedFiles() {
@@ -319,7 +314,6 @@ public class DropboxBrowser extends TitleAreaDialog {
       } catch (final DbxException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
-
       }
    }
 
@@ -329,6 +323,5 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());
-
    }
 }

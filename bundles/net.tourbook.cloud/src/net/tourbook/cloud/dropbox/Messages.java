@@ -22,6 +22,13 @@ public class Messages extends NLS {
    private static final String BUNDLE_NAME = "net.tourbook.cloud.dropbox.messages"; //$NON-NLS-1$
 
    public static String        Dialog_DropboxFolderChooser_Area_Title;
+   public static String        Dialog_DropboxBrowser_Button_ParentFolder_Tooltip;
+   public static String        Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip;
+
+   public static String        Image__Dropbox_Logo;
+   public static String        Image__Dropbox_File;
+   public static String        Image__Dropbox_Folder;
+   public static String        Image__Dropbox_Parentfolder;
 
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip;
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved;
@@ -30,12 +37,6 @@ public class Messages extends NLS {
    public static String        Pref_CloudConnectivity_Dropbox_Button_Authorize;
    public static String        Pref_CloudConnectivity_Dropbox_Button_ChooseFolder;
    public static String        Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip;
-
-
-   public static String        Image__Dropbox_Logo;
-   public static String        Image__Dropbox_File;
-   public static String        Image__Dropbox_Folder;
-   public static String        Image__Dropbox_Parentfolder;
 
 	static {
 		// initialize resource bundle
