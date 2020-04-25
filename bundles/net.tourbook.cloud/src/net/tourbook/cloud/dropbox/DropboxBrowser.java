@@ -64,7 +64,6 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
    //TODO FB enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
    //TODO FB enable file import when double clicking on it
-   //TODO FB enable file extension filtering for file import
    //TODO FB externalize strings
    //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
@@ -72,7 +71,6 @@ public class DropboxBrowser extends TitleAreaDialog {
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs :
-   //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
    //When clicking on OK in the easyimport ocnfig, sortly a red message is displayed ot say that the dropbox folder is not available

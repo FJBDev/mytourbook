@@ -165,11 +165,6 @@ public class NIO {
       }
 
       final String dropboxFilePath = _prefStore.getString(ICommonPreferences.DROPBOX_FOLDER) + fileName;
-      if (dropboxFilePath.equals("/")) {
-         //TODO FB WHy isn't the root folder considered as valid !??!??!
-         final Iterable<Path> ddd = _dropboxFileSystem.getRootDirectories();
-         return ddd.iterator().next();
-      }
       return _dropboxFileSystem.getPath(dropboxFilePath);
    }
 
