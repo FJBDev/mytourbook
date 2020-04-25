@@ -2005,19 +2005,20 @@ public class RawDataManager {
                         TourLogState.INFO,
                         NLS.bind(LOG_IMPORT_TOURS_IMPORTED_FROM_FILE, _newlyImportedTours.size(), osFilePath));
 
-                  if (isDropboxFile) {
-                     // Delete the temporary created file
-                     try {
-                        Files.deleteIfExists(importFile.toPath());
-                     } catch (final IOException e) {
-                        StatusUtil.log(e);
-                     }
-                  }
                } else {
 
                   _invalidFilesList.add(osFilePath);
 
                   TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, osFilePath);
+               }
+
+               if (isDropboxFile) {
+                  // Delete the temporary created file
+                  try {
+                     Files.deleteIfExists(importFile.toPath());
+                  } catch (final IOException e) {
+                     StatusUtil.log(e);
+                  }
                }
             }
 
