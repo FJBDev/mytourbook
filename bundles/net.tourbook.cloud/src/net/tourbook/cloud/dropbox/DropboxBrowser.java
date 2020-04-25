@@ -78,6 +78,8 @@ public class DropboxBrowser extends TitleAreaDialog {
    //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
+
+   //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "?"
    private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();

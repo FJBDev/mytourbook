@@ -516,7 +516,7 @@ public class EasyImportManager {
 
             final Path devicePath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
 
-            if (Files.exists(NIO.getDropboxFolderPath())) {
+            if (Files.exists(devicePath)) {
                return devicePath;
             }
          } catch (final Exception e) {
