@@ -448,23 +448,9 @@ public class EasyImportManager {
          globPattern = ImportConfig.DEVICE_FILES_DEFAULT;
       }
 
-      // create a matcher and return a filter that uses it.
-
-      /*
-       * try (DirectoryStream<Path> directoryStream2 =
-       * Files.newDirectoryStream(NIO.getDropboxFolderPath(), globPattern)) {
-       * for (final Path path : directoryStream2) {
-       * final String totot = path.getFileName().toString();
-       * }
-       * } catch (final IOException e1) {
-       * // TODO FB Auto-generated catch block
-       * e1.printStackTrace();
-       * }
-       */
       try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
 
          for (final Path path : directoryStream) {
-
             try {
 
                final BasicFileAttributeView fileAttributesView = Files.getFileAttributeView(

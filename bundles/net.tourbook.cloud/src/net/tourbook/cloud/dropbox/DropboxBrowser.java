@@ -71,13 +71,12 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
-   //TODO Fix : The regex match pattern doesnt work for dropbox
-   //see easyimportmanager.java  try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
-
    //Several bugs :
    //Choosing the root folder creates a red message for the easyimporter
    //choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
+   //When clicking on OK in the easyimport ocnfig, sortly a red message is displayed ot say that the dropbox folder is not available
+   // adding files in the dropbox remote folder does not update the number of files to be imported
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "?"
    private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$

@@ -127,7 +127,7 @@ public class NIO {
 
    /**
     * Creates a Java 7 FileSystem over DropBox using the library
-    * https://github.com/S1eth/java7-fs-dropbox
+    * https://github.com/FJBDev/java7-fs-dropbox
     *
     * @return True if the file system was created successfully, false otherwise.
     */
@@ -175,7 +175,7 @@ public class NIO {
 
    /**
     * Creates a Java 7 FileSystem over DropBox using the library
-    * https://github.com/S1eth/java7-fs-dropbox
+    * https://github.com/FJBDev/java7-fs-dropbox
     *
     * @return True if the filesystem was created successfully, false otherwise.
     */
