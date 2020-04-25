@@ -96,16 +96,16 @@ public class DropboxClient {
    /**
     * Retrieves, for a given file, the link to download it
     *
-    * @param dropboxFilefilePath
+    * @param dropboxFilePath
     *           The Dropbox path of the file
     * @return The Dropbox link of the file
     */
-   private static String GetFileLink(final String dropboxFilefilePath) {
+   private static String GetFileLink(final String dropboxFilePath) {
 
       String fileLink = null;
 
       try {
-         fileLink = _dropboxClient.files().getTemporaryLink(dropboxFilefilePath).getLink();
+         fileLink = _dropboxClient.files().getTemporaryLink(dropboxFilePath).getLink();
       } catch (final DbxException e) {
          StatusUtil.log(e);
       }

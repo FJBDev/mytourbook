@@ -27,6 +27,7 @@ import java.util.List;
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
@@ -61,9 +62,7 @@ import org.eclipse.swt.widgets.Text;
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO FB remove unused imports
-   //TODO FB double or single click to enter a folder ? compare with GC. Also, does GC disable the OK button when selecting a file ?
-   //TODO FB enable multiple file selection for the imports but disable the ok button if a folder is part of the selection
-   //TODO FB enable file import when double clicking on it
+   //TODO FB enable multiple file selection for the imports
    //TODO FB externalize strings
    //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
@@ -77,15 +76,15 @@ public class DropboxBrowser extends TitleAreaDialog {
    // adding files in the dropbox remote folder does not update the number of files to be imported
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
-   private static final String ROOT_FOLDER = "/";                           //$NON-NLS-1$
+   private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
-   final IPreferenceStore      _prefStore  = CommonActivator.getPrefStore();
+   final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();
 
    private List<Metadata>      _folderList;
 
    private TableViewer         _contentViewer;
    private String              _selectedFolder;
-   private ArrayList<String>   _selectedFiles;
+   private ArrayList<String>   _selectedFiles = new ArrayList<>();
 
    private ChooserType         _chooserType;
 
@@ -132,10 +131,7 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       updateViewers();
 
-      // enableControls();
-
       return dlgAreaContainer;
-
    }
 
    private Composite createUI(final Composite parent) {
@@ -162,10 +158,10 @@ public class DropboxBrowser extends TitleAreaDialog {
          /*
           * Dropbox folder path
           */
-         _textSelectedAbsolutePath = new Text(container, SWT.LEFT);
+         _textSelectedAbsolutePath = new Text(container, SWT.BORDER);
          _textSelectedAbsolutePath.setEditable(false);
          _textSelectedAbsolutePath.setToolTipText(Messages.Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip);
-         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(_textSelectedAbsolutePath);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_textSelectedAbsolutePath);
          _textSelectedAbsolutePath.setText(ROOT_FOLDER);
 
          createUI_10_FilterViewer(container);
@@ -253,21 +249,51 @@ public class DropboxBrowser extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
+      boolean readyToQuit = true;
+
       if (_chooserType == ChooserType.Folder) {
          _selectedFolder = _textSelectedAbsolutePath.getText();
       } else if (_chooserType == ChooserType.File) {
          final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
+
          final Object[] selectionArray = selection.toArray();
-         if (selectionArray.length > 0) {
-            _selectedFiles = new ArrayList<>();
+         if (selectionArray.length == 0) {
+            return;
+         } else {
+            boolean selectionContainsFile = false;
 
-            final Metadata item = ((Metadata) selection.toArray()[0]);
+            for (final Object item : selectionArray) {
+               if ((Metadata) item instanceof FileMetadata) {
+                  selectionContainsFile = true;
+                  break;
+               }
+            }
 
-            _selectedFiles.add(item.getPathDisplay());
+            //If the list of selected items don't contain any files,
+            //we dive into the last folder
+            if (!selectionContainsFile) {
+
+               final Metadata lastSelecteditem = ((Metadata) selection.toArray()[selection.toArray().length - 1]);
+               selectFolder(lastSelecteditem.getPathDisplay());
+               readyToQuit = false;
+            } else {
+
+               //Otherwise, we import all the selected items that are files.
+
+               for (final Object item : selectionArray) {
+                  final Metadata metadata = ((Metadata) item);
+
+                  if (metadata instanceof FileMetadata) {
+                     _selectedFiles.add(metadata.getPathDisplay());
+                  }
+               }
+            }
          }
       }
 
-      super.okPressed();
+      if (readyToQuit) {
+         super.okPressed();
+      }
    }
 
    protected void onClickParentFolder() {
@@ -290,12 +316,25 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       final Metadata item = ((Metadata) selection.toArray()[0]);
 
-      if (item instanceof FolderMetadata) {
+      if (_chooserType == ChooserType.Folder) {
 
-         if (doubleClick) {
-            selectFolder(item.getPathDisplay());
+         if (item instanceof FolderMetadata) {
+
+            if (doubleClick) {
+               selectFolder(item.getPathDisplay());
+            }
+         }
+      } else if (_chooserType == ChooserType.File) {
+
+         if (item instanceof FileMetadata) {
+
+            if (doubleClick) {
+               _selectedFiles.add(item.getPathDisplay());
+               super.okPressed();
+            }
          }
       }
+
    }
 
    private void selectFolder(final String folderAbsolutePath) {
@@ -312,8 +351,7 @@ public class DropboxBrowser extends TitleAreaDialog {
          _contentViewer.refresh();
 
       } catch (final DbxException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
    }
 
