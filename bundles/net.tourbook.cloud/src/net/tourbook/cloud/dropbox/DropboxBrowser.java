@@ -61,7 +61,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB remove unused imports
-   //TODO FB enable multiple file selection for the imports
    //TODO FB externalize strings
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
    //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
@@ -173,7 +172,7 @@ public class DropboxBrowser extends TitleAreaDialog {
       final TableLayoutComposite layouter = new TableLayoutComposite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().span(3, 1).grab(true, true).hint(600, 300).applyTo(layouter);
 
-      final Table table = new Table(layouter, (SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION));
+      final Table table = new Table(layouter, (SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI));
       table.setHeaderVisible(false);
       table.setLinesVisible(false);
 
