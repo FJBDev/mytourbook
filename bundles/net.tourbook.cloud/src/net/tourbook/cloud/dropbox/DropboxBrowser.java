@@ -60,11 +60,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
-   //TODO FB add a parameter to give the user the abaility to select a file (so that this class can be resued in the easy import
    //TODO FB remove unused imports
    //TODO FB enable multiple file selection for the imports
    //TODO FB externalize strings
-   //TODO FB when importing manual files from dropbox, if a folder was not selected, dont display an error message
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
    //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
