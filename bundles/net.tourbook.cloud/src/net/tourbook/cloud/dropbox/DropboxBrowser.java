@@ -40,9 +40,7 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -220,17 +218,10 @@ public class DropboxBrowser extends TitleAreaDialog {
          public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
       });
 
-      _contentViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(final SelectionChangedEvent event) {
-            onSelectItem(event.getSelection(), false);
-         }
-      });
-
       _contentViewer.addDoubleClickListener(new IDoubleClickListener() {
          @Override
          public void doubleClick(final DoubleClickEvent event) {
-            onSelectItem(event.getSelection(), true);
+            onSelectItem(event.getSelection());
          }
       });
    }
@@ -304,31 +295,28 @@ public class DropboxBrowser extends TitleAreaDialog {
       }
    }
 
-   protected void onSelectItem(final ISelection selectedItem, final boolean doubleClick) {
+   protected void onSelectItem(final ISelection selectedItem) {
       final StructuredSelection selection = (StructuredSelection) selectedItem;
       final Object[] selectionArray = selection.toArray();
       if (selectionArray.length == 0) {
          return;
       }
 
+      // Double clicking on an item should always return only 1 element.
       final Metadata item = ((Metadata) selection.toArray()[0]);
+      final String itemPath = item.getPathDisplay();
 
-      if (_chooserType == ChooserType.Folder) {
+      if (item instanceof FolderMetadata) {
 
-         if (item instanceof FolderMetadata) {
+            selectFolder(itemPath);
+      }
 
-            if (doubleClick) {
-               selectFolder(item.getPathDisplay());
-            }
-         }
-      } else if (_chooserType == ChooserType.File) {
+      if (_chooserType == ChooserType.File) {
 
          if (item instanceof FileMetadata) {
 
-            if (doubleClick) {
-               _selectedFiles.add(item.getPathDisplay());
+               _selectedFiles.add(itemPath);
                super.okPressed();
-            }
          }
       }
 
