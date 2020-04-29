@@ -151,7 +151,7 @@ public class NIO {
          _dropboxFileSystem = provider.newFileSystem(uri, env);
 
          result = true;
-         //TODO when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
+         //TODO FB when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
       } catch (final IOException e) {
          StatusUtil.log(e);
       }

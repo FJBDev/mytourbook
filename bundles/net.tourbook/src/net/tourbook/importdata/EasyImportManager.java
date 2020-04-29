@@ -199,7 +199,7 @@ public class EasyImportManager {
 
                /*
                 * When the watching store is stopped, then getImportFiles() could cause a SQL
-                * except�ion when it checks the files in the db
+                * exception when it checks the files in the db
                 */
 
                return returnState;

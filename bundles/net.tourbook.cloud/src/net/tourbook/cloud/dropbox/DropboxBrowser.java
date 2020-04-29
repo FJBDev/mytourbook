@@ -65,9 +65,8 @@ public class DropboxBrowser extends TitleAreaDialog {
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs :
-   //Debian choosing the USerFiles directory shows 0 files to be imported !?
    //changing the user folder doesn't trigger an update on the easyimport
-   //When clicking on OK in the easyimport ocnfig, sortly a red message is displayed ot say that the dropbox folder is not available
+   //When clicking on OK in the easyimport config, shortly a red message is displayed ot say that the dropbox folder is not available
    // adding files in the dropbox remote folder does not update the number of files to be imported
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"

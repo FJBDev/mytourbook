@@ -386,6 +386,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private boolean                _isToolTipInTitle;
    private boolean                _isToolTipInTags;
    //
+   private boolean                _dropboxPreferencesHaveChanged;
+   //
    private TourDoubleClickState   _tourDoubleClickState       = new TourDoubleClickState();
    //
    private Thread                 _watchingStoresThread;
@@ -931,6 +933,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
        * Common preferences
        */
       _prefChangeListenerCommon = new IPropertyChangeListener() {
+
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
 
@@ -939,6 +942,12 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             if (property.equals(ICommonPreferences.TIME_ZONE_LOCAL_ID)) {
 
                recreateViewer();
+            }
+
+            if (property.equals(ICommonPreferences.DROPBOX_ACCESSTOKEN) ||
+                  property.equals(ICommonPreferences.DROPBOX_FOLDER)) {
+
+               _dropboxPreferencesHaveChanged = true;
             }
          }
       };
@@ -5401,9 +5410,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             try {
 
-               // keep watcher local because it could be set to null !!!
-               folderWatcher = _folderWatcher = FileSystems.getDefault().newWatchService();
-
                final EasyConfig easyConfig = getEasyConfig();
                final ImportConfig importConfig = easyConfig.getActiveImportConfig();
 
@@ -5413,6 +5419,18 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                boolean isDeviceFolderValid = false;
                final String deviceFolder = importConfig.getDeviceOSFolder();
 
+               // keep watcher local because it could be set to null !!!
+               folderWatcher = _folderWatcher =FileSystems
+                     .getDefault()
+                     .newWatchService();
+
+                     //NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
+                     //.getDefault()
+                     //.newWatchService();
+
+               //Override this
+               //https://github.com/FJBDev/java7-fs-base/blob/b047cf0b0e5e0c7fea2994a1be257f1f02a5f804/src/main/java/com/github/fge/filesystem/driver/FileSystemDriverBase.java#L105
+//in this file ? https://github.com/umjammer/java7-fs-dropbox/blob/api-v2-compliant/src/main/java/com/github/fge/fs/dropbox/driver/DropBoxFileSystemDriver.java
                if (deviceFolder != null) {
 
                   try {
@@ -5589,7 +5607,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                      final EasyConfig importConfig = getEasyConfig();
 
                      // check if anything should be watched
-                     if (importConfig.getActiveImportConfig().isWatchAnything()) {
+                     if (importConfig.getActiveImportConfig().isWatchAnything() ||
+                           _dropboxPreferencesHaveChanged) {
 
                         final boolean isCheckFiles = _isDeviceStateValid == false;
 
@@ -5610,7 +5629,16 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                         }
 
                         _isDeviceStateValid = true;
+                        _dropboxPreferencesHaveChanged = false;
                      }
+
+                     //If the dropbox preferences have changes, update the folder watcher
+                     /*
+                      * if (_dropboxPreferencesHaveChanged) {
+                      * thread_WatchFolders(true);
+                      * _dropboxPreferencesHaveChanged = false;
+                      * }
+                      */
                   }
 
                } catch (final InterruptedException e) {
