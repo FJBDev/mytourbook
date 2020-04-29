@@ -70,6 +70,9 @@ public class OAuth2RequestAction extends Action {
          } catch (final IOException e) {
             StatusUtil.log(e);
          }
+         finally {
+
+         }
       }
    }
 }

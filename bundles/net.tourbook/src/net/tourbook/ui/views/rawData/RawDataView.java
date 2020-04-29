@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.ClosedWatchServiceException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -4160,7 +4159,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             final Path folderPath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
 
-            return Files.exists(folderPath);
+            return folderPath != null && Files.exists(folderPath);
          }
 
       } catch (final Exception e) {}
@@ -5420,10 +5419,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                final String deviceFolder = importConfig.getDeviceOSFolder();
 
                // keep watcher local because it could be set to null !!!
-               folderWatcher = _folderWatcher =FileSystems
-                     .getDefault()
-                     .newWatchService();
-
+               folderWatcher = _folderWatcher = NIO.getDropboxFileSystem().newWatchService();
+//TODO FB
                      //NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
                      //.getDefault()
                      //.newWatchService();

@@ -514,7 +514,7 @@ class HistoryItems {
 
                final Path osPath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
 
-               isFolderValid = Files.exists(osPath);
+               isFolderValid = osPath != null && Files.exists(osPath);
 
                if (isFolderValid) {
 

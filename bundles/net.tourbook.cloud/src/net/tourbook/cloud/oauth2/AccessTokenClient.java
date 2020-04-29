@@ -59,10 +59,11 @@ public class AccessTokenClient {
     * @return response
     * @throws IOException
     */
-   protected HttpResponse execute(final HttpHost target, final HttpRequest request)
+   private String execute(final HttpHost target, final HttpRequest request)
          throws IOException {
       try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
-         return httpClient.execute(target, request);
+         final HttpResponse response = httpClient.execute(target, request);
+         return getToken(response.getEntity());
       }
    }
 
@@ -81,10 +82,7 @@ public class AccessTokenClient {
       if (params != null && !params.isEmpty()) {
          request.setEntity(new UrlEncodedFormEntity(params));
       }
-      final HttpResponse response = execute(target, request);
-      final String token = getToken(response.getEntity());
-
-      return token;
+      return execute(target, request);
    }
 
    /**
@@ -94,7 +92,7 @@ public class AccessTokenClient {
     * @param code
     * @return list of parameters
     */
-   protected List<NameValuePair> getParams(final String code) {
+   private List<NameValuePair> getParams(final String code) {
       final List<NameValuePair> params = new ArrayList<>();
       params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_ID,
             client.getId()));
@@ -117,7 +115,7 @@ public class AccessTokenClient {
     * @return token or null if not present in given entity
     * @throws IOException
     */
-   protected String getToken(final HttpEntity entity) throws IOException {
+   private String getToken(final HttpEntity entity) throws IOException {
       response = EntityUtils.toString(entity);
       if (response == null || response.length() == 0) {
          return null;
