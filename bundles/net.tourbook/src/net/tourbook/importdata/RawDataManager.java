@@ -380,6 +380,7 @@ public class RawDataManager {
     * Import tours selected from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
+      DropboxClient.TestListFolderContinue();
       final String accessToken = _commonPrefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
       final String dropboxFolder = _commonPrefStore.getString(ICommonPreferences.DROPBOX_FOLDER);
 
