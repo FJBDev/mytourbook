@@ -25,7 +25,6 @@ import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -70,11 +69,21 @@ public class DropboxWatchService implements WatchService {
 
    @Override
    public void close() throws IOException {
-      folderPoll.interrupt();
-final boolean toto = folderPoll.isInterrupted();
-final State sate = folderPoll.getState();
-      folderPoll = null;
-final String tata = "dd";
+
+      /**
+       * We request a new cursor as it resets the polling
+       */
+
+      try {
+         getLatestCursor("/UserFiles");
+      } catch (final DbxException e) {}
+      /*
+       * folderPoll.interrupt();
+       * final boolean toto = folderPoll.isInterrupted();
+       * final State sate = folderPoll.getState();
+       * folderPoll = null;
+       * final String tata = "dd";
+       */
       //    https://www.tutorialspoint.com/java/java_multithreading.htm
       //TODO stop the thread (if it was started) that is running in take()
    }

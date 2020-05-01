@@ -61,7 +61,7 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB remove unused imports
    //TODO FB externalize strings
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
-   //TODO what if I revoke the token ? what happens when opening the folder ? renewing the otken ? etc..
+   //TODO what if I revoke the token ? what happens when opening the folderder ? renewing the otken ? etc..
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs :

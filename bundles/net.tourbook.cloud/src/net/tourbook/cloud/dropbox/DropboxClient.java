@@ -18,8 +18,6 @@ package net.tourbook.cloud.dropbox;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.ListFolderLongpollResult;
-import com.dropbox.core.v2.files.ListFolderResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,31 +105,8 @@ public class DropboxClient {
       String fileLink = null;
 
       try {
+         //TODO FB Use the files.download() function instead... to reduce code ?
          fileLink = _dropboxClient.files().getTemporaryLink(dropboxFilePath).getLink();
-      } catch (final DbxException e) {
-         StatusUtil.log(e);
-      }
-
-      return fileLink;
-   }
-
-   public static ListFolderLongpollResult TestListFolderContinue() {
-//Clean way with backoff https://github.com/dropbox/dropbox-sdk-java/blob/da02023dc8f6ae9b6134bbf171bf366ce3ad57d1/examples/longpoll/src/main/java/com/dropbox/core/examples/longpoll/Main.java#L59
-      ListFolderLongpollResult fileLink = null;
-      String cursor = null;
-      try {
-         ListFolderResult listFolderResult = _dropboxClient.files().listFolder("/UserFiles");
-         cursor = listFolderResult.getCursor();
-         while (true == true) {
-            fileLink = _dropboxClient.files().listFolderLongpoll(cursor);
-            if (fileLink.getChanges()) {
-               listFolderResult = _dropboxClient.files().listFolder("/UserFiles");
-               //Retrieving and printing all the entries as this will be needed in MT's code
-               System.out.println("New directory state");
-               listFolderResult.getEntries().forEach(e -> System.out.println(e.getName()));
-               cursor = _dropboxClient.files().listFolderContinue(cursor).getCursor();
-            }
-         }
       } catch (final DbxException e) {
          StatusUtil.log(e);
       }
