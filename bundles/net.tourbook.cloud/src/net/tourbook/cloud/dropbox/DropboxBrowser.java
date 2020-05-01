@@ -67,9 +67,13 @@ public class DropboxBrowser extends TitleAreaDialog {
    //Several bugs :
    //changing the user folder doesn't trigger an update on the easyimport
    //When clicking on OK in the easyimport config, shortly a red message is displayed ot say that the dropbox folder is not available
-   // adding files in the dropbox remote folder does not update the number of files to be imported
+
+   //TODO FB because listFolderLongpoll is blocking, we have thread issues as the thread is blocked
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
+
+   //TODO FB prevent form using dropbox as a backup folder as that might cause issues
+   // implement later ? yes put it on a list or as a comment somewhere
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();

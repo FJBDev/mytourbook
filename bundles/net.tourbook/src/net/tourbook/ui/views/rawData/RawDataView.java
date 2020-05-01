@@ -45,6 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.cloud.dropbox.DropboxWatchService;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
@@ -5419,20 +5420,22 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                final String deviceFolder = importConfig.getDeviceOSFolder();
 
                // keep watcher local because it could be set to null !!!
-               folderWatcher = _folderWatcher = NIO.getDropboxFileSystem().newWatchService();
-//TODO FB
-                     //NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
-                     //.getDefault()
-                     //.newWatchService();
+               folderWatcher = _folderWatcher =
+                     //FileSystems. getDefault() .newWatchService();
 
-               //Override this
-               //https://github.com/FJBDev/java7-fs-base/blob/b047cf0b0e5e0c7fea2994a1be257f1f02a5f804/src/main/java/com/github/fge/filesystem/driver/FileSystemDriverBase.java#L105
-//in this file ? https://github.com/umjammer/java7-fs-dropbox/blob/api-v2-compliant/src/main/java/com/github/fge/fs/dropbox/driver/DropBoxFileSystemDriver.java
+                     NIO.getDropboxFolderPath() != null ? new DropboxWatchService(NIO.getDropboxFolderPath().toString())
+                           : null;
+//TODO FB
+               //NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
+               //.getDefault()
+               //.newWatchService();
+
                if (deviceFolder != null) {
 
                   try {
 
-                     final Path deviceFolderPath = Paths.get(deviceFolder);
+                     //TODO FB refactor this ternary operation as it is duplicated in a lot of places. Put it in NIO
+                     final Path deviceFolderPath = NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFolderPath() : Paths.get(deviceFolder);
 
                      if (Files.exists(deviceFolderPath)) {
 
@@ -5499,6 +5502,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 //                           + (String.format("Event: %s\tFile: %s", kind, event.context())));
 //                     // TODO remove SYSTEM.OUT.PRINTLN
 //                  }
+
 
                   // do not update the device state when the import is running otherwise the import file list can be wrong
                   if (_isUpdateDeviceState) {
