@@ -20,11 +20,13 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.DeletedMetadata;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.ListFolderGetLatestCursorResult;
-import com.dropbox.core.v2.files.ListFolderLongpollResult;
+//import com.dropbox.core.v2.files.ListFolderLongpollResult;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
 import java.io.IOException;
+import java.lang.Thread.State;
+import java.net.URI;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -33,11 +35,22 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 public class DropboxWatchService implements WatchService {
 
-   private String  _folderToWatch;
-   private AtomicBoolean _hasChanges;
-   private Thread        folderPoll;
+   private String              _folderToWatch;
+   private AtomicBoolean       _hasChanges;
+   private Thread              folderPoll;
+
+   private CloseableHttpClient _httpClient;
+   private HttpPost            _postRequest;
 
    public DropboxWatchService(final String folderToWatch) {
       _folderToWatch = folderToWatch;
@@ -75,15 +88,20 @@ public class DropboxWatchService implements WatchService {
        */
 
       try {
-         getLatestCursor("/UserFiles");
-      } catch (final DbxException e) {}
-      /*
-       * folderPoll.interrupt();
-       * final boolean toto = folderPoll.isInterrupted();
-       * final State sate = folderPoll.getState();
-       * folderPoll = null;
-       * final String tata = "dd";
-       */
+         if (_postRequest != null) {
+            _postRequest.abort();
+         }
+         if (_httpClient != null) {
+            _httpClient.close();
+         }
+         folderPoll.interrupt();
+      } catch (final IOException e) {}
+
+      final boolean toto = folderPoll.isInterrupted();
+      final State sate = folderPoll.getState();
+      folderPoll = null;
+      final String tata = "dd";
+
       //    https://www.tutorialspoint.com/java/java_multithreading.htm
       //TODO stop the thread (if it was started) that is running in take()
    }
@@ -135,6 +153,51 @@ public class DropboxWatchService implements WatchService {
       return cursor;
    }
 
+   /**
+    * Solution/Hack found here
+    * https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Abort-call-to-listFolderLongpoll-in-Java-SDK/m-p/192787
+    *
+    * @param cursor
+    * @return
+    */
+   private ListFolderLongpollResult listFolderLongpoll(final String cursor) throws IOException {
+      final URI uri = URI.create("https://notify.dropboxapi.com/2/files/list_folder/longpoll");
+
+      _postRequest = new HttpPost(uri);
+      _postRequest.addHeader("Content-Type", "application/json");
+
+      final String jsonPayload = "{\"cursor\":\"" + cursor + "\"}";
+
+      _postRequest.setEntity(new StringEntity(jsonPayload));
+
+      System.out.println("Blocked");
+      final HttpResponse response = _httpClient.execute(_postRequest);
+      System.out.println("UNBlocked");
+
+      final String entity = EntityUtils.toString(response.getEntity());
+      if (entity == null || entity.length() == 0) {
+         return null;
+      }
+
+      final JSONObject jsonContent = new JSONObject(entity);
+      try {
+         final String changesElementName = "changes";
+         final String backoffElementName = "backodd";
+         final boolean hasChanges = jsonContent.has(changesElementName);
+         final boolean hasbackoff = jsonContent.has(backoffElementName);
+         if (hasChanges == false && hasbackoff == false) {
+            return null;
+         }
+         final boolean changes = hasChanges ? Boolean.valueOf(jsonContent.get("changes").toString()) : false;
+         final Long backoff = hasbackoff ? Long.valueOf(jsonContent.get("backoff").toString()) : null;
+         final ListFolderLongpollResult listFolderLongpollResult = new ListFolderLongpollResult(changes, backoff);
+
+         return listFolderLongpollResult;
+      } catch (final Exception e) {}
+
+      return null;
+   }
+
    @Override
    public WatchKey poll() {
       // TODO Auto-generated method stub
@@ -156,32 +219,43 @@ public class DropboxWatchService implements WatchService {
       folderPoll = new Thread(new Runnable() {
          @Override
          public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted() && _hasChanges.get() == false) {
                try {
 
                   final String cursor = getLatestCursor(_folderToWatch);
+                  _httpClient = HttpClientBuilder.create().build();
 
-                  while (_hasChanges.get() == false) {
-                     final ListFolderLongpollResult listFolderLongpollResult = DropboxClient.getDefault().files().listFolderLongpoll(cursor);
-                     if (listFolderLongpollResult.getChanges()) {
-                        examineChanges(cursor);
-                     }
+                  //  final ListFolderLongpollResult listFolderLongpollResult = DropboxClient.getDefault().files().listFolderLongpoll(cursor);
+                  //  if (listFolderLongpollResult.getChanges()) {
 
-                     // we were asked to back off from our polling, wait the requested amount of seconds
-                     // before issuing another longpoll request.
-                     final Long backoff = listFolderLongpollResult.getBackoff();
-                     if (backoff != null) {
-                        try {
-                           System.out.printf("backing off for %d secs...\n", backoff.longValue());
-                           Thread.sleep(TimeUnit.SECONDS.toMillis(backoff));
-                        } catch (final InterruptedException ex) {
-                           System.exit(0);
-                        }
+                  final ListFolderLongpollResult listFolderLongpollResult = listFolderLongpoll(cursor);
+                  if (listFolderLongpollResult == null) {
+                     continue;
+                  }
+                  if (listFolderLongpollResult.getChanges()) {
+                     examineChanges(cursor);
+                  }
+
+                  // we were asked to back off from our polling, wait the requested amount of seconds
+                  // before issuing another longpoll request.
+                  final Long backoff = listFolderLongpollResult.getBackoff();
+                  if (backoff != null) {
+                     try {
+                        System.out.printf("backing off for %d secs...\n", backoff.longValue());
+                        Thread.sleep(TimeUnit.SECONDS.toMillis(backoff));
+                     } catch (final InterruptedException ex) {
+                        System.exit(0);
                      }
                   }
-               } catch (final DbxException ex) {
+               } catch (final DbxException | IOException ex) {
                   // if a user message is available, try using that instead
                   System.err.println("ListFolderLongpollErrorException: " + ex);
+               } finally {
+                  try {
+                     if (_httpClient != null) {
+                        _httpClient.close();
+                     }
+                  } catch (final IOException e) {}
                }
             }
          }
@@ -190,6 +264,9 @@ public class DropboxWatchService implements WatchService {
       folderPoll.start();
       folderPoll.join();
 
+      if (_hasChanges.get() == false) {
+         return null;
+      }
       //We return an empty Watchkey. The goal here is that we only
       //want to notify that some changes happened
       final WatchKey dropboxWatchKey = new WatchKey() {
