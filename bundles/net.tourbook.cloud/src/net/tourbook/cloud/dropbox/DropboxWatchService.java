@@ -25,7 +25,6 @@ import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.net.URI;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -35,22 +34,23 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 public class DropboxWatchService implements WatchService {
 
-   private String              _folderToWatch;
-   private AtomicBoolean       _hasChanges;
-   private Thread              folderPoll;
+   private String        _folderToWatch;
+   private AtomicBoolean _hasChanges;
+//   private Thread              folderPoll;
+   private boolean               _continuePolling;
 
    private CloseableHttpClient _httpClient;
    private HttpPost            _postRequest;
+   private CloseableHttpResponse _httpResponse;
 
    public DropboxWatchService(final String folderToWatch) {
       _folderToWatch = folderToWatch;
@@ -86,21 +86,24 @@ public class DropboxWatchService implements WatchService {
       /**
        * We request a new cursor as it resets the polling
        */
+      /*
+       * if (_httpResponse != null) {
+       * _httpResponse.close();
+       * }
+       * if (_postRequest != null) {
+       * _postRequest.abort();
+       * }
+       * if (_httpClient != null) {
+       * _httpClient.close();
+       * }
+       */
+      _continuePolling = false;
+      // folderPoll.interrupt();
 
-      try {
-         if (_postRequest != null) {
-            _postRequest.abort();
-         }
-         if (_httpClient != null) {
-            _httpClient.close();
-         }
-         folderPoll.interrupt();
-      } catch (final IOException e) {}
-
-      final boolean toto = folderPoll.isInterrupted();
-      final State sate = folderPoll.getState();
-      folderPoll = null;
-      final String tata = "dd";
+      // final boolean toto = folderPoll.isInterrupted();
+      // final State sate = folderPoll.getState();
+      //  folderPoll = null;
+      //   final String tata = "dd";
 
       //    https://www.tutorialspoint.com/java/java_multithreading.htm
       //TODO stop the thread (if it was started) that is running in take()
@@ -171,10 +174,10 @@ public class DropboxWatchService implements WatchService {
       _postRequest.setEntity(new StringEntity(jsonPayload));
 
       System.out.println("Blocked");
-      final HttpResponse response = _httpClient.execute(_postRequest);
+      _httpResponse = _httpClient.execute(_postRequest);
       System.out.println("UNBlocked");
 
-      final String entity = EntityUtils.toString(response.getEntity());
+      final String entity = EntityUtils.toString(_httpResponse.getEntity());
       if (entity == null || entity.length() == 0) {
          return null;
       }
@@ -182,14 +185,14 @@ public class DropboxWatchService implements WatchService {
       final JSONObject jsonContent = new JSONObject(entity);
       try {
          final String changesElementName = "changes";
-         final String backoffElementName = "backodd";
+         final String backoffElementName = "backoff";
          final boolean hasChanges = jsonContent.has(changesElementName);
          final boolean hasbackoff = jsonContent.has(backoffElementName);
          if (hasChanges == false && hasbackoff == false) {
             return null;
          }
-         final boolean changes = hasChanges ? Boolean.valueOf(jsonContent.get("changes").toString()) : false;
-         final Long backoff = hasbackoff ? Long.valueOf(jsonContent.get("backoff").toString()) : null;
+         final boolean changes = hasChanges ? Boolean.valueOf(jsonContent.get(changesElementName).toString()) : false;
+         final Long backoff = hasbackoff ? Long.valueOf(jsonContent.get(backoffElementName).toString()) : null;
          final ListFolderLongpollResult listFolderLongpollResult = new ListFolderLongpollResult(changes, backoff);
 
          return listFolderLongpollResult;
@@ -215,58 +218,49 @@ public class DropboxWatchService implements WatchService {
 
       //Start the thread https://stackoverflow.com/questions/4182491/how-to-stop-a-thread-waiting-in-a-blocking-read-operation-in-java
       _hasChanges = new AtomicBoolean(false);
+      _continuePolling = true;
 
-      folderPoll = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            while (!Thread.currentThread().isInterrupted() && _hasChanges.get() == false) {
-               try {
+      while (_hasChanges.get() == false && _continuePolling) {
+         try {
 
-                  final String cursor = getLatestCursor(_folderToWatch);
-                  _httpClient = HttpClientBuilder.create().build();
+            final String cursor = getLatestCursor(_folderToWatch);
+            //  _httpClient = HttpClientBuilder.create().build();
 
-                  //  final ListFolderLongpollResult listFolderLongpollResult = DropboxClient.getDefault().files().listFolderLongpoll(cursor);
-                  //  if (listFolderLongpollResult.getChanges()) {
+            //  final ListFolderLongpollResult listFolderLongpollResult = DropboxClient.getDefault().files().listFolderLongpoll(cursor);
+            //  if (listFolderLongpollResult.getChanges()) {
 
-                  final ListFolderLongpollResult listFolderLongpollResult = listFolderLongpoll(cursor);
-                  if (listFolderLongpollResult == null) {
-                     continue;
-                  }
-                  if (listFolderLongpollResult.getChanges()) {
-                     examineChanges(cursor);
-                  }
-
-                  // we were asked to back off from our polling, wait the requested amount of seconds
-                  // before issuing another longpoll request.
-                  final Long backoff = listFolderLongpollResult.getBackoff();
-                  if (backoff != null) {
-                     try {
-                        System.out.printf("backing off for %d secs...\n", backoff.longValue());
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(backoff));
-                     } catch (final InterruptedException ex) {
-                        System.exit(0);
-                     }
-                  }
-               } catch (final DbxException | IOException ex) {
-                  // if a user message is available, try using that instead
-                  System.err.println("ListFolderLongpollErrorException: " + ex);
-               } finally {
-                  try {
-                     if (_httpClient != null) {
-                        _httpClient.close();
-                     }
-                  } catch (final IOException e) {}
+            /*
+             * final ListFolderLongpollResult listFolderLongpollResult = listFolderLongpoll(cursor);
+             * if (listFolderLongpollResult == null) {
+             * continue;
+             * }
+             * if (listFolderLongpollResult.getChanges()) {
+             * examineChanges(cursor);
+             * }
+             * // we were asked to back off from our polling, wait the requested amount of seconds
+             * // before issuing another longpoll request.
+             * final Long backoff = listFolderLongpollResult.getBackoff();
+             * if (backoff != null) {
+             * try {
+             * System.out.printf("backing off for %d secs...\n", backoff.longValue());
+             * Thread.sleep(TimeUnit.SECONDS.toMillis(backoff));
+             * } catch (final InterruptedException ex) {
+             * System.exit(0);
+             * }
+             * }
+             */
+         } catch (final DbxException ex) {
+            // if a user message is available, try using that instead
+            System.err.println("ListFolderLongpollErrorException: " + ex);
+         } finally {
+            try {
+               if (_httpClient != null) {
+                  _httpClient.close();
                }
-            }
+            } catch (final IOException e) {}
          }
-      });
-
-      folderPoll.start();
-      folderPoll.join();
-
-      if (_hasChanges.get() == false) {
-         return null;
       }
+
       //We return an empty Watchkey. The goal here is that we only
       //want to notify that some changes happened
       final WatchKey dropboxWatchKey = new WatchKey() {
@@ -291,8 +285,7 @@ public class DropboxWatchService implements WatchService {
 
          @Override
          public boolean reset() {
-            // TODO Auto-generated method stub
-            return true;
+            return _continuePolling;
          }
 
          @Override

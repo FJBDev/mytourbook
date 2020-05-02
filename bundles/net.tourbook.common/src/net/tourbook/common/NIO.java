@@ -161,7 +161,8 @@ public class NIO {
 
    public static Path getDropboxFilePath(final String fileName) {
       if (_dropboxFileSystem == null) {
-         return null;
+         getDropboxFileStores();
+         //return null;
       }
 
       final String dropboxFilePath = _prefStore.getString(ICommonPreferences.DROPBOX_FOLDER) + fileName;

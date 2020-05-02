@@ -21,9 +21,11 @@ import static net.tourbook.ui.UI.getIconUrl;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.State;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -5370,6 +5372,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                try {
                   _folderWatcher.close();
+                  final State state = _watchingFolderThread.getState();
+                  System.out.println(state.toString());
                } catch (final IOException e) {
                   TourLogManager.logEx(e);
                } finally {
@@ -5382,11 +5386,18 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          } finally {
 
             try {
-
+               State state = _watchingFolderThread.getState();
                // it occurred that the join never ended
 //               _watchingFolderThread.join();
+               final long start = System.currentTimeMillis();
+
+               // Do something ...
                _watchingFolderThread.join(10000);
 
+               // Get elapsed time in milliseconds
+               final long elapsedTimeMillis = System.currentTimeMillis() - start;
+               System.out.println(elapsedTimeMillis);
+               state = _watchingFolderThread.getState();
                // force interrupt
                _watchingFolderThread.interrupt();
 
@@ -5421,14 +5432,12 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                // keep watcher local because it could be set to null !!!
                folderWatcher = _folderWatcher =
-                     //FileSystems. getDefault() .newWatchService();
-
-                     NIO.getDropboxFolderPath() != null ? new DropboxWatchService(NIO.getDropboxFolderPath().toString())
-                           : null;
+                     NIO.isDropboxDevice(deviceFolder) ? new DropboxWatchService(NIO.getDropboxFolderPath().toString())
+                           : FileSystems.getDefault() .newWatchService();
 //TODO FB
-               //NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
-               //.getDefault()
-               //.newWatchService();
+               // NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
+               // .getDefault()
+               // .newWatchService();
 
                if (deviceFolder != null) {
 
