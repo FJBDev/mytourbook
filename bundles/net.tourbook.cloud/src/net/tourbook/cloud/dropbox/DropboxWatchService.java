@@ -94,7 +94,6 @@ public class DropboxWatchService implements WatchService {
          } catch (final Exception e) {
             StatusUtil.log(e);
          }
-
       }
    }
 

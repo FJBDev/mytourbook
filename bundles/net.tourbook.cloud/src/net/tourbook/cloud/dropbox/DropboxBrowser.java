@@ -58,6 +58,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
+   //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files 
+
    //TODO FB remove unused imports
    //TODO FB externalize strings
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing

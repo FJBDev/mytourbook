@@ -46,7 +46,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.cloud.dropbox.DropboxWatchService;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
@@ -5420,12 +5419,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                // keep watcher local because it could be set to null !!!
                folderWatcher = _folderWatcher =
-                     NIO.isDropboxDevice(deviceFolder) ? new DropboxWatchService(NIO.getDropboxFolderPath().toString())
-                           : FileSystems.getDefault() .newWatchService();
-//TODO FB
-               // NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFileSystem().newWatchService() : FileSystems
-               // .getDefault()
-               // .newWatchService();
+                     NIO.isDropboxDevice(deviceFolder) && NIO.getDropboxFileSystem() != null ? NIO.getDropboxFileSystem().newWatchService()
+                           : FileSystems.getDefault().newWatchService();
 
                if (deviceFolder != null) {
 
@@ -5499,7 +5494,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 //                           + (String.format("Event: %s\tFile: %s", kind, event.context())));
 //                     // TODO remove SYSTEM.OUT.PRINTLN
 //                  }
-
 
                   // do not update the device state when the import is running otherwise the import file list can be wrong
                   if (_isUpdateDeviceState) {
