@@ -21,7 +21,6 @@ import static net.tourbook.ui.UI.getIconUrl;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.ClosedWatchServiceException;
@@ -5372,8 +5371,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                try {
                   _folderWatcher.close();
-                  final State state = _watchingFolderThread.getState();
-                  System.out.println(state.toString());
                } catch (final IOException e) {
                   TourLogManager.logEx(e);
                } finally {
@@ -5386,18 +5383,9 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          } finally {
 
             try {
-               State state = _watchingFolderThread.getState();
-               // it occurred that the join never ended
-//               _watchingFolderThread.join();
-               final long start = System.currentTimeMillis();
-
                // Do something ...
                _watchingFolderThread.join(10000);
 
-               // Get elapsed time in milliseconds
-               final long elapsedTimeMillis = System.currentTimeMillis() - start;
-               System.out.println(elapsedTimeMillis);
-               state = _watchingFolderThread.getState();
                // force interrupt
                _watchingFolderThread.interrupt();
 
