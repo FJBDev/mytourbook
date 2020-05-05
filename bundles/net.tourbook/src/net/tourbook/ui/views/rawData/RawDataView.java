@@ -5606,11 +5606,13 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                         final DeviceImportState importState = EasyImportManager.getInstance().checkImportedFiles(isCheckFiles);
 
-                        if (importState.areTheSameStores == false || isCheckFiles) {
+                        if (importState.areTheSameStores == false || isCheckFiles ||
+                              _dropboxPreferencesHaveChanged) {
 
                            // stores have changed, update the folder watcher
 
                            thread_WatchFolders(true);
+                           _dropboxPreferencesHaveChanged = false;
                         }
 
                         if (importState.areFilesRetrieved || isCheckFiles) {
@@ -5621,7 +5623,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                         }
 
                         _isDeviceStateValid = true;
-                        _dropboxPreferencesHaveChanged = false;
                      }
 
                      //If the dropbox preferences have changes, update the folder watcher

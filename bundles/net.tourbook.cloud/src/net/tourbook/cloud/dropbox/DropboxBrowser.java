@@ -58,16 +58,16 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
-   //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files 
+   //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files
 
    //TODO FB remove unused imports
+   //TODO FB try without internet, does it crash ? or is it well handled ?
    //TODO FB externalize strings
    //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
    //TODO what if I revoke the token ? what happens when opening the folderder ? renewing the otken ? etc..
 //TODO what if the user selects to delete the file from the device ? maybe we should disable that
 
    //Several bugs :
-   //changing the user folder doesn't trigger an update on the easyimport
    //When clicking on OK in the easyimport config, shortly a red message is displayed ot say that the dropbox folder is not available
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
