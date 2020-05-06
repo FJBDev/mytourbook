@@ -19,9 +19,12 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 
-   private static final String BUNDLE_NAME = "net.tourbook.cloud.dropbox.messages"; //$NON-NLS-1$
+   private static final String BUNDLE_NAME = "net.tourbook.cloud.dropbox.messages";       //$NON-NLS-1$
 
+   public static String        Dialog_DropboxFileChooser_Area_Title;
    public static String        Dialog_DropboxFolderChooser_Area_Title;
+   public static String        Dialog_DropboxFileChooser_Area_Text;
+   public static String        Dialog_DropboxFolderChooser_Area_Text;
    public static String        Dialog_DropboxBrowser_Button_ParentFolder_Tooltip;
    public static String        Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip;
 
@@ -38,10 +41,10 @@ public class Messages extends NLS {
    public static String        Pref_CloudConnectivity_Dropbox_Button_ChooseFolder;
    public static String        Pref_CloudConnectivity_Dropbox_FolderPath_Tooltip;
 
-	static {
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
-	}
+   static {
+      // initialize resource bundle
+      NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+   }
 
-	private Messages() {}
+   private Messages() {}
 }

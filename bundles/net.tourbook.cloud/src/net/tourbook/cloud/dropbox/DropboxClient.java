@@ -40,7 +40,6 @@ import org.osgi.framework.Version;
 public class DropboxClient {
 
    private static DbxClientV2      _dropboxClient;
-
    private static DbxRequestConfig _requestConfig;
    final static IPreferenceStore   _prefStore = CommonActivator.getPrefStore();
    private static String           _accessToken;

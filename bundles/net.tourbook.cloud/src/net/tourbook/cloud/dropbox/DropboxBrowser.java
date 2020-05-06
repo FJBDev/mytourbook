@@ -61,19 +61,14 @@ public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files
 
    //TODO FB remove unused imports
-   //TODO FB try without internet, does it crash ? or is it well handled ?
    //TODO FB externalize strings
-   //TODO FB DO i nees this string ? Dialog_DropboxFolderChooser_AccessToken_Missing
-   //TODO what if I revoke the token ? what happens when opening the folderder ? renewing the otken ? etc..
-//TODO what if the user selects to delete the file from the device ? maybe we should disable that
-
-   //Several bugs :
-   //When clicking on OK in the easyimport config, shortly a red message is displayed ot say that the dropbox folder is not available
 
    //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
 
-   //TODO FB prevent form using dropbox as a backup folder as that might cause issues
-   // implement later ? yes put it on a list or as a comment somewhere
+   //TODO FB how to hide this excetpion:
+   //java.lang.IllegalStateException: Connection pool shut down
+
+   //TODO FB When clicking on select folder right after getting a token, it crashes
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();
@@ -92,7 +87,7 @@ public class DropboxBrowser extends TitleAreaDialog {
    private Text   _textSelectedAbsolutePath;
    private Button _buttonParentFolder;
 
-   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType, final String accessToken) {
+   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType) {
 
       super(parentShell);
 
@@ -108,7 +103,14 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       super.configureShell(shell);
 
-      shell.setText(net.tourbook.cloud.dropbox.Messages.Dialog_DropboxFolderChooser_Area_Title);
+      String title = UI.EMPTY_STRING;
+      if (_chooserType == ChooserType.Folder) {
+         title = Messages.Dialog_DropboxFolderChooser_Area_Title;
+      } else if (_chooserType == ChooserType.File) {
+         title = Messages.Dialog_DropboxFileChooser_Area_Title;
+      }
+
+      shell.setText(title);
    }
 
    @Override
@@ -116,20 +118,26 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       super.create();
 
-      setTitle(net.tourbook.cloud.dropbox.Messages.Dialog_DropboxFolderChooser_Area_Title);
+      String text = UI.EMPTY_STRING;
+      if (_chooserType == ChooserType.Folder) {
+         text = Messages.Dialog_DropboxFolderChooser_Area_Text;
+      } else if (_chooserType == ChooserType.File) {
+         text = Messages.Dialog_DropboxFileChooser_Area_Text;
+      }
 
+      setTitle(text);
    }
 
    @Override
    protected Control createDialogArea(final Composite parent) {
 
-      final Composite dlgAreaContainer = (Composite) super.createDialogArea(parent);
+      final Composite dialogAreaContainer = (Composite) super.createDialogArea(parent);
 
-      createUI(dlgAreaContainer);
+      createUI(dialogAreaContainer);
 
       updateViewers();
 
-      return dlgAreaContainer;
+      return dialogAreaContainer;
    }
 
    private Composite createUI(final Composite parent) {
@@ -314,15 +322,12 @@ public class DropboxBrowser extends TitleAreaDialog {
          selectFolder(itemPath);
       }
 
-      if (_chooserType == ChooserType.File) {
+      if (_chooserType == ChooserType.File &&
+            item instanceof FileMetadata) {
 
-         if (item instanceof FileMetadata) {
-
-            _selectedFiles.add(itemPath);
-            super.okPressed();
-         }
+         _selectedFiles.add(itemPath);
+         super.okPressed();
       }
-
    }
 
    private void selectFolder(final String folderAbsolutePath) {
