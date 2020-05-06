@@ -69,6 +69,9 @@ public class DropboxBrowser extends TitleAreaDialog {
    //java.lang.IllegalStateException: Connection pool shut down
 
    //TODO FB When clicking on select folder right after getting a token, it crashes
+
+   //TODO email to WOlfgang with what I did
+   // in my PR, put screenshots of the process to get a token, to watch a flder, to import manual files...
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
    final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();
