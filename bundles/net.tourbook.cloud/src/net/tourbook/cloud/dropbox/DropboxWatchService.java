@@ -70,7 +70,7 @@ public class DropboxWatchService implements WatchService {
    private static String getLatestCursor(final String path)
          throws DbxApiException, DbxException {
 
-      final ListFolderGetLatestCursorResult result = DropboxClient.getDefault()
+      final ListFolderGetLatestCursorResult result = DropboxClient.getDefault("")
             .files()
             .listFolderGetLatestCursorBuilder(path)
             .withIncludeDeleted(true)
@@ -111,7 +111,7 @@ public class DropboxWatchService implements WatchService {
          throws DbxApiException, DbxException {
 
       while (true) {
-         final ListFolderResult result = DropboxClient.getDefault()
+         final ListFolderResult result = DropboxClient.getDefault("")
                .files()
                .listFolderContinue(cursor);
          for (final Metadata metadata : result.getEntries()) {

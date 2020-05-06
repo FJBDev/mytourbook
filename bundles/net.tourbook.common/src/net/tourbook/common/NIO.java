@@ -140,6 +140,7 @@ public class NIO {
 
       final String accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
       if (StringUtils.isNullOrEmpty(accessToken)) {
+         _dropboxFileSystem = null;
          return result;
       }
 
@@ -159,10 +160,23 @@ public class NIO {
       return result;
    }
 
+   /**
+    * Returns the {@link Path} for a given folder depending on
+    * the folder's file system (Local drive, Dropbox)
+    * Note : The file system is guessed from the folder name.
+    *
+    * @param folderName
+    *           A given folder name
+    * @return Returns the {@link Path} of the folder
+    */
+   public static Path getDeviceFolderPath(final String folderName) {
+
+      return NIO.isDropboxDevice(folderName) ? NIO.getDropboxFolderPath() : Paths.get(folderName);
+   }
+
    public static Path getDropboxFilePath(final String fileName) {
       if (_dropboxFileSystem == null) {
-         getDropboxFileStores();
-         //return null;
+         return null;
       }
 
       final String dropboxFilePath = _prefStore.getString(ICommonPreferences.DROPBOX_FOLDER) + fileName;

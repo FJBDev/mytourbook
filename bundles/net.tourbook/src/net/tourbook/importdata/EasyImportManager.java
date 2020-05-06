@@ -500,7 +500,7 @@ public class EasyImportManager {
 
          try {
 
-            final Path devicePath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
+            final Path devicePath = NIO.getDeviceFolderPath(osFolder);
 
             if (devicePath != null && Files.exists(devicePath)) {
                return devicePath;
@@ -526,16 +526,9 @@ public class EasyImportManager {
          // check file
          try {
 
-            if (NIO.isDropboxDevice(osFolder)) {
-
-               final Path dropboxFolder = NIO.getDropboxFolderPath();
-               isFolderValid = dropboxFolder != null && Files.exists(dropboxFolder);
-            } else {
-
-               final Path deviceFolderPath = Paths.get(osFolder);
-               if (Files.exists(deviceFolderPath)) {
-                  isFolderValid = true;
-               }
+            final Path deviceFolderPath = NIO.getDropboxFilePath(osFolder);
+            if (deviceFolderPath != null && Files.exists(deviceFolderPath)) {
+               isFolderValid = true;
             }
          } catch (final Exception e) {
             // path can be invalid

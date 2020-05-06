@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.importdata;
 
-// TODO FB reformat
 import net.tourbook.common.NIO;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
@@ -124,11 +123,8 @@ public class ImportConfig implements Cloneable {
          return null;
       }
 
-      if (NIO.isDeviceNameFolder(folder)) {
-
-         return NIO.convertToOSPath(folder);
-
-      } else if (NIO.isDropboxDevice(folder)) {
+      if (NIO.isDeviceNameFolder(folder) ||
+            NIO.isDropboxDevice(folder)) {
 
          return NIO.convertToOSPath(folder);
 

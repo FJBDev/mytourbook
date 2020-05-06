@@ -108,7 +108,8 @@ class HistoryItems {
 
    private String createDeviceNameFolder(final Path folderPath, final String deviceName) {
 
-      if (!_canShowDeviceName) {
+      if (!_canShowDeviceName ||
+            NIO.isDropboxDevice(folderPath.toString())) {
          return folderPath.toString();
       }
 
@@ -435,7 +436,7 @@ class HistoryItems {
          fillControls(selectedFolder, deviceNameFolder, selectedFolderRaw);
 
       } catch (final Exception e) {
-         // this can occure when the entered path is totally invalid
+         // this can occur when the entered path is totally invalid
       }
    }
 
@@ -512,7 +513,7 @@ class HistoryItems {
 
             try {
 
-               final Path osPath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
+               final Path osPath = NIO.getDeviceFolderPath(osFolder);
 
                isFolderValid = osPath != null && Files.exists(osPath);
 

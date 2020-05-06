@@ -4158,7 +4158,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          if (osFolder != null && osFolder.trim().length() > 0) {
 
-            final Path folderPath = NIO.isDropboxDevice(osFolder) ? NIO.getDropboxFolderPath() : Paths.get(osFolder);
+            final Path folderPath = NIO.getDeviceFolderPath(osFolder);
 
             return folderPath != null && Files.exists(folderPath);
          }
@@ -5426,8 +5426,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                   try {
 
-                     //TODO FB refactor this ternary operation as it is duplicated in a lot of places. Put it in NIO
-                     final Path deviceFolderPath = NIO.isDropboxDevice(deviceFolder) ? NIO.getDropboxFolderPath() : Paths.get(deviceFolder);
+                     final Path deviceFolderPath = NIO.getDeviceFolderPath(deviceFolder);
 
                      if (Files.exists(deviceFolderPath)) {
 

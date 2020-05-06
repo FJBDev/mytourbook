@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
@@ -27,7 +26,6 @@ import java.util.List;
 import net.tourbook.cloud.Activator;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TableLayoutComposite;
 
@@ -53,6 +51,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
@@ -60,43 +59,46 @@ import org.eclipse.swt.widgets.Text;
 public class DropboxBrowser extends TitleAreaDialog {
    //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files
 
+   //TODO FB do all the functions headers
    //TODO FB remove unused imports
    //TODO FB externalize strings
-
-   //TODO FB use _dropboxFileSystem.GetPathSeparator() instead of "/"
-
-   //TODO FB how to hide this excetpion:
-   //java.lang.IllegalStateException: Connection pool shut down
-
-   //TODO FB When clicking on select folder right after getting a token, it crashes
 
    //TODO email to WOlfgang with what I did
    // in my PR, put screenshots of the process to get a token, to watch a flder, to import manual files...
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
+   private static String           _accessToken;
+
    final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();
 
    private List<Metadata>      _folderList;
-
    private TableViewer         _contentViewer;
    private String              _selectedFolder;
-   private ArrayList<String>   _selectedFiles = new ArrayList<>();
 
+   private ArrayList<String>   _selectedFiles = new ArrayList<>();
    private ChooserType         _chooserType;
 
+   private boolean             _isInErrorState;
+
    /*
-    * UI controls
+    * Browser UI controls
     */
    private Text   _textSelectedAbsolutePath;
    private Button _buttonParentFolder;
 
-   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType) {
+   /*
+    * Error Message UI controls
+    */
+   private Label _labelErrorMessage;
+
+   public DropboxBrowser(final Shell parentShell, final ChooserType chooserType, final String accessToken) {
 
       super(parentShell);
 
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       _chooserType = chooserType;
+      _accessToken = accessToken;
 
       setDefaultImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Logo).createImage());
    }
@@ -134,13 +136,38 @@ public class DropboxBrowser extends TitleAreaDialog {
    @Override
    protected Control createDialogArea(final Composite parent) {
 
-      final Composite dialogAreaContainer = (Composite) super.createDialogArea(parent);
+      Composite dialogAreaContainer = (Composite) super.createDialogArea(parent);
 
       createUI(dialogAreaContainer);
 
-      updateViewers();
+      final String dropboxResult = updateViewers();
+
+      if (!StringUtils.isNullOrEmpty(dropboxResult)) {
+         _isInErrorState = true;
+
+         dialogAreaContainer.dispose();
+         dialogAreaContainer = (Composite) super.createDialogArea(parent);
+
+         createErrorMessageUI(dialogAreaContainer, dropboxResult);
+      }
 
       return dialogAreaContainer;
+   }
+
+   private Composite createErrorMessageUI(final Composite parent, final String dropboxMessage) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.fillDefaults().margins(20, 20).numColumns(1).applyTo(container);
+      {
+         /*
+          * Error message obtained when trying to retrieve the Dropbox folder content
+          */
+         _labelErrorMessage = new Label(container, SWT.LEFT);
+         _labelErrorMessage.setText(dropboxMessage);
+      }
+
+      return container;
    }
 
    private Composite createUI(final Composite parent) {
@@ -253,9 +280,16 @@ public class DropboxBrowser extends TitleAreaDialog {
 
       boolean readyToQuit = true;
 
+      if (_isInErrorState) {
+         super.okPressed();
+         return;
+      }
+
       if (_chooserType == ChooserType.Folder) {
+
          _selectedFolder = _textSelectedAbsolutePath.getText();
       } else if (_chooserType == ChooserType.File) {
+
          final StructuredSelection selection = (StructuredSelection) _contentViewer.getSelection();
 
          final Object[] selectionArray = selection.toArray();
@@ -333,10 +367,10 @@ public class DropboxBrowser extends TitleAreaDialog {
       }
    }
 
-   private void selectFolder(final String folderAbsolutePath) {
+   private String selectFolder(final String folderAbsolutePath) {
 
       try {
-         final ListFolderResult list = DropboxClient.getDefault().files().listFolder(folderAbsolutePath);
+         final ListFolderResult list = DropboxClient.getDefault(_accessToken).files().listFolder(folderAbsolutePath);
          _folderList = list.getEntries();
 
          _textSelectedAbsolutePath.setText(
@@ -345,17 +379,23 @@ public class DropboxBrowser extends TitleAreaDialog {
          _buttonParentFolder.setEnabled(_textSelectedAbsolutePath.getText().length() > 1);
 
          _contentViewer.refresh();
-
-      } catch (final DbxException e) {
-         StatusUtil.log(e);
+      } catch (final Exception e) {
+         return e.getMessage();
       }
+      return null;
    }
 
-   private void updateViewers() {
+   private String updateViewers() {
 
-      selectFolder(UI.EMPTY_STRING);
+      final String dropboxResult = selectFolder(UI.EMPTY_STRING);
+
+      if (!StringUtils.isNullOrEmpty(dropboxResult)) {
+         return dropboxResult;
+      }
 
       // show contents in the viewer
       _contentViewer.setInput(new Object());
+
+      return null;
    }
 }

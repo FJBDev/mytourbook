@@ -34,6 +34,8 @@ import net.tourbook.common.util.StringUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
@@ -45,14 +47,22 @@ public class DropboxClient {
    private static String           _accessToken;
 
    static {
-      _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
+      final IPropertyChangeListener prefChangeListenerCommon = new IPropertyChangeListener() {
+         @Override
+         public void propertyChange(final PropertyChangeEvent event) {
 
-      //Getting the current version of MyTourbook
-      final Version version = FrameworkUtil.getBundle(DropboxClient.class).getVersion();
+            if (event.getProperty().equals(ICommonPreferences.DROPBOX_ACCESSTOKEN)) {
 
-      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", UI.EMPTY_STRING)).build(); //$NON-NLS-1$ //$NON-NLS-2$
+               // Re create the Dropbox client
+               createDefaultDropboxClient();
+            }
+         }
+      };
 
-      _dropboxClient = new DbxClientV2(_requestConfig, _accessToken);
+      // register the listener
+      _prefStore.addPropertyChangeListener(prefChangeListenerCommon);
+
+      createDefaultDropboxClient();
    }
 
    /**
@@ -88,8 +98,30 @@ public class DropboxClient {
       return null;
    }
 
-   public static DbxClientV2 getDefault() {
-      return _dropboxClient;
+   private static void createDefaultDropboxClient() {
+
+      _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
+
+      _dropboxClient = createDropboxClient(_accessToken);
+   }
+
+   private static DbxClientV2 createDropboxClient(final String accessToken) {
+
+      //Getting the current version of MyTourbook
+      final Version version = FrameworkUtil.getBundle(DropboxClient.class).getVersion();
+
+      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", UI.EMPTY_STRING)).build(); //$NON-NLS-1$ //$NON-NLS-2$
+
+      return new DbxClientV2(_requestConfig, accessToken);
+   }
+
+   public static DbxClientV2 getDefault(final String accessToken) {
+
+      if (StringUtils.isNullOrEmpty(accessToken)) {
+         return _dropboxClient;
+      }
+
+      return createDropboxClient(accessToken);
    }
 
    /**

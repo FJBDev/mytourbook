@@ -399,7 +399,7 @@ public class RawDataManager {
          return;
       }
 
-      final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File);
+      final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, "");
       dropboxChooser.open();
 
       final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();

@@ -165,11 +165,15 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
 
    protected void onClickChooseFolder() {
       final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(),
-            ChooserType.Folder);
+            ChooserType.Folder,
+            _textAccessToken.getText());
 
       if (dropboxFolderChooser.open() == Window.OK) {
 
-         _textFolderPath.setText(dropboxFolderChooser.getSelectedFolder());
+         final String selectedFolder = dropboxFolderChooser.getSelectedFolder();
+         if (!StringUtils.isNullOrEmpty(selectedFolder)) {
+            _textFolderPath.setText(selectedFolder);
+         }
       }
    }
 
@@ -190,9 +194,9 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
       final boolean isOK = super.performOk();
 
       if (isOK) {
+
          _prefStore.setValue(ICommonPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
          _prefStore.setValue(ICommonPreferences.DROPBOX_FOLDER, _textFolderPath.getText());
-
       }
 
       return isOK;
