@@ -3440,6 +3440,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       disposeConfigImages();
 
+      NIO.closeDropboxFileSystem();
+
       super.dispose();
    }
 

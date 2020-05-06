@@ -79,6 +79,23 @@ public class NIO {
    }
 
    /**
+    * Closes the Dropbox Java 7 FileSystem.
+    * This function will be called whenever the user
+    * stops the folder watch or quits MyTourbook.
+    */
+   public static void closeDropboxFileSystem() {
+
+      if (_dropboxFileSystem != null) {
+         try {
+            _dropboxFileSystem.close();
+            _dropboxFileSystem = null;
+         } catch (final IOException e) {
+            StatusUtil.log(e);
+         }
+      }
+   }
+
+   /**
     * Replace device name with drive letter, e.g. [MEDIA]\CACHE -> D:\CACHE. This do not validate if
     * the path exists.
     *
@@ -152,7 +169,6 @@ public class NIO {
          _dropboxFileSystem = provider.newFileSystem(uri, env);
 
          result = true;
-         //TODO FB when do we close the _dropboxFIleSystem resource ? at the end of the program but where is it ?
       } catch (final IOException e) {
          StatusUtil.log(e);
       }

@@ -67,7 +67,7 @@ public class DropboxBrowser extends TitleAreaDialog {
    // in my PR, put screenshots of the process to get a token, to watch a flder, to import manual files...
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
-   private static String           _accessToken;
+   private static String       _accessToken;
 
    final IPreferenceStore      _prefStore     = CommonActivator.getPrefStore();
 
