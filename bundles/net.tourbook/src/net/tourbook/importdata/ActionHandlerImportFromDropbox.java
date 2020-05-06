@@ -21,12 +21,12 @@ import org.eclipse.core.commands.ExecutionException;
 
 public class ActionHandlerImportFromDropbox extends AbstractHandler {
 
-	@Override
+   @Override
    public Object execute(final ExecutionEvent arg0) throws ExecutionException {
 
       RawDataManager.getInstance().actionImportFromDropbox();
 
-		return null;
-	}
+      return null;
+   }
 
 }

@@ -20,16 +20,16 @@ package net.tourbook.common.util;
  */
 public final class StringUtils {
 
-	/**
+   /**
     * Tests if a given string is null or empty.
-    * 
+    *
     * @param string
     * @return True if null or empty, false otherwise.
     */
    public static boolean isNullOrEmpty(final String string) {
 
       return string == null || string.isEmpty();
-	}
+   }
 
    /**
     * @param stringArray
