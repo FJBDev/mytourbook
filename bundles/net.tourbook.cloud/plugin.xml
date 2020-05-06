@@ -13,8 +13,8 @@
    <extension	point="org.eclipse.ui.preferencePages">
       <page
             category="net.tourbook.preferences.PrefPageCloudConnectivity"
-            class="net.tourbook.cloud.dropbox.DropboxPreferences"
-            id="net.tourbook.cloud.dropbox.DropboxPreferences"
+            class="net.tourbook.cloud.dropbox.PrefPageDropbox"
+            id="net.tourbook.cloud.dropbox.PrefPageDropbox"
             name="Dropbox">
       </page>
    </extension>

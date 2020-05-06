@@ -19,10 +19,9 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -74,9 +73,7 @@ public class DropboxClient {
     */
    public static Path CopyLocally(final String dropboxFilefilePath) {
 
-      //Retrieve the download link for the file
-      final String fileLink = GetFileLink(dropboxFilefilePath);
-      if (StringUtils.isNullOrEmpty(fileLink)) {
+      if (StringUtils.isNullOrEmpty(dropboxFilefilePath)) {
          return null;
       }
 
@@ -84,14 +81,12 @@ public class DropboxClient {
       final Path filePath = Paths.get(FileUtils.getTempDirectoryPath(), fileName);
 
       //Downloading the file from Dropbox to the local disk
-      try (InputStream inputStream = URI.create(fileLink).toURL().openStream()) {
+      try (OutputStream outputStream = new FileOutputStream(filePath.toString())) {
 
-         final long writtenBytes = Files.copy(inputStream, filePath);
+         _dropboxClient.files().download(dropboxFilefilePath).download(outputStream);
 
-         if (writtenBytes > 0) {
-            return filePath;
-         }
-      } catch (final IOException e) {
+         return filePath;
+      } catch (final DbxException | IOException e) {
          StatusUtil.log(e);
       }
 
@@ -122,26 +117,5 @@ public class DropboxClient {
       }
 
       return createDropboxClient(accessToken);
-   }
-
-   /**
-    * Retrieves, for a given file, the link to download it
-    *
-    * @param dropboxFilePath
-    *           The Dropbox path of the file
-    * @return The Dropbox link of the file
-    */
-   private static String GetFileLink(final String dropboxFilePath) {
-
-      String fileLink = null;
-
-      try {
-         //TODO FB Use the files.download() function instead... to reduce code ?
-         fileLink = _dropboxClient.files().getTemporaryLink(dropboxFilePath).getLink();
-      } catch (final DbxException e) {
-         StatusUtil.log(e);
-      }
-
-      return fileLink;
    }
 }

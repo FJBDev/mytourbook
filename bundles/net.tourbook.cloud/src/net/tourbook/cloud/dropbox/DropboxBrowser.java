@@ -57,14 +57,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
-   //TODO FB FINAL Remove DropboxWatchService.java and ListFolderLongpollResult files
-
    //TODO FB do all the functions headers
-   //TODO FB remove unused imports
    //TODO FB externalize strings
 
-   //TODO email to WOlfgang with what I did
-   // in my PR, put screenshots of the process to get a token, to watch a flder, to import manual files...
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
    private static String       _accessToken;

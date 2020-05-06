@@ -399,10 +399,17 @@ public class RawDataManager {
          return;
       }
 
-      final DropboxBrowser dropboxChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, "");
-      dropboxChooser.open();
+      final DropboxBrowser dropboxChooser[] = new DropboxBrowser[1];
+      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+         @Override
+         public void run() {
+            dropboxChooser[0] = new DropboxBrowser(Display.getCurrent().getActiveShell(), ChooserType.File, "");
+            dropboxChooser[0].open();
+         }
+      });
 
-      final ArrayList<String> selectedFiles = dropboxChooser.getSelectedFiles();
+      final ArrayList<String> selectedFiles = dropboxChooser[0].getSelectedFiles();
+
       if (selectedFiles == null || selectedFiles.size() == 0) {
          return;
       }

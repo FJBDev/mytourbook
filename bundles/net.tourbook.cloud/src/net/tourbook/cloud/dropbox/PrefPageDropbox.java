@@ -29,6 +29,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -38,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-public class DropboxPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
    final IPreferenceStore _prefStore = CommonActivator.getPrefStore();
 
@@ -131,9 +132,8 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      //TODO FB Ask Wolfgang to populate it at build time.
-      client.setId("vye6ci8xzzsuiao"); // client_id
-      client.setSecret("ovxyfwr544wrdvg"); // client_secret
+      client.setId("CLIENT_ID"); // client_id
+      client.setSecret("SECRET_ID"); // client_secret
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token"); //$NON-NLS-1$
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
       client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
@@ -164,13 +164,22 @@ public class DropboxPreferences extends FieldEditorPreferencePage implements IWo
    }
 
    protected void onClickChooseFolder() {
-      final DropboxBrowser dropboxFolderChooser = new DropboxBrowser(Display.getCurrent().getActiveShell(),
-            ChooserType.Folder,
-            _textAccessToken.getText());
 
-      if (dropboxFolderChooser.open() == Window.OK) {
+      final DropboxBrowser dropboxFolderChooser[] = new DropboxBrowser[1];
+      final int folderChooserResult[] = new int[1];
+      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+         @Override
+         public void run() {
+            dropboxFolderChooser[0] = new DropboxBrowser(Display.getCurrent().getActiveShell(),
+                  ChooserType.Folder,
+                  _textAccessToken.getText());
+            folderChooserResult[0] = dropboxFolderChooser[0].open();
+         }
+      });
 
-         final String selectedFolder = dropboxFolderChooser.getSelectedFolder();
+      if (folderChooserResult[0] == Window.OK) {
+
+         final String selectedFolder = dropboxFolderChooser[0].getSelectedFolder();
          if (!StringUtils.isNullOrEmpty(selectedFolder)) {
             _textFolderPath.setText(selectedFolder);
          }
