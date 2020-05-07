@@ -5384,7 +5384,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          } finally {
 
             try {
-               // Do something ...
+               // it occurred that the join never ended
+//             _watchingFolderThread.join();
                _watchingFolderThread.join(10000);
 
                // force interrupt
@@ -5625,14 +5626,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                         _isDeviceStateValid = true;
                      }
-
-                     //If the dropbox preferences have changes, update the folder watcher
-                     /*
-                      * if (_dropboxPreferencesHaveChanged) {
-                      * thread_WatchFolders(true);
-                      * _dropboxPreferencesHaveChanged = false;
-                      * }
-                      */
                   }
 
                } catch (final InterruptedException e) {
