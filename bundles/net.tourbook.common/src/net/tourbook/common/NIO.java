@@ -187,10 +187,16 @@ public class NIO {
     */
    public static Path getDeviceFolderPath(final String folderName) {
 
-      return NIO.isDropboxDevice(folderName) ? NIO.getDropboxFolderPath() : Paths.get(folderName);
+      return NIO.isDropboxDevice(folderName) ? getDropboxFilePath(UI.EMPTY_STRING) : Paths.get(folderName);
    }
 
-   public static Path getDropboxFilePath(final String fileName) {
+   /**
+    * Get the Dropbox {@link Path} of a given filename
+    *
+    * @param fileName
+    * @return
+    */
+   private static Path getDropboxFilePath(final String fileName) {
       if (_dropboxFileSystem == null) {
          return null;
       }
@@ -200,12 +206,12 @@ public class NIO {
    }
 
    /**
-    * Creates a Java 7 FileSystem over DropBox using the library
-    * https://github.com/FJBDev/java7-fs-dropbox
+    * Retrieves the Dropbox {@link FileStore}.
+    * Creates it if necessary.
     *
-    * @return True if the filesystem was created successfully, false otherwise.
+    * @return A list of Dropbox {@link FileStore}
     */
-   public static Iterable<FileStore> getDropboxFileStores() {
+   private static Iterable<FileStore> getDropboxFileStores() {
       if (_dropboxFileSystem != null) {
          return _dropboxFileSystem.getFileStores();
       } else {
@@ -217,12 +223,13 @@ public class NIO {
       return null;
    }
 
+   /**
+    * Retrieves the Dropbox {@link FileSystem}.
+    *
+    * @return
+    */
    public static FileSystem getDropboxFileSystem() {
       return _dropboxFileSystem;
-   }
-
-   public static Path getDropboxFolderPath() {
-      return getDropboxFilePath(UI.EMPTY_STRING);
    }
 
    public static Iterable<FileStore> getFileStores() {
