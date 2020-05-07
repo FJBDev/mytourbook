@@ -93,6 +93,9 @@ public class DropboxClient {
       return null;
    }
 
+   /**
+    * Creates a Dropbox client with the access token from the preferences
+    */
    private static void createDefaultDropboxClient() {
 
       _accessToken = _prefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
@@ -100,6 +103,14 @@ public class DropboxClient {
       _dropboxClient = createDropboxClient(_accessToken);
    }
 
+   /**
+    * Creates a Dropbox client with a given access token.
+    * This will happen, for example, when a user has just retrieved an access token
+    * but has not saved it yet into the preferences but wants to access the Dropbox account already.
+    *
+    * @param accessToken
+    * @return
+    */
    private static DbxClientV2 createDropboxClient(final String accessToken) {
 
       //Getting the current version of MyTourbook
@@ -110,6 +121,13 @@ public class DropboxClient {
       return new DbxClientV2(_requestConfig, accessToken);
    }
 
+   /**
+    * Gets the default Dropbox client if an access token was not provided.
+    * Otherwise, creates a temporary Dropbox client.
+    *
+    * @param accessToken
+    * @return
+    */
    public static DbxClientV2 getDefault(final String accessToken) {
 
       if (StringUtils.isNullOrEmpty(accessToken)) {

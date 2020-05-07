@@ -57,8 +57,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 public class DropboxBrowser extends TitleAreaDialog {
-   //TODO FB do all the functions headers
-   //TODO FB externalize strings
 
    private static final String ROOT_FOLDER    = "/";                           //$NON-NLS-1$
 
@@ -149,6 +147,15 @@ public class DropboxBrowser extends TitleAreaDialog {
       return dialogAreaContainer;
    }
 
+   /**
+    * Creates a composite for when the connectivity with Dropbox could not be established
+    * and we can't display the Dropbox account contents.
+    *
+    * @param parent
+    * @param dropboxMessage
+    *           The error message from Dropbox
+    * @return
+    */
    private Composite createErrorMessageUI(final Composite parent, final String dropboxMessage) {
 
       final Composite container = new Composite(parent, SWT.NONE);

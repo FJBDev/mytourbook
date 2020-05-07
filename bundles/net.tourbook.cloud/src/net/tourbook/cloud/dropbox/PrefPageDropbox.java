@@ -57,7 +57,6 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       createUI();
 
       restoreState();
-
    }
 
    private void createUI() {
@@ -129,11 +128,16 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    @Override
    public void init(final IWorkbench workbench) {}
 
+   /**
+    * When the user clicks on the "Authorize" button, a browser is opened
+    * so that the user can allow the MyTourbook Dropbox app to have access
+    * to their Dropbox account.
+    */
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
-      client.setId("CLIENT_ID"); // client_id
-      client.setSecret("SECRET_ID"); // client_secret
+      client.setId("CLIENT_ID"); //$NON-NLS-1$
+      client.setSecret("SECRET_ID"); //$NON-NLS-1$
       client.setAccessTokenUrl("https://api.dropboxapi.com/oauth2/token"); //$NON-NLS-1$
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
       client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
@@ -143,9 +147,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       request.run();
       final String token = request.getAccessToken();
       final String dialogMessage = StringUtils.isNullOrEmpty(token) ? NLS.bind(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved,
-            request
-                  .getResponse())
-            : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
+            request.getResponse()) : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
 
       if (!StringUtils.isNullOrEmpty(token)) {
          _textAccessToken.setText(token);
@@ -163,6 +165,11 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       enableControls();
    }
 
+   /**
+    * When the user clicks on the "Choose Folder" button, a dialog is opened
+    * so that the user can choose which folder will be used when using their Dropbox
+    * account as a device to watch.
+    */
    protected void onClickChooseFolder() {
 
       final DropboxBrowser dropboxFolderChooser[] = new DropboxBrowser[1];
