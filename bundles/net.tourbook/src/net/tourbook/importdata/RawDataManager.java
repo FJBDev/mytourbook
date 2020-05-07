@@ -377,7 +377,7 @@ public class RawDataManager {
    }
 
    /**
-    * Import tours selected from a Dropbox folder specified in the preferences.
+    * Imports tours selected from a Dropbox folder specified in the preferences.
     */
    public void actionImportFromDropbox() {
       final String accessToken = _commonPrefStore.getString(ICommonPreferences.DROPBOX_ACCESSTOKEN);
