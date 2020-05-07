@@ -4162,6 +4162,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             final Path folderPath = NIO.getDeviceFolderPath(osFolder);
 
+            // device folder exists
             return folderPath != null && Files.exists(folderPath);
          }
 
@@ -5384,8 +5385,9 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          } finally {
 
             try {
+
                // it occurred that the join never ended
-//             _watchingFolderThread.join();
+//               _watchingFolderThread.join();
                _watchingFolderThread.join(10000);
 
                // force interrupt
