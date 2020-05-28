@@ -27,6 +27,15 @@ New + Improvements
 
 * Import Suunto Quest Files (Frederic)
 
+* Tour Marker View (Frederic)
+  - Added the Average Speed column
+
+* Tour tooltip (Frederic)
+  - Added the maximum pace (^ Pace)
+
+* Dropbox Integration (Frederic) :
+  - Ability to connect a Dropbox account to MyTourbook, and also choosing a specific a folder for this account. This Dropbox folder can be set up as a device to watch. In this case, added or deleted files will be automatically and immediately detected.
+
 Import
 ======
 
