@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class SuuntoQuestSAXHandler extends DefaultHandler {
-//TODO review all the files
+
    // root tags
    private static final String TAG_ROOT_MOVESCOUNT     = "MovesCount";    //$NON-NLS-1$
    private static final String TAG_ROOT_EXERCISE_MODES = "ExerciseModes"; //$NON-NLS-1$

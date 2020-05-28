@@ -16,11 +16,8 @@
 package net.tourbook.device.suunto;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.util.HashMap;
 
 import javax.xml.parsers.SAXParser;
@@ -28,7 +25,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
-import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.device.InvalidDeviceSAXException;
 import net.tourbook.importdata.DeviceData;
@@ -37,14 +33,11 @@ import net.tourbook.importdata.TourbookDevice;
 
 public class SuuntoQuestDeviceDataReader extends TourbookDevice {
 
-   public static final String  TAG_MOVESCOUNT               = "";                   //$NON-NLS-1$
+   public static final String  TAG_MOVESCOUNT     = "";               //$NON-NLS-1$
 
-   private static final String SUUNTO_TAG_WELL_FORMED_BEGIN = "<" + TAG_MOVESCOUNT; //$NON-NLS-1$
-   private static final String SUUNTO_TAG_WELL_FORMED_END   = "</suunto>";          //$NON-NLS-1$
-   private static final String DOCTYPE_XML                  = "<!doctype xml>";     //$NON-NLS-1$
-   private static final String MOVESCOUNT_TAG               = "<movescount";        //$NON-NLS-1$
-   private static final String SUUNTO_TAG_SAMPLES           = "<samples>";          //$NON-NLS-1$
-   // plugin constructor
+   private static final String DOCTYPE_XML        = "<!doctype xml>"; //$NON-NLS-1$
+   private static final String MOVESCOUNT_TAG     = "<movescount";    //$NON-NLS-1$
+   private static final String SUUNTO_TAG_SAMPLES = "<samples>";      //$NON-NLS-1$
 
    public SuuntoQuestDeviceDataReader() {}
 
@@ -56,47 +49,6 @@ public class SuuntoQuestDeviceDataReader extends TourbookDevice {
    @Override
    public boolean checkStartSequence(final int byteIndex, final int newByte) {
       return false;
-   }
-
-   private InputStream convertIntoWellFormedXml(final String importFilePath) {
-
-      StringWriter xmlWriter = null;
-
-      try (final FileInputStream inputStream = new FileInputStream(importFilePath);
-            BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, UI.UTF_8))) {
-
-         xmlWriter = new StringWriter();
-         String line = fileReader.readLine();
-         if (line.toLowerCase().startsWith(XML_START_ID)) {
-            // write "<?xml"
-            xmlWriter.write(line);
-            xmlWriter.write(UI.NEW_LINE);
-         }
-
-         // <suunto>
-         xmlWriter.write(SUUNTO_TAG_WELL_FORMED_BEGIN);
-         xmlWriter.write(UI.NEW_LINE);
-         {
-            while ((line = fileReader.readLine()) != null) {
-               xmlWriter.write(line);
-               xmlWriter.write(UI.NEW_LINE);
-            }
-         }
-         // </suunto>
-         xmlWriter.write(SUUNTO_TAG_WELL_FORMED_END);
-         xmlWriter.write(UI.NEW_LINE);
-
-      } catch (final Exception e1) {
-
-         StatusUtil.log(e1);
-
-      } finally {
-         Util.closeWriter(xmlWriter);
-      }
-
-      final String xml = xmlWriter.toString();
-
-      return new ByteArrayInputStream(xml.getBytes());
    }
 
    @Override
@@ -120,7 +72,7 @@ public class SuuntoQuestDeviceDataReader extends TourbookDevice {
    }
 
    /**
-    * Check if the file is a valid Suunto xml file by checking some tags.
+    * Check if the file is a valid Suunto XML file by checking some tags.
     *
     * @param importFilePath
     * @return Returns <code>true</code> when the file contains Suunto content.
@@ -128,7 +80,7 @@ public class SuuntoQuestDeviceDataReader extends TourbookDevice {
    private boolean isSuuntoXMLFile(final String importFilePath) {
 
       try (final FileInputStream inputStream = new FileInputStream(importFilePath);
-            BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, UI.UTF_8))) {
+            final BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, UI.UTF_8))) {
 
          String line = fileReader.readLine();
          if (line == null || line.toLowerCase().startsWith(XML_START_ID) == false) {
@@ -152,9 +104,9 @@ public class SuuntoQuestDeviceDataReader extends TourbookDevice {
             }
          }
 
-      } catch (final Exception e1) {
+      } catch (final Exception e) {
 
-         StatusUtil.log(e1);
+         StatusUtil.log(e);
 
       }
 
@@ -180,7 +132,6 @@ public class SuuntoQuestDeviceDataReader extends TourbookDevice {
 
       try (FileInputStream inputStream = new FileInputStream(importFilePath)) {
 
-         //final InputStream inputStream = convertIntoWellFormedXml(importFilePath);
          final SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
 
          parser.parse(inputStream, saxHandler);
