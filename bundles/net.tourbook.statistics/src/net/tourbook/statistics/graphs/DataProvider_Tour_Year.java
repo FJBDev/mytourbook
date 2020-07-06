@@ -156,7 +156,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             + " SUM(TourRecordingTime),   " + NL //      5 //$NON-NLS-1$
             + " SUM(TourDrivingTime),     " + NL //      6 //$NON-NLS-1$
             + " SUM(1),                   " + NL //      7 //$NON-NLS-1$
-            + " TourType_TypeId           " + NL //      8 //$NON-NLS-1$
+            + " TourType_TypeId,          " + NL //      8 //$NON-NLS-1$
+            + " SUM(BikerWeight)          " + NL //      9 //$NON-NLS-1$
 
             + fromTourData
 
@@ -179,6 +180,7 @@ public class DataProvider_Tour_Year extends DataProvider {
          final float[][] dbDistance = new float[numTourTypes][numYears];
          final float[][] dbAltitude = new float[numTourTypes][numYears];
          final float[][] dbNumTours = new float[numTourTypes][numYears];
+         final float[][] dbWeight = new float[numTourTypes][numYears];
 
          final int[][] dbDurationTime = new int[numTourTypes][numYears];
          final int[][] dbRecordingTime = new int[numTourTypes][numYears];
@@ -203,6 +205,7 @@ public class DataProvider_Tour_Year extends DataProvider {
             final int dbValue_RecordingTime = result.getInt(5);
             final int dbValue_DrivingTime = result.getInt(6);
             final int dbValue_NumTours = result.getInt(7);
+            final float dbValue_Weight = result.getInt(9) / dbValue_NumTours;
             final Long dbValue_TourTypeIdObject = (Long) result.getObject(8);
 
             final int yearIndex = numYears - (lastYear - dbValue_ResultYear + 1);
@@ -240,6 +243,7 @@ public class DataProvider_Tour_Year extends DataProvider {
             dbDistance[colorIndex][yearIndex] = dbValue_Distance;
             dbDurationTime[colorIndex][yearIndex] = dbValue_Duration;
             dbNumTours[colorIndex][yearIndex] = dbValue_NumTours;
+            dbWeight[colorIndex][yearIndex] = dbValue_Weight;
 
             dbRecordingTime[colorIndex][yearIndex] = dbValue_RecordingTime;
             dbDrivingTime[colorIndex][yearIndex] = dbValue_DrivingTime;
@@ -265,6 +269,7 @@ public class DataProvider_Tour_Year extends DataProvider {
          final ArrayList<Object> distanceWithData = new ArrayList<>();
          final ArrayList<Object> durationWithData = new ArrayList<>();
          final ArrayList<Object> numToursWithData = new ArrayList<>();
+         final ArrayList<Object> weightWithData = new ArrayList<>();
 
          final ArrayList<Object> recordingTimeWithData = new ArrayList<>();
          final ArrayList<Object> drivingTimeWithData = new ArrayList<>();
@@ -282,6 +287,7 @@ public class DataProvider_Tour_Year extends DataProvider {
                distanceWithData.add(dbDistance[tourTypeIndex]);
                durationWithData.add(dbDurationTime[tourTypeIndex]);
                numToursWithData.add(dbNumTours[tourTypeIndex]);
+               weightWithData.add(dbWeight[tourTypeIndex]);
 
                recordingTimeWithData.add(dbRecordingTime[tourTypeIndex]);
                drivingTimeWithData.add(dbDrivingTime[tourTypeIndex]);
@@ -317,6 +323,9 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourDataYear.numToursLow = new float[1][numYears];
             _tourDataYear.numToursHigh = new float[1][numYears];
 
+            _tourDataYear.weightLow = new float[1][numYears];
+            _tourDataYear.weightHigh = new float[1][numYears];
+
          } else {
 
             final long[][] usedTypeIds = new long[numUsedTourTypes][];
@@ -328,6 +337,7 @@ public class DataProvider_Tour_Year extends DataProvider {
             final int[][] usedDrivingTime = new int[numUsedTourTypes][];
             final int[][] usedBreakTime = new int[numUsedTourTypes][];
             final float[][] usedNumTours = new float[numUsedTourTypes][];
+            final float[][] usedWeight = new float[numUsedTourTypes][];
 
             for (int index = 0; index < numUsedTourTypes; index++) {
 
@@ -342,6 +352,8 @@ public class DataProvider_Tour_Year extends DataProvider {
                usedBreakTime[index] = (int[]) breakTimeWithData.get(index);
 
                usedNumTours[index] = (float[]) numToursWithData.get(index);
+
+               usedWeight[index] = (float[]) weightWithData.get(index);
             }
 
             _tourDataYear.typeIds = usedTypeIds;
@@ -362,6 +374,9 @@ public class DataProvider_Tour_Year extends DataProvider {
 
             _tourDataYear.numToursLow = new float[numUsedTourTypes][numYears];
             _tourDataYear.numToursHigh = usedNumTours;
+
+            _tourDataYear.weightLow = new float[numUsedTourTypes][numYears];
+            _tourDataYear.weightHigh = usedWeight;
          }
 
       } catch (final SQLException e) {

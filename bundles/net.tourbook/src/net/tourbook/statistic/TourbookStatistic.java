@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -45,6 +45,7 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_YEAR_DISTANCE           = "STATE_BAR_ORDERING_YEAR_DISTANCE";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_SUMMARY            = "STATE_BAR_ORDERING_YEAR_SUMMARY";            //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_TIME               = "STATE_BAR_ORDERING_YEAR_TIME";               //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_YEAR_WEIGHT             = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH = "STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH"; ////$NON-NLS-1$
 
@@ -70,6 +71,7 @@ public abstract class TourbookStatistic {
    protected static final String    GRID_YEAR_DISTANCE  = "GRID_YEAR_DISTANCE__";       //$NON-NLS-1$
    protected static final String    GRID_YEAR_SUMMARY   = "GRID_YEAR_SUMMARY__";        //$NON-NLS-1$
    protected static final String    GRID_YEAR_TIME      = "GRID_YEAR_TIME__";           //$NON-NLS-1$
+   protected static final String    GRID_YEAR_WEIGHT    = "GRID_YEAR_WEIGHT__";         //$NON-NLS-1$
 
    protected static final String    GRID_WEEK_HR_ZONE   = "GRID_WEEK_HR_ZONE__";        //$NON-NLS-1$
    protected static final String    GRID_MONTH_HR_ZONE  = "GRID_MONTH_HR_ZONE__";       //$NON-NLS-1$

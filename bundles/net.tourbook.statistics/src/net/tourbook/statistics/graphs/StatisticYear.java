@@ -85,6 +85,8 @@ public abstract class StatisticYear extends TourbookStatistic {
    private float[][]                _resortedNumToursHigh;
    private float[][]                _resortedTimeLow;
    private float[][]                _resortedTimeHigh;
+   private float[][]                _resortedWeightLow;
+   private float[][]                _resortedWeightHigh;
 
    public boolean canTourBeVisible() {
       return false;
@@ -316,6 +318,31 @@ public abstract class StatisticYear extends TourbookStatistic {
       chartDataModel.addYData(yData);
    }
 
+   /**
+    * Weight
+    *
+    * @param chartDataModel
+    */
+   void createYData_Weight(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            getChartType(_chartType),
+            _resortedWeightLow,
+            _resortedWeightHigh);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
+      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _resortedTypeIds, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
    private double[] createYearData(final TourData_Year tourDataYear) {
 
       final int yearCounter = tourDataYear.altitudeHigh[0].length;
@@ -364,6 +391,8 @@ public abstract class StatisticYear extends TourbookStatistic {
       _resortedNumToursHigh = new float[barLength][];
       _resortedTimeLow = new float[barLength][];
       _resortedTimeHigh = new float[barLength][];
+      _resortedWeightLow = new float[barLength][];
+      _resortedWeightHigh = new float[barLength][];
 
       if (_statContext.outBarNames == null) {
 
@@ -379,6 +408,8 @@ public abstract class StatisticYear extends TourbookStatistic {
          _resortedNumToursHigh = new float[1][1];
          _resortedTimeLow = new float[1][1];
          _resortedTimeHigh = new float[1][1];
+         _resortedWeightLow = new float[1][1];
+         _resortedWeightHigh = new float[1][1];
 
          return;
       }
@@ -395,6 +426,8 @@ public abstract class StatisticYear extends TourbookStatistic {
       final float[][] numToursHighValues = _tourYearData.numToursHigh;
       final float[][] timeLowValues = _tourYearData.getDurationTimeLowFloat();
       final float[][] timeHighValues = _tourYearData.getDurationTimeHighFloat();
+      final float[][] weightLowValues = _tourYearData.weightLow;
+      final float[][] weightHighValues = _tourYearData.weightHigh;
 
       if (_barOrderStart >= barLength) {
 
@@ -413,6 +446,8 @@ public abstract class StatisticYear extends TourbookStatistic {
             _resortedNumToursHigh[resortedIndex] = numToursHighValues[serieIndex];
             _resortedTimeLow[resortedIndex] = timeLowValues[serieIndex];
             _resortedTimeHigh[resortedIndex] = timeHighValues[serieIndex];
+            _resortedWeightLow[resortedIndex] = weightLowValues[serieIndex];
+            _resortedWeightHigh[resortedIndex] = weightHighValues[serieIndex];
 
             resortedIndex++;
          }
@@ -430,6 +465,8 @@ public abstract class StatisticYear extends TourbookStatistic {
             _resortedNumToursHigh[resortedIndex] = numToursHighValues[serieIndex];
             _resortedTimeLow[resortedIndex] = timeLowValues[serieIndex];
             _resortedTimeHigh[resortedIndex] = timeHighValues[serieIndex];
+            _resortedWeightLow[resortedIndex] = weightLowValues[serieIndex];
+            _resortedWeightHigh[resortedIndex] = weightHighValues[serieIndex];
 
             resortedIndex++;
          }
@@ -451,6 +488,8 @@ public abstract class StatisticYear extends TourbookStatistic {
             _resortedNumToursHigh[resortedIndex] = numToursHighValues[serieIndex];
             _resortedTimeLow[resortedIndex] = timeLowValues[serieIndex];
             _resortedTimeHigh[resortedIndex] = timeHighValues[serieIndex];
+            _resortedWeightLow[resortedIndex] = weightLowValues[serieIndex];
+            _resortedWeightHigh[resortedIndex] = weightHighValues[serieIndex];
 
             resortedIndex++;
          }
@@ -468,6 +507,8 @@ public abstract class StatisticYear extends TourbookStatistic {
             _resortedNumToursHigh[resortedIndex] = numToursHighValues[serieIndex];
             _resortedTimeLow[resortedIndex] = timeLowValues[serieIndex];
             _resortedTimeHigh[resortedIndex] = timeHighValues[serieIndex];
+            _resortedWeightLow[resortedIndex] = weightLowValues[serieIndex];
+            _resortedWeightHigh[resortedIndex] = weightHighValues[serieIndex];
 
             resortedIndex++;
          }

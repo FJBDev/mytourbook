@@ -34,6 +34,9 @@ public abstract class TourData_Common {
 	float[][]			numToursLow;
 	float[][]			numToursHigh;
 
+   float[][]         weightLow;
+   float[][]         weightHigh;
+
 	private float[][]	_durationTimeLowFloat;
 	private float[][]	_durationTimeHighFloat;
 
