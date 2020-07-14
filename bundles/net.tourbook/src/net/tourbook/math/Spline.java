@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 
+@SuppressWarnings("serial")
 public class Spline extends Applet {
 
 	Point[]				points;		// points to be interpolated
@@ -30,9 +31,9 @@ public class Spline extends Applet {
 
 		moveflag = numpoints;
 
-		final int increment = ((size().width - 60) / (numpoints - 1));
+      final int increment = ((getWidth() - 60) / (numpoints - 1));
 		for (int i = 0; i < numpoints; i++) {
-			points[i] = new Point((i * increment) + 30, (size().height / 2));
+         points[i] = new Point((i * increment) + 30, (getHeight() / 2));
 		}
 	}
 

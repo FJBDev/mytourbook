@@ -35,6 +35,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.util.Geometry;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
@@ -83,6 +84,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.PlatformUI;
 import org.epics.css.dal.Timestamp;
 import org.epics.css.dal.Timestamp.Format;
 import org.joda.time.format.PeriodFormatter;
@@ -125,6 +127,7 @@ public class UI {
 
    public static final String       SYMBOL_ARROW_UP               = "\u2191";   //$NON-NLS-1$
    public static final String       SYMBOL_ARROW_DOWN             = "\u2193";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_RIGHT            = "\u2192";   //$NON-NLS-1$
    public static final String       SYMBOL_ARROW_LEFT_RIGHT       = "\u2194";   //$NON-NLS-1$
    public static final String       SYMBOL_ARROW_UP_DOWN          = "\u2195";   //$NON-NLS-1$
    public static final String       SYMBOL_AVERAGE                = "\u00f8";   //$NON-NLS-1$
@@ -166,6 +169,7 @@ public class UI {
    public static final String       SYMBOL_MNEMONIC               = "&";        //$NON-NLS-1$
    public static final String       SYMBOL_NUMBER_SIGN            = "#";        //$NON-NLS-1$
    public static final String       SYMBOL_PERCENTAGE             = "%";        //$NON-NLS-1$
+   public static final String       SYMBOL_PLUS                   = "+";        //$NON-NLS-1$
    public static final String       SYMBOL_QUESTION_MARK          = "?";        //$NON-NLS-1$
    public static final char         SYMBOL_SEMICOLON              = ';';
    public static final String       SYMBOL_STAR                   = "*";        //$NON-NLS-1$
@@ -213,15 +217,15 @@ public class UI {
 	public static final boolean			IS_WIN		= "win32".equals(SWT.getPlatform())		|| "wpf".equals(SWT.getPlatform());									//$NON-NLS-1$ //$NON-NLS-2$
 // SET_FORMATTING_ON
 
-   public static final String  BROWSER_TYPE_MOZILLA      = "mozilla";                //$NON-NLS-1$
+   public static final String  BROWSER_TYPE_MOZILLA      = "mozilla";             //$NON-NLS-1$
 
-   public static final String  UTF_8                     = "UTF-8";                  //$NON-NLS-1$
-   public static final String  UTF_16                    = "UTF-16";                 //$NON-NLS-1$
-   public static final String  ISO_8859_1                = "ISO-8859-1";             //$NON-NLS-1$
+   public static final String  UTF_8                     = "UTF-8";               //$NON-NLS-1$
+   public static final String  UTF_16                    = "UTF-16";              //$NON-NLS-1$
+   public static final String  ISO_8859_1                = "ISO-8859-1";          //$NON-NLS-1$
 
-   public static final Charset UTF8_CHARSET              = Charset.forName("UTF-8"); //$NON-NLS-1$
+   public static final Charset UTF8_CHARSET              = Charset.forName(UTF_8);
 
-   public static final String  MENU_SEPARATOR_ADDITIONS  = "additions";              //$NON-NLS-1$
+   public static final String  MENU_SEPARATOR_ADDITIONS  = "additions";           //$NON-NLS-1$
 
    /**
     * Layout hint for a description field
@@ -388,6 +392,15 @@ public class UI {
    public static final int           DECORATOR_HORIZONTAL_INDENT = 2;
 
    static {
+
+      /**
+       * This creates a display which may contain also sleak options, otherwise sleak would not
+       * work.
+       * <p>
+       * Solution found here: "Sleak in RCP: Device is not tracking resource allocation"
+       * https://en.it1352.com/article/fb82e2d4ec294636ba29f786e3335066.html
+       */
+      PlatformUI.createDisplay();
 
       setupUI_FontMetrics();
 
@@ -1299,6 +1312,77 @@ public class UI {
       }
 
       return "0.0"; //$NON-NLS-1$
+   }
+
+   /**
+    * Copied from {@link org.eclipse.ui.internal.handlers.ContextMenuHandler} and adjusted.
+    *
+    * @param control
+    */
+   @SuppressWarnings("restriction")
+   public static void openContextMenu(final Control control) {
+
+      if (control == null || control.isDisposed()) {
+         return;
+      }
+
+      final Shell shell = control.getShell();
+      final Display display = shell == null ? Display.getCurrent() : shell.getDisplay();
+
+      final Point cursorLocation = display.getCursorLocation();
+
+      final Event event = new Event();
+      event.x = cursorLocation.x;
+      event.y = cursorLocation.y;
+      event.detail = SWT.MENU_MOUSE;
+
+      control.notifyListeners(SWT.MenuDetect, event);
+
+      if (!event.doit) {
+         return;
+      }
+
+      final Menu menu = control.getMenu();
+
+      if (menu != null && !menu.isDisposed()) {
+
+         if (event.x != cursorLocation.x || event.y != cursorLocation.y) {
+            menu.setLocation(event.x, event.y);
+         }
+         menu.setVisible(true);
+
+      } else {
+
+         final Point size = control.getSize();
+         final Point location = control.toDisplay(0, 0);
+
+         final Event mouseEvent = new Event();
+         mouseEvent.widget = control;
+
+         if (event.x < location.x
+               || location.x + size.x <= event.x
+               || event.y < location.y
+               || location.y + size.y <= event.y) {
+
+            final Point center = control.toDisplay(Geometry.divide(size, 2));
+            mouseEvent.x = center.x;
+            mouseEvent.y = center.y;
+            mouseEvent.type = SWT.MouseMove;
+            display.post(mouseEvent);
+
+         } else {
+
+            mouseEvent.x = event.x;
+            mouseEvent.y = event.y;
+         }
+
+         mouseEvent.button = 2;
+         mouseEvent.type = SWT.MouseDown;
+         display.post(mouseEvent);
+
+         mouseEvent.type = SWT.MouseUp;
+         display.post(mouseEvent);
+      }
    }
 
    /**

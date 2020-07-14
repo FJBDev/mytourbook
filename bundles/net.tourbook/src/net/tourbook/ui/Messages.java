@@ -84,6 +84,9 @@ public class Messages extends NLS {
    public static String        ColumnFactory_driving_time;
    public static String        ColumnFactory_driving_time_label;
    public static String        ColumnFactory_driving_time_tooltip;
+   public static String        ColumnFactory_avg_gradient;
+   public static String        ColumnFactory_avg_gradient_label;
+   public static String        ColumnFactory_avg_gradient_tooltip;
    public static String        ColumnFactory_gradient;
    public static String        ColumnFactory_gradient_label;
    public static String        ColumnFactory_gradient_tooltip;
@@ -253,8 +256,6 @@ public class Messages extends NLS {
    public static String        ColumnFactory_NumberOfTours_Header;
    public static String        ColumnFactory_NumberOfTours_Label;
    public static String        ColumnFactory_NumberOfTours_Tooltip;
-   public static String        ColumnFactory_PaceDelta_Label;
-   public static String        ColumnFactory_PaceDelta_Tooltip;
    public static String        ColumnFactory_PhotoTimeAdjustment_Header;
    public static String        ColumnFactory_PhotoTimeAdjustment_Label;
    public static String        ColumnFactory_PhotoTimeAdjustment_Tooltip;
@@ -499,6 +500,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_GearShifts;
    public static String        Tour_Tooltip_Label_Hour;
    public static String        Tour_Tooltip_Label_MaxAltitude;
+   public static String        Tour_Tooltip_Label_MaxPace;
    public static String        Tour_Tooltip_Label_MaxPulse;
    public static String        Tour_Tooltip_Label_MaxSpeed;
    public static String        Tour_Tooltip_Label_MovingTime;

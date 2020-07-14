@@ -16,7 +16,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D.Float;
 import java.util.Vector;
 
-
+@SuppressWarnings("serial")
 public class Bspline extends Frame {
 	public static void main(final String[] args) {
 		new Bspline();
@@ -33,12 +33,14 @@ public class Bspline extends Frame {
 		setSize(500, 300);
 		add("Center", new CvBspline()); //$NON-NLS-1$
 		setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		show();
+		setVisible(true);
 	}
 }
 
+@SuppressWarnings("serial")
 class CvBspline extends Canvas {
 	
+	@SuppressWarnings("rawtypes")
 	Vector	V	= new Vector();
 //	int		np	= 0, centerX, centerY;
 	float	rWidth	= 10.0F, rHeight = 7.5F, eps = rWidth / 100F, pixelSize;
@@ -73,6 +75,7 @@ class CvBspline extends Canvas {
 	void bspline(final Graphics g, final Float[] P) {
 		
 		final int m = 50, n = P.length;
+		@SuppressWarnings("unused")
 		float xA, yA, xB, yB, xC, yC, xD, yD, a0, a1, a2, a3, b0, b1, b2, b3, x = 0, y = 0, x0, y0;
 //		boolean first = true;
 		
