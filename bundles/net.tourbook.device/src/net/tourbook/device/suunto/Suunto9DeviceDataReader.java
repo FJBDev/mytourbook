@@ -131,13 +131,10 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     * @return If found, the child activity.
     */
    private Entry<String, String> getChildActivity(final String filePath) {
-      for (final Entry<String, String> childEntry : _childrenActivitiesToProcess.entrySet()) {
-         if (childEntry.getKey().contains(filePath)) {
-            return childEntry;
-         }
-      }
-
-      return null;
+      return _childrenActivitiesToProcess.entrySet().stream()
+            .filter(entry -> entry.getKey().contains(filePath))
+            .findFirst()
+            .get();
    }
 
    @Override
@@ -217,7 +214,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     */
    protected boolean isValidActivity(final String jsonFileContent) {
 
-      final BufferedReader fileReader = null;
       try {
 
          if (jsonFileContent == null || jsonFileContent == UI.EMPTY_STRING) {
@@ -235,7 +231,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
                            currentSample.contains(SuuntoJsonProcessor.TAG_LONGITUDE) ||
                            currentSample.contains(SuuntoJsonProcessor.TAG_LATITUDE) ||
                            currentSample.contains(SuuntoJsonProcessor.TAG_ALTITUDE))) {
-                  Util.closeReader(fileReader);
                   return true;
                }
             }
@@ -248,8 +243,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
       } catch (final Exception e) {
          StatusUtil.log(e);
          return false;
-      } finally {
-         Util.closeReader(fileReader);
       }
 
       return false;
@@ -303,6 +296,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
                                     final DeviceData deviceData,
                                     final HashMap<Long, TourData> alreadyImportedTours,
                                     final HashMap<Long, TourData> newlyImportedTours) {
+
       _newlyImportedTours = newlyImportedTours;
       _alreadyImportedTours = alreadyImportedTours;
 
@@ -333,14 +327,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     * @return True if the activity has already been processed, false otherwise.
     */
    private boolean processedActivityExists(final long tourId) {
-      for (final Map.Entry<TourData, ArrayList<TimeData>> entry : _processedActivities.entrySet()) {
-         final TourData key = entry.getKey();
-         if (key.getTourId() == tourId) {
-            return true;
-         }
-      }
-
-      return false;
+      return _processedActivities.entrySet().stream().anyMatch(entry -> entry.getKey().getTourId() == tourId);
    }
 
    /**
@@ -354,6 +341,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     * @return The Suunto activity as a tour.
     */
    private boolean ProcessFile(final String filePath, final String jsonFileContent) {
+
       final SuuntoJsonProcessor suuntoJsonProcessor = new SuuntoJsonProcessor();
 
       String fileName =
@@ -364,7 +352,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
       }
 
       final String fileNumberString =
-            fileName.substring(fileName.lastIndexOf('-') + 1, fileName.lastIndexOf('-') + 2);
+            fileName.substring(fileName.lastIndexOf(UI.DASH) + 1, fileName.lastIndexOf(UI.DASH) + 2);
 
       int fileNumber;
       try {
