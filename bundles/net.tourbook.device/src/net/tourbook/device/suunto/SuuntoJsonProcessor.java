@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
+import de.byteholder.geoclipse.map.UI;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -44,41 +46,43 @@ import org.json.JSONObject;
 
 public class SuuntoJsonProcessor {
 
-   public static final String  TAG_SAMPLES     = "Samples";     //$NON-NLS-1$
-   public static final String  TAG_SAMPLE      = "Sample";      //$NON-NLS-1$
-   public static final String  TAG_TIMEISO8601 = "TimeISO8601"; //$NON-NLS-1$
-   public static final String  TAG_ATTRIBUTES  = "Attributes";  //$NON-NLS-1$
+   public static final String  DeviceName      = "Suunto Spartan/9"; //$NON-NLS-1$
+   public static final String  TAG_SAMPLES     = "Samples";          //$NON-NLS-1$
+   public static final String  TAG_SAMPLE      = "Sample";           //$NON-NLS-1$
+   public static final String  TAG_EVENTS      = "Events";           //$NON-NLS-1$
+   public static final String  TAG_TIMEISO8601 = "TimeISO8601";      //$NON-NLS-1$
+   public static final String  TAG_ATTRIBUTES  = "Attributes";       //$NON-NLS-1$
 
-   public static final String  TAG_SOURCE      = "Source";      //$NON-NLS-1$
-   private static final String TAG_SUUNTOSML   = "suunto/sml";  //$NON-NLS-1$
-   private static final String TAG_LAP         = "Lap";         //$NON-NLS-1$
-   private static final String TAG_MANUAL      = "Manual";      //$NON-NLS-1$
-   private static final String TAG_DISTANCE    = "Distance";    //$NON-NLS-1$
-   public static final String  TAG_GPSALTITUDE = "GPSAltitude"; //$NON-NLS-1$
-   public static final String  TAG_LATITUDE    = "Latitude";    //$NON-NLS-1$
-   public static final String  TAG_LONGITUDE   = "Longitude";   //$NON-NLS-1$
-   private static final String TAG_TYPE        = "Start";       //$NON-NLS-1$
-   private static final String TAG_START       = "Type";        //$NON-NLS-1$
-   private static final String TAG_PAUSE       = "Pause";       //$NON-NLS-1$
-   private static final String TAG_HR          = "HR";          //$NON-NLS-1$
-   private static final String TAG_RR          = "R-R";         //$NON-NLS-1$
-   private static final String TAG_DATA        = "Data";        //$NON-NLS-1$
-   private static final String TAG_SPEED       = "Speed";       //$NON-NLS-1$
-   private static final String TAG_CADENCE     = "Cadence";     //$NON-NLS-1$
-   public static final String  TAG_ALTITUDE    = "Altitude";    //$NON-NLS-1$
-   private static final String TAG_POWER       = "Power";       //$NON-NLS-1$
-   private static final String TAG_TEMPERATURE = "Temperature";
+   public static final String  TAG_SOURCE      = "Source";           //$NON-NLS-1$
+   private static final String TAG_SUUNTOSML   = "suunto/sml";       //$NON-NLS-1$
+   private static final String TAG_LAP         = "Lap";              //$NON-NLS-1$
+   private static final String TAG_MANUAL      = "Manual";           //$NON-NLS-1$
+   private static final String TAG_DISTANCE    = "Distance";         //$NON-NLS-1$
+   public static final String  TAG_GPSALTITUDE = "GPSAltitude";      //$NON-NLS-1$
+   public static final String  TAG_LATITUDE    = "Latitude";         //$NON-NLS-1$
+   public static final String  TAG_LONGITUDE   = "Longitude";        //$NON-NLS-1$
+   private static final String TAG_TYPE        = "Start";            //$NON-NLS-1$
+   private static final String TAG_START       = "Type";             //$NON-NLS-1$
+   private static final String TAG_PAUSE       = "Pause";            //$NON-NLS-1$
+   private static final String TAG_HR          = "HR";               //$NON-NLS-1$
+   private static final String TAG_RR          = "R-R";              //$NON-NLS-1$
+   private static final String TAG_DATA        = "Data";             //$NON-NLS-1$
+   private static final String TAG_SPEED       = "Speed";            //$NON-NLS-1$
+   private static final String TAG_CADENCE     = "Cadence";          //$NON-NLS-1$
+   public static final String  TAG_ALTITUDE    = "Altitude";         //$NON-NLS-1$
+   private static final String TAG_POWER       = "Power";            //$NON-NLS-1$
+   private static final String TAG_TEMPERATURE = "Temperature";      //$NON-NLS-1$
 
    // Swimming
-   private static final String Swimming             = "Swimming";
-   private static final String Breaststroke         = "Breaststroke";
-   private static final String Freestyle            = "Freestyle";
-   private static final String Other                = "Other";
-   private static final String PoolLengthStyle      = "PrevPoolLengthStyle";
-   private static final String TotalLengths         = "TotalLengths";
-   private static final String Stroke               = "Stroke";
-   private static final String Turn                 = "Turn";
-   private static final String Type                 = "Type";
+   private static final String Swimming             = "Swimming";                                      //$NON-NLS-1$
+   private static final String Breaststroke         = "Breaststroke";                                  //$NON-NLS-1$
+   private static final String Freestyle            = "Freestyle";                                     //$NON-NLS-1$
+   private static final String Other                = "Other";                                         //$NON-NLS-1$
+   private static final String PoolLengthStyle      = "PrevPoolLengthStyle";                           //$NON-NLS-1$
+   private static final String TotalLengths         = "TotalLengths";                                  //$NON-NLS-1$
+   private static final String Stroke               = "Stroke";                                        //$NON-NLS-1$
+   private static final String Turn                 = "Turn";                                          //$NON-NLS-1$
+   private static final String Type                 = "Type";                                          //$NON-NLS-1$
    private static int          previousTotalLengths = 0;
 
    private ArrayList<TimeData> _sampleList;
@@ -210,7 +214,7 @@ public class SuuntoJsonProcessor {
             }
 
             final String attributesContent = sample.get(TAG_ATTRIBUTES).toString();
-            if (attributesContent == null || attributesContent == "") {
+            if (attributesContent == null || attributesContent == UI.EMPTY_STRING) {
                continue;
             }
 
@@ -571,7 +575,7 @@ public class SuuntoJsonProcessor {
          return false;
       }
       boolean wasDataPopulated = false;
-      final JSONArray Events = (JSONArray) new JSONObject(currentSample).get("Events");
+      final JSONArray Events = (JSONArray) new JSONObject(currentSample).get(TAG_EVENTS);
       final JSONObject array = (JSONObject) Events.get(0);
       final String swimmingSample = ((JSONObject) array.get(Swimming)).toString();
 
@@ -713,7 +717,7 @@ public class SuuntoJsonProcessor {
          return elementValues;
       }
 
-      final String[] stringValues = elements.split(",");
+      final String[] stringValues = elements.split(","); //$NON-NLS-1$
       for (final String stringValue : stringValues) {
          final Integer rrValue = Integer.parseInt(stringValue);
          elementValues.add(rrValue);
@@ -740,7 +744,7 @@ public class SuuntoJsonProcessor {
       try {
          result = new JSONObject(token).get(elementName).toString();
       } catch (final Exception e) {}
-      if (result == "null") {
+      if (result == "null") { //$NON-NLS-1$
          return null;
       }
 

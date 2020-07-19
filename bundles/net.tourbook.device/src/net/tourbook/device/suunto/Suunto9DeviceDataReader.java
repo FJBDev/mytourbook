@@ -290,6 +290,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     * @return True if the activity has already been processed, false otherwise.
     */
    private boolean processedActivityExists(final long tourId) {
+
       return _processedActivities.entrySet().stream().anyMatch(entry -> entry.getKey().getTourId() == tourId);
    }
 
@@ -305,10 +306,8 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     */
    private boolean ProcessFile(final String filePath, final String jsonFileContent) {
 
-      final SuuntoJsonProcessor suuntoJsonProcessor = new SuuntoJsonProcessor();
 
-      String fileName =
-            FilenameUtils.removeExtension(filePath);
+      String fileName = FilenameUtils.removeExtension(filePath);
 
       if (fileName.substring(fileName.length() - 5, fileName.length()) == ".json") { //$NON-NLS-1$
          fileName = FilenameUtils.removeExtension(fileName);
@@ -325,6 +324,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
          return false;
       }
 
+      final SuuntoJsonProcessor suuntoJsonProcessor = new SuuntoJsonProcessor();
       TourData activity = null;
       if (fileNumber == 1) {
          activity = suuntoJsonProcessor.ImportActivity(
@@ -459,6 +459,8 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
             _newlyImportedTours.remove(tourId);
          }
          _newlyImportedTours.put(tourId, tourData);
+
+         tourData.setDeviceName(SuuntoJsonProcessor.DeviceName);
 
          tourData.computeAltitudeUpDown();
          tourData.computeTourDrivingTime();
