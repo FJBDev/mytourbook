@@ -173,8 +173,10 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
       String jsonFileContent = null;
 
-      try (final GZIPInputStream gzip = new GZIPInputStream(new FileInputStream(gzipFilePath));
-            final BufferedReader br = new BufferedReader(new InputStreamReader(gzip))) {
+      try (FileInputStream fileInputStream = new FileInputStream(gzipFilePath);
+            final GZIPInputStream gzip = new GZIPInputStream(fileInputStream);
+            final InputStreamReader inputStreamReader = new InputStreamReader(gzip);
+            final BufferedReader br = new BufferedReader(inputStreamReader)) {
 
          jsonFileContent = br.readLine();
 
@@ -247,49 +249,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
       } catch (final Exception e) {
          StatusUtil.log(e);
          return false;
-      }
-
-      return false;
-   }
-
-   /**
-    * Checks if the file is a valid device JSON file.
-    *
-    * @param jsonFileContent
-    *           The content to check.
-    * @return Returns <code>true</code> when the file contains content with the requested tag.
-    */
-   protected boolean isValidJSONFile(final String jsonFileContent) {
-      final BufferedReader fileReader = null;
-      try {
-
-         if (jsonFileContent == null ||
-               jsonFileContent == "") { //$NON-NLS-1$
-            return false;
-         }
-
-         try {
-            final JSONObject jsonContent = new JSONObject(jsonFileContent);
-            final JSONArray samples = (JSONArray) jsonContent.get(SuuntoJsonProcessor.TAG_SAMPLES);
-
-            final String firstSample = samples.get(0).toString();
-            if (firstSample.contains(SuuntoJsonProcessor.TAG_ATTRIBUTES) &&
-                  firstSample.contains(SuuntoJsonProcessor.TAG_SOURCE) &&
-                  firstSample.contains(SuuntoJsonProcessor.TAG_TIMEISO8601)) {
-               Util.closeReader(fileReader);
-               return true;
-            }
-
-         } catch (final JSONException ex) {
-            StatusUtil.log(ex);
-            return false;
-         }
-
-      } catch (final Exception e) {
-         StatusUtil.log(e);
-         return false;
-      } finally {
-         Util.closeReader(fileReader);
       }
 
       return false;
@@ -509,7 +468,11 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
    @Override
    public boolean validateRawData(final String fileName) {
+      if (!fileName.toLowerCase().endsWith(".json.gz")) { //$NON-NLS-1$
+         return false;
+      }
+
       final String jsonFileContent = GetJsonContentFromGZipFile(fileName, true);
-      return isValidJSONFile(jsonFileContent);
+      return isValidActivity(jsonFileContent);
    }
 }
