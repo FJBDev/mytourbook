@@ -28,6 +28,7 @@ import java.util.zip.GZIPInputStream;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
@@ -153,6 +154,10 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     */
 
    private String GetFileNameWithoutNumber(final String fileName) {
+      if (StringUtils.isNullOrEmpty(fileName)) {
+         return UI.EMPTY_STRING;
+      }
+
       return fileName.substring(0, fileName.lastIndexOf(UI.DASH));
    }
 
