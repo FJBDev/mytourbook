@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2018, 2020 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,8 +42,6 @@ import org.json.JSONObject;
 
 public class Suunto9DeviceDataReader extends TourbookDevice {
 
-   // Make sure that the smoothing value is 10 (speed and gradient)
-   public static final String                     IMPORT_FILE_PATH             = "/net/tourbook/device/suunto/testFiles/";    //$NON-NLS-1$
    private HashMap<TourData, ArrayList<TimeData>> _processedActivities         = new HashMap<>();
 
    private HashMap<String, String>                _childrenActivitiesToProcess = new HashMap<>();
@@ -94,7 +92,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
          final String parentFileName = GetFileNameWithoutNumber(
                FilenameUtils.getBaseName(filePath)) +
-               "-" + //$NON-NLS-1$
+               UI.DASH +
                String.valueOf(++currentFileNumber) +
                ".json.gz"; //$NON-NLS-1$
 
@@ -158,7 +156,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     */
 
    private String GetFileNameWithoutNumber(final String fileName) {
-      return fileName.substring(0, fileName.lastIndexOf('-'));
+      return fileName.substring(0, fileName.lastIndexOf(UI.DASH));
    }
 
    /**
@@ -171,15 +169,10 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     */
    private String GetJsonContentFromGZipFile(final String gzipFilePath, final boolean isValidatingFile) {
       String jsonFileContent = null;
-      try {
-         final GZIPInputStream gzip = new GZIPInputStream(new FileInputStream(gzipFilePath));
-         final BufferedReader br = new BufferedReader(new InputStreamReader(gzip));
+      try (final GZIPInputStream gzip = new GZIPInputStream(new FileInputStream(gzipFilePath));
+            final BufferedReader br = new BufferedReader(new InputStreamReader(gzip))) {
 
          jsonFileContent = br.readLine();
-
-         // close resources
-         br.close();
-         gzip.close();
 
       } catch (final IOException e) {
 
@@ -194,7 +187,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
             StatusUtil.log(e);
          }
 
-         return ""; //$NON-NLS-1$
+         return UI.EMPTY_STRING;
       }
 
       return jsonFileContent;
@@ -216,18 +209,18 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
    }
 
    /**
-    * Check if the file is a valid Suunto Spartan/9 activity.
+    * Checks if the file is a valid Suunto Spartan/9 activity.
     *
     * @param jsonFileContent
     *           The content to check.
     * @return Returns <code>true</code> when the file contains content of a valid activity.
     */
    protected boolean isValidActivity(final String jsonFileContent) {
+
       final BufferedReader fileReader = null;
       try {
 
-         if (jsonFileContent == null ||
-               jsonFileContent == "") { //$NON-NLS-1$
+         if (jsonFileContent == null || jsonFileContent == UI.EMPTY_STRING) {
             return false;
          }
 
@@ -252,9 +245,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
             return false;
          }
 
-      } catch (
-
-      final Exception e) {
+      } catch (final Exception e) {
          StatusUtil.log(e);
          return false;
       } finally {
@@ -265,7 +256,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
    }
 
    /**
-    * Check if the file is a valid device JSON file.
+    * Checks if the file is a valid device JSON file.
     *
     * @param jsonFileContent
     *           The content to check.
