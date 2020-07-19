@@ -78,6 +78,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
          // label: Altitude data source
          _lblAltitudeDataSource = new Label(_groupData, SWT.NONE);
          _lblAltitudeDataSource.setText(Messages.pref_altitude_source);
+
          /*
           * combo: Altitude source
           */
@@ -127,6 +128,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
          _comboAltitudeDataSource.add(altitudeDataType);
       }
       _comboAltitudeDataSource.select(_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE));
+
       /*
        * Fill-up the distance data choices
        */
