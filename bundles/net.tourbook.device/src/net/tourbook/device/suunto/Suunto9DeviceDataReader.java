@@ -170,7 +170,9 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     * @return Returns the JSON content.
     */
    private String GetJsonContentFromGZipFile(final String gzipFilePath, final boolean isValidatingFile) {
+
       String jsonFileContent = null;
+
       try (final GZIPInputStream gzip = new GZIPInputStream(new FileInputStream(gzipFilePath));
             final BufferedReader br = new BufferedReader(new InputStreamReader(gzip))) {
 
@@ -178,14 +180,11 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
       } catch (final IOException e) {
 
-         if (isValidatingFile) {
-
-            /*
-             * Log only when reading the zip file, during a validation, an exception can be very
-             * likely and should not be displayed
-             */
-
-         } else {
+         /*
+          * Log only when reading the zip file, during a validation, an exception can be very
+          * likely and should not be displayed
+          */
+         if (!isValidatingFile) {
             StatusUtil.log(e);
          }
 
