@@ -89,12 +89,12 @@ public class SuuntoJsonProcessor {
    final IPreferenceStore      _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
 
    /**
-    * Attempts to retrieve and add HR data from the MoveSense HR belt to the current tour.
+    * Parses and stores all the R-R interval for a given data sample.
     *
+    * @param rrDataList
+    *           The list of R-R intervals for which the new R-R data need to be added.
     * @param currentSample
-    *           The current sample data in JSON format.
-    * @param currentSampleDate
-    *           The date of the current data.
+    *           The current JSON sample data.
     */
    private void BuildRRDataList(final List<Integer> rrDataList, final String currentSample) {
       final JSONObject currentSampleJson = new JSONObject(currentSample);
@@ -123,8 +123,6 @@ public class SuuntoJsonProcessor {
     *           The number of laps in the activity.
     */
    private void cleanUpActivity(final ArrayList<TimeData> activityData, final boolean isIndoorTour, final int numLaps) {
-      // Cleaning-up the processed entries as there should only be entries
-      // every x seconds, no entries should be in between (entries with milliseconds).
 
       // Also, we first need to make sure that they truly are in chronological order.
       Collections.sort(activityData, new Comparator<TimeData>() {
@@ -143,7 +141,7 @@ public class SuuntoJsonProcessor {
 
          // Removing the entries that don't have GPS data
          // In the case where the activity is an indoor tour,
-         // we remove the entries that don't have altitude data
+         // we remove the entries that don't have altitude data.
          if (currentTimeData.marker == 0 &&
                (!isIndoorTour && currentTimeData.longitude == Double.MIN_VALUE && currentTimeData.latitude == Double.MIN_VALUE) ||
                (isIndoorTour && currentTimeData.absoluteAltitude == Float.MIN_VALUE) ||
@@ -252,7 +250,7 @@ public class SuuntoJsonProcessor {
 
          ZonedDateTime currentZonedDateTime = ZonedDateTime.parse(sampleTime);
          currentZonedDateTime = currentZonedDateTime.truncatedTo(ChronoUnit.SECONDS);
-         // Rounding to the nearest second
+         // Rounding to the nearest second.
          if (Character.getNumericValue(sampleTime.charAt(20)) >= 5) {
             currentZonedDateTime = currentZonedDateTime.plusSeconds(1);
          }
@@ -269,9 +267,7 @@ public class SuuntoJsonProcessor {
             continue;
          }
 
-         // If the current time is before the actual tour start time, we ignore the data
-         // Except if it's a R-R interval data as it can contain R-R data that belong to later
-         // samples
+         // If the current time is before the actual tour start time, we ignore the data.
          if (currentTime <= tourData.getTourStartTimeMS()) {
             continue;
          }
@@ -346,7 +342,13 @@ public class SuuntoJsonProcessor {
          }
 
          // Power
-         wasDataPopulated |= TryAddPowerData(currentSampleData, timeData);
+         final boolean wasPowerDataPopulated = TryAddPowerData(currentSampleData, timeData);
+         if (wasPowerDataPopulated && !tourData.isPowerSensorPresent()) {
+            // If we have found valid power data and we didn't know yet that power was
+            // available, we set the power sensor presence to true only this time.
+            tourData.setIsPowerSensorPresent(true);
+         }
+         wasDataPopulated |= wasPowerDataPopulated;
 
          // Distance
          if (_prefStore.getInt(IPreferences.DISTANCE_DATA_SOURCE) == 1 ||
@@ -368,7 +370,7 @@ public class SuuntoJsonProcessor {
          }
       }
 
-      // We clean-up the data series ONLY if we're not in a swimming activity
+      // We clean-up the data series ONLY if we're not in a swimming activity.
       if (_allSwimData.size() == 0) {
          cleanUpActivity(_sampleList, isIndoorTour, numLaps);
       }
@@ -432,9 +434,9 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add barometric altitude data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    *           The current JSON sample data.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddAltitudeData(final String currentSample, final TimeData timeData) {
@@ -451,8 +453,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           TThe current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddCadenceData(final String currentSample, final TimeData timeData) {
@@ -469,8 +471,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddDistanceData(final String currentSample, final TimeData timeData) {
@@ -487,8 +489,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddGpsData(final String currentSample, final TimeData timeData) {
@@ -518,8 +520,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddHeartRateData(final String currentSample, final TimeData timeData) {
@@ -537,8 +539,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddPowerData(final String currentSample, final TimeData timeData) {
@@ -555,8 +557,8 @@ public class SuuntoJsonProcessor {
     *
     * @param currentSample
     *           The current sample data in JSON format.
-    * @param sampleList
-    *           The tour's time serie.
+    * @param timeData
+    *           The current time data.
     * @return True if successful, false otherwise.
     */
    private boolean TryAddSpeedData(final String currentSample, final TimeData timeData) {
@@ -571,8 +573,8 @@ public class SuuntoJsonProcessor {
    /**
     * Attempts to retrieve, process and add swimming data into an activity.
     *
-    * @param tour
-    *           A given tour.
+    * @param allSwimData
+    *           The swim data imported so far.
     * @param currentSample
     *           The current sample data in JSON format.
     * @param currentSampleDate
@@ -609,6 +611,7 @@ public class SuuntoJsonProcessor {
                swimmingSample,
                TotalLengths);
          final int currentTotalLengths = Integer.parseInt(currentTotalLengthsString);
+
          // If the current total length equals the previous
          // total length, it was likely a "rest" and we retrieve
          // the very last pool length in order to create a
@@ -634,9 +637,11 @@ public class SuuntoJsonProcessor {
             case Breaststroke:
                previousSwimData.swim_StrokeStyle = SwimStroke.BREASTSTROKE.getValue();
                break;
+
             case Freestyle:
                previousSwimData.swim_StrokeStyle = SwimStroke.FREESTYLE.getValue();
                break;
+
             case Other:
                break;
             }
