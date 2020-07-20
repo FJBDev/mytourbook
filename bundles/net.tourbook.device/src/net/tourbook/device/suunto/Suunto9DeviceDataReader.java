@@ -85,6 +85,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
                                               int currentFileNumber,
                                               final TourData currentActivity,
                                               final ArrayList<TimeData> sampleListToReUse) {
+
       final SuuntoJsonProcessor suuntoJsonProcessor = new SuuntoJsonProcessor();
 
       final ArrayList<String> keysToRemove = new ArrayList<>();
@@ -152,7 +153,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     *           The file name to process.
     * @return The processed file name.
     */
-
    private String GetFileNameWithoutNumber(final String fileName) {
       if (StringUtils.isNullOrEmpty(fileName)) {
          return UI.EMPTY_STRING;
@@ -271,7 +271,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
       final String jsonFileContent =
             GetJsonContentFromGZipFile(importFilePath, false);
 
-      return ProcessFile(importFilePath, jsonFileContent);
+      return processFile(importFilePath, jsonFileContent);
    }
 
    /**
@@ -295,7 +295,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
     *           The JSON content of the activity file.
     * @return The Suunto activity as a tour.
     */
-   private boolean ProcessFile(final String filePath, final String jsonFileContent) {
+   private boolean processFile(final String filePath, final String jsonFileContent) {
 
 
       String fileName = FilenameUtils.removeExtension(filePath);
