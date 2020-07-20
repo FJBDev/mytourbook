@@ -584,10 +584,10 @@ public class SuuntoJsonProcessor {
     * @param allSwimData
     *           The swim data imported so far.
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param currentSampleDate
     *           The DateTime of the current data.
-    * @return The total number of pool lengths
+    * @return True if successful, false otherwise.
     */
    private boolean TryAddSwimmingData(final List<SwimData> allSwimData,
                                       final String currentSample,
