@@ -271,14 +271,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
       final String jsonFileContent =
             GetJsonContentFromGZipFile(importFilePath, false);
 
-      // At this point, we know that the given file is a valid JSON file.
-      // But to avoid for invalid activities to be parsed by other
-      // parsers, we return true when a Suunto JSON file is not
-      // a valid activity.
-      if (!isValidActivity(jsonFileContent)) {
-         return true;
-      }
-
       return ProcessFile(importFilePath, jsonFileContent);
    }
 
@@ -296,7 +288,6 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
    /**
     * For a given Suunto activity file, the function processes it and imports it as a tour.
-    * activity.
     *
     * @param filePath
     *           The absolute full path of a given activity.

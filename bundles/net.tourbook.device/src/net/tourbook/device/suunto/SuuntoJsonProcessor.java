@@ -15,13 +15,12 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.swimming.SwimStroke;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
@@ -86,7 +86,6 @@ public class SuuntoJsonProcessor {
    private static int          previousTotalLengths = 0;
 
    private ArrayList<TimeData> _sampleList;
-   private int                 _lapCounter;
    final IPreferenceStore      _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
 
    /**
@@ -110,7 +109,20 @@ public class SuuntoJsonProcessor {
       rrDataList.addAll(RRValues);
    }
 
-   private void cleanUpActivity(final ArrayList<TimeData> activityData, final boolean isIndoorTour) {
+   /**
+    * Cleans a processed activity and performs the following actions :
+    * - Sort the time slices chronologically
+    * - Only keeps the entries every full seconds, no entries should be in between (entries with
+    * milliseconds).
+    *
+    * @param activityData
+    *           The current activity.
+    * @param isIndoorTour
+    *           True if the current tour is an indoor activity (i.e. No GPS data).
+    * @param numLaps
+    *           The number of laps in the activity.
+    */
+   private void cleanUpActivity(final ArrayList<TimeData> activityData, final boolean isIndoorTour, final int numLaps) {
       // Cleaning-up the processed entries as there should only be entries
       // every x seconds, no entries should be in between (entries with milliseconds).
 
@@ -118,7 +130,7 @@ public class SuuntoJsonProcessor {
       Collections.sort(activityData, new Comparator<TimeData>() {
          @Override
          public int compare(final TimeData firstTimeData, final TimeData secondTimeData) {
-            // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+            // -1 - less than, 1 - greater than, 0 - equal.
             return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : (firstTimeData.absoluteTime < secondTimeData.absoluteTime) ? -1
                   : 0;
          }
@@ -143,10 +155,10 @@ public class SuuntoJsonProcessor {
       }
 
       // If the activity contains laps, we need to close the last lap.
-      if (_lapCounter != 0) {
+      if (numLaps != 0) {
          final TimeData lastTimeData = activityData.get(activityData.size() - 1);
          lastTimeData.marker = 1;
-         lastTimeData.markerLabel = Integer.toString(++_lapCounter);
+         lastTimeData.markerLabel = Integer.toString(numLaps + 1);
       }
    }
 
@@ -186,7 +198,8 @@ public class SuuntoJsonProcessor {
 
       final JSONObject firstSample = (JSONObject) samples.get(0);
 
-      final TourData tourData = InitializeActivity(firstSample, activityToReUse, sampleListToReUse);
+      int numLaps = 0;
+      final TourData tourData = InitializeActivity(firstSample, activityToReUse, sampleListToReUse, numLaps);
 
       if (tourData == null) {
          return null;
@@ -265,7 +278,7 @@ public class SuuntoJsonProcessor {
 
          if (_sampleList.size() > 0) {
             // Looking in the last 10 entries to see if their time is identical to the
-            // current sample's time
+            // current sample's time.
             for (int index = _sampleList.size() - 1; index > _sampleList.size() - 11 && index >= 0; --index) {
                if (_sampleList.get(index).absoluteTime == currentTime) {
                   timeData = _sampleList.get(index);
@@ -296,7 +309,7 @@ public class SuuntoJsonProcessor {
          //We check if the current sample date is greater/less than
          //the pause date because in the JSON file, the samples are
          //not necessarily in chronological order and we could have
-         //the potential to miss data
+         //the potential to miss data.
          if (isPaused && currentZonedDateTime.isAfter(pauseStartTime)) {
             continue;
          }
@@ -305,13 +318,13 @@ public class SuuntoJsonProcessor {
                (currentSampleData.contains(TAG_MANUAL) ||
                      currentSampleData.contains(TAG_DISTANCE))) {
             timeData.marker = 1;
-            timeData.markerLabel = Integer.toString(++_lapCounter);
+            timeData.markerLabel = Integer.toString(++numLaps);
             if (!reusePreviousTimeEntry) {
                _sampleList.add(timeData);
             }
          }
 
-         // GPS point
+         // GPS coordinates
          if (currentSampleData.contains(TAG_GPSALTITUDE) && currentSampleData.contains(TAG_LATITUDE)
                && currentSampleData.contains(TAG_LONGITUDE)) {
             wasDataPopulated |= TryAddGpsData(currentSampleData, timeData);
@@ -357,7 +370,7 @@ public class SuuntoJsonProcessor {
 
       // We clean-up the data series ONLY if we're not in a swimming activity
       if (_allSwimData.size() == 0) {
-         cleanUpActivity(_sampleList, isIndoorTour);
+         cleanUpActivity(_sampleList, isIndoorTour, numLaps);
       }
 
       TryComputeHeartRateData(_sampleList, _allRRData, _rrDataStartTime);
@@ -382,7 +395,8 @@ public class SuuntoJsonProcessor {
     */
    private TourData InitializeActivity(final JSONObject firstSample,
                                        final TourData activityToReUse,
-                                       final ArrayList<TimeData> sampleListToReUse) {
+                                       final ArrayList<TimeData> sampleListToReUse,
+                                       int numLaps) {
       TourData tourData = new TourData();
       final String firstSampleAttributes = firstSample.get(TAG_ATTRIBUTES).toString();
 
@@ -397,7 +411,7 @@ public class SuuntoJsonProcessor {
 
          final Set<TourMarker> tourMarkers = activityToReUse.getTourMarkers();
          for (final TourMarker tourMarker : tourMarkers) {
-            _lapCounter = Integer.valueOf(tourMarker.getLabel());
+            numLaps = Integer.valueOf(tourMarker.getLabel());
          }
          activityToReUse.setTourMarkers(new HashSet<TourMarker>());
 
@@ -436,7 +450,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add cadence data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           TThe current sample data in JSON format.
     * @param sampleList
     *           The tour's time serie.
     * @return True if successful, false otherwise.
@@ -658,13 +672,15 @@ public class SuuntoJsonProcessor {
    }
 
    /**
-    * Computed the heart rate data from the R-R intervals generated by the
-    * MoveSense HR belt to the current tour.
+    * Computes the heart rate data from the R-R intervals generated by the
+    * MoveSense HR belt in the current tour.
     *
     * @param activityData
     *           The current activity.
     * @param rrDataList
     *           The list of R-R intervals for the given activity.
+    * @param rrDataStartTime
+    *           The first R-R interval recorded date time.
     */
    private void TryComputeHeartRateData(final ArrayList<TimeData> activityData,
                                         final List<Integer> rrDataList,
@@ -691,6 +707,7 @@ public class SuuntoJsonProcessor {
          if (currentRRindex >= lastRRIndex) {
             // Heart rate (bpm) = 60 / R-R (seconds)
             // If the RR value is the sum of several intervals, we average it
+            // using the difference between the current index and the last used index.
             final float convertedNumber = 60 / (currentRRSum / 1000f) * (currentRRindex - lastRRIndex + 1);
             activityData.get(currentActivityIndex).pulse = convertedNumber;
 
@@ -718,10 +735,9 @@ public class SuuntoJsonProcessor {
       }
 
       final String[] stringValues = elements.split(","); //$NON-NLS-1$
-      for (final String stringValue : stringValues) {
-         final Integer rrValue = Integer.parseInt(stringValue);
-         elementValues.add(rrValue);
-      }
+
+      Arrays.stream(stringValues).forEach(stringValue -> elementValues.add(Integer.parseInt(stringValue)));
+
       return elementValues;
 
    }
