@@ -72,6 +72,9 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
    /**
     * Concatenates children activities with a given activity.
+    * Note: It seems that the Suunto 9 watch creates multiple files for a given activity
+    * when this activity exceeds 10h. This is from my own experience and not any official
+    * documentation.
     *
     * @param filePath
     *           The absolute path of a given activity.
@@ -110,7 +113,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
                sampleListToReUse);
 
          // We just concatenated a child activity so we can remove it
-         // from the list of activities to process
+         // from the list of activities to process.
          keysToRemove.add(childEntry.getKey());
 
          // We need to update the activity we just concatenated by
