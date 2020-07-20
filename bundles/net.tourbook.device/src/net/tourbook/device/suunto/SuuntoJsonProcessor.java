@@ -203,6 +203,12 @@ public class SuuntoJsonProcessor {
          return null;
       }
 
+      // We detect the available sensors
+      if (jsonFileContent.contains(TAG_HR) ||
+            jsonFileContent.contains(TAG_RR)) {
+         tourData.setIsPulseSensorPresent(true);
+      }
+
       final boolean isIndoorTour = !jsonFileContent.contains(TAG_GPSALTITUDE);
 
       boolean isPaused = false;
@@ -393,6 +399,8 @@ public class SuuntoJsonProcessor {
     *           If provided, the activity to concatenate the current activity with.
     * @param sampleListToReUse
     *           If provided, the activity's data from the activity to reuse.
+    * @param numLaps
+    *           The number of laps in the activity.
     * @return If valid, the initialized tour
     */
    private TourData InitializeActivity(final JSONObject firstSample,
@@ -452,7 +460,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add cadence data to the current tour.
     *
     * @param currentSample
-    *           TThe current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -470,7 +478,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add power data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -488,7 +496,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add GPS data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -519,7 +527,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add HR data (from the optical sensor) to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -538,7 +546,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add power data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -556,7 +564,7 @@ public class SuuntoJsonProcessor {
     * Attempts to retrieve and add speed data to the current tour.
     *
     * @param currentSample
-    *           The current sample data in JSON format.
+    *           The current JSON sample data.
     * @param timeData
     *           The current time data.
     * @return True if successful, false otherwise.
@@ -579,8 +587,6 @@ public class SuuntoJsonProcessor {
     *           The current sample data in JSON format.
     * @param currentSampleDate
     *           The DateTime of the current data.
-    * @param previousTotalLengths
-    *           The previous SuuntoDataNames.TotalLengths value.
     * @return The total number of pool lengths
     */
    private boolean TryAddSwimmingData(final List<SwimData> allSwimData,
@@ -616,7 +622,6 @@ public class SuuntoJsonProcessor {
          // total length, it was likely a "rest" and we retrieve
          // the very last pool length in order to create a
          // rest lap.
-
          if (currentTotalLengths > 0 && currentTotalLengths == previousTotalLengths) {
             if (previousSwimData != null) {
                previousSwimData.swim_LengthType = LengthType.IDLE.getValue();
