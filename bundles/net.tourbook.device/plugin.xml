@@ -292,15 +292,19 @@
 			name="Suunto Quest">
 		</device>
 
-		</extension>
+		<!-- TUR -->
+		<device
+			class="net.tourbook.device.tur.TurDeviceReader"
+			fileextension="tur"
+			id="net.tourbook.device.TurDeviceReader"
+			name="TUR"/>
 		
-	<!-- Mio Cyclo 105 -->
-   <extension	point="net.tourbook.deviceDataReader">
-      <device
+		<!-- Mio Cyclo 105 -->
+      	<device
             class="net.tourbook.device.mio.Cyclo105DeviceDataReader"
             fileextension="act"
             id="net.tourbook.device.MioCyclo105"
             name="Mio Cyclo 105"/>
-   </extension>
+   		</extension>
    
 </plugin>
