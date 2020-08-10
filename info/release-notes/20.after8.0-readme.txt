@@ -11,6 +11,8 @@ New
 
 * 
 
+* Import Mio Cyclo 105 *.act Files (Frederic)
+
 
 Improvements
 ============
