@@ -28,18 +28,14 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.device.InvalidDeviceSAXException;
-import net.tourbook.device.suunto.SuuntoQuestSAXHandler;
 import net.tourbook.importdata.DeviceData;
 import net.tourbook.importdata.SerialParameters;
 import net.tourbook.importdata.TourbookDevice;
 
 public class Cyclo105DeviceDataReader extends TourbookDevice {
 
-   public static final String  TAG_MOVESCOUNT     = UI.EMPTY_STRING;
-
-   private static final String DOCTYPE_XML        = "<!doctype xml>"; //$NON-NLS-1$
-   private static final String MOVESCOUNT_TAG     = "<movescount";    //$NON-NLS-1$
-   private static final String SUUNTO_TAG_SAMPLES = "<samples>";      //$NON-NLS-1$
+   private static final String TAG_MAGELLAN    = UI.SYMBOL_LESS_THAN + Cyclo105SAXHandler.TAG_ROOT_MAGELLAN + UI.SYMBOL_GREATER_THAN;
+   private static final String TAG_TRACKPOINTS = UI.SYMBOL_LESS_THAN + Cyclo105SAXHandler.TAG_ROOT_TRACKPOINTS + UI.SYMBOL_GREATER_THAN;
 
    public Cyclo105DeviceDataReader() {}
 
@@ -74,12 +70,12 @@ public class Cyclo105DeviceDataReader extends TourbookDevice {
    }
 
    /**
-    * Check if the file is a valid Suunto XML file by checking some tags.
+    * Check if the file is a valid Mio Cyclo 105 ACT file by checking some tags.
     *
     * @param importFilePath
-    * @return Returns <code>true</code> when the file contains Suunto content.
+    * @return Returns <code>true</code> when the file contains Mio Cyclo 105 ACT content.
     */
-   private boolean isSuuntoXMLFile(final String importFilePath) {
+   private boolean isValidCyclo105File(final String importFilePath) {
 
       try (final FileInputStream inputStream = new FileInputStream(importFilePath);
             final BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, UI.UTF_8))) {
@@ -90,18 +86,13 @@ public class Cyclo105DeviceDataReader extends TourbookDevice {
          }
 
          line = fileReader.readLine();
-         if (StringUtils.isNullOrEmpty(line) || line.toLowerCase().startsWith(DOCTYPE_XML) == false) {
-            return false;
-         }
-
-         line = fileReader.readLine();
-         if (StringUtils.isNullOrEmpty(line) || line.toLowerCase().startsWith(MOVESCOUNT_TAG) == false) {
+         if (StringUtils.isNullOrEmpty(line) || line.equalsIgnoreCase(TAG_MAGELLAN) == false) {
             return false;
          }
 
          while ((line = fileReader.readLine()) != null) {
 
-            if (line.trim().toLowerCase().startsWith(SUUNTO_TAG_SAMPLES)) {
+            if (line.trim().equalsIgnoreCase(TAG_TRACKPOINTS)) {
                return true;
             }
          }
@@ -120,12 +111,12 @@ public class Cyclo105DeviceDataReader extends TourbookDevice {
                                     final HashMap<Long, TourData> alreadyImportedTours,
                                     final HashMap<Long, TourData> newlyImportedTours) {
 
-      if (isSuuntoXMLFile(importFilePath) == false) {
+      if (isValidCyclo105File(importFilePath) == false) {
          return false;
       }
 
-      final SuuntoQuestSAXHandler saxHandler =
-            new SuuntoQuestSAXHandler(
+      final Cyclo105SAXHandler saxHandler =
+            new Cyclo105SAXHandler(
                   this,
                   importFilePath,
                   alreadyImportedTours,
@@ -153,6 +144,6 @@ public class Cyclo105DeviceDataReader extends TourbookDevice {
 
    @Override
    public boolean validateRawData(final String fileName) {
-      return isSuuntoXMLFile(fileName);
+      return isValidCyclo105File(fileName);
    }
 }
