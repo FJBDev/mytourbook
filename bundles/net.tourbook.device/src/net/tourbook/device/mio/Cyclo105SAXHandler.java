@@ -24,14 +24,20 @@ import net.tourbook.common.util.Util;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.importdata.TourbookDevice;
+import net.tourbook.ui.UI;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class Cyclo105SAXHandler extends DefaultHandler {
+
+   //TODO FB Get feedback from Matej.
+   // Review the file one more time to see if I can import more data.
 
    // root tags
    static final String         TAG_ROOT_MAGELLAN    = "Magellan_Cyclo"; //$NON-NLS-1$
@@ -39,9 +45,10 @@ public class Cyclo105SAXHandler extends DefaultHandler {
    private static final String TAG_ROOT_TRACKMASTER = "trackmaster";    //$NON-NLS-1$
 
    // trackmaster tags
-   private static final String TAG_CALORIES  = "Calories";  //$NON-NLS-1$
-   private static final String TAG_STARTTIME = "StartTime"; //$NON-NLS-1$
-   private static final String TAG_TRACKNAME = "TrackName"; //$NON-NLS-1$
+   private static final String TAG_ACCRUEDTIME = "AccruedTime"; //$NON-NLS-1$
+   private static final String TAG_CALORIES    = "Calories";    //$NON-NLS-1$
+   private static final String TAG_STARTTIME   = "StartTime";   //$NON-NLS-1$
+   private static final String TAG_TRACKNAME   = "TrackName";   //$NON-NLS-1$
 
    // TrackPoints tags
    private static final String TAG_ALTITUDE     = "Altitude";     //$NON-NLS-1$
@@ -60,36 +67,40 @@ public class Cyclo105SAXHandler extends DefaultHandler {
    private String                  _importFilePath;
    //
 
-   private ArrayList<TimeData> _sampleList = new ArrayList<>();
-   private TimeData            _sampleData;
+   private ArrayList<TimeData>   _sampleList     = new ArrayList<>();
+   private TimeData              _sampleData;
 
-   private TimeData            _markerData;
-   private int                 _markIndex;
-   private ArrayList<TimeData> _markerList = new ArrayList<>();
+   private ArrayList<Integer>    _markerList     = new ArrayList<>();
 
-   private boolean             _isImported;
-   private StringBuilder       _characters = new StringBuilder();
+   private boolean               _isImported;
+   private StringBuilder         _characters     = new StringBuilder();
 
-   private boolean             _isInRootMagellan;
-   private boolean             _isInTrackPoints;
-   private boolean             _isInTrackMaster;
+   private boolean               _isInRootMagellan;
+   private boolean               _isInTrackPoints;
+   private boolean               _isInTrackMaster;
 
-   private boolean             _isInAltitude;
-   private boolean             _isInCalories;
-   private boolean             _isInLatitude;
-   private boolean             _isInLongitude;
-   private boolean             _isInCadence;
-   private boolean             _isInDistance;
-   private boolean             _isInHR;
-   private boolean             _isInIntervalTime;
-   private boolean             _isInPower;
-   private boolean             _isInSpeed;
-   private boolean             _isInTrackName;
-   private boolean             _isInStartTime;
+   private boolean               _isInAccruedTime;
+   private boolean               _isInAltitude;
+   private boolean               _isInCalories;
+   private boolean               _isInLatitude;
+   private boolean               _isInLongitude;
+   private boolean               _isInCadence;
+   private boolean               _isInHR;
+   private boolean               _isInIntervalTime;
+   private boolean               _isInPower;
+   private boolean               _isInSpeed;
+   private boolean               _isInTrackName;
+   private boolean               _isInStartTime;
 
-   private int                 _tourCalories;
-   private LocalTime           _tourStartTime;
-   private DateTime            _tourStartDate;
+   private int                   _tourCalories;
+   private Period                _tourStartTime;
+   private DateTime              _tourStartDate;
+
+   private final PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+         .appendHours().appendSuffix(UI.SYMBOL_COLON)
+         .appendMinutes().appendSuffix(UI.SYMBOL_COLON)
+         .appendSeconds()
+         .toFormatter();
 
    public Cyclo105SAXHandler(final TourbookDevice deviceDataReader,
                              final String importFileName,
@@ -109,13 +120,12 @@ public class Cyclo105SAXHandler extends DefaultHandler {
             || _isInTrackName
             || _isInStartTime
             || _isInCalories
+            || _isInAccruedTime
             || _isInAltitude
             || _isInCadence
-            || _isInDistance
             || _isInLatitude
             || _isInLongitude
             || _isInHR
-            || _isInLatitude
             || _isInPower
             || _isInSpeed
             || _isInIntervalTime
@@ -173,7 +183,7 @@ public class Cyclo105SAXHandler extends DefaultHandler {
 
       } else if (name.equals(TAG_TRACKNAME)) {
 
-         //This data element is called trackname but it contains the activity date, weird.
+         //This data element is called trackname but it contains the activity date, this is not intuitive.
          // ex: <TrackName>2016-7-30</TrackName>
          _isInTrackName = false;
 
@@ -183,7 +193,14 @@ public class Cyclo105SAXHandler extends DefaultHandler {
 
          _isInStartTime = false;
 
-         _tourStartTime = LocalTime.parse(_characters.toString());
+         _tourStartTime = periodFormatter.parsePeriod(_characters.toString());
+
+      } else if (name.equals(TAG_ACCRUEDTIME)) {
+
+         _isInAccruedTime = false;
+
+         final Period accruedTime = periodFormatter.parsePeriod(_characters.toString());
+         _markerList.add(accruedTime.toStandardSeconds().getSeconds());
 
       }
    }
@@ -243,9 +260,8 @@ public class Cyclo105SAXHandler extends DefaultHandler {
 
    /**
     * Fills the necessary data for the samples :
-    * computes {@see TimeData#absoluteTime} for each {@link TimeData}, merges markers with the
+    * computes {@see TimeData#absoluteTime} for each {@link TimeData}, merges markers list with the
     * samples
-    * And inserts the data series into the sample list.
     *
     * @param tourStartTime
     *           The tour start time that is used to compute the {@see TimeData#absoluteTime}
@@ -253,9 +269,20 @@ public class Cyclo105SAXHandler extends DefaultHandler {
    private void finalizeSamples(final ZonedDateTime tourStartTime) {
 
       int time = 0;
-      for (final TimeData timeData : _sampleList) {
-         time += timeData.time;
-         timeData.absoluteTime = (tourStartTime.toEpochSecond() + time) * 1000;
+      int numberOfMarkers = 0;
+      for (final TimeData element : _sampleList) {
+
+         final TimeData currentTimeData = element;
+
+         time += currentTimeData.time;
+         currentTimeData.absoluteTime = (tourStartTime.toEpochSecond() + time) * 1000;
+
+         if (this._markerList.contains(time)) {
+            currentTimeData.marker = 1;
+
+            ++numberOfMarkers;
+            currentTimeData.markerLabel = String.valueOf(numberOfMarkers);
+         }
       }
    }
 
@@ -276,9 +303,9 @@ public class Cyclo105SAXHandler extends DefaultHandler {
             _tourStartDate.getYear(),
             _tourStartDate.getMonthOfYear(),
             _tourStartDate.getDayOfMonth(),
-            _tourStartTime.getHourOfDay(),
-            _tourStartTime.getMinuteOfHour(),
-            _tourStartTime.getSecondOfMinute(),
+            _tourStartTime.getHours(),
+            _tourStartTime.getMinutes(),
+            _tourStartTime.getSeconds(),
             0,
             TimeTools.getDefaultTimeZone());
       tourData.setTourStartTime(tourStartTime);
@@ -372,6 +399,10 @@ public class Cyclo105SAXHandler extends DefaultHandler {
       } else if (name.equals(TAG_STARTTIME)) {
 
          _isInStartTime = true;
+
+      } else if (name.equals(TAG_ACCRUEDTIME)) {
+
+         _isInAccruedTime = true;
 
       } else {
          isData = false;
