@@ -378,9 +378,6 @@ public class Cyclo105SAXHandler extends DefaultHandler {
 
          _isInRootMagellan = true;
 
-         // The value is in minutes so we transform it into hours
-         //_tourTimezone = Integer.valueOf(attributes.getValue(ATTR_TIMEZONE)) / 60;
-
       }
    }
 
