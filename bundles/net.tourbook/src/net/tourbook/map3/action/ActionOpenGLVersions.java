@@ -57,7 +57,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 public class ActionOpenGLVersions extends Action {
 
-   private final IDialogSettings _state = TourbookPlugin.getState(  //
+   private final IDialogSettings _state = TourbookPlugin.getState(   //
          getClass().getCanonicalName());
 
    private GLProfile             _glProfile;
