@@ -259,7 +259,7 @@ public class TrackPathOptimized extends MTMultiResolutionPath implements ITrackP
       }
 
       // since the buffer is reused the limit might not be the same as the previous usage
-      arrowPositions.flip();
+      ((Buffer) arrowPositions).flip();
    }
 
    private void computeDirectionArrows(final DrawContext dc, final PathData pathData) {
@@ -333,8 +333,8 @@ public class TrackPathOptimized extends MTMultiResolutionPath implements ITrackP
       }
 
       // hide unused arrows
-      arrowSurfaceBuffer.flip();
-      arrowBorderBuffer.flip();
+      ((Buffer) arrowSurfaceBuffer).flip();
+      ((Buffer) arrowBorderBuffer).flip();
 
       _numberOfDirectionArrows = arrowSurfaceBuffer.limit() / 3;
    }
