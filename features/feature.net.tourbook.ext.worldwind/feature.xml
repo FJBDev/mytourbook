@@ -25,7 +25,7 @@
          id="net.tourbook.ext.worldwind"
          download-size="0"
          install-size="0"
-         version="2.2.20200812.xxxxxxx"
+         version="2.2.20200812.5250a29"
          unpack="false"/>
 
    <plugin
