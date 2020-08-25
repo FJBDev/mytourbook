@@ -35,8 +35,14 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
    static ZonedDateTime       calendar8 = ZonedDateTime.now().with(TimeTools.calendarWeek.dayOfWeek(), 1);
 
+   /**
+    * All tour fields in the tourbook view, the first field is <code>tourId</code> which can be
+    * prefixed with <code>DISTINCT</code>
+    */
    public static final String SQL_ALL_TOUR_FIELDS;
-   static final String        SQL_ALL_OTHER_FIELDS;
+
+   public static final String SQL_ALL_OTHER_FIELDS;
+   public static final int    SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER;
 
    static final String        SQL_SUM_COLUMNS;
    static final String        SQL_SUM_FIELDS;
@@ -55,7 +61,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "tourDrivingTime, " //                              7     //$NON-NLS-1$
             + "tourAltUp, " //                                    8     //$NON-NLS-1$
             + "tourAltDown, " //                                  9     //$NON-NLS-1$
-            + "startDistance, " //                                10     //$NON-NLS-1$
+            + "startDistance, " //                                10    //$NON-NLS-1$
             + "tourType_typeId, " //                              11    //$NON-NLS-1$
             + "tourTitle, " //                                    12    //$NON-NLS-1$
             + "deviceTimeInterval, " //                           13    //$NON-NLS-1$
@@ -64,7 +70,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "maxPulse, " //                                     16    //$NON-NLS-1$
             + "avgPulse, " //                                     17    //$NON-NLS-1$
             + "avgCadence, " //                                   18    //$NON-NLS-1$
-            + "(DOUBLE(avgTemperature) / temperatureScale), " //  19    //$NON-NLS-1$
+            + "avgTemperature, " //                               19    //$NON-NLS-1$
 
             + "TourStartTime, " //                                20    //$NON-NLS-1$
             + "TimeZoneId, " //                                   21    //$NON-NLS-1$
@@ -163,28 +169,27 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "cadenceZones_DelimiterValue, " //                  79    //$NON-NLS-1$
 
             // ---------- WEATHER -------------
-
             + "weather_Temperature_Min, " //                      80    //$NON-NLS-1$
             + "weather_Temperature_Max, " //                      81    //$NON-NLS-1$
+            + "temperatureScale, " //                             82    //$NON-NLS-1$
 
             // ---------- TOUR START LOCATION -------------
-
-            + "tourStartPlace, " //                               82    //$NON-NLS-1$
-            + "tourEndPlace, " //                                 83    //$NON-NLS-1$
+            + "tourStartPlace, " //                               83    //$NON-NLS-1$
+            + "tourEndPlace, " //                                 84    //$NON-NLS-1$
 
             // -------- AVERAGE ALTITUDE CHANGE -----------
-
-            + "avgAltitudeChange " //                             84    //$NON-NLS-1$
+            + "avgAltitudeChange " //                             85    //$NON-NLS-1$
       ;
 
+      SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER = 86;
       SQL_ALL_OTHER_FIELDS = NL
 
             /////////////////////////////////////////////////////////////////////////
             // -------- JOINT TABLES, they are added at the end --------------
             /////////////////////////////////////////////////////////////////////////
 
-            + "jTdataTtag.TourTag_tagId, "//                      last+1   //$NON-NLS-1$
-            + "Tmarker.markerId "//                               last+2   //$NON-NLS-1$
+            + "jTdataTtag.TourTag_tagId, " //                     SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 1   //$NON-NLS-1$
+            + "Tmarker.markerId " //                              SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 2   //$NON-NLS-1$
       ;
 
       SQL_SUM_FIELDS = NL
@@ -450,7 +455,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       tourItem.colMaxPulse             = result.getLong(16);
       tourItem.colAvgPulse             = result.getFloat(17);
       final float dbAvgCadence         = result.getFloat(18);
-      tourItem.colTemperature_Avg      = result.getFloat(19);
+      final float dbAvgTemperature     = result.getFloat(19);
 
       final long dbTourStartTime       = result.getLong(20);
       final String dbTimeZoneId        = result.getString(21);
@@ -554,15 +559,16 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       tourItem.colTemperature_Min                     = result.getFloat(80);
       tourItem.colTemperature_Max                     = result.getFloat(81);
+      final int dbTemperatureScale                    = result.getInt(82);
 
       // ---------- TOUR START LOCATION -------------
 
-      tourItem.colTourLocation_Start                  = result.getString(82);
-      tourItem.colTourLocation_End                    = result.getString(83);
+      tourItem.colTourLocation_Start                  = result.getString(83);
+      tourItem.colTourLocation_End                    = result.getString(84);
 
       // -------- AVERAGE ALTITUDE CHANGE -----------
 
-      tourItem.colAltitude_AvgChange                  = result.getLong(84);
+      tourItem.colAltitude_AvgChange                  = result.getLong(85);
 
 // SET_FORMATTING_ON
 
@@ -575,6 +581,8 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       tourItem.colCadenceMultiplier = dbCadenceMultiplier;
 
       tourItem.colSlowVsFastCadence = TourManager.generateCadenceZones_TimePercentages(cadenceZone_SlowTime, cadenceZone_FastTime);
+
+      tourItem.colTemperature_Avg = dbAvgTemperature / dbTemperatureScale;
 
       // -----------------------------------------------
 
@@ -732,8 +740,8 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
          final long result_TourId = result.getLong(1);
 
-         final Object result_TagId = result.getObject(85);
-         final Object result_MarkerId = result.getObject(86);
+         final Object result_TagId = result.getObject(SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER);
+         final Object result_MarkerId = result.getObject(TVITourBookItem.SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 1);
 
          if (result_TourId == prevTourId) {
 
