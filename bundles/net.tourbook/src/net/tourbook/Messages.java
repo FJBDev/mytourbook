@@ -1012,6 +1012,8 @@ public class Messages extends NLS {
    public static String        Image__Graph_Swim_Swolf_Disabled;
    public static String        Image__GraphMinMax;
    public static String        Image__GraphMinMax_Disabled;
+   public static String        Image__GroupValues;
+   public static String        Image__GroupValues_Disabled;
    public static String        Image__graph_pace_disabled;
    public static String        Image__graph_power_disabled;
    public static String        Image__graph_speed_disabled;
@@ -1511,11 +1513,12 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Check_TaggingAnimation;
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Message;
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Title;
-   public static String        Pref_Appearance_Group_PaceDisplay;
+   public static String        Pref_Appearance_Group_PaceAndSpeedDisplay;
    public static String        Pref_Appearance_Group_Tagging;
-
    public static String        Pref_Appearance_Label_AutoOpenTagging_Tooltip;
    public static String        Pref_Appearance_Label_AutoOpenTaggingDelay;
+   public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption;
+   public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption_Tooltip;
    public static String        Pref_Appearance_NumberOfRecent_TourTypes;
    public static String        Pref_Appearance_NumberOfRecent_TourTypes_Tooltip;
    public static String        Pref_Appearance_Radio_UseRecordedTime;
@@ -1735,8 +1738,6 @@ public class Messages extends NLS {
 
    public static String        pref_appearance_number_of_recent_tags;
    public static String        pref_appearance_number_of_recent_tags_tooltip;
-   public static String        pref_appearance_pace_computation_option;
-   public static String        pref_appearance_pace_computation_option_tooltip;
    public static String        pref_appearance_showMemoryMonitor;
    public static String        pref_appearance_showMemoryMonitor_message;
    public static String        pref_appearance_showMemoryMonitor_title;
@@ -2715,9 +2716,12 @@ public class Messages extends NLS {
 
    public static String Tour_StatisticValues_Action_CopyIntoClipboard_Tooltip;
    public static String Tour_StatisticValues_Action_CSVFormat_Tooltip;
+   public static String Tour_StatisticValues_Action_GroupValues_Tooltip;
+   public static String Tour_StatisticValues_Action_OpenPreferences_Tooltip;
    public static String Tour_StatisticValues_Action_ShowZeroValued_Tooltip;
    public static String Tour_StatisticValues_Info_DataAreCopied;
    public static String Tour_StatisticValues_Label_NoData;
+   public static String Tour_StatisticValues_Label_NoStatistic;
 
    public static String Tour_SubMenu_Cadence;
    public static String Tour_SubMenu_Elevation;
