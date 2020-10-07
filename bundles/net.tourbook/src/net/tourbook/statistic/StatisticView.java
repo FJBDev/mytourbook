@@ -130,8 +130,6 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
    private PixelConverter               _pc;
 
-   private String                       _statisticValuesRaw;
-
    /*
     * UI controls
     */
@@ -254,7 +252,11 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
             if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)
                   || property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)
-                  || property.equals(ITourbookPreferences.TOUR_PERSON_LIST_IS_MODIFIED)) {
+                  || property.equals(ITourbookPreferences.TOUR_PERSON_LIST_IS_MODIFIED)
+
+            // first day of week has changed
+                  || property.equals(ICommonPreferences.CALENDAR_WEEK_FIRST_DAY_OF_WEEK)
+                  || property.equals(ICommonPreferences.CALENDAR_WEEK_MIN_DAYS_IN_FIRST_WEEK)) {
 
                _activePerson = TourbookPlugin.getActivePerson();
                _activeTourTypeFilter = TourbookPlugin.getActiveTourTypeFilter();
@@ -452,7 +454,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
              */
 
             _comboYear = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-            _comboYear.setToolTipText(Messages.Tour_Book_Combo_year_tooltip);
+            _comboYear.setToolTipText(Messages.Tour_Statistic_Combo_Year_Tooltip);
             _comboYear.setVisibleItemCount(50);
 
             GridDataFactory
@@ -536,15 +538,16 @@ public class StatisticView extends ViewPart implements ITourProvider {
       super.dispose();
    }
 
-   private void fireEvent_StatisticValues(final StatisticContext statContext) {
+   private void fireEvent_StatisticValues() {
 
-      // keep values that the statistic values view can show these values when it is opened
-      _statisticValuesRaw = statContext.outRawStatisticValues;
+      TourManager.fireEvent(TourEventId.STATISTIC_VALUES, null, this);
+   }
 
-      TourManager.fireEventWithCustomData(
-            TourEventId.STATISTIC_VALUES,
-            new Selection_StatisticValues(_statisticValuesRaw),
-            this);
+   /**
+    * @return Returns the active statistic
+    */
+   TourbookStatistic getActiveStatistic() {
+      return _activeStatistic;
    }
 
    /**
@@ -642,13 +645,6 @@ public class StatisticView extends ViewPart implements ITourProvider {
       }
    }
 
-   /**
-    * @return Returns the statistic values from the currently displayed statistic graph.
-    */
-   public String getStatisticValuesRaw() {
-      return _statisticValuesRaw;
-   }
-
    private void initUI(final Composite parent) {
 
       _pc = new PixelConverter(parent);
@@ -667,14 +663,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
          return;
       }
 
-      final StatisticContext statContext = _activeStatistic.getStatisticContext();
+      final String statValues = _activeStatistic.getRawStatisticValues(false);
 
       // ensure data are available
-      if (statContext == null || statContext.outRawStatisticValues == null) {
+      if (statValues == null) {
          return;
       }
 
-      StatisticManager.copyStatisticValuesToTheClipboard(statContext.outRawStatisticValues);
+      StatisticManager.copyStatisticValuesToTheClipboard(statValues);
    }
 
    private void onSelectBarVerticalOrder() {
@@ -1052,7 +1048,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       updateStatistic_20_PostRefresh(statContext);
 
-      fireEvent_StatisticValues(statContext);
+      fireEvent_StatisticValues();
    }
 
    /**
@@ -1087,7 +1083,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       updateStatistic_20_PostRefresh(statContext);
       updateUI_Toolbar();
 
-      fireEvent_StatisticValues(statContext);
+      fireEvent_StatisticValues();
    }
 
    private void updateStatistic_20_PostRefresh(final StatisticContext statContext) {

@@ -30,6 +30,7 @@ import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.chart.Util;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
+import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
@@ -53,13 +54,15 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IViewSite;
 
 public class StatisticTour_Frequency extends TourbookStatistic {
 
    private final IPreferenceStore   _prefStore                       = TourbookPlugin.getPrefStore();
 
-   private StatisticContext         _statContext;
+   private TourData_Day             _tourDay_Data;
+   private DataProvider_Tour_Day    _tourDay_DataProvider            = new DataProvider_Tour_Day();
 
    private IPropertyChangeListener  _statTourFrequency_PrefChangeListener;
 
@@ -104,8 +107,6 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    private TourTypeFilter           _activeTourTypeFilter;
 
    private boolean                  _isSynchScaleEnabled;
-
-   private TourData_Day             _tourDayData;
 
    /*
     * UI controls
@@ -307,6 +308,12 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    private void createToolTipProviderAltitude(final ChartDataModel chartModel) {
 
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
+
+         @Override
+         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+            StatisticTour_Frequency.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+         }
+
          @Override
          public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
 
@@ -367,6 +374,12 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    private void createToolTipProviderDistance(final ChartDataModel chartModel) {
 
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
+
+         @Override
+         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+            StatisticTour_Frequency.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+         }
+
          @Override
          public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
 
@@ -429,6 +442,12 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    private void createToolTipProviderDuration(final ChartDataModel chartModel) {
 
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
+
+         @Override
+         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+            StatisticTour_Frequency.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+         }
+
          @Override
          public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
 
@@ -481,6 +500,29 @@ public class StatisticTour_Frequency extends TourbookStatistic {
             return createToolTipProvider(serieIndex, toolTipLabel);
          }
       });
+   }
+
+   private Composite createToolTipUI(final int serieIndex, final int valueIndex) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   private void createToolTipUI(final IToolTipProvider toolTipProvider,
+                                final Composite parent,
+                                final int _hoveredBar_VerticalIndex,
+                                final int _hoveredBar_HorizontalIndex) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
+      {
+         final Label label = new Label(container, SWT.NONE);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+         label.setText("Bar Tooltip\n\n"
+               + "serieIndex:" + _hoveredBar_VerticalIndex + "\n"
+               + "valueIndex:" + _hoveredBar_HorizontalIndex + "\n");
+
+      }
    }
 
    /**
@@ -602,8 +644,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    }
 
    @Override
-   public StatisticContext getStatisticContext() {
-      return _statContext;
+   public String getRawStatisticValues(final boolean isShowSequenceNumbers) {
+      return _tourDay_DataProvider.getRawStatisticValues(isShowSequenceNumbers);
    }
 
    @Override
@@ -799,30 +841,29 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    @Override
    public void updateStatistic(final StatisticContext statContext) {
 
-      _statContext = statContext;
-
       _activePerson = statContext.appPerson;
       _activeTourTypeFilter = statContext.appTourTypeFilter;
       _currentYear = statContext.statFirstYear;
       _numberOfYears = statContext.statNumberOfYears;
 
-      _tourDayData = DataProvider_Tour_Day.getInstance()
-            .getDayData(
-                  statContext.appPerson,
-                  statContext.appTourTypeFilter,
-                  statContext.statFirstYear,
-                  statContext.statNumberOfYears,
-                  isDataDirtyWithReset() || statContext.isRefreshData,
+      _tourDay_Data = _tourDay_DataProvider.getDayData(
 
-                  // this may need to be customized as in the other statistics
-                  DurationTime.MOVING);
+            statContext.appPerson,
+            statContext.appTourTypeFilter,
+            statContext.statFirstYear,
+            statContext.statNumberOfYears,
+
+            isDataDirtyWithReset() || statContext.isRefreshData,
+
+            // this may need to be customized as in the other statistics
+            DurationTime.MOVING);
 
       // reset min/max values
       if (_isSynchScaleEnabled == false && statContext.isRefreshData) {
          resetMinMaxKeeper(false);
       }
 
-      createStatisticData(_tourDayData);
+      createStatisticData(_tourDay_Data);
 
       updateChartDistance(
             _chartDistanceCounter,
