@@ -34,6 +34,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
    private Menu                                     _menu;
 
+   private ActionReimportTours                      _actionReimport_Tours;
    private ActionReimport_EntireTour                _actionReimport_EntireTour;
    private ActionReimport_OnlyTimeSlices            _actionReimport_OnlyTimeSlices;
    private ActionReimport_OnlyTourMarker            _actionReimport_OnlyTourMarker;
@@ -222,6 +223,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       _tourViewer = tourViewer;
 
+      _actionReimport_Tours = new ActionReimportTours();
       _actionReimport_EntireTour = new ActionReimport_EntireTour();
       _actionReimport_OnlyTimeSlices = new ActionReimport_OnlyTimeSlices();
       _actionReimport_OnlyTourMarker = new ActionReimport_OnlyTourMarker();
@@ -248,6 +250,8 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
    }
 
    private void fillMenu(final Menu menu) {
+
+      new ActionContributionItem(_actionReimport_Tours).fill(menu, -1);
 
       new ActionContributionItem(_actionReimport_OnlyCadenceValues).fill(menu, -1);
       new ActionContributionItem(_actionReimport_OnlyElevationValues).fill(menu, -1);
