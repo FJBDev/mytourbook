@@ -25,6 +25,7 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -212,6 +213,18 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       @Override
       public void run() {
          RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyTrainingValues, _tourViewer);
+      }
+   }
+
+   private class ActionReimportTours extends Action {
+
+      public ActionReimportTours() {
+         setText("Reimport Tours...");//TODO FB Messages.Import_Data_Action_RemoveTour);
+      }
+
+      @Override
+      public void run() {
+         new DialogReimportTours(Display.getCurrent().getActiveShell()).open();
       }
    }
 

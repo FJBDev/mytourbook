@@ -117,6 +117,7 @@ public class Messages extends NLS {
    public static String        Calendar_View_Combo_Year_Tooltip;
 
    public static String        dialog_export_btn_export;
+   public static String        dialog_reimport_tours_btn_reimport;
    public static String        dialog_export_chk_camouflageSpeed;
    public static String        dialog_export_chk_camouflageSpeed_tooltip;
    public static String        dialog_export_chk_camouflageSpeedInput_tooltip;
