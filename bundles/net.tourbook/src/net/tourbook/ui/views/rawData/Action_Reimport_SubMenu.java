@@ -38,7 +38,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
    private ActionReimportTours                      _actionReimport_Tours;
    private ActionReimport_EntireTour                _actionReimport_EntireTour;
    private ActionReimport_OnlyTimeSlices            _actionReimport_OnlyTimeSlices;
-   private ActionReimport_OnlyTourMarker            _actionReimport_OnlyTourMarker;
+   private ActionReimport_OnlyTourMarkers            _actionReimport_OnlyTourMarkers;
    private ActionReimport_OnlyTourTimerPauses       _actionReimport_OnlyTourTimerPauses;
 
    private ActionReimport_OnlyCadenceValues         _actionReimport_OnlyCadenceValues;
@@ -180,10 +180,10 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       }
    }
 
-   private class ActionReimport_OnlyTourMarker extends Action {
+   private class ActionReimport_OnlyTourMarkers extends Action {
 
-      public ActionReimport_OnlyTourMarker() {
-         setText(Messages.Import_Data_Action_Reimport_OnlyTourMarker);
+      public ActionReimport_OnlyTourMarkers() {
+         setText(Messages.Import_Data_Action_Reimport_OnlyTourMarkers);
       }
 
       @Override
@@ -239,7 +239,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       _actionReimport_Tours = new ActionReimportTours();
       _actionReimport_EntireTour = new ActionReimport_EntireTour();
       _actionReimport_OnlyTimeSlices = new ActionReimport_OnlyTimeSlices();
-      _actionReimport_OnlyTourMarker = new ActionReimport_OnlyTourMarker();
+      _actionReimport_OnlyTourMarkers = new ActionReimport_OnlyTourMarkers();
       _actionReimport_OnlyTourTimerPauses = new ActionReimport_OnlyTourTimerPauses();
 
       _actionReimport_OnlyCadenceValues = new ActionReimport_OnlyCadenceValues();
@@ -275,7 +275,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       new ActionContributionItem(_actionReimport_OnlySwimmingValues).fill(menu, -1);
 
       new ActionContributionItem(_actionReimport_OnlyTemperatureValues).fill(menu, -1);
-      new ActionContributionItem(_actionReimport_OnlyTourMarker).fill(menu, -1);
+      new ActionContributionItem(_actionReimport_OnlyTourMarkers).fill(menu, -1);
       new ActionContributionItem(_actionReimport_OnlyTourTimerPauses).fill(menu, -1);
       new ActionContributionItem(_actionReimport_OnlyTrainingValues).fill(menu, -1);
 

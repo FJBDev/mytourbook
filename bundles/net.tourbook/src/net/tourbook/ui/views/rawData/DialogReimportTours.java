@@ -16,15 +16,9 @@
 package net.tourbook.ui.views.rawData;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -35,8 +29,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -52,90 +44,41 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 public class DialogReimportTours extends TitleAreaDialog {
 
-   private static final String STATE_GPX_IS_ABSOLUTE_DISTANCE    = "STATE_GPX_IS_ABSOLUTE_DISTANCE";    //$NON-NLS-1$
-   private static final String STATE_GPX_IS_EXPORT_DESCRITION    = "STATE_GPX_IS_EXPORT_DESCRITION";    //$NON-NLS-1$
-   private static final String STATE_GPX_IS_EXPORT_MARKERS       = "STATE_GPX_IS_EXPORT_MARKERS";       //$NON-NLS-1$
-   private static final String STATE_GPX_IS_EXPORT_TOUR_DATA     = "STATE_GPX_IS_EXPORT_TOUR_DATA";     //$NON-NLS-1$
-   private static final String STATE_GPX_IS_EXPORT_SURFING_WAVES = "STATE_GPX_IS_EXPORT_SURFING_WAVES"; //$NON-NLS-1$
-   private static final String STATE_GPX_IS_WITH_BAROMETER       = "STATE_GPX_IS_WITH_BAROMETER";       //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_ALL      = "STATE_REIMPORT_ALLTOURS";      //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_SELECTED = "STATE_REIMPORT_SELECTEDTOURS"; //$NON-NLS-1$
 
-   private static final String STATE_TCX_ACTIVITY_TYPES          = "STATE_TCX_ACTIVITY_TYPES";          //$NON-NLS-1$
-   private static final String STATE_TCX_ACTIVITY_TYPE           = "STATE_TCX_ACTIVITY_TYPE";           //$NON-NLS-1$
-   private static final String STATE_TCX_IS_COURSES              = "STATE_TCX_IS_COURSES";              //$NON-NLS-1$
-   private static final String STATE_TCX_IS_EXPORT_DESCRITION    = "STATE_TCX_IS_EXPORT_DESCRITION";    //$NON-NLS-1$
-   private static final String STATE_TCX_IS_NAME_FROM_TOUR       = "STATE_TCX_IS_NAME_FROM_TOUR";       //$NON-NLS-1$
-   private static final String STATE_TCX_COURSE_NAME             = "STATE_TCX_COURSE_NAME";             //$NON-NLS-1$
+   private static final String   STATE_TCX_ACTIVITY_TYPES    = "STATE_TCX_ACTIVITY_TYPES";    //$NON-NLS-1$
 
-   private static final String STATE_IS_EXPORT_TOUR_RANGE        = "isExportTourRange";                 //$NON-NLS-1$
-   private static final String STATE_IS_OVERWRITE_FILES          = "isOverwriteFiles";                  //$NON-NLS-1$
-   private static final String STATE_EXPORT_PATH_NAME            = "exportPathName";                    //$NON-NLS-1$
-   private static final String STATE_EXPORT_FILE_NAME            = "exportFileName";                    //$NON-NLS-1$
+   private static final String   STATE_IS_EXPORT_TOUR_RANGE  = "isExportTourRange";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_ALTITUDE      = "isOverwriteFiles";             //$NON-NLS-1$
+   private static final String   STATE_EXPORT_FILE_NAME      = "exportFileName";              //$NON-NLS-1$
 
-   private static final String            ZERO                       = "0";                                                //$NON-NLS-1$
+   private static final int      VERTICAL_SECTION_MARGIN     = 10;
+   private static final int      SIZING_TEXT_FIELD_WIDTH     = 250;
 
-   private static final int               VERTICAL_SECTION_MARGIN    = 10;
-   private static final int               SIZING_TEXT_FIELD_WIDTH    = 250;
-   private static final int               COMBO_HISTORY_LENGTH       = 20;
+   private static String         _dlgDefaultMessage;
 
-   private static String                  _dlgDefaultMessage;
-   //
-   private static final DecimalFormat     _nf1                       = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-   private static final DecimalFormat     _nf3                       = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-   private static final DecimalFormat     _nf8                       = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+   private final IDialogSettings _state                      = TourbookPlugin
+         .getState("DialogReimportTours");                                                    //$NON-NLS-1$
 
-   private static final DateTimeFormatter _dtIso                     = ISODateTimeFormat.dateTimeNoMillis();
-   private static final SimpleDateFormat  _dateFormat                = new SimpleDateFormat();
-
-   static {
-
-      _nf1.setMinimumFractionDigits(1);
-      _nf1.setMaximumFractionDigits(1);
-      _nf1.setGroupingUsed(false);
-
-      _nf3.setMinimumFractionDigits(1);
-      _nf3.setMaximumFractionDigits(3);
-      _nf3.setGroupingUsed(false);
-
-      _nf8.setMinimumFractionDigits(1);
-      _nf8.setMaximumFractionDigits(8);
-      _nf8.setGroupingUsed(false);
-
-      _dtIso.withZoneUTC();
-      _dateFormat.applyPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"); //$NON-NLS-1$
-      _dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
-   }
-
-   private final IDialogSettings     _state              = TourbookPlugin
-         .getState("DialogExportTour");                                                                                                                   //$NON-NLS-1$
-
-   /**
-    * Is <code>true</code> when multiple tours are selected and NOT merged into 1 file.
-    */
-   private boolean                   _isExport_MultipleToursWithMultipleFiles;
-
-   private boolean                   _isInUIInit;
+   private boolean               _isInUIInit;
 
    /**
     * Is <code>true</code> when only a part is exported.
     */
-   private boolean                   _isSetup_TourRange;
+   private boolean               _isSetup_TourRange;
 
    /**
     * Is <code>true</code> when multiple tours are exported.
     */
-   private boolean                   _isSetup_MultipleTours;
+   private boolean               _isSetup_MultipleTours;
 
+   private Point                 _shellDefaultSize;
 
-
-   private Point                     _shellDefaultSize;
-
-
-   private PixelConverter            _pc;
+   private PixelConverter        _pc;
 
    /*
     * UI controls
@@ -144,9 +87,22 @@ public class DialogReimportTours extends TitleAreaDialog {
    private Button    _btnSelectFile;
 
    private Button    _chkExportTourRange;
-   private Button    _chkOverwriteFiles;
+   private Button    _chkAltitude;
+   private Button    _chkCadence;
+   private Button    _chkGear;
+   private Button    _chkPowerAndPulse;
+   private Button    _chkPowerAndSpeed;
+   private Button    _chkRunningDynamics;
+   private Button    _chkSwimming;
+   private Button    _chkTemperature;
+   private Button    _chkTraining;
+   private Button    _chkTimeSlices;
+   private Button    _chkTourMarkers;
+   private Button    _chkTourTimerPauses;
+   private Button    _chkEntireTour;
 
-   private Button    _chkGPX_WithBarometer;
+   private Button    _chkReimport_Tours_All;
+   private Button    _chkReimport_Tours_Selected;
 
    private Combo     _comboFile;
 
@@ -172,14 +128,11 @@ public class DialogReimportTours extends TitleAreaDialog {
                   | SWT.TITLE
                   | SWT.CLOSE
                   | SWT.MIN
-//          | SWT.MAX
                   | SWT.RESIZE
                   | SWT.NONE;
 
       // make dialog resizable
       setShellStyle(shellStyle);
-
-
    }
 
    @Override
@@ -195,7 +148,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       super.configureShell(shell);
 
-      shell.setText(Messages.dialog_export_shell_text);
+      shell.setText("Reimport Tours...");//TODO FB Messages.dialog_export_shell_text);
 
       shell.addListener(SWT.Resize, new Listener() {
          @Override
@@ -222,7 +175,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       super.create();
 
-      setTitle(Messages.dialog_export_dialog_title);
+      setTitle("Reimport Tours...");//dialog_export_dialog_title);
       setMessage(_dlgDefaultMessage);
 
       _isInUIInit = true;
@@ -266,27 +219,39 @@ public class DialogReimportTours extends TitleAreaDialog {
       }
    }
 
+   /**
+    * UI to select either all the tours in the database or only the selected tours
+    *
+    * @param parent
+    */
    private void createUI_10_Tours(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
-         createUI_14_OptionsRight(container);
-      }
-   }
-
-   private void createUI_14_OptionsRight(final Composite parent) {
-
-
-
-         final Group groupCustomGPX = new Group(parent, SWT.NONE);
-         groupCustomGPX.setText(Messages.Dialog_Export_Group_Custom);
+         final Group groupCustomGPX = new Group(container, SWT.NONE);
+         groupCustomGPX.setText("Which tours");//TODO FBMessages.Dialog_Export_Group_Custom);
          groupCustomGPX.setToolTipText(Messages.Dialog_Export_Group_Custom_Tooltip);
-         GridDataFactory.fillDefaults().grab(false, false).applyTo(groupCustomGPX);
-         GridLayoutFactory.swtDefaults().applyTo(groupCustomGPX);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(groupCustomGPX);
+         GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupCustomGPX);
          {
-            createUI_72_Option_GPX_Custom(groupCustomGPX);
+            /*
+             * checkbox: Reimport all tours in the database
+             */
+            _chkReimport_Tours_All = new Button(groupCustomGPX, SWT.RADIO);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_All);
+            _chkReimport_Tours_All.setText(Messages.Dialog_Export_Checkbox_WithBarometer);
+            _chkReimport_Tours_All.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+
+            /*
+             * checkbox: Reimport the selected tours
+             */
+            _chkReimport_Tours_Selected = new Button(groupCustomGPX, SWT.RADIO);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_Selected);
+            _chkReimport_Tours_Selected.setText(Messages.Dialog_Export_Checkbox_WithBarometer);
+            _chkReimport_Tours_Selected.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+         }
       }
    }
 
@@ -294,18 +259,11 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       Label label;
 
-      final ModifyListener filePathModifyListener = new ModifyListener() {
-         @Override
-         public void modifyText(final ModifyEvent e) {
-            validateFields();
-         }
-      };
-
       /*
        * group: filename
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.dialog_export_group_exportFileName);
+      group.setText("Which data");//TODO FBMessages.dialog_export_group_exportFileName);
       GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -323,13 +281,7 @@ public class DialogReimportTours extends TitleAreaDialog {
          ((GridData) _comboFile.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
          _comboFile.setVisibleItemCount(20);
          _comboFile.addVerifyListener(net.tourbook.common.UI.verifyFilenameInput());
-         _comboFile.addModifyListener(filePathModifyListener);
-         _comboFile.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               validateFields();
-            }
-         });
+
 
          /*
           * button: browse
@@ -340,7 +292,6 @@ public class DialogReimportTours extends TitleAreaDialog {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                onSelectBrowseFile();
-               validateFields();
             }
          });
          setButtonLayoutData(_btnSelectFile);
@@ -361,7 +312,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
-               validateFields();
             }
          });
          setButtonLayoutData(_btnSelectDirectory);
@@ -385,39 +335,35 @@ public class DialogReimportTours extends TitleAreaDialog {
          // -----------------------------------------------------------------------------
 
          /*
-          * checkbox: overwrite files
+          * checkbox: altitude
           */
-         _chkOverwriteFiles = new Button(group, SWT.CHECK);
+         _chkAltitude = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
-               .applyTo(_chkOverwriteFiles);
-         _chkOverwriteFiles.setText(Messages.dialog_export_chk_overwriteFiles);
-         _chkOverwriteFiles.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+               .applyTo(_chkAltitude);
+         _chkAltitude.setText(Messages.dialog_export_chk_overwriteFiles);
+         _chkAltitude.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+
+         /*
+          * checkbox: altitude
+          */
+         _chkCadence = new Button(group, SWT.CHECK);
+         GridDataFactory.fillDefaults()//
+               .align(SWT.BEGINNING, SWT.CENTER)
+               .span(3, 1)
+               .indent(0, _pc.convertVerticalDLUsToPixels(4))
+               .applyTo(_chkCadence);
+         _chkCadence.setText(Messages.dialog_export_chk_overwriteFiles);
+         _chkCadence.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
       }
 
    }
 
 
 
-
-
-
-   private void createUI_72_Option_GPX_Custom(final Composite parent) {
-
-      /*
-       * checkbox: export with barometer
-       */
-      _chkGPX_WithBarometer = new Button(parent, SWT.CHECK);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkGPX_WithBarometer);
-      _chkGPX_WithBarometer.setText(Messages.Dialog_Export_Checkbox_WithBarometer);
-      _chkGPX_WithBarometer.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
-   }
-
-
    private void doReimport() throws IOException {
-
 
    }
 
@@ -434,21 +380,10 @@ public class DialogReimportTours extends TitleAreaDialog {
       final boolean isMergeIntoOneTour = false;
 
 
-      _isExport_MultipleToursWithMultipleFiles = _isSetup_MultipleTours;
-
-
-         final boolean isNoneGPX = isSingleTour || _isExport_MultipleToursWithMultipleFiles;
-
-
       _comboFile.setEnabled(isSingleTour || isMergeIntoOneTour);
       _btnSelectFile.setEnabled(isSingleTour || isMergeIntoOneTour);
 
-
    }
-
-
-
-
 
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
@@ -456,9 +391,6 @@ public class DialogReimportTours extends TitleAreaDialog {
       return _state;
    }
 
-   private String getExportFileName() {
-      return _comboFile.getText().trim();
-   }
 
 
    private void initUI(final Composite parent) {
@@ -485,24 +417,19 @@ public class DialogReimportTours extends TitleAreaDialog {
       super.okPressed();
    }
 
-
-
    private void onSelectBrowseFile() {
-
 
    }
 
    private void restoreState() {
 
-         final String[] activityTypes = _state.getArray(STATE_TCX_ACTIVITY_TYPES);
-         if (activityTypes == null) {
-            /*
-             * Fill-up the default activity types
-             */
+      final String[] activityTypes = _state.getArray(STATE_TCX_ACTIVITY_TYPES);
+      if (activityTypes == null) {
+         /*
+          * Fill-up the default activity types
+          */
 
-         }
-
-         final String lastSelected_ActivityType = _state.get(STATE_TCX_ACTIVITY_TYPE);
+      }
 
 
       // merge all tours
@@ -514,14 +441,14 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       // camouflage speed
 
-      // export file/path
-      UI.restoreCombo(_comboFile, _state.getArray(STATE_EXPORT_FILE_NAME));
-      _chkOverwriteFiles.setSelection(_state.getBoolean(STATE_IS_OVERWRITE_FILES));
+      // Data to import
+      _chkAltitude.setSelection(_state.getBoolean(STATE_IS_IMPORT_ALTITUDE));
    }
 
    private void saveState() {
 
-         _state.put(STATE_GPX_IS_WITH_BAROMETER, _chkGPX_WithBarometer.getSelection());
+      _state.put(STATE_REIMPORT_TOURS_ALL, _chkReimport_Tours_All.getSelection());
+      _state.put(STATE_REIMPORT_TOURS_SELECTED, _chkReimport_Tours_Selected.getSelection());
 
       // merge all tours
 
@@ -530,26 +457,8 @@ public class DialogReimportTours extends TitleAreaDialog {
          _state.put(STATE_IS_EXPORT_TOUR_RANGE, _chkExportTourRange.getSelection());
       }
 
-
-      _state.put(STATE_IS_OVERWRITE_FILES, _chkOverwriteFiles.getSelection());
+      // Data to import
+      _state.put(STATE_IS_IMPORT_ALTITUDE, _chkAltitude.getSelection());
    }
 
-
-
-
-
-   private void validateFields() {
-
-      if (_isInUIInit) {
-         return;
-      }
-
-      /*
-       * validate fields
-       */
-
-
-      setErrorMessage(null);
-      enableExportButton(true);
-   }
 }

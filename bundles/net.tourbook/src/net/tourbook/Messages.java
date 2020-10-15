@@ -1197,7 +1197,7 @@ public class Messages extends NLS {
    public static String        Import_Data_Action_Reimport_OnlySwimmingValues;
    public static String        Import_Data_Action_Reimport_OnlyTemperatureValues;
    public static String        Import_Data_Action_Reimport_OnlyTimeSlices;
-   public static String        Import_Data_Action_Reimport_OnlyTourMarker;
+   public static String        Import_Data_Action_Reimport_OnlyTourMarkers;
    public static String        Import_Data_Action_Reimport_OnlyTourTimerPauses;
    public static String        Import_Data_Action_Reimport_OnlyTrainingValues;
    public static String        Import_Data_Action_Reimport_Tour;
