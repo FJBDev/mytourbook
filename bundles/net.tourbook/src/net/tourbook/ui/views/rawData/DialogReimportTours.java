@@ -455,6 +455,8 @@ public class DialogReimportTours extends TitleAreaDialog {
 
          saveState();
 
+         TourLogManager.showLogView();
+
          TourLogManager.addLog(
                TourLogState.DEFAULT, //
                NLS.bind(RawDataManager.LOG_REIMPORT_COMBINED_VALUES, "ddd"), //TODO FB
