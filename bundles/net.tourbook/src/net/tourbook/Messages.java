@@ -1207,6 +1207,21 @@ public class Messages extends NLS {
    public static String        Import_Data_Default_FirstEasyImportLauncher_Description;
    public static String        Import_Data_Default_FirstEasyImportLauncher_Name;
    public static String        Import_Data_Default_ImportConfig_Name;
+   public static String        Import_Data_Dialog_ConfirmReimport;
+   public static String        Import_Data_Dialog_ConfirmReimportValues_Message;
+   public static String        Import_Data_RunningDynamicsValues;
+   public static String        Import_Data_SwimmingValues;
+   public static String        Import_Data_AltitudeValues;
+   public static String        Import_Data_CadenceValues;
+   public static String        Import_Data_GearValues;
+   public static String        Import_Data_PowerAndPulseValues;
+   public static String        Import_Data_PowerAndSpeedValues;
+   public static String        Import_Data_TemperatureValues;
+   public static String        Import_Data_TimeSlices;
+   public static String        Import_Data_TourMarkers;
+   public static String        Import_Data_TourTimerPauses;
+   public static String        Import_Data_TrainingValues;
+   public static String        Import_Data_EntireTour;
    public static String        Import_Data_Dialog_ConfirmReimport_Message;
    public static String        Import_Data_Dialog_ConfirmReimport_RunningDynamicsValues_Message;
    public static String        Import_Data_Dialog_ConfirmReimport_SwimmingValues_Message;
@@ -1345,6 +1360,7 @@ public class Messages extends NLS {
    public static String        Log_Import_Tours_Imported_From_File;
    public static String        Log_Import_Tour_Old_Data_Vs_New_Data;
 
+   public static String        Log_Reimport_Combined_Values;
    public static String        Log_Reimport_AllTimeSlices;
    public static String        Log_Reimport_ManualTour;
    public static String        Log_Reimport_Only_Altitude;

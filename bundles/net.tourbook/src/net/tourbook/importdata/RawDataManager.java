@@ -106,6 +106,7 @@ public class RawDataManager {
    public static final String            LOG_REIMPORT_PREVIOUS_FILES           = Messages.Log_Reimport_PreviousFiles;
    public static final String            LOG_REIMPORT_END                      = Messages.Log_Reimport_PreviousFiles_End;
 
+   private static final String           LOG_REIMPORT_COMBINED_VALUES          = Messages.Log_Reimport_Combined_Values;
    private static final String           LOG_REIMPORT_ALL_TIME_SLICES          = Messages.Log_Reimport_AllTimeSlices;
    private static final String           LOG_REIMPORT_MANUAL_TOUR              = Messages.Log_Reimport_ManualTour;
    private static final String           LOG_REIMPORT_ONLY_ALTITUDE            = Messages.Log_Reimport_Only_Altitude;
@@ -217,22 +218,22 @@ public class RawDataManager {
 
    public static enum ReImport {
 
-      AllTimeSlices, //
+      TimeSlices, //
       Tour, //
 
-      OnlyAltitudeValues, //
-      OnlyCadenceValues, //
-      OnlyGearValues, //
-      OnlyPowerAndSpeedValues, //
-      OnlyPowerAndPulseValues, //
-      OnlyRunningDynamics, //
-      OnlySwimming, //
-      OnlyTemperatureValues, //
-      OnlyTrainingValues, //
+      AltitudeValues, //
+      CadenceValues, //
+      GearValues, //
+      PowerAndSpeedValues, //
+      PowerAndPulseValues, //
+      RunningDynamics, //
+      Swimming, //
+      TemperatureValues, //
+      TrainingValues, //
 
-      OnlyTourMarker, //
+      TourMarkers, //
 
-      OnlyTourTimerPauses, //
+      TourTimerPauses, //
    }
 
    private RawDataManager() {}
@@ -456,12 +457,12 @@ public class RawDataManager {
    }
 
    /**
-    * @param reimportId
-    *           ID how a tour is re-imported.
+    * @param reimportIds
+    *           A list of IDs of data to be re-imported
     * @param tourViewer
     *           Tour viewer where the selected tours should be re-imported.
     */
-   public void actionReimportTour(final ReImport reimportId, final ITourViewer3 tourViewer) {
+   public void actionReimportTour(final List<ReImport> reimportIds, final ITourViewer3 tourViewer) {
 
       final long start = System.currentTimeMillis();
 
@@ -470,7 +471,7 @@ public class RawDataManager {
          return;
       }
 
-      if (actionReimportTour_10_Confirm(reimportId) == false) {
+      if (actionReimportTour_10_Confirm(reimportIds) == false) {
          return;
       }
 
@@ -528,7 +529,7 @@ public class RawDataManager {
                if (oldTourData.isManualTour()) {
 
                   /**
-                   * Manually created tours cannot be reimported, there is no import filepath
+                   * Manually created tours cannot be re-imported, there is no import file path
                    * <p>
                    * It took a very long time (years) until this case was discovered
                    */
@@ -549,7 +550,7 @@ public class RawDataManager {
 
                   // this case occurs when a file contains multiple tours
 
-                  if (actionReimportTour_30(reimportId, reimportedFile, oldTourData)) {
+                  if (actionReimportTour_30(reimportIds, reimportedFile, oldTourData)) {
                      isReImported = true;
                      isTourReImportedFromSameFile = true;
                   }
@@ -573,7 +574,7 @@ public class RawDataManager {
 
                   // import file is available
 
-                  if (actionReimportTour_30(reimportId, reimportedFile, oldTourData)) {
+                  if (actionReimportTour_30(reimportIds, reimportedFile, oldTourData)) {
                      isReImported = true;
                   }
                }
@@ -607,11 +608,75 @@ public class RawDataManager {
       }
    }
 
-   private boolean actionReimportTour_10_Confirm(final ReImport reimportTour) {
+   private boolean actionReimportTour_10_Confirm(final List<ReImport> reimportIds) {
 
-      switch (reimportTour) {
+      if (reimportIds.size() > 1) {
+      final ArrayList<String> dataToReimportDetails = new ArrayList<>();
 
-      case AllTimeSlices:
+      for (final ReImport reimportId : reimportIds) {
+
+         switch (reimportId) {
+
+         case TimeSlices:
+            dataToReimportDetails.add(Messages.Import_Data_TimeSlices);
+            break;
+         case AltitudeValues:
+            dataToReimportDetails.add(Messages.Import_Data_AltitudeValues);
+            break;
+         case CadenceValues:
+            dataToReimportDetails.add(Messages.Import_Data_CadenceValues);
+            break;
+         case GearValues:
+            dataToReimportDetails.add(Messages.Import_Data_GearValues);
+            break;
+         case PowerAndPulseValues:
+            dataToReimportDetails.add(Messages.Import_Data_PowerAndPulseValues);
+            break;
+         case PowerAndSpeedValues:
+            dataToReimportDetails.add(Messages.Import_Data_PowerAndSpeedValues);
+            break;
+         case RunningDynamics:
+            dataToReimportDetails.add(Messages.Import_Data_RunningDynamicsValues);
+            break;
+         case Swimming:
+            dataToReimportDetails.add(Messages.Import_Data_SwimmingValues);
+            break;
+         case TemperatureValues:
+            dataToReimportDetails.add(Messages.Import_Data_TemperatureValues);
+            break;
+         case TourMarkers:
+            dataToReimportDetails.add(Messages.Import_Data_TourMarkers);
+            break;
+         case TourTimerPauses:
+            dataToReimportDetails.add(Messages.Import_Data_TourTimerPauses);
+            break;
+         case TrainingValues:
+            dataToReimportDetails.add(Messages.Import_Data_TrainingValues);
+            break;
+         case Tour:
+            dataToReimportDetails.add(Messages.Import_Data_EntireTour);
+            break;
+         }
+      }
+
+      final String formattedDataToReimportDetails = String.join(UI.COMMA_SPACE, dataToReimportDetails);
+
+      if (actionReimportTour_12_ConfirmDialog(
+            ITourbookPreferences.TOGGLE_STATE_REIMPORT_COMBINED_VALUES,
+            NLS.bind(Messages.Import_Data_Dialog_ConfirmReimportValues_Message, formattedDataToReimportDetails))) {
+
+         TourLogManager.addLog(
+               TourLogState.DEFAULT, //
+               NLS.bind(LOG_REIMPORT_COMBINED_VALUES, formattedDataToReimportDetails),
+               TourLogView.CSS_LOG_TITLE);
+         return true;
+      }
+
+      return false;
+   } else {
+      switch (reimportIds.get(0)) {
+
+      case TimeSlices:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_ALL_TIME_SLICES,
@@ -626,7 +691,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyAltitudeValues:
+      case AltitudeValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_ALTITUDE_VALUES,
@@ -640,7 +705,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyCadenceValues:
+      case CadenceValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_CADENCE_VALUES,
@@ -654,7 +719,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyGearValues:
+      case GearValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_GEAR_VALUES,
@@ -669,7 +734,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyPowerAndPulseValues:
+      case PowerAndPulseValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_POWER_AND_PULSE_VALUES,
@@ -684,7 +749,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyPowerAndSpeedValues:
+      case PowerAndSpeedValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_POWER_AND_SPEED_VALUES,
@@ -699,7 +764,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyRunningDynamics:
+      case RunningDynamics:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_RUNNING_DYNAMICS_VALUES,
@@ -714,7 +779,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlySwimming:
+      case Swimming:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_SWIMMING_VALUES,
@@ -729,7 +794,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyTemperatureValues:
+      case TemperatureValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_TEMPERATURE_VALUES,
@@ -744,7 +809,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyTourMarker:
+      case TourMarkers:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_TOUR_MARKER,
@@ -759,7 +824,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyTourTimerPauses:
+      case TourTimerPauses:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_TOUR_TIMERPAUSES,
@@ -774,7 +839,7 @@ public class RawDataManager {
          }
          break;
 
-      case OnlyTrainingValues:
+      case TrainingValues:
 
          if (actionReimportTour_12_ConfirmDialog(
                ITourbookPreferences.TOGGLE_STATE_REIMPORT_TRAINING_VALUES,
@@ -807,6 +872,7 @@ public class RawDataManager {
 
       return false;
    }
+}
 
    private boolean actionReimportTour_12_ConfirmDialog(final String toggleState, final String confirmMessage) {
 
@@ -968,7 +1034,7 @@ public class RawDataManager {
       return new File(reimportFilePathName[0]);
    }
 
-   private boolean actionReimportTour_30(final ReImport reimportId,
+   private boolean actionReimportTour_30(final List<ReImport> reimportIds,
                                          final File reimportedFile,
                                          final TourData oldTourData) {
 
@@ -992,14 +1058,14 @@ public class RawDataManager {
          long previousTourTimerPauses = 0;
          int oldAltitudeUp = 0;
          int oldAltitudeDown = 0;
-         if (reimportId == ReImport.OnlyTourTimerPauses) {
+         if (reimportIds.contains(ReImport.TourTimerPauses)) {
             previousTourTimerPauses = oldTourData.getTourDeviceTime_Paused();
-         } else if (reimportId == ReImport.OnlyAltitudeValues) {
+         } else if (reimportIds.contains(ReImport.AltitudeValues)) {
             oldAltitudeUp = Math.round(oldTourData.getTourAltUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
             oldAltitudeDown = Math.round(oldTourData.getTourAltDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
          }
 
-         TourData newTourData = actionReimportTour_40(reimportId, reimportedFile, oldTourData);
+         TourData newTourData = actionReimportTour_40(reimportIds, reimportedFile, oldTourData);
 
          if (newTourData == null) {
 
@@ -1037,28 +1103,30 @@ public class RawDataManager {
             //Print the old vs new data comparison
             String previousData = UI.EMPTY_STRING;
             String newData = UI.EMPTY_STRING;
-            switch (reimportId) {
+            for (final ReImport reimportId : reimportIds) {
+               switch (reimportId) {
 
-            case OnlyAltitudeValues:
-               final String heightLabel = UI.UNIT_IS_METRIC ? UI.UNIT_METER : UI.UNIT_HEIGHT_FT;
-               final int newAltitudeUp = Math.round(newTourData.getTourAltUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
-               final int newAltitudeDown = Math.round(newTourData.getTourAltDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
+               case AltitudeValues:
+                  final String heightLabel = UI.UNIT_IS_METRIC ? UI.UNIT_METER : UI.UNIT_HEIGHT_FT;
+                  final int newAltitudeUp = Math.round(newTourData.getTourAltUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
+                  final int newAltitudeDown = Math.round(newTourData.getTourAltDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
 
-               previousData = UI.SYMBOL_PLUS + oldAltitudeUp + heightLabel + UI.SLASH_WITH_SPACE
-                     + UI.DASH
-                     + oldAltitudeDown
-                     + heightLabel;
-               newData = UI.SYMBOL_PLUS + newAltitudeUp + heightLabel + UI.SLASH_WITH_SPACE
-                     + UI.DASH + newAltitudeDown
-                     + heightLabel;
-               break;
-            case OnlyTourTimerPauses:
-               previousData = UI.format_hhh_mm_ss(previousTourTimerPauses);
-               newData = UI.format_hhh_mm_ss(newTourData.getTourDeviceTime_Paused());
-               break;
+                  previousData = UI.SYMBOL_PLUS + oldAltitudeUp + heightLabel + UI.SLASH_WITH_SPACE
+                        + UI.DASH
+                        + oldAltitudeDown
+                        + heightLabel;
+                  newData = UI.SYMBOL_PLUS + newAltitudeUp + heightLabel + UI.SLASH_WITH_SPACE
+                        + UI.DASH + newAltitudeDown
+                        + heightLabel;
+                  break;
+               case TourTimerPauses:
+                  previousData = UI.format_hhh_mm_ss(previousTourTimerPauses);
+                  newData = UI.format_hhh_mm_ss(newTourData.getTourDeviceTime_Paused());
+                  break;
 
-            default:
-               break;
+               default:
+                  break;
+               }
             }
 
             if (!StringUtils.isNullOrEmpty(previousData) &&
@@ -1095,13 +1163,13 @@ public class RawDataManager {
    }
 
    /**
-    * @param reimportId
+    * @param reimportIds
     * @param reimportedFile
     * @param oldTourData
     * @return Returns {@link TourData} with the re-imported time slices or <code>null</code> when an
     *         error occurred.
     */
-   private TourData actionReimportTour_40(final ReImport reimportId,
+   private TourData actionReimportTour_40(final List<ReImport> reimportIds,
                                           final File reimportedFile,
                                           final TourData oldTourData) {
 
@@ -1169,7 +1237,7 @@ public class RawDataManager {
 
          TourData newTourData = null;
 
-         if (reimportId == ReImport.Tour) {
+         if (reimportIds.get(0) == ReImport.Tour) {
 
             // replace complete tour
 
@@ -1180,27 +1248,25 @@ public class RawDataManager {
             // keep body weight from old tour
             newTourData.setBodyWeight(oldTourData.getBodyWeight());
 
-         } else if (reimportId == ReImport.AllTimeSlices
-               || reimportId == ReImport.OnlyAltitudeValues
-               || reimportId == ReImport.OnlyCadenceValues
-               || reimportId == ReImport.OnlyGearValues
-               || reimportId == ReImport.OnlyPowerAndPulseValues
-               || reimportId == ReImport.OnlyPowerAndSpeedValues
-               || reimportId == ReImport.OnlyRunningDynamics
-               || reimportId == ReImport.OnlySwimming
-               || reimportId == ReImport.OnlyTemperatureValues
-               || reimportId == ReImport.OnlyTourTimerPauses
-               || reimportId == ReImport.OnlyTrainingValues
-
-         ) {
+         } else if (reimportIds.contains(ReImport.TimeSlices)
+               || reimportIds.contains(ReImport.AltitudeValues)
+               || reimportIds.contains(ReImport.CadenceValues)
+               || reimportIds.contains(ReImport.GearValues)
+               || reimportIds.contains(ReImport.PowerAndPulseValues)
+               || reimportIds.contains(ReImport.PowerAndSpeedValues)
+               || reimportIds.contains(ReImport.RunningDynamics)
+               || reimportIds.contains(ReImport.Swimming)
+               || reimportIds.contains(ReImport.TemperatureValues)
+               || reimportIds.contains(ReImport.TourTimerPauses)
+               || reimportIds.contains(ReImport.TrainingValues)) {
 
             // replace part of the tour
 
-            actionReimportTour_40_TimeSlices(reimportId, oldTourData, reimportedTourData);
+            actionReimportTour_40_TimeSlices(reimportIds, oldTourData, reimportedTourData);
 
             newTourData = oldTourData;
 
-         } else if (reimportId == ReImport.OnlyTourMarker) {
+         } else if (reimportIds.contains(ReImport.TourMarkers)) {
 
             // re-import only tour markers
 
@@ -1242,19 +1308,19 @@ public class RawDataManager {
       return null;
    }
 
-   private void actionReimportTour_40_TimeSlices(final ReImport reimportId,
+   private void actionReimportTour_40_TimeSlices(final List<ReImport> reimportIds,
                                                  final TourData oldTourData,
                                                  final TourData reimportedTourData) {
 
       // ALTITUDE
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyAltitudeValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.AltitudeValues)) {
 
          // re-import altitude only
          oldTourData.altitudeSerie = reimportedTourData.altitudeSerie;
       }
 
       // CADENCE
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyCadenceValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.CadenceValues)) {
 
          // re-import cadence/stride only
          oldTourData.setCadenceSerie(reimportedTourData.getCadenceSerie());
@@ -1263,7 +1329,7 @@ public class RawDataManager {
       }
 
       // GEAR
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyGearValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.GearValues)) {
 
          // re-import gear only
          oldTourData.gearSerie = reimportedTourData.gearSerie;
@@ -1272,9 +1338,9 @@ public class RawDataManager {
       }
 
       // POWER
-      if (reimportId == ReImport.AllTimeSlices
-            || reimportId == ReImport.OnlyPowerAndPulseValues
-            || reimportId == ReImport.OnlyPowerAndSpeedValues) {
+      if (reimportIds.contains(ReImport.TimeSlices)
+            || reimportIds.contains(ReImport.PowerAndPulseValues)
+            || reimportIds.contains(ReImport.PowerAndSpeedValues)) {
 
          oldTourData.setCalories(reimportedTourData.getCalories());
 
@@ -1309,7 +1375,7 @@ public class RawDataManager {
       }
 
       // PULSE
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyPowerAndPulseValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.PowerAndPulseValues)) {
 
          // re-import pulse
 
@@ -1318,7 +1384,7 @@ public class RawDataManager {
       }
 
       // SPEED
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyPowerAndSpeedValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.PowerAndSpeedValues)) {
 
          // re-import speed
 
@@ -1332,7 +1398,7 @@ public class RawDataManager {
       }
 
       // RUNNING DYNAMICS
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyRunningDynamics) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.RunningDynamics)) {
 
          // re-import only running dynamics
 
@@ -1344,7 +1410,7 @@ public class RawDataManager {
       }
 
       // SWIMMING
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlySwimming) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.Swimming)) {
 
          // re-import only swimming
 
@@ -1356,7 +1422,7 @@ public class RawDataManager {
       }
 
       // TEMPERATURE
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyTemperatureValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.TemperatureValues)) {
 
          // re-import temperature only
 
@@ -1364,7 +1430,7 @@ public class RawDataManager {
       }
 
       // TRAINING
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyTrainingValues) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.TrainingValues)) {
 
          // re-import training only
 
@@ -1374,7 +1440,7 @@ public class RawDataManager {
       }
 
       // PAUSES
-      if (reimportId == ReImport.AllTimeSlices || reimportId == ReImport.OnlyTourTimerPauses) {
+      if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.TourTimerPauses)) {
 
          // re-import pauses only
 
@@ -1394,7 +1460,7 @@ public class RawDataManager {
       }
 
       // ALL
-      if (reimportId == ReImport.AllTimeSlices) {
+      if (reimportIds.contains(ReImport.TimeSlices)) {
 
          // re-import all other data series
 

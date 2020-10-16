@@ -16,31 +16,22 @@
 package net.tourbook.ui.views.rawData;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.common.util.StatusUtil;
-import net.tourbook.data.TourData;
-import net.tourbook.database.IComputeNoDataserieValues;
-import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.RawDataManager;
-import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.tour.TourEventId;
-import net.tourbook.tour.TourManager;
-import net.tourbook.ui.ITourProviderByID;
-import net.tourbook.ui.UI;
+import net.tourbook.importdata.RawDataManager.ReImport;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -83,7 +74,8 @@ public class DialogReimportTours extends TitleAreaDialog {
 
    private Point                 _shellDefaultSize;
 
-   private final ITourProviderByID _tourProvider;
+   private final ITourViewer3    _tourViewer;
+   //  private final ITourProviderByID _tourProvider;
    private PixelConverter        _pc;
 
    /*
@@ -115,14 +107,15 @@ public class DialogReimportTours extends TitleAreaDialog {
     * @param parentShell
     */
    public DialogReimportTours(final Shell parentShell,
-                              final ITourProviderByID tourProvider) {
+                              final ITourViewer3 tourViewer) {
+      //final ITourProviderByID tourProvider) {
 
       //TODO FB pass the selected tours in case the user wants to reimport only for the selected tours
 
-      //TODO FB enable the reimport button only if somehting is clicked
       super(parentShell);
 
-      _tourProvider = tourProvider;
+      //  _tourProvider = tourProvider;
+      _tourViewer = tourViewer;
 
       int shellStyle = getShellStyle();
 
@@ -445,98 +438,141 @@ public class DialogReimportTours extends TitleAreaDialog {
       final boolean isReimportAllTours = _chkReimport_Tours_All.getSelection();
 
       if (isReimportAllTours) {
-         final ArrayList<Long> tourIds = new ArrayList<>(_tourProvider.getSelectedTourIDs());
-
-         final float prefDPTolerance = TourbookPlugin.getPrefStore().getFloat(
-               ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
-
-         if (MessageDialog.openConfirm(
-               Display.getCurrent().getActiveShell(),
-               Messages.Compute_TourValue_ElevationGain_Title,
-               NLS.bind(//
-                     Messages.Compute_TourValue_ElevationGain_Message,
-                     tourIds.size(),
-                     22)) == false) {
-            return;
-         }
-
-         final int[] elevationOld = new int[] { 0 };
-         final int[] elevationNew = new int[] { 0 };
-
-         final IComputeNoDataserieValues configComputeTourValue = new IComputeNoDataserieValues() {
-
-            @Override
-            public boolean computeTourValues(final TourData originalTourData, final PreparedStatement sqlUpdateStatement) throws SQLException {
-
-               // keep old value
-               elevationOld[0] += originalTourData.getTourAltUp();
-
-               if (originalTourData.computeAltitudeUpDown() == false) {
-
-                  // altitude up/down values could not be computed
-                  return false;
-               }
-
-               final int newAltitudeUp = originalTourData.getTourAltUp();
-               elevationNew[0] += newAltitudeUp;
-
-               sqlUpdateStatement.setShort(1, originalTourData.getDpTolerance());
-               sqlUpdateStatement.setInt(2, newAltitudeUp);
-               sqlUpdateStatement.setInt(3, originalTourData.getTourAltDown());
-               sqlUpdateStatement.setInt(4, originalTourData.getAvgAltitudeChange());
-               sqlUpdateStatement.setLong(5, originalTourData.getTourId());
-
-               return true;
-            }
-
-            @Override
-            public String getResultText() {
-
-               final int elevationDifference = elevationNew[0] - elevationOld[0];
-               final String differenceResult = "12";//getElevationDifferenceString(elevationDifference);
-
-               return NLS.bind(Messages.Compute_TourValue_ElevationGain_ResultText,
-                     new Object[] {
-                           22,
-                           differenceResult,
-                           net.tourbook.common.UI.UNIT_LABEL_ALTITUDE
-                     });
-            }
-
-            @Override
-            public String getSQLUpdateStatement() {
-
-               final String sql = UI.EMPTY_STRING
-
-                     + "UPDATE " + TourDatabase.TABLE_TOUR_DATA //   //$NON-NLS-1$
-
-                     + " SET" //                                     //$NON-NLS-1$
-
-                     + " dpTolerance=?, " //                         //$NON-NLS-1$
-                     + " tourAltUp=?, " //                           //$NON-NLS-1$
-                     + " tourAltDown=?, " //                         //$NON-NLS-1$
-                     + " avgAltitudeChange=? " //                    //$NON-NLS-1$
-
-                     + " WHERE tourId=?"; //                         //$NON-NLS-1$
-
-               return sql;
-            }
-         };
-
-         TourDatabase.computeNoDataserieValues_ForAllTours(configComputeTourValue, tourIds);
-
-         /*
-          * Fire event
-          */
-         TourManager.getInstance().removeAllToursFromCache();
-         TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
-
-         // fire unique event for all changes
-         TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
+//         final ArrayList<Long> tourIds = new ArrayList<>(_tourProvider.getSelectedTourIDs());
+//
+//         final float prefDPTolerance = TourbookPlugin.getPrefStore().getFloat(
+//               ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
+//
+//         if (MessageDialog.openConfirm(
+//               Display.getCurrent().getActiveShell(),
+//               Messages.Compute_TourValue_ElevationGain_Title,
+//               NLS.bind(//
+//                     Messages.Compute_TourValue_ElevationGain_Message,
+//                     tourIds.size(),
+//                     22)) == false) {
+//            return;
+//         }
+//
+//         final int[] elevationOld = new int[] { 0 };
+//         final int[] elevationNew = new int[] { 0 };
+//
+//         final IComputeNoDataserieValues configComputeTourValue = new IComputeNoDataserieValues() {
+//
+//            @Override
+//            public boolean computeTourValues(final TourData originalTourData, final PreparedStatement sqlUpdateStatement) throws SQLException {
+//
+//               // keep old value
+//               elevationOld[0] += originalTourData.getTourAltUp();
+//
+//               if (originalTourData.computeAltitudeUpDown() == false) {
+//
+//                  // altitude up/down values could not be computed
+//                  return false;
+//               }
+//
+//               final int newAltitudeUp = originalTourData.getTourAltUp();
+//               elevationNew[0] += newAltitudeUp;
+//
+//               sqlUpdateStatement.setShort(1, originalTourData.getDpTolerance());
+//               sqlUpdateStatement.setInt(2, newAltitudeUp);
+//               sqlUpdateStatement.setInt(3, originalTourData.getTourAltDown());
+//               sqlUpdateStatement.setInt(4, originalTourData.getAvgAltitudeChange());
+//               sqlUpdateStatement.setLong(5, originalTourData.getTourId());
+//
+//               return true;
+//            }
+//
+//            @Override
+//            public String getResultText() {
+//
+//               final int elevationDifference = elevationNew[0] - elevationOld[0];
+//               final String differenceResult = "12";//getElevationDifferenceString(elevationDifference);
+//
+//               return NLS.bind(Messages.Compute_TourValue_ElevationGain_ResultText,
+//                     new Object[] {
+//                           22,
+//                           differenceResult,
+//                           net.tourbook.common.UI.UNIT_LABEL_ALTITUDE
+//                     });
+//            }
+//
+//            @Override
+//            public String getSQLUpdateStatement() {
+//
+//               final String sql = UI.EMPTY_STRING
+//
+//                     + "UPDATE " + TourDatabase.TABLE_TOUR_DATA //   //$NON-NLS-1$
+//
+//                     + " SET" //                                     //$NON-NLS-1$
+//
+//                     + " dpTolerance=?, " //                         //$NON-NLS-1$
+//                     + " tourAltUp=?, " //                           //$NON-NLS-1$
+//                     + " tourAltDown=?, " //                         //$NON-NLS-1$
+//                     + " avgAltitudeChange=? " //                    //$NON-NLS-1$
+//
+//                     + " WHERE tourId=?"; //                         //$NON-NLS-1$
+//
+//               return sql;
+//            }
+//         };
+//
+//         TourDatabase.computeNoDataserieValues_ForAllTours(configComputeTourValue, tourIds);
+//
+//         /*
+//          * Fire event
+//          */
+//         TourManager.getInstance().removeAllToursFromCache();
+//         TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
+//
+//         // fire unique event for all changes
+//         TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
       } else {
 
-         //TODO FB, modify actionReimportTOur to accept an array of ReimportID
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.Tour, _tourViewer);
+         final List<ReImport> reimportIds = new ArrayList<>();
+
+         if (_chkEntireTour.getSelection()) {
+            reimportIds.add(ReImport.Tour);
+         } else {
+
+            if (_chkAltitude.getSelection()) {
+               reimportIds.add(ReImport.AltitudeValues);
+            }
+            if (_chkCadence.getSelection()) {
+               reimportIds.add(ReImport.CadenceValues);
+            }
+            if (_chkGear.getSelection()) {
+               reimportIds.add(ReImport.GearValues);
+            }
+            if (_chkPowerAndPulse.getSelection()) {
+               reimportIds.add(ReImport.PowerAndPulseValues);
+            }
+            if (_chkPowerAndSpeed.getSelection()) {
+               reimportIds.add(ReImport.PowerAndSpeedValues);
+            }
+            if (_chkRunningDynamics.getSelection()) {
+               reimportIds.add(ReImport.RunningDynamics);
+            }
+            if (_chkSwimming.getSelection()) {
+               reimportIds.add(ReImport.Swimming);
+            }
+            if (_chkTemperature.getSelection()) {
+               reimportIds.add(ReImport.TemperatureValues);
+            }
+            if (_chkTraining.getSelection()) {
+               reimportIds.add(ReImport.TrainingValues);
+            }
+            if (_chkTimeSlices.getSelection()) {
+               reimportIds.add(ReImport.TimeSlices);
+            }
+            if (_chkTourMarkers.getSelection()) {
+               reimportIds.add(ReImport.TourMarkers);
+            }
+            if (_chkTourTimerPauses.getSelection()) {
+               reimportIds.add(ReImport.TourTimerPauses);
+            }
+         }
+
+         RawDataManager.getInstance().actionReimportTour(reimportIds, _tourViewer);
 
       }
    }

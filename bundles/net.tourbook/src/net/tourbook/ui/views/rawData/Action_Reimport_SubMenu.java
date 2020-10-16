@@ -15,10 +15,12 @@
  *******************************************************************************/
 package net.tourbook.ui.views.rawData;
 
+import java.util.Arrays;
+
 import net.tourbook.Messages;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.importdata.RawDataManager;
-import net.tourbook.ui.ITourProviderByID;
+import net.tourbook.importdata.RawDataManager.ReImport;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -39,7 +41,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
    private ActionReimportTours                      _actionReimport_Tours;
    private ActionReimport_EntireTour                _actionReimport_EntireTour;
    private ActionReimport_OnlyTimeSlices            _actionReimport_OnlyTimeSlices;
-   private ActionReimport_OnlyTourMarkers            _actionReimport_OnlyTourMarkers;
+   private ActionReimport_OnlyTourMarkers           _actionReimport_OnlyTourMarkers;
    private ActionReimport_OnlyTourTimerPauses       _actionReimport_OnlyTourTimerPauses;
 
    private ActionReimport_OnlyCadenceValues         _actionReimport_OnlyCadenceValues;
@@ -62,7 +64,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.Tour, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Tour), _tourViewer);
       }
 
    }
@@ -75,7 +77,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyCadenceValues, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.CadenceValues), _tourViewer);
       }
    }
 
@@ -87,7 +89,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyAltitudeValues, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.AltitudeValues), _tourViewer);
       }
    }
 
@@ -99,7 +101,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyGearValues, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.GearValues), _tourViewer);
       }
    }
 
@@ -113,7 +115,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       public void run() {
          RawDataManager.getInstance()
                .actionReimportTour(
-                     RawDataManager.ReImport.OnlyPowerAndPulseValues,
+                     Arrays.asList(ReImport.PowerAndPulseValues),
                      _tourViewer);
       }
    }
@@ -128,7 +130,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
       public void run() {
          RawDataManager.getInstance()
                .actionReimportTour(
-                     RawDataManager.ReImport.OnlyPowerAndSpeedValues,
+                     Arrays.asList(ReImport.PowerAndSpeedValues),
                      _tourViewer);
       }
    }
@@ -141,7 +143,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyRunningDynamics, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.RunningDynamics), _tourViewer);
       }
    }
 
@@ -153,7 +155,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlySwimming, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Swimming), _tourViewer);
       }
    }
 
@@ -165,7 +167,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyTemperatureValues, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TemperatureValues), _tourViewer);
       }
    }
 
@@ -177,7 +179,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.AllTimeSlices, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TimeSlices), _tourViewer);
       }
    }
 
@@ -189,7 +191,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyTourMarker, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourMarkers), _tourViewer);
       }
    }
 
@@ -201,7 +203,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyTourTimerPauses, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourTimerPauses), _tourViewer);
       }
    }
 
@@ -213,28 +215,39 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.OnlyTrainingValues, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TrainingValues), _tourViewer);
       }
    }
 
    private class ActionReimportTours extends Action {
 
-      private final ITourProviderByID _tourProvider;
+      private final ITourViewer3 _tourViewer;
+      //  private final ITourProviderByID _tourProvider;
 
-      public ActionReimportTours(final ITourProviderByID tourProviderById) {
+      public ActionReimportTours(final ITourViewer3 tourViewer/*
+                                                               * , final ITourProviderByID
+                                                               * tourProviderById
+                                                               */) {
 
-         _tourProvider = tourProviderById;
+         //_tourProvider = tourProviderById;
+         _tourViewer = tourViewer;
 
          setText("Reimport Tours...");//TODO FB Messages.Import_Data_Action_RemoveTour);
       }
 
       @Override
       public void run() {
-         new DialogReimportTours(Display.getCurrent().getActiveShell(), _tourProvider).open();
+         new DialogReimportTours(Display.getCurrent().getActiveShell(), _tourViewer/*
+                                                                                    * ,
+                                                                                    * _tourProvider
+                                                                                    */).open();
       }
    }
 
-   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer, final ITourProviderByID tourProviderById) {
+   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer/*
+                                                                * , final ITourProviderByID
+                                                                * tourProviderById
+                                                                */) {
 
       super(Messages.Import_Data_Action_Reimport_Tour, AS_DROP_DOWN_MENU);
 
@@ -242,7 +255,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       _tourViewer = tourViewer;
 
-      _actionReimport_Tours = new ActionReimportTours(tourProviderById);
+      _actionReimport_Tours = new ActionReimportTours(_tourViewer);
       _actionReimport_EntireTour = new ActionReimport_EntireTour();
       _actionReimport_OnlyTimeSlices = new ActionReimport_OnlyTimeSlices();
       _actionReimport_OnlyTourMarkers = new ActionReimport_OnlyTourMarkers();
