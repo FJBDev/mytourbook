@@ -16,19 +16,35 @@
 package net.tourbook.ui.views.rawData;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.data.TourData;
+import net.tourbook.database.IComputeNoDataserieValues;
+import net.tourbook.database.TourDatabase;
+import net.tourbook.importdata.RawDataManager;
+import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.tour.TourEventId;
+import net.tourbook.tour.TourManager;
+import net.tourbook.ui.ITourProviderByID;
+import net.tourbook.ui.UI;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -36,52 +52,38 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class DialogReimportTours extends TitleAreaDialog {
 
-   private static final String   STATE_REIMPORT_TOURS_ALL        = "STATE_REIMPORT_ALLTOURS";      //$NON-NLS-1$
-   private static final String   STATE_REIMPORT_TOURS_SELECTED   = "STATE_REIMPORT_SELECTEDTOURS"; //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_ALL        = "STATE_REIMPORT_TOURS_ALL";      //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_SELECTED   = "STATE_REIMPORT_TOURS_SELECTED"; //$NON-NLS-1$
 
-   private static final String   STATE_IS_IMPORT_ALTITUDE        = "isImportAltitude";             //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_CADENCE         = "isImportCadence";              //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_GEAR            = "isImportGear";                 //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_POWERANDPULSE   = "isImportPowerAndPulse";        //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_POWERANDSPEED   = "isImportPowerAndSpeed";        //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_RUNNINGDYNAMICS = "isImportRunningDynamics";      //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_SWIMMING        = "isImportSwimming";             //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TEMPERATURE     = "isImportTemperature";          //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TRAINING        = "isImportTraining";             //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TIMESLICES      = "isImportTimeSlices";           //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TOURMARKERS     = "isImportTourMarkers";          //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TIMERPAUSES     = "isImportTimerPauses";          //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_ENTIRETOUR      = "isImportEntireTours";          //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_ALTITUDE        = "isImportAltitude";              //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_CADENCE         = "isImportCadence";               //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_GEAR            = "isImportGear";                  //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_POWERANDPULSE   = "isImportPowerAndPulse";         //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_POWERANDSPEED   = "isImportPowerAndSpeed";         //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_RUNNINGDYNAMICS = "isImportRunningDynamics";       //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_SWIMMING        = "isImportSwimming";              //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TEMPERATURE     = "isImportTemperature";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TRAINING        = "isImportTraining";              //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TIMESLICES      = "isImportTimeSlices";            //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TOURMARKERS     = "isImportTourMarkers";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TIMERPAUSES     = "isImportTimerPauses";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_ENTIRETOUR      = "isImportEntireTours";           //$NON-NLS-1$
 
    private static final int      VERTICAL_SECTION_MARGIN         = 10;
-   private static final int      SIZING_TEXT_FIELD_WIDTH         = 250;
 
    private static String         _dlgDefaultMessage;
 
    private final IDialogSettings _state                          = TourbookPlugin
-         .getState("DialogReimportTours");                                                         //$NON-NLS-1$
-
-   private boolean               _isInUIInit;
-
-   /**
-    * Is <code>true</code> when only a part is exported.
-    */
-   private boolean               _isSetup_TourRange;
-
-   /**
-    * Is <code>true</code> when multiple tours are exported.
-    */
-   private boolean               _isSetup_MultipleTours;
+         .getState("DialogReimportTours");                                                          //$NON-NLS-1$
 
    private Point                 _shellDefaultSize;
 
+   private final ITourProviderByID _tourProvider;
    private PixelConverter        _pc;
 
    /*
@@ -101,25 +103,26 @@ public class DialogReimportTours extends TitleAreaDialog {
    private Button    _chkTourTimerPauses;
    private Button    _chkEntireTour;
 
+   private Button    _chkSkip_Tours_With_ImportFile_NotFound;
+
    private Button    _chkReimport_Tours_All;
    private Button    _chkReimport_Tours_Selected;
 
    private Composite _dlgContainer;
    private Composite _inputContainer;
 
-   private Label     _lblTcxActivityType;
-
-   private Text      _txtFilePath;
-
    /**
     * @param parentShell
     */
-   public DialogReimportTours(final Shell parentShell) {
+   public DialogReimportTours(final Shell parentShell,
+                              final ITourProviderByID tourProvider) {
 
       //TODO FB pass the selected tours in case the user wants to reimport only for the selected tours
 
       //TODO FB enable the reimport button only if somehting is clicked
       super(parentShell);
+
+      _tourProvider = tourProvider;
 
       int shellStyle = getShellStyle();
 
@@ -178,13 +181,7 @@ public class DialogReimportTours extends TitleAreaDialog {
       setTitle("Reimport Tours...");//dialog_export_dialog_title);
       setMessage(_dlgDefaultMessage);
 
-      _isInUIInit = true;
-      {
-         restoreState();
-      }
-      _isInUIInit = false;
-
-      enableFields();
+      restoreState();
    }
 
    @Override
@@ -216,6 +213,15 @@ public class DialogReimportTours extends TitleAreaDialog {
       {
          createUI_10_Tours(_inputContainer);
          createUI_20_Data(_inputContainer);
+
+         /*
+          * Checkbox: Skip tours for which the import file was not found
+          */
+         _chkSkip_Tours_With_ImportFile_NotFound = new Button(_inputContainer, SWT.CHECK);
+         GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_chkSkip_Tours_With_ImportFile_NotFound);
+         _chkSkip_Tours_With_ImportFile_NotFound.setText("Skip Tours for which the file is not found");//Messages.dialog_export_txt_filePath_tooltip);
+         _chkSkip_Tours_With_ImportFile_NotFound.setToolTipText("When the original file is not found, skip to the next tour");
+         _chkSkip_Tours_With_ImportFile_NotFound.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
       }
    }
 
@@ -226,12 +232,20 @@ public class DialogReimportTours extends TitleAreaDialog {
     */
    private void createUI_10_Tours(final Composite parent) {
 
+      final SelectionAdapter buttonListener = new SelectionAdapter() {
+         @Override
+         public void widgetSelected(final SelectionEvent e) {
+            final Button btn = (Button) e.getSource();
+            enableReimportButton(btn.getSelection());
+         }
+      };
+
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
          final Group groupCustomGPX = new Group(container, SWT.NONE);
-         groupCustomGPX.setText("Which tours");//TODO FBMessages.Dialog_Export_Group_Custom);
+         groupCustomGPX.setText("Tours to reimport");//TODO FBMessages.Dialog_Export_Group_Custom);
          groupCustomGPX.setToolTipText(Messages.Dialog_Export_Group_Custom_Tooltip);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(groupCustomGPX);
          GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupCustomGPX);
@@ -241,63 +255,55 @@ public class DialogReimportTours extends TitleAreaDialog {
              */
             _chkReimport_Tours_All = new Button(groupCustomGPX, SWT.RADIO);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_All);
-            _chkReimport_Tours_All.setText(Messages.Dialog_Export_Checkbox_WithBarometer);
+            _chkReimport_Tours_All.setText("All tours in the database");//Messages.Dialog_Export_Checkbox_WithBarometer);
             _chkReimport_Tours_All.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+            _chkReimport_Tours_All.addSelectionListener(buttonListener);
 
             /*
              * checkbox: Reimport the selected tours
              */
             _chkReimport_Tours_Selected = new Button(groupCustomGPX, SWT.RADIO);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_Selected);
-            _chkReimport_Tours_Selected.setText(Messages.Dialog_Export_Checkbox_WithBarometer);
+            _chkReimport_Tours_Selected.setText("Only the selected tours");//Messages.Dialog_Export_Checkbox_WithBarometer);
             _chkReimport_Tours_Selected.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+            _chkReimport_Tours_Selected.addSelectionListener(buttonListener);
          }
       }
    }
 
+   /**
+    * UI to select the data to reimport for the chosen tours
+    *
+    * @param parent
+    */
    private void createUI_20_Data(final Composite parent) {
-
-      Label label;
 
       /*
        * group: filename
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText("Which data");//TODO FBMessages.dialog_export_group_exportFileName);
+      group.setText("Data to reimport");//TODO FBMessages.dialog_export_group_exportFileName);
       GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(group);
-      GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
+      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          /*
-          * label: filename
+          * checkbox: Entire Tour
           */
-         label = new Label(group, SWT.NONE);
-         label.setText(Messages.dialog_export_label_fileName);
-
-         // -----------------------------------------------------------------------------
-
-         /*
-          * label: path
-          */
-         label = new Label(group, SWT.NONE);
-         label.setText(Messages.dialog_export_label_exportFilePath);
-
-         // -----------------------------------------------------------------------------
-
-         /*
-          * label: file path
-          */
-         label = new Label(group, SWT.NONE);
-         label.setText(Messages.dialog_export_label_filePath);
-
-         /*
-          * text: filename
-          */
-         _txtFilePath = new Text(group, /* SWT.BORDER | */SWT.READ_ONLY);
-         GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_txtFilePath);
-         _txtFilePath.setToolTipText(Messages.dialog_export_txt_filePath_tooltip);
-         _txtFilePath.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-
-         // -----------------------------------------------------------------------------
+         _chkEntireTour = new Button(group, SWT.CHECK);
+         GridDataFactory.fillDefaults()//
+               .align(SWT.BEGINNING, SWT.CENTER)
+               .span(2, 1)
+               .indent(0, _pc.convertVerticalDLUsToPixels(4))
+               .applyTo(_chkEntireTour);
+         _chkEntireTour.setText("Entire Tour");//TODO FBessages.dialog_export_chk_overwriteFiles);
+         _chkEntireTour.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkEntireTour.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+               final Button btn = (Button) e.getSource();
+               enableDataButtons(!btn.getSelection());
+            }
+         });
 
          /*
           * checkbox: altitude
@@ -305,7 +311,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkAltitude = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkAltitude);
          _chkAltitude.setText("Altitude Values");//TODO FB Messages.dialog_export_chk_overwriteFiles);
@@ -317,7 +322,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkCadence = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkCadence);
          _chkCadence.setText("Cadence Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -329,7 +333,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkGear = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkGear);
          _chkGear.setText("Gear Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -341,7 +344,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkPowerAndPulse = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkPowerAndPulse);
          _chkPowerAndPulse.setText("Power and Pulse Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -353,7 +355,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkPowerAndSpeed = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkPowerAndSpeed);
          _chkPowerAndSpeed.setText("Power And Speed Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -365,7 +366,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkRunningDynamics = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkRunningDynamics);
          _chkRunningDynamics.setText("Running Dynamics Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -377,7 +377,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkSwimming = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkSwimming);
          _chkSwimming.setText("Swimming Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -389,7 +388,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkTemperature = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTemperature);
          _chkTemperature.setText("Temperature Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -401,7 +399,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkTraining = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTraining);
          _chkTraining.setText("Training Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -413,7 +410,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkTimeSlices = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTimeSlices);
          _chkTimeSlices.setText("Time slices");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -425,7 +421,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkTourMarkers = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTourMarkers);
          _chkTourMarkers.setText("Tour markers");//TODO FBessages.dialog_export_chk_overwriteFiles);
@@ -437,42 +432,136 @@ public class DialogReimportTours extends TitleAreaDialog {
          _chkTourTimerPauses = new Button(group, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTourTimerPauses);
          _chkTourTimerPauses.setText("Timer Pauses");//TODO FBessages.dialog_export_chk_overwriteFiles);
          _chkTourTimerPauses.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
-
-         /*
-          * checkbox: Entire Tour
-          */
-         _chkEntireTour = new Button(group, SWT.CHECK);
-         GridDataFactory.fillDefaults()//
-               .align(SWT.BEGINNING, SWT.CENTER)
-               .span(3, 1)
-               .indent(0, _pc.convertVerticalDLUsToPixels(4))
-               .applyTo(_chkEntireTour);
-         _chkEntireTour.setText("Entire Tour");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkEntireTour.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
       }
 
    }
 
    private void doReimport() throws IOException {
 
+      final boolean isReimportAllTours = _chkReimport_Tours_All.getSelection();
+
+      if (isReimportAllTours) {
+         final ArrayList<Long> tourIds = new ArrayList<>(_tourProvider.getSelectedTourIDs());
+
+         final float prefDPTolerance = TourbookPlugin.getPrefStore().getFloat(
+               ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE);
+
+         if (MessageDialog.openConfirm(
+               Display.getCurrent().getActiveShell(),
+               Messages.Compute_TourValue_ElevationGain_Title,
+               NLS.bind(//
+                     Messages.Compute_TourValue_ElevationGain_Message,
+                     tourIds.size(),
+                     22)) == false) {
+            return;
+         }
+
+         final int[] elevationOld = new int[] { 0 };
+         final int[] elevationNew = new int[] { 0 };
+
+         final IComputeNoDataserieValues configComputeTourValue = new IComputeNoDataserieValues() {
+
+            @Override
+            public boolean computeTourValues(final TourData originalTourData, final PreparedStatement sqlUpdateStatement) throws SQLException {
+
+               // keep old value
+               elevationOld[0] += originalTourData.getTourAltUp();
+
+               if (originalTourData.computeAltitudeUpDown() == false) {
+
+                  // altitude up/down values could not be computed
+                  return false;
+               }
+
+               final int newAltitudeUp = originalTourData.getTourAltUp();
+               elevationNew[0] += newAltitudeUp;
+
+               sqlUpdateStatement.setShort(1, originalTourData.getDpTolerance());
+               sqlUpdateStatement.setInt(2, newAltitudeUp);
+               sqlUpdateStatement.setInt(3, originalTourData.getTourAltDown());
+               sqlUpdateStatement.setInt(4, originalTourData.getAvgAltitudeChange());
+               sqlUpdateStatement.setLong(5, originalTourData.getTourId());
+
+               return true;
+            }
+
+            @Override
+            public String getResultText() {
+
+               final int elevationDifference = elevationNew[0] - elevationOld[0];
+               final String differenceResult = "12";//getElevationDifferenceString(elevationDifference);
+
+               return NLS.bind(Messages.Compute_TourValue_ElevationGain_ResultText,
+                     new Object[] {
+                           22,
+                           differenceResult,
+                           net.tourbook.common.UI.UNIT_LABEL_ALTITUDE
+                     });
+            }
+
+            @Override
+            public String getSQLUpdateStatement() {
+
+               final String sql = UI.EMPTY_STRING
+
+                     + "UPDATE " + TourDatabase.TABLE_TOUR_DATA //   //$NON-NLS-1$
+
+                     + " SET" //                                     //$NON-NLS-1$
+
+                     + " dpTolerance=?, " //                         //$NON-NLS-1$
+                     + " tourAltUp=?, " //                           //$NON-NLS-1$
+                     + " tourAltDown=?, " //                         //$NON-NLS-1$
+                     + " avgAltitudeChange=? " //                    //$NON-NLS-1$
+
+                     + " WHERE tourId=?"; //                         //$NON-NLS-1$
+
+               return sql;
+            }
+         };
+
+         TourDatabase.computeNoDataserieValues_ForAllTours(configComputeTourValue, tourIds);
+
+         /*
+          * Fire event
+          */
+         TourManager.getInstance().removeAllToursFromCache();
+         TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
+
+         // fire unique event for all changes
+         TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
+      } else {
+
+         //TODO FB, modify actionReimportTOur to accept an array of ReimportID
+         RawDataManager.getInstance().actionReimportTour(RawDataManager.ReImport.Tour, _tourViewer);
+
+      }
    }
 
-   private void enableExportButton(final boolean isEnabled) {
+   private void enableDataButtons(final boolean isNotReimportEntireTour) {
+
+      _chkAltitude.setEnabled(isNotReimportEntireTour);
+      _chkCadence.setEnabled(isNotReimportEntireTour);
+      _chkGear.setEnabled(isNotReimportEntireTour);
+      _chkPowerAndPulse.setEnabled(isNotReimportEntireTour);
+      _chkPowerAndSpeed.setEnabled(isNotReimportEntireTour);
+      _chkRunningDynamics.setEnabled(isNotReimportEntireTour);
+      _chkSwimming.setEnabled(isNotReimportEntireTour);
+      _chkTemperature.setEnabled(isNotReimportEntireTour);
+      _chkTraining.setEnabled(isNotReimportEntireTour);
+      _chkTimeSlices.setEnabled(isNotReimportEntireTour);
+      _chkTourMarkers.setEnabled(isNotReimportEntireTour);
+      _chkTourTimerPauses.setEnabled(isNotReimportEntireTour);
+   }
+
+   private void enableReimportButton(final boolean isEnabled) {
       final Button okButton = getButton(IDialogConstants.OK_ID);
       if (okButton != null) {
          okButton.setEnabled(isEnabled);
       }
-   }
-
-   private void enableFields() {
-
-      final boolean isSingleTour = _isSetup_MultipleTours == false;
-      final boolean isMergeIntoOneTour = false;
    }
 
    @Override
@@ -507,7 +596,9 @@ public class DialogReimportTours extends TitleAreaDialog {
 
    private void restoreState() {
 
-      // Data to import
+      // Data to reimport
+      final boolean isReimportEntireTour = _state.getBoolean(STATE_IS_IMPORT_ENTIRETOUR);
+      _chkEntireTour.setSelection(isReimportEntireTour);
       _chkAltitude.setSelection(_state.getBoolean(STATE_IS_IMPORT_ALTITUDE));
       _chkCadence.setSelection(_state.getBoolean(STATE_IS_IMPORT_CADENCE));
       _chkGear.setSelection(_state.getBoolean(STATE_IS_IMPORT_GEAR));
@@ -520,7 +611,14 @@ public class DialogReimportTours extends TitleAreaDialog {
       _chkTimeSlices.setSelection(_state.getBoolean(STATE_IS_IMPORT_TIMESLICES));
       _chkTourMarkers.setSelection(_state.getBoolean(STATE_IS_IMPORT_TOURMARKERS));
       _chkTourTimerPauses.setSelection(_state.getBoolean(STATE_IS_IMPORT_TIMERPAUSES));
-      _chkEntireTour.setSelection(_state.getBoolean(STATE_IS_IMPORT_ENTIRETOUR));
+
+      final boolean isReimportAllTours = _state.getBoolean(STATE_REIMPORT_TOURS_ALL);
+      _chkReimport_Tours_All.setSelection(isReimportAllTours);
+      final boolean isReimportSelectedTours = _state.getBoolean(STATE_REIMPORT_TOURS_SELECTED);
+      _chkReimport_Tours_Selected.setSelection(isReimportSelectedTours);
+
+      enableDataButtons(!isReimportEntireTour);
+      enableReimportButton(isReimportAllTours || isReimportSelectedTours);
    }
 
    private void saveState() {
@@ -529,6 +627,7 @@ public class DialogReimportTours extends TitleAreaDialog {
       _state.put(STATE_REIMPORT_TOURS_SELECTED, _chkReimport_Tours_Selected.getSelection());
 
       // Data to import
+      _state.put(STATE_IS_IMPORT_ENTIRETOUR, _chkEntireTour.getSelection());
       _state.put(STATE_IS_IMPORT_ALTITUDE, _chkAltitude.getSelection());
       _state.put(STATE_IS_IMPORT_CADENCE, _chkCadence.getSelection());
       _state.put(STATE_IS_IMPORT_GEAR, _chkGear.getSelection());
@@ -541,6 +640,5 @@ public class DialogReimportTours extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_TIMESLICES, _chkTimeSlices.getSelection());
       _state.put(STATE_IS_IMPORT_TOURMARKERS, _chkTourMarkers.getSelection());
       _state.put(STATE_IS_IMPORT_TIMERPAUSES, _chkTourTimerPauses.getSelection());
-      _state.put(STATE_IS_IMPORT_ENTIRETOUR, _chkEntireTour.getSelection());
    }
 }

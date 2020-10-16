@@ -23,7 +23,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -1098,7 +1097,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private void createActions() {
 
       _subMenu_AdjustTourValues = new SubMenu_AdjustTourValues(this, this);
-      _subMenu_Reimport = new Action_Reimport_SubMenu(this);
+      _subMenu_Reimport = new Action_Reimport_SubMenu(this, this);
 
       _actionCollapseAll = new ActionCollapseAll(this);
       _actionCollapseOthers = new ActionCollapseOthers(this);
@@ -1669,9 +1668,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
           * count number of selected items
           */
 
-         for (final Iterator<?> iter = selection.iterator(); iter.hasNext();) {
+         for (Object treeItem : selection) {
 
-            final Object treeItem = iter.next();
             if (treeItem instanceof TVITourBookTour) {
                if (numTourItems == 0) {
                   firstTourItem = (TVITourBookTour) treeItem;
@@ -1986,9 +1984,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          selectedTours = _tourViewer_Tree.getStructuredSelection();
       }
 
-      for (final Iterator<?> tourIterator = selectedTours.iterator(); tourIterator.hasNext();) {
-
-         final Object viewItem = tourIterator.next();
+      for (Object viewItem : selectedTours) {
 
          if (viewItem instanceof TVITourBookYear) {
 
@@ -2481,9 +2477,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       final IStructuredSelection selectedTours = (IStructuredSelection) (event.getSelection());
 
       // loop: all selected items
-      for (final Iterator<?> itemIterator = selectedTours.iterator(); itemIterator.hasNext();) {
-
-         final Object treeItem = itemIterator.next();
+      for (Object treeItem : selectedTours) {
 
          if (isSelectAllChildren) {
 

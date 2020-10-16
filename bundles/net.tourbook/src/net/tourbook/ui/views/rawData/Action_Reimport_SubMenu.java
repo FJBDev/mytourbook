@@ -18,6 +18,7 @@ package net.tourbook.ui.views.rawData;
 import net.tourbook.Messages;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.importdata.RawDataManager;
+import net.tourbook.ui.ITourProviderByID;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -218,17 +219,22 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
    private class ActionReimportTours extends Action {
 
-      public ActionReimportTours() {
+      private final ITourProviderByID _tourProvider;
+
+      public ActionReimportTours(final ITourProviderByID tourProviderById) {
+
+         _tourProvider = tourProviderById;
+
          setText("Reimport Tours...");//TODO FB Messages.Import_Data_Action_RemoveTour);
       }
 
       @Override
       public void run() {
-         new DialogReimportTours(Display.getCurrent().getActiveShell()).open();
+         new DialogReimportTours(Display.getCurrent().getActiveShell(), _tourProvider).open();
       }
    }
 
-   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer) {
+   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer, final ITourProviderByID tourProviderById) {
 
       super(Messages.Import_Data_Action_Reimport_Tour, AS_DROP_DOWN_MENU);
 
@@ -236,7 +242,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       _tourViewer = tourViewer;
 
-      _actionReimport_Tours = new ActionReimportTours();
+      _actionReimport_Tours = new ActionReimportTours(tourProviderById);
       _actionReimport_EntireTour = new ActionReimport_EntireTour();
       _actionReimport_OnlyTimeSlices = new ActionReimport_OnlyTimeSlices();
       _actionReimport_OnlyTourMarkers = new ActionReimport_OnlyTourMarkers();
