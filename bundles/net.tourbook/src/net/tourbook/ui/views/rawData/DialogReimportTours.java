@@ -87,7 +87,6 @@ public class DialogReimportTours extends TitleAreaDialog {
    private Point                 _shellDefaultSize;
 
    private final ITourViewer3    _tourViewer;
-   //  private final ITourProviderByID _tourProvider;
    private PixelConverter        _pc;
 
    /*
@@ -120,13 +119,9 @@ public class DialogReimportTours extends TitleAreaDialog {
     */
    public DialogReimportTours(final Shell parentShell,
                               final ITourViewer3 tourViewer) {
-      //final ITourProviderByID tourProvider) {
-
-      //TODO FB pass the selected tours in case the user wants to reimport only for the selected tours
 
       super(parentShell);
 
-      //  _tourProvider = tourProvider;
       _tourViewer = tourViewer;
 
       int shellStyle = getShellStyle();
@@ -156,7 +151,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       super.configureShell(shell);
 
-      shell.setText("Reimport Tours...");//TODO FB Messages.dialog_export_shell_text);
+      shell.setText(Messages.dialog_reimport_tours_shell_text);
 
       shell.addListener(SWT.Resize, new Listener() {
          @Override
@@ -183,7 +178,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       super.create();
 
-      setTitle("Reimport Tours...");//dialog_export_dialog_title);
+      setTitle(Messages.dialog_reimport_tours_dialog_title);
       setMessage(_dlgDefaultMessage);
 
       restoreState();
@@ -445,6 +440,13 @@ public class DialogReimportTours extends TitleAreaDialog {
 
    }
 
+   /**
+    * Start the re-import process
+    *
+    * @param reimportIds
+    *           A list of data IDs to be re-imported
+    * @throws IOException
+    */
    private void doReimport(final List<ReImport> reimportIds) throws IOException {
 
       final boolean isReimportAllTours = _chkReimport_Tours_All.getSelection();
@@ -455,7 +457,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
          TourLogManager.addLog(
                TourLogState.DEFAULT, //
-               NLS.bind(RawDataManager.LOG_REIMPORT_COMBINED_VALUES, "ddd"),
+               NLS.bind(RawDataManager.LOG_REIMPORT_COMBINED_VALUES, "ddd"), //TODO FB
                TourLogView.CSS_LOG_TITLE);
 
          final IComputeTourValues computeTourValueConfig = new IComputeTourValues() {
@@ -503,7 +505,7 @@ public class DialogReimportTours extends TitleAreaDialog {
                   StatusUtil.log(e);
                }
 
-               return true;//TODO FB
+               return true;
             }
 
             @Override
@@ -639,7 +641,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
    private void restoreState() {
 
-      // Data to reimport
+      // Data to re-import
       final boolean isReimportEntireTour = _state.getBoolean(STATE_IS_IMPORT_ENTIRETOUR);
       _chkEntireTour.setSelection(isReimportEntireTour);
       _chkAltitude.setSelection(_state.getBoolean(STATE_IS_IMPORT_ALTITUDE));
@@ -655,6 +657,7 @@ public class DialogReimportTours extends TitleAreaDialog {
       _chkTourMarkers.setSelection(_state.getBoolean(STATE_IS_IMPORT_TOURMARKERS));
       _chkTourTimerPauses.setSelection(_state.getBoolean(STATE_IS_IMPORT_TIMERPAUSES));
 
+      //Tours to re-import
       final boolean isReimportAllTours = _state.getBoolean(STATE_REIMPORT_TOURS_ALL);
       _chkReimport_Tours_All.setSelection(isReimportAllTours);
       final boolean isReimportSelectedTours = _state.getBoolean(STATE_REIMPORT_TOURS_SELECTED);
@@ -666,6 +669,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
    private void saveState() {
 
+      //Tours to re-import
       _state.put(STATE_REIMPORT_TOURS_ALL, _chkReimport_Tours_All.getSelection());
       _state.put(STATE_REIMPORT_TOURS_SELECTED, _chkReimport_Tours_Selected.getSelection());
 

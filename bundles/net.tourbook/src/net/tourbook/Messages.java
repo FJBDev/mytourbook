@@ -118,6 +118,8 @@ public class Messages extends NLS {
 
    public static String        dialog_export_btn_export;
    public static String        dialog_reimport_tours_btn_reimport;
+   public static String        dialog_reimport_tours_dialog_title;
+   public static String        dialog_reimport_tours_shell_text;
    public static String        dialog_export_chk_camouflageSpeed;
    public static String        dialog_export_chk_camouflageSpeed_tooltip;
    public static String        dialog_export_chk_camouflageSpeedInput_tooltip;
@@ -1207,7 +1209,6 @@ public class Messages extends NLS {
    public static String        Import_Data_Default_FirstEasyImportLauncher_Description;
    public static String        Import_Data_Default_FirstEasyImportLauncher_Name;
    public static String        Import_Data_Default_ImportConfig_Name;
-   public static String        Import_Data_Dialog_ConfirmReimport;
    public static String        Import_Data_Dialog_ConfirmReimportValues_Message;
    public static String        Import_Data_RunningDynamicsValues;
    public static String        Import_Data_SwimmingValues;

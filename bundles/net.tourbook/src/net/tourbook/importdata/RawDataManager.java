@@ -537,9 +537,9 @@ public class RawDataManager {
 
    /**
     * @param reimportIds
-    *           A list of IDs of data to be re-imported
+    *           A list of data IDs to be re-imported
     * @param tourViewer
-    *           Tour viewer where the selected tours should be re-imported.
+    *           Tour viewer containing the selected tours to be re-imported.
     */
    public void actionReimportTour(final List<ReImport> reimportIds, final ITourViewer3 tourViewer) {
 
