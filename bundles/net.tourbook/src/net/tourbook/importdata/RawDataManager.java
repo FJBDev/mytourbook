@@ -277,25 +277,32 @@ public class RawDataManager {
          newData = UI.format_hhh_mm_ss(newTourData.getTourDeviceTime_Paused());
          break;
       case CadenceValues:
-//         previousData = UI.format_hhh_mm_ss(oldTourData.getAvgCadence()); rpm vs spm
-//         newData = UI.format_hhh_mm_ss(newTourData.getAvgCadence());
+         previousData = Math.round(oldTourData.getAvgCadence()) + (oldTourData.isCadenceSpm() ? net.tourbook.ui.Messages.Value_Unit_Cadence_Spm
+               : net.tourbook.ui.Messages.Value_Unit_Cadence);
+         newData = Math.round(newTourData.getAvgCadence()) + (newTourData.isCadenceSpm() ? net.tourbook.ui.Messages.Value_Unit_Cadence_Spm
+               : net.tourbook.ui.Messages.Value_Unit_Cadence);
          break;
       case PowerAndPulseValues:
-//       previousData = oldTourData.getPower_Avg()());
-//       newData = newTourData.getPower_Avg());
-//       newTourData.getAvgPulse()
+         //TODO FB, are calories in cal or kcal by default ?
+         previousData = oldTourData.getPower_Avg() + UI.UNIT_POWER_SHORT + oldTourData.getAvgPulse() + net.tourbook.ui.Messages.Value_Unit_Pulse
+               + oldTourData.getCalories() + net.tourbook.ui.Messages.Value_Unit_KCalories;
+         newData = newTourData.getPower_Avg() + UI.UNIT_POWER_SHORT + newTourData.getAvgPulse() + net.tourbook.ui.Messages.Value_Unit_Pulse
+               + newTourData.getCalories() + net.tourbook.ui.Messages.Value_Unit_KCalories;
          break;
       case PowerAndSpeedValues:
-//         previousData = oldTourData.getPower_Avg()());
-//         newData = newTourData.getPower_Avg());
+         previousData = Math.round(oldTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + oldTourData.getCalories();
+         newData = newTourData.getPower_Avg() + UI.UNIT_POWER_SHORT;
          break;
       case TemperatureValues:
-//         newData = newTourData.getAvgTemperature();
+         previousData = oldTourData.getAvgTemperature() + (UI.UNIT_IS_METRIC ? UI.SYMBOL_TEMPERATURE_CELCIUS
+               : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
+         newData = newTourData.getAvgTemperature() + (UI.UNIT_IS_METRIC ? UI.SYMBOL_TEMPERATURE_CELCIUS
+               : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
          break;
-//      case TourMarkers:
-//         dataToReimportDetails.add(Messages.Import_Data_TourMarkers);
-//         break;
-
+      case TourMarkers:
+         previousData = oldTourData.getTourMarkersSorted().size() + "";
+         newData = newTourData.getTourMarkersSorted().size() + "";
+         break;
 //      case TrainingValues:
 //         dataToReimportDetails.add(Messages.Import_Data_TrainingValues);
 //         break;
@@ -1142,18 +1149,35 @@ public class RawDataManager {
                switch (reimportId) {
 
                case AltitudeValues:
-
                   previousTourData.setTourAltDown(oldTourData.getTourAltDown());
                   previousTourData.setTourAltUp(oldTourData.getTourAltUp());
-
                   break;
 
                case TourTimerPauses:
                   previousTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
                   previousTourData.setPausedTime_Start(oldTourData.getPausedTime_Start());
                   previousTourData.setPausedTime_End(oldTourData.getPausedTime_End());
-
                   break;
+
+               case CadenceValues:
+                  previousTourData.setAvgCadence(oldTourData.getAvgCadence());
+                  previousTourData.setCadenceMultiplier(oldTourData.getCadenceMultiplier());
+                  break;
+
+               case TemperatureValues:
+                  previousTourData.setAvgTemperature(oldTourData.getAvgTemperature());
+                  break;
+
+               case TourMarkers:
+                  previousTourData.setTourMarkers(oldTourData.getTourMarkers());
+                  break;
+
+//               case GearValues:
+//                  PowerAndSpeedValues, //
+//                  PowerAndPulseValues, //
+//                  RunningDynamics, //
+//                  Swimming, //
+//                  TrainingValues, //
 
                default:
                   break;
@@ -1377,6 +1401,7 @@ public class RawDataManager {
                                                  final TourData oldTourData,
                                                  final TourData reimportedTourData) {
 
+      //TODO FB here are the data to show in the message old vs new
       // ALTITUDE
       if (reimportIds.contains(ReImport.TimeSlices) || reimportIds.contains(ReImport.AltitudeValues)) {
 
