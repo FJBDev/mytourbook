@@ -241,12 +241,15 @@ public class RawDataManager {
    /**
     * Displays the differences of data before and after the tour reimport
     *
+    * @param reimportId
     * @param oldTourData
+    *           The Tour before the reimport
     * @param newTourData
+    *           The Tour after the reimport
     */
    public static void displayReimportDataDifferences(final ReImport reimportId,
-                                               final TourData oldTourData,
-                                               final TourData newTourData) {
+                                                     final TourData oldTourData,
+                                                     final TourData newTourData) {
       //Print the old vs new data comparison
       String previousData = UI.EMPTY_STRING;
       String newData = UI.EMPTY_STRING;
@@ -268,23 +271,50 @@ public class RawDataManager {
                + UI.DASH + newAltitudeDown
                + heightLabel;
          break;
+
       case TourTimerPauses:
          previousData = UI.format_hhh_mm_ss(oldTourData.getTourDeviceTime_Paused());
          newData = UI.format_hhh_mm_ss(newTourData.getTourDeviceTime_Paused());
          break;
+      case CadenceValues:
+//         previousData = UI.format_hhh_mm_ss(oldTourData.getAvgCadence()); rpm vs spm
+//         newData = UI.format_hhh_mm_ss(newTourData.getAvgCadence());
+         break;
+      case PowerAndPulseValues:
+//       previousData = oldTourData.getPower_Avg()());
+//       newData = newTourData.getPower_Avg());
+//       newTourData.getAvgPulse()
+         break;
+      case PowerAndSpeedValues:
+//         previousData = oldTourData.getPower_Avg()());
+//         newData = newTourData.getPower_Avg());
+         break;
+      case TemperatureValues:
+//         newData = newTourData.getAvgTemperature();
+         break;
+//      case TourMarkers:
+//         dataToReimportDetails.add(Messages.Import_Data_TourMarkers);
+//         break;
+
+//      case TrainingValues:
+//         dataToReimportDetails.add(Messages.Import_Data_TrainingValues);
+//         break;
+//      case Tour:
+//         dataToReimportDetails.add(Messages.Import_Data_EntireTour);
+//         break;
 
       default:
          break;
       }
 
-      if (!StringUtils.isNullOrEmpty(previousData) &&
-            !StringUtils.isNullOrEmpty(newData)) {
-         TourLogManager.addSubLog(TourLogState.INFO,
-               NLS.bind(LOG_IMPORT_TOUR_OLD_DATA_VS_NEW_DATA,
-                     previousData,
-                     newData));
+      if (StringUtils.isNullOrEmpty(previousData) &&
+            StringUtils.isNullOrEmpty(newData)) {
+         return;
       }
-
+      TourLogManager.addSubLog(TourLogState.INFO,
+            NLS.bind(LOG_IMPORT_TOUR_OLD_DATA_VS_NEW_DATA,
+                  previousData,
+                  newData));
    }
 
    public static boolean doesInvalidFileExist(final String fileName) {
@@ -1130,8 +1160,7 @@ public class RawDataManager {
                }
             }
          } catch (final CloneNotSupportedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            StatusUtil.log(e);
          }
 
          TourData newTourData = actionReimportTour_40(reimportIds, reimportedFile, oldTourData);

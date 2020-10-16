@@ -15,12 +15,15 @@
  *******************************************************************************/
 package net.tourbook.ui.views.rawData;
 
+import de.byteholder.geoclipse.map.UI;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourData;
@@ -474,8 +477,6 @@ public class DialogReimportTours extends TitleAreaDialog {
 
                         oldTourData.computeAltitudeUpDown();
 
-
-
                         break;
 
                      case TourTimerPauses:
@@ -488,18 +489,19 @@ public class DialogReimportTours extends TitleAreaDialog {
                      default:
                         break;
                      }
+
+                     final String tourStartTime = oldTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+
                      TourLogManager.addLog(
                            TourLogState.DEFAULT, //
-                           "TOURDATE",
+                           tourStartTime,
                            TourLogView.CSS_LOG_TITLE);
                      RawDataManager.displayReimportDataDifferences(reimportId, previousTourData, oldTourData);
                   }
 
                } catch (final CloneNotSupportedException e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
+                  StatusUtil.log(e);
                }
-
 
                return true;//TODO FB
             }
@@ -507,13 +509,13 @@ public class DialogReimportTours extends TitleAreaDialog {
             @Override
             public String getResultText() {
 
-               return "";
+               return UI.EMPTY_STRING;
             }
 
             @Override
             public String getSubTaskText(final TourData savedTourData) {
 
-               return "";
+               return UI.EMPTY_STRING;
             }
          };
 
@@ -522,8 +524,6 @@ public class DialogReimportTours extends TitleAreaDialog {
          fireTourModifyEvent();
 
       } else {
-
-
 
          RawDataManager.getInstance().actionReimportTour(reimportIds, _tourViewer);
       }
@@ -544,6 +544,7 @@ public class DialogReimportTours extends TitleAreaDialog {
       _chkTourMarkers.setEnabled(isNotReimportEntireTour);
       _chkTourTimerPauses.setEnabled(isNotReimportEntireTour);
    }
+
    private void enableReimportButton(final boolean isEnabled) {
       final Button okButton = getButton(IDialogConstants.OK_ID);
       if (okButton != null) {
