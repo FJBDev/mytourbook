@@ -473,11 +473,7 @@ public class DialogReimportTours extends TitleAreaDialog {
                         previousTourData.setTourAltUp(oldTourData.getTourAltUp());
 
                         oldTourData.computeAltitudeUpDown();
-                        TourLogManager.addLog(
-                              TourLogState.DEFAULT, //
-                              "TOURDATE",
-                              TourLogView.CSS_LOG_TITLE);
-                        RawDataManager.displayReimportDataDifferences(ReImport.AltitudeValues, previousTourData, oldTourData);
+
 
 
                         break;
@@ -492,6 +488,11 @@ public class DialogReimportTours extends TitleAreaDialog {
                      default:
                         break;
                      }
+                     TourLogManager.addLog(
+                           TourLogState.DEFAULT, //
+                           "TOURDATE",
+                           TourLogView.CSS_LOG_TITLE);
+                     RawDataManager.displayReimportDataDifferences(reimportId, previousTourData, oldTourData);
                   }
 
                } catch (final CloneNotSupportedException e) {
