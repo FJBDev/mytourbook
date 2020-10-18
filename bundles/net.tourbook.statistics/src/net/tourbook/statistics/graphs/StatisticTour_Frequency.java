@@ -23,11 +23,9 @@ import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartDataSerie;
 import net.tourbook.chart.ChartDataXSerie;
 import net.tourbook.chart.ChartDataYSerie;
-import net.tourbook.chart.ChartToolTipInfo;
 import net.tourbook.chart.ChartType;
 import net.tourbook.chart.IChartInfoProvider;
 import net.tourbook.chart.MinMaxKeeper_YData;
-import net.tourbook.chart.Util;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.util.IToolTipProvider;
@@ -57,8 +55,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewSite;
 
 public class StatisticTour_Frequency extends TourbookStatistic {
-
-   private static final char           NL                                  = UI.NEW_LINE;
 
    private final IPreferenceStore      _prefStore                          = TourbookPlugin.getPrefStore();
 
@@ -132,7 +128,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          public void propertyChange(final PropertyChangeEvent event) {
             final String property = event.getProperty();
 
-            // test if the color or statistic data have changed
+            // test if statistic options are modified
             if (property.equals(ITourbookPreferences.GRAPH_COLORS_HAS_CHANGED)
                   || property.equals(ITourbookPreferences.STAT_ALTITUDE_NUMBERS)
                   || property.equals(ITourbookPreferences.STAT_ALTITUDE_LOW_VALUE)
@@ -142,7 +138,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   || property.equals(ITourbookPreferences.STAT_DISTANCE_INTERVAL)
                   || property.equals(ITourbookPreferences.STAT_DURATION_NUMBERS)
                   || property.equals(ITourbookPreferences.STAT_DURATION_LOW_VALUE)
-                  || property.equals(ITourbookPreferences.STAT_DURATION_INTERVAL)) {
+                  || property.equals(ITourbookPreferences.STAT_DURATION_INTERVAL)
+                  || property.equals(ITourbookPreferences.STAT_FREQUENCY_DURATION_TIME)) {
 
                // get the changed preferences
                createGroupValues();
@@ -282,39 +279,42 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       // loop: all tours
       for (int tourIndex = 0; tourIndex < statData_Day.allDistance_High.length; tourIndex++) {
 
-         int unitIndex;
+         int groupIndex;
          final int typeColorIndex = statData_Day.allTypeColorIndices[tourIndex];
 
          final int diffDistance = (int) ((statData_Day.allDistance_High[tourIndex] - statData_Day.allDistance_Low[tourIndex] + 500) / 1000);
          final int diffElevation = (int) (statData_Day.allElevation_High[tourIndex] - statData_Day.allElevation_Low[tourIndex]);
          final int diffDurationTime = (int) (statData_Day.getDurationHighFloat()[tourIndex] - statData_Day.getDurationLowFloat()[tourIndex]);
 
-         unitIndex = createTourStatData(
+         // distance
+         groupIndex = createTourStatData(
                diffDistance,
                _statDistance_GroupValues,
                _statDistance_NumTours_High[typeColorIndex],
                _statDistance_Sum_High[typeColorIndex]);
 
-         _statDistance_NumTours_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
-         _statDistance_Sum_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
+         _statDistance_NumTours_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
+         _statDistance_Sum_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
 
-         unitIndex = createTourStatData(
+         // elevation
+         groupIndex = createTourStatData(
                diffElevation,
                _statElevation_GroupValues,
                _statElevation_NumTours_High[typeColorIndex],
                _statElevation_Sum_High[typeColorIndex]);
 
-         _statElevation_NumTours_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
-         _statElevation_Sum_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
+         _statElevation_NumTours_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
+         _statElevation_Sum_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
 
-         unitIndex = createTourStatData(
+         // duration time
+         groupIndex = createTourStatData(
                diffDurationTime,
                _statDutationTime_GroupValues,
                _statDurationTime_NumTours_High[typeColorIndex],
                _statDurationTime_Sum_High[typeColorIndex]);
 
-         _statDurationTime_NumTours_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
-         _statDurationTime_Sum_ColorIndex[typeColorIndex][unitIndex] = typeColorIndex;
+         _statDurationTime_NumTours_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
+         _statDurationTime_Sum_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
       }
    }
 
@@ -355,20 +355,6 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       createGroupValues();
    }
 
-   /**
-    * create tool tip info
-    */
-   private ChartToolTipInfo createToolTipProvider(final int serieIndex, final String toolTipLabel) {
-
-      final String tourTypeName = StatisticServices.getTourTypeName(serieIndex, _stat_ActiveTourTypeFilter);
-
-      final ChartToolTipInfo toolTipInfo = new ChartToolTipInfo();
-      toolTipInfo.setTitle(tourTypeName);
-      toolTipInfo.setLabel(toolTipLabel);
-
-      return toolTipInfo;
-   }
-
    private void createToolTipProvider_Distance(final ChartDataModel chartModel) {
 
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
@@ -383,63 +369,6 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   valueIndex,
                   FrequencyStatistic.DISTANCE);
          }
-
-         @Override
-         public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
-
-            String toolTipLabel;
-            final StringBuilder sb = new StringBuilder();
-
-            final int distance = _statDistance_Sum_High[serieIndex][valueIndex];
-            final int counter = _statDistance_NumTours_High[serieIndex][valueIndex];
-
-            if (valueIndex == 0) {
-
-               sb.append(Messages.numbers_info_distance_down);
-               sb.append(NL);
-               sb.append(Messages.numbers_info_distance_total);
-
-               toolTipLabel = String.format(
-                     sb.toString(),
-                     _statDistance_GroupValues[valueIndex],
-                     UI.UNIT_LABEL_DISTANCE,
-                     counter,
-                     distance,
-                     UI.UNIT_LABEL_DISTANCE).toString();
-
-            } else if (valueIndex == _statDistance_GroupValues.length - 1) {
-
-               sb.append(Messages.numbers_info_distance_up);
-               sb.append(NL);
-               sb.append(Messages.numbers_info_distance_total);
-
-               toolTipLabel = String.format(
-                     sb.toString(),
-                     _statDistance_GroupValues[valueIndex - 1],
-                     UI.UNIT_LABEL_DISTANCE,
-                     counter,
-                     distance,
-                     UI.UNIT_LABEL_DISTANCE).toString();
-            } else {
-
-               sb.append(Messages.numbers_info_distance_between);
-               sb.append(NL);
-               sb.append(Messages.numbers_info_distance_total);
-
-               toolTipLabel = String.format(
-                     sb.toString(),
-                     _statDistance_GroupValues[valueIndex - 1],
-                     _statDistance_GroupValues[valueIndex],
-                     UI.UNIT_LABEL_DISTANCE,
-                     counter,
-                     distance,
-                     UI.UNIT_LABEL_DISTANCE).toString();
-            }
-
-            return createToolTipProvider(serieIndex, toolTipLabel);
-
-         }
-
       });
    }
 
@@ -455,65 +384,6 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   serieIndex,
                   valueIndex,
                   FrequencyStatistic.ELEVATION);
-         }
-
-         @Override
-         public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
-
-            String toolTipLabel;
-            final StringBuilder infoText = new StringBuilder();
-
-            final int summary = _statElevation_Sum_High[serieIndex][valueIndex];
-            final int numTours = _statElevation_NumTours_High[serieIndex][valueIndex];
-            final String unit = UI.UNIT_LABEL_ALTITUDE;
-
-            if (valueIndex == 0) {
-
-               infoText.append(Messages.numbers_info_altitude_down);
-               infoText.append(NL);
-               infoText.append(Messages.numbers_info_altitude_total);
-
-               toolTipLabel = String.format(
-                     infoText.toString(),
-                     _statElevation_GroupValues[valueIndex],
-                     unit,
-                     numTours,
-                     //
-                     summary,
-                     unit).toString();
-
-            } else if (valueIndex == _statElevation_GroupValues.length - 1) {
-
-               infoText.append(Messages.numbers_info_altitude_up);
-               infoText.append(NL);
-               infoText.append(Messages.numbers_info_altitude_total);
-
-               toolTipLabel = String.format(
-                     infoText.toString(),
-                     _statElevation_GroupValues[valueIndex - 1],
-                     unit,
-                     numTours,
-                     //
-                     summary,
-                     unit).toString();
-            } else {
-
-               infoText.append(Messages.numbers_info_altitude_between);
-               infoText.append(NL);
-               infoText.append(Messages.numbers_info_altitude_total);
-
-               toolTipLabel = String.format(
-                     infoText.toString(),
-                     _statElevation_GroupValues[valueIndex - 1],
-                     _statElevation_GroupValues[valueIndex],
-                     unit,
-                     numTours,
-                     //
-                     summary,
-                     unit).toString();
-            }
-
-            return createToolTipProvider(serieIndex, toolTipLabel);
          }
       });
    }
@@ -531,59 +401,6 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   serieIndex,
                   valueIndex,
                   FrequencyStatistic.DURATION_TIME);
-         }
-
-         @Override
-         public ChartToolTipInfo getToolTipInfo(final int serieIndex, final int valueIndex) {
-
-            String toolTipLabel;
-            final StringBuilder toolTipFormat = new StringBuilder();
-
-            if (valueIndex == 0) {
-
-               // first bar
-
-               toolTipFormat.append(Messages.numbers_info_time_down);
-               toolTipFormat.append(NL);
-               toolTipFormat.append(Messages.numbers_info_time_total);
-
-               toolTipLabel = String.format(toolTipFormat.toString(),
-
-                     Util.formatValue(_statDutationTime_GroupValues[valueIndex], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE),
-
-                     _statDurationTime_NumTours_High[serieIndex][valueIndex],
-                     Util.formatValue(_statDurationTime_Sum_High[serieIndex][valueIndex], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE)).toString();
-
-            } else if (valueIndex == _statDutationTime_GroupValues.length - 1) {
-
-               // last bar
-
-               toolTipFormat.append(Messages.numbers_info_time_up);
-               toolTipFormat.append(NL);
-               toolTipFormat.append(Messages.numbers_info_time_total);
-
-               toolTipLabel = String.format(toolTipFormat.toString(),
-
-                     Util.formatValue(_statDutationTime_GroupValues[valueIndex - 1], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE),
-                     _statDurationTime_NumTours_High[serieIndex][valueIndex],
-                     Util.formatValue(_statDurationTime_Sum_High[serieIndex][valueIndex], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE)).toString();
-            } else {
-
-               // between bar
-
-               toolTipFormat.append(Messages.numbers_info_time_between);
-               toolTipFormat.append(NL);
-               toolTipFormat.append(Messages.numbers_info_time_total);
-
-               toolTipLabel = String.format(toolTipFormat.toString(),
-
-                     Util.formatValue(_statDutationTime_GroupValues[valueIndex - 1], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE),
-                     Util.formatValue(_statDutationTime_GroupValues[valueIndex], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE),
-                     _statDurationTime_NumTours_High[serieIndex][valueIndex],
-                     Util.formatValue(_statDurationTime_Sum_High[serieIndex][valueIndex], ChartDataSerie.AXIS_UNIT_HOUR_MINUTE)).toString();
-            }
-
-            return createToolTipProvider(serieIndex, toolTipLabel);
          }
       });
    }
@@ -631,7 +448,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    }
 
    /**
-    * calculate the statistic for one tour
+    * Calculate the statistic for one tour
     *
     * @param tourValue
     * @param allGroupedValues
@@ -644,7 +461,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       int lastGroup = -1;
       boolean isGroupFound = false;
 
-      // loop: all units
+      // loop: all groups
       for (int groupIndex = 0; groupIndex < allGroupedValues.length; groupIndex++) {
 
          final int groupValue = allGroupedValues[groupIndex];
@@ -843,8 +660,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                                 final int[][] highValues,
                                 final int[][] colorIndex,
                                 final int yUnit,
-                                final String unit,
-                                final String title) {
+                                final DurationTime durationTime,
+                                final String unit) {
 
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
@@ -863,9 +680,11 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       yData.setAxisUnit(yUnit);
       yData.setUnitLabel(unit);
       yData.setAllValueColors(0);
-      yData.setYTitle(title);
       yData.setVisibleMinValue(0);
       yData.setShowYSlider(true);
+
+      // set y title to the selected time duration
+      setGraphLabel_Duration(yData, durationTime);
 
       chartDataModel.addYData(yData);
 
@@ -893,6 +712,10 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       _stat_SelectedYear = statContext.statSelectedYear;
       _stat_NumberOfYears = statContext.statNumberOfYears;
 
+      final DurationTime durationTime = (DurationTime) net.tourbook.common.util.Util.getEnumValue(
+            _prefStore.getString(ITourbookPreferences.STAT_FREQUENCY_DURATION_TIME),
+            DurationTime.MOVING);
+
       // load statistic data from db
       _tourDay_Data = _tourDay_DataProvider.getDayData(
 
@@ -903,8 +726,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
 
             isDataDirtyWithReset() || statContext.isRefreshData,
 
-            // this may need to be customized as in the other statistics
-            DurationTime.MOVING);
+            durationTime);
 
       // reset min/max values
       if (_isSynchScaleEnabled == false && statContext.isRefreshData) {
@@ -956,8 +778,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
             _statDurationTime_NumTours_High,
             _statDurationTime_NumTours_ColorIndex,
             ChartDataXSerie.AXIS_UNIT_NUMBER,
-            Messages.NUMBERS_UNIT,
-            Messages.LABEL_GRAPH_TIME);
+            durationTime,
+            Messages.NUMBERS_UNIT);
 
       updateChartTime(
             _chartDuration_Values,
@@ -966,8 +788,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
             _statDurationTime_Sum_High,
             _statDurationTime_Sum_ColorIndex,
             ChartDataXSerie.AXIS_UNIT_HOUR_MINUTE,
-            Messages.LABEL_GRAPH_TIME_UNIT,
-            Messages.LABEL_GRAPH_TIME);
+            durationTime,
+            Messages.LABEL_GRAPH_TIME_UNIT);
    }
 
    @Override
