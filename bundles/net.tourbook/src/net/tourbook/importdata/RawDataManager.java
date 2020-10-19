@@ -239,13 +239,14 @@ public class RawDataManager {
    private RawDataManager() {}
 
    /**
-    * Displays the differences of data before and after the tour reimport
+    * Displays the differences of data before and after the tour re-import
     *
     * @param reimportId
+    *           A data ID to be re-imported
     * @param oldTourData
-    *           The Tour before the reimport
+    *           The Tour before the re-import
     * @param newTourData
-    *           The Tour after the reimport
+    *           The Tour after the re-import
     */
    public static void displayReimportDataDifferences(final ReImport reimportId,
                                                      final TourData oldTourData,
@@ -283,11 +284,12 @@ public class RawDataManager {
                : net.tourbook.ui.Messages.Value_Unit_Cadence);
          break;
       case PowerAndPulseValues:
-         //TODO FB, are calories in cal or kcal by default ?
-         previousData = oldTourData.getPower_Avg() + UI.UNIT_POWER_SHORT + oldTourData.getAvgPulse() + net.tourbook.ui.Messages.Value_Unit_Pulse
-               + oldTourData.getCalories() + net.tourbook.ui.Messages.Value_Unit_KCalories;
-         newData = newTourData.getPower_Avg() + UI.UNIT_POWER_SHORT + newTourData.getAvgPulse() + net.tourbook.ui.Messages.Value_Unit_Pulse
-               + newTourData.getCalories() + net.tourbook.ui.Messages.Value_Unit_KCalories;
+         previousData = Math.round(oldTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + UI.COMMA_SPACE
+               + Math.round(oldTourData.getAvgPulse()) + net.tourbook.ui.Messages.Value_Unit_Pulse + UI.COMMA_SPACE
+               + oldTourData.getCalories() / 1000f + net.tourbook.ui.Messages.Value_Unit_KCalories;
+         newData = Math.round(newTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + UI.COMMA_SPACE
+               + Math.round(newTourData.getAvgPulse()) + net.tourbook.ui.Messages.Value_Unit_Pulse + UI.COMMA_SPACE
+               + newTourData.getCalories() / 1000f + net.tourbook.ui.Messages.Value_Unit_KCalories;
          break;
       case PowerAndSpeedValues:
          previousData = Math.round(oldTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + oldTourData.getCalories();
@@ -547,8 +549,10 @@ public class RawDataManager {
     *           A list of data IDs to be re-imported
     * @param tourViewer
     *           Tour viewer containing the selected tours to be re-imported.
+    * @param skipToursWithFileNotFound
+    *           Indicates whether to re-import or not a tour for which the file is not found
     */
-   public void actionReimportTour(final List<ReImport> reimportIds, final ITourViewer3 tourViewer) {
+   public void actionReimportTour(final List<ReImport> reimportIds, final ITourViewer3 tourViewer, final boolean skipToursWithFileNotFound) {
 
       final long start = System.currentTimeMillis();
 
@@ -580,7 +584,7 @@ public class RawDataManager {
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
             boolean isReImported = false;
-            File reimportedFile = null;
+            final File[] reimportedFile = new File[1];
             int imported = 0;
             final int importSize = selectedTours.size();
 
@@ -612,58 +616,7 @@ public class RawDataManager {
                   continue;
                }
 
-               if (oldTourData.isManualTour()) {
-
-                  /**
-                   * Manually created tours cannot be re-imported, there is no import file path
-                   * <p>
-                   * It took a very long time (years) until this case was discovered
-                   */
-
-                  TourLogManager.addSubLog(TourLogState.INFO,
-                        NLS.bind(
-                              LOG_REIMPORT_MANUAL_TOUR,
-                              oldTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
-                  continue;
-               }
-
-               boolean isTourReImportedFromSameFile = false;
-
-               final File currentTourImportFile = actionReimportTour_20_GetImportFile(oldTourData);
-
-               if (reimportedFile != null && reimportedFile.equals(currentTourImportFile)
-                     && _newlyImportedTours.size() > 0) {
-
-                  // this case occurs when a file contains multiple tours
-
-                  if (actionReimportTour_30(reimportIds, reimportedFile, oldTourData)) {
-                     isReImported = true;
-                     isTourReImportedFromSameFile = true;
-                  }
-               }
-
-               if (isTourReImportedFromSameFile == false) {
-
-                  reimportedFile = currentTourImportFile;
-
-                  if (reimportedFile == null) {
-
-                     /*
-                      * User canceled file dialog -> continue with next file, it is possible that a
-                      * tour file could not be reselected because it is not available any more
-                      */
-                     TourLogManager.addSubLog(TourLogState.IMPORT_ERROR,
-                           NLS.bind(LOG_REIMPORT_TOUR_SKIPPED,
-                                 oldTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
-                     continue;
-                  }
-
-                  // import file is available
-
-                  if (actionReimportTour_30(reimportIds, reimportedFile, oldTourData)) {
-                     isReImported = true;
-                  }
-               }
+               isReImported = reimportTour(reimportIds, oldTourData, reimportedFile, skipToursWithFileNotFound);
             }
 
             if (isReImported) {
@@ -694,7 +647,7 @@ public class RawDataManager {
       }
    }
 
-   private boolean actionReimportTour_10_Confirm(final List<ReImport> reimportIds) {
+   public boolean actionReimportTour_10_Confirm(final List<ReImport> reimportIds) {
 
       if (reimportIds.size() > 1) {
          final ArrayList<String> dataToReimportDetails = new ArrayList<>();
@@ -988,9 +941,12 @@ public class RawDataManager {
 
    /**
     * @param tourData
+    * @param skipToursWithFileNotFound
+    *           Indicates whether to re-import or not a tour for which the file is not found
     * @return Returns <code>null</code> when the user has canceled the file dialog.
     */
-   private File actionReimportTour_20_GetImportFile(final TourData tourData) {
+   private File actionReimportTour_20_GetImportFile(final TourData tourData,
+                                                    final boolean skipToursWithFileNotFound) {
 
       final String[] reimportFilePathName = { null };
 
@@ -1051,6 +1007,11 @@ public class RawDataManager {
                   }
 
                   if (reimportFilePathName[0] == null) {
+
+                     //The user doesn't want to look for a new file path for the current tour.
+                     if (skipToursWithFileNotFound) {
+                        return;
+                     }
 
                      final boolean okPressed = MessageDialog.openConfirm(
                            activeShell,
@@ -1172,12 +1133,27 @@ public class RawDataManager {
                   previousTourData.setTourMarkers(oldTourData.getTourMarkers());
                   break;
 
-//               case GearValues:
-//                  PowerAndSpeedValues, //
-//                  PowerAndPulseValues, //
-//                  RunningDynamics, //
-//                  Swimming, //
-//                  TrainingValues, //
+               case PowerAndSpeedValues:
+                  previousTourData.setPower_Avg(oldTourData.getPower_Avg());
+                  previousTourData.setCalories(oldTourData.getCalories());
+                  break;
+
+               case PowerAndPulseValues:
+                  previousTourData.setPower_Avg(oldTourData.getPower_Avg());
+                  previousTourData.setAvgPulse(oldTourData.getAvgPulse());
+                  previousTourData.setCalories(oldTourData.getCalories());
+                  break;
+
+               case TrainingValues:
+                  previousTourData.setTraining_TrainingEffect_Aerob(oldTourData.getTraining_TrainingEffect_Aerob());
+                  previousTourData.setTraining_TrainingEffect_Anaerob(oldTourData.getTraining_TrainingEffect_Anaerob());
+                  previousTourData.setTraining_TrainingPerformance(oldTourData.getTraining_TrainingPerformance());
+                  break;
+
+               case GearValues:
+                  previousTourData.setFrontShiftCount(oldTourData.getFrontShiftCount());
+                  previousTourData.setRearShiftCount(oldTourData.getRearShiftCount());
+                  break;
 
                default:
                   break;
@@ -1253,6 +1229,7 @@ public class RawDataManager {
 
    /**
     * @param reimportIds
+    *           A list of data IDs to be re-imported
     * @param reimportedFile
     * @param oldTourData
     * @return Returns {@link TourData} with the re-imported time slices or <code>null</code> when an
@@ -2029,6 +2006,83 @@ public class RawDataManager {
       fileIn.delete();
 
       return newFile.getAbsolutePath();
+   }
+
+   /**
+    * Re-imports a tour and specifically the data specified.
+    *
+    * @param reimportIds
+    *           A list of data IDs to be re-imported
+    * @param tourData
+    *           The tour to re-import
+    * @param reimportedFile
+    *           Indicates whether the tour to re-import is part of a multi-activity tour
+    * @param skipToursWithFileNotFound
+    *           Indicates whether to re-import or not a tour for which the file is not found
+    * @return
+    *         True if the tour has been re-imported, false otherwise
+    */
+   public boolean reimportTour(final List<ReImport> reimportIds,
+                               final TourData tourData,
+                               final File[] reimportedFile,
+                               final boolean skipToursWithFileNotFound) {
+
+      boolean isReImported = false;
+
+      if (tourData.isManualTour()) {
+
+         /**
+          * Manually created tours cannot be re-imported, there is no import file path
+          * <p>
+          * It took a very long time (years) until this case was discovered
+          */
+
+         TourLogManager.addSubLog(TourLogState.INFO,
+               NLS.bind(
+                     LOG_REIMPORT_MANUAL_TOUR,
+                     tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
+         return isReImported;
+      }
+
+      boolean isTourReImportedFromSameFile = false;
+
+      final File currentTourImportFile = actionReimportTour_20_GetImportFile(tourData, skipToursWithFileNotFound);
+
+      if (reimportedFile[0] != null && reimportedFile[0].equals(currentTourImportFile)
+            && _newlyImportedTours.size() > 0) {
+
+         // this case occurs when a file contains multiple tours
+
+         if (actionReimportTour_30(reimportIds, reimportedFile[0], tourData)) {
+            isReImported = true;
+            isTourReImportedFromSameFile = true;
+         }
+      }
+
+      if (isTourReImportedFromSameFile == false) {
+
+         reimportedFile[0] = currentTourImportFile;
+
+         if (reimportedFile[0] == null) {
+
+            /*
+             * User canceled file dialog -> continue with next file, it is possible that a
+             * tour file could not be reselected because it is not available any more
+             */
+            TourLogManager.addSubLog(TourLogState.IMPORT_ERROR,
+                  NLS.bind(LOG_REIMPORT_TOUR_SKIPPED,
+                        tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
+            return isReImported;
+         }
+
+         // import file is available
+
+         if (actionReimportTour_30(reimportIds, reimportedFile[0], tourData)) {
+            isReImported = true;
+         }
+      }
+
+      return isReImported;
    }
 
    public void removeAllTours() {

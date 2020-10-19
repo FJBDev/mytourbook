@@ -64,7 +64,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Tour), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Tour), _tourViewer, false);
       }
 
    }
@@ -77,7 +77,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.CadenceValues), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.CadenceValues), _tourViewer, false);
       }
    }
 
@@ -89,7 +89,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.AltitudeValues), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.AltitudeValues), _tourViewer, false);
       }
    }
 
@@ -101,7 +101,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.GearValues), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.GearValues), _tourViewer, false);
       }
    }
 
@@ -116,7 +116,8 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
          RawDataManager.getInstance()
                .actionReimportTour(
                      Arrays.asList(ReImport.PowerAndPulseValues),
-                     _tourViewer);
+                     _tourViewer,
+                     false);
       }
    }
 
@@ -131,7 +132,8 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
          RawDataManager.getInstance()
                .actionReimportTour(
                      Arrays.asList(ReImport.PowerAndSpeedValues),
-                     _tourViewer);
+                     _tourViewer,
+                     false);
       }
    }
 
@@ -143,7 +145,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.RunningDynamics), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.RunningDynamics), _tourViewer, false);
       }
    }
 
@@ -155,7 +157,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Swimming), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.Swimming), _tourViewer, false);
       }
    }
 
@@ -167,7 +169,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TemperatureValues), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TemperatureValues), _tourViewer, false);
       }
    }
 
@@ -179,7 +181,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TimeSlices), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TimeSlices), _tourViewer, false);
       }
    }
 
@@ -191,7 +193,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourMarkers), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourMarkers), _tourViewer, false);
       }
    }
 
@@ -203,7 +205,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourTimerPauses), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TourTimerPauses), _tourViewer, false);
       }
    }
 
@@ -215,7 +217,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
-         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TrainingValues), _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(Arrays.asList(ReImport.TrainingValues), _tourViewer, false);
       }
    }
 

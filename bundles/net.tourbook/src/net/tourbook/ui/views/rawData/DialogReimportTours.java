@@ -17,13 +17,13 @@ package net.tourbook.ui.views.rawData;
 
 import de.byteholder.geoclipse.map.UI;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourData;
@@ -33,8 +33,6 @@ import net.tourbook.importdata.RawDataManager;
 import net.tourbook.importdata.RawDataManager.ReImport;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
-import net.tourbook.tour.TourLogView;
 import net.tourbook.tour.TourManager;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -43,7 +41,6 @@ import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -60,29 +57,30 @@ import org.eclipse.swt.widgets.Shell;
 
 public class DialogReimportTours extends TitleAreaDialog {
 
-   private static final String   STATE_REIMPORT_TOURS_ALL        = "STATE_REIMPORT_TOURS_ALL";      //$NON-NLS-1$
-   private static final String   STATE_REIMPORT_TOURS_SELECTED   = "STATE_REIMPORT_TOURS_SELECTED"; //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_ALL                     = "STATE_REIMPORT_TOURS_ALL";          //$NON-NLS-1$
+   private static final String   STATE_REIMPORT_TOURS_SELECTED                = "STATE_REIMPORT_TOURS_SELECTED";     //$NON-NLS-1$
 
-   private static final String   STATE_IS_IMPORT_ALTITUDE        = "isImportAltitude";              //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_CADENCE         = "isImportCadence";               //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_GEAR            = "isImportGear";                  //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_POWERANDPULSE   = "isImportPowerAndPulse";         //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_POWERANDSPEED   = "isImportPowerAndSpeed";         //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_RUNNINGDYNAMICS = "isImportRunningDynamics";       //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_SWIMMING        = "isImportSwimming";              //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TEMPERATURE     = "isImportTemperature";           //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TRAINING        = "isImportTraining";              //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TIMESLICES      = "isImportTimeSlices";            //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TOURMARKERS     = "isImportTourMarkers";           //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_TIMERPAUSES     = "isImportTimerPauses";           //$NON-NLS-1$
-   private static final String   STATE_IS_IMPORT_ENTIRETOUR      = "isImportEntireTours";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_ALTITUDE                     = "isImportAltitude";                  //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_CADENCE                      = "isImportCadence";                   //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_GEAR                         = "isImportGear";                      //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_POWERANDPULSE                = "isImportPowerAndPulse";             //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_POWERANDSPEED                = "isImportPowerAndSpeed";             //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_RUNNINGDYNAMICS              = "isImportRunningDynamics";           //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_SWIMMING                     = "isImportSwimming";                  //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TEMPERATURE                  = "isImportTemperature";               //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TRAINING                     = "isImportTraining";                  //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TIMESLICES                   = "isImportTimeSlices";                //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TOURMARKERS                  = "isImportTourMarkers";               //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_TIMERPAUSES                  = "isImportTimerPauses";               //$NON-NLS-1$
+   private static final String   STATE_IS_IMPORT_ENTIRETOUR                   = "isImportEntireTours";               //$NON-NLS-1$
+   private static final String   STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND = "isSkipToursWithImportFileNotFound"; //$NON-NLS-1$
 
-   private static final int      VERTICAL_SECTION_MARGIN         = 10;
+   private static final int      VERTICAL_SECTION_MARGIN                      = 10;
 
    private static String         _dlgDefaultMessage;
 
-   private final IDialogSettings _state                          = TourbookPlugin
-         .getState("DialogReimportTours");                                                          //$NON-NLS-1$
+   private final IDialogSettings _state                                       = TourbookPlugin
+         .getState("DialogReimportTours");                                                                           //$NON-NLS-1$
 
    private Point                 _shellDefaultSize;
 
@@ -215,7 +213,7 @@ public class DialogReimportTours extends TitleAreaDialog {
          createUI_20_Data(_inputContainer);
 
          /*
-          * Checkbox: Skip tours for which the import file was not found
+          * Checkbox: Skip tours for which the import file is not found
           */
          _chkSkip_Tours_With_ImportFile_NotFound = new Button(_inputContainer, SWT.CHECK);
          GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_chkSkip_Tours_With_ImportFile_NotFound);
@@ -450,62 +448,28 @@ public class DialogReimportTours extends TitleAreaDialog {
    private void doReimport(final List<ReImport> reimportIds) throws IOException {
 
       final boolean isReimportAllTours = _chkReimport_Tours_All.getSelection();
+      final boolean skipToursWithFileNotFound = _chkSkip_Tours_With_ImportFile_NotFound.getSelection();
 
       if (isReimportAllTours) {
+
+         if (RawDataManager.getInstance().actionReimportTour_10_Confirm(reimportIds) == false) {
+            return;
+         }
 
          saveState();
 
          TourLogManager.showLogView();
 
-         TourLogManager.addLog(
-               TourLogState.DEFAULT, //
-               NLS.bind(RawDataManager.LOG_REIMPORT_COMBINED_VALUES, "ddd"), //TODO FB
-               TourLogView.CSS_LOG_TITLE);
-
+         final File[] reimportedFile = new File[1];
          final IComputeTourValues computeTourValueConfig = new IComputeTourValues() {
 
             @Override
             public boolean computeTourValues(final TourData oldTourData) {
 
-               TourData previousTourData = null;
-               try {
-                  previousTourData = (TourData) oldTourData.clone();
-
-                  for (final ReImport reimportId : reimportIds) {
-                     switch (reimportId) {
-
-                     case AltitudeValues:
-
-                        previousTourData.setTourAltDown(oldTourData.getTourAltDown());
-                        previousTourData.setTourAltUp(oldTourData.getTourAltUp());
-
-                        oldTourData.computeAltitudeUpDown();
-
-                        break;
-
-                     case TourTimerPauses:
-                        previousTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
-                        previousTourData.setPausedTime_Start(oldTourData.getPausedTime_Start());
-                        previousTourData.setPausedTime_End(oldTourData.getPausedTime_End());
-
-                        break;
-
-                     default:
-                        break;
-                     }
-
-                     final String tourStartTime = oldTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
-
-                     TourLogManager.addLog(
-                           TourLogState.DEFAULT, //
-                           tourStartTime,
-                           TourLogView.CSS_LOG_TITLE);
-                     RawDataManager.displayReimportDataDifferences(reimportId, previousTourData, oldTourData);
-                  }
-
-               } catch (final CloneNotSupportedException e) {
-                  StatusUtil.log(e);
-               }
+               RawDataManager.getInstance().reimportTour(reimportIds,
+                     oldTourData,
+                     reimportedFile,
+                     skipToursWithFileNotFound);
 
                return true;
             }
@@ -529,7 +493,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       } else {
 
-         RawDataManager.getInstance().actionReimportTour(reimportIds, _tourViewer);
+         RawDataManager.getInstance().actionReimportTour(reimportIds, _tourViewer, skipToursWithFileNotFound);
       }
    }
 
@@ -665,6 +629,9 @@ public class DialogReimportTours extends TitleAreaDialog {
       final boolean isReimportSelectedTours = _state.getBoolean(STATE_REIMPORT_TOURS_SELECTED);
       _chkReimport_Tours_Selected.setSelection(isReimportSelectedTours);
 
+      // Skip tours for which the import file is not found
+      _chkSkip_Tours_With_ImportFile_NotFound.setSelection(_state.getBoolean(STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND));
+
       enableDataButtons(!isReimportEntireTour);
       enableReimportButton(isReimportAllTours || isReimportSelectedTours);
    }
@@ -689,5 +656,8 @@ public class DialogReimportTours extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_TIMESLICES, _chkTimeSlices.getSelection());
       _state.put(STATE_IS_IMPORT_TOURMARKERS, _chkTourMarkers.getSelection());
       _state.put(STATE_IS_IMPORT_TIMERPAUSES, _chkTourTimerPauses.getSelection());
+
+      // Skip tours for which the import file is not found
+      _state.put(STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND, _chkSkip_Tours_With_ImportFile_NotFound.getSelection());
    }
 }
