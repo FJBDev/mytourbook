@@ -255,7 +255,7 @@ public class RawDataManager {
       String previousData = UI.EMPTY_STRING;
       String newData = UI.EMPTY_STRING;
       switch (reimportId) {
-
+      //TODO FB
       case AltitudeValues:
 
          final String heightLabel = UI.UNIT_IS_METRIC ? UI.UNIT_METER : UI.UNIT_HEIGHT_FT;
@@ -277,12 +277,14 @@ public class RawDataManager {
          previousData = UI.format_hhh_mm_ss(oldTourData.getTourDeviceTime_Paused());
          newData = UI.format_hhh_mm_ss(newTourData.getTourDeviceTime_Paused());
          break;
+
       case CadenceValues:
          previousData = Math.round(oldTourData.getAvgCadence()) + (oldTourData.isCadenceSpm() ? net.tourbook.ui.Messages.Value_Unit_Cadence_Spm
                : net.tourbook.ui.Messages.Value_Unit_Cadence);
          newData = Math.round(newTourData.getAvgCadence()) + (newTourData.isCadenceSpm() ? net.tourbook.ui.Messages.Value_Unit_Cadence_Spm
                : net.tourbook.ui.Messages.Value_Unit_Cadence);
          break;
+
       case PowerAndPulseValues:
          previousData = Math.round(oldTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + UI.COMMA_SPACE
                + Math.round(oldTourData.getAvgPulse()) + net.tourbook.ui.Messages.Value_Unit_Pulse + UI.COMMA_SPACE
@@ -291,20 +293,24 @@ public class RawDataManager {
                + Math.round(newTourData.getAvgPulse()) + net.tourbook.ui.Messages.Value_Unit_Pulse + UI.COMMA_SPACE
                + newTourData.getCalories() / 1000f + net.tourbook.ui.Messages.Value_Unit_KCalories;
          break;
+
       case PowerAndSpeedValues:
          previousData = Math.round(oldTourData.getPower_Avg()) + UI.UNIT_POWER_SHORT + oldTourData.getCalories();
          newData = newTourData.getPower_Avg() + UI.UNIT_POWER_SHORT;
          break;
+
       case TemperatureValues:
          previousData = oldTourData.getAvgTemperature() + (UI.UNIT_IS_METRIC ? UI.SYMBOL_TEMPERATURE_CELCIUS
                : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
          newData = newTourData.getAvgTemperature() + (UI.UNIT_IS_METRIC ? UI.SYMBOL_TEMPERATURE_CELCIUS
                : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
          break;
+
       case TourMarkers:
          previousData = oldTourData.getTourMarkersSorted().size() + "";
          newData = newTourData.getTourMarkersSorted().size() + "";
          break;
+
 //      case TrainingValues:
 //         dataToReimportDetails.add(Messages.Import_Data_TrainingValues);
 //         break;
