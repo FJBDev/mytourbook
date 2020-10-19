@@ -224,32 +224,21 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
    private class ActionReimportTours extends Action {
 
       private final ITourViewer3 _tourViewer;
-      //  private final ITourProviderByID _tourProvider;
 
-      public ActionReimportTours(final ITourViewer3 tourViewer/*
-                                                               * , final ITourProviderByID
-                                                               * tourProviderById
-                                                               */) {
+      public ActionReimportTours(final ITourViewer3 tourViewer) {
 
-         //_tourProvider = tourProviderById;
          _tourViewer = tourViewer;
 
-         setText("Reimport Tours...");//TODO FB Messages.Import_Data_Action_RemoveTour);
+         setText(Messages.dialog_reimport_tours_shell_text);
       }
 
       @Override
       public void run() {
-         new DialogReimportTours(Display.getCurrent().getActiveShell(), _tourViewer/*
-                                                                                    * ,
-                                                                                    * _tourProvider
-                                                                                    */).open();
+         new DialogReimportTours(Display.getCurrent().getActiveShell(), _tourViewer).open();
       }
    }
 
-   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer/*
-                                                                * , final ITourProviderByID
-                                                                * tourProviderById
-                                                                */) {
+   public Action_Reimport_SubMenu(final ITourViewer3 tourViewer) {
 
       super(Messages.Import_Data_Action_Reimport_Tour, AS_DROP_DOWN_MENU);
 
@@ -316,7 +305,7 @@ public class Action_Reimport_SubMenu extends Action implements IMenuCreator {
 
       _menu = new Menu(parent);
 
-      // Add listener to repopulate the menu each time
+      // Add listener to re-populate the menu each time
       _menu.addMenuListener(new MenuAdapter() {
          @Override
          public void menuShown(final MenuEvent e) {

@@ -217,8 +217,7 @@ public class DialogReimportTours extends TitleAreaDialog {
           */
          _chkSkip_Tours_With_ImportFile_NotFound = new Button(_inputContainer, SWT.CHECK);
          GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_chkSkip_Tours_With_ImportFile_NotFound);
-         _chkSkip_Tours_With_ImportFile_NotFound.setText("Skip Tours for which the file is not found");//Messages.dialog_export_txt_filePath_tooltip);
-         _chkSkip_Tours_With_ImportFile_NotFound.setToolTipText("When the original file is not found, skip to the next tour");
+         _chkSkip_Tours_With_ImportFile_NotFound.setText(Messages.dialog_reimport_tours_btn_skip_tours_with_importFile_notfound);
          _chkSkip_Tours_With_ImportFile_NotFound.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
       }
    }
@@ -242,59 +241,57 @@ public class DialogReimportTours extends TitleAreaDialog {
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
-         final Group groupCustomGPX = new Group(container, SWT.NONE);
-         groupCustomGPX.setText("Tours to reimport");//TODO FBMessages.Dialog_Export_Group_Custom);
-         groupCustomGPX.setToolTipText(Messages.Dialog_Export_Group_Custom_Tooltip);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(groupCustomGPX);
-         GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupCustomGPX);
+         final Group groupTours = new Group(container, SWT.NONE);
+         groupTours.setText(Messages.Dialog_Reimport_Tours_Group_Tours);
+         groupTours.setToolTipText(Messages.Dialog_Reimport_Tours_Group_Tours_Tooltip);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(groupTours);
+         GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupTours);
          {
             /*
-             * checkbox: Reimport all tours in the database
+             * checkbox: Re-import all tours in the database
              */
-            _chkReimport_Tours_All = new Button(groupCustomGPX, SWT.RADIO);
+            _chkReimport_Tours_All = new Button(groupTours, SWT.RADIO);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_All);
-            _chkReimport_Tours_All.setText("All tours in the database");//Messages.Dialog_Export_Checkbox_WithBarometer);
-            _chkReimport_Tours_All.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+            _chkReimport_Tours_All.setText(Messages.dialog_reimport_tours_checkbox_alltours);
             _chkReimport_Tours_All.addSelectionListener(buttonListener);
 
             /*
-             * checkbox: Reimport the selected tours
+             * checkbox: Re-import the selected tours
              */
-            _chkReimport_Tours_Selected = new Button(groupCustomGPX, SWT.RADIO);
+            _chkReimport_Tours_Selected = new Button(groupTours, SWT.RADIO);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkReimport_Tours_Selected);
-            _chkReimport_Tours_Selected.setText("Only the selected tours");//Messages.Dialog_Export_Checkbox_WithBarometer);
-            _chkReimport_Tours_Selected.setToolTipText(Messages.Dialog_Export_Checkbox_WithBarometer_Tooltip);
+            _chkReimport_Tours_Selected.setText(Messages.dialog_reimport_tours_checkbox_selectedtours);
             _chkReimport_Tours_Selected.addSelectionListener(buttonListener);
          }
       }
    }
 
    /**
-    * UI to select the data to reimport for the chosen tours
+    * UI to select the data to re-import for the chosen tours
     *
     * @param parent
     */
    private void createUI_20_Data(final Composite parent) {
 
       /*
-       * group: filename
+       * group: data
        */
-      final Group group = new Group(parent, SWT.NONE);
-      group.setText("Data to reimport");//TODO FBMessages.dialog_export_group_exportFileName);
-      GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(group);
-      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
+      final Group groupData = new Group(parent, SWT.NONE);
+      groupData.setText(Messages.Dialog_Reimport_Tours_Group_Data);
+      groupData.setText(Messages.Dialog_Reimport_Tours_Group_Data_Tooltip);
+      GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(groupData);
+      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupData);
       {
          /*
           * checkbox: Entire Tour
           */
-         _chkEntireTour = new Button(group, SWT.CHECK);
+         _chkEntireTour = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .span(2, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkEntireTour);
-         _chkEntireTour.setText("Entire Tour");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkEntireTour.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkEntireTour.setText(Messages.Import_Data_EntireTour);
          _chkEntireTour.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -306,134 +303,122 @@ public class DialogReimportTours extends TitleAreaDialog {
          /*
           * checkbox: altitude
           */
-         _chkAltitude = new Button(group, SWT.CHECK);
+         _chkAltitude = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkAltitude);
-         _chkAltitude.setText("Altitude Values");//TODO FB Messages.dialog_export_chk_overwriteFiles);
-         _chkAltitude.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkAltitude.setText(Messages.Import_Data_AltitudeValues);
 
          /*
           * checkbox: cadence
           */
-         _chkCadence = new Button(group, SWT.CHECK);
+         _chkCadence = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkCadence);
-         _chkCadence.setText("Cadence Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkCadence.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkCadence.setText(Messages.Import_Data_CadenceValues);
 
          /*
           * checkbox: Gear
           */
-         _chkGear = new Button(group, SWT.CHECK);
+         _chkGear = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkGear);
-         _chkGear.setText("Gear Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkGear.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkGear.setText(Messages.Import_Data_GearValues);
 
          /*
           * checkbox: Power And Pulse
           */
-         _chkPowerAndPulse = new Button(group, SWT.CHECK);
+         _chkPowerAndPulse = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkPowerAndPulse);
-         _chkPowerAndPulse.setText("Power and Pulse Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkPowerAndPulse.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkPowerAndPulse.setText(Messages.Import_Data_PowerAndPulseValues);
 
          /*
           * checkbox: Power And Speed
           */
-         _chkPowerAndSpeed = new Button(group, SWT.CHECK);
+         _chkPowerAndSpeed = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkPowerAndSpeed);
-         _chkPowerAndSpeed.setText("Power And Speed Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkPowerAndSpeed.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkPowerAndSpeed.setText(Messages.Import_Data_PowerAndSpeedValues);
 
          /*
           * checkbox: Running Dynamics
           */
-         _chkRunningDynamics = new Button(group, SWT.CHECK);
+         _chkRunningDynamics = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkRunningDynamics);
-         _chkRunningDynamics.setText("Running Dynamics Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkRunningDynamics.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkRunningDynamics.setText(Messages.Import_Data_RunningDynamicsValues);
 
          /*
           * checkbox: Swimming
           */
-         _chkSwimming = new Button(group, SWT.CHECK);
+         _chkSwimming = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkSwimming);
-         _chkSwimming.setText("Swimming Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkSwimming.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkSwimming.setText(Messages.Import_Data_SwimmingValues);
 
          /*
           * checkbox: Temperature
           */
-         _chkTemperature = new Button(group, SWT.CHECK);
+         _chkTemperature = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTemperature);
-         _chkTemperature.setText("Temperature Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkTemperature.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkTemperature.setText(Messages.Import_Data_TemperatureValues);
 
          /*
           * checkbox: Training
           */
-         _chkTraining = new Button(group, SWT.CHECK);
+         _chkTraining = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTraining);
-         _chkTraining.setText("Training Values");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkTraining.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkTraining.setText(Messages.Import_Data_TrainingValues);
 
          /*
           * checkbox: Time slices
           */
-         _chkTimeSlices = new Button(group, SWT.CHECK);
+         _chkTimeSlices = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTimeSlices);
-         _chkTimeSlices.setText("Time slices");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkTimeSlices.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkTimeSlices.setText(Messages.Import_Data_TimeSlices);
 
          /*
           * checkbox: Tour markers
           */
-         _chkTourMarkers = new Button(group, SWT.CHECK);
+         _chkTourMarkers = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTourMarkers);
-         _chkTourMarkers.setText("Tour markers");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkTourMarkers.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkTourMarkers.setText(Messages.Import_Data_TourMarkers);
 
          /*
           * checkbox: Timer Pauses
           */
-         _chkTourTimerPauses = new Button(group, SWT.CHECK);
+         _chkTourTimerPauses = new Button(groupData, SWT.CHECK);
          GridDataFactory.fillDefaults()//
                .align(SWT.BEGINNING, SWT.CENTER)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkTourTimerPauses);
-         _chkTourTimerPauses.setText("Timer Pauses");//TODO FBessages.dialog_export_chk_overwriteFiles);
-         _chkTourTimerPauses.setToolTipText(Messages.dialog_export_chk_overwriteFiles_tooltip);
+         _chkTourTimerPauses.setText(Messages.Import_Data_TourTimerPauses);
       }
 
    }

@@ -118,7 +118,14 @@ public class Messages extends NLS {
 
    public static String        dialog_export_btn_export;
    public static String        dialog_reimport_tours_btn_reimport;
+   public static String        dialog_reimport_tours_btn_skip_tours_with_importFile_notfound;
+   public static String        dialog_reimport_tours_checkbox_alltours;
+   public static String        dialog_reimport_tours_checkbox_selectedtours;
    public static String        dialog_reimport_tours_dialog_title;
+   public static String        Dialog_Reimport_Tours_Group_Tours;
+   public static String        Dialog_Reimport_Tours_Group_Tours_Tooltip;
+   public static String        Dialog_Reimport_Tours_Group_Data;
+   public static String        Dialog_Reimport_Tours_Group_Data_Tooltip;
    public static String        dialog_reimport_tours_shell_text;
    public static String        dialog_export_chk_camouflageSpeed;
    public static String        dialog_export_chk_camouflageSpeed_tooltip;
