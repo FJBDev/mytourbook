@@ -31,8 +31,8 @@ public class StatisticYear_Weight extends StatisticYear {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
       createXData_Year(chartDataModel);
-      createYData_BodyWeight(chartDataModel);
-      createYData_BodyFat(chartDataModel);
+      createYData_AthleteBodyWeight(chartDataModel);
+      createYData_AthleteBodyFat(chartDataModel);
 
       return chartDataModel;
    }

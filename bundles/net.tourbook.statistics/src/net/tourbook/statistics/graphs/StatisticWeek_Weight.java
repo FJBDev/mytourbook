@@ -26,7 +26,7 @@ public class StatisticWeek_Weight extends StatisticWeek {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
       createXData_Week(chartDataModel);
-      createYData_BodyWeight(chartDataModel);
+      createYData_AthleteBodyWeight(chartDataModel);
 
       return chartDataModel;
    }

@@ -193,13 +193,13 @@ public abstract class StatisticYear extends TourbookStatistic {
     *
     * @param chartDataModel
     */
-   void createYData_BodyFat(final ChartDataModel chartDataModel) {
+   void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
             getChartType(_chartType),
-            _statisticData_Year.athleteWeight_Low,
-            _statisticData_Year.athleteWeight_High);
+            _statisticData_Year.athleteBodyWeight_Low,
+            _statisticData_Year.athleteBodyWeight_High);
 
       yData.setYTitle("Body Fat");//Messages.LABEL_GRAPH_WEIGHT);
       yData.setUnitLabel("%");//UI.UNIT_LABEL_WEIGHT);
@@ -219,13 +219,13 @@ public abstract class StatisticYear extends TourbookStatistic {
     *
     * @param chartDataModel
     */
-   void createYData_BodyWeight(final ChartDataModel chartDataModel) {
+   void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
             getChartType(_chartType),
-            _statisticData_Year.athleteWeight_Low,
-            _statisticData_Year.athleteWeight_High);
+            _statisticData_Year.athleteBodyWeight_Low,
+            _statisticData_Year.athleteBodyWeight_High);
 
       yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
       yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);

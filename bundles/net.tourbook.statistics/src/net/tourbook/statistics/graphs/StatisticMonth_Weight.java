@@ -31,7 +31,7 @@ public class StatisticMonth_Weight extends StatisticMonth {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
       createXData_Months(chartDataModel);
-      createYData_BodyWeight(chartDataModel);
+      createYData_AthleteBodyWeight(chartDataModel);
 
       return chartDataModel;
    }

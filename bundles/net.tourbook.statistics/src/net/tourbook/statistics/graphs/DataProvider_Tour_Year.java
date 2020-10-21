@@ -526,8 +526,10 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.numTours_Low = new float[1][numYears];
             _tourYearData.numTours_High = new float[1][numYears];
 
-            _tourYearData.athleteWeight_Low = new float[1][numYears];
-            _tourYearData.athleteWeight_High = new float[1][numYears];
+            _tourYearData.athleteBodyWeight_Low = new float[1][numYears];
+            _tourYearData.athleteBodyWeight_High = new float[1][numYears];
+            _tourYearData.athleteBodyFat_Low = new float[1][numYears];
+            _tourYearData.athleteBodyFat_High = new float[1][numYears];
 
          } else {
 
@@ -583,8 +585,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.numTours_Low = new float[numTourTypes_WithData][numYears];
             _tourYearData.numTours_High = usedNumTours;
 
-            _tourYearData.athleteWeight_Low = new float[numTourTypes_WithData][numYears];
-            _tourYearData.athleteWeight_High = usedWeight;
+            _tourYearData.athleteBodyWeight_Low = new float[numTourTypes_WithData][numYears];
+            _tourYearData.athleteBodyWeight_High = usedWeight;
          }
 
          _tourYearData.numUsedTourTypes = numTourTypes_WithData;

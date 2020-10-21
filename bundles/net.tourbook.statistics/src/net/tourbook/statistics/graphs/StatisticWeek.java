@@ -254,6 +254,31 @@ public abstract class StatisticWeek extends TourbookStatistic {
       chartDataModel.addYData(yData);
    }
 
+   /**
+    * Weight
+    *
+    * @param chartDataModel
+    */
+   void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            getChartType(_chartType),
+            _statisticData_Week.athleteBodyWeight_Low,
+            _statisticData_Week.athleteBodyWeight_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
+      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
    void createYData_Distance(final ChartDataModel chartDataModel) {
 
       // distance
@@ -322,31 +347,6 @@ public abstract class StatisticWeek extends TourbookStatistic {
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TOUR);
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TOUR, _appTourTypeFilter);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds, _appTourTypeFilter);
-
-      chartDataModel.addYData(yData);
-   }
-
-   /**
-    * Weight
-    *
-    * @param chartDataModel
-    */
-   void createYData_BodyWeight(final ChartDataModel chartDataModel) {
-
-      final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
-            getChartType(_chartType),
-            _statisticData_Week.athleteWeight_Low,
-            _statisticData_Week.athleteWeight_High);
-
-      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
-      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
-      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
-      yData.setShowYSlider(true);
-
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
-      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }
