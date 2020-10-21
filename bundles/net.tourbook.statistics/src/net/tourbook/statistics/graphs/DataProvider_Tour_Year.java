@@ -217,11 +217,11 @@ public class DataProvider_Tour_Year extends DataProvider {
    }
 
    TourStatisticData_Year getYearData(final TourPerson person,
-                             final TourTypeFilter tourTypeFilter,
-                             final int lastYear,
-                             final int numYears,
-                             final boolean refreshData,
-                             final DurationTime durationTime) {
+                                      final TourTypeFilter tourTypeFilter,
+                                      final int lastYear,
+                                      final int numYears,
+                                      final boolean refreshData,
+                                      final DurationTime durationTime) {
 
       /*
        * check if the required data are already loaded
@@ -328,7 +328,9 @@ public class DataProvider_Tour_Year extends DataProvider {
                + "   SUM(TourAltUp)," + NL //                              9  //$NON-NLS-1$
 
                + "   SUM(1)," + NL //                                       10 //$NON-NLS-1$
-               + " SUM(BikerWeight)          " + NL //      11 //$NON-NLS-1$
+               + " SUM(BikerWeight),         " + NL //      11 //$NON-NLS-1$
+               + " SUM(BodyFat)          " + NL //      12 //$NON-NLS-1$
+               //TODO rename BikerWeight to BodyWeight ??
 
                + fromTourData
 
@@ -349,7 +351,8 @@ public class DataProvider_Tour_Year extends DataProvider {
          final float[][] dbDistance = new float[numTourTypes][numYears];
          final float[][] dbElevation = new float[numTourTypes][numYears];
          final float[][] dbNumTours = new float[numTourTypes][numYears];
-         final float[][] dbWeight = new float[numTourTypes][numYears];
+         final float[][] dbBodyWeight = new float[numTourTypes][numYears];
+         final float[][] dbBodyFat = new float[numTourTypes][numYears];
 
          final int[][] dbDurationTime = new int[numTourTypes][numYears];
          final int[][] dbElapsedTime = new int[numTourTypes][numYears];
@@ -398,7 +401,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             final long dbValue_ElevationUp          = (long) (result.getInt(9) / UI.UNIT_VALUE_ALTITUDE);
 
             final int dbValue_NumTours             = result.getInt(10);
-            final float dbValue_Weight = result.getInt(11) / dbValue_NumTours;
+            final float dbValue_BodyWeight = result.getInt(11) / dbValue_NumTours;
+            final float dbValue_BodyFat = result.getInt(12) / dbValue_NumTours;
 
 // SET_FORMATTING_ON
 
@@ -436,7 +440,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             dbDistance[colorIndex][yearIndex] = dbValue_Distance;
             dbElevation[colorIndex][yearIndex] = dbValue_ElevationUp;
             dbNumTours[colorIndex][yearIndex] = dbValue_NumTours;
-            dbWeight[colorIndex][yearIndex] = dbValue_Weight;
+            dbBodyWeight[colorIndex][yearIndex] = dbValue_BodyWeight;
+            dbBodyFat[colorIndex][yearIndex] = dbValue_BodyFat;
 
             dbDurationTime[colorIndex][yearIndex] = dbValue_Duration;
 
@@ -466,7 +471,8 @@ public class DataProvider_Tour_Year extends DataProvider {
          final ArrayList<Object> allDistance_WithData = new ArrayList<>();
          final ArrayList<Object> allDuration_WithData = new ArrayList<>();
          final ArrayList<Object> allNumTours_WithData = new ArrayList<>();
-         final ArrayList<Object> allWeight_WithData = new ArrayList<>();
+         final ArrayList<Object> allBodyWeight_WithData = new ArrayList<>();
+         final ArrayList<Object> allBodyFat_WithData = new ArrayList<>();
 
          final ArrayList<Object> allElapsedTime_WithData = new ArrayList<>();
          final ArrayList<Object> allRecordedTime_WithData = new ArrayList<>();
@@ -486,7 +492,8 @@ public class DataProvider_Tour_Year extends DataProvider {
                allDistance_WithData.add(dbDistance[tourTypeIndex]);
                allDuration_WithData.add(dbDurationTime[tourTypeIndex]);
                allNumTours_WithData.add(dbNumTours[tourTypeIndex]);
-               allWeight_WithData.add(dbWeight[tourTypeIndex]);
+               allBodyWeight_WithData.add(dbBodyWeight[tourTypeIndex]);
+               allBodyFat_WithData.add(dbBodyFat[tourTypeIndex]);
 
                allElapsedTime_WithData.add(dbElapsedTime[tourTypeIndex]);
                allRecordedTime_WithData.add(dbRecordedTime[tourTypeIndex]);
@@ -544,7 +551,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             final int[][] usedMovingTime = new int[numTourTypes_WithData][];
             final int[][] usedBreakTime = new int[numTourTypes_WithData][];
             final float[][] usedNumTours = new float[numTourTypes_WithData][];
-            final float[][] usedWeight = new float[numTourTypes_WithData][];
+            final float[][] usedBodyWeight = new float[numTourTypes_WithData][];
+            final float[][] usedBodyFat = new float[numTourTypes_WithData][];
 
             for (int index = 0; index < numTourTypes_WithData; index++) {
 
@@ -561,7 +569,8 @@ public class DataProvider_Tour_Year extends DataProvider {
                usedBreakTime[index] = (int[]) allBreakTime_WithData.get(index);
 
                usedNumTours[index] = (float[]) allNumTours_WithData.get(index);
-               usedWeight[index] = (float[]) allWeight_WithData.get(index);
+               usedBodyWeight[index] = (float[]) allBodyWeight_WithData.get(index);
+               usedBodyFat[index] = (float[]) allBodyFat_WithData.get(index);
             }
 
             _tourYearData.typeIds = usedTypeIds;
@@ -586,7 +595,9 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.numTours_High = usedNumTours;
 
             _tourYearData.athleteBodyWeight_Low = new float[numTourTypes_WithData][numYears];
-            _tourYearData.athleteBodyWeight_High = usedWeight;
+            _tourYearData.athleteBodyWeight_High = usedBodyWeight;
+            _tourYearData.athleteBodyFat_Low = new float[numTourTypes_WithData][numYears];
+            _tourYearData.athleteBodyFat_High = usedBodyFat;
          }
 
          _tourYearData.numUsedTourTypes = numTourTypes_WithData;

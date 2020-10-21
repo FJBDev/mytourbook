@@ -391,6 +391,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    private float                 bikerWeight;                                          // db-version 4
 
+   private float                 bodyFat;
+
    /**
     * A flag indicating that the power is from a sensor. This is the state of the device which is
     * not related to the availability of power data. Power data should be available but is not
@@ -6874,6 +6876,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
+    * @return Returns the body fat.
+    */
+   public float getBodyFat() {
+      return bodyFat;
+   }
+
+   /**
     * @return Returns the body weight.
     */
    public float getBodyWeight() {
@@ -9243,6 +9252,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    public void setAvgTemperature(final float avgTemperature) {
       this.avgTemperature = avgTemperature;
+   }
+
+   /**
+    * @param bodyFat
+    *           Sets the body fat.
+    */
+   public void setBodyFat(final float bodyFat) {
+      this.bodyFat = bodyFat;
    }
 
    /**
