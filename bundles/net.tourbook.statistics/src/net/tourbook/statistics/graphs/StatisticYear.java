@@ -189,6 +189,57 @@ public abstract class StatisticYear extends TourbookStatistic {
    }
 
    /**
+    * Athlete's body fat
+    *
+    * @param chartDataModel
+    */
+   void createYData_BodyFat(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            getChartType(_chartType),
+            _statisticData_Year.athleteWeight_Low,
+            _statisticData_Year.athleteWeight_High);
+
+      yData.setYTitle("Body Fat");//Messages.LABEL_GRAPH_WEIGHT);
+      yData.setUnitLabel("%");//UI.UNIT_LABEL_WEIGHT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, "Body Fat");//TODO FBGraphColorManager.PREF_GRAPH_WEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   /**
+    * Athlete's Weight
+    * TODO FB what to do to support displaying data for a single athlete and all athletes ?
+    *
+    * @param chartDataModel
+    */
+   void createYData_BodyWeight(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            getChartType(_chartType),
+            _statisticData_Year.athleteWeight_Low,
+            _statisticData_Year.athleteWeight_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
+      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   /**
     * Distance
     *
     * @param chartDataModel
@@ -259,31 +310,6 @@ public abstract class StatisticYear extends TourbookStatistic {
 
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TOUR);
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TOUR, _appTourTypeFilter);
-      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
-
-      chartDataModel.addYData(yData);
-   }
-
-   /**
-    * Weight
-    *
-    * @param chartDataModel
-    */
-   void createYData_Weight(final ChartDataModel chartDataModel) {
-
-      final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
-            getChartType(_chartType),
-            _statisticData_Year.athleteWeight_Low,
-            _statisticData_Year.athleteWeight_High);
-
-      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
-      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
-      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
-      yData.setShowYSlider(true);
-
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);

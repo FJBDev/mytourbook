@@ -26,7 +26,7 @@ public class StatisticDay_Weight extends StatisticDay {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
       createXDataDay(chartDataModel);
-      createYData_Weight(chartDataModel);
+      createYData_BodyWeight(chartDataModel);
 
       return chartDataModel;
    }

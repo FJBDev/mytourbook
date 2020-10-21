@@ -297,7 +297,7 @@ public abstract class StatisticMonth extends TourbookStatistic {
     *
     * @param chartDataModel
     */
-   void createYData_Weight(final ChartDataModel chartDataModel) {
+   void createYData_BodyWeight(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
