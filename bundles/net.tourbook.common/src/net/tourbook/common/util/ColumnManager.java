@@ -102,33 +102,42 @@ import org.eclipse.ui.XMLMemento;
  */
 public class ColumnManager {
 
-   private static final String XML_STATE_COLUMN_MANAGER          = "XML_STATE_COLUMN_MANAGER"; //$NON-NLS-1$
+   private static final String XML_STATE_COLUMN_MANAGER                  = "XML_STATE_COLUMN_MANAGER";          //$NON-NLS-1$
    //
-   private static final String TAG_ROOT                          = "ColumnProfiles";           //$NON-NLS-1$
+   private static final String TAG_ROOT                                  = "ColumnProfiles";                    //$NON-NLS-1$
    //
-   private static final String TAG_COLUMN                        = "Column";                   //$NON-NLS-1$
-   private static final String TAG_PROFILE                       = "Profile";                  //$NON-NLS-1$
+   private static final String TAG_COLUMN                                = "Column";                            //$NON-NLS-1$
+   private static final String TAG_PROFILE                               = "Profile";                           //$NON-NLS-1$
    //
-   private static final String ATTR_IS_ACTIVE_PROFILE            = "isActiveProfile";          //$NON-NLS-1$
-   private static final String ATTR_IS_SHOW_CATEGORY             = "isShowCategory";           //$NON-NLS-1$
-   private static final String ATTR_IS_SHOW_COLUMN_ANNOTATIONS   = "isShowColumnAnnotations";  //$NON-NLS-1$
+   private static final String ATTR_IS_ACTIVE_PROFILE                    = "isActiveProfile";                   //$NON-NLS-1$
+   private static final String ATTR_IS_SHOW_CATEGORY                     = "isShowCategory";                    //$NON-NLS-1$
+   private static final String ATTR_IS_SHOW_COLUMN_ANNOTATION_FORMATTING = "isShowColumnAnnotation_Formatting"; //$NON-NLS-1$
+   private static final String ATTR_IS_SHOW_COLUMN_ANNOTATION_SORTING    = "isShowColumnAnnotation_Sorting";    //$NON-NLS-1$
    //
-   private static final String ATTR_COLUMN_ID                    = "columnId";                 //$NON-NLS-1$
-   private static final String ATTR_COLUMN_FORMAT_CATEGORY       = "categoryFormat";           //$NON-NLS-1$
-   private static final String ATTR_COLUMN_FORMAT_DETAIL         = "detailFormat";             //$NON-NLS-1$
-   private static final String ATTR_NAME                         = "name";                     //$NON-NLS-1$
-   private static final String ATTR_FROZEN_COLUMN_ID             = "frozenColumnId";           //$NON-NLS-1$
+   private static final String ATTR_COLUMN_ID                            = "columnId";                          //$NON-NLS-1$
+   private static final String ATTR_COLUMN_FORMAT_CATEGORY               = "categoryFormat";                    //$NON-NLS-1$
+   private static final String ATTR_COLUMN_FORMAT_DETAIL                 = "detailFormat";                      //$NON-NLS-1$
+   private static final String ATTR_NAME                                 = "name";                              //$NON-NLS-1$
+   private static final String ATTR_FROZEN_COLUMN_ID                     = "frozenColumnId";                    //$NON-NLS-1$
 
-   private static final String ATTR_VISIBLE_COLUMN_IDS           = "visibleColumnIds";         //$NON-NLS-1$
-   private static final String ATTR_VISIBLE_COLUMN_IDS_AND_WIDTH = "visibleColumnIdsAndWidth"; //$NON-NLS-1$
+   private static final String ATTR_VISIBLE_COLUMN_IDS                   = "visibleColumnIds";                  //$NON-NLS-1$
+   private static final String ATTR_VISIBLE_COLUMN_IDS_AND_WIDTH         = "visibleColumnIdsAndWidth";          //$NON-NLS-1$
    //
-   static final String         COLUMN_CATEGORY_SEPARATOR         = "   \u00bb   ";             //$NON-NLS-1$
-   static final String         COLUMN_TEXT_SEPARATOR             = "   \u00B7   ";             //$NON-NLS-1$
+   static final String         COLUMN_CATEGORY_SEPARATOR                 = "   \u00bb   ";                      //$NON-NLS-1$
+   static final String         COLUMN_TEXT_SEPARATOR                     = "   \u00B7   ";                      //$NON-NLS-1$
 
    /**
     * Minimum column width, when the column width is 0, there was a bug that this happened.
     */
-   private static final int    MINIMUM_COLUMN_WIDTH              = 7;
+   private static final int    COLUMN_WIDTH_MINIMUM                      = 7;
+
+   /**
+    * There was a case when the column width in a NatTable was 393'515'928 which required a computer
+    * restart to kill MT, it got frozen when scrolling horizontally.
+    * <p>
+    * 1000 would be too small on high-dpi displays
+    */
+   static final int            COLUMN_WIDTH_MAXIMUM                      = 5_000;
 
    /*
     * Value formatter
@@ -163,7 +172,8 @@ public class ColumnManager {
     */
    private boolean                           _isShowCategory               = true;
 
-   private boolean                           _isShowColumnAnnotations;
+   private boolean                           _isShowColumnAnnotation_Formatting;
+   private boolean                           _isShowColumnAnnotation_Sorting;
    private boolean                           _isDoAResizeForAllColumnsToFit;
 
    private Comparator<ColumnProfile>         _profileSorter;
@@ -185,7 +195,7 @@ public class ColumnManager {
     * {@link ColumnManager} is used for a {@link NatTable}, it provides properties from a
     * {@link NatTable}.
     */
-   private INatTablePropertiesProvider       _natTablePropertiesProvider;
+   private INatTable_PropertiesProvider      _natTablePropertiesProvider;
 
    /**
     * Context menu listener
@@ -325,7 +335,7 @@ public class ColumnManager {
        * Update UI
        */
 
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
 
          _natTablePropertiesProvider.getNatTable().redraw();
 
@@ -366,7 +376,7 @@ public class ColumnManager {
 
    private void action_SizeAllColumnToFit() {
 
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
 
          final NatTable natTable = _natTablePropertiesProvider.getNatTable();
 
@@ -714,7 +724,7 @@ public class ColumnManager {
       if (colDef.isColumnHidden()) {
          columnWidth = 0;
       } else {
-         columnWidth = columnWidth < MINIMUM_COLUMN_WIDTH //
+         columnWidth = columnWidth < COLUMN_WIDTH_MINIMUM
                ? colDef.getDefaultColumnWidth()
                : columnWidth;
       }
@@ -1222,13 +1232,14 @@ public class ColumnManager {
       }
 
       // set action only for the NatTable
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
          {
             /*
              * Action: Freeze current column
              */
             final MenuItem menuItem = new MenuItem(contextMenu, SWT.PUSH);
             menuItem.setText(Messages.Action_ColumnManager_FreezeCurrentColumn);
+            menuItem.setToolTipText(Messages.Action_ColumnManager_FreezeCurrentColumn_Tooltip);
             menuItem.addListener(SWT.Selection, (event) -> {
                action_FreezeColumn(colDef);
             });
@@ -1360,7 +1371,6 @@ public class ColumnManager {
          final MenuItem menuItem = new MenuItem(contextMenu, SWT.CHECK);
 
          menuItem.setText(menuText);
-//			menuItem.setEnabled(true);
          menuItem.setSelection(isChecked);
 
          menuItem.setData(columnProfile);
@@ -1472,6 +1482,10 @@ public class ColumnManager {
 
    private ColumnDefinition getColDef_FromHeaderColumn() {
 
+      if (_headerColumnItem == null) {
+         return null;
+      }
+
       ColumnDefinition colDef = null;
 
       final Object columnItem = _headerColumnItem.columnItem;
@@ -1503,7 +1517,7 @@ public class ColumnManager {
 
       final ArrayList<String> allColumnIdsAndWidth = new ArrayList<>();
 
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
 
          final DataLayer dataLayer = _natTablePropertiesProvider.getNatTableLayer_Data();
          final ColumnHideShowLayer columnHideShowLayer = _natTablePropertiesProvider.getNatTableLayer_ColumnHideShow();
@@ -1585,7 +1599,7 @@ public class ColumnManager {
 
       int[] columnOrder = null;
 
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
 
          final DataLayer dataLayer = _natTablePropertiesProvider.getNatTableLayer_Data();
          final ColumnHideShowLayer columnHideShowLayer = _natTablePropertiesProvider.getNatTableLayer_ColumnHideShow();
@@ -1697,7 +1711,7 @@ public class ColumnManager {
       if (colDef.isColumnHidden()) {
          columnWidth = 0;
       } else {
-         columnWidth = columnWidth < MINIMUM_COLUMN_WIDTH //
+         columnWidth = columnWidth < COLUMN_WIDTH_MINIMUM
                ? colDef.getDefaultColumnWidth()
                : columnWidth;
       }
@@ -1853,7 +1867,7 @@ public class ColumnManager {
        */
       int[] columnOrder = null;
 
-      if (_natTablePropertiesProvider != null) {
+      if (isNatTableColumnManager()) {
 
          final DataLayer dataLayer = _natTablePropertiesProvider.getNatTableLayer_Data();
          final ColumnHideShowLayer columnHideShowLayer = _natTablePropertiesProvider.getNatTableLayer_ColumnHideShow();
@@ -2015,12 +2029,24 @@ public class ColumnManager {
       return _isCategoryAvailable;
    }
 
+   /**
+    * @return Returns <code>true</code> when this {@link ColumnManager} is used for a
+    *         {@link NatTable}.
+    */
+   public boolean isNatTableColumnManager() {
+      return _natTablePropertiesProvider != null;
+   }
+
    public boolean isShowCategory() {
       return _isShowCategory;
    }
 
-   public boolean isShowColumnAnnotations() {
-      return _isShowColumnAnnotations;
+   public boolean isShowColumnAnnotation_Formatting() {
+      return _isShowColumnAnnotation_Formatting;
+   }
+
+   public boolean isShowColumnAnnotation_Sorting() {
+      return _isShowColumnAnnotation_Sorting;
    }
 
    private void onSelectColumnItem(final Event event) {
@@ -2104,10 +2130,14 @@ public class ColumnManager {
                _isShowCategory = xmlIsShowCategory;
             }
 
-            // get category column state
-            final Boolean xmlIsShowAnnotations = xmlMemento.getBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATIONS);
-            if (xmlIsShowAnnotations != null) {
-               _isShowColumnAnnotations = xmlIsShowAnnotations;
+            // get annotation states
+            final Boolean xmlIsShowAnnotation_Formatting = xmlMemento.getBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATION_FORMATTING);
+            if (xmlIsShowAnnotation_Formatting != null) {
+               _isShowColumnAnnotation_Formatting = xmlIsShowAnnotation_Formatting;
+            }
+            final Boolean xmlIsShowAnnotation_Sorting = xmlMemento.getBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATION_SORTING);
+            if (xmlIsShowAnnotation_Sorting != null) {
+               _isShowColumnAnnotation_Sorting = xmlIsShowAnnotation_Sorting;
             }
 
             // get profiles
@@ -2133,7 +2163,7 @@ public class ColumnManager {
 
                   // frozen column id
                   final String xmlFrozenColumnId = xmlProfile.getString(ATTR_FROZEN_COLUMN_ID);
-                  if (xmlIsShowAnnotations != null) {
+                  if (xmlFrozenColumnId != null) {
                      currentProfile.frozenColumnId = xmlFrozenColumnId;
                   }
 
@@ -2317,7 +2347,8 @@ public class ColumnManager {
 
       // save other states
       xmlMemento.putBoolean(ATTR_IS_SHOW_CATEGORY, _isShowCategory);
-      xmlMemento.putBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATIONS, _isShowColumnAnnotations);
+      xmlMemento.putBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATION_FORMATTING, _isShowColumnAnnotation_Formatting);
+      xmlMemento.putBoolean(ATTR_IS_SHOW_COLUMN_ANNOTATION_SORTING, _isShowColumnAnnotation_Sorting);
 
       // save profiles
       saveState_Profiles(xmlMemento);
@@ -2412,9 +2443,11 @@ public class ColumnManager {
             // there is somewhere an error that the column width is 0,
 
             columnWidth = colDef.getDefaultColumnWidth();
-            columnWidth = Math.max(MINIMUM_COLUMN_WIDTH, columnWidth);
+            columnWidth = Math.max(COLUMN_WIDTH_MINIMUM, columnWidth);
          }
       }
+
+      columnWidth = Math.min(columnWidth, COLUMN_WIDTH_MAXIMUM);
 
       columnIdsAndWidth.add(columnId);
       columnIdsAndWidth.add(Integer.toString(columnWidth));
@@ -2483,15 +2516,19 @@ public class ColumnManager {
       _isShowCategory = isShowCategory;
    }
 
-   void setIsShowColumnAnnotations(final boolean isShowColumnAnnotations) {
-      _isShowColumnAnnotations = isShowColumnAnnotations;
+   void setIsShowColumnAnnotation_Formatting(final boolean isShowColumnAnnotation_Formatting) {
+      _isShowColumnAnnotation_Formatting = isShowColumnAnnotation_Formatting;
+   }
+
+   public void setIsShowColumnAnnotation_Sorting(final boolean isShowColumnAnnotation_Sorting) {
+      _isShowColumnAnnotation_Sorting = isShowColumnAnnotation_Sorting;
    }
 
    public void setSlideoutShell(final AdvancedSlideoutShell slideoutShell) {
       _slideoutShell = slideoutShell;
    }
 
-   public void setupNatTable(final INatTablePropertiesProvider natTablePropertiesProvider) {
+   public void setupNatTable(final INatTable_PropertiesProvider natTablePropertiesProvider) {
 
       _natTablePropertiesProvider = natTablePropertiesProvider;
 
@@ -2900,8 +2937,8 @@ public class ColumnManager {
 
                if (allNewVisibleColumnIds.get(visibleIndex).equals(headerColumnId)) {
 
-                  // set position after the current column
-                  newColumnPosition = visibleIndex + 1;
+                  // set position at the current column
+                  newColumnPosition = visibleIndex;
                   break;
                }
             }
@@ -3010,6 +3047,43 @@ public class ColumnManager {
 
       _activeProfile.setVisibleColumnIds(visibleColumnIds.toArray(new String[visibleColumnIds.size()]));
       _activeProfile.visibleColumnIdsAndWidth = columnIdsAndWidth.toArray(new String[columnIdsAndWidth.size()]);
+   }
+
+   /**
+    * Set the columns in {@link #_activeProfile._visibleColumnDefinitions} to the order of the
+    * <code>tableItems</code> in the {@link DialogModifyColumns}
+    *
+    * @param columnViewerModel
+    */
+   void setVisibleColumnIds_FromModel(final ColumnProfile profile, final ArrayList<ColumnDefinition> columnViewerModel) {
+
+      final ArrayList<String> visibleColumnIds = new ArrayList<>();
+      final ArrayList<String> columnIdsAndWidth = new ArrayList<>();
+
+      // recreate columns in the correct sort order
+      for (final ColumnDefinition colDef : columnViewerModel) {
+
+         final String columnId = colDef.getColumnId();
+
+         final boolean isColumnVisible = colDef.isColumnCheckedInContextMenu();
+
+         // update original model, otherwise it could be hidden when it was previously displayed and then set to hidden !!!
+         final ColumnDefinition colDef_Original = getColDef_ByColumnId(columnId);
+         colDef_Original.setIsColumnChecked(isColumnVisible);
+
+         if (isColumnVisible) {
+
+            // set the visible columns
+            visibleColumnIds.add(columnId);
+
+            // set column id and width
+            columnIdsAndWidth.add(columnId);
+            columnIdsAndWidth.add(Integer.toString(colDef.getColumnWidth()));
+         }
+      }
+
+      profile.setVisibleColumnIds(visibleColumnIds.toArray(new String[visibleColumnIds.size()]));
+      profile.visibleColumnIdsAndWidth = columnIdsAndWidth.toArray(new String[columnIdsAndWidth.size()]);
    }
 
    /**

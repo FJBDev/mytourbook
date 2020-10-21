@@ -40,6 +40,7 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_MONTH_DISTANCE          = "STATE_BAR_ORDERING_MONTH_DISTANCE";          //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_SUMMARY           = "STATE_BAR_ORDERING_MONTH_SUMMARY";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_TIME              = "STATE_BAR_ORDERING_MONTH_TIME";              //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_MONTH_WEIGHT            = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_YEAR_ALTITUDE           = "STATE_BAR_ORDERING_YEAR_ALTITUDE";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_DISTANCE           = "STATE_BAR_ORDERING_YEAR_DISTANCE";           //$NON-NLS-1$
@@ -56,16 +57,19 @@ public abstract class TourbookStatistic {
    protected static final String    GRID_DAY_DISTANCE   = "GRID_DAY_DISTANCE__";        //$NON-NLS-1$
    protected static final String    GRID_DAY_SUMMARY    = "GRID_DAY_SUMMARY__";         //$NON-NLS-1$
    protected static final String    GRID_DAY_TIME       = "GRID_DAY_TIME__";            //$NON-NLS-1$
+   protected static final String    GRID_DAY_WEIGHT     = "GRID_DAY_WEIGHT__";          //$NON-NLS-1$
 
    protected static final String    GRID_WEEK_ALTITUDE  = "GRID_WEEK_ALTITUDE__";       //$NON-NLS-1$
    protected static final String    GRID_WEEK_DISTANCE  = "GRID_WEEK_DISTANCE__";       //$NON-NLS-1$
    protected static final String    GRID_WEEK_SUMMARY   = "GRID_WEEK_SUMMARY__";        //$NON-NLS-1$
    protected static final String    GRID_WEEK_TIME      = "GRID_WEEK_TIME__";           //$NON-NLS-1$
+   protected static final String    GRID_WEEK_WEIGHT    = "GRID_WEEK_WEIGHT__";         //$NON-NLS-1$
 
    protected static final String    GRID_MONTH_ALTITUDE = "GRID_MONTH_ALTITUDE__";      //$NON-NLS-1$
    protected static final String    GRID_MONTH_DISTANCE = "GRID_MONTH_DISTANCE__";      //$NON-NLS-1$
    protected static final String    GRID_MONTH_SUMMARY  = "GRID_MONTH_SUMMARY__";       //$NON-NLS-1$
    protected static final String    GRID_MONTH_TIME     = "GRID_MONTH_TIME__";          //$NON-NLS-1$
+   protected static final String    GRID_MONTH_WEIGHT   = "GRID_MONTH_WEIGHT__";        //$NON-NLS-1$
 
    protected static final String    GRID_YEAR_ALTITUDE  = "GRID_YEAR_ALTITUDE__";       //$NON-NLS-1$
    protected static final String    GRID_YEAR_DISTANCE  = "GRID_YEAR_DISTANCE__";       //$NON-NLS-1$
@@ -248,6 +252,14 @@ public abstract class TourbookStatistic {
    protected abstract String getGridPrefPrefix();
 
    /**
+    * @param isShowSequenceNumbers
+    *           Show sequence numbers in the first column
+    * @return Returns the statistic values, these values are created on demand because they can use
+    *         some 100 ms, depending on the statistic.
+    */
+   public abstract String getRawStatisticValues(boolean isShowSequenceNumbers);
+
+   /**
     * @return When a tour can be selected in the statistic, this will return the tour Id of the
     *         selected tour or <code>null</code> otherwise.
     */
@@ -337,11 +349,19 @@ public abstract class TourbookStatistic {
 
       if (durationTime == DurationTime.BREAK) {
 
+         yData_Duration.setYTitle(Messages.Graph_Label_Time_Break);
+
+      } else if (durationTime == DurationTime.ELAPSED) {
+
+         yData_Duration.setYTitle(Messages.Graph_Label_Time_Elapsed);
+
+      } else if (durationTime == DurationTime.PAUSED) {
+
          yData_Duration.setYTitle(Messages.Graph_Label_Time_Paused);
 
-      } else if (durationTime == DurationTime.RECORDING) {
+      } else if (durationTime == DurationTime.RECORDED) {
 
-         yData_Duration.setYTitle(Messages.Graph_Label_Time_Recording);
+         yData_Duration.setYTitle(Messages.Graph_Label_Time_Recorded);
 
       } else {
 

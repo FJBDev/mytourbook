@@ -20,24 +20,24 @@ import net.tourbook.chart.ChartType;
 
 public class StatisticYear_Weight extends StatisticYear {
 
-	@Override
-	protected String getBarOrderingStateKey() {
+   @Override
+   protected String getBarOrderingStateKey() {
       return STATE_BAR_ORDERING_YEAR_WEIGHT;
-	}
+   }
 
-	@Override
-	ChartDataModel getChartDataModel() {
+   @Override
+   ChartDataModel getChartDataModel() {
 
-		final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
+      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
-		createXData_Year(chartDataModel);
+      createXData_Year(chartDataModel);
       createYData_Weight(chartDataModel);
 
-		return chartDataModel;
-	}
+      return chartDataModel;
+   }
 
-	@Override
-	protected String getGridPrefPrefix() {
+   @Override
+   protected String getGridPrefPrefix() {
       return GRID_YEAR_WEIGHT;
-	}
+   }
 }

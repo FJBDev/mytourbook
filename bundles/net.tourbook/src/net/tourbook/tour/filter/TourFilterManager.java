@@ -30,6 +30,7 @@ import net.tourbook.application.ActionTourDataFilter;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.SQLData;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
@@ -95,8 +96,8 @@ public class TourFilterManager {
    private static final String TOUR_DATA_TOUR_LOCATION_START     = "TourData.tourStartPlace";                                       //$NON-NLS-1$
    private static final String TOUR_DATA_TOUR_LOCATION_END       = "TourData.tourEndPlace";                                         //$NON-NLS-1$
    private static final String TOUR_DATA_TOUR_DISTANCE           = "TourData.tourDistance";                                         //$NON-NLS-1$
-   private static final String TOUR_DATA_TOUR_DRIVING_TIME       = "TourData.tourDrivingTime";                                      //$NON-NLS-1$
-   private static final String TOUR_DATA_TOUR_RECORDING_TIME     = "TourData.tourRecordingTime";                                    //$NON-NLS-1$
+   private static final String TOUR_DATA_TOUR_MOVING_TIME        = "TourData.tourComputedTime_Moving";                              //$NON-NLS-1$
+   private static final String TOUR_DATA_TOUR_ELAPSED_TIME       = "TourData.tourDeviceTime_Elapsed";                               //$NON-NLS-1$
    private static final String TOUR_DATA_TOUR_START_TIME         = "TourData.tourStartTime";                                        //$NON-NLS-1$
    private static final String TOUR_DATA_TOUR_TITLE              = "TourData.tourTitle";                                            //$NON-NLS-1$
 
@@ -565,23 +566,23 @@ public class TourFilterManager {
 
       allConfigs.add(
             TourFilterFieldConfig //
-                  .name(Messages.Tour_Filter_Field_RecordingTime)
-                  .fieldId(TourFilterFieldId.TIME_RECORDING_TIME)
+                  .name(Messages.Tour_Filter_Field_DeviceTime_Elapsed)
+                  .fieldId(TourFilterFieldId.TIME_ELAPSED_TIME)
                   .fieldType(TourFilterFieldType.DURATION)
                   .defaultFieldOperator(TourFilterFieldOperator.GREATER_THAN)
                   .pageIncrement(60));
 
       allConfigs.add(
             TourFilterFieldConfig //
-                  .name(Messages.Tour_Filter_Field_DrivingTime)
-                  .fieldId(TourFilterFieldId.TIME_DRIVING_TIME)
+                  .name(Messages.Tour_Filter_Field_ComputedTime_Moving)
+                  .fieldId(TourFilterFieldId.TIME_MOVING_TIME)
                   .fieldType(TourFilterFieldType.DURATION)
                   .defaultFieldOperator(TourFilterFieldOperator.GREATER_THAN)
                   .pageIncrement(60));
 
       allConfigs.add(
             TourFilterFieldConfig //
-                  .name(Messages.Tour_Filter_Field_BreakTime)
+                  .name(Messages.Tour_Filter_Field_ComputedTime_Break)
                   .fieldId(TourFilterFieldId.TIME_BREAK_TIME)
                   .fieldType(TourFilterFieldType.DURATION)
                   .defaultFieldOperator(TourFilterFieldOperator.GREATER_THAN)
@@ -704,7 +705,7 @@ public class TourFilterManager {
             // skip all events which has not yet been executed
             if (__runnableCounter != _fireEventCounter[0]) {
 
-               // a new event occured
+               // a new event occurred
                return;
             }
 
@@ -841,7 +842,7 @@ public class TourFilterManager {
     * @return Returns sql data for the selected tour filter profile or <code>null</code> when not
     *         available.
     */
-   public static SQLFilterData getSQL() {
+   public static SQLData getSQL() {
 
       if (_isTourFilterEnabled == false || _selectedProfile == null) {
 
@@ -912,7 +913,7 @@ public class TourFilterManager {
 
             value1 = (LocalDate
                   .of(dateTime1.getYear(), dateTime1.getMonthValue(), dateTime1.getDayOfMonth())
-                  .toEpochDay() + 1) * 86400_000;
+                  .toEpochDay()) * 86400_000;
 
             value2 = (LocalDate
                   .of(dateTime2.getYear(), dateTime2.getMonthValue(), dateTime2.getDayOfMonth())
@@ -936,18 +937,18 @@ public class TourFilterManager {
             break;
 
          case TIME_BREAK_TIME:
-            sql = "(TourData.tourRecordingTime - TourData.tourDrivingTime)"; //$NON-NLS-1$
+            sql = "(TourData.tourDeviceTime_Elapsed - TourData.tourComputedTime_Moving)"; //$NON-NLS-1$
             getSQL__FieldOperators_Number(sqlWhere, sqlParameters, fieldOperator, sql, int1, int2);
             break;
 
-         case TIME_DRIVING_TIME:
-            sql = TOUR_DATA_TOUR_DRIVING_TIME;
+         case TIME_MOVING_TIME:
+            sql = TOUR_DATA_TOUR_MOVING_TIME;
             getSQL__FieldOperators_Number(sqlWhere, sqlParameters, fieldOperator, sql, int1, int2);
 
             break;
 
-         case TIME_RECORDING_TIME:
-            sql = TOUR_DATA_TOUR_RECORDING_TIME;
+         case TIME_ELAPSED_TIME:
+            sql = TOUR_DATA_TOUR_ELAPSED_TIME;
             getSQL__FieldOperators_Number(sqlWhere, sqlParameters, fieldOperator, sql, int1, int2);
             break;
 
@@ -1044,7 +1045,7 @@ public class TourFilterManager {
          }
       }
 
-      final SQLFilterData tourFilterSQLData = new SQLFilterData(sqlWhere.toString(), sqlParameters);
+      final SQLData tourFilterSQLData = new SQLData(sqlWhere.toString(), sqlParameters);
 
       return tourFilterSQLData;
    }
@@ -1059,24 +1060,27 @@ public class TourFilterManager {
 
       switch (fieldOperator) {
       case LESS_THAN:
-         getSQL_LessThan(sqlWhere, sqlParameters, sqlField, value1);
+         getSQL_LessThan(sqlWhere, sqlParameters, sqlField, value1, OP_AND);
          break;
       case LESS_THAN_OR_EQUAL:
-         getSQL_LessThanOrEqual(sqlWhere, sqlParameters, sqlField, value1);
+         //To be less than or equal, we include the next day (i.e.: + 86400_000)
+         getSQL_LessThanOrEqual(sqlWhere, sqlParameters, sqlField, value1 + 86400_000);
          break;
 
       case GREATER_THAN:
-         getSQL_GreaterThan(sqlWhere, sqlParameters, sqlField, value1);
+         //To be greater than, we go to the next day (i.e.: + 86400_000)
+         getSQL_GreaterThan(sqlWhere, sqlParameters, sqlField, value1 + 86400_000, OP_AND);
          break;
       case GREATER_THAN_OR_EQUAL:
          getSQL_GreaterThanOrEqual(sqlWhere, sqlParameters, sqlField, value1);
          break;
 
       case EQUALS:
-         getSQL_Equals(sqlWhere, sqlParameters, sqlField, value1, true);
+         getSQL_GreaterThanOrEqual(sqlWhere, sqlParameters, sqlField, value1);
+         getSQL_LessThanOrEqual(sqlWhere, sqlParameters, sqlField, value1 + 86400_000);
          break;
       case NOT_EQUALS:
-         getSQL_Equals(sqlWhere, sqlParameters, sqlField, value1, false);
+         getSQL_Between(sqlWhere, sqlParameters, sqlField, value1, value1 + 86400_000, false);
          break;
 
       case BETWEEN:
@@ -1098,14 +1102,14 @@ public class TourFilterManager {
 
       switch (fieldOperator) {
       case LESS_THAN:
-         getSQL_LessThan(sqlWhere, sqlParameters, sqlField, value1);
+         getSQL_LessThan(sqlWhere, sqlParameters, sqlField, value1, OP_AND);
          break;
       case LESS_THAN_OR_EQUAL:
          getSQL_LessThanOrEqual(sqlWhere, sqlParameters, sqlField, value1);
          break;
 
       case GREATER_THAN:
-         getSQL_GreaterThan(sqlWhere, sqlParameters, sqlField, value1);
+         getSQL_GreaterThan(sqlWhere, sqlParameters, sqlField, value1, OP_AND);
          break;
       case GREATER_THAN_OR_EQUAL:
          getSQL_GreaterThanOrEqual(sqlWhere, sqlParameters, sqlField, value1);
@@ -1361,12 +1365,21 @@ public class TourFilterManager {
       sqlParameters.add(value1);
    }
 
+   /**
+    * @param sqlWhere
+    * @param sqlParameters
+    * @param sqlField
+    * @param value1
+    * @param operand
+    *           The type of operand: either {@link #OP_AND} or {@link #OP_OR}
+    */
    private static void getSQL_GreaterThan(final StringBuilder sqlWhere,
                                           final ArrayList<Object> sqlParameters,
                                           final String sqlField,
-                                          final Object value1) {
+                                          final Object value1,
+                                          final String operand) {
 
-      sqlWhere.append(OP_AND + sqlField + OP_GREATER_THAN);
+      sqlWhere.append(operand + sqlField + OP_GREATER_THAN);
       sqlParameters.add(value1);
    }
 
@@ -1379,12 +1392,21 @@ public class TourFilterManager {
       sqlParameters.add(value1);
    }
 
+   /**
+    * @param sqlWhere
+    * @param sqlParameters
+    * @param sqlField
+    * @param value1
+    * @param operand
+    *           The type of operand: either {@link #OP_AND} or {@link #OP_OR}
+    */
    private static void getSQL_LessThan(final StringBuilder sqlWhere,
                                        final ArrayList<Object> sqlParameters,
                                        final String sqlField,
-                                       final Object value1) {
+                                       final Object value1,
+                                       final String operand) {
 
-      sqlWhere.append(OP_AND + sqlField + OP_LESS_THAN);
+      sqlWhere.append(operand + sqlField + OP_LESS_THAN);
       sqlParameters.add(value1);
    }
 

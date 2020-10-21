@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -95,6 +95,7 @@ import net.tourbook.map2.action.ActionShowSliderInMap;
 import net.tourbook.map2.action.ActionShowStartEndInMap;
 import net.tourbook.map2.action.ActionShowTourInfoInMap;
 import net.tourbook.map2.action.ActionShowTourMarker;
+import net.tourbook.map2.action.ActionShowTourPauses;
 import net.tourbook.map2.action.ActionShowWayPoints;
 import net.tourbook.map2.action.ActionSyncMapWithOtherMap;
 import net.tourbook.map2.action.ActionSyncMapWithPhoto;
@@ -234,6 +235,7 @@ public class Map2View extends ViewPart implements
 
    private static final String   MEMENTO_SHOW_START_END_IN_MAP                         = "action.show-start-end-in-map";                       //$NON-NLS-1$
    private static final String   MEMENTO_SHOW_TOUR_MARKER                              = "action.show-tour-marker";                            //$NON-NLS-1$
+   private static final String   MEMENTO_SHOW_TOUR_PAUSES                              = "action.show-tour-pauses";                            //$NON-NLS-1$
    static final String           MEMENTO_SHOW_SLIDER_IN_MAP                            = "action.show-slider-in-map";                          //$NON-NLS-1$
    static final boolean          MEMENTO_SHOW_SLIDER_IN_MAP_DEFAULT                    = true;
    private static final String   MEMENTO_SHOW_SLIDER_IN_LEGEND                         = "action.show-slider-in-legend";                       //$NON-NLS-1$
@@ -451,6 +453,7 @@ public class Map2View extends ViewPart implements
    private ActionShowTour                 _actionShowTour;
    private ActionShowTourInfoInMap        _actionShowTourInfoInMap;
    private ActionShowTourMarker           _actionShowTourMarker;
+   private ActionShowTourPauses           _actionShowTourPauses;
    private ActionShowWayPoints            _actionShowWayPoints;
    private ActionSyncZoomLevelAdjustment  _actionSyncZoomLevelAdjustment;
    private ActionSyncMapWithOtherMap      _actionSyncMap_WithOtherMap;
@@ -795,6 +798,14 @@ public class Map2View extends ViewPart implements
       _map.paint();
    }
 
+   public void actionSetShowTourPausesInMap() {
+
+      _tourPainterConfig.isShowTourPauses = _actionShowTourPauses.isChecked();
+
+      _map.disposeOverlayImageCache();
+      _map.paint();
+   }
+
    public void actionSetShowWayPointsInMap() {
 
       final boolean isShowWayPoints = _actionShowWayPoints.isChecked();
@@ -999,7 +1010,7 @@ public class Map2View extends ViewPart implements
 
                      if (selection instanceof SelectionTourIds) {
 
-                        // clone tour id's otherwise the original couldl be removed
+                        // clone tour id's otherwise the original could be removed
                         final SelectionTourIds selectionTourIds = (SelectionTourIds) selection;
 
                         final ArrayList<Long> allTourIds = new ArrayList<>();
@@ -1191,7 +1202,7 @@ public class Map2View extends ViewPart implements
 
             } else if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)) {
 
-               // this can occure when tour geo filter color is modified
+               // this can occur when tour geo filter color is modified
 
                _map.paint();
             }
@@ -1480,6 +1491,7 @@ public class Map2View extends ViewPart implements
       _actionShowTour = new ActionShowTour();
       _actionShowTourInfoInMap = new ActionShowTourInfoInMap(this);
       _actionShowTourMarker = new ActionShowTourMarker(this);
+      _actionShowTourPauses = new ActionShowTourPauses(this);
       _actionShowWayPoints = new ActionShowWayPoints(this);
 
       _actionReloadFailedMapImages = new ActionReloadFailedMapImages(this);
@@ -1817,6 +1829,7 @@ public class Map2View extends ViewPart implements
       _actionShowTourInfoInMap.setEnabled(isOneTour);
       _actionShowTour.setEnabled(_isTourOrWayPoint);
       _actionShowTourMarker.setEnabled(_isTourOrWayPoint);
+      _actionShowTourPauses.setEnabled(_isTourOrWayPoint);
       _actionShowWayPoints.setEnabled(_isTourOrWayPoint);
       _actionZoom_Centered.setEnabled(isTourAvailable);
       _actionZoom_ShowEntireTour.setEnabled(_isTourOrWayPoint && _isShowTour && isTourAvailable);
@@ -1940,6 +1953,7 @@ public class Map2View extends ViewPart implements
       menuMgr.add(new Separator());
       menuMgr.add(_actionCreateTourMarkerFromMap);
       menuMgr.add(_actionShowTourMarker);
+      menuMgr.add(_actionShowTourPauses);
       menuMgr.add(_actionShowWayPoints);
       menuMgr.add(_actionShowPOI);
       menuMgr.add(_actionShowStartEndInMap);
@@ -2065,7 +2079,7 @@ public class Map2View extends ViewPart implements
 
       TourGeoFilter_Loader.stopLoading(_geoFilter_PreviousGeoLoaderItem);
 
-      // delay geo part loader, moving the mouse can occure very often
+      // delay geo part loader, moving the mouse can occur very often
       _parent.getDisplay().timerExec(50, new Runnable() {
 
          private int __runningId = runnableRunningId;
@@ -2314,7 +2328,7 @@ public class Map2View extends ViewPart implements
 
       final int serieSize = latitudeSerie.length;
 
-      // check bounds -> this problem occured several times
+      // check bounds -> this problem occurred several times
       if (valueIndex1 >= serieSize) {
          valueIndex1 = serieSize - 1;
       }
@@ -2510,7 +2524,7 @@ public class Map2View extends ViewPart implements
 
          } else {
 
-            // use old behaviour
+            // use old behavior
 
             final ChartDataModel chartDataModel = chartInfo.chartDataModel;
             if (chartDataModel != null) {
@@ -3072,7 +3086,7 @@ public class Map2View extends ViewPart implements
       _allTourData.add(tourData);
       _hash_AllTourData = _allTourData.hashCode();
 
-      // reset also ALL tour id's, otherwiese a reselected multiple tour is not displayed
+      // reset also ALL tour id's, otherwise a reselected multiple tour is not displayed
       // it took some time to debug this issue !!!
       _hash_AllTourIds = tourData.getTourId().hashCode();
 
@@ -3418,6 +3432,11 @@ public class Map2View extends ViewPart implements
       _actionShowTourMarker.setChecked(isShowMarker);
       _tourPainterConfig.isShowTourMarker = isShowMarker;
 
+      // show tour pauses
+      final boolean isShowPauses = Util.getStateBoolean(_state, MEMENTO_SHOW_TOUR_PAUSES, true);
+      _actionShowTourPauses.setChecked(isShowPauses);
+      _tourPainterConfig.isShowTourPauses = isShowPauses;
+
       // checkbox: show way points
       final boolean isShowWayPoints = Util.getStateBoolean(_state, MEMENTO_SHOW_WAY_POINTS, true);
       _actionShowWayPoints.setChecked(isShowWayPoints);
@@ -3680,6 +3699,7 @@ public class Map2View extends ViewPart implements
       _state.put(MEMENTO_SHOW_SLIDER_IN_MAP, _actionShowSliderInMap.isChecked());
       _state.put(MEMENTO_SHOW_SLIDER_IN_LEGEND, _actionShowSliderInLegend.isChecked());
       _state.put(MEMENTO_SHOW_TOUR_MARKER, _actionShowTourMarker.isChecked());
+      _state.put(MEMENTO_SHOW_TOUR_PAUSES, _actionShowTourPauses.isChecked());
       _state.put(MEMENTO_SHOW_TOUR_INFO_IN_MAP, _actionShowTourInfoInMap.isChecked());
       _state.put(MEMENTO_SHOW_WAY_POINTS, _actionShowWayPoints.isChecked());
 
@@ -3774,7 +3794,7 @@ public class Map2View extends ViewPart implements
 
       } else {
 
-         // multiple tourdata, I'm not sure if this still occures after merging multiple tours into one tourdata
+         // multiple tourdata, I'm not sure if this still occurs after merging multiple tours into one tourdata
       }
    }
 

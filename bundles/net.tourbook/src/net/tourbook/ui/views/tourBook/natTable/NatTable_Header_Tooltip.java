@@ -21,6 +21,7 @@ import java.util.List;
 import net.tourbook.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.ColumnDefinition;
+import net.tourbook.common.util.ColumnManager;
 import net.tourbook.ui.views.tourBook.TourBookView;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
@@ -57,36 +58,6 @@ public class NatTable_Header_Tooltip extends NatTableContentTooltip {
 
       this.natTable = natTable;
       this.tooltipRegions = new String[] { GridRegion.COLUMN_HEADER };
-   }
-
-   private String debugInfo(final Event event) {
-
-      final int columnPosition = natTable.getColumnPositionByX(event.x);
-      final int rowPosition = natTable.getRowPositionByY(event.y);
-
-      final String msg = NL + NL
-
-            + "NatTable DEBUG INFO" + NL //$NON-NLS-1$
-            + "==============" + NL + NL //$NON-NLS-1$
-
-            + "Display mode    " + natTable.getDisplayModeByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
-
-            + NL
-
-            + "Config labels    " + natTable.getConfigLabelsByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
-            + "Data value        " + natTable.getDataValueByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
-
-            + NL
-
-            + "Column position  " + columnPosition + NL //$NON-NLS-1$
-            + "Column index      " + natTable.getColumnIndexByPosition(columnPosition) + NL //$NON-NLS-1$
-
-            + NL
-
-            + "Row position      " + rowPosition + NL //$NON-NLS-1$
-            + "Row index           " + natTable.getRowIndexByPosition(rowPosition); //$NON-NLS-1$
-
-      return msg;
    }
 
    private String getSortDirectionText(final SortDirectionEnum sortDirection) {
@@ -151,7 +122,7 @@ public class NatTable_Header_Tooltip extends NatTableContentTooltip {
             }
 
             if (isShowDebugInfo) {
-               sb.append(debugInfo(event));
+               sb.append(natTableDebugInfo(event));
             }
 
             final String sortColumnTooltip = String.format(Messages.Tour_Book_SortColumnTooltip, sb.toString());
@@ -166,17 +137,49 @@ public class NatTable_Header_Tooltip extends NatTableContentTooltip {
 
          } else {
 
-            final String debugInfo = isShowDebugInfo ? debugInfo(event) : null;
+            // hovered colum is not sorted
 
-            if (defaultToolTipText == null) {
+            final ColumnManager columnMgr = _tourBookView.getNatTable_ColumnManager();
+            final boolean isShowSortingInHeader = columnMgr.isShowColumnAnnotation_Sorting();
 
-               return debugInfo;
+            final String debugInfo = isShowDebugInfo ? natTableDebugInfo(event) : UI.EMPTY_STRING;
+
+            String sortInfo;
+
+            if (colDef.canSortColumn()) {
+               sortInfo = Messages.Column_SortInfo_CanSort;
+            } else {
+               sortInfo = Messages.Column_SortInfo_CanNotSort;
+            }
+
+            if (isShowSortingInHeader) {
+
+               // the header is already showing the sorting info, do not show it again in the header tooltip
+
+               if (defaultToolTipText == null) {
+
+                  return sortInfo + debugInfo;
+
+               } else {
+
+                  return defaultToolTipText + debugInfo;
+               }
 
             } else {
 
-               return defaultToolTipText + (debugInfo == null ? UI.EMPTY_STRING : debugInfo);
-            }
+               // the header is not showing the sorting info
 
+               if (defaultToolTipText == null) {
+
+                  return sortInfo + debugInfo;
+
+               } else {
+
+                  return defaultToolTipText
+                        + UI.NEW_LINE2 + sortInfo
+                        + debugInfo;
+               }
+            }
          }
       }
 
@@ -199,5 +202,35 @@ public class NatTable_Header_Tooltip extends NatTableContentTooltip {
       }
 
       return false;
+   }
+
+   private String natTableDebugInfo(final Event event) {
+
+      final int columnPosition = natTable.getColumnPositionByX(event.x);
+      final int rowPosition = natTable.getRowPositionByY(event.y);
+
+      final String msg = NL + NL
+
+            + "NatTable DEBUG INFO" + NL //$NON-NLS-1$
+            + "==============" + NL + NL //$NON-NLS-1$
+
+            + "Display mode    " + natTable.getDisplayModeByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
+
+            + NL
+
+            + "Config labels    " + natTable.getConfigLabelsByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
+            + "Data value        " + natTable.getDataValueByPosition(columnPosition, rowPosition) + NL //$NON-NLS-1$
+
+            + NL
+
+            + "Column position  " + columnPosition + NL //$NON-NLS-1$
+            + "Column index      " + natTable.getColumnIndexByPosition(columnPosition) + NL //$NON-NLS-1$
+
+            + NL
+
+            + "Row position      " + rowPosition + NL //$NON-NLS-1$
+            + "Row index           " + natTable.getRowIndexByPosition(rowPosition); //$NON-NLS-1$
+
+      return msg;
    }
 }

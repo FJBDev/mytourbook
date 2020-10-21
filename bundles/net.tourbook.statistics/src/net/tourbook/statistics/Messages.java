@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,19 +34,6 @@ public class Messages extends NLS {
    public static String        LABEL_GRAPH_TRAINING_PERFORMANCE;
    public static String        LABEL_GRAPH_WEIGHT;
 
-   public static String        numbers_info_altitude_between;
-   public static String        numbers_info_altitude_down;
-   public static String        numbers_info_altitude_total;
-   public static String        numbers_info_altitude_up;
-   public static String        numbers_info_distance_between;
-   public static String        numbers_info_distance_down;
-   public static String        numbers_info_distance_total;
-   public static String        numbers_info_distance_up;
-   public static String        numbers_info_time_between;
-   public static String        numbers_info_time_down;
-   public static String        numbers_info_time_total;
-   public static String        numbers_info_time_up;
-
    public static String        NUMBERS_UNIT;
 
    public static String        Statistic_HrZone_Error_NoHrZoneInPerson;
@@ -54,32 +41,8 @@ public class Messages extends NLS {
 
    public static String        Statistic_Label_Invers;
 
-   public static String        tourtime_info_altitude;
-   public static String        tourtime_info_avg_pace;
-   public static String        tourtime_info_avg_speed;
-   public static String        tourtime_info_break_time;
-   public static String        tourtime_info_break_time_tour;
-   public static String        tourtime_info_date_month;
-   public static String        tourtime_info_date_week;
-   public static String        tourtime_info_date_year;
-   public static String        tourtime_info_description;
-   public static String        tourtime_info_description_text;
-   public static String        tourtime_info_distance;
-   public static String        tourtime_info_distance_tour;
-   public static String        tourtime_info_driving_time;
-   public static String        tourtime_info_driving_time_tour;
-   public static String        tourtime_info_recording_time;
-   public static String        tourtime_info_recording_time_tour;
-   public static String        tourtime_info_tags;
-   public static String        tourtime_info_time;
-   public static String        TourTime_Info_NumberOfTours;
-   public static String        Tourtime_Info_TimeZone;
-   public static String        Tourtime_Info_TimeZoneDifference;
-   public static String        Tourtime_Info_Training_Effect_Aerob;
-   public static String        Tourtime_Info_Training_Effect_Anaerob;
-   public static String        Tourtime_Info_Training_Performance;
-   public static String        tourtime_info_tour_type;
-   public static String        tourtime_info_week;
+   public static String        Statistic_Week_Tooltip_ColumnHeaderTitle;
+   public static String        Statistic_Week_Tooltip_Title;
 
    static {
       // initialize resource bundle
