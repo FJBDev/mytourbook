@@ -198,37 +198,37 @@
          category-time  ="Year"
       />
       
-      <!-- WEIGHT -->
+      <!-- ATHLETE -->
 
       <statistic
-         name           ="%Pref_Day_Summary_Weight"
-         class          ="net.tourbook.statistics.graphs.StatisticDay_Weight"
-         id             ="net.tourbook.statistics.StatisticSummaryDayWeight"
-         category-data  ="Weight"
+         name           ="%Pref_Day_Summary_AthleteData"
+         class          ="net.tourbook.statistics.graphs.StatisticDay_AthleteData"
+         id             ="net.tourbook.statistics.StatisticSummaryDayAthleteData"
+         category-data  ="AthleteData"
          category-time  ="Day"
       />
          
       <statistic
-         name           ="%Pref_Week_Summary_Weight"
-         class          ="net.tourbook.statistics.graphs.StatisticWeek_Weight"
-         id             ="net.tourbook.statistics.StatisticSummaryWeekWeight"
-         category-data  ="Weight"
+         name           ="%Pref_Week_Summary_AthleteData"
+         class          ="net.tourbook.statistics.graphs.StatisticWeek_AthleteData"
+         id             ="net.tourbook.statistics.StatisticSummaryWeekAthleteData"
+         category-data  ="AthleteData"
          category-time  ="Week"
       />
          
       <statistic
-         name           ="%Pref_Month_Summary_Weight"
-         class          ="net.tourbook.statistics.graphs.StatisticMonth_Weight"
-         id             ="net.tourbook.statistics.StatisticSummaryMonthWeight"
-         category-data  ="Weight"
+         name           ="%Pref_Month_Summary_AthleteData"
+         class          ="net.tourbook.statistics.graphs.StatisticMonth_AthleteData"
+         id             ="net.tourbook.statistics.StatisticSummaryMonthAthleteData"
+         category-data  ="AthleteData"
          category-time  ="Month"
       />
          
       <statistic
-         name           ="%Pref_Year_Summary_Weight"
-         class          ="net.tourbook.statistics.graphs.StatisticYear_Weight"
-         id             ="net.tourbook.statistics.StatisticSummaryYearWeight"
-         category-data  ="Weight"
+         name           ="%Pref_Year_Summary_AthleteData"
+         class          ="net.tourbook.statistics.graphs.StatisticYear_AthleteData"
+         id             ="net.tourbook.statistics.StatisticSummaryYearAthleteData"
+         category-data  ="AthleteData"
          category-time  ="Year"
       />
             

@@ -201,7 +201,32 @@ public abstract class StatisticMonth extends TourbookStatistic {
    }
 
    /**
-    * Weight
+    * Athlete's body fat
+    *
+    * @param chartDataModel
+    */
+   void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            getChartType(_chartType),
+            _statisticData_Month.athleteBodyFat_Low,
+            _statisticData_Month.athleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_BODYFAT);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Month.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   /**
+    * Athlete's body weight
     *
     * @param chartDataModel
     */
@@ -213,13 +238,13 @@ public abstract class StatisticMonth extends TourbookStatistic {
             _statisticData_Month.athleteBodyWeight_Low,
             _statisticData_Month.athleteBodyWeight_High);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
+      yData.setYTitle(Messages.LABEL_GRAPH_BODYWEIGHT);
       yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT, _appTourTypeFilter);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Month.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);

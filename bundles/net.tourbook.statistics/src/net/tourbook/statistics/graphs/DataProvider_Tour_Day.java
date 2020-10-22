@@ -284,6 +284,7 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   jTdataTtag.TourTag_tagId" + NL //               18 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
+               //TODO FB Average of weight ?
 
                // get/filter tag id's
                + tagFilterSqlJoinBuilder.getSqlTagJoinTable() + " jTdataTtag" //                //$NON-NLS-1$
@@ -651,6 +652,11 @@ public class DataProvider_Tour_Day extends DataProvider {
          _tourDayData.allTraining_Performance = dbAllTrain_Performance.toArray();
          _tourDayData.allTraining_Performance_Low = trainPerformance_Low;
          _tourDayData.allTraining_Performance_High = trainPerformance_High;
+
+         _tourDayData.allAthleteBodyWeight_Low = trainEffect_Anaerob_High;
+         _tourDayData.allAthleteBodyWeight_High = dbAllTrain_Performance.toArray();
+         _tourDayData.allAthleteBodyFat_Low = trainPerformance_Low;
+         _tourDayData.allAthleteBodyFat_High = trainPerformance_High;
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;

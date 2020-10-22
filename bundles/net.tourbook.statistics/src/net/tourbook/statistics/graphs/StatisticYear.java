@@ -198,23 +198,23 @@ public abstract class StatisticYear extends TourbookStatistic {
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
             getChartType(_chartType),
-            _statisticData_Year.athleteBodyWeight_Low,
-            _statisticData_Year.athleteBodyWeight_High);
+            _statisticData_Year.athleteBodyFat_Low,
+            _statisticData_Year.athleteBodyFat_High);
 
-      yData.setYTitle("Body Fat");//Messages.LABEL_GRAPH_WEIGHT);
-      yData.setUnitLabel("%");//UI.UNIT_LABEL_WEIGHT);
+      yData.setYTitle(Messages.LABEL_GRAPH_BODYFAT);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, "Body Fat");//TODO FBGraphColorManager.PREF_GRAPH_WEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _appTourTypeFilter);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }
 
    /**
-    * Athlete's Weight
+    * Athlete's body weight
     * TODO FB what to do to support displaying data for a single athlete and all athletes ?
     *
     * @param chartDataModel
@@ -227,13 +227,13 @@ public abstract class StatisticYear extends TourbookStatistic {
             _statisticData_Year.athleteBodyWeight_Low,
             _statisticData_Year.athleteBodyWeight_High);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_WEIGHT);
+      yData.setYTitle(Messages.LABEL_GRAPH_BODYWEIGHT);
       yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_WEIGHT, _appTourTypeFilter);
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT, _appTourTypeFilter);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);

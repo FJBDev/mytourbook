@@ -64,8 +64,10 @@ public class TourStatisticData_Day {
    float[]                        allAvgSpeed_Low;
    float[]                        allAvgSpeed_High;
 
-   float[]                        alLAthleteWeight_Low;
-   float[]                        alLAthleteWeight_High;
+   float[]                        allAthleteBodyWeight_Low;
+   float[]                        allAthleteBodyWeight_High;
+   float[]                        allAthleteBodyFat_Low;
+   float[]                        allAthleteBodyFat_High;
 
    float[]                        allTraining_Effect_Aerob;
    float[]                        allTraining_Effect_Aerob_Low;

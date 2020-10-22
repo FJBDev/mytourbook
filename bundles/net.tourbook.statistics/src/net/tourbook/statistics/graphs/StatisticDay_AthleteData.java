@@ -18,26 +18,22 @@ package net.tourbook.statistics.graphs;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
 
-public class StatisticMonth_Weight extends StatisticMonth {
-
-   @Override
-   protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_MONTH_WEIGHT;
-   }
+public class StatisticDay_AthleteData extends StatisticDay {
 
    @Override
    ChartDataModel getChartDataModel() {
 
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
 
-      createXData_Months(chartDataModel);
+      createXDataDay(chartDataModel);
       createYData_AthleteBodyWeight(chartDataModel);
+      createYData_AthleteBodyFat(chartDataModel);
 
       return chartDataModel;
    }
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_MONTH_WEIGHT;
+      return GRID_DAY_WEIGHT;
    }
 }
