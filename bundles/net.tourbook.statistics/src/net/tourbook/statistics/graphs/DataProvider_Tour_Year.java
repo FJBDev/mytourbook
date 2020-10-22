@@ -329,6 +329,7 @@ public class DataProvider_Tour_Year extends DataProvider {
                + "   SUM(TourAltUp)," + NL //                              9  //$NON-NLS-1$
 
                + "   SUM(1)," + NL //                                       10 //$NON-NLS-1$
+
                + "   SUM(BodyWeight),         " + NL //      11 //$NON-NLS-1$
                + "   SUM(BodyFat)          " + NL //      12 //$NON-NLS-1$
 
