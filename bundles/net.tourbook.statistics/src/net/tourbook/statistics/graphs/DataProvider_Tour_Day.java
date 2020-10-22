@@ -23,10 +23,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.OptionalDouble;
+import java.util.stream.IntStream;
 
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
@@ -108,6 +112,22 @@ public class DataProvider_Tour_Day extends DataProvider {
             duration_High[avgIndex] = maxValue;
          }
       }
+   }
+
+   private void adjustValues_Avg(final ArrayList<ZonedDateTime> dbAllTourStartDateTime,
+                                 final float[] values) {
+
+      final ArrayList<LocalDate> uniqueDates = new ArrayList<>();
+
+      for (final ZonedDateTime tourStartDateTime : dbAllTourStartDateTime) {
+         final LocalDate tourLocalDate = tourStartDateTime.toLocalDate();
+         if (!uniqueDates.stream().anyMatch(date -> date.compareTo(tourLocalDate) == 0)) {
+            uniqueDates.add(tourLocalDate);
+         }
+      }
+
+      final float[] adjustedValues = new float[uniqueDates.size()];
+
    }
 
    private void adjustValues_Avg(final TIntArrayList dbAllTourDuration,
@@ -287,7 +307,6 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   BodyFat          " + NL //      20 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
-               //TODO FB Average of weight ?
 
                // get/filter tag id's
                + tagFilterSqlJoinBuilder.getSqlTagJoinTable() + " jTdataTtag" //                //$NON-NLS-1$
@@ -563,9 +582,6 @@ public class DataProvider_Tour_Day extends DataProvider {
                trainEffect_Anaerob_High[tourIndex]    += trainEffect_Anaerob_Low[tourIndex]  = trainEffect_Anaerob_High[tourIndex - 1];
                trainPerformance_High[tourIndex]       += trainPerformance_Low[tourIndex]     = trainPerformance_High[tourIndex - 1];
 
-               bodyWeight_High[tourIndex]       += bodyWeight_Low[tourIndex]     = bodyWeight_High[tourIndex - 1];
-               bodyFat_High[tourIndex]       += bodyFat_Low[tourIndex]     = bodyFat_High[tourIndex - 1];
-
 // SET_FORMATTING_ON
 
             } else {
@@ -610,6 +626,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          adjustValues(dbAllTrain_Effect_Anaerob,   trainEffect_Anaerob_Low,   trainEffect_Anaerob_High,  sameDOY_FirstIndex,     sameDOY_LastIndex);
 
          adjustValues_Avg(dbAllTourDurationTimes,       dbAllTrain_Performance,    trainPerformance_Low,      trainPerformance_High,  sameDOY_FirstIndex,  sameDOY_LastIndex);
+
+         adjustValues_Avg(dbAllTourStartDateTime,       bodyWeight_High);
+         adjustValues_Avg(dbAllTourStartDateTime,       bodyFat_High);
 
 //SET_FORMATTING_ON
 
@@ -674,10 +693,26 @@ public class DataProvider_Tour_Day extends DataProvider {
          _tourDayData.allTraining_Performance_Low = trainPerformance_Low;
          _tourDayData.allTraining_Performance_High = trainPerformance_High;
 
-         _tourDayData.allAthleteBodyWeight_Low = bodyWeight_Low;
-         _tourDayData.allAthleteBodyWeight_High = bodyWeight_High;
-         _tourDayData.allAthleteBodyFat_Low = bodyFat_Low;
-         _tourDayData.allAthleteBodyFat_High = bodyFat_High;
+         //todo fb use this dbAllTourStartDateTime to compute the average for each day and reconstruct an array
+         _tourDayData.allAthleteBodyWeight_Low = new float[yearDays];
+         float averageBodyWeight = 0;
+         OptionalDouble averageDouble = Arrays.stream(IntStream.range(0, bodyWeight_High.length).mapToDouble(i -> bodyWeight_High[i]).toArray())
+               .average();
+
+         if (averageDouble.isPresent()) {
+            averageBodyWeight = (float) averageDouble.getAsDouble();
+         }
+         _tourDayData.allAthleteBodyWeight_High = new float[] { averageBodyWeight };
+
+         _tourDayData.allAthleteBodyFat_Low = new float[yearDays];
+         float averageBodyFat = 0;
+         averageDouble = Arrays.stream(IntStream.range(0, bodyFat_High.length).mapToDouble(i -> bodyFat_High[i]).toArray())
+               .average();
+
+         if (averageDouble.isPresent()) {
+            averageBodyFat = (float) averageDouble.getAsDouble();
+         }
+         _tourDayData.allAthleteBodyFat_High = new float[] { averageBodyFat };
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;

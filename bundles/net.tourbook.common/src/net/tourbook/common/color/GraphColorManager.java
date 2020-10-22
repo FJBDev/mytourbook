@@ -75,7 +75,6 @@ public class GraphColorManager {
    public static final String PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";       //$NON-NLS-1$
    public static final String PREF_GRAPH_BODYFAT                      = "BodyFat";                    //$NON-NLS-1$
    public static final String PREF_GRAPH_BODYWEIGHT                   = "BodyWeight";                 //$NON-NLS-1$
-   //TODO FB Assign color
 
    public static final String            PREF_COLOR_BRIGHT           = "bright";            //$NON-NLS-1$
    public static final String            PREF_COLOR_DARK             = "dark";              //$NON-NLS-1$
