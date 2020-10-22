@@ -40,13 +40,13 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_MONTH_DISTANCE          = "STATE_BAR_ORDERING_MONTH_DISTANCE";          //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_SUMMARY           = "STATE_BAR_ORDERING_MONTH_SUMMARY";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_TIME              = "STATE_BAR_ORDERING_MONTH_TIME";              //$NON-NLS-1$
-   protected static final String STATE_BAR_ORDERING_MONTH_WEIGHT            = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_MONTH_ATHLETEDATA       = "STATE_BAR_ORDERING_MONTH_ATHLETEDATA";       //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_YEAR_ALTITUDE           = "STATE_BAR_ORDERING_YEAR_ALTITUDE";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_DISTANCE           = "STATE_BAR_ORDERING_YEAR_DISTANCE";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_SUMMARY            = "STATE_BAR_ORDERING_YEAR_SUMMARY";            //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_TIME               = "STATE_BAR_ORDERING_YEAR_TIME";               //$NON-NLS-1$
-   protected static final String STATE_BAR_ORDERING_YEAR_WEIGHT             = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_YEAR_ATHLETEDATA        = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH = "STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH"; ////$NON-NLS-1$
 

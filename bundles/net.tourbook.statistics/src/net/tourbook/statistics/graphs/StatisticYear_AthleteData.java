@@ -22,7 +22,7 @@ public class StatisticYear_AthleteData extends StatisticYear {
 
    @Override
    protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_YEAR_WEIGHT;
+      return STATE_BAR_ORDERING_YEAR_ATHLETEDATA;
    }
 
    @Override
