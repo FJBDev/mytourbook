@@ -281,7 +281,10 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   training_TrainingPerformance," + NL //          16 //$NON-NLS-1$
 
                + "   TourType_typeId," + NL //                       17 //$NON-NLS-1$
-               + "   jTdataTtag.TourTag_tagId" + NL //               18 //$NON-NLS-1$
+               + "   jTdataTtag.TourTag_tagId," + NL //               18 //$NON-NLS-1$
+
+               + "   BikerWeight,         " + NL //      19 //$NON-NLS-1$
+               + "   BodyFat          " + NL //      20 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
                //TODO FB Average of weight ?
@@ -321,6 +324,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          final TFloatArrayList dbAllTrain_Effect_Aerob = new TFloatArrayList();
          final TFloatArrayList dbAllTrain_Effect_Anaerob = new TFloatArrayList();
          final TFloatArrayList dbAllTrain_Performance = new TFloatArrayList();
+
+         final TFloatArrayList dbAllBodyWeight = new TFloatArrayList();
+         final TFloatArrayList dbAllBodyFat = new TFloatArrayList();
 
          final ArrayList<String> dbAllTourTitle = new ArrayList<>();
          final ArrayList<String> dbAllTourDescription = new ArrayList<>();
@@ -384,6 +390,9 @@ public class DataProvider_Tour_Day extends DataProvider {
 
                final Long dbValue_TourTypeIdObject    = (Long) result.getObject(17);
 
+               final float bodyWeight    =  result.getFloat(19);
+               final float bodyFat    =  result.getFloat(20);
+
 // SET_FORMATTING_ON
 
                final TourDateTime tourDateTime = TimeTools.createTourDateTime(dbStartTimeMilli, dbTimeZoneId);
@@ -430,6 +439,9 @@ public class DataProvider_Tour_Day extends DataProvider {
                dbAllTourComputedTime_Moving.add(dbMovingTime);
 
                dbAllTourDurationTimes.add(durationTimeValue);
+
+               dbAllBodyWeight.add(bodyWeight);
+               dbAllBodyFat.add(bodyFat);
 
                // round distance
                final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;
@@ -495,6 +507,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          final float[] trainEffect_Anaerob_High = dbAllTrain_Effect_Anaerob.toArray();
          final float[] trainPerformance_High = dbAllTrain_Performance.toArray();
 
+         final float[] bodyWeight_High = dbAllBodyWeight.toArray();
+         final float[] bodyFat_High = dbAllBodyFat.toArray();
+
          final int serieLength = durationTime_High.length;
 
          final int[] durationTime_Low = new int[serieLength];
@@ -506,6 +521,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          final float[] trainEffect_Aerob_Low = new float[serieLength];
          final float[] trainEffect_Anaerob_Low = new float[serieLength];
          final float[] trainPerformance_Low = new float[serieLength];
+
+         final float[] bodyWeight_Low = new float[serieLength];
+         final float[] bodyFat_Low = new float[serieLength];
 
          /*
           * Adjust low/high values when a day has multiple tours
@@ -544,6 +562,9 @@ public class DataProvider_Tour_Day extends DataProvider {
                trainEffect_Aerob_High[tourIndex]      += trainEffect_Aerob_Low[tourIndex]    = trainEffect_Aerob_High[tourIndex - 1];
                trainEffect_Anaerob_High[tourIndex]    += trainEffect_Anaerob_Low[tourIndex]  = trainEffect_Anaerob_High[tourIndex - 1];
                trainPerformance_High[tourIndex]       += trainPerformance_Low[tourIndex]     = trainPerformance_High[tourIndex - 1];
+
+               bodyWeight_High[tourIndex]       += bodyWeight_Low[tourIndex]     = bodyWeight_High[tourIndex - 1];
+               bodyFat_High[tourIndex]       += bodyFat_Low[tourIndex]     = bodyFat_High[tourIndex - 1];
 
 // SET_FORMATTING_ON
 
@@ -653,10 +674,10 @@ public class DataProvider_Tour_Day extends DataProvider {
          _tourDayData.allTraining_Performance_Low = trainPerformance_Low;
          _tourDayData.allTraining_Performance_High = trainPerformance_High;
 
-         _tourDayData.allAthleteBodyWeight_Low = trainEffect_Anaerob_High;
-         _tourDayData.allAthleteBodyWeight_High = dbAllTrain_Performance.toArray();
-         _tourDayData.allAthleteBodyFat_Low = trainPerformance_Low;
-         _tourDayData.allAthleteBodyFat_High = trainPerformance_High;
+         _tourDayData.allAthleteBodyWeight_Low = bodyWeight_Low;
+         _tourDayData.allAthleteBodyWeight_High = bodyWeight_High;
+         _tourDayData.allAthleteBodyFat_Low = bodyFat_Low;
+         _tourDayData.allAthleteBodyFat_High = bodyFat_High;
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;
