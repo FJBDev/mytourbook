@@ -283,7 +283,7 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   TourType_typeId," + NL //                       17 //$NON-NLS-1$
                + "   jTdataTtag.TourTag_tagId," + NL //               18 //$NON-NLS-1$
 
-               + "   BikerWeight,         " + NL //      19 //$NON-NLS-1$
+               + "   BodyWeight,         " + NL //      19 //$NON-NLS-1$
                + "   BodyFat          " + NL //      20 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$

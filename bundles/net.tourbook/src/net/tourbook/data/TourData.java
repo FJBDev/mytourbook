@@ -389,7 +389,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @XmlElement
    private Integer               calories;                                             // db-version 4
 
-   private float                 bikerWeight;                                          // db-version 4
+   private float                 bodyWeight;                                          // db-version 4
 
    private float                 bodyFat;
 
@@ -6886,7 +6886,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * @return Returns the body weight.
     */
    public float getBodyWeight() {
-      return bikerWeight;
+      return bodyWeight;
    }
 
    private int getBreakTime() {
@@ -9263,11 +9263,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
-    * @param bikerWeight
+    * @param bodyWeight
     *           Sets the body weight.
     */
-   public void setBodyWeight(final float bikerWeight) {
-      this.bikerWeight = bikerWeight;
+   public void setBodyWeight(final float bodyWeight) {
+      this.bodyWeight = bodyWeight;
    }
 
    public void setBreakTimeSerie(final boolean[] breakTimeSerie) {

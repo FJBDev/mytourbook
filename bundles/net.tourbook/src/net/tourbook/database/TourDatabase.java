@@ -7518,6 +7518,7 @@ public class TourDatabase {
 
             SQL.RenameCol(stmt, TABLE_TOUR_DATA, "tourRecordingTime", "TourDeviceTime_Elapsed"); //$NON-NLS-1$ //$NON-NLS-2$
             SQL.RenameCol(stmt, TABLE_TOUR_DATA, "tourDrivingTime", "TourComputedTime_Moving"); //$NON-NLS-1$ //$NON-NLS-2$
+            SQL.RenameCol(stmt, TABLE_TOUR_DATA, "bikerWeight", "bodyWeight"); //$NON-NLS-1$ //$NON-NLS-2$
 
             SQL.RenameCol(stmt, TABLE_TOUR_COMPARED, "tourRecordingTime", "TourDeviceTime_Elapsed"); //$NON-NLS-1$ //$NON-NLS-2$
 
