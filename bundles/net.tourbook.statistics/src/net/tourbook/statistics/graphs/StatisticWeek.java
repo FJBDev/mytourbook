@@ -263,7 +263,6 @@ public abstract class StatisticWeek extends TourbookStatistic {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
-            getChartType(_chartType),
             _statisticData_Week.athleteBodyFat_Low,
             _statisticData_Week.athleteBodyFat_High);
 
@@ -288,7 +287,6 @@ public abstract class StatisticWeek extends TourbookStatistic {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
-            getChartType(_chartType),
             _statisticData_Week.athleteBodyWeight_Low,
             _statisticData_Week.athleteBodyWeight_High);
 

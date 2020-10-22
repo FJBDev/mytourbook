@@ -209,7 +209,6 @@ public abstract class StatisticMonth extends TourbookStatistic {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
-            getChartType(_chartType),
             _statisticData_Month.athleteBodyFat_Low,
             _statisticData_Month.athleteBodyFat_High);
 
@@ -234,7 +233,6 @@ public abstract class StatisticMonth extends TourbookStatistic {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.BAR,
-            getChartType(_chartType),
             _statisticData_Month.athleteBodyWeight_Low,
             _statisticData_Month.athleteBodyWeight_High);
 

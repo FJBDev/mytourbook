@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.OptionalDouble;
 
 import net.tourbook.Messages;
 import net.tourbook.common.util.SQL;
@@ -240,7 +241,7 @@ public class DataProvider_Tour_Year extends DataProvider {
 
       String sql = null;
 
-      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+      try (final Connection conn = TourDatabase.getInstance().getConnection()) {
 
          statistic_ActivePerson = person;
          statistic_ActiveTourTypeFilter = tourTypeFilter;
@@ -328,8 +329,8 @@ public class DataProvider_Tour_Year extends DataProvider {
                + "   SUM(TourAltUp)," + NL //                              9  //$NON-NLS-1$
 
                + "   SUM(1)," + NL //                                       10 //$NON-NLS-1$
-               + " SUM(BikerWeight),         " + NL //      11 //$NON-NLS-1$
-               + " SUM(BodyFat)          " + NL //      12 //$NON-NLS-1$
+               + " AVG(BikerWeight),         " + NL //      11 //$NON-NLS-1$
+               + " AVG(BodyFat)          " + NL //      12 //$NON-NLS-1$
                //TODO rename BikerWeight to BodyWeight ??
 
                + fromTourData
@@ -351,8 +352,13 @@ public class DataProvider_Tour_Year extends DataProvider {
          final float[][] dbDistance = new float[numTourTypes][numYears];
          final float[][] dbElevation = new float[numTourTypes][numYears];
          final float[][] dbNumTours = new float[numTourTypes][numYears];
-         final float[][] dbBodyWeight = new float[numTourTypes][numYears];
-         final float[][] dbBodyFat = new float[numTourTypes][numYears];
+         final ArrayList<Float>[] dbBodyWeight = new ArrayList[numYears];
+         final ArrayList<Float>[] dbBodyFat = new ArrayList[numYears];
+         // initializing
+         for (int index = 0; index < numYears; index++) {
+            dbBodyWeight[index] = new ArrayList<>();
+            dbBodyFat[index] = new ArrayList<>();
+         }
 
          final int[][] dbDurationTime = new int[numTourTypes][numYears];
          final int[][] dbElapsedTime = new int[numTourTypes][numYears];
@@ -440,8 +446,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             dbDistance[colorIndex][yearIndex] = dbValue_Distance;
             dbElevation[colorIndex][yearIndex] = dbValue_ElevationUp;
             dbNumTours[colorIndex][yearIndex] = dbValue_NumTours;
-            dbBodyWeight[colorIndex][yearIndex] = dbValue_BodyWeight;
-            dbBodyFat[colorIndex][yearIndex] = dbValue_BodyFat;
+            dbBodyWeight[yearIndex].add(dbValue_BodyWeight);
+            dbBodyFat[yearIndex].add(dbValue_BodyFat);
 
             dbDurationTime[colorIndex][yearIndex] = dbValue_Duration;
 
@@ -471,8 +477,6 @@ public class DataProvider_Tour_Year extends DataProvider {
          final ArrayList<Object> allDistance_WithData = new ArrayList<>();
          final ArrayList<Object> allDuration_WithData = new ArrayList<>();
          final ArrayList<Object> allNumTours_WithData = new ArrayList<>();
-         final ArrayList<Object> allBodyWeight_WithData = new ArrayList<>();
-         final ArrayList<Object> allBodyFat_WithData = new ArrayList<>();
 
          final ArrayList<Object> allElapsedTime_WithData = new ArrayList<>();
          final ArrayList<Object> allRecordedTime_WithData = new ArrayList<>();
@@ -492,8 +496,6 @@ public class DataProvider_Tour_Year extends DataProvider {
                allDistance_WithData.add(dbDistance[tourTypeIndex]);
                allDuration_WithData.add(dbDurationTime[tourTypeIndex]);
                allNumTours_WithData.add(dbNumTours[tourTypeIndex]);
-               allBodyWeight_WithData.add(dbBodyWeight[tourTypeIndex]);
-               allBodyFat_WithData.add(dbBodyFat[tourTypeIndex]);
 
                allElapsedTime_WithData.add(dbElapsedTime[tourTypeIndex]);
                allRecordedTime_WithData.add(dbRecordedTime[tourTypeIndex]);
@@ -533,10 +535,10 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.numTours_Low = new float[1][numYears];
             _tourYearData.numTours_High = new float[1][numYears];
 
-            _tourYearData.athleteBodyWeight_Low = new float[1][numYears];
-            _tourYearData.athleteBodyWeight_High = new float[1][numYears];
-            _tourYearData.athleteBodyFat_Low = new float[1][numYears];
-            _tourYearData.athleteBodyFat_High = new float[1][numYears];
+            _tourYearData.athleteBodyWeight_Low = new float[numYears];
+            _tourYearData.athleteBodyWeight_High = new float[numYears];
+            _tourYearData.athleteBodyFat_Low = new float[numYears];
+            _tourYearData.athleteBodyFat_High = new float[numYears];
 
          } else {
 
@@ -551,8 +553,6 @@ public class DataProvider_Tour_Year extends DataProvider {
             final int[][] usedMovingTime = new int[numTourTypes_WithData][];
             final int[][] usedBreakTime = new int[numTourTypes_WithData][];
             final float[][] usedNumTours = new float[numTourTypes_WithData][];
-            final float[][] usedBodyWeight = new float[numTourTypes_WithData][];
-            final float[][] usedBodyFat = new float[numTourTypes_WithData][];
 
             for (int index = 0; index < numTourTypes_WithData; index++) {
 
@@ -569,8 +569,6 @@ public class DataProvider_Tour_Year extends DataProvider {
                usedBreakTime[index] = (int[]) allBreakTime_WithData.get(index);
 
                usedNumTours[index] = (float[]) allNumTours_WithData.get(index);
-               usedBodyWeight[index] = (float[]) allBodyWeight_WithData.get(index);
-               usedBodyFat[index] = (float[]) allBodyFat_WithData.get(index);
             }
 
             _tourYearData.typeIds = usedTypeIds;
@@ -594,10 +592,27 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.numTours_Low = new float[numTourTypes_WithData][numYears];
             _tourYearData.numTours_High = usedNumTours;
 
-            _tourYearData.athleteBodyWeight_Low = new float[numTourTypes_WithData][numYears];
-            _tourYearData.athleteBodyWeight_High = usedBodyWeight;
-            _tourYearData.athleteBodyFat_Low = new float[numTourTypes_WithData][numYears];
-            _tourYearData.athleteBodyFat_High = usedBodyFat;
+            _tourYearData.athleteBodyWeight_Low = new float[numYears];
+
+            final float[] weight = new float[numYears];
+            for (int index = 0; index < numYears; ++index) {
+               final OptionalDouble averageDouble = dbBodyWeight[index].stream().mapToDouble(d -> d).average();
+
+               if (averageDouble.isPresent()) {
+                  weight[index] = (float) averageDouble.getAsDouble();
+               }
+            }
+            _tourYearData.athleteBodyWeight_High = weight;
+            final float[] fat = new float[numYears];
+            for (int index = 0; index < numYears; ++index) {
+               final OptionalDouble averageDouble = dbBodyFat[index].stream().mapToDouble(d -> d).average();
+
+               if (averageDouble.isPresent()) {
+                  fat[index] = (float) averageDouble.getAsDouble();
+               }
+            }
+            _tourYearData.athleteBodyFat_Low = new float[numYears];
+            _tourYearData.athleteBodyFat_High = fat;
          }
 
          _tourYearData.numUsedTourTypes = numTourTypes_WithData;
