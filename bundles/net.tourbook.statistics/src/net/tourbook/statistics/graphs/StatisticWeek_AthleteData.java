@@ -23,7 +23,7 @@ public class StatisticWeek_AthleteData extends StatisticWeek {
    @Override
    ChartDataModel getChartDataModel() {
 
-      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
+      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
       createXData_Week(chartDataModel);
       createYData_AthleteBodyWeight(chartDataModel);

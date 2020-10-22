@@ -196,7 +196,7 @@ public abstract class StatisticYear extends TourbookStatistic {
    void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
+            ChartType.LINE,
             _statisticData_Year.athleteBodyFat_Low,
             _statisticData_Year.athleteBodyFat_High);
 
@@ -221,7 +221,7 @@ public abstract class StatisticYear extends TourbookStatistic {
    void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
+            ChartType.LINE,
             _statisticData_Year.athleteBodyWeight_Low,
             _statisticData_Year.athleteBodyWeight_High);
 

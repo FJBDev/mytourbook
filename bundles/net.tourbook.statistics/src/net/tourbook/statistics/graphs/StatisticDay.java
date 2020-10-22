@@ -347,7 +347,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
+            ChartType.LINE,
             _statisticData_Day.allAthleteBodyFat_Low,
             _statisticData_Day.allAthleteBodyFat_High);
 
@@ -370,7 +370,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.BAR,
+            ChartType.LINE,
             _statisticData_Day.allAthleteBodyWeight_Low,
             _statisticData_Day.allAthleteBodyWeight_High);
 

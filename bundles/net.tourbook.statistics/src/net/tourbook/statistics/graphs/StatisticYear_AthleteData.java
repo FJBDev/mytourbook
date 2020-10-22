@@ -28,7 +28,7 @@ public class StatisticYear_AthleteData extends StatisticYear {
    @Override
    ChartDataModel getChartDataModel() {
 
-      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
+      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
       createXData_Year(chartDataModel);
       createYData_AthleteBodyWeight(chartDataModel);
