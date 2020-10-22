@@ -39,6 +39,6 @@ public class StatisticYear_AthleteData extends StatisticYear {
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_YEAR_WEIGHT;
+      return GRID_YEAR_ATHLETEDATA;
    }
 }

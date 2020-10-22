@@ -34,6 +34,6 @@ public class StatisticDay_AthleteData extends StatisticDay {
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_DAY_WEIGHT;
+      return GRID_DAY_ATHLETEDATA;
    }
 }

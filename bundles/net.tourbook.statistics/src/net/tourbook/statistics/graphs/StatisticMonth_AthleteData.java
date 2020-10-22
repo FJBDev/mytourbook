@@ -39,6 +39,6 @@ public class StatisticMonth_AthleteData extends StatisticMonth {
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_MONTH_WEIGHT;
+      return GRID_MONTH_ATHLETEDATA;
    }
 }
