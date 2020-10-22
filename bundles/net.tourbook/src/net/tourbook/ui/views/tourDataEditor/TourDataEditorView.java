@@ -3863,6 +3863,31 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             // label: bpm
             _tk.createLabel(container, GRAPH_LABEL_HEARTBEAT_UNIT);
          }
+         {
+            /*
+             * FTP - Functional Threshold Power
+             */
+
+            // label: FTP
+            final Label label = _tk.createLabel(container, Messages.Tour_Editor_Label_FTP);
+            label.setToolTipText(Messages.Tour_Editor_Label_FTP_Tooltip);
+            _firstColumnControls.add(label);
+
+            // spinner: FTP
+            _spinPerson_FTP = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .applyTo(_spinPerson_FTP);
+            _spinPerson_FTP.setMinimum(0);
+            _spinPerson_FTP.setMaximum(10000);
+
+            _spinPerson_FTP.addMouseWheelListener(_mouseWheelListener);
+            _spinPerson_FTP.addSelectionListener(_selectionListener);
+
+            // spacer
+            _tk.createLabel(container, UI.EMPTY_STRING);
+         }
       }
    }
 
@@ -3926,31 +3951,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             // label: unit
             _lblPerson_BodyFatUnit = _tk.createLabel(container, UI.UNIT_PERCENT);
-         }
-         {
-            /*
-             * FTP - Functional Threshold Power
-             */
-
-            // label: FTP
-            final Label label = _tk.createLabel(container, Messages.Tour_Editor_Label_FTP);
-            label.setToolTipText(Messages.Tour_Editor_Label_FTP_Tooltip);
-            _secondColumnControls.add(label);
-
-            // spinner: FTP
-            _spinPerson_FTP = new Spinner(container, SWT.BORDER);
-            GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
-                  .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinPerson_FTP);
-            _spinPerson_FTP.setMinimum(0);
-            _spinPerson_FTP.setMaximum(10000);
-
-            _spinPerson_FTP.addMouseWheelListener(_mouseWheelListener);
-            _spinPerson_FTP.addSelectionListener(_selectionListener);
-
-            // spacer
-            _tk.createLabel(container, UI.EMPTY_STRING);
          }
       }
    }
