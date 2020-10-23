@@ -127,13 +127,6 @@ public class DataProvider_Tour_Day extends DataProvider {
                                  final float[] values) {
 
       final Map<LocalDate, ArrayList<Float>> uniqueDates = new HashMap<>();
-//      {{
-//         put("cat", 2);
-//         put("dog", 1);
-//         put("llama", 0);
-//         put("iguana", -1);
-//     }};
-      //final ArrayList<LocalDate> uniqueDates = new ArrayList<>();
 
       ArrayList<Float> valuesList;
       for (int index = 0; index < dbAllTourStartDateTime.size(); ++index) {// final ZonedDateTime tourStartDateTime : dbAllTourStartDateTime) {
@@ -141,7 +134,6 @@ public class DataProvider_Tour_Day extends DataProvider {
          final LocalDate tourLocalDate = dbAllTourStartDateTime.get(index).toLocalDate();
 
          if (!uniqueDates.containsKey(tourLocalDate)) {
-
             valuesList = new ArrayList<>();
             valuesList.add(values[index]);
             uniqueDates.put(tourLocalDate, valuesList);
