@@ -27,10 +27,10 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.OptionalDouble;
-import java.util.stream.IntStream;
 
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
@@ -114,20 +114,59 @@ public class DataProvider_Tour_Day extends DataProvider {
       }
    }
 
+   /**
+    * For a given list of tour start times, this procedure computes the average values
+    * for each unique tour start day.
+    *
+    * @param dbAllTourStartDateTime
+    *           A list of tour start times.
+    * @param values
+    *           The values to average for each unique tour start date.
+    */
    private void adjustValues_Avg(final ArrayList<ZonedDateTime> dbAllTourStartDateTime,
                                  final float[] values) {
 
-      final ArrayList<LocalDate> uniqueDates = new ArrayList<>();
+      final Map<LocalDate, ArrayList<Float>> uniqueDates = new HashMap<>();
+//      {{
+//         put("cat", 2);
+//         put("dog", 1);
+//         put("llama", 0);
+//         put("iguana", -1);
+//     }};
+      //final ArrayList<LocalDate> uniqueDates = new ArrayList<>();
 
-      for (final ZonedDateTime tourStartDateTime : dbAllTourStartDateTime) {
-         final LocalDate tourLocalDate = tourStartDateTime.toLocalDate();
-         if (!uniqueDates.stream().anyMatch(date -> date.compareTo(tourLocalDate) == 0)) {
-            uniqueDates.add(tourLocalDate);
+      ArrayList<Float> valuesList;
+      for (int index = 0; index < dbAllTourStartDateTime.size(); ++index) {// final ZonedDateTime tourStartDateTime : dbAllTourStartDateTime) {
+
+         final LocalDate tourLocalDate = dbAllTourStartDateTime.get(index).toLocalDate();
+
+         if (!uniqueDates.containsKey(tourLocalDate)) {
+
+            valuesList = new ArrayList<>();
+            valuesList.add(values[index]);
+            uniqueDates.put(tourLocalDate, valuesList);
+         } else {
+            valuesList = uniqueDates.get(tourLocalDate);
+            valuesList.add(values[index]);
+            uniqueDates.replace(tourLocalDate, valuesList);
          }
       }
 
       final float[] adjustedValues = new float[uniqueDates.size()];
 
+      //We compute and store the average of those values
+      int index = 0;
+      for (final Entry<LocalDate, ArrayList<Float>> uniqueDate : uniqueDates.entrySet()) {
+
+         final ArrayList<Float> dayValues = uniqueDate.getValue();
+
+         final OptionalDouble averageDouble = dayValues.stream().mapToDouble(d -> d).average();
+
+         if (averageDouble.isPresent()) {
+            adjustedValues[index] = (float) averageDouble.getAsDouble();
+         }
+         ++index;
+      }
    }
 
    private void adjustValues_Avg(final TIntArrayList dbAllTourDuration,
@@ -541,9 +580,6 @@ public class DataProvider_Tour_Day extends DataProvider {
          final float[] trainEffect_Anaerob_Low = new float[serieLength];
          final float[] trainPerformance_Low = new float[serieLength];
 
-         final float[] bodyWeight_Low = new float[serieLength];
-         final float[] bodyFat_Low = new float[serieLength];
-
          /*
           * Adjust low/high values when a day has multiple tours
           */
@@ -693,26 +729,11 @@ public class DataProvider_Tour_Day extends DataProvider {
          _tourDayData.allTraining_Performance_Low = trainPerformance_Low;
          _tourDayData.allTraining_Performance_High = trainPerformance_High;
 
-         //todo fb use this dbAllTourStartDateTime to compute the average for each day and reconstruct an array
          _tourDayData.allAthleteBodyWeight_Low = new float[yearDays];
-         float averageBodyWeight = 0;
-         OptionalDouble averageDouble = Arrays.stream(IntStream.range(0, bodyWeight_High.length).mapToDouble(i -> bodyWeight_High[i]).toArray())
-               .average();
-
-         if (averageDouble.isPresent()) {
-            averageBodyWeight = (float) averageDouble.getAsDouble();
-         }
-         _tourDayData.allAthleteBodyWeight_High = new float[] { averageBodyWeight };
+         _tourDayData.allAthleteBodyWeight_High = bodyWeight_High;
 
          _tourDayData.allAthleteBodyFat_Low = new float[yearDays];
-         float averageBodyFat = 0;
-         averageDouble = Arrays.stream(IntStream.range(0, bodyFat_High.length).mapToDouble(i -> bodyFat_High[i]).toArray())
-               .average();
-
-         if (averageDouble.isPresent()) {
-            averageBodyFat = (float) averageDouble.getAsDouble();
-         }
-         _tourDayData.allAthleteBodyFat_High = new float[] { averageBodyFat };
+         _tourDayData.allAthleteBodyFat_High = bodyFat_High;
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;

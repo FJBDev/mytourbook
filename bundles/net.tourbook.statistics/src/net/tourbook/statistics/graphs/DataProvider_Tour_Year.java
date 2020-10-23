@@ -352,7 +352,9 @@ public class DataProvider_Tour_Year extends DataProvider {
          final float[][] dbDistance = new float[numTourTypes][numYears];
          final float[][] dbElevation = new float[numTourTypes][numYears];
          final float[][] dbNumTours = new float[numTourTypes][numYears];
+         @SuppressWarnings("unchecked")
          final ArrayList<Float>[] dbBodyWeight = new ArrayList[numYears];
+         @SuppressWarnings("unchecked")
          final ArrayList<Float>[] dbBodyFat = new ArrayList[numYears];
          // initializing
          for (int index = 0; index < numYears; index++) {
