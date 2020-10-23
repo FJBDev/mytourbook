@@ -196,7 +196,7 @@ public abstract class StatisticYear extends TourbookStatistic {
    void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.LINE,
+            ChartType.BAR,
             _statisticData_Year.athleteBodyFat_Low,
             _statisticData_Year.athleteBodyFat_High);
 
@@ -214,14 +214,13 @@ public abstract class StatisticYear extends TourbookStatistic {
 
    /**
     * Athlete's body weight
-    * TODO FB what to do to support displaying data for a single athlete and all athletes ?
     *
     * @param chartDataModel
     */
    void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.LINE,
+            ChartType.BAR,
             _statisticData_Year.athleteBodyWeight_Low,
             _statisticData_Year.athleteBodyWeight_High);
 

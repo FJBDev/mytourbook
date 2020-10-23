@@ -360,7 +360,10 @@ public class DataProvider_Tour_Week extends DataProvider {
                   + "      TourDistance," + NL //                                                        //$NON-NLS-1$
                   + "      TourAltUp," + NL //                                                           //$NON-NLS-1$
 
-                  + "      TourType_TypeId" + NL //                                                      //$NON-NLS-1$
+                  + "      TourType_TypeId," + NL //                                                      //$NON-NLS-1$
+
+                  + "      BodyWeight,         " + NL //       //$NON-NLS-1$
+                  + "      BodyFat          " + NL //       //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                                    //$NON-NLS-1$
 
@@ -408,8 +411,8 @@ public class DataProvider_Tour_Week extends DataProvider {
 
                + "   SUM(1)," + NL //                                          11 //$NON-NLS-1$
 
-               + "   SUM(BodyWeight),         " + NL //      12 //$NON-NLS-1$
-               + "   SUM(BodyFat)          " + NL //      13 //$NON-NLS-1$
+               + "   AVG(BodyWeight),         " + NL //      12 //$NON-NLS-1$
+               + "   AVG(BodyFat)          " + NL //      13 //$NON-NLS-1$
 
                + fromTourData
 
@@ -507,8 +510,8 @@ public class DataProvider_Tour_Week extends DataProvider {
 
             final int dbValue_NumTours          = result.getInt(11);
 
-            final float dbValue_BodyWeight = result.getFloat(12) / dbValue_NumTours;
-            final float dbValue_BodyFat = result.getFloat(13) / dbValue_NumTours;
+            final float dbValue_BodyWeight = result.getFloat(12);
+            final float dbValue_BodyFat = result.getFloat(13);
 
 // SET_FORMATTING_ON
 

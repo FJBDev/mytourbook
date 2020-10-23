@@ -283,7 +283,10 @@ public class DataProvider_Tour_Year extends DataProvider {
                   + "      TourComputedTime_Moving," + NL //                                    //$NON-NLS-1$
 
                   + "      TourDistance," + NL //                                               //$NON-NLS-1$
-                  + "      TourAltUp" + NL //                                                   //$NON-NLS-1$
+                  + "      TourAltUp," + NL //                                                   //$NON-NLS-1$
+
+                  + "      BodyWeight,         " + NL //       //$NON-NLS-1$
+                  + "      BodyFat          " + NL //       //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                           //$NON-NLS-1$
 
@@ -330,8 +333,8 @@ public class DataProvider_Tour_Year extends DataProvider {
 
                + "   SUM(1)," + NL //                                       10 //$NON-NLS-1$
 
-               + "   SUM(BodyWeight),         " + NL //      11 //$NON-NLS-1$
-               + "   SUM(BodyFat)          " + NL //      12 //$NON-NLS-1$
+               + "   AVG(BodyWeight),         " + NL //      11 //$NON-NLS-1$
+               + "   AVG(BodyFat)          " + NL //      12 //$NON-NLS-1$
 
                + fromTourData
 
@@ -409,8 +412,8 @@ public class DataProvider_Tour_Year extends DataProvider {
             final long dbValue_ElevationUp          = (long) (result.getInt(9) / UI.UNIT_VALUE_ALTITUDE);
 
             final int dbValue_NumTours             = result.getInt(10);
-            final float dbValue_BodyWeight = result.getFloat(11) / dbValue_NumTours;
-            final float dbValue_BodyFat = result.getFloat(12) / dbValue_NumTours;
+            final float dbValue_BodyWeight = result.getFloat(11);
+            final float dbValue_BodyFat = result.getFloat(12);
 
 // SET_FORMATTING_ON
 
