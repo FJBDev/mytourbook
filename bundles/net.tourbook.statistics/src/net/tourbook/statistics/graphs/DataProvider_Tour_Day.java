@@ -129,7 +129,7 @@ public class DataProvider_Tour_Day extends DataProvider {
       final Map<LocalDate, ArrayList<Float>> uniqueDates = new HashMap<>();
 
       ArrayList<Float> valuesList;
-      for (int index = 0; index < dbAllTourStartDateTime.size(); ++index) {// final ZonedDateTime tourStartDateTime : dbAllTourStartDateTime) {
+      for (int index = 0; index < dbAllTourStartDateTime.size(); ++index) {
 
          final LocalDate tourLocalDate = dbAllTourStartDateTime.get(index).toLocalDate();
 
