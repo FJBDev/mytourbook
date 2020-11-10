@@ -684,7 +684,8 @@ public class ColumnDefinition implements Cloneable {
    }
 
    public void setColumnWidth(final int columnWidth) {
-      _columnWidth = columnWidth;
+
+      _columnWidth = Math.min(columnWidth, ColumnManager.COLUMN_WIDTH_MAXIMUM);
    }
 
    public void setControlListener(final ControlListener controlListener) {
@@ -809,9 +810,9 @@ public class ColumnDefinition implements Cloneable {
       return "ColumnDefinition [" //$NON-NLS-1$
 
 //				+ "_label="                + _label                + ", "   //$NON-NLS-1$ //$NON-NLS-2$
-            + "_isDefaultColumn="      + String.format("%-5s", Boolean.toString(_isDefaultColumn))    + ", "   //$NON-NLS-1$ //$NON-NLS-2$
-            + "_isColumnChecked="      + String.format("%-5s", Boolean.toString(_isColumnChecked))    + ", "   //$NON-NLS-1$ //$NON-NLS-2$
-            + "_columnId="             + String.format("%-40s", _columnId)                            + ", "   //$NON-NLS-1$ //$NON-NLS-2$
+            + "_isDefaultColumn="      + String.format("%-5s", Boolean.toString(_isDefaultColumn))    + ", "   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            + "_isColumnChecked="      + String.format("%-5s", Boolean.toString(_isColumnChecked))    + ", "   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            + "_columnId="             + String.format("%-40s", _columnId)                            + ", "   //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 //          + "_valueFormat="          + _valueFormat_Category + ", "   //$NON-NLS-1$ //$NON-NLS-2$
 //          + "_valueFormat_Detail="   + _valueFormat_Detail   + ", "   //$NON-NLS-1$ //$NON-NLS-2$
 				+ "_columnWidth="          + _columnWidth          + ", "   //$NON-NLS-1$ //$NON-NLS-2$

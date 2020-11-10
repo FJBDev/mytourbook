@@ -23,7 +23,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -41,11 +40,12 @@ import net.tourbook.common.tooltip.ToolbarSlideout;
 import net.tourbook.common.util.ColumnDefinition;
 import net.tourbook.common.util.ColumnManager;
 import net.tourbook.common.util.IContextMenuProvider;
-import net.tourbook.common.util.INatTablePropertiesProvider;
+import net.tourbook.common.util.INatTable_PropertiesProvider;
 import net.tourbook.common.util.ITourViewer3;
 import net.tourbook.common.util.ITreeViewer;
 import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.ToolTip;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.common.util.Util;
@@ -67,6 +67,7 @@ import net.tourbook.tour.TourManager;
 import net.tourbook.tour.TourTypeMenuManager;
 import net.tourbook.tour.printing.ActionPrint;
 import net.tourbook.tourType.TourTypeImage;
+import net.tourbook.ui.INatTable_TourProvider;
 import net.tourbook.ui.ITourProvider2;
 import net.tourbook.ui.ITourProviderByID;
 import net.tourbook.ui.TableColumnFactory;
@@ -86,10 +87,11 @@ import net.tourbook.ui.views.NatTableViewer_TourInfo_ToolTip;
 import net.tourbook.ui.views.TreeViewerTourInfoToolTip;
 import net.tourbook.ui.views.geoCompare.GeoPartComparerItem;
 import net.tourbook.ui.views.rawData.ActionMergeTour;
-import net.tourbook.ui.views.rawData.Action_Reimport_SubMenu;
+import net.tourbook.ui.views.rawData.ActionReimportTours;
 import net.tourbook.ui.views.rawData.SubMenu_AdjustTourValues;
 import net.tourbook.ui.views.tourBook.natTable.DataProvider_ColumnHeader;
 import net.tourbook.ui.views.tourBook.natTable.NatTable_DataLoader;
+import net.tourbook.ui.views.tourBook.natTable.NatTable_DummyColumnViewer;
 import net.tourbook.ui.views.tourBook.natTable.NatTable_Header_Tooltip;
 import net.tourbook.ui.views.tourBook.natTable.NatTable_SortModel;
 import net.tourbook.ui.views.tourBook.natTable.SingleClickSortConfiguration_MT;
@@ -206,7 +208,8 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
-public class TourBookView extends ViewPart implements ITourProvider2, ITourViewer3, ITourProviderByID, ITreeViewer, INatTablePropertiesProvider {
+public class TourBookView extends ViewPart implements ITourProvider2, ITourViewer3, ITourProviderByID, ITreeViewer, INatTable_PropertiesProvider,
+      INatTable_TourProvider {
 
 // SET_FORMATTING_OFF
 
@@ -265,8 +268,10 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private IPropertyChangeListener         _prefChangeListener;
    private IPropertyChangeListener         _prefChangeListenerCommon;
    //
-   private NatTable                        _tourViewer_NatTable;
    private TreeViewer                      _tourViewer_Tree;
+   //
+   private NatTable                        _tourViewer_NatTable;
+   private NatTable_DummyColumnViewer      _natTable_DummyColumnViewer;
    //
    private TVITourBookRoot                 _rootItem_Tree;
    //
@@ -311,7 +316,6 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private IContextMenuProvider            _viewerContextMenuProvider_Tree                 = new ContextMenuProvider_Tree();
    //
    private SubMenu_AdjustTourValues        _subMenu_AdjustTourValues;
-   private Action_Reimport_SubMenu         _subMenu_Reimport;
    //
    private ActionCollapseAll               _actionCollapseAll;
    private ActionCollapseOthers            _actionCollapseOthers;
@@ -331,6 +335,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private ActionOpenAdjustAltitudeDialog  _actionOpenAdjustAltitudeDialog;
    private ActionPrint                     _actionPrintTour;
    private ActionRefreshView               _actionRefreshView;
+   private ActionReimportTours             _actionReimport_Tours;
    private ActionSelectAllTours            _actionSelectAllTours;
    private ActionSetTourTypeMenu           _actionSetTourType;
    private ActionSetPerson                 _actionSetOtherPerson;
@@ -738,7 +743,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                false,
                0,
 //             false);
-               true // with this fix, the sort column indicator is not writter over the column label
+               true // with this fix, the sort column indicator is not written over the column label
          );
 
          this.selectedSortHeaderCellPainter = new BackgroundPainter(new PaddingDecorator(interiorPainter,
@@ -918,7 +923,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
             if (partRef.getPart(false) == TourBookView.this) {
 
-               // ensure the tour tooltip is hidden, it occured that even closing this view did not close the tooltip
+               // ensure the tour tooltip is hidden, it occurred that even closing this view did not close the tooltip
                if (_tourInfoToolTip_NatTable != null) {
                   _tourInfoToolTip_NatTable.hideToolTip();
                }
@@ -1092,7 +1097,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private void createActions() {
 
       _subMenu_AdjustTourValues = new SubMenu_AdjustTourValues(this, this);
-      _subMenu_Reimport = new Action_Reimport_SubMenu(this);
+      _actionReimport_Tours = new ActionReimportTours(this);
 
       _actionCollapseAll = new ActionCollapseAll(this);
       _actionCollapseOthers = new ActionCollapseOthers(this);
@@ -1410,6 +1415,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       // set tour info tooltip provider
       _tourInfoToolTip_NatTable = new NatTableViewer_TourInfo_ToolTip(this, ToolTip.NO_RECREATE);
+
+      _natTable_DummyColumnViewer = new NatTable_DummyColumnViewer(this);
    }
 
    /**
@@ -1661,9 +1668,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
           * count number of selected items
           */
 
-         for (final Iterator<?> iter = selection.iterator(); iter.hasNext();) {
+         for (final Object treeItem : selection) {
 
-            final Object treeItem = iter.next();
             if (treeItem instanceof TVITourBookTour) {
                if (numTourItems == 0) {
                   firstTourItem = (TVITourBookTour) treeItem;
@@ -1716,7 +1722,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       }
 
       final boolean useWeatherRetrieval = _prefStore.getBoolean(ITourbookPreferences.WEATHER_USE_WEATHER_RETRIEVAL) &&
-            !_prefStore.getString(ITourbookPreferences.WEATHER_API_KEY).equals(UI.EMPTY_STRING);
+            !StringUtils.isNullOrEmpty(_prefStore.getString(ITourbookPreferences.WEATHER_API_KEY));
 
       final boolean isTableLayout = _isLayoutNatTable;
       final boolean isTreeLayout = !isTableLayout;
@@ -1734,7 +1740,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _subMenu_AdjustTourValues.setEnabled(isTourSelected || isAllToursSelected);
       _subMenu_AdjustTourValues.getActionRetrieveWeatherData().setEnabled(useWeatherRetrieval);
 
-      _subMenu_Reimport.setEnabled(isTourSelected);
+      _actionReimport_Tours.setEnabled(isTourSelected);
 
       _actionDeleteTour.setEnabled(isTourSelected);
       _actionEditQuick.setEnabled(isOneTour);
@@ -1747,13 +1753,16 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _actionSetOtherPerson.setEnabled(isTourSelected);
       _actionSetTourType.setEnabled(isTourSelected && tourTypes.size() > 0);
 
-      _actionCollapseOthers.setEnabled(numSelectedItems == 1 && firstElementHasChildren);
-      _actionExpandSelection.setEnabled(
-            firstTreeElement == null
+      _actionCollapseAll.setEnabled(isTreeLayout);
+      _actionCollapseOthers.setEnabled(isTreeLayout &&
+            (numSelectedItems == 1 && firstElementHasChildren));
+
+      _actionExpandSelection.setEnabled(isTreeLayout &&
+            (firstTreeElement == null
                   ? false
                   : numSelectedItems == 1
                         ? firstElementHasChildren
-                        : true);
+                        : true));
 
       _actionSelectAllTours.setEnabled(isTreeLayout);
       _actionToggleViewLayout.setEnabled(true);
@@ -1783,10 +1792,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
        */
       final IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager();
 
-      tbm.add(_actionSelectAllTours);
       tbm.add(_actionToggleViewLayout);
-
-      tbm.add(new Separator());
+      tbm.add(_actionSelectAllTours);
       tbm.add(_actionExpandSelection);
       tbm.add(_actionCollapseAll);
       tbm.add(_actionLinkWithOtherViews);
@@ -1836,7 +1843,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       menuMgr.add(new Separator());
       menuMgr.add(_subMenu_AdjustTourValues);
-      menuMgr.add(_subMenu_Reimport);
+      menuMgr.add(_actionReimport_Tours);
       menuMgr.add(_actionSetOtherPerson);
       menuMgr.add(_actionDeleteTour);
 
@@ -1866,6 +1873,10 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
    public ColumnManager getNatTable_ColumnManager() {
       return _columnManager_NatTable;
+   }
+
+   public NatTable_DataLoader getNatTable_DataLoader() {
+      return _natTable_DataLoader;
    }
 
    public TourRowDataProvider getNatTable_DataProvider() {
@@ -1973,9 +1984,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          selectedTours = _tourViewer_Tree.getStructuredSelection();
       }
 
-      for (final Iterator<?> tourIterator = selectedTours.iterator(); tourIterator.hasNext();) {
-
-         final Object viewItem = tourIterator.next();
+      for (final Object viewItem : selectedTours) {
 
          if (viewItem instanceof TVITourBookYear) {
 
@@ -2018,7 +2027,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       final ArrayList<TourData> selectedTourData = new ArrayList<>();
 
-      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+      BusyIndicator.showWhile(_pageBook.getDisplay(), () -> {
          TourManager.loadTourData(new ArrayList<>(tourIds), selectedTourData, false);
       });
 
@@ -2046,7 +2055,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       if (_isLayoutNatTable) {
 
-         return null;
+         return _natTable_DummyColumnViewer;
 
       } else {
 
@@ -2083,6 +2092,14 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _pc = new PixelConverter(parent);
    }
 
+   /**
+    * @return Returns <code>true</code> when tourbook view displays the flat table, otherwise the
+    *         tree.
+    */
+   public boolean isLayoutNatTable() {
+      return _isLayoutNatTable;
+   }
+
    boolean isShowSummaryRow() {
 
       return Util.getStateBoolean(_state, TourBookView.STATE_IS_SHOW_SUMMARY_ROW, TourBookView.STATE_IS_SHOW_SUMMARY_ROW_DEFAULT);
@@ -2104,7 +2121,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          return;
       }
 
-      // positon context menu to the selected tour
+      // position context menu to the selected tour
 
       final RowSelectionModel<TVITourBookTour> rowSelectionModel = getNatTable_SelectionModel();
       final Set<Range> allSelectedRowPositions = rowSelectionModel.getSelectedRowPositions();
@@ -2189,17 +2206,17 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
          if (hoveredRow == -1) {
 
-            // nothing is hovered, this should not occure because when a tour is selected it's row is set to be also hovered
+            // nothing is hovered, this should not occur because when a tour is selected it's row is set to be also hovered
 
             return;
          }
 
          // mouse is not hovering a tour selection -> select tour
 
-         selectTours_NatTable(new int[] { hoveredRow }, true, false);
+         selectTours_NatTable(new int[] { hoveredRow }, true, false, true);
 
          // show context menu again
-         Display.getDefault().timerExec(10, () -> {
+         _pageBook.getDisplay().timerExec(10, () -> {
             UI.openContextMenu(_tourViewer_NatTable);
          });
 
@@ -2220,7 +2237,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
          // move selected tour into view
 
-         Display.getDefault().timerExec(1, () -> {
+         _pageBook.getDisplay().timerExec(1, () -> {
             natTable_ScrollSelectedToursIntoView();
          });
       }
@@ -2460,9 +2477,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       final IStructuredSelection selectedTours = (IStructuredSelection) (event.getSelection());
 
       // loop: all selected items
-      for (final Iterator<?> itemIterator = selectedTours.iterator(); itemIterator.hasNext();) {
-
-         final Object treeItem = itemIterator.next();
+      for (final Object treeItem : selectedTours) {
 
          if (isSelectAllChildren) {
 
@@ -2605,7 +2620,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       }
       _viewerContainer_NatTable.setRedraw(true);
 
-      selectTours_NatTable(allRowPositions, true, true);
+      selectTours_NatTable(allRowPositions, true, true, true);
 
       return null;
    }
@@ -2743,7 +2758,8 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       _natTable_DataLoader.getRowIndexFromTourId(_selectedTourIds).thenAccept((allRowPositions) -> {
 
-         selectTours_NatTable(allRowPositions, true, true);
+         // don't check reload that a tour selection is fired
+         selectTours_NatTable(allRowPositions, true, true, false);
       });
    }
 
@@ -2917,7 +2933,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       /*
        * This must be selected lately otherwise the selection state is set but is not visible
-       * (button is not pressed). Could not figure out why this occures after debugging this issue
+       * (button is not pressed). Could not figure out why this occurs after debugging this issue
        */
       _actionLinkWithOtherViews.setSelection(_state.getBoolean(STATE_IS_LINK_WITH_OTHER_VIEWS));
    }
@@ -3034,7 +3050,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          _selectedYearSub = tourStartTime.getMonthValue();
       }
 
-      // run async otherwise an internal NPE occures
+      // run async otherwise an internal NPE occurs
       _parent.getDisplay().asyncExec(new Runnable() {
          @Override
          public void run() {
@@ -3081,7 +3097,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                       * </code>
                       */
 
-                     // this occures sometimes but it seems that it's an eclipse internal problem
+                     // this occurs sometimes but it seems that it's an eclipse internal problem
                      StatusUtil.log("This is a known issue when a treeviewer do a collapseAll()", e); //$NON-NLS-1$
                   }
                }
@@ -3103,8 +3119,12 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
     *           When <code>true</code> then only the provided rows will be selected, otherwise the
     *           provided tours will be added to the existing selection.
     * @param isScrollIntoView
+    * @param isCheckReload
     */
-   private void selectTours_NatTable(final int[] allRowPositions, final boolean isClearSelection, final boolean isScrollIntoView) {
+   void selectTours_NatTable(final int[] allRowPositions,
+                             final boolean isClearSelection,
+                             final boolean isScrollIntoView,
+                             final boolean isCheckReload) {
 
       // ensure there is something to be selected
       if (allRowPositions == null || allRowPositions.length == 0 || allRowPositions[0] == -1) {
@@ -3136,11 +3156,15 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                true,
                firstRowPosition);
 
-         _isInReload = true;
+         if (isCheckReload) {
+            _isInReload = true;
+         }
          {
             _natTable_Body_SelectionLayer.doCommand(command);
          }
-         _isInReload = false;
+         if (isCheckReload) {
+            _isInReload = false;
+         }
 
          if (isScrollIntoView) {
 

@@ -54,6 +54,7 @@ import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.tour.CadenceMultiplier;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
 import net.tourbook.ui.views.rawData.RawDataView;
@@ -115,6 +116,7 @@ public class EasyImportManager {
    private static final String      ATTR_IL_LAST_MARKER_DISTANCE                       = "lastMarkerDistance";                               //$NON-NLS-1$
    private static final String      ATTR_IL_TEMPERATURE_ADJUSTMENT_DURATION            = "temperatureAdjustmentDuration";                    //$NON-NLS-1$
    private static final String      ATTR_IL_TEMPERATURE_TOUR_AVG_TEMPERATURE           = "tourAverageTemperature";                           //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_TYPE_CADENCE                          = "tourTypeCadence";                                  //$NON-NLS-1$
    //
    public static final String       LOG_EASY_IMPORT_000_IMPORT_START                   = Messages.Log_EasyImport_000_ImportStart;
    public static final String       LOG_EASY_IMPORT_001_BACKUP_TOUR_FILES              = Messages.Log_EasyImport_001_BackupTourFiles;
@@ -160,7 +162,7 @@ public class EasyImportManager {
     *         {@link ImportConfig#notImportedFiles} contains the files which are available in the
     *         device folder but not available in the tour database.
     */
-   public DeviceImportState checkImportedFiles(final boolean isForceRetrieveFiles) {
+   public DeviceImportState checkImportedFiles(final boolean isForceRetrieveFiles) throws InterruptedException {
 
       final DeviceImportState returnState = new DeviceImportState();
 
@@ -297,7 +299,7 @@ public class EasyImportManager {
                + "SELECT" //															//$NON-NLS-1$
                + " TourImportFileName" //												//$NON-NLS-1$
                + " FROM " + TourDatabase.TABLE_TOUR_DATA //							//$NON-NLS-1$
-               + (" WHERE TourImportFileName IN (" + deviceFileNameINList + ")") //	//$NON-NLS-1$ //$NON-NLS-2$
+               + (" WHERE TourImportFileName IN (" + deviceFileNameINList + UI.SYMBOL_BRACKET_RIGHT) //	//$NON-NLS-1$
                + " ORDER BY TourImportFileName"; //									//$NON-NLS-1$
 
          final ResultSet result = stmt.executeQuery(sqlQuery);
@@ -327,7 +329,7 @@ public class EasyImportManager {
 
    /**
     */
-   private void getImportFiles(final Iterable<FileStore> fileStores) {
+   private void getImportFiles(final Iterable<FileStore> fileStores) throws InterruptedException {
 
       final ArrayList<OSFile> movedFiles = new ArrayList<>();
       final ArrayList<OSFile> notImportedFiles = new ArrayList<>();
@@ -412,7 +414,21 @@ public class EasyImportManager {
       /*
        * Get files which are not yet imported
        */
+
+      // Wrap in lock because of DB exception risk
+      // Thread can be interrupted before getting the lock, but not while in
+      // critical section.  Watch for interrupt() or folderWatcher.close() !
+
+      RawDataView.THREAD_WATCHER_LOCK.lock();
+
+      if (Thread.currentThread().isInterrupted()) {
+         RawDataView.THREAD_WATCHER_LOCK.unlock();
+         Thread.currentThread().interrupt();
+         throw new InterruptedException();
+      }
+
       final HashSet<String> dbFileNames = getDbFileNames(availableFiles);
+      RawDataView.THREAD_WATCHER_LOCK.unlock();
 
       for (final OSFile deviceFile : availableFiles) {
          if (dbFileNames.contains(deviceFile.getFileName()) == false) {
@@ -437,7 +453,7 @@ public class EasyImportManager {
 
    private List<OSFile> getOSFiles(final String folder,
                                    final String globFilePattern,
-                                   final Iterable<FileStore> fileStores) {
+                                   final Iterable<FileStore> fileStores) throws InterruptedException {
 
       final List<OSFile> osFiles = new ArrayList<>();
 
@@ -452,9 +468,20 @@ public class EasyImportManager {
          globPattern = ImportConfig.DEVICE_FILES_DEFAULT;
       }
 
+      if (Thread.interrupted()) {
+         Thread.currentThread().interrupt();
+         throw new InterruptedException();
+      }
+
       try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(validPath, globPattern)) {
 
          for (final Path path : directoryStream) {
+
+            if (Thread.interrupted()) {
+               Thread.currentThread().interrupt();
+               throw new InterruptedException();
+            }
+
             try {
 
                final BasicFileAttributeView fileAttributesView = Files.getFileAttributeView(
@@ -796,6 +823,10 @@ public class EasyImportManager {
                      EasyConfig.TOUR_TYPE_AVG_SPEED_MIN,
                      EasyConfig.TOUR_TYPE_AVG_SPEED_MAX);
 
+               speedVertex.cadenceMultiplier = (CadenceMultiplier) Util.getXmlEnum(xmlSpeed,
+                     ATTR_IL_TOUR_TYPE_CADENCE,
+                     RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
+
                speedVertices.add(speedVertex);
             }
          }
@@ -805,6 +836,9 @@ public class EasyImportManager {
          final Long xmlTourTypeId = Util.getXmlLong(xmlConfig, ATTR_TOUR_TYPE_ID, null);
 
          importLauncher.oneTourType = TourDatabase.getTourType(xmlTourTypeId);
+         importLauncher.oneTourTypeCadence = (CadenceMultiplier) Util.getXmlEnum(xmlConfig,
+               ATTR_IL_TOUR_TYPE_CADENCE,
+               RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
 
       } else {
 
@@ -1151,6 +1185,7 @@ public class EasyImportManager {
 
                   Util.setXmlLong(xmlSpeedVertex, ATTR_TOUR_TYPE_ID, speedVertex.tourTypeId);
                   xmlSpeedVertex.putFloat(ATTR_AVG_SPEED, speedVertex.avgSpeed);
+                  Util.setXmlEnum(xmlSpeedVertex, ATTR_IL_TOUR_TYPE_CADENCE, speedVertex.cadenceMultiplier);
                }
             }
 
@@ -1160,6 +1195,7 @@ public class EasyImportManager {
 
             if (oneTourType != null) {
                Util.setXmlLong(xmlConfig, ATTR_TOUR_TYPE_ID, oneTourType.getTypeId());
+               Util.setXmlEnum(xmlConfig, ATTR_IL_TOUR_TYPE_CADENCE, importLauncher.oneTourTypeCadence);
             }
 
          } else {
@@ -1178,6 +1214,7 @@ public class EasyImportManager {
    private void setTourType(final TourData tourData, final ImportLauncher importLauncher) {
 
       String tourTypeName = UI.EMPTY_STRING;
+      CadenceMultiplier tourTypeCadence = RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT;
 
       final Enum<TourTypeConfig> ttConfig = importLauncher.tourTypeConfig;
 
@@ -1186,12 +1223,12 @@ public class EasyImportManager {
          // set tour type by speed
 
          final float tourDistanceKm = tourData.getTourDistance();
-         final long drivingTime = tourData.getTourDrivingTime();
+         final long movingTime = tourData.getTourComputedTime_Moving();
 
          double tourAvgSpeed = 0;
 
-         if (drivingTime != 0) {
-            tourAvgSpeed = tourDistanceKm / drivingTime * 3.6;
+         if (movingTime != 0) {
+            tourAvgSpeed = tourDistanceKm / movingTime * 3.6;
          }
 
          final ArrayList<SpeedTourType> speedTourTypes = importLauncher.speedTourTypes;
@@ -1203,6 +1240,7 @@ public class EasyImportManager {
             if (tourAvgSpeed <= speedTourType.avgSpeed) {
 
                tourTypeId = speedTourType.tourTypeId;
+               tourTypeCadence = speedTourType.cadenceMultiplier;
                break;
             }
          }
@@ -1213,6 +1251,7 @@ public class EasyImportManager {
             tourTypeName = tourType.getName();
 
             tourData.setTourType(tourType);
+            tourData.setCadenceMultiplier(tourTypeCadence.getMultiplier());
          }
 
       } else if (TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL.equals(ttConfig)) {
@@ -1224,8 +1263,10 @@ public class EasyImportManager {
          if (tourType != null) {
 
             tourTypeName = tourType.getName();
+            tourTypeCadence = importLauncher.oneTourTypeCadence;
 
             tourData.setTourType(tourType);
+            tourData.setCadenceMultiplier(tourTypeCadence.getMultiplier());
          }
 
       } else {
@@ -1233,12 +1274,11 @@ public class EasyImportManager {
          // tour type is not set
       }
 
-      TourLogManager.addSubLog(//
+      TourLogManager.addSubLog(
             TourLogState.DEFAULT,
-            String.format(//
+            String.format(
                   LOG_EASY_IMPORT_003_TOUR_TYPE_ITEM,
                   tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S),
-                  tourTypeName));
+                  String.format("%s (%s)", tourTypeName, tourTypeCadence.getNlsLabel())));//$NON-NLS-1$
    }
-
 }

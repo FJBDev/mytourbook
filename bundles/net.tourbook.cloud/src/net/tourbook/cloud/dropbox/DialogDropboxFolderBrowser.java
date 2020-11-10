@@ -22,6 +22,7 @@ import com.dropbox.core.v2.files.Metadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
@@ -61,9 +62,10 @@ import org.eclipse.swt.widgets.Text;
 
 public class DialogDropboxFolderBrowser extends TitleAreaDialog {
 
-   private static final String   ROOT_FOLDER    = "/";                                             //$NON-NLS-1$
+   private static final String   ROOT_FOLDER    = "/";                                                   //$NON-NLS-1$
 
    private static String         _accessToken;
+   private static String         _workingDirectory;
 
    final IPreferenceStore        _prefStore     = CommonActivator.getPrefStore();
 
@@ -87,13 +89,14 @@ public class DialogDropboxFolderBrowser extends TitleAreaDialog {
     */
    private Label                 _labelErrorMessage;
 
-   public DialogDropboxFolderBrowser(final Shell parentShell, final String accessToken) {
+   public DialogDropboxFolderBrowser(final Shell parentShell, final String accessToken, final String workingDirectory) {
 
       super(parentShell);
 
       setShellStyle(getShellStyle() | SWT.RESIZE);
 
       _accessToken = accessToken;
+      _workingDirectory = workingDirectory;
 
       setDefaultImage(Activator.getImageDescriptor(Messages.Image__Dropbox_Logo).createImage());
    }
@@ -263,7 +266,9 @@ public class DialogDropboxFolderBrowser extends TitleAreaDialog {
 
          @Override
          public Object[] getElements(final Object inputElement) {
-            return _folderList.toArray();
+            final Object[] sortedElements = _folderList.stream().sorted((f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName())).collect(Collectors
+                  .toList()).toArray();
+            return sortedElements;
          }
 
          @Override
@@ -328,7 +333,7 @@ public class DialogDropboxFolderBrowser extends TitleAreaDialog {
       }
 
       // Double clicking on an item should always return only 1 element.
-      final Metadata item = ((Metadata) selection.toArray()[0]);
+      final Metadata item = ((Metadata) selectionArray[0]);
       final String itemPath = item.getPathDisplay();
 
       if (item instanceof FolderMetadata) {
@@ -337,9 +342,14 @@ public class DialogDropboxFolderBrowser extends TitleAreaDialog {
       }
    }
 
-   private String selectFolder(final String folderAbsolutePath) {
+   private String selectFolder(String folderAbsolutePath) {
 
       try {
+
+         if (folderAbsolutePath.equals(ROOT_FOLDER)) {
+            folderAbsolutePath = UI.EMPTY_STRING;
+         }
+
          final ListFolderResult list = DropboxClient.getDefault(_accessToken).files().listFolder(folderAbsolutePath);
          _folderList = list.getEntries();
 
@@ -357,7 +367,7 @@ public class DialogDropboxFolderBrowser extends TitleAreaDialog {
 
    private String updateViewers() {
 
-      final String dropboxResult = selectFolder(UI.EMPTY_STRING);
+      final String dropboxResult = selectFolder(_workingDirectory);
 
       if (!StringUtils.isNullOrEmpty(dropboxResult)) {
          return dropboxResult;

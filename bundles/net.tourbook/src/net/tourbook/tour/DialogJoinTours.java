@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.tour;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +42,7 @@ import net.tourbook.ui.UI;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.tourChart.ChartLabel;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -82,6 +84,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
    private static final String       STATE_IS_INCLUDE_DESCRIPTION           = "isIncludeDescription";          //$NON-NLS-1$
    private static final String       STATE_IS_INCLUDE_MARKER_WAYPOINTS      = "isIncludeMarkerWaypoints";      //$NON-NLS-1$
    private static final String       STATE_IS_CREATE_TOUR_MARKER            = "isCreateTourMarker";            //$NON-NLS-1$
+   private static final String       STATE_IS_INSERT_PAUSES                 = "isInsertPauses";                //$NON-NLS-1$
 
    private static final String       STATE_JOIN_METHOD                      = "JoinMethod";                    //$NON-NLS-1$
    private static final String       STATE_JOIN_METHOD_ORIGINAL             = "original";                      //$NON-NLS-1$
@@ -196,6 +199,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
    private Button                           _chkIncludeDescription;
    private Button                           _chkIncludeMarkerWaypoints;
    private Button                           _chkCreateTourMarker;
+   private Button                           _chkInsertPauses;
    private Label                            _lblMarkerText;
    private Combo                            _cboTourMarker;
 
@@ -395,6 +399,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          createUI30TypeTags(_dlgInnerContainer);
          createUI40Person(_dlgInnerContainer);
          createUI50DescriptionMarker(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI60InsertPauses(_dlgInnerContainer);
       }
    }
 
@@ -713,6 +718,17 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       }
    }
 
+   /**
+    * Checkbox to specify if pauses should be inserted between joined tours
+    */
+   private void createUI60InsertPauses(final Composite parent) {
+
+      // combo: person
+      _chkInsertPauses = new Button(parent, SWT.CHECK);
+      GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_chkInsertPauses);
+      _chkInsertPauses.setText(Messages.Dialog_JoinTours_Checkbox_InsertPauses);
+   }
+
 //   /**
 //    * info
 //    */
@@ -938,8 +954,12 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       int joinedSerieIndex = 0;
       int joinedTourStartIndex = 0;
       int joinedTourStartDistance = 0;
-      int joinedRecordingTime = 0;
-      int joinedDrivingTime = 0;
+      int joinedElapsedTime = 0;
+      int joinedRecordedTime = 0;
+      int joinedPausedTime = 0;
+      final ArrayList<Long> joinedPausedTime_Start = new ArrayList<>();
+      final ArrayList<Long> joinedPausedTime_End = new ArrayList<>();
+      int joinedMovingTime = 0;
       float joinedDistance = 0;
       int joinedCalories = 0;
       boolean isJoinedDistanceFromSensor = false;
@@ -958,21 +978,23 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       long absJoinedTourStartTimeSec = 0;
       ZonedDateTime joinedTourStart = null;
 
+      TourData previousTourData = null;
+
       boolean isFirstTour = true;
 
       /*
        * copy tour data series into joined data series
        */
-      for (final TourData tourTourData : _selectedTours) {
+      for (final TourData tourData : _selectedTours) {
 
-         final float[] tourAltitudeSerie = tourTourData.altitudeSerie;
-         final float[] tourCadenceSerie = tourTourData.getCadenceSerie();
-         final float[] tourDistanceSerie = tourTourData.distanceSerie;
-         final double[] tourLatitudeSerie = tourTourData.latitudeSerie;
-         final double[] tourLongitudeSerie = tourTourData.longitudeSerie;
-         final float[] tourPulseSerie = tourTourData.pulseSerie;
-         final float[] tourTemperatureSerie = tourTourData.temperatureSerie;
-         final int[] tourTimeSerie = tourTourData.timeSerie;
+         final float[] tourAltitudeSerie = tourData.altitudeSerie;
+         final float[] tourCadenceSerie = tourData.getCadenceSerie();
+         final float[] tourDistanceSerie = tourData.distanceSerie;
+         final double[] tourLatitudeSerie = tourData.latitudeSerie;
+         final double[] tourLongitudeSerie = tourData.longitudeSerie;
+         final float[] tourPulseSerie = tourData.pulseSerie;
+         final float[] tourTemperatureSerie = tourData.temperatureSerie;
+         final int[] tourTimeSerie = tourData.timeSerie;
 
          final boolean isTourAltitude = (tourAltitudeSerie != null) && (tourAltitudeSerie.length > 0);
          final boolean isTourCadence = (tourCadenceSerie != null) && (tourCadenceSerie.length > 0);
@@ -988,19 +1010,19 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
           */
          float[] tourPowerSerie = null;
          float[] tourSpeedSerie = null;
-         final boolean isTourPower = tourTourData.isPowerSerieFromDevice();
-         final boolean isTourSpeed = tourTourData.isSpeedSerieFromDevice();
+         final boolean isTourPower = tourData.isPowerSerieFromDevice();
+         final boolean isTourSpeed = tourData.isSpeedSerieFromDevice();
          if (isTourPower) {
-            tourPowerSerie = tourTourData.getPowerSerie();
+            tourPowerSerie = tourData.getPowerSerie();
          }
          if (isTourSpeed) {
-            tourSpeedSerie = tourTourData.getSpeedSerie();
+            tourSpeedSerie = tourData.getSpeedSerie();
          }
 
          /*
           * set tour time
           */
-         final ZonedDateTime tourStartTime = tourTourData.getTourStartTime();
+         final ZonedDateTime tourStartTime = tourData.getTourStartTime();
 
          if (isFirstTour) {
 
@@ -1125,7 +1147,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             joinedSerieIndex++;
          }
 
-         final Set<TourMarker> tourMarkers = tourTourData.getTourMarkers();
+         final Set<TourMarker> tourMarkers = tourData.getTourMarkers();
 
          if (_chkIncludeMarkerWaypoints.getSelection()) {
 
@@ -1141,7 +1163,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
                   joinMarkerIndex = joinedSliceCounter - 1;
                }
 
-               // adjust marker position, position is relativ to the tour start
+               // adjust marker position, position is relative to the tour start
                clonedMarker.setSerieIndex(joinMarkerIndex);
 
                if (isJoinTime) {
@@ -1170,7 +1192,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             /*
              * copy way points
              */
-            for (final TourWayPoint wayPoint : tourTourData.getTourWayPoints()) {
+            for (final TourWayPoint wayPoint : tourData.getTourWayPoints()) {
                joinedWayPoints.add(wayPoint.clone(_joinedTourData));
             }
          }
@@ -1262,7 +1284,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
           */
          if (_chkIncludeDescription.getSelection()) {
 
-            final String tourDescription = tourTourData.getTourDescription();
+            final String tourDescription = tourData.getTourDescription();
 
             if (joinedDescription.length() > 0) {
                // set space between two tours
@@ -1270,7 +1292,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             }
 
             joinedDescription.append(Messages.Dialog_JoinTours_Label_Tour);
-            joinedDescription.append(TourManager.getTourTitleDetailed(tourTourData));
+            joinedDescription.append(TourManager.getTourTitleDetailed(tourData));
             if (tourDescription.length() > 0) {
                joinedDescription.append(UI.NEW_LINE);
                joinedDescription.append(tourDescription);
@@ -1282,54 +1304,79 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
           */
          if (isFirstTour) {
 
-            isJoinedDistanceFromSensor = tourTourData.isDistanceSensorPresent();
-            isJoinedPowerFromSensor = tourTourData.isPowerSensorPresent();
-            isJoinedPulseFromSensor = tourTourData.isPulseSensorPresent();
+            isJoinedDistanceFromSensor = tourData.isDistanceSensorPresent();
+            isJoinedPowerFromSensor = tourData.isPowerSensorPresent();
+            isJoinedPulseFromSensor = tourData.isPulseSensorPresent();
 
-            joinedDeviceTimeInterval = tourTourData.getDeviceTimeInterval();
+            joinedDeviceTimeInterval = tourData.getDeviceTimeInterval();
 
-            joinedWeather = tourTourData.getWeather();
-            joinedWeatherClouds = tourTourData.getWeatherClouds();
-            joinedWeatherWindDir = tourTourData.getWeatherWindDir();
-            joinedWeatherWindSpeed = tourTourData.getWeatherWindSpeed();
+            joinedWeather = tourData.getWeather();
+            joinedWeatherClouds = tourData.getWeatherClouds();
+            joinedWeatherWindDir = tourData.getWeatherWindDir();
+            joinedWeatherWindSpeed = tourData.getWeatherWindSpeed();
 
-            joinedRestPulse = tourTourData.getRestPulse();
+            joinedRestPulse = tourData.getRestPulse();
 
          } else {
-
-            if (isJoinedDistanceFromSensor && tourTourData.isDistanceSensorPresent()) {
+            if (isJoinedDistanceFromSensor && tourData.isDistanceSensorPresent()) {
                // keep TRUE state
             } else {
                isJoinedDistanceFromSensor = false;
             }
-            if (isJoinedPowerFromSensor && tourTourData.isPowerSensorPresent()) {
+            if (isJoinedPowerFromSensor && tourData.isPowerSensorPresent()) {
                // keep TRUE state
             } else {
                isJoinedPowerFromSensor = false;
             }
-            if (isJoinedPulseFromSensor && tourTourData.isPulseSensorPresent()) {
+            if (isJoinedPulseFromSensor && tourData.isPulseSensorPresent()) {
                // keep TRUE state
             } else {
                isJoinedPulseFromSensor = false;
             }
 
-            if (joinedDeviceTimeInterval == tourTourData.getDeviceTimeInterval()) {
+            if (joinedDeviceTimeInterval == tourData.getDeviceTimeInterval()) {
                // keep value
             } else {
                joinedDeviceTimeInterval = -1;
             }
+
+            if (_chkInsertPauses.getSelection()) {
+               // As it's not the first tour, we add the time difference between this tour's start time
+               // and the previous tour end time as a pause.
+
+               final long previousTourEndTime = previousTourData.getTourEndTimeMS();
+               final long currentTourStartTime = tourData.getTourStartTimeMS();
+
+               if (previousTourEndTime < currentTourStartTime) {
+                  joinedPausedTime_Start.add(previousTourEndTime);
+                  joinedPausedTime_End.add(currentTourStartTime);
+
+                  joinedPausedTime += (currentTourStartTime - previousTourEndTime) / 1000;
+               }
+            }
          }
+
+         final Long[] pausedTime_Start = ArrayUtils.toObject(tourData.getPausedTime_Start());
+         if (pausedTime_Start != null) {
+            joinedPausedTime_Start.addAll(Arrays.asList(pausedTime_Start));
+         }
+         final Long[] pausedTime_End = ArrayUtils.toObject(tourData.getPausedTime_End());
+         if (pausedTime_End != null) {
+            joinedPausedTime_End.addAll(Arrays.asList(pausedTime_End));
+         }
+         joinedPausedTime += tourData.getTourDeviceTime_Paused();
 
          /*
           * summarize other fields
           */
-         tourTourData.computeTourDrivingTime();
+         tourData.computeTourMovingTime();
+         joinedRecordedTime += tourData.getTourDeviceTime_Recorded();
+         joinedElapsedTime += tourData.getTourDeviceTime_Elapsed() + joinedPausedTime;
 
-         joinedRecordingTime += tourTourData.getTourRecordingTime();
-         joinedDrivingTime += tourTourData.getTourDrivingTime();
+         joinedMovingTime += tourData.getTourComputedTime_Moving();
 
-         joinedDistance += tourTourData.getTourDistance();
-         joinedCalories += tourTourData.getCalories();
+         joinedDistance += tourData.getTourDistance();
+         joinedCalories += tourData.getCalories();
 
          /*
           * init next tour
@@ -1337,6 +1384,8 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          isFirstTour = false;
          joinedTourStartIndex = joinedSerieIndex;
          joinedTourStartDistance += relTourDistance;
+
+         previousTourData = tourData;
       }
 
       /*
@@ -1369,8 +1418,12 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       _joinedTourData.setWeatherWindDir(joinedWeatherWindDir);
       _joinedTourData.setWeatherWindSpeed(joinedWeatherWindSpeed);
 
-      _joinedTourData.setTourRecordingTime(joinedRecordingTime);
-      _joinedTourData.setTourDrivingTime(joinedDrivingTime);
+      _joinedTourData.setTourDeviceTime_Elapsed(joinedElapsedTime);
+      _joinedTourData.setTourDeviceTime_Recorded(joinedRecordedTime);
+      _joinedTourData.setTourDeviceTime_Paused(joinedPausedTime);
+      _joinedTourData.setPausedTime_Start(joinedPausedTime_Start.stream().mapToLong(l -> l).toArray());
+      _joinedTourData.setPausedTime_End(joinedPausedTime_End.stream().mapToLong(l -> l).toArray());
+      _joinedTourData.setTourComputedTime_Moving(joinedMovingTime);
       _joinedTourData.setTourDistance(joinedDistance);
 
       // !! tour type and tour tags are already set !!
@@ -1519,7 +1572,9 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       // description/marker/waypoints
       _chkIncludeDescription.setSelection(Util.getStateBoolean(_state, STATE_IS_INCLUDE_DESCRIPTION, true));
       _chkIncludeMarkerWaypoints.setSelection(Util.getStateBoolean(_state, STATE_IS_INCLUDE_MARKER_WAYPOINTS, true));
-      _chkCreateTourMarker.setSelection(Util.getStateBoolean(_state, STATE_IS_CREATE_TOUR_MARKER, true));
+      _chkCreateTourMarker.setSelection(Util.getStateBoolean(_state, STATE_IS_CREATE_TOUR_MARKER, false));
+
+      _chkInsertPauses.setSelection(Util.getStateBoolean(_state, STATE_IS_INSERT_PAUSES, true));
 
       /*
        * update UI from selected tours
@@ -1592,6 +1647,9 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
       // person
       _state.put(STATE_PERSON_ID, getSelectedPerson().getPersonId());
+
+      //Insert pauses between tours
+      _state.put(STATE_IS_INSERT_PAUSES, _chkInsertPauses.getSelection());
    }
 
    @Override
@@ -1696,5 +1754,4 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       // reflow layout that the tags are aligned correctly
       _dlgInnerContainer.layout(true);
    }
-
 }
