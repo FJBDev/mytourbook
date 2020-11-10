@@ -152,10 +152,8 @@ public abstract class ToolTip3 {
       @Override
       public void handleEvent(final Event event) {
 
-         switch (event.type) {
-         case SWT.MouseMove:
+         if (event.type == SWT.MouseMove) {
             onDisplayMouseMove();
-            break;
          }
       }
    }
@@ -1141,7 +1139,7 @@ public abstract class ToolTip3 {
       return isKeepOpened;
    }
 
-   private void onDispose(final Event event) {
+   private void onDispose() {
 
       // hide all tooltips
 
@@ -1165,7 +1163,7 @@ public abstract class ToolTip3 {
       switch (event.type) {
       case SWT.Dispose:
 
-         onDispose(event);
+         onDispose();
 
          removeOwnerControlsListener();
 
