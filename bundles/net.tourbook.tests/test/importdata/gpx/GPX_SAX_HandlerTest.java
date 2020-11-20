@@ -73,7 +73,6 @@ class GPX_SAX_HandlerTest {
    void testParse() throws SAXException, IOException {
 
       final InputStream gpx = GPX_SAX_HandlerTest.class.getResourceAsStream(IMPORT_FILE_PATH);
-      gpx.available();
 
       final DeviceData deviceData = new DeviceData();
       final GPXDeviceDataReader deviceDataReader = new GPXDeviceDataReader();
