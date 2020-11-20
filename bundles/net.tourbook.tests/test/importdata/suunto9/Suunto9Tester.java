@@ -16,14 +16,11 @@
 package importdata.suunto9;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import net.tourbook.data.TourData;
 import net.tourbook.device.suunto.Suunto9DeviceDataReader;
@@ -31,7 +28,6 @@ import net.tourbook.importdata.DeviceData;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
 class Suunto9Tester {
 
@@ -41,24 +37,28 @@ class Suunto9Tester {
    private static final String IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
 
 // File #1
-   private static final String maxWell1FilePath = IMPORT_FILE_PATH +
-         "1536723722706_183010004848_post_timeline-1";              //$NON-NLS-1$
+   private static final String            MaxWell1FilePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
-   private static final String JSON_GZ          = ".json.gz";
-   private static final String JSON             = ".json";
+   private static final String            JSON_GZ          = ".json.gz";
+   private static final String            JSON             = ".json";
+
+   private static DeviceData              deviceData;
+   private static HashMap<Long, TourData> newlyImportedTours;
+   private static HashMap<Long, TourData> alreadyImportedTours;
+   private static Suunto9DeviceDataReader handler;
 
    /**
     * Compares a test transaction against a control transaction.
     *
-    * @param controlDocument
-    *           The control document's file path.
-    * @param xmlTestDocument
-    *           The test Suunto 9 GZip file's content.
-    * @return True if no differences were found, false otherwise.
-    * @throws IOException
+    * @param testTourData
+    *           The generated test TourData object.
+    * @param testFileName
+    *           The test's file name.
     */
-   private static void CompareAgainstControl(final String xmlTestDocument,
+   private static void CompareAgainstControl(final TourData testTourData,
                                              final String testFileName) {
+
+      final String testJson = testTourData.toJson();
 
       // When using Java 11, convert the line below to the Java 11 method
       //String controlDocument = Files.readString(controlDocumentFilePath, StandardCharsets.US_ASCII);
@@ -84,7 +84,7 @@ class Suunto9Tester {
 //         }
 //      }
 
-      assert xmlTestDocument.equals(controlDocument);
+      assert testJson.equals(controlDocument);
 
    }
 
@@ -99,31 +99,24 @@ class Suunto9Tester {
    }
 
    @BeforeAll
-   static void setUp() {}
+   static void setUp() {
+      deviceData = new DeviceData();
+      newlyImportedTours = new HashMap<>();
+      alreadyImportedTours = new HashMap<>();
+      handler = new Suunto9DeviceDataReader();
+   }
 
    /**
-    * Regression test. Imports GPX into TourData and checks all values of tour1 and waypoint1.
-    *
-    * @throws URISyntaxException
-    * @throws ParserConfigurationException
-    * @throws IOException
-    * @throws SAXException
+    * Maxwell, CO
     */
    @Test
    void testParseMaxwell1() {
 
-      final DeviceData deviceData = new DeviceData();
-      final HashMap<Long, TourData> newlyImportedTours = new HashMap<>();
-      final HashMap<Long, TourData> alreadyImportedTours = new HashMap<>();
-
-      final String testFilePath = Paths.get(maxWell1FilePath + JSON_GZ).toAbsolutePath().toString();
-      final Suunto9DeviceDataReader handler = new Suunto9DeviceDataReader();
+      final String testFilePath = Paths.get(MaxWell1FilePath + JSON_GZ).toAbsolutePath().toString();
       handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(20189117275950L));
-      //TODO Convert to JSON instead of XML
-      final String testJson = tour.toJson();
 
-      CompareAgainstControl(testJson, maxWell1FilePath);
+      CompareAgainstControl(tour, MaxWell1FilePath);
    }
 }
