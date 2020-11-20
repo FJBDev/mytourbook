@@ -18,6 +18,8 @@ package net.tourbook.data;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skedgo.converter.TimezoneMapper;
 
 import gnu.trove.list.array.TIntArrayList;
@@ -10753,6 +10755,21 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
                                          final String projectionId) {
 
       _twpWorldPosition.put(projectionId.hashCode() + zoomLevel, worldPositions);
+   }
+
+   public String toJson() {
+
+      final ObjectMapper mapper = new ObjectMapper();
+
+      //Converting the Object to JSONString
+      String jsonString = UI.EMPTY_STRING;
+      try {
+         jsonString = mapper.writeValueAsString(this);
+      } catch (final JsonProcessingException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      return jsonString;
    }
 
    @Override

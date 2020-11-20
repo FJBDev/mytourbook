@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Unit tests suite for MyTourbook
 Bundle-SymbolicName: net.tourbook.tests;singleton:=true
 Bundle-Version: 20.11.1.qualifier
-Require-Bundle: org.junit;resolution:=optional,
- org.junit.jupiter.api;resolution:=optional,
+Require-Bundle: org.junit.jupiter.api;resolution:=optional,
  net.tourbook
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: MyTourbook
