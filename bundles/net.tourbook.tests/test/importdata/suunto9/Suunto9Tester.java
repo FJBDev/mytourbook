@@ -28,6 +28,8 @@ import net.tourbook.importdata.DeviceData;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 class Suunto9Tester {
 
@@ -64,28 +66,30 @@ class Suunto9Tester {
       //String controlDocument = Files.readString(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
       final String controlDocumentFilePath = Paths.get(testFileName + JSON).toAbsolutePath().toString();
-
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
-//      BufferedWriter bufferedWriter = null;
-//      final File myFile = new File(
-//            "C:\\Users\\frederic\\Desktop\\toto.json"); //$NON-NLS-1$
-//      // check if file exist, otherwise create the file before writing
-//      if (!myFile.exists()) {
-//         try {
-//            myFile.createNewFile();
-//      Writer writer = new FileWriter(myFile);
-//      bufferedWriter = new BufferedWriter(writer);
-//            writer = new FileWriter(myFile);
-//            bufferedWriter.write(xmlTestDocument);
-//            bufferedWriter.close();
-//            writer.close();
-//         } catch (final IOException e) {
-//            e.printStackTrace();
-//         }
-//      }
 
-      assert testJson.equals(controlDocument);
+//    BufferedWriter bufferedWriter = null;
+//    final File myFile = new File(
+//          "C:\\Users\\frederic\\Desktop\\toto.json"); //$NON-NLS-1$
+//    // check if file exist, otherwise create the file before writing
+//    if (!myFile.exists()) {
+//       try {
+//          myFile.createNewFile();
+//    Writer writer = new FileWriter(myFile);
+//    bufferedWriter = new BufferedWriter(writer);
+//          writer = new FileWriter(myFile);
+//          bufferedWriter.write(xmlTestDocument);
+//          bufferedWriter.close();
+//          writer.close();
+//       } catch (final IOException e) {
+//          e.printStackTrace();
+//       }
+//    }
 
+      JSONAssert.assertEquals(
+            controlDocument,
+            testJson,
+            JSONCompareMode.LENIENT);
    }
 
    private static String readFile(final String path, final Charset encoding) {

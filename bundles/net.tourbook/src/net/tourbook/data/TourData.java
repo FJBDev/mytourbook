@@ -10764,7 +10764,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       //Converting the Object to JSONString
       String jsonString = UI.EMPTY_STRING;
       try {
-         jsonString = mapper.writeValueAsString(this);
+         jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
       } catch (final JsonProcessingException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();

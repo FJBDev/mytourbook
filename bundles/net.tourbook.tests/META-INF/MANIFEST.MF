@@ -10,5 +10,6 @@ Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: net.tourbook.data,
  net.tourbook.device.gpx,
- net.tourbook.device.suunto
+ net.tourbook.device.suunto,
+ org.json
 Automatic-Module-Name: net.tourbook.tests
