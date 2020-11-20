@@ -29,13 +29,7 @@ import utils.Comparison;
 
 class Suunto9Tester {
 
-   /**
-    * Resource path to all the test files
-    */
-   private static final String IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
-
-// File #1
-   private static final String            MaxWell1FilePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
+   private static final String            IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
 
    private static final String            JSON_GZ          = ".json.gz";
 
@@ -57,12 +51,13 @@ class Suunto9Tester {
     */
    @Test
    void testParseMaxwell1() {
+      final String MaxWell1FilePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(MaxWell1FilePath + JSON_GZ).toAbsolutePath().toString();
       handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(20189117275950L));
 
-      Comparison.CompareAgainstControl(tour, MaxWell1FilePath);
+      Comparison.CompareJsonAgainstControl(tour, MaxWell1FilePath);
    }
 }

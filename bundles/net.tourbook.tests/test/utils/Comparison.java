@@ -1,6 +1,10 @@
 package utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,37 +24,37 @@ public class Comparison {
     *
     * @param testTourData
     *           The generated test TourData object.
-    * @param testFileName
-    *           The test's file name.
+    * @param controlFileName
+    *           The control's file name.
     */
-   public static void CompareAgainstControl(final TourData testTourData,
-                                            final String testFileName) {
+   public static void CompareJsonAgainstControl(final TourData testTourData,
+                                            final String controlFileName) {
 
       final String testJson = testTourData.toJson();
 
       // When using Java 11, convert the line below to the Java 11 method
       //String controlDocument = Files.readString(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
-      final String controlDocumentFilePath = Paths.get(testFileName + JSON).toAbsolutePath().toString();
+      final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
-//    BufferedWriter bufferedWriter = null;
-//    final File myFile = new File(
-//          "C:\\Users\\frederic\\Desktop\\toto.json"); //$NON-NLS-1$
-//    // check if file exist, otherwise create the file before writing
-//    if (!myFile.exists()) {
-//       try {
-//          myFile.createNewFile();
-//    Writer writer = new FileWriter(myFile);
-//    bufferedWriter = new BufferedWriter(writer);
-//          writer = new FileWriter(myFile);
-//          bufferedWriter.write(xmlTestDocument);
-//          bufferedWriter.close();
-//          writer.close();
-//       } catch (final IOException e) {
-//          e.printStackTrace();
-//       }
-//    }
+      BufferedWriter bufferedWriter = null;
+      final File myFile = new File(
+            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
+      // check if file exist, otherwise create the file before writing
+      if (!myFile.exists()) {
+         try {
+            myFile.createNewFile();
+            Writer writer = new FileWriter(myFile);
+            bufferedWriter = new BufferedWriter(writer);
+            writer = new FileWriter(myFile);
+            bufferedWriter.write(testJson);
+            bufferedWriter.close();
+            writer.close();
+         } catch (final IOException e) {
+            e.printStackTrace();
+         }
+      }
 
       JSONAssert.assertEquals(
             controlDocument,
