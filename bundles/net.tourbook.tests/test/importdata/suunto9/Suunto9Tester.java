@@ -64,6 +64,7 @@ class Suunto9Tester {
    /**
     * Shoreline - with laps/markers
     */
+   @Test
    void testParseShoreline() {
       final String filePath = IMPORT_FILE_PATH + "1555291925128_183010004848_post_timeline-1"; //$NON-NLS-1$
 

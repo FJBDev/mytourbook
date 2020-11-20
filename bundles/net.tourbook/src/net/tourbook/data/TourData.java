@@ -18,6 +18,8 @@ package net.tourbook.data;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -118,6 +120,7 @@ import org.hibernate.annotations.Cascade;
 @XmlType(name = "TourData")
 @XmlRootElement(name = "TourData")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable {
 
    public static final int             DB_LENGTH_DEVICE_TOUR_TYPE        = 2;
@@ -858,6 +861,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @JsonIgnore
    private Set<TourPhoto>              tourPhotos                          = new HashSet<>();
 
    // ############################################# ASSOCIATED ENTITIES #############################################
@@ -869,6 +873,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
    @XmlElementWrapper(name = "TourMarkers")
    @XmlElement(name = "TourMarker")
+   @JsonIgnore
    private Set<TourMarker>             tourMarkers                         = new HashSet<>();
 
    /**
@@ -876,6 +881,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @JsonIgnore
    private final Set<TourWayPoint>     tourWayPoints                       = new HashSet<>();
 
    /**
@@ -883,6 +889,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @JsonIgnore
    private final Set<TourReference>    tourReferences                     = new HashSet<>();
 
    /**
@@ -1000,6 +1007,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <code>length()==0</code> data are invalid.
     */
    @Transient
+   @JsonIgnore
    private float[]               srtmSerie;
 
    @Transient
@@ -1016,6 +1024,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public float[]                pulseSerie;
 
    @Transient
+   @JsonIgnore
    private float[]               pulseSerieSmoothed;
 
    @Transient
@@ -1363,6 +1372,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * from the import view when tours are merged to display the merge layer
     */
    @Transient
+   @JsonIgnore
    private TourData           _mergeSourceTourData;
 
    @Transient
@@ -7115,6 +7125,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * @return Returns {@link ZonedDateTime} when the tour was created or <code>null</code> when
     *         date/time is not available
     */
+   @JsonIgnore
    public ZonedDateTime getDateTimeCreated() {
 
       if (_dateTimeCreated != null || dateTimeCreated == 0) {
@@ -7130,6 +7141,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * @return Returns {@link ZonedDateTime} when the tour was modified or <code>null</code> when
     *         date/time is not available
     */
+   @JsonIgnore
    public ZonedDateTime getDateTimeModified() {
 
       if (_dateTimeModified != null || dateTimeModified == 0) {
@@ -8141,6 +8153,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     *         <p>
     *         or <code>null</code> when SRTM data serie is not available
     */
+   @JsonIgnore
    public float[][] getSRTMValues() {
 
       if (latitudeSerie == null) {
@@ -8406,6 +8419,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * @return Returns the tour time zone id, when the tour time zone is not set in the tour, then
     *         the default time zone is returned which is defined in the preferences.
     */
+   @JsonIgnore
    public ZoneId getTimeZoneIdWithDefault() {
 
       final String zoneIdRaw = timeZoneId == null //
@@ -8462,6 +8476,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * !!! THIS VALUE IS NOT CACHED BECAUSE WHEN THE DEFAULT TIME ZONE IS CHANGING THEN THIS VALUE IS
     * WRONG !!!
     */
+   @JsonIgnore
    public TourDateTime getTourDateTime() {
 
       return TimeTools.createTourDateTime(tourStartTime, timeZoneId);
@@ -8584,6 +8599,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * @return Returns the tour start date time with the tour time zone, when not available with the
     *         default time zone.
     */
+   @JsonIgnore
    public ZonedDateTime getTourStartTime() {
 
       if (_zonedStartTime == null) {
@@ -10766,6 +10782,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       //Converting the Object to JSONString
       String jsonString = UI.EMPTY_STRING;
+//      final Gson gson = new Gson();
+//      jsonString = gson.toJson(this);
       try {
          jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
       } catch (final JsonProcessingException e) {
