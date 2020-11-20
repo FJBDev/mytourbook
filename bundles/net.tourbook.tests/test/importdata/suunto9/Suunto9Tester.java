@@ -72,7 +72,7 @@ class Suunto9Tester {
       handler.processDeviceData(Paths.get(IMPORT_FILE_PATH).getFileName(), deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(201010101005999L));
-
+tour.toXml() compare final with the local xml (take the code from the suunto9-unittests branch)
       final Set<TourWayPoint> tourWayPoints = tour.getTourWayPoints();
 
       final Integer numWayPoints = 2;
