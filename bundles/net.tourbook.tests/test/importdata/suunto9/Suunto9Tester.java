@@ -16,6 +16,7 @@
 package importdata.suunto9;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ class Suunto9Tester {
    /**
     * Resource path to GPX file, generally available from net.tourbook Plugin in test/net.tourbook
     */
-   public static final String IMPORT_FILE_PATH = "/importdata/suunto9/files/1536723722706_183010004848_post_timeline-1.json.gz"; //$NON-NLS-1$
+   public static final String IMPORT_FILE_PATH = "test/importdata/suunto9/files/1536723722706_183010004848_post_timeline-1.json.gz"; //$NON-NLS-1$
 
    @BeforeAll
    static void setUp() throws ParserConfigurationException, SAXException {
@@ -57,22 +58,28 @@ class Suunto9Tester {
    /**
     * Regression test. Imports GPX into TourData and checks all values of tour1 and waypoint1.
     *
+    * @throws URISyntaxException
     * @throws ParserConfigurationException
     * @throws IOException
     * @throws SAXException
     */
    @Test
-   void testParse() throws SAXException, IOException {
+   void testParse() throws URISyntaxException, IOException {
+//      final InputStream gpx = Suunto9Tester.class.getResourceAsStream(IMPORT_FILE_PATH);
+//      gpx.available();
 
+      final String path = Paths.get(IMPORT_FILE_PATH).toAbsolutePath().toString();
+
+      // Get the absolute path of file f
       final DeviceData deviceData = new DeviceData();
       final HashMap<Long, TourData> newlyImportedTours = new HashMap<>();
       final HashMap<Long, TourData> alreadyImportedTours = new HashMap<>();
 
       final Suunto9DeviceDataReader handler = new Suunto9DeviceDataReader();
-      handler.processDeviceData(Paths.get(IMPORT_FILE_PATH).getFileName(), deviceData, alreadyImportedTours, newlyImportedTours);
+      handler.processDeviceData(path, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(201010101005999L));
-tour.toXml() compare final with the local xml (take the code from the suunto9-unittests branch)
+      final TourData tour = newlyImportedTours.get(Long.valueOf(20189117275950L));
+//tour.toXml() compare final with the local xml (take the code from the suunto9-unittests branch)
       final Set<TourWayPoint> tourWayPoints = tour.getTourWayPoints();
 
       final Integer numWayPoints = 2;
