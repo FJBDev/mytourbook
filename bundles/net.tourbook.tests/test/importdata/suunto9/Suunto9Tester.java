@@ -51,13 +51,27 @@ class Suunto9Tester {
     */
    @Test
    void testParseMaxwell1() {
-      final String MaxWell1FilePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
+      final String filePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
-      final String testFilePath = Paths.get(MaxWell1FilePath + JSON_GZ).toAbsolutePath().toString();
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(20189117275950L));
 
-      Comparison.CompareJsonAgainstControl(tour, MaxWell1FilePath);
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   /**
+    * Shoreline - with laps/markers
+    */
+   void testParseShoreline() {
+      final String filePath = IMPORT_FILE_PATH + "1555291925128_183010004848_post_timeline-1"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
+      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = newlyImportedTours.get(Long.valueOf(201941073512556L));
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
    }
 }

@@ -18,6 +18,7 @@ package net.tourbook.data;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skedgo.converter.TimezoneMapper;
@@ -10760,6 +10761,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public String toJson() {
 
       final ObjectMapper mapper = new ObjectMapper();
+      mapper.setSerializationInclusion(Include.NON_NULL);
+      mapper.setSerializationInclusion(Include.NON_EMPTY);
 
       //Converting the Object to JSONString
       String jsonString = UI.EMPTY_STRING;
