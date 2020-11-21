@@ -47,6 +47,21 @@ class Suunto9Tester {
    }
 
    /**
+    * City of Rocks, ID
+    */
+   @Test
+   void testParseCityOfRocks() {
+      final String filePath = IMPORT_FILE_PATH + "1537365846902_183010004848_post_timeline-1"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
+      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = newlyImportedTours.get(Long.valueOf(20189139336610L));
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   /**
     * Maxwell, CO
     */
    @Test
@@ -62,16 +77,64 @@ class Suunto9Tester {
    }
 
    /**
+    * Reservoir Ridge with MoveSense HR belt (R-R data)
+    */
+   @Test
+   void testParseRRData() {
+      final String filePath = IMPORT_FILE_PATH + "1549250450458_183010004848_post_timeline-1"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
+      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = newlyImportedTours.get(Long.valueOf(201923115114154L));
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   //TODO FB split files
+
+   /**
     * Shoreline - with laps/markers
     */
    @Test
-   void testParseShoreline() {
+   void testParseShoreLineWithLaps() {
       final String filePath = IMPORT_FILE_PATH + "1555291925128_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(201941073512556L));
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   /**
+    * Start -> 100m -> LAP -> LAP -> 100m -> LAP -> LAP -> 100m -> LAP -> LAP -> 100m -> Stop
+    * (courtesy of Z74)
+    */
+   @Test
+   void testParseSwimming1() {
+      final String filePath = IMPORT_FILE_PATH + "1547628896209_184710003036_post_timeline-1"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
+      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = newlyImportedTours.get(Long.valueOf(2019116911400L));
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   /**
+    * Start -> 100m -> Stop (courtesy of Z74)
+    */
+   @Test
+   void testParseSwimming2() {
+      final String filePath = IMPORT_FILE_PATH + "1547628897243_184710003036_post_timeline-1"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
+      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = newlyImportedTours.get(Long.valueOf(2019116921100L));
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
