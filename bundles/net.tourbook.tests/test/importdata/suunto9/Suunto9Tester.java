@@ -15,9 +15,14 @@
  *******************************************************************************/
 package importdata.suunto9;
 
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
+import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.device.suunto.Suunto9DeviceDataReader;
 import net.tourbook.importdata.DeviceData;
@@ -44,6 +49,28 @@ class Suunto9Tester {
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
       handler = new Suunto9DeviceDataReader();
+   }
+
+   /**
+    * Used only for unit tests, it retrieves the last processed activity.
+    *
+    * @return If any, the last processed activity.
+    */
+   private TourData GetLastTourDataImported() {
+      https://stackoverflow.com/questions/6694715/junit-testing-private-variables
+      final Field privateStringField = Suunto9DeviceDataReader.class.getDeclaredField("privateString");
+      final PrivateObject privateObject = new PrivateObject("The Private Value");
+      privateStringField.setAccessible(true);
+
+      final String fieldValue = (String) privateStringField.get(privateObject);
+      System.out.println("fieldValue = " + fieldValue);
+      final Iterator<Entry<TourData, ArrayList<TimeData>>> it = handler._processedActivities.entrySet().iterator();
+      TourData lastTourData = null;
+      while (it.hasNext()) {
+         lastTourData = it.next().getKey();
+      }
+
+      return lastTourData;
    }
 
    /**
@@ -76,6 +103,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
 
+   //TODO FB split files
+
    /**
     * Reservoir Ridge with MoveSense HR belt (R-R data)
     */
@@ -91,8 +120,6 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
 
-   //TODO FB split files
-
    /**
     * Shoreline - with laps/markers
     */
@@ -106,6 +133,149 @@ class Suunto9Tester {
       final TourData tour = newlyImportedTours.get(Long.valueOf(201941073512556L));
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
+
+   /**
+    * Unit tests for Suunto Spartan/9 split files.
+    * Because the files are split, it causes small discrepancies in the data
+    * in between each file.
+    * Also, because the import creates a marker at the end of the activity if markers are present,
+    * it can create additional markers at the end of each file.
+    *
+    * @return
+    */
+   @Test
+   void testParseSplitFiles() {
+
+      // Maxwell, CO (Split manually)
+
+      // File #1
+      final String maxWell1FilePath = IMPORT_FILE_PATH +
+            "1536723722706_183010004848_post_timeline-1.json.gz"; //$NON-NLS-1$
+
+      // File #2
+      final String maxWell2FilePath = IMPORT_FILE_PATH +
+            "1536723722706_183010004848_post_timeline-2.json.gz"; //$NON-NLS-1$
+
+      // File #3
+      final String maxWell3FilePath = IMPORT_FILE_PATH +
+            "1536723722706_183010004848_post_timeline-3.json.gz"; //$NON-NLS-1$
+
+      // File control
+      final String controlDocumentPath = IMPORT_FILE_PATH +
+            "1536723722706_183010004848_post_timeline-1-SplitTests.xml"; //$NON-NLS-1$
+      final String controlFileContent = GetContentFromResource(controlDocumentPath, false);
+
+      // ORDER 2 - 1 - 3
+
+      String jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      TourData entry = GetLastTourDataImported();
+      String xml = entry.toXml();
+      boolean testResults = CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+
+      cleanUpActivities();
+      // ORDER 2 - 3 - 1
+
+      // File #2
+      jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      // File #3
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      // File #1
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      entry = GetLastTourDataImported();
+      xml = entry.toXml();
+      testResults &= CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+
+      cleanUpActivities();
+      // ORDER 1 - 2 - 3
+
+      // File #1
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      // File #2
+      jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      // File #3
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      entry = GetLastTourDataImported();
+      xml = entry.toXml();
+      testResults &= CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+      cleanUpActivities();
+      // ORDER 1 - 3 - 2
+
+      // File #1
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      // File #3
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      // File #2
+      jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      entry = GetLastTourDataImported();
+      xml = entry.toXml();
+      testResults &= CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+
+      cleanUpActivities();
+      // ORDER 3 - 2 - 1
+
+      // File #3
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      // File #2
+      jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      // File #1
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      entry = GetLastTourDataImported();
+      xml = entry.toXml();
+      testResults &= CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+
+      cleanUpActivities();
+      // ORDER 3 - 1 - 2
+
+      // File #3
+      jsonContent = GetContentFromResource(maxWell3FilePath, true);
+      processFile(maxWell3FilePath, jsonContent);
+
+      // File #1
+      jsonContent = GetContentFromResource(maxWell1FilePath, true);
+      processFile(maxWell1FilePath, jsonContent);
+
+      // File #2
+      jsonContent = GetContentFromResource(maxWell2FilePath, true);
+      processFile(maxWell2FilePath, jsonContent);
+
+      entry = GetLastTourDataImported();
+      xml = entry.toXml();
+      testResults &= CompareAgainstControl(controlFileContent, xml, FilenameUtils.getBaseName(controlDocumentPath));
+
+      return testResults;
    }
 
    /**
