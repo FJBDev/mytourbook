@@ -10776,10 +10776,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       mapper.setSerializationInclusion(Include.NON_NULL);
       mapper.setSerializationInclusion(Include.NON_EMPTY);
 
-      //Converting the Object to JSONString
       String jsonString = UI.EMPTY_STRING;
-//      final Gson gson = new Gson();
-//      jsonString = gson.toJson(this);
       try {
          jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
       } catch (final JsonProcessingException e) {
