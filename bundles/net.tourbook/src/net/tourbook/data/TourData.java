@@ -18,9 +18,10 @@ package net.tourbook.data;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skedgo.converter.TimezoneMapper;
@@ -120,7 +121,7 @@ import org.hibernate.annotations.Cascade;
 @XmlType(name = "TourData")
 @XmlRootElement(name = "TourData")
 @XmlAccessorType(XmlAccessType.NONE)
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "tourId")
 public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable {
 
    public static final int             DB_LENGTH_DEVICE_TOUR_TYPE        = 2;
@@ -873,7 +874,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
    @XmlElementWrapper(name = "TourMarkers")
    @XmlElement(name = "TourMarker")
-   @JsonIgnore
    private Set<TourMarker>             tourMarkers                         = new HashSet<>();
 
    /**
@@ -881,7 +881,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-   @JsonIgnore
    private final Set<TourWayPoint>     tourWayPoints                       = new HashSet<>();
 
    /**
@@ -889,7 +888,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-   @JsonIgnore
    private final Set<TourReference>    tourReferences                     = new HashSet<>();
 
    /**
@@ -1007,7 +1005,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <code>length()==0</code> data are invalid.
     */
    @Transient
-   @JsonIgnore
    private float[]               srtmSerie;
 
    @Transient
@@ -1024,7 +1021,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public float[]                pulseSerie;
 
    @Transient
-   @JsonIgnore
    private float[]               pulseSerieSmoothed;
 
    @Transient
@@ -1372,7 +1368,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * from the import view when tours are merged to display the merge layer
     */
    @Transient
-   @JsonIgnore
    private TourData           _mergeSourceTourData;
 
    @Transient
