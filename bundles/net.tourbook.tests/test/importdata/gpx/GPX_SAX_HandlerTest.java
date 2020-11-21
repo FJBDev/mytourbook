@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -88,7 +89,8 @@ class GPX_SAX_HandlerTest {
 
       parser.parse(gpx, handler);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(201010101005999L));
+      final Map.Entry<Long, TourData> entry = newlyImportedTours.entrySet().iterator().next();
+      final TourData tour = entry.getValue();
 
       final Set<TourWayPoint> tourWayPoints = tour.getTourWayPoints();
 
