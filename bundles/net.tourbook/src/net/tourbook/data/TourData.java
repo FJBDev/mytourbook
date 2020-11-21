@@ -888,6 +888,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @JsonIgnore
    private final Set<TourReference>    tourReferences                     = new HashSet<>();
 
    /**
