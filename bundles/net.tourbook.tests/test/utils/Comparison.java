@@ -1,6 +1,10 @@
 package utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,23 +41,23 @@ public class Comparison {
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
-//      BufferedWriter bufferedWriter = null;
-//      final File myFile = new File(
-//            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
-//      // check if file exist, otherwise create the file before writing
-//      if (!myFile.exists()) {
-//         try {
-//            myFile.createNewFile();
-//            Writer writer = new FileWriter(myFile);
-//            bufferedWriter = new BufferedWriter(writer);
-//            writer = new FileWriter(myFile);
-//            bufferedWriter.write(testJson);
-//            bufferedWriter.close();
-//            writer.close();
-//         } catch (final IOException e) {
-//            e.printStackTrace();
-//         }
-//      }
+      BufferedWriter bufferedWriter = null;
+      final File myFile = new File(
+            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
+      // check if file exist, otherwise create the file before writing
+      if (!myFile.exists()) {
+         try {
+            myFile.createNewFile();
+            Writer writer = new FileWriter(myFile);
+            bufferedWriter = new BufferedWriter(writer);
+            writer = new FileWriter(myFile);
+            bufferedWriter.write(testJson);
+            bufferedWriter.close();
+            writer.close();
+         } catch (final IOException e) {
+            e.printStackTrace();
+         }
+      }
 
       JSONAssert.assertEquals(
             controlDocument,
