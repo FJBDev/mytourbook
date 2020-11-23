@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skedgo.converter.TimezoneMapper;
 
@@ -645,6 +646,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /** Folder path from the import file. */
    @XmlElement
+   @JsonIgnore
    private String                tourImportFilePath;                                   // db-version 6
 
    /** File name from the import file. */
@@ -7476,6 +7478,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * @return Returns the import file path (folder) or <code>null</code> when not available.
     */
+   @JsonIgnore
    public String getImportFilePath() {
 
       if (tourImportFilePath == null || tourImportFilePath.length() == 0) {
@@ -7488,6 +7491,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * @return Returns the full import file path name or <code>null</code> when not available.
     */
+   @JsonIgnore
    public String getImportFilePathName() {
 
       if (tourImportFilePath != null && tourImportFilePath.length() > 0) {
@@ -7509,6 +7513,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * @return Returns the full import file path name or an empty string when not available.
     */
+   @JsonIgnore
    public String getImportFilePathNameText() {
 
       if (tourImportFilePath == null || tourImportFilePath.length() == 0) {
@@ -10845,6 +10850,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       final ObjectMapper mapper = new ObjectMapper();
       mapper.setSerializationInclusion(Include.NON_NULL);
       mapper.setSerializationInclusion(Include.NON_EMPTY);
+      mapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
 
       String jsonString = UI.EMPTY_STRING;
       try {

@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 
 import net.tourbook.data.TourData;
 
-import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
@@ -57,10 +56,10 @@ public class Comparison {
       JSONAssert.assertEquals(
             controlDocument,
             testJson,
-            new CustomComparator(JSONCompareMode.LENIENT,
-                  new Customization("importFilePathName", (o1, o2) -> true),
-                  new Customization("importFilePathNameText", (o1, o2) -> true),
-                  new Customization("importFilePath", (o1, o2) -> true)));
+            new CustomComparator(JSONCompareMode.LENIENT));
+//                  ,new Customization("importFilePathName", (o1, o2) -> true),
+//                  new Customization("importFilePathNameText", (o1, o2) -> true),
+//                  new Customization("importFilePath", (o1, o2) -> true)));
    }
 
    private static String readFile(final String path, final Charset encoding) {
