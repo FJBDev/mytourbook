@@ -105,12 +105,12 @@ class Suunto9Tester {
     */
    @Test
    void testParseMaxwell1() {
-      final String filePath = IMPORT_FILE_PATH + "1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
+      final String filePath = IMPORT_FILE_PATH + "Original-1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(20189117275950L));
+      final TourData tour = newlyImportedTours.get(Long.valueOf(201891172712237L));
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -151,6 +151,8 @@ class Suunto9Tester {
     * in between each file.
     * Also, because the import creates a marker at the end of the activity if markers are present,
     * it can create additional markers at the end of each file.
+    * Note: We only test the case where the files come in the proper order (1-2-3) because
+    * the function {@see RawDataManager#runImport} will sort the files.
     *
     * @return
     */
@@ -175,75 +177,13 @@ class Suunto9Tester {
       final String controlDocumentPath = IMPORT_FILE_PATH +
             "1536723722706_183010004848_post_timeline-1-SplitTests"; //$NON-NLS-1$
 
-      // ORDER 2 - 1 - 3
-
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-
-      TourData entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
-      alreadyImportedTours.clear();
-      newlyImportedTours.clear();
-      // ORDER 2 - 3 - 1
-
-      // File #2
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-
-      entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
-      alreadyImportedTours.clear();
-      newlyImportedTours.clear();
       // ORDER 1 - 2 - 3
 
       handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
       handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
       handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
-      alreadyImportedTours.clear();
-      newlyImportedTours.clear();
-      // ORDER 1 - 3 - 2
-
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-
-      entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
-      alreadyImportedTours.clear();
-      newlyImportedTours.clear();
-      // ORDER 3 - 2 - 1
-
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-
-      entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
-      alreadyImportedTours.clear();
-      newlyImportedTours.clear();
-      // ORDER 3 - 1 - 2
-
-      // File #3
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-
-      entry = GetLastTourDataImported();
+      final TourData entry = GetLastTourDataImported();
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
    }
 
