@@ -63,8 +63,8 @@ class Suunto9Tester {
          field = Suunto9DeviceDataReader.class.getDeclaredField("_processedActivities");
          field.setAccessible(true);
 
-         HashMap<TourData, ArrayList<TimeData>> processedActivities = new HashMap<>();
-         processedActivities = (HashMap<TourData, ArrayList<TimeData>>) field.get(handler);
+         @SuppressWarnings("unchecked")
+         final HashMap<TourData, ArrayList<TimeData>> processedActivities = (HashMap<TourData, ArrayList<TimeData>>) field.get(handler);
          final Iterator<Entry<TourData, ArrayList<TimeData>>> it = processedActivities.entrySet().iterator();
          TourData lastTourData = null;
          while (it.hasNext()) {
@@ -73,7 +73,6 @@ class Suunto9Tester {
 
          return lastTourData;
       } catch (final NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
 
@@ -186,6 +185,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
 
       handler = new Suunto9DeviceDataReader();
+      alreadyImportedTours.clear();
+      newlyImportedTours.clear();
       // ORDER 2 - 3 - 1
 
       // File #2
@@ -197,6 +198,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
 
       handler = new Suunto9DeviceDataReader();
+      alreadyImportedTours.clear();
+      newlyImportedTours.clear();
       // ORDER 1 - 2 - 3
 
       handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
@@ -207,6 +210,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
 
       handler = new Suunto9DeviceDataReader();
+      alreadyImportedTours.clear();
+      newlyImportedTours.clear();
       // ORDER 1 - 3 - 2
 
       handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
@@ -217,6 +222,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
 
       handler = new Suunto9DeviceDataReader();
+      alreadyImportedTours.clear();
+      newlyImportedTours.clear();
       // ORDER 3 - 2 - 1
 
       handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
@@ -227,6 +234,8 @@ class Suunto9Tester {
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
 
       handler = new Suunto9DeviceDataReader();
+      alreadyImportedTours.clear();
+      newlyImportedTours.clear();
       // ORDER 3 - 1 - 2
 
       // File #3
@@ -236,8 +245,6 @@ class Suunto9Tester {
 
       entry = GetLastTourDataImported();
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
-
-      handler = new Suunto9DeviceDataReader();
    }
 
    /**

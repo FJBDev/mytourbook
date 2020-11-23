@@ -34,7 +34,7 @@ public class Comparison {
 
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
-
+//
 //      BufferedWriter bufferedWriter = null;
 //      final File myFile = new File(
 //            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
