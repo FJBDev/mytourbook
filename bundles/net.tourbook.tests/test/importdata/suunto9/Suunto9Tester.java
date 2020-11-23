@@ -89,7 +89,7 @@ class Suunto9Tester {
     * City of Rocks, ID
     */
    @Test
-   void testParseCityOfRocks() {
+   void testImportCityOfRocks() {
       final String filePath = IMPORT_FILE_PATH + "1537365846902_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
@@ -104,7 +104,7 @@ class Suunto9Tester {
     * Maxwell, CO
     */
    @Test
-   void testParseMaxwell1() {
+   void testImportMaxwell1() {
       final String filePath = IMPORT_FILE_PATH + "Original-1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
@@ -119,7 +119,7 @@ class Suunto9Tester {
     * Reservoir Ridge with MoveSense HR belt (R-R data)
     */
    @Test
-   void testParseRRData() {
+   void testImportRRData() {
       final String filePath = IMPORT_FILE_PATH + "1549250450458_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
@@ -134,7 +134,7 @@ class Suunto9Tester {
     * Shoreline - with laps/markers
     */
    @Test
-   void testParseShoreLineWithLaps() {
+   void testImportShoreLineWithLaps() {
       final String filePath = IMPORT_FILE_PATH + "1555291925128_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
@@ -157,7 +157,7 @@ class Suunto9Tester {
     * @return
     */
    @Test
-   void testParseSplitFiles() {
+   void testImportSplitFiles() {
 
       // Maxwell, CO (Split manually)
 
@@ -192,7 +192,7 @@ class Suunto9Tester {
     * (courtesy of Z74)
     */
    @Test
-   void testParseSwimming1() {
+   void testImportSwimming1() {
       final String filePath = IMPORT_FILE_PATH + "1547628896209_184710003036_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
@@ -207,7 +207,7 @@ class Suunto9Tester {
     * Start -> 100m -> Stop (courtesy of Z74)
     */
    @Test
-   void testParseSwimming2() {
+   void testImportSwimming2() {
       final String filePath = IMPORT_FILE_PATH + "1547628897243_184710003036_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
