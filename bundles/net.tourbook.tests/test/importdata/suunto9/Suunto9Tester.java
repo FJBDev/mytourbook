@@ -42,14 +42,14 @@ class Suunto9Tester {
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
    private static HashMap<Long, TourData> alreadyImportedTours;
-   private static Suunto9DeviceDataReader handler;
+   private static Suunto9DeviceDataReader deviceDataReader;
 
    @BeforeAll
    static void initAll() {
       deviceData = new DeviceData();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
-      handler = new Suunto9DeviceDataReader();
+      deviceDataReader = new Suunto9DeviceDataReader();
    }
 
    /**
@@ -64,7 +64,7 @@ class Suunto9Tester {
          field.setAccessible(true);
 
          @SuppressWarnings("unchecked")
-         final HashMap<TourData, ArrayList<TimeData>> processedActivities = (HashMap<TourData, ArrayList<TimeData>>) field.get(handler);
+         final HashMap<TourData, ArrayList<TimeData>> processedActivities = (HashMap<TourData, ArrayList<TimeData>>) field.get(deviceDataReader);
          final Iterator<Entry<TourData, ArrayList<TimeData>>> it = processedActivities.entrySet().iterator();
          TourData lastTourData = null;
          while (it.hasNext()) {
@@ -93,7 +93,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "1537365846902_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(20189139336610L));
 
@@ -108,7 +108,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "Original-1536723722706_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(201891172712237L));
 
@@ -123,7 +123,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "1549250450458_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(201923115114154L));
 
@@ -138,7 +138,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "1555291925128_183010004848_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(201941073512556L));
 
@@ -179,9 +179,9 @@ class Suunto9Tester {
 
       // ORDER 1 - 2 - 3
 
-      handler.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
-      handler.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(maxWell1FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(maxWell2FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData entry = GetLastTourDataImported();
       Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
@@ -196,7 +196,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "1547628896209_184710003036_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(2019116911400L));
 
@@ -211,7 +211,7 @@ class Suunto9Tester {
       final String filePath = IMPORT_FILE_PATH + "1547628897243_184710003036_post_timeline-1"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
-      handler.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = newlyImportedTours.get(Long.valueOf(2019116921100L));
 

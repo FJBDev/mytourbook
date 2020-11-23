@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.tourbook.data.TourData;
 
@@ -34,7 +36,7 @@ public class Comparison {
 
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
-//
+
 //      BufferedWriter bufferedWriter = null;
 //      final File myFile = new File(
 //            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
@@ -70,5 +72,11 @@ public class Comparison {
          e.printStackTrace();
       }
       return new String(encoded, encoding);
+   }
+
+   public static TourData RetrieveImportedTour(final HashMap<Long, TourData> newlyImportedTours) {
+      final Map.Entry<Long, TourData> entry = newlyImportedTours.entrySet().iterator().next();
+      final TourData tour = entry.getValue();
+      return tour;
    }
 }

@@ -15,6 +15,48 @@
  *******************************************************************************/
 package importdata.garmin.fit;
 
+import java.nio.file.Paths;
+import java.util.HashMap;
+
+import net.tourbook.data.TourData;
+import net.tourbook.device.garmin.fit.FitDataReader;
+import net.tourbook.importdata.DeviceData;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import utils.Comparison;
+
 public class GarminFitTester {
 
+   private static final String            IMPORT_FILE_PATH = "test/importdata/garmin/fit/files/"; //$NON-NLS-1$
+
+   private static DeviceData              deviceData;
+   private static HashMap<Long, TourData> newlyImportedTours;
+   private static HashMap<Long, TourData> alreadyImportedTours;
+   private static FitDataReader           fitDataReader;
+
+   @BeforeAll
+   static void initAll() {
+      deviceData = new DeviceData();
+      newlyImportedTours = new HashMap<>();
+      alreadyImportedTours = new HashMap<>();
+      fitDataReader = new FitDataReader();
+   }
+
+   /**
+    * Regression test
+    */
+   @Test
+   void testFitImportConeyLake() {
+
+      final String filePath = IMPORT_FILE_PATH + "ConeyLakeMove_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + ".fit").toAbsolutePath().toString();
+      fitDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
+
+      Comparison.CompareJsonAgainstControl(tour, filePath);
+   }
 }
