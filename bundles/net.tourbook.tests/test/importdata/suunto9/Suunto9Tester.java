@@ -95,7 +95,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(20189139336610L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -110,7 +110,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(201891172712237L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -125,7 +125,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(201923115114154L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -140,7 +140,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(201941073512556L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -198,7 +198,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(2019116911400L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }
@@ -213,7 +213,7 @@ class Suunto9Tester {
       final String testFilePath = Paths.get(filePath + JSON_GZ).toAbsolutePath().toString();
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
-      final TourData tour = newlyImportedTours.get(Long.valueOf(2019116921100L));
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       Comparison.CompareJsonAgainstControl(tour, filePath);
    }

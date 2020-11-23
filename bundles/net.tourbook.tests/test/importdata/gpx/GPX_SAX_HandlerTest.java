@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -38,6 +37,8 @@ import net.tourbook.tour.TourManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
+
+import utils.Comparison;
 
 /**
  * GPX device plugin test.
@@ -89,8 +90,7 @@ class GPX_SAX_HandlerTest {
 
       parser.parse(gpx, handler);
 
-      final Map.Entry<Long, TourData> entry = newlyImportedTours.entrySet().iterator().next();
-      final TourData tour = entry.getValue();
+      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
       final Set<TourWayPoint> tourWayPoints = tour.getTourWayPoints();
 
