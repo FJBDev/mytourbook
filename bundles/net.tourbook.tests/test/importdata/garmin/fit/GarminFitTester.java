@@ -52,7 +52,7 @@ public class GarminFitTester {
 
       final String filePath = IMPORT_FILE_PATH + "ConeyLakeMove_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
 
-      final String testFilePath = Paths.get(filePath + ".fit").toAbsolutePath().toString();
+      final String testFilePath = Paths.get(filePath + ".fit").toAbsolutePath().toString(); //$NON-NLS-1$
       fitDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);

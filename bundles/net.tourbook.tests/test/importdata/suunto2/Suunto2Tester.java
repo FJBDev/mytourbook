@@ -51,7 +51,7 @@ class Suunto2Tester {
    void testImportForestPark() {
       final String filePath = IMPORT_FILE_PATH + "log-F783095113000500-2013-05-18T11_00_38-0"; //$NON-NLS-1$
 
-      final String testFilePath = Paths.get(filePath + ".xml").toAbsolutePath().toString();
+      final String testFilePath = Paths.get(filePath + ".xml").toAbsolutePath().toString(); //$NON-NLS-1$
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);

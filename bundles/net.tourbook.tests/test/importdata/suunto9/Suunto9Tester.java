@@ -37,7 +37,7 @@ class Suunto9Tester {
 
    private static final String            IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
 
-   private static final String            JSON_GZ          = ".json.gz";
+   private static final String            JSON_GZ          = ".json.gz";                       //$NON-NLS-1$
 
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
@@ -60,7 +60,7 @@ class Suunto9Tester {
    private TourData GetLastTourDataImported() {
       Field field = null;
       try {
-         field = Suunto9DeviceDataReader.class.getDeclaredField("_processedActivities");
+         field = Suunto9DeviceDataReader.class.getDeclaredField("_processedActivities"); //$NON-NLS-1$
          field.setAccessible(true);
 
          @SuppressWarnings("unchecked")

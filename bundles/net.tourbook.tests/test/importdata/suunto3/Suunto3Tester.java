@@ -31,9 +31,9 @@ class Suunto3Tester {
 
    private static final String             IMPORT_FILE_PATH = "test/importdata/suunto3/files/"; //$NON-NLS-1$
 
-   private static DeviceData              deviceData;
-   private static HashMap<Long, TourData> newlyImportedTours;
-   private static HashMap<Long, TourData> alreadyImportedTours;
+   private static DeviceData               deviceData;
+   private static HashMap<Long, TourData>  newlyImportedTours;
+   private static HashMap<Long, TourData>  alreadyImportedTours;
    private static Suunto3_DeviceDataReader deviceDataReader;
 
    @BeforeAll
@@ -51,7 +51,7 @@ class Suunto3Tester {
    void testImportTimothyLake() {
       final String filePath = IMPORT_FILE_PATH + "F783095113000500-2015-05-31T09_51_13-0"; //$NON-NLS-1$
 
-      final String testFilePath = Paths.get(filePath + ".sml").toAbsolutePath().toString();
+      final String testFilePath = Paths.get(filePath + ".sml").toAbsolutePath().toString(); //$NON-NLS-1$
       deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
