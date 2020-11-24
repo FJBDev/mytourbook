@@ -22,14 +22,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourWayPoint;
-import net.tourbook.device.gpx.GPXDeviceDataReader;
+import net.tourbook.device.garmin.GarminDeviceDataReader;
 import net.tourbook.device.gpx.GPX_SAX_Handler;
 import net.tourbook.importdata.DeviceData;
 import net.tourbook.tour.TourManager;
@@ -39,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
+import utils.Initializer;
 
 /**
  * GPX device plugin test.
@@ -49,19 +48,24 @@ import utils.Comparison;
  */
 class GPX_SAX_HandlerTest {
 
-   private static SAXParser   parser;
+   private static SAXParser               parser;
+   private static DeviceData              deviceData;
+   private static HashMap<Long, TourData> newlyImportedTours;
+   private static HashMap<Long, TourData> alreadyImportedTours;
+   private static GarminDeviceDataReader  deviceDataReader;
 
    /**
     * Resource path to GPX file, generally available from net.tourbook Plugin in test/net.tourbook
     */
-   public static final String IMPORT_FILE_PATH = "/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
+   public static final String             IMPORT_FILE_PATH = "/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
 
    @BeforeAll
-   static void setUp() throws ParserConfigurationException, SAXException {
-      final SAXParserFactory factory = SAXParserFactory.newInstance();
-      parser = factory.newSAXParser();
-      parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+   static void initAll() {
+      parser = Initializer.initializeParser();
+      deviceData = new DeviceData();
+      newlyImportedTours = new HashMap<>();
+      alreadyImportedTours = new HashMap<>();
+      deviceDataReader = new GarminDeviceDataReader();
    }
 
    /**
@@ -75,11 +79,6 @@ class GPX_SAX_HandlerTest {
    void testParse() throws SAXException, IOException {
 
       final InputStream gpx = GPX_SAX_HandlerTest.class.getResourceAsStream(IMPORT_FILE_PATH);
-
-      final DeviceData deviceData = new DeviceData();
-      final GPXDeviceDataReader deviceDataReader = new GPXDeviceDataReader();
-      final HashMap<Long, TourData> newlyImportedTours = new HashMap<>();
-      final HashMap<Long, TourData> alreadyImportedTours = new HashMap<>();
 
       final GPX_SAX_Handler handler = new GPX_SAX_Handler(
             deviceDataReader,
@@ -99,7 +98,7 @@ class GPX_SAX_HandlerTest {
       final Iterator<TourWayPoint> iter = tourWayPoints.iterator();
 
       TourWayPoint waypoint1 = iter.next();
-      final String wayPoint = "waypoint1";
+      final String wayPoint = "waypoint1"; //$NON-NLS-1$
       if (!wayPoint.equals(waypoint1.getName())) {
          waypoint1 = iter.next();
       }
@@ -119,7 +118,7 @@ class GPX_SAX_HandlerTest {
       assert description.equals(wayPoint);
 
       final String track1 = tour.getTourTitle();
-      assert track1.equals("track1");
+      assert track1.equals("track1"); //$NON-NLS-1$
 
       final float[] altitudeSerie = tour.altitudeSerie;
       assert Arrays.equals(altitudeSerie, new float[] { 395, 394, 393, 394 });

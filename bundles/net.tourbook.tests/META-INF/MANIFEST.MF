@@ -12,6 +12,7 @@ Import-Package: net.tourbook.data,
  net.tourbook.device.garmin,
  net.tourbook.device.garmin.fit,
  net.tourbook.device.gpx,
+ net.tourbook.device.sporttracks,
  net.tourbook.device.suunto,
  org.json
 Automatic-Module-Name: net.tourbook.tests

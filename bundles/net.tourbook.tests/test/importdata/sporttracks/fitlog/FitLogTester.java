@@ -13,7 +13,7 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package importdata.garmin.tcx;
+package importdata.sporttracks.fitlog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,61 +22,57 @@ import java.util.HashMap;
 import javax.xml.parsers.SAXParser;
 
 import net.tourbook.data.TourData;
-import net.tourbook.device.garmin.GarminDeviceDataReader;
-import net.tourbook.device.garmin.GarminSAXHandler;
-import net.tourbook.importdata.DeviceData;
+import net.tourbook.device.sporttracks.FitLogDeviceDataReader;
+import net.tourbook.device.sporttracks.FitLogSAXHandler;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
 import utils.Initializer;
 
-public class GarminTcxTester {
+class FitLogTester {
+
+   private static final String            IMPORT_PATH = "/importdata/sporttracks/fitlog/files/"; //$NON-NLS-1$
 
    private static SAXParser               parser;
-   private static final String            IMPORT_PATH = "/importdata/garmin/tcx/files/"; //$NON-NLS-1$
-
-   private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
    private static HashMap<Long, TourData> alreadyImportedTours;
-   private static GarminDeviceDataReader  deviceDataReader;
+   private static FitLogDeviceDataReader  deviceDataReader;
 
    @BeforeAll
    static void initAll() {
       parser = Initializer.initializeParser();
-      deviceData = new DeviceData();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
-      deviceDataReader = new GarminDeviceDataReader();
+      deviceDataReader = new FitLogDeviceDataReader();
    }
 
    /**
-    * Regression test
-    *
-    * @throws IOException
-    * @throws SAXException
+    * 2015-1018
+    * NOTE: Test skipped at the moment because I don't know how to resolve this issue
+    * javax.persistence.PersistenceException: No Persistence provider for EntityManager named
+    * tourdatabase
+    * at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:56)
     */
-   @Test
-   void testFitImportConeyLake() throws SAXException, IOException {
-
+//   @Test
+   void testImport20152018() throws SAXException, IOException {
       final String filePathWithoutExtension = IMPORT_PATH +
-            "Move_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
-      final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTester.class.getResourceAsStream(importFilePath);
+            "SportTracks2015-2018"; //$NON-NLS-1$
+      final String importFilePath = filePathWithoutExtension + ".fitlog"; //$NON-NLS-1$
+      final InputStream fitLogFile = FitLogTester.class.getResourceAsStream(importFilePath);
 
-      final GarminSAXHandler handler = new GarminSAXHandler(
+      final FitLogSAXHandler handler = new FitLogSAXHandler(
             deviceDataReader,
             importFilePath,
-            deviceData,
             alreadyImportedTours,
-            newlyImportedTours);
+            newlyImportedTours,
+            false);
 
-      parser.parse(tcxFile, handler);
+      parser.parse(fitLogFile, handler);
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, "test" + filePathWithoutExtension); //$NON-NLS-1$
+      Comparison.CompareJsonAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
    }
 }
