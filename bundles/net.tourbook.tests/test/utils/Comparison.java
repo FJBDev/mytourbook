@@ -50,13 +50,13 @@ public class Comparison {
    public static void CompareJsonAgainstControl(final TourData testTourData,
                                                 final String controlFileName) {
 
-      final String testJson = testTourData.toJson();
-
       // When using Java 11, convert the line below to the Java 11 method
       //String controlDocument = Files.readString(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
+
+      final String testJson = testTourData.toJson();
 
       final JSONCompareResult result =
             JSONCompare.compareJSON(controlDocument, testJson, JSONCompareMode.LENIENT);
