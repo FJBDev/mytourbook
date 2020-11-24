@@ -100,15 +100,7 @@ public class Comparison {
    private static void WriteErroneousFiles(final String controlFileName, final String testJson) {
 
       final File myFile = new File(
-            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
-
-      if (!myFile.exists()) {
-         try {
-            myFile.createNewFile();
-         } catch (final IOException e) {
-            e.printStackTrace();
-         }
-      }
+            controlFileName + ".json"); //$NON-NLS-1$
 
       try (Writer writer = new FileWriter(myFile);
             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {

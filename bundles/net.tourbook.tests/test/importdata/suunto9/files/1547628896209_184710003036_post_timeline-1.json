@@ -124,7 +124,6 @@
   "tourMarkers" : [ {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626366134,
     "deviceMarker" : true,
     "distance" : 100.0,
     "label" : "1",
@@ -146,7 +145,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626387134,
     "deviceMarker" : true,
     "distance" : 100.0,
     "label" : "2",
@@ -168,7 +166,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626489134,
     "deviceMarker" : true,
     "distance" : 200.0,
     "label" : "3",
@@ -190,7 +187,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626503134,
     "deviceMarker" : true,
     "distance" : 200.0,
     "label" : "4",
@@ -212,7 +208,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626601134,
     "deviceMarker" : true,
     "distance" : 300.0,
     "label" : "5",
@@ -234,7 +229,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626624134,
     "deviceMarker" : true,
     "distance" : 300.0,
     "label" : "6",
@@ -256,7 +250,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1547626720134,
     "deviceMarker" : true,
     "distance" : 400.0,
     "label" : "7",

@@ -136,7 +136,6 @@
   "tourMarkers" : [ {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905861257,
     "deviceMarker" : true,
     "distance" : 6729.9985,
     "label" : "13",
@@ -158,7 +157,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905987257,
     "deviceMarker" : true,
     "distance" : 7093.7153,
     "label" : "14",
@@ -180,7 +178,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906020257,
     "deviceMarker" : true,
     "distance" : 7160.169,
     "label" : "15",
@@ -202,7 +199,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906144257,
     "deviceMarker" : true,
     "distance" : 7525.895,
     "label" : "16",
@@ -224,7 +220,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906180257,
     "deviceMarker" : true,
     "distance" : 7598.068,
     "label" : "17",
@@ -246,7 +241,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906309257,
     "deviceMarker" : true,
     "distance" : 7965.6274,
     "label" : "18",
@@ -268,7 +262,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906346257,
     "deviceMarker" : true,
     "distance" : 8030.673,
     "label" : "19",
@@ -290,7 +283,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554906474257,
     "deviceMarker" : true,
     "distance" : 8391.94,
     "label" : "20",
@@ -312,7 +304,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554907889257,
     "deviceMarker" : true,
     "distance" : 12556.517,
     "label" : "21",
@@ -334,7 +325,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554904855257,
     "deviceMarker" : true,
     "distance" : 4162.858,
     "label" : "1",
@@ -356,7 +346,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554904984257,
     "deviceMarker" : true,
     "distance" : 4521.8286,
     "label" : "2",
@@ -378,7 +367,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905021257,
     "deviceMarker" : true,
     "distance" : 4592.4893,
     "label" : "3",
@@ -400,7 +388,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905150257,
     "deviceMarker" : true,
     "distance" : 4949.285,
     "label" : "4",
@@ -422,7 +409,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905188257,
     "deviceMarker" : true,
     "distance" : 5018.5303,
     "label" : "5",
@@ -444,7 +430,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905317257,
     "deviceMarker" : true,
     "distance" : 5368.255,
     "label" : "6",
@@ -466,7 +451,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905353257,
     "deviceMarker" : true,
     "distance" : 5435.1147,
     "label" : "7",
@@ -488,7 +472,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905484257,
     "deviceMarker" : true,
     "distance" : 5799.004,
     "label" : "8",
@@ -510,7 +493,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905523257,
     "deviceMarker" : true,
     "distance" : 5865.8677,
     "label" : "9",
@@ -532,7 +514,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905653257,
     "deviceMarker" : true,
     "distance" : 6228.121,
     "label" : "10",
@@ -554,7 +535,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905694257,
     "deviceMarker" : true,
     "distance" : 6298.9517,
     "label" : "11",
@@ -576,7 +556,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1554905825257,
     "deviceMarker" : true,
     "distance" : 6660.543,
     "label" : "12",

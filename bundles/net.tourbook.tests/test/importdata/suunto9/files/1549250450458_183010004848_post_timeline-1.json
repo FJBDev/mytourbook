@@ -138,7 +138,6 @@
   "tourMarkers" : [ {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1549222843325,
     "deviceMarker" : true,
     "distance" : 7805.057,
     "label" : "1",
@@ -160,7 +159,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1549223282325,
     "deviceMarker" : true,
     "distance" : 8650.418,
     "label" : "2",
@@ -182,7 +180,6 @@
   }, {
     "markerId" : -1,
     "altitude" : -1.0E35,
-    "deviceLapTime" : 1549225249325,
     "deviceMarker" : true,
     "distance" : 14154.749,
     "label" : "3",
