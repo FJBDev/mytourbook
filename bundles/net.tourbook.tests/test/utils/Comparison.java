@@ -15,7 +15,11 @@
  *******************************************************************************/
 package utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,7 +30,9 @@ import java.util.Map;
 import net.tourbook.data.TourData;
 
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.JSONCompareResult;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
 public class Comparison {
@@ -52,24 +58,12 @@ public class Comparison {
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
-      // // Code useful when the tests fail and one wants to be able to compare the expected vs actual file
-//      BufferedWriter bufferedWriter = null;
-//      final File myFile = new File(
-//            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
-//      // check if file exist, otherwise create the file before writing
-//      if (!myFile.exists()) {
-//         try {
-//            myFile.createNewFile();
-//            Writer writer = new FileWriter(myFile);
-//            bufferedWriter = new BufferedWriter(writer);
-//            writer = new FileWriter(myFile);
-//            bufferedWriter.write(testJson);
-//            bufferedWriter.close();
-//            writer.close();
-//         } catch (final IOException e) {
-//            e.printStackTrace();
-//         }
-//      }
+      final JSONCompareResult result =
+            JSONCompare.compareJSON(controlDocument, testJson, JSONCompareMode.LENIENT);
+
+      if (result.failed()) {
+         WriteErroneousFiles(controlFileName, testJson);
+      }
 
       JSONAssert.assertEquals(
             controlDocument,
@@ -94,5 +88,33 @@ public class Comparison {
       final Map.Entry<Long, TourData> entry = newlyImportedTours.entrySet().iterator().next();
       final TourData tour = entry.getValue();
       return tour;
+   }
+
+   /**
+    * Code useful when the tests fail and one wants to be able to compare the expected vs actual
+    * file
+    *
+    * @param controlFileName
+    * @param testJson
+    */
+   private static void WriteErroneousFiles(final String controlFileName, final String testJson) {
+
+      final File myFile = new File(
+            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
+
+      if (!myFile.exists()) {
+         try {
+            myFile.createNewFile();
+         } catch (final IOException e) {
+            e.printStackTrace();
+         }
+      }
+
+      try (Writer writer = new FileWriter(myFile);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+         bufferedWriter.write(testJson);
+      } catch (final IOException e) {
+         e.printStackTrace();
+      }
    }
 }
