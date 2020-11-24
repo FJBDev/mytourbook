@@ -52,6 +52,7 @@ public class Comparison {
       final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
+      // // Code useful when the tests fail and one wants to be able to compare the expected vs actual file
 //      BufferedWriter bufferedWriter = null;
 //      final File myFile = new File(
 //            controlFileName + "-Erroneous.json"); //$NON-NLS-1$
