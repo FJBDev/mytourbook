@@ -647,7 +647,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /** Folder path from the import file. */
    @XmlElement
-   @JsonIgnore
    private String                tourImportFilePath;                                   // db-version 6
 
    /** File name from the import file. */
@@ -865,7 +864,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-   @JsonIgnore
    private Set<TourPhoto>              tourPhotos                          = new HashSet<>();
 
    // ############################################# ASSOCIATED ENTITIES #############################################
@@ -891,7 +889,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-   @JsonIgnore
    private final Set<TourReference>    tourReferences                     = new HashSet<>();
 
    /**
