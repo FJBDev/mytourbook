@@ -50,7 +50,7 @@ public class Comparison {
     *           The control's file name.
     */
    public static void CompareTourDataAgainstControl(final TourData testTourData,
-                                                final String controlFileName) {
+                                                    final String controlFileName) {
 
       // When using Java 11, convert the line below to the Java 11 method
       //String controlDocument = Files.readString(controlDocumentFilePath, StandardCharsets.US_ASCII);
@@ -59,13 +59,6 @@ public class Comparison {
       final String controlDocument = readFile(controlDocumentFilePath, StandardCharsets.US_ASCII);
 
       final String testJson = testTourData.toJson();
-
-      final JSONCompareResult result =
-            JSONCompare.compareJSON(controlDocument, testJson, JSONCompareMode.LENIENT);
-
-      if (result.failed()) {
-         WriteErroneousFiles(controlFileName, testJson);
-      }
 
       final ArrayValueMatcher<Object> arrValMatch = new ArrayValueMatcher<>(new CustomComparator(
             JSONCompareMode.STRICT_ORDER,
@@ -77,6 +70,13 @@ public class Comparison {
             arrayValueMatchCustomization,
             new Customization("tourId", (o1, o2) -> true),
             new Customization("startTimeOfDay", (o1, o2) -> true));
+
+      final JSONCompareResult result =
+            JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
+
+      if (result.failed()) {
+         WriteErroneousFiles(controlFileName, testJson);
+      }
 
       JSONAssert.assertEquals(
             controlDocument,
