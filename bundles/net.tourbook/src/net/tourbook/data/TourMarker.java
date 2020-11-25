@@ -16,7 +16,6 @@
 package net.tourbook.data;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.io.StringWriter;
@@ -412,7 +411,6 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
       return description == null ? UI.EMPTY_STRING : description;
    }
 
-   @JsonIgnore
    public long getDeviceLapTime() {
 
       if (_deviceLapTime == Long.MIN_VALUE) {

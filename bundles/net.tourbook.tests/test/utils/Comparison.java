@@ -31,7 +31,6 @@ import net.tourbook.data.TourData;
 
 import org.skyscreamer.jsonassert.ArrayValueMatcher;
 import org.skyscreamer.jsonassert.Customization;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
@@ -61,15 +60,16 @@ public class Comparison {
       final String testJson = testTourData.toJson();
 
       final ArrayValueMatcher<Object> arrValMatch = new ArrayValueMatcher<>(new CustomComparator(
-            JSONCompareMode.STRICT_ORDER,
-            new Customization("tourMarkers[*].tourData", (o1, o2) -> true)));
+            JSONCompareMode.LENIENT,
+            new Customization("tourMarkers[*].deviceLapTime", (o1, o2) -> true), //$NON-NLS-1$
+            new Customization("tourMarkers[*].tourData", (o1, o2) -> true))); //$NON-NLS-1$
 
-      final Customization arrayValueMatchCustomization = new Customization("tourMarkers", arrValMatch);
+      final Customization arrayValueMatchCustomization = new Customization("tourMarkers", arrValMatch); //$NON-NLS-1$
       final CustomComparator customArrayValueComparator = new CustomComparator(
-            JSONCompareMode.STRICT_ORDER,
+            JSONCompareMode.LENIENT,
             arrayValueMatchCustomization,
-            new Customization("tourId", (o1, o2) -> true),
-            new Customization("startTimeOfDay", (o1, o2) -> true));
+            new Customization("tourId", (o1, o2) -> true), //$NON-NLS-1$
+            new Customization("startTimeOfDay", (o1, o2) -> true)); //$NON-NLS-1$
 
       final JSONCompareResult result =
             JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
@@ -78,10 +78,7 @@ public class Comparison {
          WriteErroneousFiles(controlFileName, testJson);
       }
 
-      JSONAssert.assertEquals(
-            controlDocument,
-            testJson,
-            customArrayValueComparator);
+      assert result.passed();
    }
 
    private static String readFile(final String path, final Charset encoding) {
