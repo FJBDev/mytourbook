@@ -3269,7 +3269,7 @@ public class TourManager {
                   valueIndexLeft,
                   valueIndexRight);
 
-            return metricValue * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE_MM_OR_INCH;
+            return metricValue * UI.UNIT_VALUE_DISTANCE_MM_OR_INCH;
          }
       };
 
@@ -3284,7 +3284,7 @@ public class TourManager {
                   valueIndexLeft,
                   valueIndexRight);
 
-            return metricValue * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE_MM_OR_INCH / TourData.RUN_DYN_DATA_MULTIPLIER;
+            return metricValue * UI.UNIT_VALUE_DISTANCE_MM_OR_INCH / TourData.RUN_DYN_DATA_MULTIPLIER;
          }
       };
 
@@ -3820,7 +3820,7 @@ public class TourManager {
          }
 
          yDataAltitude.setYTitle(GRAPH_LABEL_ALTITUDE);
-         yDataAltitude.setUnitLabel(UI.UNIT_LABEL_ALTITUDE);
+         yDataAltitude.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
          yDataAltitude.setShowYSlider(true);
          yDataAltitude.setDisplayedFractionalDigits(2);
          yDataAltitude.setCustomData(ChartDataYSerie.YDATA_INFO, GRAPH_ALTITUDE);
@@ -4242,7 +4242,7 @@ public class TourManager {
          // adjust min/max values when it's defined in the pref store
          setVisibleForcedValues(
                yDataSerie,
-               net.tourbook.ui.UI.UNIT_VALUE_DISTANCE_MM_OR_INCH,
+               UI.UNIT_VALUE_DISTANCE_MM_OR_INCH,
                0.1,
                0.1,
                ITourbookPreferences.GRAPH_RUN_DYN_STEP_LENGTH_IS_MIN_ENABLED,
@@ -4288,7 +4288,7 @@ public class TourManager {
          // adjust min/max values when it's defined in the pref store
          setVisibleForcedValues(
                yDataSerie,
-               net.tourbook.ui.UI.UNIT_VALUE_DISTANCE_MM_OR_INCH,
+               UI.UNIT_VALUE_DISTANCE_MM_OR_INCH,
                0.1,
                0.1,
                ITourbookPreferences.GRAPH_RUN_DYN_VERTICAL_OSCILLATION_IS_MIN_ENABLED,

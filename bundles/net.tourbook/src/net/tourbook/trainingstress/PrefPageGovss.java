@@ -92,23 +92,22 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
    private Spinner               _spinnerThresholdPower_AverageSlope;
 
    private ActionOpenPrefDialog  _actionOpenTourTypePrefs;
-   private SelectionListener           _defaultSelectionListener;
-   private MouseWheelListener          _defaultMouseWheelListener;
+   private SelectionListener     _defaultSelectionListener;
+   private MouseWheelListener    _defaultMouseWheelListener;
 
-   private Group                       _govssGroup;
-   private TourPerson                  _tourPerson;
+   private Group                 _govssGroup;
+   private TourPerson            _tourPerson;
 
-   private Spinner                     _textThresholdPower_Duration_Hours;
-   private Spinner                     _textThresholdPower_Duration_Minutes;
-   private Spinner                     _textThresholdPower_Duration_Seconds;
-   private int                         _hintDefaultSpinnerWidth;
+   private Spinner               _textThresholdPower_Duration_Hours;
+   private Spinner               _textThresholdPower_Duration_Minutes;
+   private Spinner               _textThresholdPower_Duration_Seconds;
+   private int                   _hintDefaultSpinnerWidth;
 
-   private Button                      _btnComputeValues;
+   private Button                _btnComputeValues;
 
-   private ActionTourType_Add          _action_TourType_Add;
-   private ActionTourType_Remove       _action_TourType_Remove;
-   private Font                        _boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
-
+   private ActionTourType_Add    _action_TourType_Add;
+   private ActionTourType_Remove _action_TourType_Remove;
+   private Font                  _boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
 
    private class Action_TourType extends Action {
 
@@ -563,7 +562,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
       // s/km -> min/km
       thresholdVelocity /= 60f;
       // min/km -> min/km or min/mile
-      thresholdVelocity *= net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+      thresholdVelocity *= UI.UNIT_VALUE_DISTANCE;
 
       int thresholdVelocity_Minutes = (int) Math.floor(thresholdVelocity);
       int seconds = Math.round(60 * (thresholdVelocity - thresholdVelocity_Minutes));
@@ -674,7 +673,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
 
       //Total duration in seconds
       final int thresholdPowerDuration = getTimeTrialDuration();
-      float thresholdPowerDistance = (_spinnerThresholdPower_Distance.getSelection() / 10f) * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+      float thresholdPowerDistance = (_spinnerThresholdPower_Distance.getSelection() / 10f) * UI.UNIT_VALUE_DISTANCE;
       if (_tourPerson == null || thresholdPowerDuration <= 0 || thresholdPowerDistance <= 0) {
          _labelThresholdPower_Value.setText(String.valueOf(0));
          _labelThresholdVelocity_Value.setText(UI.EMPTY_STRING);
@@ -715,7 +714,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
       _textThresholdPower_Duration_Hours.setSelection(testDuration / 3600);
 
       final int thresholdPowerDistance = _tourPerson.getGovssTimeTrialDistance();
-      final int currentUnitThresholdPowerDistance = Math.round((thresholdPowerDistance / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE) / 100);
+      final int currentUnitThresholdPowerDistance = Math.round((thresholdPowerDistance / UI.UNIT_VALUE_DISTANCE) / 100);
       _spinnerThresholdPower_Distance.setSelection(currentUnitThresholdPowerDistance);
       _spinnerThresholdPower_AverageSlope.setSelection((int) _tourPerson.getGovssTimeTrialAverageSlope());
 
@@ -758,7 +757,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
       _tourPerson.setGovssThresholdPower(Integer.valueOf(_labelThresholdPower_Value.getText()));
       _tourPerson.setGovssTimeTrialDuration(getTimeTrialDuration());
 
-      final int thresholdPowerDistance = Math.round(_spinnerThresholdPower_Distance.getSelection() * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE * 100);
+      final int thresholdPowerDistance = Math.round(_spinnerThresholdPower_Distance.getSelection() * UI.UNIT_VALUE_DISTANCE * 100);
 
       _tourPerson.setGovssTimeTrialDistance(thresholdPowerDistance);
       _tourPerson.setGovssTimeTrialAverageSlope(_spinnerThresholdPower_AverageSlope.getSelection());

@@ -306,7 +306,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    //
    //
    private final IPreferenceStore         _prefStore                      = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore         _prefStoreCommon                = CommonActivator.getPrefStore();
+   private final IPreferenceStore         _prefStore_Common               = CommonActivator.getPrefStore();
    private final IDialogSettings          _state                          = TourbookPlugin.getState(ID);
    //
    private RawDataManager                 _rawDataMgr                     = RawDataManager.getInstance();
@@ -328,7 +328,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private IPartListener2                 _partListener;
    private ISelectionListener             _postSelectionListener;
    private IPropertyChangeListener        _prefChangeListener;
-   private IPropertyChangeListener        _prefChangeListenerCommon;
+   private IPropertyChangeListener        _prefChangeListener_Common;
    private ITourEventListener             _tourEventListener;
    //
    private TagMenuManager                 _tagMenuManager;
@@ -905,12 +905,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
                updateToolTipState();
 
-            } else if (property.equals(ITourbookPreferences.MEASUREMENT_SYSTEM)) {
-
-               // measurement system has changed
-
-               recreateViewer();
-
             } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
 
                _tourViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
@@ -930,7 +924,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       /*
        * Common preferences
        */
-      _prefChangeListenerCommon = new IPropertyChangeListener() {
+      _prefChangeListener_Common = new IPropertyChangeListener() {
 
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
@@ -940,12 +934,18 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             if (property.equals(ICommonPreferences.TIME_ZONE_LOCAL_ID)) {
 
                recreateViewer();
+
+            } else if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+
+               // measurement system has changed
+
+               recreateViewer();
             }
          }
       };
 
       // register the listener
-      _prefStoreCommon.addPropertyChangeListener(_prefChangeListenerCommon);
+      _prefStore_Common.addPropertyChangeListener(_prefChangeListener_Common);
    }
 
    private void addSelectionListener() {
@@ -1864,7 +1864,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             }
 
             final long tourTypeId = speedTT.tourTypeId;
-            final double avgSpeed = (speedTT.avgSpeed / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE) + 0.0001;
+            final double avgSpeed = (speedTT.avgSpeed / UI.UNIT_VALUE_DISTANCE) + 0.0001;
 
             ttText.append((int) avgSpeed);
             ttText.append(UI.SPACE);
@@ -1923,7 +1923,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       // last marker
       {
-         final double distance = importLauncher.lastMarkerDistance / 1000.0 / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+         final double distance = importLauncher.lastMarkerDistance / 1000.0 / UI.UNIT_VALUE_DISTANCE;
 
          final String distanceValue = _nf1.format(distance) + UI.SPACE1 + UI.UNIT_LABEL_DISTANCE;
 
@@ -2769,7 +2769,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          public void update(final ViewerCell cell) {
 
             final double dbValue = ((TourData) cell.getElement()).getTourAltDown();
-            final double value = -dbValue / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+            final double value = -dbValue / UI.UNIT_VALUE_ELEVATION;
 
             colDef.printValue_0(cell, value);
          }
@@ -2791,7 +2791,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          public void update(final ViewerCell cell) {
 
             final double dbValue = ((TourData) cell.getElement()).getTourAltUp();
-            final double value = dbValue / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+            final double value = dbValue / UI.UNIT_VALUE_ELEVATION;
 
             colDef.printValue_0(cell, value);
          }
@@ -2940,7 +2940,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             final float pace = tourDistance == 0 ? //
             0
-                  : time * 1000 / tourDistance * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+                  : time * 1000 / tourDistance * UI.UNIT_VALUE_DISTANCE;
 
             if (pace == 0) {
                cell.setText(UI.EMPTY_STRING);
@@ -2973,7 +2973,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             double value = 0;
 
             if (time != 0) {
-               value = tourDistance / time * 3.6 / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+               value = tourDistance / time * 3.6 / UI.UNIT_VALUE_DISTANCE;
             }
 
             colDef.printDetailValue(cell, value);
@@ -2994,7 +2994,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          public void update(final ViewerCell cell) {
 
             final double tourDistance = ((TourData) cell.getElement()).getTourDistance();
-            final double value = tourDistance / 1000 / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+            final double value = tourDistance / 1000 / UI.UNIT_VALUE_DISTANCE;
 
             colDef.printDetailValue(cell, value);
          }
@@ -3439,7 +3439,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       TourManager.getInstance().removeTourEventListener(_tourEventListener);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
-      _prefStoreCommon.removePropertyChangeListener(_prefChangeListenerCommon);
+      _prefStore_Common.removePropertyChangeListener(_prefChangeListener_Common);
 
       disposeConfigImages();
 
@@ -5861,7 +5861,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private void updateUI_TourViewerColumns() {
 
       // set tooltip text
-      final String timeZone = _prefStoreCommon.getString(ICommonPreferences.TIME_ZONE_LOCAL_ID);
+      final String timeZone = _prefStore_Common.getString(ICommonPreferences.TIME_ZONE_LOCAL_ID);
 
       final String timeZoneTooltip = NLS.bind(COLUMN_FACTORY_TIME_ZONE_DIFF_TOOLTIP, timeZone);
 

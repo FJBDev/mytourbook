@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.form.FormTools;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
@@ -33,7 +34,6 @@ import net.tourbook.tour.BreakTimeMethod;
 import net.tourbook.tour.BreakTimeTool;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.UI;
 import net.tourbook.ui.views.SmoothingUI;
 import net.tourbook.web.WEB;
 
@@ -98,9 +98,10 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
    private int                DEFAULT_DESCRIPTION_WIDTH;
    private int                DEFAULT_V_DISTANCE_PARAGRAPH;
-   private boolean            INITIAL_UNIT_IS_METRIC;
 
    private IPreferenceStore   _prefStore                       = TourbookPlugin.getPrefStore();
+
+   private int                _initialUnitHashCode;
 
    private NumberFormat       _nf0                             = NumberFormat.getNumberInstance();
    private NumberFormat       _nf1                             = NumberFormat.getNumberInstance();
@@ -320,7 +321,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
             // label: unit
             final Label label = new Label(dpContainer, SWT.NONE);
-            label.setText(net.tourbook.common.UI.UNIT_LABEL_ALTITUDE);
+            label.setText(UI.UNIT_LABEL_ELEVATION);
          }
 
          {
@@ -484,7 +485,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       _pagebookBreakTime.showPage(_pageBreakBySliceSpeed);
 
       container.layout(true, true);
-      net.tourbook.common.UI.setEqualizeColumWidths(_firstColBreakTime);
+      UI.setEqualizeColumWidths(_firstColBreakTime);
 
       return container;
    }
@@ -518,7 +519,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
             // label: km/h
             label = new Label(container, SWT.NONE);
-            label.setText(net.tourbook.common.UI.UNIT_LABEL_SPEED);
+            label.setText(UI.UNIT_LABEL_SPEED);
          }
 
          /*
@@ -543,7 +544,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
             // label: km/h
             label = new Label(container, SWT.NONE);
-            label.setText(net.tourbook.common.UI.UNIT_LABEL_SPEED);
+            label.setText(UI.UNIT_LABEL_SPEED);
          }
 
          /*
@@ -616,7 +617,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
          // label: km/h
          label = new Label(container, SWT.NONE);
-         label.setText(net.tourbook.common.UI.UNIT_LABEL_SPEED);
+         label.setText(UI.UNIT_LABEL_SPEED);
 
          /*
           * label: description
@@ -664,7 +665,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
          // label: km/h
          label = new Label(container, SWT.NONE);
-         label.setText(net.tourbook.common.UI.UNIT_LABEL_SPEED);
+         label.setText(UI.UNIT_LABEL_SPEED);
 
          /*
           * label: description
@@ -734,7 +735,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
             // label: unit
             _lblBreakDistanceUnit = new Label(container, SWT.NONE);
-            _lblBreakDistanceUnit.setText(net.tourbook.common.UI.UNIT_LABEL_DISTANCE_M_OR_YD);
+            _lblBreakDistanceUnit.setText(UI.UNIT_LABEL_DISTANCE_M_OR_YD);
             GridDataFactory
                   .fillDefaults()//
 //						.span(2, 1)
@@ -850,7 +851,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
          GridDataFactory.fillDefaults()//
                .grab(true, false)
                .span(3, 0)
-               .hint(net.tourbook.common.UI.DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
+               .hint(UI.DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
                .applyTo(label);
          label.setText(Messages.Compute_CadenceZonesTimes_Label_Description_CadenceZonesDelimiter);
       }
@@ -992,9 +993,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
       DEFAULT_DESCRIPTION_WIDTH = _pc.convertWidthInCharsToPixels(80);
       DEFAULT_V_DISTANCE_PARAGRAPH = _pc.convertVerticalDLUsToPixels(4);
-      INITIAL_UNIT_IS_METRIC = net.tourbook.common.UI.UNIT_IS_METRIC;
 
-      _hintDefaultSpinnerWidth = UI.IS_LINUX ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(UI.IS_OSX ? 10 : 5);
+      _initialUnitHashCode = UI.UNIT_HASH_CODE;
 
       _selectionListener = new SelectionAdapter() {
          @Override
@@ -1064,8 +1064,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
             return NLS.bind(
                   Messages.Compute_BreakTime_ForAllTour_Job_Result, //
                   new Object[] {
-                        net.tourbook.common.UI.format_hh_mm_ss(oldBreakTime[0]),
-                        net.tourbook.common.UI.format_hh_mm_ss(newBreakTime[0]), });
+                        UI.format_hh_mm_ss(oldBreakTime[0]),
+                        UI.format_hh_mm_ss(newBreakTime[0]), });
          }
 
          @Override
@@ -1085,8 +1085,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
                subTaskText = NLS.bind(
                      Messages.Compute_BreakTime_ForAllTour_Job_SubTask, //
                      new Object[] {
-                           net.tourbook.common.UI.format_hh_mm_ss(oldBreakTime[0]),
-                           net.tourbook.common.UI.format_hh_mm_ss(newBreakTime[0]), });
+                           UI.format_hh_mm_ss(oldBreakTime[0]),
+                           UI.format_hh_mm_ss(newBreakTime[0]), });
             }
 
             return subTaskText;
@@ -1149,13 +1149,13 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
          @Override
          public String getResultText() {
 
-            return net.tourbook.common.UI.NEW_LINE + NLS.bind(
+            return UI.NEW_LINE + NLS.bind(
                   Messages.Compute_CadenceZonesTimes_ComputeForAllTours_Job_Result,
                   new Object[] {
-                        net.tourbook.common.UI.format_hh_mm_ss(total_Old_CadenceZone_SlowTime[0]),
-                        net.tourbook.common.UI.format_hh_mm_ss(total_New_CadenceZone_SlowTime[0]),
-                        net.tourbook.common.UI.format_hh_mm_ss(total_Old_CadenceZone_FastTime[0]),
-                        net.tourbook.common.UI.format_hh_mm_ss(total_New_CadenceZone_FastTime[0]), });
+                        UI.format_hh_mm_ss(total_Old_CadenceZone_SlowTime[0]),
+                        UI.format_hh_mm_ss(total_New_CadenceZone_SlowTime[0]),
+                        UI.format_hh_mm_ss(total_Old_CadenceZone_FastTime[0]),
+                        UI.format_hh_mm_ss(total_New_CadenceZone_FastTime[0]), });
          }
 
          @Override
@@ -1175,8 +1175,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
       final float prefDPTolerance = _spinnerDPTolerance.getSelection() / 10.0f;
 
-      final String dpToleranceWithUnit = _nf1.format(prefDPTolerance) + net.tourbook.common.UI.SPACE1
-            + net.tourbook.common.UI.UNIT_LABEL_ALTITUDE;
+      final String dpToleranceWithUnit = _nf1.format(prefDPTolerance) + UI.SPACE1
+            + UI.UNIT_LABEL_ELEVATION;
 
       if (MessageDialog.openConfirm(
             Display.getCurrent().getActiveShell(),
@@ -1204,10 +1204,10 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
             final StringBuilder differenceResult = new StringBuilder();
             if (elevationDifference > 0) {
-               differenceResult.append(net.tourbook.common.UI.SYMBOL_PLUS);
+               differenceResult.append(UI.SYMBOL_PLUS);
             }
 
-            differenceResult.append(_nf0.format((elevationDifference) / UI.UNIT_VALUE_ALTITUDE));
+            differenceResult.append(_nf0.format((elevationDifference) / UI.UNIT_VALUE_ELEVATION));
             return differenceResult.toString();
          }
 
@@ -1222,7 +1222,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
                   new Object[] {
                         dpToleranceWithUnit,
                         differenceResult,
-                        net.tourbook.common.UI.UNIT_LABEL_ALTITUDE
+                        UI.UNIT_LABEL_ELEVATION
                   });
          }
 
@@ -1240,10 +1240,10 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
                final String differenceResult = getElevationDifferenceString(elevationDifference);
 
                subTaskText = NLS.bind(
-                     Messages.compute_tourValueElevation_subTaskText, //
+                     Messages.compute_tourValueElevation_subTaskText,
                      new Object[] {
                            differenceResult,
-                           net.tourbook.common.UI.UNIT_LABEL_ALTITUDE //
+                           UI.UNIT_LABEL_ELEVATION //
                      });
             }
 
@@ -1288,8 +1288,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
             return NLS.bind(
                   Messages.Compute_TourValue_ElevationGain_ResultText, //
                   new Object[] {
-                        _nf0.format((elevation[1] - elevation[0]) / UI.UNIT_VALUE_ALTITUDE),
-                        net.tourbook.common.UI.UNIT_LABEL_ALTITUDE //
+                        _nf0.format((elevation[1] - elevation[0]) / UI.UNIT_VALUE_ELEVATION),
+                        UI.UNIT_LABEL_ELEVATION //
                   });
          }
 
@@ -1306,8 +1306,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
                subTaskText = NLS.bind(
                      Messages.compute_tourValueElevation_subTaskText, //
                      new Object[] {
-                           _nf0.format((elevation[1] - elevation[0]) / UI.UNIT_VALUE_ALTITUDE),
-                           net.tourbook.common.UI.UNIT_LABEL_ALTITUDE //
+                           _nf0.format((elevation[1] - elevation[0]) / UI.UNIT_VALUE_ELEVATION),
+                           UI.UNIT_LABEL_ELEVATION //
                      });
             }
 
@@ -1356,7 +1356,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
           * compute altitude
           */
          final float prefDPTolerance = _prefStore.getDefaultFloat(//
-               ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE) * 10 / UI.UNIT_VALUE_ALTITUDE;
+               ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE) * 10 / UI.UNIT_VALUE_ELEVATION;
          _spinnerDPTolerance.setSelection((int) prefDPTolerance);
 
       } else if (selectedTab == TAB_FOLDER_SMOOTHING) {
@@ -1453,7 +1453,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
          /*
           * DP tolerance
           */
-         final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE) * 10 / UI.UNIT_VALUE_ALTITUDE;
+         final float prefDPTolerance = _prefStore.getFloat(ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE) * 10 / UI.UNIT_VALUE_ELEVATION;
          _spinnerDPTolerance.setSelection((int) prefDPTolerance);
 
          /*
@@ -1525,14 +1525,14 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       //If the saveState() was triggered by the change of measurement system,
       //we don't save the values as they were already saved and it would convert
       //those values by error
-      if (INITIAL_UNIT_IS_METRIC != net.tourbook.common.UI.UNIT_IS_METRIC) {
+      if (_initialUnitHashCode != UI.UNIT_HASH_CODE) {
          return;
       }
 
       // DP tolerance when computing altitude up/down
       _prefStore.setValue(
             ITourbookPreferences.COMPUTED_ALTITUDE_DP_TOLERANCE,
-            _spinnerDPTolerance.getSelection() / 10.0f * UI.UNIT_VALUE_ALTITUDE);
+            _spinnerDPTolerance.getSelection() / 10.0f * UI.UNIT_VALUE_ELEVATION);
 
       /*
        * break time method
@@ -1650,7 +1650,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       // break method pages have different heights, enforce layout of the whole view part
       _tabFolder.layout(true, true);
 
-      net.tourbook.common.UI.updateScrolledContent(_tabFolder);
+      UI.updateScrolledContent(_tabFolder);
    }
 
 }

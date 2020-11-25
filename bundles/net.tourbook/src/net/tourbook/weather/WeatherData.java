@@ -45,9 +45,9 @@ public class WeatherData {
    /**
     * Atmospheric pressure in millibars (mb)
     */
-   private int averagePressure;
+   private int    averagePressure;
 
-   private int windChill;
+   private int    windChill;
 
    public int getAverageHumidity() {
       return averageHumidity;
