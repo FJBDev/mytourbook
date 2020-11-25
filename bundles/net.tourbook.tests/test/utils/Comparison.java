@@ -74,9 +74,9 @@ public class Comparison {
       final JSONCompareResult result =
             JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
 
-      if (result.failed()) {
-         WriteErroneousFiles(controlFileName, testJson);
-      }
+//      if (result.failed()) {
+//         WriteErroneousFiles(controlFileName, testJson);
+//      }
 
       assert result.passed();
    }
