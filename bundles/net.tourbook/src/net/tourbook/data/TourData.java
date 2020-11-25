@@ -8244,7 +8244,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * @return Returns the tour start date time in seconds of the day.
     */
-   @JsonIgnore
    public int getStartTimeOfDay() {
       return (startHour * 3600) + (startMinute * 60) + startSecond;
 

@@ -57,6 +57,6 @@ public class GarminFitTester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 }

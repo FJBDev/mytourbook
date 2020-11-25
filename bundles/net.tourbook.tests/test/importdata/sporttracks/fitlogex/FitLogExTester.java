@@ -73,6 +73,6 @@ class FitLogExTester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
+      Comparison.CompareTourDataAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
    }
 }

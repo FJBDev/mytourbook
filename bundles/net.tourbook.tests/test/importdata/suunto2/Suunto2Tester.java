@@ -56,6 +56,6 @@ class Suunto2Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 }

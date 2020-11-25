@@ -29,6 +29,8 @@ import java.util.Map;
 
 import net.tourbook.data.TourData;
 
+import org.skyscreamer.jsonassert.ArrayValueMatcher;
+import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -47,7 +49,7 @@ public class Comparison {
     * @param controlFileName
     *           The control's file name.
     */
-   public static void CompareJsonAgainstControl(final TourData testTourData,
+   public static void CompareTourDataAgainstControl(final TourData testTourData,
                                                 final String controlFileName) {
 
       // When using Java 11, convert the line below to the Java 11 method
@@ -65,13 +67,21 @@ public class Comparison {
          WriteErroneousFiles(controlFileName, testJson);
       }
 
+      final ArrayValueMatcher<Object> arrValMatch = new ArrayValueMatcher<>(new CustomComparator(
+            JSONCompareMode.STRICT_ORDER,
+            new Customization("tourMarkers[*].tourData", (o1, o2) -> true)));
+
+      final Customization arrayValueMatchCustomization = new Customization("tourMarkers", arrValMatch);
+      final CustomComparator customArrayValueComparator = new CustomComparator(
+            JSONCompareMode.STRICT_ORDER,
+            arrayValueMatchCustomization,
+            new Customization("tourId", (o1, o2) -> true),
+            new Customization("startTimeOfDay", (o1, o2) -> true));
+
       JSONAssert.assertEquals(
             controlDocument,
             testJson,
-            new CustomComparator(JSONCompareMode.LENIENT));
-//                  ,new Customization("importFilePathName", (o1, o2) -> true),
-//                  new Customization("importFilePathNameText", (o1, o2) -> true),
-//                  new Customization("importFilePath", (o1, o2) -> true)));
+            customArrayValueComparator);
    }
 
    private static String readFile(final String path, final Charset encoding) {

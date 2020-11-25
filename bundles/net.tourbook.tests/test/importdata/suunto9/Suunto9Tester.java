@@ -97,7 +97,7 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 
    /**
@@ -112,7 +112,7 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 
    /**
@@ -127,7 +127,7 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 
    /**
@@ -142,7 +142,7 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 
    /**
@@ -184,7 +184,7 @@ class Suunto9Tester {
       deviceDataReader.processDeviceData(maxWell3FilePath, deviceData, alreadyImportedTours, newlyImportedTours);
 
       final TourData entry = GetLastTourDataImported();
-      Comparison.CompareJsonAgainstControl(entry, controlDocumentPath);
+      Comparison.CompareTourDataAgainstControl(entry, controlDocumentPath);
    }
 
    /**
@@ -200,7 +200,7 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 
    /**
@@ -215,6 +215,6 @@ class Suunto9Tester {
 
       final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
 
-      Comparison.CompareJsonAgainstControl(tour, filePath);
+      Comparison.CompareTourDataAgainstControl(tour, filePath);
    }
 }
