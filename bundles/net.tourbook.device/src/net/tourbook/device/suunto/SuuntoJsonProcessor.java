@@ -84,9 +84,7 @@ public class SuuntoJsonProcessor {
    private static final String Turn                 = "Turn";                                          //$NON-NLS-1$
    private static int          previousTotalLengths = 0;
 
-   private ArrayList<TimeData> _sampleList;
-   private ArrayList<Long>     _pausedTime_Start;
-   private ArrayList<Long>     _pausedTime_End;
+   private List<TimeData>      _sampleList;
    private int                 _numLaps;
    final IPreferenceStore      _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
 
@@ -122,15 +120,17 @@ public class SuuntoJsonProcessor {
     * @param isIndoorTour
     *           True if the current tour is an indoor activity (i.e. No GPS data).
     */
-   private void cleanUpActivity(final ArrayList<TimeData> activityData, final boolean isIndoorTour) {
+   private void cleanUpActivity(final List<TimeData> activityData, final boolean isIndoorTour) {
 
       // Also, we first need to make sure that they truly are in chronological order.
       Collections.sort(activityData, new Comparator<TimeData>() {
          @Override
          public int compare(final TimeData firstTimeData, final TimeData secondTimeData) {
             // -1 - less than, 1 - greater than, 0 - equal.
-            return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : (firstTimeData.absoluteTime < secondTimeData.absoluteTime) ? -1
-                  : 0;
+
+            final int isLessThanOrEqual = firstTimeData.absoluteTime < secondTimeData.absoluteTime ? -1 : 0;
+
+            return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : isLessThanOrEqual;
          }
       });
 
@@ -166,7 +166,7 @@ public class SuuntoJsonProcessor {
     *
     * @return The list of data.
     */
-   public ArrayList<TimeData> getSampleList() {
+   public List<TimeData> getSampleList() {
       return _sampleList;
    }
 
@@ -183,10 +183,10 @@ public class SuuntoJsonProcessor {
     */
    public TourData ImportActivity(final String jsonFileContent,
                                   final TourData activityToReUse,
-                                  final ArrayList<TimeData> sampleListToReUse) {
+                                  final List<TimeData> sampleListToReUse) {
       _sampleList = new ArrayList<>();
-      _pausedTime_Start = new ArrayList<>();
-      _pausedTime_End = new ArrayList<>();
+      final ArrayList<Long> _pausedTime_Start = new ArrayList<>();
+      final ArrayList<Long> _pausedTime_End = new ArrayList<>();
 
       JSONArray samples = null;
       try {
@@ -306,8 +306,12 @@ public class SuuntoJsonProcessor {
             } else if (currentSampleData.contains(Boolean.FALSE.toString())) {
                isPaused = false;
 
-               _pausedTime_Start.add(pauseStartTime.toInstant().toEpochMilli());
-               _pausedTime_End.add(currentZonedDateTime.toInstant().toEpochMilli());
+               final long pauseStartTimeMilli = pauseStartTime.toInstant().toEpochMilli();
+               final long pauseEndTimeMilli = currentZonedDateTime.toInstant().toEpochMilli();
+               if (pauseEndTimeMilli - pauseStartTimeMilli >= 1000) {
+                  _pausedTime_Start.add(pauseStartTimeMilli);
+                  _pausedTime_End.add(pauseEndTimeMilli);
+               }
             }
          }
 
@@ -410,7 +414,7 @@ public class SuuntoJsonProcessor {
     */
    private TourData InitializeActivity(final JSONObject firstSample,
                                        final TourData activityToReUse,
-                                       final ArrayList<TimeData> sampleListToReUse) {
+                                       final List<TimeData> sampleListToReUse) {
       TourData tourData = new TourData();
       final String firstSampleAttributes = firstSample.get(TAG_ATTRIBUTES).toString();
 
@@ -626,10 +630,8 @@ public class SuuntoJsonProcessor {
          // total length, it was likely a "rest" and we retrieve
          // the very last pool length in order to create a
          // rest lap.
-         if (currentTotalLengths > 0 && currentTotalLengths == previousTotalLengths) {
-            if (previousSwimData != null) {
-               previousSwimData.swim_LengthType = LengthType.IDLE.getValue();
-            }
+         if (currentTotalLengths > 0 && currentTotalLengths == previousTotalLengths && previousSwimData != null) {
+            previousSwimData.swim_LengthType = LengthType.IDLE.getValue();
          }
 
          final SwimData swimData = new SwimData();
@@ -696,7 +698,7 @@ public class SuuntoJsonProcessor {
     * @param rrDataStartTime
     *           The first R-R interval recorded date time.
     */
-   private void TryComputeHeartRateData(final ArrayList<TimeData> activityData,
+   private void TryComputeHeartRateData(final List<TimeData> activityData,
                                         final List<Integer> rrDataList,
                                         final long rrDataStartTime) {
       if (rrDataList.isEmpty()) {
@@ -711,8 +713,8 @@ public class SuuntoJsonProcessor {
       for (int currentActivityIndex = 0; currentActivityIndex < activityData.size() &&
             currentRRindex < rrDataList.size() - 1; ++currentActivityIndex) {
 
-         for (; RRsum < activityData.get(currentActivityIndex).absoluteTime &&
-               currentRRindex < rrDataList.size() - 1;) {
+         while (RRsum < activityData.get(currentActivityIndex).absoluteTime &&
+               currentRRindex < rrDataList.size() - 1) {
             ++currentRRindex;
             currentRRSum += rrDataList.get(currentRRindex);
             RRsum += rrDataList.get(currentRRindex);

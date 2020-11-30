@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2005, 2018 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,30 +13,22 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package utils;
+package net.tourbook.ui.views;
 
-import de.byteholder.geoclipse.map.UI;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import net.tourbook.common.util.Util;
 
-import org.xml.sax.SAXException;
+public class ActionHandler_OpenView_TourData extends AbstractHandler {
 
-public class Initializer {
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 
-   public static SAXParser initializeParser() {
-      final SAXParserFactory factory = SAXParserFactory.newInstance();
-      SAXParser parser = null;
-      try {
-         parser = factory.newSAXParser();
-         parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, UI.EMPTY_STRING);
-         parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, UI.EMPTY_STRING);
-      } catch (final ParserConfigurationException | SAXException e) {
-         e.printStackTrace();
-      }
+		Util.showView(TourData_View.ID, true);
 
-      return parser;
-   }
+		return null;
+	}
+
 }

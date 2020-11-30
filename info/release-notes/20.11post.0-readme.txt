@@ -10,19 +10,19 @@ TODO's
 Issues
 ======
 
-* Calendar View
-  - "Scrambled days" - It's a bug that I can only reproduce in Linux: when scrolling up/down in the calendar view or going to another view and going back to the calendar view, the days get "scrambled" and the saturday and sunday are not on the right anymore but can be anywhere (left, middle...etc)
+*
 
-
-* Tourbook View (flat)
-  - When tour filter is modified then reordered column positions are reset
-  
   
 New
 ===
 
 * Measurement System
- - Select measurement system for each unit separately
+  - Select measurement system for each unit separately
+ 
+* Tour Info View
+  - Tour info which is displayed in a tooltip is now also displayed in a separate view
+    https://sourceforge.net/p/mytourbook/feature-requests/167/
+  - The old "Tour Info" view ins now renamed into "Tour Data" view
 
 
 Improvements
@@ -32,16 +32,25 @@ Improvements
   - Show values with the selected measurement system
   - Show value labels with the selected language
 
+
 Changes  
 =======
 
-* 
+* Dialog Adjust Elevation
+  - The elevation of the rightmost spline point is now set to the SRTM value when the adjustment type is "Approach elevation with SRTM data"
+  
+* Tour Editor
+  - Number of visible lines for the tour description is moved from pref page "Appearance/Tour Editor" into the slideout "Tour Editor Options"
 
 
 Fixes   
 =====
 
-* 
+* Tourbook View (flat)
+  - When tour filter is modified then reordered column positions are reset
+  
+* Calendar View
+  - The calendar week did not start always with the first day of week, it depended on the selected tour date 
 
 
 Translation    

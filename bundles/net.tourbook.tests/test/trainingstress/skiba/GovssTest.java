@@ -61,7 +61,7 @@ class GovssTest {
 
       parser.parse(gpx, gpxSaxHandler);
 
-      final TourData tour = Comparison.RetrieveImportedTour(newlyImportedTours);
+      final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
       final Integer govss = new Govss(tourPerson, tour).Compute();
       assert govss.equals(114);
