@@ -11125,6 +11125,7 @@
          id="tspan2464"
          x="451"
          y="117" /></text>
+<<<<<<< HEAD
   </g>
   <g
        inkscape:export-ydpi="96.000458"
@@ -11228,5 +11229,7 @@
        id="path985"
        d="m 302.03693,254.54376 1.19692,-4.09802 3.04215,-3.08617 1.99485,-0.96127 2.14447,-0.60711 5.48586,-0.86008 2.05402,-0.55833 0.0405,10.17098 z"
        style="fill:#0055d4;fill-opacity:0.745098;stroke:#001955;stroke-width:0.0351616px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+=======
+>>>>>>> refs/remotes/origin/main
   </g>
 </svg>

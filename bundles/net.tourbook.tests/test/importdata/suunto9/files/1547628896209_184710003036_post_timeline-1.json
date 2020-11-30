@@ -26,9 +26,15 @@
   "frontShiftCount" : 0,
   "govss" : 0,
   "importFileName" : "1547628896209_184710003036_post_timeline-1.json.gz",
+<<<<<<< HEAD
   "importFilePath" : "C:\\Users\\frederic\\git\\MT\\mytourbook\\bundles\\net.tourbook.tests\\test\\importdata\\suunto9\\files",
   "importFilePathName" : "C:\\Users\\frederic\\git\\MT\\mytourbook\\bundles\\net.tourbook.tests\\test\\importdata\\suunto9\\files\\1547628896209_184710003036_post_timeline-1.json.gz",
   "importFilePathNameText" : "C:\\Users\\frederic\\git\\MT\\mytourbook\\bundles\\net.tourbook.tests\\test\\importdata\\suunto9\\files\\1547628896209_184710003036_post_timeline-1.json.gz",
+=======
+  "importFilePath" : "/home/frederic/git/mytourbook/bundles/net.tourbook.tests/test/importdata/suunto9/files",
+  "importFilePathName" : "/home/frederic/git/mytourbook/bundles/net.tourbook.tests/test/importdata/suunto9/files/1547628896209_184710003036_post_timeline-1.json.gz",
+  "importFilePathNameText" : "/home/frederic/git/mytourbook/bundles/net.tourbook.tests/test/importdata/suunto9/files/1547628896209_184710003036_post_timeline-1.json.gz",
+>>>>>>> refs/remotes/origin/main
   "isBackupImportFile" : false,
   "isHistoryTour" : false,
   "isSwimCadence" : false,
