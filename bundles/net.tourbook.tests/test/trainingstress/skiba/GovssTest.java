@@ -1,5 +1,7 @@
 package trainingstress.skiba;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -29,7 +31,7 @@ class GovssTest {
    private static HashMap<Long, TourData> alreadyImportedTours;
    private static GarminDeviceDataReader  deviceDataReader;
 
-   public static final String             IMPORT_FILE_PATH = "/trainingstress/skiba/files/Move_2017_09_30_05_36_06_Trail+running-MtWhitney.gpx"; //$NON-NLS-1$
+   public static final String             IMPORT_FILE_PATH = "/trainingstress/skiba/files/"; //$NON-NLS-1$
 
    @BeforeAll
    static void setUp() {
@@ -47,10 +49,8 @@ class GovssTest {
       deviceDataReader = new GarminDeviceDataReader();
    }
 
-   @Test
-   void testComputeGovss() throws SAXException, IOException {
-
-      final InputStream gpx = GovssTest.class.getResourceAsStream(IMPORT_FILE_PATH);
+   private Integer ComputeGovssFromTour(final String fileName) {
+      final InputStream gpx = GovssTest.class.getResourceAsStream(IMPORT_FILE_PATH + fileName);
 
       final GPX_SAX_Handler gpxSaxHandler = new GPX_SAX_Handler(
             deviceDataReader,
@@ -59,11 +59,69 @@ class GovssTest {
             alreadyImportedTours,
             newlyImportedTours);
 
-      parser.parse(gpx, gpxSaxHandler);
+      try {
+         parser.parse(gpx, gpxSaxHandler);
+      } catch (SAXException | IOException e) {
+         e.printStackTrace();
+      }
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
       final Integer govss = new Govss(tourPerson, tour).Compute();
-      assert govss.equals(114);
+      return govss;
+   }
+
+   @Test
+   void testComputeGovssForestPark() {
+      final Integer govss = ComputeGovssFromTour("2015-04-10-ForestPark.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 93
+      //GoldenCheetah 3.6 value: 94
+      assertEquals(114, govss);
+   }
+
+   @Test
+   void testComputeGovssHallRanch() {
+      final Integer govss = ComputeGovssFromTour("2020-05-03-HallRanch.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 116
+      //GoldenCheetah 3.6 value: 117
+      assertEquals(108, govss);
+   }
+
+   @Test
+   void testComputeGovssMtEddy() {
+      final Integer govss = ComputeGovssFromTour("2018-06-09-MtEddy.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 75
+      //GoldenCheetah 3.6 value: 59
+      assertEquals(82, govss);
+   }
+
+   @Test
+   void testComputeGovssMtWhitney() {
+      final Integer govss = ComputeGovssFromTour("2017-09-30-MtWhitney.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 82
+      //GoldenCheetah 3.6 value: 58
+      assertEquals(113, govss);
+   }
+
+   @Test
+   void testComputeGovssSoftRockPart2() {
+      final Integer govss = ComputeGovssFromTour("2018_07_11-SoftRock-CW-Part2.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 89
+      //GoldenCheetah 3.6 value: 79
+      assertEquals(107, govss);
+   }
+
+   @Test
+   void testComputeGovssTMBPart2() {
+      final Integer govss = ComputeGovssFromTour("2019-07-14-TMB-Part2.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 179
+      //GoldenCheetah 3.6 value: 147
+      assertEquals(194, govss);
    }
 }
