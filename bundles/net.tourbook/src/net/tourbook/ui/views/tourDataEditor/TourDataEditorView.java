@@ -24,11 +24,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.NumberFormat;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -222,66 +220,57 @@ import org.eclipse.ui.progress.UIJob;
  */
 public class TourDataEditorView extends ViewPart implements ISaveablePart, ISaveAndRestorePart, ITourProvider2 {
 
-   public static final String     ID                            = "net.tourbook.views.TourDataEditorView";                //$NON-NLS-1$
+   public static final String            ID                            = "net.tourbook.views.TourDataEditorView";                //$NON-NLS-1$
    //
-   private static final String    GRAPH_LABEL_HEARTBEAT_UNIT    = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
-   private static final String    VALUE_UNIT_K_CALORIES         = net.tourbook.ui.Messages.Value_Unit_KCalories;
+   private static final String           GRAPH_LABEL_HEARTBEAT_UNIT    = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
+   private static final String           VALUE_UNIT_K_CALORIES         = net.tourbook.ui.Messages.Value_Unit_KCalories;
    //
-   /**
-    * On Linux an async selection event is fired since e4
-    */
-   private static final String    FIX_LINUX_ASYNC_EVENT_1       = "FIX_LINUX_ASYNC_EVENT_1";                              //$NON-NLS-1$
-   private static final String    FIX_LINUX_ASYNC_EVENT_2       = "FIX_LINUX_ASYNC_EVENT_2";                              //$NON-NLS-1$
+   private static final int              COLUMN_SPACING                = 20;
    //
-   private static final int       COLUMN_SPACING                = 20;
+   private static final String           WIDGET_KEY                    = "widgetKey";                                            //$NON-NLS-1$
+   private static final String           WIDGET_KEY_TOURDISTANCE       = "tourDistance";                                         //$NON-NLS-1$
+   private static final String           WIDGET_KEY_ALTITUDE_UP        = "altitudeUp";                                           //$NON-NLS-1$
+   private static final String           WIDGET_KEY_ALTITUDE_DOWN      = "altitudeDown";                                         //$NON-NLS-1$
+   private static final String           WIDGET_KEY_PERSON             = "tourPerson";                                           //$NON-NLS-1$
    //
-   private static final String    WIDGET_KEY                    = "widgetKey";                                            //$NON-NLS-1$
-   private static final String    WIDGET_KEY_TOURDISTANCE       = "tourDistance";                                         //$NON-NLS-1$
-   private static final String    WIDGET_KEY_ALTITUDE_UP        = "altitudeUp";                                           //$NON-NLS-1$
-   private static final String    WIDGET_KEY_ALTITUDE_DOWN      = "altitudeDown";                                         //$NON-NLS-1$
-   private static final String    WIDGET_KEY_PERSON             = "tourPerson";                                           //$NON-NLS-1$
-   //
-   private static final String    MESSAGE_KEY_ANOTHER_SELECTION = "anotherSelection";                                     //$NON-NLS-1$
+   private static final String           MESSAGE_KEY_ANOTHER_SELECTION = "anotherSelection";                                     //$NON-NLS-1$
    //
    /**
     * shows the busy indicator to load the slice viewer when there are more items as this value
     */
-   private static final int       BUSY_INDICATOR_ITEMS          = 5000;
+   private static final int              BUSY_INDICATOR_ITEMS          = 5000;
    //
-   private static final String    STATE_SELECTED_TAB            = "tourDataEditor.selectedTab";                           //$NON-NLS-1$
-   private static final String    STATE_ROW_EDIT_MODE           = "tourDataEditor.rowEditMode";                           //$NON-NLS-1$
-   private static final String    STATE_IS_EDIT_MODE            = "tourDataEditor.isEditMode";                            //$NON-NLS-1$
-   private static final String    STATE_CSV_EXPORT_PATH         = "tourDataEditor.csvExportPath";                         //$NON-NLS-1$
+   private static final String           STATE_SELECTED_TAB            = "tourDataEditor.selectedTab";                           //$NON-NLS-1$
+   private static final String           STATE_ROW_EDIT_MODE           = "tourDataEditor.rowEditMode";                           //$NON-NLS-1$
+   private static final String           STATE_IS_EDIT_MODE            = "tourDataEditor.isEditMode";                            //$NON-NLS-1$
+   private static final String           STATE_CSV_EXPORT_PATH         = "tourDataEditor.csvExportPath";                         //$NON-NLS-1$
    //
-   private static final String    STATE_SECTION_CHARACTERISTICS = "STATE_SECTION_CHARACTERISTICS";                        //$NON-NLS-1$
-   private static final String    STATE_SECTION_DATE_TIME       = "STATE_SECTION_DATE_TIME";                              //$NON-NLS-1$
-   private static final String    STATE_SECTION_PERSONAL        = "STATE_SECTION_PERSONAL";                               //$NON-NLS-1$
-   private static final String    STATE_SECTION_TITLE           = "STATE_SECTION_TITLE";                                  //$NON-NLS-1$
-   private static final String    STATE_SECTION_WEATHER         = "STATE_SECTION_WEATHER";                                //$NON-NLS-1$
+   private static final String           STATE_SECTION_CHARACTERISTICS = "STATE_SECTION_CHARACTERISTICS";                        //$NON-NLS-1$
+   private static final String           STATE_SECTION_DATE_TIME       = "STATE_SECTION_DATE_TIME";                              //$NON-NLS-1$
+   private static final String           STATE_SECTION_PERSONAL        = "STATE_SECTION_PERSONAL";                               //$NON-NLS-1$
+   private static final String           STATE_SECTION_TITLE           = "STATE_SECTION_TITLE";                                  //$NON-NLS-1$
+   private static final String           STATE_SECTION_WEATHER         = "STATE_SECTION_WEATHER";                                //$NON-NLS-1$
    //
-   static final String            STATE_LAT_LON_DIGITS          = "STATE_LAT_LON_DIGITS";                                 //$NON-NLS-1$
-   static final int               DEFAULT_LAT_LON_DIGITS        = 5;
-   private static final String    COLUMN_DATA_SEQUENCE          = "DATA_SEQUENCE";                                        //$NON-NLS-1$
-   private static final String    COLUMN_ALTITUDE               = "ALTITUDE_ALTITUDE";                                    //$NON-NLS-1$
-   private static final String    COLUMN_PULSE                  = "BODY_PULSE";                                           //$NON-NLS-1$
-   private static final String    COLUMN_CADENCE                = "POWERTRAIN_CADENCE";                                   //$NON-NLS-1$
-   private static final String    COLUMN_TEMPERATURE            = "WEATHER_TEMPERATURE";                                  //$NON-NLS-1$
-   private static final String    COLUMN_POWER                  = "POWER";                                                //$NON-NLS-1$
-   private static final String    COLUMN_PACE                   = "MOTION_PACE";                                          //$NON-NLS-1$
+   static final String                   STATE_LAT_LON_DIGITS          = "STATE_LAT_LON_DIGITS";                                 //$NON-NLS-1$
+   static final int                      DEFAULT_LAT_LON_DIGITS        = 5;
+   private static final String           COLUMN_DATA_SEQUENCE          = "DATA_SEQUENCE";                                        //$NON-NLS-1$
+   private static final String           COLUMN_ALTITUDE               = "ALTITUDE_ALTITUDE";                                    //$NON-NLS-1$
+   private static final String           COLUMN_PULSE                  = "BODY_PULSE";                                           //$NON-NLS-1$
+   private static final String           COLUMN_CADENCE                = "POWERTRAIN_CADENCE";                                   //$NON-NLS-1$
+   private static final String           COLUMN_TEMPERATURE            = "WEATHER_TEMPERATURE";                                  //$NON-NLS-1$
+   private static final String           COLUMN_POWER                  = "POWER";                                                //$NON-NLS-1$
+   private static final String           COLUMN_PACE                   = "MOTION_PACE";                                          //$NON-NLS-1$
    //
-   private final IPreferenceStore _prefStore                    = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore _prefStoreCommon              = CommonActivator.getPrefStore();
-   private final IDialogSettings  _state                        = TourbookPlugin.getState(ID);
-   private final IDialogSettings  _stateTimeSlice               = TourbookPlugin.getState(ID + ".slice");                 //$NON-NLS-1$
-   private final IDialogSettings  _stateSwimSlice               = TourbookPlugin.getState(ID + ".swimSlice");             //$NON-NLS-1$
+   private static final IPreferenceStore _prefStore                    = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore_Common             = CommonActivator.getPrefStore();
+   private static final IDialogSettings  _state                        = TourbookPlugin.getState(ID);
+   private static final IDialogSettings  _stateTimeSlice               = TourbookPlugin.getState(ID + ".slice");                 //$NON-NLS-1$
+   private static final IDialogSettings  _stateSwimSlice               = TourbookPlugin.getState(ID + ".swimSlice");             //$NON-NLS-1$
    //
-   private final boolean          _isOSX                        = UI.IS_OSX;
-   private final boolean          _isLinux                      = UI.IS_LINUX;
+   private static final boolean          IS_LINUX                      = UI.IS_LINUX;
+   private static final boolean          IS_OSX                        = UI.IS_OSX;
    //
-   /**
-    * Tour start daytime in seconds
-    */
-   private int                    _tourStartDayTime;
+   private ZonedDateTime                 _tourStartTime;
    //
    /*
     * Data series which are displayed in the viewer, all are metric system
@@ -323,7 +312,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private ISelectionListener      _postSelectionListener;
    private IPartListener2          _partListener;
    private IPropertyChangeListener _prefChangeListener;
-   private IPropertyChangeListener _prefChangeListenerCommon;
+   private IPropertyChangeListener _prefChangeListener_Common;
    private ITourEventListener      _tourEventListener;
    private ITourSaveListener       _tourSaveListener;
    //
@@ -396,7 +385,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     * this width is used as a hint for the width of the description field, this value also
     * influences the width of the columns in this editor
     */
-   private final int                          _hintTextColumnWidth    = _isOSX ? 200 : 150;
+   private final int                          _hintTextColumnWidth    = IS_OSX ? 200 : 150;
    private int                                _hintValueFieldWidth;
    private int                                _hintDefaultSpinnerWidth;
 
@@ -484,8 +473,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    /*
     * Measurement unit values
     */
-   private float                            _unitValueAltitude;
    private float                            _unitValueDistance;
+   private float                            _unitValueElevation;
    private int[]                            _unitValueWindSpeed;
    //
    private MenuManager                      _swimViewer_MenuManager;
@@ -633,7 +622,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Spinner            _spinPerson_BodyWeight;
    private Spinner            _spinPerson_Calories;
    private Spinner            _spinPerson_FTP;
-   private Spinner            _spinPerson_RestPuls;
+   private Spinner            _spinPerson_RestPulse;
    private Spinner            _spinWeather_Humidity;
    private Spinner            _spinWeather_PrecipitationValue;
    private Spinner            _spinWeather_PressureValue;
@@ -884,11 +873,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
           */
          if (__dataSerie == _serieAltitude) {
 
-            if (_unitValueAltitude != 1) {
+            if (_unitValueElevation != 1) {
 
                // none metric measurement system
 
-               displayedValue /= _unitValueAltitude;
+               displayedValue /= _unitValueElevation;
             }
 
          } else if (__dataSerie == _serieTemperature) {
@@ -923,13 +912,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
                if (__dataSerie == _serieAltitude) {
 
-                  if (_unitValueAltitude != 1) {
+                  if (_unitValueElevation != 1) {
 
                      // none metric measurement system
 
                      // ensure float is used
                      final float noneMetricValue = enteredValue;
-                     metricValue = Math.round(noneMetricValue * _unitValueAltitude);
+                     metricValue = Math.round(noneMetricValue * _unitValueElevation);
                   }
 
                }
@@ -2001,7 +1990,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             // altitude
             if (_serieAltitude != null) {
-               sb.append(_nf3.format(_serieAltitude[serieIndex] / _unitValueAltitude));
+               sb.append(_nf3.format(_serieAltitude[serieIndex] / _unitValueElevation));
             }
             sb.append(UI.TAB);
 
@@ -2418,11 +2407,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             final String property = event.getProperty();
 
-            if (property.equals(ITourbookPreferences.MEASUREMENT_SYSTEM)
-                  || property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
+            if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
 
                /*
-                * tour data could have been changed but the changes are not reflected in the data
+                * Tour data could have been modified but the changes are not reflected in the data
                 * model, the model needs to be updated from the UI
                 */
                if (isTourValid()) {
@@ -2442,25 +2430,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                   discardModifications();
                }
 
-               if (property.equals(ITourbookPreferences.MEASUREMENT_SYSTEM)) {
-
-                  // measurement system has changed
-
-                  net.tourbook.ui.UI.updateUnits();
-
-                  /*
-                   * It is possible that the unit values in the UI class have been updated before
-                   * the model was saved, this can happen when another view called the method
-                   * UI.updateUnits(). Because of this race condition, only the internal units are
-                   * used to calculate values which depend on the measurement system
-                   */
-                  updateInternalUnitValues();
-
-                  recreateViewer();
-
-                  updateUI_FromModel(_tourData, false, true);
-
-               } else if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
+               if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
 
                   // reload tour data
 
@@ -2477,14 +2447,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             }
          }
       };
-      _prefStore.addPropertyChangeListener(_prefChangeListener);
 
       /*
        * Common preferences
        */
-      _prefChangeListenerCommon = new IPropertyChangeListener() {
+      _prefChangeListener_Common = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
+
+            if (_tourData == null) {
+               return;
+            }
 
             final String property = event.getProperty();
 
@@ -2493,12 +2466,53 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                // reload tour data
 
                updateUI_FromModel(_tourData, false, true);
+
+            } else if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+
+               /*
+                * Tour data could have been modified but the changes are not reflected in the data
+                * model, the model needs to be updated from the UI
+                */
+               if (isTourValid()) {
+
+// this has been disabled because the measurement has changed and it would update from the wrong measurement system
+// it was also prevented that the measurement can be changed when the tour is modified
+//
+//                  updateModel_FromUI();
+
+               } else {
+
+                  MessageDialog.openInformation(
+                        Display.getCurrent().getActiveShell(),
+                        Messages.tour_editor_dlg_discard_tour_title,
+                        Messages.tour_editor_dlg_discard_tour_message);
+
+                  discardModifications();
+               }
+
+               if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+
+                  // measurement system has changed
+
+                  /*
+                   * It is possible that the unit values in the UI class have been updated before
+                   * the model was saved, this can happen when another view called the method
+                   * UI.updateUnits(). Because of this race condition, only the internal units are
+                   * used to calculate values which depend on the measurement system
+                   */
+                  updateInternalUnitValues();
+
+                  recreateViewer();
+
+                  updateUI_FromModel(_tourData, false, true);
+               }
             }
          }
       };
 
       // register the listener
-      _prefStoreCommon.addPropertyChangeListener(_prefChangeListenerCommon);
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
+      _prefStore_Common.addPropertyChangeListener(_prefChangeListener_Common);
    }
 
    /**
@@ -2806,7 +2820,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          @Override
          public void modifyText(final ModifyEvent e) {
 
-            if (_isSetField || _isSavingInProgress) {
+            if (UI.isLinuxAsyncEvent(e.widget) || _isSetField || _isSavingInProgress) {
                return;
             }
 
@@ -2864,12 +2878,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          @Override
          public void widgetSelected(final SelectionEvent e) {
 
-            if (_isLinux && e.widget.getData(FIX_LINUX_ASYNC_EVENT_1) != null) {
-               e.widget.setData(FIX_LINUX_ASYNC_EVENT_1, null);
-               return;
-            }
-
-            if (_isSetField || _isSavingInProgress) {
+            if (UI.isLinuxAsyncEvent(e.widget) || _isSetField || _isSavingInProgress) {
                return;
             }
 
@@ -3428,17 +3437,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             @Override
             public void widgetSelected(final SelectionEvent e) {
 
-               if (_isLinux && e.widget.getData(FIX_LINUX_ASYNC_EVENT_1) != null) {
-                  e.widget.setData(FIX_LINUX_ASYNC_EVENT_1, null);
-                  return;
-               }
-
-               if (_isLinux && e.widget.getData(FIX_LINUX_ASYNC_EVENT_2) != null) {
-                  e.widget.setData(FIX_LINUX_ASYNC_EVENT_2, null);
-                  return;
-               }
-
-               if (_isSetField || _isSavingInProgress) {
+               if (UI.isLinuxAsyncEvent(e.widget) || _isSetField || _isSavingInProgress) {
                   return;
                }
 
@@ -3477,17 +3476,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                @Override
                public void widgetSelected(final SelectionEvent e) {
 
-                  if (_isLinux && e.widget.getData(FIX_LINUX_ASYNC_EVENT_1) != null) {
-                     e.widget.setData(FIX_LINUX_ASYNC_EVENT_1, null);
-                     return;
-                  }
-
-                  if (_isLinux && e.widget.getData(FIX_LINUX_ASYNC_EVENT_2) != null) {
-                     e.widget.setData(FIX_LINUX_ASYNC_EVENT_2, null);
-                     return;
-                  }
-
-                  if (_isSetField || _isSavingInProgress) {
+                  if (UI.isLinuxAsyncEvent(e.widget) || _isSetField || _isSavingInProgress) {
                      return;
                   }
 
@@ -3555,7 +3544,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             });
             GridDataFactory.fillDefaults().hint(_hintValueFieldWidth, SWT.DEFAULT).applyTo(_txtAltitudeUp);
 
-            _lblAltitudeUpUnit = _tk.createLabel(container, UI.UNIT_LABEL_ALTITUDE);
+            _lblAltitudeUpUnit = _tk.createLabel(container, UI.UNIT_LABEL_ELEVATION);
          }
 
          {
@@ -3579,7 +3568,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             });
             GridDataFactory.fillDefaults().hint(_hintValueFieldWidth, SWT.DEFAULT).applyTo(_txtAltitudeDown);
 
-            _lblAltitudeDownUnit = _tk.createLabel(container, UI.UNIT_LABEL_ALTITUDE);
+            _lblAltitudeDownUnit = _tk.createLabel(container, UI.UNIT_LABEL_ELEVATION);
          }
       }
    }
@@ -3847,18 +3836,18 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _firstColumnControls.add(label);
 
             // spinner
-            _spinPerson_RestPuls = new Spinner(container, SWT.BORDER);
+            _spinPerson_RestPulse = new Spinner(container, SWT.BORDER);
             GridDataFactory
                   .fillDefaults()//
                   .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinPerson_RestPuls);
-            _spinPerson_RestPuls.setMinimum(0);
-            _spinPerson_RestPuls.setMaximum(200);
-            _spinPerson_RestPuls.setToolTipText(Messages.tour_editor_label_rest_pulse_Tooltip);
+                  .applyTo(_spinPerson_RestPulse);
+            _spinPerson_RestPulse.setMinimum(0);
+            _spinPerson_RestPulse.setMaximum(200);
+            _spinPerson_RestPulse.setToolTipText(Messages.tour_editor_label_rest_pulse_Tooltip);
 
-            _spinPerson_RestPuls.addMouseWheelListener(_mouseWheelListener);
-            _spinPerson_RestPuls.addSelectionListener(_selectionListener);
+            _spinPerson_RestPulse.addMouseWheelListener(_mouseWheelListener);
+            _spinPerson_RestPulse.addSelectionListener(_selectionListener);
 
             // label: bpm
             _tk.createLabel(container, GRAPH_LABEL_HEARTBEAT_UNIT);
@@ -5175,16 +5164,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             } else {
 
                final int serieIndex = ((SwimSlice) cell.getElement()).serieIndex;
+               final int timeSliceSeconds = _swimSerie_Time[serieIndex];
 
-               final int timeOfDay = _tourStartDayTime + _swimSerie_Time[serieIndex];
-               final int secondOfDay24 = timeOfDay % 86_400;
-
-               if (UI.UNIT_IS_METRIC) {
-                  cell.setText(UI.format_hhh_mm_ss(secondOfDay24));
-               } else {
-                  cell.setText(LocalTime.ofSecondOfDay(secondOfDay24).format(TimeTools.Formatter_DayTimeSecondsAmPm));
-               }
-
+               cell.setText(_tourStartTime.plusSeconds(timeSliceSeconds).format(TimeTools.Formatter_Time_M));
             }
          }
       });
@@ -5207,7 +5189,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          public void update(final ViewerCell cell) {
             if (_serieAltitude != null) {
                final TimeSlice timeSlice = (TimeSlice) cell.getElement();
-               cell.setText(_nf1.format(_serieAltitude[timeSlice.serieIndex] / _unitValueAltitude));
+               cell.setText(_nf1.format(_serieAltitude[timeSlice.serieIndex] / _unitValueElevation));
 
             } else {
                cell.setText(UI.EMPTY_STRING);
@@ -5748,15 +5730,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             } else {
 
                final int serieIndex = ((TimeSlice) cell.getElement()).serieIndex;
+               final int timeSliceSeconds = _serieTime[serieIndex];
 
-               final int timeOfDay = _tourStartDayTime + _serieTime[serieIndex];
-               final int secondOfDay24 = timeOfDay % 86_400;
-
-               if (UI.UNIT_IS_METRIC) {
-                  cell.setText(UI.format_hhh_mm_ss(secondOfDay24));
-               } else {
-                  cell.setText(LocalTime.ofSecondOfDay(secondOfDay24).format(TimeTools.Formatter_DayTimeSecondsAmPm));
-               }
+               cell.setText(_tourStartTime.plusSeconds(timeSliceSeconds).format(TimeTools.Formatter_Time_M));
             }
          }
       });
@@ -5934,7 +5910,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       page.removePartListener(_partListener);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
-      _prefStoreCommon.removePropertyChangeListener(_prefChangeListenerCommon);
+      _prefStore_Common.removePropertyChangeListener(_prefChangeListener_Common);
 
       TourManager.getInstance().removeTourEventListener(_tourEventListener);
       TourManager.getInstance().removeTourSaveListener(_tourSaveListener);
@@ -6095,12 +6071,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                         //If we are currently in imperial system, we can't just convert the offset as it will lead to errors.
                         // For example : If the user has asked for an offset of 1°F, then it could offset the metric temperature to -17.22222 °C!!!
 
-                        if (UI.UNIT_VALUE_TEMPERATURE != 1) {
+                        if (UI.UNIT_IS_TEMPERATURE_FAHRENHEIT) {
 
                            final float currentTemperatureMetric = _serieTemperature[currentTimeSliceIndex];
                            float currentTemperatureFahrenheit = (currentTemperatureMetric * UI.UNIT_FAHRENHEIT_MULTI) + UI.UNIT_FAHRENHEIT_ADD;
+
                            currentTemperatureFahrenheit += newTemperatureValue;
                            final float newTemperatureMetric = UI.convertTemperatureToMetric(currentTemperatureFahrenheit);
+
                            _serieTemperature[currentTimeSliceIndex] = newTemperatureMetric;
 
                         } else {
@@ -6400,7 +6378,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _spinPerson_BodyWeight.setEnabled(canEdit);
       _spinPerson_BodyFat.setEnabled(canEdit);
       _spinPerson_FTP.setEnabled(canEdit);
-      _spinPerson_RestPuls.setEnabled(canEdit);
+      _spinPerson_RestPulse.setEnabled(canEdit);
       _spinPerson_Calories.setEnabled(canEdit);
 
       _linkTag.setEnabled(canEdit);
@@ -6696,9 +6674,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _timeSlice_LatitudeEditingSupport.setDataSerie(_serieLatitude);
       _timeSlice_LongitudeEditingSupport.setDataSerie(_serieLongitude);
 
-      final ZonedDateTime tourStartTime = _tourData.getTourStartTime();
-
-      _tourStartDayTime = tourStartTime.get(ChronoField.SECOND_OF_DAY);
+      _tourStartTime = _tourData.getTourStartTime();
 
       if (_isManualTour == false) {
 
@@ -6951,9 +6927,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       _pc = new PixelConverter(parent);
 
-      _hintDefaultSpinnerWidth = _isLinux //
+      _hintDefaultSpinnerWidth = IS_LINUX //
             ? SWT.DEFAULT
-            : _pc.convertWidthInCharsToPixels(_isOSX ? 14 : 7);
+            : _pc.convertWidthInCharsToPixels(IS_OSX ? 14 : 7);
 
       _hintValueFieldWidth = _pc.convertWidthInCharsToPixels(10);
 
@@ -8307,12 +8283,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void updateInternalUnitValues() {
 
-      _unitValueDistance = net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
-      _unitValueAltitude = net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+      _unitValueDistance = UI.UNIT_VALUE_DISTANCE;
+      _unitValueElevation = UI.UNIT_VALUE_ELEVATION;
 
-      _unitValueWindSpeed = net.tourbook.ui.UI.UNIT_VALUE_DISTANCE == 1
-            ? IWeather.windSpeedKmh
-            : IWeather.windSpeedMph;
+      _unitValueWindSpeed = IWeather.getAllWindSpeeds();
    }
 
    /**
@@ -8351,7 +8325,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _tourData.setBodyFat(_spinPerson_BodyFat.getSelection() / 10.0f);
          _tourData.setPower_FTP(_spinPerson_FTP.getSelection());
          _tourData.setCalories(_spinPerson_Calories.getSelection());
-         _tourData.setRestPulse(_spinPerson_RestPuls.getSelection());
+         _tourData.setRestPulse(_spinPerson_RestPulse.getSelection());
          _tourData.setCadenceMultiplier(_comboCadence.getSelectedCadence().getMultiplier());
 
          /*
@@ -8364,7 +8338,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          float pressure = _spinWeather_PressureValue.getSelection();
 
-         if (UI.UNIT_IS_METRIC) {
+         if (UI.UNIT_IS_PRESSURE_MILLIBAR) {
             pressure /= 10.0f;
          } else {
             pressure /= 100.0f;
@@ -8457,16 +8431,16 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             float altitudeUpValue = getFloatValue(_txtAltitudeUp.getText());
             float altitudeDownValue = getFloatValue(_txtAltitudeDown.getText());
 
-            if (_unitValueAltitude != 1) {
+            if (_unitValueElevation != 1) {
 
                // none metric measurement system
 
                // ensure float is used
                float noneMetricValue = altitudeUpValue;
-               altitudeUpValue = Math.round(noneMetricValue * _unitValueAltitude);
+               altitudeUpValue = Math.round(noneMetricValue * _unitValueElevation);
 
                noneMetricValue = altitudeDownValue;
-               altitudeDownValue = Math.round(noneMetricValue * _unitValueAltitude);
+               altitudeDownValue = Math.round(noneMetricValue * _unitValueElevation);
             }
 
             _tourData.setTourAltUp((int) altitudeUpValue);
@@ -8809,7 +8783,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _spinPerson_BodyFat.setSelection(Math.round(_tourData.getBodyFat() * 10));
 
       _spinPerson_FTP.setSelection(_tourData.getPower_FTP());
-      _spinPerson_RestPuls.setSelection(_tourData.getRestPulse());
+      _spinPerson_RestPulse.setSelection(_tourData.getRestPulse());
       _spinPerson_Calories.setSelection(_tourData.getCalories());
 
       /*
@@ -8839,7 +8813,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       final float avgTemperature = UI.convertTemperatureFromMetric(_tourData.getAvgTemperature());
 
-      _spinWeather_Temperature_Average.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_Temperature_Average.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
       _spinWeather_Temperature_Average.setDigits(1);
       _spinWeather_Temperature_Average.setSelection(Math.round(avgTemperature * 10));
 
@@ -8848,7 +8822,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       final float minTemperature = UI.convertTemperatureFromMetric(_tourData.getWeather_Temperature_Min());
 
-      _spinWeather_Temperature_Min.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_Temperature_Min.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
       _spinWeather_Temperature_Min.setDigits(1);
       _spinWeather_Temperature_Min.setSelection(Math.round(minTemperature * 10));
 
@@ -8857,7 +8831,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       final float maxTemperature = UI.convertTemperatureFromMetric(_tourData.getWeather_Temperature_Max());
 
-      _spinWeather_Temperature_Max.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_Temperature_Max.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
       _spinWeather_Temperature_Max.setDigits(1);
       _spinWeather_Temperature_Max.setSelection(Math.round(maxTemperature * 10));
 
@@ -8866,7 +8840,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       final float avgWindChill = UI.convertTemperatureFromMetric(_tourData.getWeather_Temperature_WindChill());
 
-      _spinWeather_Temperature_WindChill.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_Temperature_WindChill.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
       _spinWeather_Temperature_WindChill.setDigits(1);
       _spinWeather_Temperature_WindChill.setSelection(Math.round(avgWindChill * 10));
 
@@ -8875,7 +8849,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       final int humidity = _tourData.getWeather_Humidity();
 
-      _spinWeather_Humidity.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_Humidity.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
       _spinWeather_Humidity.setSelection(humidity);
 
       /*
@@ -8884,38 +8858,38 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final float precipitation = UI.convertPrecipitation_FromMetric(_tourData.getWeather_Precipitation());
 
-      if (UI.UNIT_IS_METRIC) {
+      if (UI.UNIT_IS_LENGTH_SMALL_MILLIMETER) {
          _spinWeather_PrecipitationValue.setDigits(0);
          _spinWeather_PrecipitationValue.setSelection(Math.round(precipitation));
       } else {
          _spinWeather_PrecipitationValue.setDigits(2);
          _spinWeather_PrecipitationValue.setSelection(Math.round(precipitation));
       }
-      _spinWeather_PrecipitationValue.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_PrecipitationValue.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
 
       /*
        * Pressure
        */
       final float pressure = UI.convertPressure_FromMetric(_tourData.getWeather_Pressure());
 
-      if (UI.UNIT_IS_METRIC) {
+      if (UI.UNIT_IS_PRESSURE_MILLIBAR) {
          _spinWeather_PressureValue.setDigits(1);
          _spinWeather_PressureValue.setSelection(Math.round(pressure * 10));
       } else {
          _spinWeather_PressureValue.setDigits(2);
          _spinWeather_PressureValue.setSelection(Math.round(pressure * 100));
       }
-      _spinWeather_PressureValue.setData(FIX_LINUX_ASYNC_EVENT_1, true);
+      _spinWeather_PressureValue.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
 
       /*
        * Time
        */
       // set start date/time without time zone
       final ZonedDateTime tourStartTime = _tourData.getTourStartTime();
-      _dtTourDate.setData(FIX_LINUX_ASYNC_EVENT_1, true);
-      _dtTourDate.setData(FIX_LINUX_ASYNC_EVENT_2, true);
-      _dtStartTime.setData(FIX_LINUX_ASYNC_EVENT_1, true);
-      _dtStartTime.setData(FIX_LINUX_ASYNC_EVENT_2, true);
+      _dtTourDate.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
+      _dtTourDate.setData(UI.FIX_LINUX_ASYNC_EVENT_2, true);
+      _dtStartTime.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
+      _dtStartTime.setData(UI.FIX_LINUX_ASYNC_EVENT_2, true);
       _dtTourDate.setDate(tourStartTime.getYear(), tourStartTime.getMonthValue() - 1, tourStartTime.getDayOfMonth());
       _dtStartTime.setTime(tourStartTime.getHour(), tourStartTime.getMinute(), tourStartTime.getSecond());
 
@@ -8932,8 +8906,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       // altitude up/down
       final int altitudeUp = _tourData.getTourAltUp();
       final int altitudeDown = _tourData.getTourAltDown();
-      _txtAltitudeUp.setText(Integer.toString((int) (altitudeUp / _unitValueAltitude)));
-      _txtAltitudeDown.setText(Integer.toString((int) (altitudeDown / _unitValueAltitude)));
+      _txtAltitudeUp.setText(Integer.toString((int) (altitudeUp / _unitValueElevation)));
+      _txtAltitudeDown.setText(Integer.toString((int) (altitudeDown / _unitValueElevation)));
 
       // tour times
       final int elapsedTime = (int) _tourData.getTourDeviceTime_Elapsed();
@@ -8984,8 +8958,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       // measurement system
       _lblDistanceUnit.setText(UI.UNIT_LABEL_DISTANCE);
-      _lblAltitudeUpUnit.setText(UI.UNIT_LABEL_ALTITUDE);
-      _lblAltitudeDownUnit.setText(UI.UNIT_LABEL_ALTITUDE);
+      _lblAltitudeUpUnit.setText(UI.UNIT_LABEL_ELEVATION);
+      _lblAltitudeDownUnit.setText(UI.UNIT_LABEL_ELEVATION);
       _lblPerson_BodyWeightUnit.setText(UI.UNIT_LABEL_WEIGHT);
       _lblPerson_BodyFatUnit.setText(UI.UNIT_PERCENT);
       _lblWeather_PrecipitationUnit.setText(UI.UNIT_LABEL_DISTANCE_MM_OR_INCH);
@@ -9288,7 +9262,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       sb.append(UI.TAB);
 
       // altitude
-      sb.append(UI.UNIT_LABEL_ALTITUDE);
+      sb.append(UI.UNIT_LABEL_ELEVATION);
       sb.append(UI.TAB);
 
       // gradient

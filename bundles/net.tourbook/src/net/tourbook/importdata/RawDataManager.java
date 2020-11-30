@@ -159,6 +159,11 @@ public class RawDataManager {
    private static IPath                    _previousReimportFolder;
 
    /**
+    * Is <code>true</code> when currently a re-importing is running
+    */
+   private static boolean                  _isReimportingActive;
+
+   /**
     * contains the device data imported from the device/file
     */
    private final DeviceData                _deviceData                         = new DeviceData();
@@ -257,11 +262,11 @@ public class RawDataManager {
 
       case TIME_SLICES_ELEVATION:
 
-         final String heightLabel = UI.UNIT_IS_METRIC ? UI.UNIT_METER : UI.UNIT_HEIGHT_FT;
-         final int oldAltitudeUp = Math.round(oldTourData.getTourAltUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
-         final int newAltitudeUp = Math.round(newTourData.getTourAltUp() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
-         final int oldAltitudeDown = Math.round(oldTourData.getTourAltDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
-         final int newAltitudeDown = Math.round(newTourData.getTourAltDown() / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE);
+         final String heightLabel = UI.UNIT_IS_ELEVATION_METER ? UI.UNIT_METER : UI.UNIT_HEIGHT_FT;
+         final int oldAltitudeUp = Math.round(oldTourData.getTourAltUp() / UI.UNIT_VALUE_ELEVATION);
+         final int newAltitudeUp = Math.round(newTourData.getTourAltUp() / UI.UNIT_VALUE_ELEVATION);
+         final int oldAltitudeDown = Math.round(oldTourData.getTourAltDown() / UI.UNIT_VALUE_ELEVATION);
+         final int newAltitudeDown = Math.round(newTourData.getTourAltDown() / UI.UNIT_VALUE_ELEVATION);
 
          previousData = UI.SYMBOL_PLUS + oldAltitudeUp + heightLabel + UI.SLASH_WITH_SPACE
                + UI.DASH
@@ -311,22 +316,22 @@ public class RawDataManager {
 
       case TIME_SLICES_TEMPERATURE:
          float avgTemperature = oldTourData.getAvgTemperature();
-         if (!UI.UNIT_IS_METRIC) {
+         if (!UI.UNIT_IS_TEMPERATURE_CELCIUS) {
             avgTemperature = avgTemperature
-                  * net.tourbook.ui.UI.UNIT_FAHRENHEIT_MULTI
-                  + net.tourbook.ui.UI.UNIT_FAHRENHEIT_ADD;
+                  * UI.UNIT_FAHRENHEIT_MULTI
+                  + UI.UNIT_FAHRENHEIT_ADD;
          }
-         previousData = Math.round(avgTemperature) + (UI.UNIT_IS_METRIC
+         previousData = Math.round(avgTemperature) + (UI.UNIT_IS_TEMPERATURE_CELCIUS
                ? UI.SYMBOL_TEMPERATURE_CELCIUS
                : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
 
          avgTemperature = newTourData.getAvgTemperature();
-         if (!UI.UNIT_IS_METRIC) {
+         if (!UI.UNIT_IS_TEMPERATURE_CELCIUS) {
             avgTemperature = avgTemperature
-                  * net.tourbook.ui.UI.UNIT_FAHRENHEIT_MULTI
-                  + net.tourbook.ui.UI.UNIT_FAHRENHEIT_ADD;
+                  * UI.UNIT_FAHRENHEIT_MULTI
+                  + UI.UNIT_FAHRENHEIT_ADD;
          }
-         newData = Math.round(avgTemperature) + (UI.UNIT_IS_METRIC
+         newData = Math.round(avgTemperature) + (UI.UNIT_IS_TEMPERATURE_CELCIUS
                ? UI.SYMBOL_TEMPERATURE_CELCIUS
                : UI.SYMBOL_TEMPERATURE_FAHRENHEIT);
          break;
@@ -402,6 +407,13 @@ public class RawDataManager {
       return _importState_IsIgnoreInvalidFile;
    }
 
+   /**
+    * @return Returns <code>true</code> when currently a re-importing is running
+    */
+   public static boolean isReimportingActive() {
+      return _isReimportingActive;
+   }
+
    public static boolean isSetBodyWeight() {
       return _importState_IsSetBodyWeight;
    }
@@ -467,6 +479,10 @@ public class RawDataManager {
       } catch (final IOException e) {
          e.printStackTrace();
       }
+   }
+
+   public static void setIsReimportingActive(final boolean isReimportingActive) {
+      _isReimportingActive = isReimportingActive;
    }
 
    public void actionImportFromDevice() {
@@ -582,21 +598,9 @@ public class RawDataManager {
 
       final long start = System.currentTimeMillis();
 
-      // check if the tour editor contains a modified tour
-      if (TourManager.isTourEditorModified()) {
-         return;
-      }
-
       if (actionReimportTour_10_Confirm(reimportPartIds) == false) {
          return;
       }
-
-      // prevent async error in the save tour method, cleanup environment
-      tourViewer.getPostSelectionProvider().clearSelection();
-
-      Util.clearSelection();
-
-      TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR, null, null);
 
       // get selected tour IDs
 
@@ -609,9 +613,15 @@ public class RawDataManager {
          selectedItems = (((RawDataView) tourViewer).getSelectedTourIDs()).toArray();
       }
 
-      if (selectedItems == null) {
+      if (selectedItems == null || selectedItems.length == 0) {
+
+         MessageDialog.openInformation(Display.getDefault().getActiveShell(),
+               Messages.Dialog_ReimportTours_Dialog_Title,
+               Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
+
          return;
       }
+
       /*
        * convert selection to array
        */
@@ -1166,8 +1176,6 @@ public class RawDataManager {
 
       TourLogManager.showLogView();
 
-      int numLoggedErrors = 0;
-
       final String oldTourDateTimeShort = TourManager.getTourDateTimeShort(oldTourData);
       String message = null;
 
@@ -1187,33 +1195,8 @@ public class RawDataManager {
           * It must be >60 seconds because db version < 7 (9.01) had no saved seconds !!!
           */
          if (timeDiff > 65_000
-
                // disabled for .fit files because they can have different tour start times (of some seconds)
-               && reImportedFile.getName().toLowerCase().endsWith(FILE_EXTENSION_FIT) == false) {
-
-            if (numLoggedErrors == 0) {
-
-               numLoggedErrors++;
-
-               TourLogManager.subLog_Error(NLS.bind(
-                     Messages.Import_Data_Log_ReimportIsInvalid_TooLargeStartTimeDifference,
-                     new Object[] {
-                           oldTourDateTimeShort,
-                           reImportedFile.toString(),
-                           TimeTools.Formatter_DateTime_SM.format(oldTourData.getTourStartTime()),
-                           TimeTools.Formatter_DateTime_SM.format(reimportedTourData.getTourStartTime()),
-                           timeDiff / 1000
-                     }));
-
-            } else if (numLoggedErrors == 1) {
-
-               numLoggedErrors++;
-
-               TourLogManager.subLog_Error(NLS.bind(
-                     Messages.Import_Data_Log_ReimportIsInvalid_TooLargeStartTimeDifference_Subsequent,
-                     new Object[] {
-                           oldTourDateTimeShort }));
-            }
+               && !reImportedFile.getName().toLowerCase().endsWith(FILE_EXTENSION_FIT)) {
 
             continue;
          }
@@ -1760,7 +1743,7 @@ public class RawDataManager {
 
                _importedFileNames.add(_lastImportedFileName);
 
-               if (additionalImportedFiles.size() > 0) {
+               if (!additionalImportedFiles.isEmpty()) {
                   _importedFileNamesChildren.addAll(additionalImportedFiles);
                }
             }
@@ -2135,7 +2118,7 @@ public class RawDataManager {
 
       final ImportRunState importRunState = new ImportRunState();
 
-      if (importFiles.size() == 0) {
+      if (importFiles.isEmpty()) {
          return importRunState;
       }
 
