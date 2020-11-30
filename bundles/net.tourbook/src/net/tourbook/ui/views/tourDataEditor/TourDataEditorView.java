@@ -248,10 +248,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private static final String           STATE_SECTION_CHARACTERISTICS             = "STATE_SECTION_CHARACTERISTICS";                        //$NON-NLS-1$
    private static final String           STATE_SECTION_DATE_TIME                   = "STATE_SECTION_DATE_TIME";                              //$NON-NLS-1$
    private static final String           STATE_SECTION_PERSONAL                    = "STATE_SECTION_PERSONAL";                               //$NON-NLS-1$
-<<<<<<< HEAD
    private static final String           STATE_SECTION_TRAINING_STRESS             = "STATE_SECTION_TRAINING_STRESS";                        //$NON-NLS-1$
-=======
->>>>>>> refs/remotes/origin/main
    private static final String           STATE_SECTION_TITLE                       = "STATE_SECTION_TITLE";                                  //$NON-NLS-1$
    private static final String           STATE_SECTION_WEATHER                     = "STATE_SECTION_WEATHER";                                //$NON-NLS-1$
    //
