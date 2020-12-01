@@ -33,6 +33,7 @@ import java.util.Map;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 
+import org.json.JSONException;
 import org.skyscreamer.jsonassert.ArrayValueMatcher;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONCompare;
@@ -79,7 +80,13 @@ public class Comparison {
             new Customization("tourId", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("startTimeOfDay", (o1, o2) -> true)); //$NON-NLS-1$
 
-      final JSONCompareResult result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
+      JSONCompareResult result = null;
+      try {
+         result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
+      } catch (final JSONException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
       if (result.failed()) {
          writeErroneousFiles(controlFileName, testJson);

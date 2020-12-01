@@ -41,6 +41,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -503,7 +504,13 @@ public class WEB {
 
       final String jsData = URLDecoder.decode((String) jsonRawData, UI.UTF_8);
 
-      final JSONArray jsonData = new JSONArray(jsData);
+      JSONArray jsonData = null;
+      try {
+         jsonData = new JSONArray(jsData);
+      } catch (final JSONException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
       return jsonData;
    }
@@ -519,7 +526,13 @@ public class WEB {
 
       final String jsData = URLDecoder.decode((String) jsonRawData, UI.UTF_8);
 
-      final JSONObject jsonData = new JSONObject(jsData);
+      JSONObject jsonData = null;
+      try {
+         jsonData = new JSONObject(jsData);
+      } catch (final JSONException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
       return jsonData;
    }
