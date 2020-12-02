@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
@@ -63,13 +64,13 @@ public class PerformanceModelingData {
 
    // GOVSS
    @Lob
-   private Map<LocalDate, ArrayList<Long>> govssEntries;
+   private Map<LocalDate, List<Long>>  bikeScoreEntries;
 
    @Lob
-   private HashMap<Date, long[]>           bikeScoreEntries;
+   private Map<LocalDate, List<Long>>  govssEntries;
 
    @Lob
-   private HashMap<Date, long[]>           swimScoreEntries;
+   private HashMap<Date, List<Long>>   swimScoreEntries;
 
    /**
     * Computed data : Fitness and fatigue
@@ -90,7 +91,6 @@ public class PerformanceModelingData {
 
    public void computeFatigueValues() {
       // TODO Auto-generated method stub
-
    }
 
    /**
@@ -136,7 +136,7 @@ public class PerformanceModelingData {
       return fitnessValuesSkiba;
    }
 
-   public Map<LocalDate, ArrayList<Long>> getGovssEntries() {
+   public Map<LocalDate, List<Long>> getGovssEntries() {
       return govssEntries;
    }
 
@@ -191,7 +191,7 @@ public class PerformanceModelingData {
       }
 
       final LocalDate tourStartDate = TimeTools.toLocalDate(tourStartTime);
-      ArrayList<Long> tourIds = govssEntries.get(tourStartDate);
+      List<Long> tourIds = govssEntries.get(tourStartDate);
       if (tourIds == null) {
          tourIds = new ArrayList<>();
       }
@@ -208,7 +208,7 @@ public class PerformanceModelingData {
 
    }
 
-   public void setGovssEntries(final Map<LocalDate, ArrayList<Long>> govssEntries) {
+   public void setGovssEntries(final Map<LocalDate, List<Long>> govssEntries) {
       this.govssEntries = govssEntries;
    }
 
@@ -237,7 +237,7 @@ public class PerformanceModelingData {
       // h(t) = h(t-i)e^(-i/T2) + w(t)
 
       int totalGovss = 0;
-      ArrayList<Long> tourIds = govssEntries.get(tourStartDate);
+      List<Long> tourIds = govssEntries.get(tourStartDate);
       for (final Long tourId : tourIds) {
          final TourData tour = TourManager.getTour(tourId);
          if (tour != null) {

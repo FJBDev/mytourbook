@@ -2829,8 +2829,9 @@ public class TourDatabase {
       //
             + SQL.CreateField_EntityId(ENTITY_ID_PERFORMANCE_MODELING_DATA, true)
             //
-            + "   govssEntries           BLOB,         \n" //$NON-NLS-1$
             + "   bikeScoreEntries       BLOB,         \n" //$NON-NLS-1$
+            + "   govssEntries           BLOB,         \n" //$NON-NLS-1$
+            + "   swimScoreEntries       BLOB,         \n" //$NON-NLS-1$
             + "   fitnessValuesSkiba     BLOB,         \n" //$NON-NLS-1$
             + "   fatigueValuesSkiba     BLOB          \n" //$NON-NLS-1$
 

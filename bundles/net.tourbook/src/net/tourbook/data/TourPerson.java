@@ -119,7 +119,6 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
    // GOVSS
    private int                       govssThresholdPower;
-
    private int                       govssTimeTrialDuration;
    private int                       govssTimeTrialDistance;
    private float                     govssTimeTrialAverageSlope;
@@ -130,6 +129,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
    // SwimScore
    private String                          swimScoreAssociatedTourTypes;
+
    /**
     * Birthday of this person in milliseconds from 1970-01-01T00:00:00, default value is 0 when
     * birthday is not set.
@@ -588,6 +588,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
          trainingStressAssociatedTourTypes = bikeScoreAssociatedTourTypes;
          break;
       case SWIMSCORE:
+         trainingStressAssociatedTourTypes = swimScoreAssociatedTourTypes;
          break;
       }
       if (StringUtils.isNullOrEmpty(trainingStressAssociatedTourTypes)) {
