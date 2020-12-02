@@ -182,6 +182,7 @@ public class Govss extends TrainingStress {
 
       final int[] timeSerie = _tourData.timeSerie;
       final int timeSeriesLength = timeSerie.length;
+      final float[] gradientSerie = _tourData.getGradientSerie();
 
       final List<Double> powerValues = new ArrayList<>();
 
@@ -190,31 +191,37 @@ public class Govss extends TrainingStress {
       int serieStartIndex = 0;
       int serieEndIndex = 0;
       float currentDistance = 0;
-      float currentSlope = 0;
+      float sumGradient = 0;
       float initialSpeed = 0;
       float currentSpeed = 0;
 
       while (serieEndIndex < timeSeriesLength - 1) {
 
          double currentElapsedTime = 0;
+         float slope = 0;
          serieStartIndex = serieEndIndex;
 
          while (currentElapsedTime < rollingAverageInterval && serieEndIndex < timeSeriesLength - 1) {
 
             ++serieEndIndex;
-            currentElapsedTime = Math.max(0,
-                  timeSerie[serieEndIndex] - timeSerie[serieStartIndex]);//- _tourData.getPausedTime(serieStartIndex, serieEndIndex));
+            currentElapsedTime = Math.max(0, timeSerie[serieEndIndex] - timeSerie[serieStartIndex]);
+            sumGradient += gradientSerie[serieEndIndex];
+         }
+
+         if (serieEndIndex == serieStartIndex) {
+            continue;
          }
 
          currentDistance = TourManager.computeTourDistance(_tourData, serieStartIndex, serieEndIndex);
-         currentSlope = TourManager.computeTourAverageGradient(_tourData, serieStartIndex, serieEndIndex);
+         slope = sumGradient / (serieEndIndex - serieStartIndex);
+         slope /= 100;
 
          //Compute the speed (m/s)
          currentSpeed = (float) (currentElapsedTime == 0 ? 0 : currentDistance / currentElapsedTime);
 
-         powerValue = ComputePower(currentDistance, currentSlope, initialSpeed, currentSpeed);
+         powerValue = ComputePower(currentDistance, slope, initialSpeed, currentSpeed);
 
-         if (currentSlope > -1 && currentSlope < 1) {
+         if (slope > -1 && slope < 1) {
             powerValues.add(powerValue);
             initialSpeed = currentSpeed;
          }

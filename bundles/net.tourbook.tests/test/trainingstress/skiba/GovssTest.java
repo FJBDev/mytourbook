@@ -80,7 +80,7 @@ class GovssTest {
 
    @Test
    void testComputeGovssForestPark() {
-      final int govss = ComputeGovssFromTour("2015-04-10-ForestPark.gpx"); //$NON-NLS-1$
+      final int govss = ComputeGovssFromTour("2015-05-10-ForestPark.gpx"); //$NON-NLS-1$
 
       //TopoFusion 5.71 value: 93
       //GoldenCheetah 3.6 value: 94
