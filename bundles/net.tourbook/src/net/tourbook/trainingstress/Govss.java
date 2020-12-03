@@ -222,10 +222,8 @@ public class Govss extends TrainingStress {
 
          powerValue = ComputePower(currentDistance, slope, initialSpeed, currentSpeed);
 
-         if (slope > -1 && slope < 1) {
-            powerValues.add(powerValue);
-            initialSpeed = currentSpeed;
-         }
+         powerValues.add(powerValue);
+         initialSpeed = currentSpeed;
       }
 
       return powerValues;
