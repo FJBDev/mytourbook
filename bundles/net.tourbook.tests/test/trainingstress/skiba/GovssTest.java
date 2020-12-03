@@ -102,7 +102,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 75
       //GoldenCheetah 3.6 value: 59
-      assertEquals(47, govss);
+      assertEquals(46, govss);
    }
 
    @Test
@@ -120,7 +120,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 89
       //GoldenCheetah 3.6 value: 79
-      assertEquals(90, govss);
+      assertEquals(89, govss);
    }
 
    @Test
@@ -129,6 +129,6 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 179
       //GoldenCheetah 3.6 value: 147
-      assertEquals(143, govss);
+      assertEquals(142, govss);
    }
 }

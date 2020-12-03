@@ -182,7 +182,7 @@ public class Govss extends TrainingStress {
 
       final int[] timeSerie = _tourData.timeSerie;
       final int timeSeriesLength = timeSerie.length;
-      final float[] gradientSerie = _tourData.getGradientSerie();
+      final float[] gradientSerie = _tourData.gradientSerie;
 
       final List<Double> powerValues = new ArrayList<>();
 
@@ -204,9 +204,8 @@ public class Govss extends TrainingStress {
          for (; currentElapsedTime < rollingAverageInterval && serieEndIndex < timeSeriesLength - 1; ++serieEndIndex) {
 
             currentElapsedTime = Math.max(0, timeSerie[serieEndIndex] - timeSerie[serieStartIndex]);
-            //TOD FB not sure the gradientserie is accurate. Sent an email to Wolfgang
 //            sumGradient += gradientSerie[serieEndIndex];
-            sumGradient = TourManager.computeTourAverageGradient(_tourData, serieEndIndex - 1 < 0 ? 0 : serieEndIndex - 1, serieEndIndex);
+            sumGradient += TourManager.computeTourAverageGradient(_tourData, Math.max(0, serieEndIndex - 1), serieEndIndex);
          }
 
          if (serieEndIndex == serieStartIndex) {
