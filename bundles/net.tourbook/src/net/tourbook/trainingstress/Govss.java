@@ -182,7 +182,6 @@ public class Govss extends TrainingStress {
 
       final int[] timeSerie = _tourData.timeSerie;
       final int timeSeriesLength = timeSerie.length;
-      final float[] gradientSerie = _tourData.gradientSerie;
 
       final List<Double> powerValues = new ArrayList<>();
 
@@ -204,16 +203,11 @@ public class Govss extends TrainingStress {
          for (; currentElapsedTime < rollingAverageInterval && serieEndIndex < timeSeriesLength - 1; ++serieEndIndex) {
 
             currentElapsedTime = Math.max(0, timeSerie[serieEndIndex] - timeSerie[serieStartIndex]);
-//            sumGradient += gradientSerie[serieEndIndex];
             sumGradient += TourManager.computeTourAverageGradient(_tourData, Math.max(0, serieEndIndex - 1), serieEndIndex);
          }
 
-         if (serieEndIndex == serieStartIndex) {
-            continue;
-         }
-
          currentDistance = TourManager.computeTourDistance(_tourData, serieStartIndex, serieEndIndex);
-         slope = sumGradient / (serieEndIndex - serieStartIndex);
+         slope = serieEndIndex == serieStartIndex ? 0 : sumGradient / (serieEndIndex - serieStartIndex);
          slope /= 100;
 
          //Compute the speed (m/s)
