@@ -504,6 +504,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_AvgPower;
    public static String        Tour_Tooltip_Label_AvgPulse;
    public static String        Tour_Tooltip_Label_AvgSpeed;
+   public static String        Tour_Tooltip_Label_BikeScore;
    public static String        Tour_Tooltip_Label_BodyWeight;
    public static String        Tour_Tooltip_Label_BreakTime;
    public static String        Tour_Tooltip_Label_Calories;
@@ -514,6 +515,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_Description;
    public static String        Tour_Tooltip_Label_Distance;
    public static String        Tour_Tooltip_Label_GearShifts;
+   public static String        Tour_Tooltip_Label_Govss;
    public static String        Tour_Tooltip_Label_Hour;
    public static String        Tour_Tooltip_Label_MaxAltitude;
    public static String        Tour_Tooltip_Label_MaxPace;
@@ -540,11 +542,13 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Avg;
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Max;
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Min;
+   public static String        Tour_Tooltip_Label_SwimScore;
    public static String        Tour_Tooltip_Label_Tags;
    public static String        Tour_Tooltip_Label_Temperature;
    public static String        Tour_Tooltip_Label_TimeZone;
    public static String        Tour_Tooltip_Label_TimeZoneDifference;
    public static String        Tour_Tooltip_Label_TourType;
+   public static String        Tour_Tooltip_Label_TrainingStress;
    public static String        Tour_Tooltip_Label_Weather;
    public static String        Tour_Tooltip_Label_WindDirection;
    public static String        Tour_Tooltip_Label_WindSpeed;
