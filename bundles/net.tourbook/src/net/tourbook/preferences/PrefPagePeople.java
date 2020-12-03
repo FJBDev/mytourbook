@@ -46,6 +46,7 @@ import net.tourbook.training.DialogHRZones;
 import net.tourbook.training.TrainingManager;
 import net.tourbook.trainingstress.PrefPageBikeScore;
 import net.tourbook.trainingstress.PrefPageGovss;
+import net.tourbook.trainingstress.PrefPageSwimScore;
 import net.tourbook.trainingstress.PrefPageTrainingStressModel;
 import net.tourbook.trainingstress.PrefPageTrainingStressModel.IPersonModifiedListener;
 
@@ -142,6 +143,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    private static PrefPageTrainingStressModel[] _trainingStressModels;
    private static PrefPageGovss                 _prefPageGovss;
    private static PrefPageBikeScore             _prefPageBikeScore;
+   private static PrefPageSwimScore             _prefPageSwimScore;
 
    private final IPreferenceStore               _prefStore                          = TourbookPlugin.getPrefStore();
    private final IDialogSettings                _state                              = TourbookPlugin.getState(ID);
@@ -1841,7 +1843,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
     */
    private void initializeTrainingStressModels() {
 
-      _trainingStressModels = new PrefPageTrainingStressModel[1];
+      _trainingStressModels = new PrefPageTrainingStressModel[3];
       //TODO FB_prefPageBikeScore = new PrefPageBikeScore();
       _prefPageGovss = new PrefPageGovss();
       _prefPageGovss.setPersonModifiedListener(new IPersonModifiedListener() {
@@ -1852,7 +1854,24 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          }
       });
       _trainingStressModels[0] = _prefPageGovss;
-      //_trainingStressModels[1] = _prefPageBikeScore;
+      _prefPageBikeScore = new PrefPageBikeScore();
+      _prefPageBikeScore.setPersonModifiedListener(new IPersonModifiedListener() {
+
+         @Override
+         public void onPersonModifiedListener() {
+            onModifyPerson();
+         }
+      });
+      _trainingStressModels[1] = _prefPageBikeScore;
+      _prefPageSwimScore = new PrefPageSwimScore();
+      _prefPageSwimScore.setPersonModifiedListener(new IPersonModifiedListener() {
+
+         @Override
+         public void onPersonModifiedListener() {
+            onModifyPerson();
+         }
+      });
+      _trainingStressModels[2] = _prefPageSwimScore;
    }
 
    private void initUI(final Composite parent) {

@@ -1787,6 +1787,7 @@ public class Messages extends NLS {
    public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Duration;
    public static String        Pref_TrainingStress_Group_ThresholdPower;
    public static String        Pref_TrainingStress_Group_TourTypes;
+   public static String        Pref_TrainingStress_SwimScore_GroupName;
 
    public static String        Pref_TrainingStress_Govss_ThresholdPower_Label;
 
