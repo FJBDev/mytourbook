@@ -737,7 +737,7 @@ public class TourManager {
             || distanceSerie.length == 0
             || startIndex >= altitudeSerie.length
             || endIndex >= altitudeSerie.length
-            || startIndex > endIndex) {
+            || startIndex >= endIndex) {
          return 0;
       }
 

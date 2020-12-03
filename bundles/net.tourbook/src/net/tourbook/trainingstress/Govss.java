@@ -191,7 +191,6 @@ public class Govss extends TrainingStress {
       int serieStartIndex = 0;
       int serieEndIndex = 0;
       float currentDistance = 0;
-      float sumGradient = 0;
       float initialSpeed = 0;
       float currentSpeed = 0;
 
@@ -199,13 +198,15 @@ public class Govss extends TrainingStress {
 
          double currentElapsedTime = 0;
          float slope = 0;
+         float sumGradient = 0;
          serieStartIndex = serieEndIndex;
 
-         while (currentElapsedTime < rollingAverageInterval && serieEndIndex < timeSeriesLength - 1) {
+         for (; currentElapsedTime < rollingAverageInterval && serieEndIndex < timeSeriesLength - 1; ++serieEndIndex) {
 
-            ++serieEndIndex;
             currentElapsedTime = Math.max(0, timeSerie[serieEndIndex] - timeSerie[serieStartIndex]);
-            sumGradient += gradientSerie[serieEndIndex];
+            //TOD FB not sure the gradientserie is accurate. Sent an email to Wolfgang
+//            sumGradient += gradientSerie[serieEndIndex];
+            sumGradient = TourManager.computeTourAverageGradient(_tourData, serieEndIndex - 1 < 0 ? 0 : serieEndIndex - 1, serieEndIndex);
          }
 
          if (serieEndIndex == serieStartIndex) {

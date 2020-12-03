@@ -25,6 +25,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -568,11 +569,11 @@ public class PerformanceModelingChartView extends ViewPart {
 
    }
 
-   private LocalDate findExtremeDates(final Map<LocalDate, ArrayList<Long>> entries, final boolean oldest) {
-      Map.Entry<LocalDate, ArrayList<Long>> oldestEntry = null;
-      Map.Entry<LocalDate, ArrayList<Long>> newestEntry = null;
+   private LocalDate findExtremeDates(final Map<LocalDate, List<Long>> entries, final boolean oldest) {
+      Map.Entry<LocalDate, List<Long>> oldestEntry = null;
+      Map.Entry<LocalDate, List<Long>> newestEntry = null;
 
-      for (final Map.Entry<LocalDate, ArrayList<Long>> entry : entries.entrySet()) {
+      for (final Map.Entry<LocalDate, List<Long>> entry : entries.entrySet()) {
 
          if (oldest && (oldestEntry == null || entry.getKey().compareTo(oldestEntry.getKey()) < 0)) {
             oldestEntry = entry;
@@ -638,12 +639,12 @@ public class PerformanceModelingChartView extends ViewPart {
 
       final float[] govssValues = new float[_numberOfDays];
 
-      final Map<LocalDate, ArrayList<Long>> govssEntries = _currentPerson.getPerformanceModelingData().getGovssEntries();
+      final Map<LocalDate, List<Long>> govssEntries = _currentPerson.getPerformanceModelingData().getGovssEntries();
 
-      for (final Map.Entry<LocalDate, ArrayList<Long>> entry : govssEntries.entrySet()) {
+      for (final Map.Entry<LocalDate, List<Long>> entry : govssEntries.entrySet()) {
          final LocalDate currentDate = entry.getKey();
          final int index = (int) ChronoUnit.DAYS.between(_oldestEntryDate, currentDate);
-         final ArrayList<Long> tourIds = entry.getValue();
+         final List<Long> tourIds = entry.getValue();
 
          int totalGovssValue = 0;
          for (final Long tourId : tourIds) {
@@ -903,11 +904,11 @@ public class PerformanceModelingChartView extends ViewPart {
 
       final ArrayList<String> enabledGraphTitles = new ArrayList<>();
 
-      for (final ChartDataSerie xyDataIterator : _chartDataModel.getYData()) {
+      for (final ChartDataYSerie xyDataIterator : _chartDataModel.getYData()) {
 
          if (xyDataIterator instanceof ChartDataYSerie) {
 
-            final ChartDataYSerie yData = (ChartDataYSerie) xyDataIterator;
+            final ChartDataYSerie yData = xyDataIterator;
             final String graphTitle = yData.getYTitle();
 
             enabledGraphTitles.add(graphTitle);
@@ -940,7 +941,7 @@ public class PerformanceModelingChartView extends ViewPart {
          //, if no filter, get the first tour date and last tour date.
          //
          final ChartDataXSerie xData = new ChartDataXSerie(Util.convertIntToDouble(new int[] { 34 }));//_tourTimeData.tourDOYValues));
-         xData.setAxisUnit(ChartDataXSerie.X_AXIS_UNIT_DAY);
+         xData.setAxisUnit(ChartDataSerie.X_AXIS_UNIT_DAY);
          xData.setVisibleMaxValue(2020);
          xData.setChartSegments(createChartSegments());//_tourTimeData));
          _chartDataModel.setXData(xData);
@@ -952,7 +953,7 @@ public class PerformanceModelingChartView extends ViewPart {
                Util.convertIntToFloat(new int[] { 1000 }));
          yData.setYTitle("LABEL_GRAPH_DAYTIME");
          yData.setUnitLabel("LABEL_GRAPH_TIME_UNIT");
-         yData.setAxisUnit(ChartDataXSerie.AXIS_UNIT_NUMBER);
+         yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
          yData.setYAxisDirection(false);
          yData.setShowYSlider(true);
 
@@ -961,7 +962,7 @@ public class PerformanceModelingChartView extends ViewPart {
          return;
       }
 
-      final Map<LocalDate, ArrayList<Long>> govssEntries = _currentPerson.getPerformanceModelingData().getGovssEntries();
+      final Map<LocalDate, List<Long>> govssEntries = _currentPerson.getPerformanceModelingData().getGovssEntries();
 
       // We find he oldest date
 
@@ -1007,7 +1008,7 @@ public class PerformanceModelingChartView extends ViewPart {
        * x-axis: Date
        */
       final ChartDataXSerie xData = new ChartDataXSerie(_xSerieDate);
-      xData.setAxisUnit(ChartDataXSerie.X_AXIS_UNIT_NUMBER_CENTER);
+      xData.setAxisUnit(ChartDataSerie.X_AXIS_UNIT_NUMBER_CENTER);
       xData.setUnitLabel("date");//net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit);
       xData.setUnitStartValue(0);
 
