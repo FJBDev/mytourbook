@@ -74,11 +74,12 @@ public class Chart extends ViewForm {
 
    private final ListenerList<IBarSelectionListener> _barSelectionListeners           = new ListenerList<>();
    private final ListenerList<IBarSelectionListener> _barDoubleClickListeners         = new ListenerList<>();
-   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners             = new ListenerList<>();
+   private final ListenerList<IHoveredValueListener> _chartHoveredValueListener       = new ListenerList<>();
    private final ListenerList<IKeyListener>          _chartKeyListener                = new ListenerList<>();
    private final ListenerList<IMouseListener>        _chartMouseListener              = new ListenerList<>();
    private final ListenerList<IMouseListener>        _chartMouseMoveListener          = new ListenerList<>();
    private final ListenerList<IChartOverlay>         _chartOverlayListener            = new ListenerList<>();
+   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners             = new ListenerList<>();
 
    private ChartComponents                           _chartComponents;
 
@@ -98,7 +99,7 @@ public class Chart extends ViewForm {
     */
    IChartListener                                    _draggingListenerXMarker;
 
-   IHoveredValueListener                             _hoveredListener;
+   private IHoveredValueTooltipListener              _hoveredValueTooltipListener;
 
    private HashMap<String, Action>                   _allChartActions;
    private boolean                                   _isFillToolbar                   = true;
@@ -143,7 +144,7 @@ public class Chart extends ViewForm {
    double                                            graphTransparencyAdjustment      = 1.0;
 
    /**
-    * Anti-aliasing for the graph, can be {@link SWT#ON} or {@link SWT#OFF}.
+    * Antialiasing for the graph, can be {@link SWT#ON} or {@link SWT#OFF}.
     */
    public int                                        graphAntialiasing                = SWT.OFF;
 
@@ -154,7 +155,7 @@ public class Chart extends ViewForm {
    protected RGB     segmentAlternateColor       = new RGB(0xf5, 0xf5, 0xf5);
 
    /**
-    * mouse behavior:<br>
+    * mouse behaviour:<br>
     * <br>
     * {@link #MOUSE_MODE_SLIDER} or {@link #MOUSE_MODE_ZOOM}
     */
@@ -233,6 +234,10 @@ public class Chart extends ViewForm {
       _barDoubleClickListeners.add(listener);
    }
 
+   public void addHoveredValueListener(final IHoveredValueListener listener) {
+      _chartHoveredValueListener.add(listener);
+   }
+
    /**
     * Adds a listener when the vertical slider is moved
     *
@@ -301,7 +306,7 @@ public class Chart extends ViewForm {
       }
 
       final ChartComponentGraph componentGraph = _chartComponents.getChartComponentGraph();
-      final int hoveredLineValueIndex = componentGraph.getHoveredValue_PointIndex();
+      final int hoveredLineValueIndex = componentGraph.getHovered_ValuePoint_Index();
       boolean isUseLeftSlider = false;
       if (hoveredLineValueIndex == -1) {
 
@@ -572,6 +577,15 @@ public class Chart extends ViewForm {
       }
    }
 
+   void fireHoveredValueEvent(final int hoveredValuePointIndex) {
+
+      final Object[] allListeners = _chartHoveredValueListener.getListeners();
+
+      for (final Object listener : allListeners) {
+         ((IHoveredValueListener) listener).hoveredValue(hoveredValuePointIndex);
+      }
+   }
+
    private void fireKeyEvent(final ChartKeyEvent keyEvent) {
 
       final Object[] listeners = _chartKeyListener.getListeners();
@@ -651,16 +665,16 @@ public class Chart extends ViewForm {
       return _chartComponents.componentGraph.chartTitleSegmentConfig;
    }
 
-   IHoveredValueListener getHoveredListener() {
-      return _hoveredListener;
-   }
-
    /**
     * @return Returns the index in the data series which is hovered with the mouse or
     *         <code>-1</code> when a value is not hovered.
     */
    public int getHoveredValuePointIndex() {
-      return _chartComponents.getChartComponentGraph().getHoveredValue_PointIndex();
+      return _chartComponents.getChartComponentGraph().getHovered_ValuePoint_Index();
+   }
+
+   IHoveredValueTooltipListener getHoveredValueTooltipListener() {
+      return _hoveredValueTooltipListener;
    }
 
    public int getLeftAxisWidth() {
@@ -979,6 +993,10 @@ public class Chart extends ViewForm {
       _barDoubleClickListeners.remove(listener);
    }
 
+   public void removeHoveredValueListener(final IHoveredValueListener listener) {
+      _chartHoveredValueListener.remove(listener);
+   }
+
    public void removeSelectionChangedListener(final IBarSelectionListener listener) {
       _barSelectionListeners.remove(listener);
    }
@@ -1095,10 +1113,6 @@ public class Chart extends ViewForm {
       graphTransparencyAdjustment = adjustment;
    }
 
-   protected void setHoveredListener(final IHoveredValueListener hoveredValuePointListener) {
-      _hoveredListener = hoveredValuePointListener;
-   }
-
    /**
     * Set hovered tour in the {@link ChartComponentGraph}.
     *
@@ -1106,6 +1120,10 @@ public class Chart extends ViewForm {
     */
    public void setHoveredTitleSegment(final ChartTitleSegment chartTitleSegment) {
       _chartComponents.getChartComponentGraph().setHoveredTitleSegment(chartTitleSegment);
+   }
+
+   protected void setHoveredValueTooltipListener(final IHoveredValueTooltipListener hoveredValuePointListener) {
+      _hoveredValueTooltipListener = hoveredValuePointListener;
    }
 
    public void setIsInUpdateUI(final boolean isInUpdateUI) {
@@ -1216,7 +1234,7 @@ public class Chart extends ViewForm {
 
    /**
     * Set's the {@link SynchConfiguration} listener, this is a {@link Chart} which will be notified
-    * when this chart is resized, <code>null</code> will disable the synchronization
+    * when this chart is resized, <code>null</code> will disable the synchronisation
     *
     * @param chartWidget
     */
@@ -1349,7 +1367,7 @@ public class Chart extends ViewForm {
             if (errorMessage == null) {
 
                /*
-                * display error message that the user is not confused when a graph is not displayed
+                * display error message that the user is not confuses when a graph is not displayed
                 */
                errorMessage = Messages.Error_Message_001_Default;
             }
