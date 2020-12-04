@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm, Markus Stipp
+ * Copyright (C) 2005, 2021 Wolfgang Schramm, Markus Stipp
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -470,6 +470,7 @@ public class CM4XXMDeviceReader extends TourbookDevice {
                tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
                tourData.computeTourMovingTime();
                tourData.computeComputedValues();
+               tourData.computeTrainingStressData();
             }
 
             /*

@@ -8063,6 +8063,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _tourData.computeAltitudeUpDown();
          _tourData.computeTourMovingTime();
          _tourData.computeComputedValues();
+         _tourData.computeTrainingStressData();
 
          /*
           * saveTour will check the tour editor dirty state, but when the tour is saved the dirty
