@@ -1770,8 +1770,6 @@ public class Messages extends NLS {
 
    public static String        pref_tour_editor_description_height;
    public static String        pref_tour_editor_description_height_tooltip;
-   public static String        pref_tour_editor_dlg_desc_height_message;
-   public static String        pref_tour_editor_dlg_desc_height_title;
 
    public static String        pref_tourtag_btn_new_tag;
    public static String        pref_tourtag_btn_new_tag_category;
@@ -2213,6 +2211,8 @@ public class Messages extends NLS {
    public static String Slideout_Map_Options_Label_SliderPath_Color;
    public static String Slideout_Map_Options_Label_SliderPath_Width;
    public static String Slideout_Map_Options_Label_Title;
+
+   public static String Slideout_Map_SyncMap_Label_Title;
 
    public static String Slideout_Map_TourColors_Checkbox_ShowInChartToolbar_Tooltip;
    public static String Slideout_Map_TourColors_Label_Title;
