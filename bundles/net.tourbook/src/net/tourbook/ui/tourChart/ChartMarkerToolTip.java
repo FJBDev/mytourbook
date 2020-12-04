@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -387,7 +387,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
             final boolean isAvailableAltitude = _tourData.getAltitudeSerie() != null;
             if (isAvailableAltitude) {
 
-               final float value = _tourData.getAltitudeSmoothedSerie(false)[valueIndex];
+               final float value = _tourData.getAltitudeSmoothedSerie()[valueIndex];
 
                createUI_72_ValueField(
                      container,
@@ -537,7 +537,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
 
          linkUrl.setText(linkText);
 
-         setUrlWidth(linkUrl, linkText);
+         setUrlWidth(linkUrl);
       }
    }
 
@@ -983,7 +983,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
       txtControl.setText(text);
    }
 
-   private void setUrlWidth(final Control control, final String text) {
+   private void setUrlWidth(final Control control) {
 
       final Point defaultSize = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 

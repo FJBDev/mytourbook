@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1600,7 +1600,7 @@ public class ValuePoint_ToolTip_UI extends Pinned_ToolTip_Shell implements IPinn
       }
 
       if (_isVisible_And_Available_Altitude) {
-         _lblAltitude.setText(_nf1NoGroup.format(_tourData.getAltitudeSmoothedSerie(false)[valueIndex]));
+         _lblAltitude.setText(_nf1NoGroup.format(_tourData.getAltitudeSmoothedSerie()[valueIndex]));
       }
 
       if (_isVisible_And_Available_Cadence) {
@@ -1650,8 +1650,7 @@ public class ValuePoint_ToolTip_UI extends Pinned_ToolTip_Shell implements IPinn
          _lblPace.setText(String.format(
                Messages.Tooltip_ValuePoint_Format_Pace,
                pace / 60,
-               pace % 60)//
-               .toString());
+               pace % 60));
       }
 
       if (_isVisible_And_Available_Power) {

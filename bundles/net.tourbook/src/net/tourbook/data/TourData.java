@@ -3689,8 +3689,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
        */
       if (isAltitudeAvailable) {
 
-         final float dataSerieAltimeter[] = new float[serieLength];
-         final float dataSerieGradient[] = new float[serieLength];
+         final float[] dataSerieAltimeter = new float[serieLength];
+         final float[] dataSerieGradient = new float[serieLength];
 
          for (int serieIndex = 1; serieIndex < serieLength; serieIndex++) {
 
@@ -3795,8 +3795,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       final int size = timeSerie.length;
 
-      final double altitude[] = new double[size];
-      final double altitude_sc[] = new double[size];
+      final double[] altitude = new double[size];
+      final double[] altitude_sc = new double[size];
 
       final double tauGradient = _prefStore.getDouble(ITourbookPreferences.GRAPH_JAMET_SMOOTHING_GRADIENT_TAU);
       final double tauSpeed = _prefStore.getDouble(ITourbookPreferences.GRAPH_JAMET_SMOOTHING_SPEED_TAU);
@@ -3866,13 +3866,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       final double[] distance = new double[size];
       final double[] distance_sc = new double[size];
 
-      final double Vh_ini[] = new double[size];
-      final double Vh[] = new double[size];
-      final double Vh_sc[] = new double[size];
+      final double[] Vh_ini = new double[size];
+      final double[] Vh = new double[size];
+      final double[] Vh_sc = new double[size];
 
-      final double Vv_ini[] = new double[size];
-      final double Vv[] = new double[size];
-      final double Vv_sc[] = new double[size];
+      final double[] Vv_ini = new double[size];
+      final double[] Vv = new double[size];
+      final double[] Vv_sc = new double[size];
 
       /*
        * get distance
@@ -5410,7 +5410,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          return null;
       }
 
-      final float[] segmenterAltitudeSerie = getAltitudeSmoothedSerie(false);
+      final float[] segmenterAltitudeSerie = getAltitudeSmoothedSerie();
 
       final boolean isAltitudeSerie = (segmenterAltitudeSerie != null) && (segmenterAltitudeSerie.length > 0);
       final boolean isCadenceSerie = (cadenceSerie != null) && (cadenceSerie.length > 0);
@@ -7002,12 +7002,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
-    * @param isForceSmoothing
     * @return Returns smoothed altitude values (according to the measurement system) when they are
     *         set to be smoothed otherwise it returns normal altitude values or <code>null</code>
     *         when altitude is not available.
     */
-   public float[] getAltitudeSmoothedSerie(final boolean isForceSmoothing) {
+   public float[] getAltitudeSmoothedSerie() {
 
       if (altitudeSerie == null) {
          return null;

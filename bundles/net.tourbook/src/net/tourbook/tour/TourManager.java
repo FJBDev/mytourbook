@@ -2546,7 +2546,7 @@ public class TourManager {
 
       final ArrayList<TourData> savedTourData = saveModifiedTours(modifiedTours, isFireNotification);
 
-      if (savedTourData == null || savedTourData.isEmpty()) {
+      if (savedTourData.isEmpty()) {
          return null;
       } else {
          return savedTourData.get(0);
@@ -3791,7 +3791,7 @@ public class TourManager {
                                                     final TourChartConfiguration tcc) {
       ChartDataYSerie yDataAltitude = null;
 
-      final float[] altitudeSerie = tourData.getAltitudeSmoothedSerie(true);
+      final float[] altitudeSerie = tourData.getAltitudeSmoothedSerie();
       if (altitudeSerie != null) {
 
          if (tourData.isSRTMAvailable()) {
