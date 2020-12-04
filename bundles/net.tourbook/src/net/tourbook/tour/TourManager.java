@@ -746,7 +746,8 @@ public class TourManager {
       final double startDistance = distanceSerie[startIndex];
       final double endDistance = distanceSerie[endIndex];
 
-      final float averageGradient = (endAltitude - startAltitude) / (float) (endDistance - startDistance);
+      final double distance = endDistance - startDistance;
+      final float averageGradient = distance == 0 ? 0 : (endAltitude - startAltitude) / (float) (distance);
 
       return averageGradient;
    }

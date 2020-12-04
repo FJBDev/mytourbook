@@ -131,4 +131,13 @@ class GovssTest {
       //GoldenCheetah 3.6 value: 147
       assertEquals(142, govss);
    }
+
+   @Test
+   void testComputeGovssTontoTrail() {
+      final int govss = ComputeGovssFromTour("2019-03-20-TontoTrail.gpx"); //$NON-NLS-1$
+
+      //TopoFusion 5.71 value: 246
+      //GoldenCheetah 3.6 value: 242
+      assertEquals(199, govss);
+   }
 }
