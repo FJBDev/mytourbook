@@ -71,8 +71,9 @@ public class Comparison {
 
       final Customization arrayValueMatchCustomization = new Customization("tourMarkers", arrValMatch); //$NON-NLS-1$
       final CustomComparator customArrayValueComparator = new CustomComparator(
-            JSONCompareMode.STRICT,
+            JSONCompareMode.LENIENT,
             arrayValueMatchCustomization,
+            new Customization("altitudeSmoothedSerie", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("importFilePath", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("importFilePathName", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("importFilePathNameText", (o1, o2) -> true), //$NON-NLS-1$
