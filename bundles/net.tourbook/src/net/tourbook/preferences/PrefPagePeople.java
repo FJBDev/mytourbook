@@ -286,7 +286,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
       if (data instanceof Boolean) {
 
-         final boolean isCreatePerson = (Boolean) data;
+         final Boolean isCreatePerson = (Boolean) data;
          if (isCreatePerson && _people.isEmpty()) {
 
             // this is a request, to create a new person
@@ -1763,7 +1763,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       final TourPerson currentPerson = getCurrentPerson();
 
       if (currentPerson != null) {
-         isHrZoneAvailable = !currentPerson.getHrZonesSorted().isEmpty();
+         isHrZoneAvailable = currentPerson.getHrZonesSorted().isEmpty() == false;
       }
 
       _btnAddPerson.setEnabled(!_isPersonModified && isValid);
@@ -2020,7 +2020,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       final List<TourPersonHRZone> hrZones = person.getHrZonesSorted();
 
       // check if hr zones are already available
-//		if (hrZones != null && hrZones.size() > 0) {
+//		if (hrZones != null && hrZones.isEmpty() == false) {
 //
 //			// hr zones are available
 //			if (MessageDialog.openQuestion(
@@ -2207,7 +2207,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
             }
          }
       }
-      if (personSelection == null && !_people.isEmpty()) {
+      if (personSelection == null && _people.isEmpty() == false) {
 
          /*
           * previous person could not be reselected, select first person, a person MUST always be
@@ -2362,7 +2362,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
       setErrorMessage(null);
 
-      if (_peopleWithModifiedHrZones.size() == 0) {
+      if (_peopleWithModifiedHrZones.isEmpty()) {
          return true;
       }
 

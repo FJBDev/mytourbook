@@ -629,7 +629,7 @@ public class TourDatabase {
 
       final Set<TourTag> tourTags = tourData.getTourTags();
 
-      if (tourTags.size() == 0) {
+      if (tourTags.isEmpty()) {
          return false;
       }
 
@@ -679,7 +679,7 @@ public class TourDatabase {
          }
       }
 
-      final boolean isNewTags = newTags.size() > 0;
+      final boolean isNewTags = newTags.isEmpty() == false;
 
       if (isNewTags) {
 
@@ -1891,7 +1891,7 @@ public class TourDatabase {
     */
    public static String getTagNames(final Set<TourTag> tourTags) {
 
-      if (tourTags.size() == 0) {
+      if (tourTags.isEmpty()) {
          return UI.EMPTY_STRING;
       }
 
@@ -1907,7 +1907,7 @@ public class TourDatabase {
 
    public static String getTagNames(final Set<TourTag> tourTags, final boolean isVertical) {
 
-      if (tourTags.size() == 0) {
+      if (tourTags.isEmpty()) {
          return UI.EMPTY_STRING;
       }
 

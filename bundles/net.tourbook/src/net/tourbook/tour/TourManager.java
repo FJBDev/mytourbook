@@ -588,7 +588,7 @@ public class TourManager {
     */
    public static boolean computeDistanceValuesFromGeoPosition(final ArrayList<TourData> tourDataList) {
 
-      if (tourDataList == null || tourDataList.size() == 0) {
+      if (tourDataList == null || tourDataList.isEmpty()) {
          return false;
       }
 
@@ -1646,7 +1646,7 @@ public class TourManager {
                            }
                         }
 
-                        if (geoTours.size() > 0) {
+                        if (geoTours.isEmpty() == false) {
                            return geoTours;
                         }
 
@@ -1654,7 +1654,7 @@ public class TourManager {
 
                         // return all tours
 
-                        if (selectedTours.size() > 0) {
+                        if (selectedTours.isEmpty() == false) {
 
                            /*
                             * a tour provider is found which also provides tours
@@ -1677,7 +1677,7 @@ public class TourManager {
 
       final ArrayList<TourData> selectedTours = getSelectedTours();
 
-      if (selectedTours != null && selectedTours.size() > 0) {
+      if (selectedTours != null && selectedTours.isEmpty() == false) {
 
          if (selectedTours.size() > 1) {
 
@@ -2416,7 +2416,7 @@ public class TourManager {
 
       // check if markers are available
       final Set<TourMarker> allTourMarkers = tourData.getTourMarkers();
-      if (allTourMarkers.size() == 0) {
+      if (allTourMarkers.isEmpty()) {
          return;
       }
 
@@ -2546,7 +2546,7 @@ public class TourManager {
 
       final ArrayList<TourData> savedTourData = saveModifiedTours(modifiedTours, isFireNotification);
 
-      if (savedTourData == null || savedTourData.size() == 0) {
+      if (savedTourData == null || savedTourData.isEmpty()) {
          return null;
       } else {
          return savedTourData.get(0);
@@ -2589,7 +2589,7 @@ public class TourManager {
 
       final ArrayList<TourData> savedTours = new ArrayList<>();
 
-      if (modifiedTours.size() == 0) {
+      if (modifiedTours.isEmpty()) {
          // there is nothing modified
          return savedTours;
       }
@@ -2741,7 +2741,7 @@ public class TourManager {
 
    public static boolean setAltitudeValuesFromSRTM(final ArrayList<TourData> tourDataList) {
 
-      if (tourDataList == null || tourDataList.size() == 0) {
+      if (tourDataList == null || tourDataList.isEmpty()) {
          return false;
       }
 
@@ -4571,7 +4571,7 @@ public class TourManager {
          }
       }
 
-      return tourDataList.size() == 0 ? null : tourDataList;
+      return tourDataList.isEmpty() ? null : tourDataList;
    }
 
    /**
@@ -4950,13 +4950,13 @@ public class TourManager {
                                      final TourDoubleClickState tourDoubleClickState) {
 
       ArrayList<TourData> selectedTours = tourProvider.getSelectedTours();
-      if (selectedTours.size() == 0) {
+      if (selectedTours.isEmpty()) {
 
          if (tourProvider instanceof ITourProviderAll) {
             final ITourProviderAll allTourProvider = (ITourProviderAll) tourProvider;
             selectedTours = allTourProvider.getAllSelectedTours();
 
-            if (selectedTours.size() == 0) {
+            if (selectedTours.isEmpty()) {
                return;
             }
          } else {
