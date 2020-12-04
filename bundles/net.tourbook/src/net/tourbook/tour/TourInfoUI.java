@@ -663,45 +663,34 @@ public class TourInfoUI {
    private void createUI_35_TrainingStress(final Composite parent) {
 
       /*
-       * Training Stress
-       */
-      createUI_Label(parent, Messages.Tour_Tooltip_Label_TrainingStress);
-
-      // spacer
-      createUI_LabelValue(parent, SWT.TRAIL);
-      createUI_LabelValue(parent, SWT.TRAIL);
-
-      /*
        * BikeScore
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_BikeScore);
-
-      _lblBikeScore = createUI_LabelValue(parent, SWT.TRAIL);
-
       // spacer
       createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblBikeScore = createUI_LabelValue(parent, SWT.TRAIL);
 
       /*
        * GOVSS
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Govss);
-
-      _lblGovss = createUI_LabelValue(parent, SWT.TRAIL);
-
       // spacer
       createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblGovss = createUI_LabelValue(parent, SWT.TRAIL);
 
       /*
        * SwimScore
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_SwimScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
 
       _lblSwimScore = createUI_LabelValue(parent, SWT.TRAIL);
 
       // spacer
-      createUI_LabelValue(parent, SWT.TRAIL);
-      createUI_LabelValue(parent, SWT.TRAIL);
-      createUI_LabelValue(parent, SWT.TRAIL);
+      createUI_Spacer(parent);
    }
 
    private void createUI_36_Misc(final Composite container) {
