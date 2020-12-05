@@ -43,6 +43,12 @@ public class Govss extends TrainingStress {
       super(tourPerson, null);
    }
 
+   //TODO FB
+   // Validate the govss algorithm by creating a directory of files and keeping track of the values in TF, GC and MT
+   // does MT change the elevation ? or GC ? why are the values different ?
+   // add a % of difference
+   //make excel spreadsheet
+
    //TODO FB why can't i use the TrainingStress constructor ?
    public Govss(final TourPerson tourPerson, final TourData tourData) {
       super(tourPerson, tourData);
