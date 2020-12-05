@@ -16,5 +16,7 @@
 package net.tourbook.trainingstress;
 
 public enum TrainingStressType {
-   BIKESCORE, GOVSS, SWIMSCORE
+   BIKESCORE, //
+   GOVSS, //
+   SWIMSCORE
 }
