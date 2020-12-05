@@ -43,13 +43,14 @@ public class Govss extends TrainingStress {
       super(tourPerson, null);
    }
 
+   //TODO FB why can't i use the TrainingStress constructor ?
    public Govss(final TourPerson tourPerson, final TourData tourData) {
       super(tourPerson, tourData);
    }
 
    /**
-    * Function that calculates the GOVSS (Gravity Ordered Velocity Stress Score) for a given range
-    * within a run activity and athlete.
+    * Function that calculates the GOVSS (Gravity Ordered Velocity Stress Score) for a given run
+    * activity and athlete.
     * References
     * http://runscribe.com/wp-content/uploads/power/GOVSS.pdf
     * https://3record.de/about/power_estimation#run
