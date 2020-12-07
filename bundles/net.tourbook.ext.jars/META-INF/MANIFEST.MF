@@ -20,7 +20,8 @@ Bundle-ClassPath:
  jackson-core-2.12.0.jar,
  jackson-databind-2.12.0.jar,
  jackson-annotations-2.12.0.jar,
- istack-commons-runtime-4.0.0.jar
+ istack-commons-runtime-4.0.0.jar,
+ activation-1.1.1.jar
 Export-Package: com.enterprisedt,
  com.enterprisedt.net.ftp,
  com.enterprisedt.net.ftp.internal,
@@ -138,6 +139,7 @@ Export-Package: com.enterprisedt,
  gnu.trove.stack,
  gnu.trove.stack.array,
  gnu.trove.strategy,
+ javax.activation,
  net.sf.swtaddons.autocomplete,
  net.sf.swtaddons.autocomplete.combo,
  net.sf.swtaddons.autocomplete.text,
