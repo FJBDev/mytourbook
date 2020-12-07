@@ -19,7 +19,8 @@ Bundle-ClassPath:
  simplelatlng-1.3.1.jar,
  jackson-core-2.12.0.jar,
  jackson-databind-2.12.0.jar,
- jackson-annotations-2.12.0.jar
+ jackson-annotations-2.12.0.jar,
+ istack-commons-runtime-4.0.0.jar
 Export-Package: com.enterprisedt,
  com.enterprisedt.net.ftp,
  com.enterprisedt.net.ftp.internal,
@@ -113,6 +114,7 @@ Export-Package: com.enterprisedt,
  com.mchange.v2.sql.filter,
  com.mchange.v2.util,
  com.skedgo.converter,
+ com.sun.istack,
  gnu.trove,
  gnu.trove.decorator,
  gnu.trove.function,
