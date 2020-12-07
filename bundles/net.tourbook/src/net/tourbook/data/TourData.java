@@ -66,6 +66,7 @@ import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
 import javax.persistence.Transient;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,6 +75,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
 
 import net.tourbook.Messages;
 import net.tourbook.algorithm.DPPoint;
@@ -10878,7 +10880,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final JAXBContext context = JAXBContext.newInstance(TourData.class);
          final Marshaller marshaller = context.createMarshaller();
          final StringWriter sw = new StringWriter();
-         marshaller.marshal(this, sw);
+         marshaller.marshal(new JAXBElement<>(new QName("uri", "local"), TourData.class, this), sw); //$NON-NLS-1$ //$NON-NLS-2$
          return sw.toString();
 
       } catch (final JAXBException e) {
