@@ -3,8 +3,14 @@
 
 TODO's
 ======
+
+
   
-* At MT homepage, replace SQL Explorer with DBeaver https://sourceforge.net/p/mytourbook/discussion/622811/thread/9ae30efd93/?limit=25#57b3 
+MT website updates
+==================
+  
+* MT requires Java 11, recommend AdoptOpenJDK
+* Replace SQL Explorer with DBeaver https://sourceforge.net/p/mytourbook/discussion/622811/thread/9ae30efd93/?limit=25#57b3 
 
 
 Issues
@@ -31,6 +37,7 @@ Improvements
 * 2D Map
   - Draw value point from the tour chart
   - Sync map location with value point in the tour chart
+    https://sourceforge.net/p/mytourbook/feature-requests/162/
 
 * Statistic Values View
   - Show values with the selected measurement system
@@ -60,6 +67,12 @@ Fixes
   
 * Calendar View
   - The calendar week did not start always with the first day of week, it depended on the selected tour date 
+  
+* Tour Chart
+  - Multiple tours with default cadence of spm have displayed doubled cadence values  
+
+* Tour Marker View (Frederic)
+  - Bugfix: The time difference, average pace and average speed between markers could be wrong in the case of multiple selected tours
 
 
 Translation    
