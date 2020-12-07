@@ -1355,7 +1355,7 @@ public class TourMapPainter extends MapPainter {
          int tourSerieIndex = 0;
          int numberOfPauses = 0;
          long tourStartTime = 0;
-         final ArrayList<List<Long>> allTourPauses = tourData.multiTourPauses;
+         final ArrayList<ArrayList<Long>> allTourPauses = tourData.multiTourPauses;
          int currentTourPauseIndex = 0;
          int pauseCounter = 0;
          final int[] timeSerie = tourData.timeSerie;
@@ -1615,7 +1615,7 @@ public class TourMapPainter extends MapPainter {
        * world positions are cached to optimize performance when multiple tours are selected
        */
       final String projectionId = mp.getProjection().getId();
-      Point tourWorldPixelPosAll[] = tourData.getWorldPositionForTour(projectionId, mapZoomLevel);
+      Point[] tourWorldPixelPosAll = tourData.getWorldPositionForTour(projectionId, mapZoomLevel);
 
       if ((tourWorldPixelPosAll == null)) {
 
@@ -2685,7 +2685,7 @@ public class TourMapPainter extends MapPainter {
             /*
              * world positions are cached to optimize performance when multiple tours are selected
              */
-            Point tourWorldPixelPosAll[] = tourData.getWorldPositionForTour(projectionId, mapZoomLevel);
+            Point[] tourWorldPixelPosAll = tourData.getWorldPositionForTour(projectionId, mapZoomLevel);
             if ((tourWorldPixelPosAll == null)) {
 
                // world pixels are not yet cached, create them now
