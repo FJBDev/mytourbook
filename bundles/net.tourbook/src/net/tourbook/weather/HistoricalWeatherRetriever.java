@@ -25,8 +25,13 @@ import com.javadocmd.simplelatlng.util.LengthUnit;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -302,7 +307,7 @@ public class HistoricalWeatherRetriever {
 
       BufferedReader rd = null;
       InputStreamReader isr = null;
-      final StringBuffer weatherHistory = new StringBuffer();
+      final StringBuilder weatherHistory = new StringBuilder();
       try {
          // NOTE :
          // This error below keeps popping up RANDOMLY and as of today, I haven't found a solution:
@@ -313,6 +318,13 @@ public class HistoricalWeatherRetriever {
          final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
          connection.setRequestMethod("GET"); //$NON-NLS-1$
          connection.connect();
+         final HttpClient httpClient = HttpClient.newBuilder()
+               .version(HttpClient.Version.HTTP_2)
+               .followRedirects(HttpClient.Redirect.NORMAL)
+               .connectTimeout(Duration.ofSeconds(20))
+               .proxy(ProxySelector.of(new InetSocketAddress("proxy.yourcompany.com", 80)))
+               .authenticator(Authenticator.getDefault())
+               .build();
 
          isr = new InputStreamReader(connection.getInputStream());
          rd = new BufferedReader(isr);
