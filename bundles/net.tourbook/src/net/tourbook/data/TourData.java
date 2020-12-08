@@ -10880,7 +10880,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final JAXBContext context = JAXBContext.newInstance(TourData.class);
          final Marshaller marshaller = context.createMarshaller();
          final StringWriter sw = new StringWriter();
-         marshaller.marshal(new JAXBElement<>(new QName("uri", "local"), TourData.class, this), sw); //$NON-NLS-1$ //$NON-NLS-2$
+         marshaller.marshal(new JAXBElement<>(new QName(TourData.class.getSimpleName()), TourData.class, this), sw);
          return sw.toString();
 
       } catch (final JAXBException e) {
