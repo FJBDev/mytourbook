@@ -523,6 +523,7 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
       return time;
    }
 
+   @XmlTransient
    public TourData getTourData() {
       return tourData;
    }
