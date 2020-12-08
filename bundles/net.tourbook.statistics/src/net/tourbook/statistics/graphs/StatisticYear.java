@@ -177,7 +177,7 @@ public abstract class StatisticYear extends TourbookStatistic {
             _statisticData_Year.elevationUp_High_Resorted);
 
       yData.setYTitle(Messages.LABEL_GRAPH_ALTITUDE);
-      yData.setUnitLabel(UI.UNIT_LABEL_ALTITUDE);
+      yData.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
@@ -376,7 +376,7 @@ public abstract class StatisticYear extends TourbookStatistic {
 
       final ArrayList<TourType> tourTypes = TourDatabase.getActiveTourTypes();
 
-      if (tourTypes == null || tourTypes.size() == 0) {
+      if (tourTypes == null || tourTypes.isEmpty()) {
          return;
       }
 

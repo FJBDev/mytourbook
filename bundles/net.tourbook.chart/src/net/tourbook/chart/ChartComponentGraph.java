@@ -526,7 +526,7 @@ public class ChartComponentGraph extends Canvas {
 
       boolean[] selectedBarItems;
 
-      if (_allGraphDrawingData.size() == 0) {
+      if (_allGraphDrawingData.isEmpty()) {
          selectedBarItems = null;
       } else {
 
@@ -1210,7 +1210,7 @@ public class ChartComponentGraph extends Canvas {
 //       * check if the mouse has reached the left or right border
 //       */
 //      if (_graphDrawingData == null
-//            || _graphDrawingData.size() == 0
+//            || _graphDrawingData.isEmpty()
 //            || _hoveredLineValueIndex == 0
 //            || _hoveredLineValueIndex == _graphDrawingData.get(0).getXData()._highValues.length - 1) {
 //
@@ -1394,9 +1394,9 @@ public class ChartComponentGraph extends Canvas {
 
    private void doAutoScroll_30_UpdateHoveredListener(final long eventTime) {
 
-      final IHoveredValueListener hoveredListener = _chart._hoveredListener;
+      final IHoveredValueTooltipListener hoveredTooltipListener = _chart.getHoveredValueTooltipListener();
 
-      if (_isHoveredLineVisible || hoveredListener != null) {
+      if (_isHoveredLineVisible || hoveredTooltipListener != null) {
 
          final int hoveredLineValueIndexBACKUP = _hoveredValuePointIndex;
 
@@ -1406,7 +1406,7 @@ public class ChartComponentGraph extends Canvas {
 
             final PointLong devHoveredValueDevPosition = getHoveredValue_DevPosition();
 
-            if (hoveredListener != null) {
+            if (hoveredTooltipListener != null) {
 
                /**
                 * this is very tricky:
@@ -1414,7 +1414,7 @@ public class ChartComponentGraph extends Canvas {
                 * the last mouse move position is used
                 */
 
-               hoveredListener.hoveredValue(
+               hoveredTooltipListener.hoveredValue(
                      eventTime,
                      _devXMouseMove,
                      _devYMouseMove,
@@ -1501,7 +1501,7 @@ public class ChartComponentGraph extends Canvas {
          return;
       }
 
-      if (_allGraphDrawingData.size() == 0) {
+      if (_allGraphDrawingData.isEmpty()) {
          // drawing data are not set
          return;
       }
@@ -4336,7 +4336,7 @@ public class ChartComponentGraph extends Canvas {
 //      System.out.println(UI.timeStampNano() + " drawSync_000_onPaint: START");
 //      // TODO remove SYSTEM.OUT.PRINTLN
 
-      if (_allGraphDrawingData == null || _allGraphDrawingData.size() == 0) {
+      if (_allGraphDrawingData == null || _allGraphDrawingData.isEmpty()) {
 
          // fill the image area when there is no graphic
          gc.setBackground(_chart.getBackgroundColor());
@@ -5342,6 +5342,11 @@ public class ChartComponentGraph extends Canvas {
 
          final Rectangle[][] barRectangeleSeries = drawingData.getBarRectangles();
 
+         if (barRectangeleSeries == null) {
+            // this occurred
+            continue;
+         }
+
          final int markerWidth = BAR_MARKER_WIDTH;
          final int markerWidth2 = markerWidth / 2;
 
@@ -5589,7 +5594,7 @@ public class ChartComponentGraph extends Canvas {
              * This feature is used to optimize painting is currently used for tour markers and
              * photos.
              */
-            if (customFgLayers.size() == 0) {
+            if (customFgLayers.isEmpty()) {
                continue;
             }
 
@@ -5678,6 +5683,14 @@ public class ChartComponentGraph extends Canvas {
       return _chartComponents.getDevVisibleChartHeight();
    }
 
+   /**
+    * @return Returns the index in the data series which is hovered with the mouse or
+    *         <code>-1</code> when a value is not hovered.
+    */
+   int getHovered_ValuePoint_Index() {
+      return _hoveredValuePointIndex;
+   }
+
    private PointLong getHoveredValue_DevPosition() {
 
       final PointLong[] lineDevPositions = _lineDevPositions.get(0);
@@ -5731,14 +5744,6 @@ public class ChartComponentGraph extends Canvas {
    }
 
    /**
-    * @return Returns the index in the data series which is hovered with the mouse or
-    *         <code>-1</code> when a value is not hovered.
-    */
-   int getHoveredValue_PointIndex() {
-      return _hoveredValuePointIndex;
-   }
-
-   /**
     * @return Returns the left slider
     */
    ChartXSlider getLeftSlider() {
@@ -5774,7 +5779,7 @@ public class ChartComponentGraph extends Canvas {
     * @return Returns the x-Data in the drawing data list
     */
    private ChartDataXSerie getXData() {
-      if (_allGraphDrawingData.size() == 0) {
+      if (_allGraphDrawingData.isEmpty()) {
          return null;
       } else {
          return _allGraphDrawingData.get(0).getXData();
@@ -5867,7 +5872,7 @@ public class ChartComponentGraph extends Canvas {
 
    private void hideTooltip() {
 
-      final IHoveredValueListener hoveredListener = _chart.getHoveredListener();
+      final IHoveredValueTooltipListener hoveredListener = _chart.getHoveredValueTooltipListener();
       if (hoveredListener != null) {
 
          // hide value point tooltip
@@ -6827,10 +6832,10 @@ public class ChartComponentGraph extends Canvas {
        * THE FEATURE onExternalMouseMoveImportant IS NOT YET FULLY IMPLEMENTED
        * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<br>
        */
-      final ChartMouseEvent externalMouseMoveEvent = _chart.onExternalMouseMoveImportant(//
-            eventTime,
+      final ChartMouseEvent externalMouseMoveEvent = _chart.onExternalMouseMoveImportant(eventTime,
             devXMouse,
             devYMouse);
+
       if (externalMouseMoveEvent.isWorked) {
 
          setChartCursor(externalMouseMoveEvent.cursor);
@@ -7001,11 +7006,15 @@ public class ChartComponentGraph extends Canvas {
          }
       }
 
-      final IHoveredValueListener hoveredListener = _chart._hoveredListener;
+      setHoveredLineValue();
 
-      if (_isHoveredLineVisible || hoveredListener != null) {
+      // fire event for the current hovered value point
+      if (_hoveredValuePointIndex != -1) {
+         _chart.fireHoveredValueEvent(_hoveredValuePointIndex);
+      }
 
-         setHoveredLineValue();
+      final IHoveredValueTooltipListener hoveredValueTooltipListener = _chart.getHoveredValueTooltipListener();
+      if (_isHoveredLineVisible || hoveredValueTooltipListener != null) {
 
          if (_hoveredValuePointIndex != -1) {
 
@@ -7025,15 +7034,15 @@ public class ChartComponentGraph extends Canvas {
                }
 
                /*
-                * this redraw is necessary otherwise a hovered photo displayed as none hovered when
+                * This redraw is necessary otherwise a hovered photo displayed as none hovered when
                 * mouse is not hovering a photo
                 */
                isRedraw = true;
             }
 
-            if (hoveredListener != null && canShowHoveredValueTooltip) {
+            if (hoveredValueTooltipListener != null && canShowHoveredValueTooltip) {
 
-               hoveredListener.hoveredValue(
+               hoveredValueTooltipListener.hoveredValue(
                      eventTime,
                      _devXMouseMove,
                      _devYMouseMove,
@@ -8003,7 +8012,7 @@ public class ChartComponentGraph extends Canvas {
     */
    private void setHoveredLineValue() {
 
-      if (_lineDevPositions.size() == 0) {
+      if (_lineDevPositions.isEmpty()) {
          return;
       }
 
@@ -8055,7 +8064,7 @@ public class ChartComponentGraph extends Canvas {
 
          // set focus to first bar item
 
-         if (_allGraphDrawingData.size() == 0) {
+         if (_allGraphDrawingData.isEmpty()) {
             _selectedBarItems = null;
          } else {
 
@@ -8295,7 +8304,7 @@ public class ChartComponentGraph extends Canvas {
     */
    private void switchSliderTo2ndXData(final ChartXSlider slider) {
 
-      if (_allGraphDrawingData.size() == 0) {
+      if (_allGraphDrawingData.isEmpty()) {
          return;
       }
 
