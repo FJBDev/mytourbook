@@ -66,7 +66,6 @@ import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
 import javax.persistence.Transient;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -75,7 +74,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.namespace.QName;
 
 import net.tourbook.Messages;
 import net.tourbook.algorithm.DPPoint;
@@ -253,37 +251,31 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * year of tour start
     */
-   @XmlElement
    private short                 startYear;
 
    /**
     * mm (d) month of tour
     */
-   @XmlElement
    private short                 startMonth;
 
    /**
     * dd (d) day of tour
     */
-   @XmlElement
    private short                 startDay;
 
    /**
     * HH (d) hour of tour
     */
-   @XmlElement
    private short                 startHour;
 
    /**
     * MM (d) minute of tour
     */
-   @XmlElement
    private short                 startMinute;
 
    /**
     *
     */
-   @XmlElement
    private int                   startSecond;                                          // db-version 7
 
    /**
@@ -291,7 +283,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <p>
     * This is used in sql queries.
     */
-   @XmlElement
    private short                 startWeek;
 
    /**
@@ -337,7 +328,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Time zone ID or <code>null</code> when the time zone ID is not available.
     */
-   @XmlElement
    private String                timeZoneId;
 
    // ############################################# DISTANCE #############################################
@@ -952,16 +942,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * The array {@link #timeSerie} is <code>null</code> for a manually created tour, it is
     * <b>always</b> set when tour is from a device or an imported file.
     */
-   @XmlElementWrapper(name = "TimeSeries")
-   @XmlElement(name = "TimeSerie")
    @Transient
    public int[]               timeSerie;
 
    /**
     * Contains the absolute distance in m (metric system) or <code>null</code> when not available
     */
-   @XmlElementWrapper(name = "DistanceSeries")
-   @XmlElement(name = "DistanceSerie")
    @Transient
    public float[]             distanceSerie;
 
@@ -987,8 +973,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Contains the absolute elevation in meter (metric system) or <code>null</code> when not
     * available.
     */
-   @XmlElementWrapper(name = "AltitudeSeries")
-   @XmlElement(name = "AltitudeSerie")
    @Transient
    public float[]             altitudeSerie;
 
@@ -1020,13 +1004,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Transient
    private float[]               srtmSerieImperial;
 
-   @XmlElementWrapper(name = "CadenceSeries")
-   @XmlElement(name = "CadenceSerie")
    @Transient
    private float[]               cadenceSerie;
 
-   @XmlElementWrapper(name = "PulseSeries")
-   @XmlElement(name = "PulseSerie")
    @Transient
    public float[]                pulseSerie;
 
@@ -1046,8 +1026,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Contains the temperature in the metric measurement system.
     */
-   @XmlElementWrapper(name = "TemperatureSeries")
-   @XmlElement(name = "TemperatureSerie")
    @Transient
    public float[]                temperatureSerie;
 
@@ -1063,8 +1041,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * the metric speed serie is required when computing the power even if the current measurement
     * system is imperial
     */
-   @XmlElementWrapper(name = "SpeedSeries")
-   @XmlElement(name = "SpeedSerie")
    @Transient
    private float[]               speedSerie;
 
@@ -1105,8 +1081,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Transient
    private float[]               paceSerieMinuteImperial;
 
-   @XmlElementWrapper(name = "PowerSeries")
-   @XmlElement(name = "PowerSerie")
    @Transient
    private float[]               powerSerie;
 
@@ -1135,13 +1109,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Contains tour latitude data or <code>null</code> when GPS data are not available.
     */
-   @XmlElementWrapper(name = "LatitudeSeries")
-   @XmlElement(name = "LatitudeSerie")
    @Transient
    public double[]               latitudeSerie;
 
-   @XmlElementWrapper(name = "LongitudeSeries")
-   @XmlElement(name = "LongitudeSerie")
    @Transient
    public double[]               longitudeSerie;
 
@@ -1630,16 +1600,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Relative time in seconds to the tour start time. Contains
     * {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimTimes")
-   @XmlElement(name = "SwimTime")
    @Transient
    public int[]         swim_Time;
    /**
     * Swimming data: Activity is defined in {@link LengthType} e.g. active, idle. Contains
     * {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimLengthTypes")
-   @XmlElement(name = "SwimLengthType")
    @Transient
    public short[]       swim_LengthType;
 
@@ -1648,8 +1614,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Swimming data: Number of strokes. Contains {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimStrokes")
-   @XmlElement(name = "SwimStroke")
    @Transient
    public short[]       swim_Strokes;
 
@@ -1659,8 +1623,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Stroke style is defined in {@link SwimStroke} e.g. freestyle, breaststroke...
     * Contains {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimStrokeStyles")
-   @XmlElement(name = "SwimStrokeStyle")
    @Transient
    public short[]       swim_StrokeStyle;
 
@@ -1670,8 +1632,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Swimming cadence in strokes/min. Contains {@link Short#MIN_VALUE} when value is
     * not set.
     */
-   @XmlElementWrapper(name = "SwimCadences")
-   @XmlElement(name = "SwimCadence")
    @Transient
    public short[]       swim_Cadence;
 
@@ -1688,8 +1648,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Computed swim data serie
     */
-   @XmlElementWrapper(name = "SwimSwolfs")
-   @XmlElement(name = "SwimSwolf")
    @Transient
    private float[]      _swim_Swolf;
 
@@ -1712,8 +1670,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * An array containing the start time of each pause (in milliseconds)
     * A timer pause is a device event triggered by the user.
     */
-   @XmlElementWrapper(name = "PausedTime_Starts")
-   @XmlElement(name = "PausedTime_Start")
    @Transient
    private long[]           pausedTime_Start;
 
@@ -1721,8 +1677,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * An array containing the end time of each pause (in milliseconds)
     * A timer pause is a device event triggered by the user.
     */
-   @XmlElementWrapper(name = "PausedTime_Ends")
-   @XmlElement(name = "PausedTime_End")
    @Transient
    private long[]           pausedTime_End;
 
@@ -10859,14 +10813,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return string;
    }
 
-   @Override
    public String toXml() {
 
       try {
-         final JAXBContext context = JAXBContext.newInstance(TourData.class);
-         final Marshaller marshaller = context.createMarshaller();
+         final Marshaller marshaller = JAXBContext.newInstance(TourData.class).createMarshaller();
+         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          final StringWriter sw = new StringWriter();
-         marshaller.marshal(new JAXBElement<>(new QName(TourData.class.getSimpleName()), TourData.class, this), sw);
+//         marshaller.marshal(new JAXBElement<>(new QName(TourData.class.getSimpleName()), TourData.class, this), sw);
+         marshaller.marshal(this, sw);
+         boolean toto = sw.toString().contains("tourComputedTime_Moving");
+         toto = sw.toString().contains("tourDeviceTime_Paused");
          return sw.toString();
 
       } catch (final JAXBException e) {
