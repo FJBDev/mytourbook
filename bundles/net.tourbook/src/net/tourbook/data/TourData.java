@@ -304,7 +304,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Total recorded time in seconds
     */
-   @XmlElement
    private long                  tourDeviceTime_Recorded;
 
    /**
@@ -312,7 +311,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     *
     * This number could come from a direct value or from {@link tourTimerPauses}
     */
-   @XmlElement
    private long                  tourDeviceTime_Paused;
 
    /**
@@ -400,7 +398,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <br>
     * 0 == false, 1 == true
     */
-   @XmlElement
    private int                   isPowerSensorPresent            = 0;                     // db-version 12
 
    // ############################################# PULSE #############################################
@@ -462,7 +459,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <br>
     * 0 == false, 1 == true
     */
-   @XmlElement
    private int                   isPulseSensorPresent            = 0;                     // db-version 12
 
    // ############################################# DEVICE TOUR TYPE #############################################
@@ -504,7 +500,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * maximum pace in metric system
     */
-   @XmlElement
    private float                 maxPace;
 
    // ############################################# AVERAGE VALUES #############################################
@@ -637,11 +632,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private long                  dateTimeModified;                                     // db-version 11
 
    /** Folder path from the import file. */
-   @XmlElement
    private String                tourImportFilePath;                                   // db-version 6
 
    /** File name from the import file. */
-   @XmlElement
    private String                tourImportFileName;                                   // db-version 29
 
    /**
@@ -10862,10 +10855,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final Marshaller marshaller = JAXBContext.newInstance(TourData.class).createMarshaller();
          marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          final StringWriter sw = new StringWriter();
-//         marshaller.marshal(new JAXBElement<>(new QName(TourData.class.getSimpleName()), TourData.class, this), sw);
          marshaller.marshal(this, sw);
-         boolean toto = sw.toString().contains("tourComputedTime_Moving");
-         toto = sw.toString().contains("tourDeviceTime_Paused");
+         final String toto = sw.toString();
          return sw.toString();
 
       } catch (final JAXBException e) {

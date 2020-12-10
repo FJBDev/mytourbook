@@ -176,7 +176,7 @@ public class TourManager {
    public static final String  X_AXIS_TIME                                     = "time";                                                             //$NON-NLS-1$
    public static final String  X_AXIS_DISTANCE                                 = "distance";                                                         //$NON-NLS-1$
    //
-   private final static String FORMAT_MM_SS                                    = "%d:%02d";                                                          //$NON-NLS-1$
+   private static final String FORMAT_MM_SS                                    = "%d:%02d";                                                          //$NON-NLS-1$
    public static final String  GEAR_TEETH_FORMAT                               = "%2d:%2d";                                                          //$NON-NLS-1$
    public static final String  GEAR_VALUE_FORMAT                               = GEAR_TEETH_FORMAT + " - %1.2f";                                     //$NON-NLS-1$
    //
@@ -236,12 +236,12 @@ public class TourManager {
          GRAPH_TOUR_COMPARE
    };
 
-   private final static IPreferenceStore                 _prefStore                        = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore                 _prefStore                        = TourbookPlugin.getPrefStore();
 
    private static TourManager                            _instance;
 
-   private final static StringBuilder                    _sbFormatter                      = new StringBuilder();
-   private final static Formatter                        _formatter                        = new Formatter(_sbFormatter);
+   private static final StringBuilder                    _sbFormatter                      = new StringBuilder();
+   private static final Formatter                        _formatter                        = new Formatter(_sbFormatter);
 
    /**
     * contains the instance of the {@link TourDataEditorView} or <code>null</code> when this part is
@@ -1080,7 +1080,7 @@ public class TourManager {
             final long[] pausedTime_End = fromTourData.getPausedTime_End();
             for (int index = 0; index < pausedTime_Start.length; ++index) {
 
-               final ArrayList<Long> fromTourPausesList = new ArrayList<>();
+               final List<Long> fromTourPausesList = new ArrayList<>();
 
                fromTourPausesList.add(pausedTime_Start[index]);
                fromTourPausesList.add(pausedTime_End[index]);
@@ -1827,9 +1827,9 @@ public class TourManager {
       boolean isLongDuration = false;
 
       // create a unique key for all tours
-      final long newOverlayKey[] = { 0 };
-      final int tourIndex[] = { 0 };
-      final int loadCounter[] = { 0 };
+      final long[] newOverlayKey = { 0 };
+      final int[] tourIndex = { 0 };
+      final int[] loadCounter = { 0 };
       final int numTourIds = allTourIds.size();
 
       while (tourIndex[0] < numTourIds) {
@@ -1923,7 +1923,7 @@ public class TourManager {
     */
    public static TourDataEditorView openTourEditor(final boolean isActive) {
 
-      final TourDataEditorView tourDataEditorView[] = { null };
+      final TourDataEditorView[] tourDataEditorView = { null };
 
       /*
        * must be run in the UI thread because PlatformUI.getWorkbench().getActiveWorkbenchWindow()
@@ -2443,7 +2443,7 @@ public class TourManager {
 
       final ArrayList<TourData> savedTourData = saveModifiedTours(modifiedTours, isFireNotification);
 
-      if (savedTourData == null || savedTourData.isEmpty()) {
+      if (savedTourData.isEmpty()) {
          return null;
       } else {
          return savedTourData.get(0);
