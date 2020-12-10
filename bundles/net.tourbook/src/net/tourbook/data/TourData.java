@@ -10853,7 +10853,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       try {
          final Marshaller marshaller = JAXBContext.newInstance(TourData.class).createMarshaller();
-         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          final StringWriter sw = new StringWriter();
          marshaller.marshal(this, sw);
          return sw.toString();
