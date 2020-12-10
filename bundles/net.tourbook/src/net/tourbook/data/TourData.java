@@ -1481,7 +1481,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * List containing all the tour pauses used only for multiple tours.
     */
    @Transient
-   public ArrayList<ArrayList<Long>>   multiTourPauses;
+   public ArrayList<List<Long>>   multiTourPauses;
 
 
    @Transient
@@ -10855,6 +10855,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return string;
    }
 
+   @Override
    public String toXml() {
 
       try {

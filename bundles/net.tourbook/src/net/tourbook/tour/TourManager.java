@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.tourbook.Messages;
@@ -845,7 +846,7 @@ public class TourManager {
       final String[] allTourTitle = joinedTourData.multipleTourTitles = new String[numTours];
       final ArrayList<TourMarker> allTourMarker = joinedTourData.multiTourMarkers = new ArrayList<>();
       final int[] allTourMarkerNumbers = joinedTourData.multipleNumberOfMarkers = new int[numTours];
-      final ArrayList<ArrayList<Long>> allTourPauses = joinedTourData.multiTourPauses = new ArrayList<>();
+      final ArrayList<List<Long>> allTourPauses = joinedTourData.multiTourPauses = new ArrayList<>();
       final int[] allTourPausesNumbers = joinedTourData.multipleNumberOfPauses = new int[numTours];
       final int[] allSwimStartIndex = joinedTourData.multipleSwimStartIndex = new int[numTours];
 
@@ -2762,7 +2763,7 @@ public class TourManager {
 
    /**
     * Add/save selected photos in it's tours.
-    * 
+    *
     * @param photoGallery
     */
    public static void tourPhoto_Add(final PhotoGallery photoGallery) {
@@ -2866,7 +2867,7 @@ public class TourManager {
 
    /**
     * Remove selected photos from it's tours.
-    * 
+    *
     * @param photoGallery
     */
    public static void tourPhoto_Remove(final PhotoGallery photoGallery) {
