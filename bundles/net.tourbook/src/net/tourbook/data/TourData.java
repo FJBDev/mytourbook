@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -96,7 +95,6 @@ import net.tourbook.importdata.TourbookDevice;
 import net.tourbook.math.Smooth;
 import net.tourbook.photo.Photo;
 import net.tourbook.photo.PhotoCache;
-import net.tourbook.photo.TourPhotoReference;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.srtm.ElevationSRTM3;
 import net.tourbook.srtm.GeoLat;
@@ -254,37 +252,31 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * year of tour start
     */
-   @XmlElement
    private short                 startYear;
 
    /**
     * mm (d) month of tour
     */
-   @XmlElement
    private short                 startMonth;
 
    /**
     * dd (d) day of tour
     */
-   @XmlElement
    private short                 startDay;
 
    /**
     * HH (d) hour of tour
     */
-   @XmlElement
    private short                 startHour;
 
    /**
     * MM (d) minute of tour
     */
-   @XmlElement
    private short                 startMinute;
 
    /**
     *
     */
-   @XmlElement
    private int                   startSecond;                                          // db-version 7
 
    /**
@@ -292,7 +284,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <p>
     * This is used in sql queries.
     */
-   @XmlElement
    private short                 startWeek;
 
    /**
@@ -316,7 +307,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Total recorded time in seconds
     */
-   @XmlElement
    private long                  tourDeviceTime_Recorded;
 
    /**
@@ -324,7 +314,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     *
     * This number could come from a direct value or from {@link tourTimerPauses}
     */
-   @XmlElement
    private long                  tourDeviceTime_Paused;
 
    /**
@@ -338,7 +327,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Time zone ID or <code>null</code> when the time zone ID is not available.
     */
-   @XmlElement
    private String                timeZoneId;
 
    // ############################################# DISTANCE #############################################
@@ -413,7 +401,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <br>
     * 0 == false, 1 == true
     */
-   @XmlElement
    private int                   isPowerSensorPresent            = 0;                     // db-version 12
 
    // ############################################# PULSE #############################################
@@ -475,7 +462,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * <br>
     * 0 == false, 1 == true
     */
-   @XmlElement
    private int                   isPulseSensorPresent            = 0;                     // db-version 12
 
    // ############################################# DEVICE TOUR TYPE #############################################
@@ -517,7 +503,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * maximum pace in metric system
     */
-   @XmlElement
    private float                 maxPace;
 
    // ############################################# AVERAGE VALUES #############################################
@@ -650,11 +635,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private long                  dateTimeModified;                                     // db-version 11
 
    /** Folder path from the import file. */
-   @XmlElement
    private String                tourImportFilePath;                                   // db-version 6
 
    /** File name from the import file. */
-   @XmlElement
    private String                tourImportFileName;                                   // db-version 29
 
    /**
@@ -971,16 +954,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * The array {@link #timeSerie} is <code>null</code> for a manually created tour, it is
     * <b>always</b> set when tour is from a device or an imported file.
     */
-   @XmlElementWrapper(name = "TimeSeries")
-   @XmlElement(name = "TimeSerie")
    @Transient
    public int[]               timeSerie;
 
    /**
     * Contains the absolute distance in m (metric system) or <code>null</code> when not available
     */
-   @XmlElementWrapper(name = "DistanceSeries")
-   @XmlElement(name = "DistanceSerie")
    @Transient
    public float[]             distanceSerie;
 
@@ -1006,8 +985,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Contains the absolute elevation in meter (metric system) or <code>null</code> when not
     * available.
     */
-   @XmlElementWrapper(name = "AltitudeSeries")
-   @XmlElement(name = "AltitudeSerie")
    @Transient
    public float[]             altitudeSerie;
 
@@ -1039,13 +1016,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Transient
    private float[]               srtmSerieImperial;
 
-   @XmlElementWrapper(name = "CadenceSeries")
-   @XmlElement(name = "CadenceSerie")
    @Transient
    private float[]               cadenceSerie;
 
-   @XmlElementWrapper(name = "PulseSeries")
-   @XmlElement(name = "PulseSerie")
    @Transient
    public float[]                pulseSerie;
 
@@ -1065,8 +1038,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Contains the temperature in the metric measurement system.
     */
-   @XmlElementWrapper(name = "TemperatureSeries")
-   @XmlElement(name = "TemperatureSerie")
    @Transient
    public float[]                temperatureSerie;
 
@@ -1082,8 +1053,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * the metric speed serie is required when computing the power even if the current measurement
     * system is imperial
     */
-   @XmlElementWrapper(name = "SpeedSeries")
-   @XmlElement(name = "SpeedSerie")
    @Transient
    private float[]               speedSerie;
 
@@ -1124,8 +1093,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @Transient
    private float[]               paceSerieMinuteImperial;
 
-   @XmlElementWrapper(name = "PowerSeries")
-   @XmlElement(name = "PowerSerie")
    @Transient
    private float[]               powerSerie;
 
@@ -1154,13 +1121,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Contains tour latitude data or <code>null</code> when GPS data are not available.
     */
-   @XmlElementWrapper(name = "LatitudeSeries")
-   @XmlElement(name = "LatitudeSerie")
    @Transient
    public double[]               latitudeSerie;
 
-   @XmlElementWrapper(name = "LongitudeSeries")
-   @XmlElement(name = "LongitudeSerie")
    @Transient
    public double[]               longitudeSerie;
 
@@ -1532,7 +1495,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * List containing all the tour pauses used only for multiple tours.
     */
    @Transient
-   public ArrayList<List<Long>>   multiTourPauses;
+   public List<List<Long>>   multiTourPauses;
 
 
    @Transient
@@ -1649,16 +1612,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Relative time in seconds to the tour start time. Contains
     * {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimTimes")
-   @XmlElement(name = "SwimTime")
    @Transient
    public int[]         swim_Time;
    /**
     * Swimming data: Activity is defined in {@link LengthType} e.g. active, idle. Contains
     * {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimLengthTypes")
-   @XmlElement(name = "SwimLengthType")
    @Transient
    public short[]       swim_LengthType;
 
@@ -1667,8 +1626,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Swimming data: Number of strokes. Contains {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimStrokes")
-   @XmlElement(name = "SwimStroke")
    @Transient
    public short[]       swim_Strokes;
 
@@ -1678,8 +1635,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Stroke style is defined in {@link SwimStroke} e.g. freestyle, breaststroke...
     * Contains {@link Short#MIN_VALUE} when value is not set.
     */
-   @XmlElementWrapper(name = "SwimStrokeStyles")
-   @XmlElement(name = "SwimStrokeStyle")
    @Transient
    public short[]       swim_StrokeStyle;
 
@@ -1689,8 +1644,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Swimming data: Swimming cadence in strokes/min. Contains {@link Short#MIN_VALUE} when value is
     * not set.
     */
-   @XmlElementWrapper(name = "SwimCadences")
-   @XmlElement(name = "SwimCadence")
    @Transient
    public short[]       swim_Cadence;
 
@@ -1707,8 +1660,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Computed swim data serie
     */
-   @XmlElementWrapper(name = "SwimSwolfs")
-   @XmlElement(name = "SwimSwolf")
    @Transient
    private float[]      _swim_Swolf;
 
@@ -1731,8 +1682,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * An array containing the start time of each pause (in milliseconds)
     * A timer pause is a device event triggered by the user.
     */
-   @XmlElementWrapper(name = "PausedTime_Starts")
-   @XmlElement(name = "PausedTime_Start")
    @Transient
    private long[]           pausedTime_Start;
 
@@ -1740,8 +1689,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * An array containing the end time of each pause (in milliseconds)
     * A timer pause is a device event triggered by the user.
     */
-   @XmlElementWrapper(name = "PausedTime_Ends")
-   @XmlElement(name = "PausedTime_End")
    @Transient
    private long[]           pausedTime_End;
 
@@ -1810,6 +1757,23 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       }
 
       return true;
+   }
+
+   /**
+    * Add photos into this tour and save it.
+    *
+    * @param allNewTourPhotos
+    */
+   public void addPhotos(final Collection<TourPhoto> allNewTourPhotos) {
+
+      if (allNewTourPhotos.size() > 0) {
+
+         final HashSet<TourPhoto> currentTourPhotos = new HashSet<>(tourPhotos);
+
+         currentTourPhotos.addAll(allNewTourPhotos);
+
+         saveTourPhotos(currentTourPhotos);
+      }
    }
 
    /**
@@ -2300,8 +2264,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       final int serieLength = timeSerie.length;
 
-      final float dataSerieAltimeter[] = new float[serieLength];
-      final float dataSerieGradient[] = new float[serieLength];
+      final float[] dataSerieAltimeter = new float[serieLength];
+      final float[] dataSerieGradient = new float[serieLength];
 
       int adjustIndexLow;
       int adjustmentIndexHigh;
@@ -2400,8 +2364,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       final int serieLength = timeSerie.length;
       final int serieLengthLast = serieLength - 1;
 
-      final float dataSerieAltimeter[] = new float[serieLength];
-      final float dataSerieGradient[] = new float[serieLength];
+      final float[] dataSerieAltimeter = new float[serieLength];
+      final float[] dataSerieGradient = new float[serieLength];
 
       // get minimum time/distance differences
       final int minTimeDiff = _prefStore.getInt(ITourbookPreferences.APP_DATA_SPEED_MIN_TIMESLICE_VALUE);
@@ -2429,25 +2393,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final int sliceTimeDiff = timeSerie[serieIndex] - timeSerie[serieIndex - 1];
 
          // check if a lat and long diff is available
-         if (checkPosition && (serieIndex > 0) && (serieIndex < serieLengthLast - 1)) {
+         if (checkPosition && (serieIndex > 0) && (serieIndex < serieLengthLast - 1) && (sliceTimeDiff > 10)) {
 
-            if (sliceTimeDiff > 10) {
-
-               if ((latitudeSerie[serieIndex] == latitudeSerie[serieIndex - 1])
-                     && (longitudeSerie[serieIndex] == longitudeSerie[serieIndex - 1])) {
+            if ((latitudeSerie[serieIndex] == latitudeSerie[serieIndex - 1])
+                  && (longitudeSerie[serieIndex] == longitudeSerie[serieIndex - 1])) {
 //                  dataSerieAltimeter[serieIndex] = 100;
-                  continue;
-               }
+               continue;
+            }
 
-               if (distanceSerie[serieIndex] == distanceSerie[serieIndex - 1]) {
+            if (distanceSerie[serieIndex] == distanceSerie[serieIndex - 1]) {
 //                  dataSerieAltimeter[serieIndex] = 120;
-                  continue;
-               }
+               continue;
+            }
 
-               if (altitudeSerie[serieIndex] == altitudeSerie[serieIndex - 1]) {
+            if (altitudeSerie[serieIndex] == altitudeSerie[serieIndex - 1]) {
 //                  dataSerieAltimeter[serieIndex] = 130;
-                  continue;
-               }
+               continue;
             }
          }
          final int serieIndexPrev = serieIndex - 1;
@@ -3466,12 +3427,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * Computes tour break time
     *
-    * @param startIndex
     * @param endIndex
     * @param btConfig
     * @return Returns break time for the whole tour.
     */
-   private int computeBreakTimeVariable(final int startIndex, final int endIndex, final BreakTimeTool btConfig) {
+   private int computeBreakTimeVariable(final BreakTimeTool btConfig) {
 
       /*
        * compute break time according to the selected method
@@ -5088,18 +5048,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
             if (isUseLatLon && (lowIndex > 0) && (highIndex < lastSerieIndex - 1)) {
 
                if ((latitudeSerie[lowIndex] == latitudeSerie[lowIndex - 1])
-                     && (longitudeSerie[lowIndex] == longitudeSerie[lowIndex - 1])) {
-
-                  if (distDiff == 0) {
-                     continue;
-                  }
+                     && (longitudeSerie[lowIndex] == longitudeSerie[lowIndex - 1])
+                     && (distDiff == 0)) {
+                  continue;
                }
 
                if ((longitudeSerie[highIndex] == longitudeSerie[highIndex + 1])
-                     && (latitudeSerie[highIndex] == latitudeSerie[highIndex + 1])) {
-                  if (distDiff == 0) {
-                     continue;
-                  }
+                     && (latitudeSerie[highIndex] == latitudeSerie[highIndex + 1]) && (distDiff == 0)) {
+                  continue;
                }
             }
 
@@ -5289,7 +5245,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
-    * Create {@link Photo}'s from {@link TourPhoto}'s
+    * Create {@link Photo}'s from {@link TourPhoto}'s which are displayed in views, e.g. tour chart,
+    * map, ...
     */
    public void createGalleryPhotos() {
 
@@ -7144,7 +7101,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
             // variable time slices
 
-            computeBreakTimeVariable(startIndex, endIndex, breakTimeTool);
+            computeBreakTimeVariable(breakTimeTool);
 
          } else {
 
@@ -8110,19 +8067,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
          // use metric system
 
-         if (_runDyn_StepLength_UI == null) {
+         if (_runDyn_StepLength_UI == null && runDyn_StepLength != null) {
 
-            if (runDyn_StepLength != null) {
+            // create UI data serie
 
-               // create UI data serie
+            final int serieSize = runDyn_StepLength.length;
 
-               final int serieSize = runDyn_StepLength.length;
+            _runDyn_StepLength_UI = new float[serieSize];
 
-               _runDyn_StepLength_UI = new float[serieSize];
-
-               for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
-                  _runDyn_StepLength_UI[serieIndex] = runDyn_StepLength[serieIndex];
-               }
+            for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
+               _runDyn_StepLength_UI[serieIndex] = runDyn_StepLength[serieIndex];
             }
          }
 
@@ -8205,19 +8159,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     */
    public float[] getRunDyn_VerticalRatio() {
 
-      if (_runDyn_VerticalRatio_UI == null) {
+      if (_runDyn_VerticalRatio_UI == null && runDyn_VerticalRatio != null) {
 
-         if (runDyn_VerticalRatio != null) {
+         // create UI data serie
 
-            // create UI data serie
+         final int serieSize = runDyn_VerticalRatio.length;
 
-            final int serieSize = runDyn_VerticalRatio.length;
+         _runDyn_VerticalRatio_UI = new float[serieSize];
 
-            _runDyn_VerticalRatio_UI = new float[serieSize];
-
-            for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
-               _runDyn_VerticalRatio_UI[serieIndex] = runDyn_VerticalRatio[serieIndex] / RUN_DYN_DATA_MULTIPLIER;
-            }
+         for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
+            _runDyn_VerticalRatio_UI[serieIndex] = runDyn_VerticalRatio[serieIndex] / RUN_DYN_DATA_MULTIPLIER;
          }
       }
 
@@ -9427,6 +9378,23 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       numberOfTimeSlices = timeSerie == null ? 0 : timeSerie.length;
    }
 
+   /**
+    * Remove photos from this tour and save it.
+    *
+    * @param allRemovedTourPhotos
+    */
+   public void removePhotos(final Collection<TourPhoto> allRemovedTourPhotos) {
+
+      if (allRemovedTourPhotos.size() > 0) {
+
+         final HashSet<TourPhoto> currentTourPhotos = new HashSet<>(tourPhotos);
+
+         currentTourPhotos.removeAll(allRemovedTourPhotos);
+
+         saveTourPhotos(currentTourPhotos);
+      }
+   }
+
    public boolean replaceAltitudeWithSRTM() {
 
       if (getSRTMSerie() == null) {
@@ -9465,6 +9433,26 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       if (serieData != null) {
          visibleDataPointSerie = serieData.visiblePoints_Surfing;
       }
+   }
+
+   /**
+    * Save photos in this tour.
+    *
+    * @param allTourPhotos
+    */
+   private void saveTourPhotos(final HashSet<TourPhoto> allTourPhotos) {
+
+      // force gallery photos to be recreated
+      _galleryPhotos.clear();
+
+      tourPhotos.clear();
+      tourPhotos.addAll(allTourPhotos);
+
+      numberOfPhotos = tourPhotos.size();
+
+      computePhotoTimeAdjustment();
+
+      TourManager.saveModifiedTour(this, true);
    }
 
    /**
@@ -10114,7 +10102,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * Set new photos into the tour, existing photos will be replaced.
     *
     * @param newTourPhotos
-    * @param linkPhotos
+    * @param newGalleryPhotos
     */
    public void setTourPhotos(final HashSet<TourPhoto> newTourPhotos, final ArrayList<Photo> newGalleryPhotos) {
 
@@ -10141,20 +10129,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
             if (isPhotoUsed == false) {
 
                /*
-                * photo is not saved any more in this tour, remove tour reference
+                * Photo is not saved any more in this tour, remove tour reference
                 */
-
                oldGalleryPhoto.removeTour(tourId);
-
-               final HashMap<Long, TourPhotoReference> photoRefs = oldGalleryPhoto.getTourPhotoReferences();
-
-               if (photoRefs.isEmpty()) {
-
-                  oldGalleryPhoto.isSavedInTour = false;
-                  oldGalleryPhoto.ratingStars = 0;
-
-                  oldGalleryPhoto.resetTourExifState();
-               }
             }
          }
       }
@@ -11025,8 +11002,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public String toXml() {
 
       try {
-         final JAXBContext context = JAXBContext.newInstance(TourData.class);
-         final Marshaller marshaller = context.createMarshaller();
+         final Marshaller marshaller = JAXBContext.newInstance(TourData.class).createMarshaller();
          final StringWriter sw = new StringWriter();
          marshaller.marshal(this, sw);
          return sw.toString();
