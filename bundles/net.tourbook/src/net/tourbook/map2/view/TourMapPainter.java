@@ -1354,7 +1354,7 @@ public class TourMapPainter extends MapPainter {
          int tourSerieIndex = 0;
          int numberOfPauses = 0;
          long tourStartTime = 0;
-         final ArrayList<List<Long>> allTourPauses = tourData.multiTourPauses;
+         final List<List<Long>> allTourPauses = tourData.multiTourPauses;
          int currentTourPauseIndex = 0;
          int pauseCounter = 0;
          final int[] timeSerie = tourData.timeSerie;

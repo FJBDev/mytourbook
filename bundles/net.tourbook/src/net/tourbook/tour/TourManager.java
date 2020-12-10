@@ -846,7 +846,7 @@ public class TourManager {
       final String[] allTourTitle = joinedTourData.multipleTourTitles = new String[numTours];
       final ArrayList<TourMarker> allTourMarker = joinedTourData.multiTourMarkers = new ArrayList<>();
       final int[] allTourMarkerNumbers = joinedTourData.multipleNumberOfMarkers = new int[numTours];
-      final ArrayList<List<Long>> allTourPauses = joinedTourData.multiTourPauses = new ArrayList<>();
+      final List<List<Long>> allTourPauses = joinedTourData.multiTourPauses = new ArrayList<>();
       final int[] allTourPausesNumbers = joinedTourData.multipleNumberOfPauses = new int[numTours];
       final int[] allSwimStartIndex = joinedTourData.multipleSwimStartIndex = new int[numTours];
 

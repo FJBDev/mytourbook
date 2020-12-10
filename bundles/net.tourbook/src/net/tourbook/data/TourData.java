@@ -1474,7 +1474,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
     * List containing all the tour pauses used only for multiple tours.
     */
    @Transient
-   public ArrayList<List<Long>>   multiTourPauses;
+   public List<List<Long>>   multiTourPauses;
 
 
    @Transient
@@ -10856,7 +10856,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          final StringWriter sw = new StringWriter();
          marshaller.marshal(this, sw);
-         final String toto = sw.toString();
          return sw.toString();
 
       } catch (final JAXBException e) {
