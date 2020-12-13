@@ -19,7 +19,13 @@ import de.byteholder.geoclipse.map.UI;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -51,6 +57,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 public class PrefPageWeather extends PreferencePage implements IWorkbenchPreferencePage {
 
    public static final String     ID         = "net.tourbook.preferences.PrefPageWeather"; //$NON-NLS-1$
+
+   private static HttpClient    httpClient                 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
    private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
@@ -189,6 +197,9 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
             try {
 
                final URL url = new URL(HistoricalWeatherRetriever.getApiUrl() + _textApiKey.getText());
+               final HttpRequest request = HttpRequest.newBuilder(URI.create(weatherRequestWithParameters)).GET().build();
+
+               final HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
                // TODO FB
                final HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
                urlConn.connect();
