@@ -16,11 +16,7 @@ package net.tourbook.cloud.oauth2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -93,8 +89,7 @@ public class OAuth2BrowserDialog extends Dialog {
       final Composite displayArea = new Composite(control, SWT.NONE);
       GridLayoutFactory.fillDefaults().applyTo(displayArea);
       GridDataFactory.fillDefaults()
-            .hint(600,
-                  600)
+            .hint(600, 600)
             .grab(true, true)
             .applyTo(displayArea);
 
@@ -116,13 +111,13 @@ public class OAuth2BrowserDialog extends Dialog {
             }
             final char[] separators = { '#', '&' };
             response = uri.toString();
-            final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
-            for (final NameValuePair param : params) {
-               if (paramName.equals(param.getName())) {
-                  token = param.getValue();
-                  break;
-               }
-            }
+//            final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+//            for (final NameValuePair param : params) {
+//               if (paramName.equals(param.getName())) {
+//                  token = param.getValue();
+//                  break;
+//               }
+//            }
             event.doit = false;
             close();
          }
@@ -147,12 +142,12 @@ public class OAuth2BrowserDialog extends Dialog {
       return response;
    }
 
+   public String getToken() {
+      return token;
+   }
+
    @Override
    protected boolean isResizable() {
       return true;
-   }
-
-   public String getToken() {
-      return token;
    }
 }

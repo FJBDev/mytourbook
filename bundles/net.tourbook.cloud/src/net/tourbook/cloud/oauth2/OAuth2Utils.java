@@ -14,14 +14,6 @@
  */
 package net.tourbook.cloud.oauth2;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
-
 /**
  * OAuth2 utilities.
  */
@@ -37,16 +29,16 @@ public class OAuth2Utils {
     */
    public static String getAuthorizeUrl(final OAuth2Client client) {
 
-      final List<NameValuePair> params = new ArrayList<>();
-      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_REDIRECT_URI,
-            client.getRedirectUri()));
-      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_ID,
-            client.getId().toString()));
-      params.add(new BasicNameValuePair(
-            IOAuth2Constants.RESPONSE_TYPE,
-            IOAuth2Constants.PARAM_TOKEN));
+//      final List<NameValuePair> params = new ArrayList<>();
+//      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_REDIRECT_URI,
+//            client.getRedirectUri()));
+//      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_ID,
+//            client.getId().toString()));
+//      params.add(new BasicNameValuePair(
+//            IOAuth2Constants.RESPONSE_TYPE,
+//            IOAuth2Constants.PARAM_TOKEN));
 
-      final String query = URLEncodedUtils.format(params, StandardCharsets.UTF_8);
-      return client.getAuthorizeUrl() + '?' + query;
+//      final String query = URLEncodedUtils.format(params, StandardCharsets.UTF_8);
+      return client.getAuthorizeUrl() + '?';//+ query;
    }
 }
