@@ -2385,9 +2385,7 @@ public class TourManager {
          return false;
       }
 
-      final HistoricalWeatherRetriever historicalWeatherRetriever = new HistoricalWeatherRetriever(tourData);
-
-      final WeatherData historicalWeatherData = historicalWeatherRetriever.retrieve().getHistoricalWeatherData();
+      final WeatherData historicalWeatherData = new HistoricalWeatherRetriever(tourData).retrieve().getHistoricalWeatherData();
       if (historicalWeatherData == null) {
          TourLogManager.subLog_Error(
                NLS.bind(
