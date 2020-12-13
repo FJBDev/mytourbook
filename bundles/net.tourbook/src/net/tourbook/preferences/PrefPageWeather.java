@@ -189,6 +189,7 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
             try {
 
                final URL url = new URL(HistoricalWeatherRetriever.getApiUrl() + _textApiKey.getText());
+               // TODO FB
                final HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
                urlConn.connect();
 
