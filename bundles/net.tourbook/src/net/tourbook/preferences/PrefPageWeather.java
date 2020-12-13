@@ -62,8 +62,6 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
 
    private Label  _labelApiKey;
 
-   private Link   _linkApiSignup;
-
    private Text   _textApiKey;
 
    @Override
@@ -128,10 +126,10 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
              */
 
             // Link - see http(s)://www.worldweatheronline.com/developer/signup.aspx
-            _linkApiSignup = new Link(container, SWT.PUSH);
-            _linkApiSignup.setText(Messages.Pref_Weather_Link_ApiSignup);
-            _linkApiSignup.setEnabled(true);
-            _linkApiSignup.addListener(SWT.Selection, new Listener() {
+            final Link linkApiSignup = new Link(container, SWT.PUSH);
+            linkApiSignup.setText(Messages.Pref_Weather_Link_ApiSignup);
+            linkApiSignup.setEnabled(true);
+            linkApiSignup.addListener(SWT.Selection, new Listener() {
                @Override
                public void handleEvent(final Event event) {
                   WEB.openUrl(Messages.External_Link_Weather_ApiSignup);
@@ -140,7 +138,7 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
             GridDataFactory.fillDefaults()
                   .span(2, 1)
                   .indent(defaultHIndent, 0)
-                  .applyTo(_linkApiSignup);
+                  .applyTo(linkApiSignup);
          }
          {
             /*
@@ -177,11 +175,6 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
    @Override
    public void init(final IWorkbench workbench) {
       setPreferenceStore(TourbookPlugin.getDefault().getPreferenceStore());
-   }
-
-   @Override
-   public boolean okToLeave() {
-      return super.okToLeave();
    }
 
    /**

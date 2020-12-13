@@ -53,9 +53,10 @@ public class Initializer {
             newlyImportedTours);
 
       try {
-         parser.parse(gpx, handler);
+         if (parser != null) {
+            parser.parse(gpx, handler);
+         }
       } catch (SAXException | IOException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
 

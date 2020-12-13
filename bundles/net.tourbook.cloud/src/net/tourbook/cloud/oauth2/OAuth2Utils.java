@@ -14,6 +14,8 @@
  */
 package net.tourbook.cloud.oauth2;
 
+import net.tourbook.common.UI;
+
 /**
  * OAuth2 utilities.
  */
@@ -29,16 +31,10 @@ public class OAuth2Utils {
     */
    public static String getAuthorizeUrl(final OAuth2Client client) {
 
-//      final List<NameValuePair> params = new ArrayList<>();
-//      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_REDIRECT_URI,
-//            client.getRedirectUri()));
-//      params.add(new BasicNameValuePair(IOAuth2Constants.PARAM_CLIENT_ID,
-//            client.getId().toString()));
-//      params.add(new BasicNameValuePair(
-//            IOAuth2Constants.RESPONSE_TYPE,
-//            IOAuth2Constants.PARAM_TOKEN));
+      final String query = IOAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + client.getRedirectUri() + UI.SYMBOL_MNEMONIC +
+            IOAuth2Constants.PARAM_CLIENT_ID + UI.SYMBOL_EQUAL + client.getId() + UI.SYMBOL_MNEMONIC +
+            IOAuth2Constants.RESPONSE_TYPE + UI.SYMBOL_EQUAL + IOAuth2Constants.PARAM_TOKEN;
 
-//      final String query = URLEncodedUtils.format(params, StandardCharsets.UTF_8);
-      return client.getAuthorizeUrl() + '?';//+ query;
+      return client.getAuthorizeUrl() + UI.SYMBOL_QUESTION_MARK + query;
    }
 }

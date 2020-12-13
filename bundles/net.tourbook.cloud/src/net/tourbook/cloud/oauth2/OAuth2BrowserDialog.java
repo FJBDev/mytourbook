@@ -16,6 +16,10 @@ package net.tourbook.cloud.oauth2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import net.tourbook.common.UI;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -36,15 +40,15 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OAuth2BrowserDialog extends Dialog {
 
-   private final String url;
+   private static final String paramAccessToken = IOAuth2Constants.PARAM_ACCESS_TOKEN;
 
-   private final String redirectUri;
+   private final String        url;
 
-   private final String paramName;
+   private final String        redirectUri;
 
-   private String       token;
+   private String              token;
 
-   private String       response;
+   private String              response;
 
    /**
     * @param shell
@@ -55,7 +59,7 @@ public class OAuth2BrowserDialog extends Dialog {
 
       this(PlatformUI.getWorkbench()
             .getDisplay()
-            .getActiveShell(), OAuth2Utils.getAuthorizeUrl(client), IOAuth2Constants.PARAM_ACCESS_TOKEN, client.getRedirectUri());
+            .getActiveShell(), OAuth2Utils.getAuthorizeUrl(client), client.getRedirectUri());
    }
 
    /**
@@ -66,11 +70,9 @@ public class OAuth2BrowserDialog extends Dialog {
     */
    public OAuth2BrowserDialog(final Shell shell,
                               final String url,
-                              final String parameterName,
                               final String redirectUri) {
       super(shell);
       this.url = url;
-      paramName = parameterName;
       this.redirectUri = redirectUri;
    }
 
@@ -109,18 +111,12 @@ public class OAuth2BrowserDialog extends Dialog {
             } catch (final URISyntaxException ignored) {
                return;
             }
-            final char[] separators = { '#', '&' };
-            response = uri.toString();
-//            final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
-//            for (final NameValuePair param : params) {
-//               if (paramName.equals(param.getName())) {
-//                  token = param.getValue();
-//                  break;
-//               }
-//            }
+            retrieveTokenFromResponse(uri);
+
             event.doit = false;
             close();
          }
+
       });
       getShell().setText(Messages.OAuth2BrowserDialog_Title);
       return control;
@@ -128,7 +124,7 @@ public class OAuth2BrowserDialog extends Dialog {
 
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
-      final String sectionName = getClass().getName() + ".dialogBounds"; //$NON-NLS-1$
+      final String sectionName = getClass().getName() + ".dialogsUIgBounds"; //$NON-NLS-1$
       final IDialogSettings settings = OAuth2Plugin.getDefault()
             .getDialogSettings();
       IDialogSettings section = settings.getSection(sectionName);
@@ -149,5 +145,19 @@ public class OAuth2BrowserDialog extends Dialog {
    @Override
    protected boolean isResizable() {
       return true;
+   }
+
+   private void retrieveTokenFromResponse(final URI uri) {
+
+      response = URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8);
+
+      int tokenIndex = response.lastIndexOf(paramAccessToken);
+      final int ampersandIndex = response.indexOf(UI.SYMBOL_MNEMONIC);
+      if (tokenIndex != -1 && ampersandIndex != -1) {
+         tokenIndex += paramAccessToken.length() + 1;
+         if (tokenIndex < response.length() && ampersandIndex < response.length()) {
+            token = response.substring(tokenIndex, ampersandIndex);
+         }
+      }
    }
 }
