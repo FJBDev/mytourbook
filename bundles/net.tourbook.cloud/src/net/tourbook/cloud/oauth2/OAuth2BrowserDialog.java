@@ -16,11 +16,11 @@ package net.tourbook.cloud.oauth2;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import net.tourbook.common.UI;
-
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -124,7 +124,7 @@ public class OAuth2BrowserDialog extends Dialog {
 
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
-      final String sectionName = getClass().getName() + ".dialogsUIgBounds"; //$NON-NLS-1$
+      final String sectionName = getClass().getName() + ".dialogBounds"; //$NON-NLS-1$
       final IDialogSettings settings = OAuth2Plugin.getDefault()
             .getDialogSettings();
       IDialogSettings section = settings.getSection(sectionName);
@@ -149,14 +149,15 @@ public class OAuth2BrowserDialog extends Dialog {
 
    private void retrieveTokenFromResponse(final URI uri) {
 
-      response = URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8);
+      final char[] separators = { '#', '&' };
 
-      int tokenIndex = response.lastIndexOf(paramAccessToken);
-      final int ampersandIndex = response.indexOf(UI.SYMBOL_MNEMONIC);
-      if (tokenIndex != -1 && ampersandIndex != -1) {
-         tokenIndex += paramAccessToken.length() + 1;
-         if (tokenIndex < response.length() && ampersandIndex < response.length()) {
-            token = response.substring(tokenIndex, ampersandIndex);
+      response = uri.toString();
+
+      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+      for (final NameValuePair param : params) {
+         if (paramAccessToken.equals(param.getName())) {
+            token = param.getValue();
+            break;
          }
       }
    }
