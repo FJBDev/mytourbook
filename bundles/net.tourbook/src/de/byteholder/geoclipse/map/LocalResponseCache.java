@@ -34,65 +34,16 @@ public class LocalResponseCache extends ResponseCache {
       }
    }
 
-   private class LocalCacheRequest extends CacheRequest {
-      private final File       localFile;
-      private FileOutputStream fos;
-
-      private LocalCacheRequest(final File localFile) {
-         this.localFile = localFile;
-         try {
-            fos = new FileOutputStream(localFile);
-         } catch (final FileNotFoundException ex) {
-            // should not happen
-            ex.printStackTrace();
-         }
-      }
-
-      @Override
-      public void abort() {
-         // abandon the cache attempt by closing the stream and deleting
-         // the local file
-         try {
-            fos.close();
-            localFile.delete();
-         } catch (final IOException e) {}
-      }
-
-      @Override
-      public OutputStream getBody() throws IOException {
-         return fos;
-      }
-   }
-
-   private class LocalCacheResponse extends CacheResponse {
-      private FileInputStream                 fis;
-      private final Map<String, List<String>> headers;
-
-      private LocalCacheResponse(final File localFile, final Map<String, List<String>> rqstHeaders) {
-         try {
-            fis = new FileInputStream(localFile);
-         } catch (final FileNotFoundException ex) {
-            // should not happen, since we already checked for existence
-            ex.printStackTrace();
-         }
-         headers = rqstHeaders;
-      }
-
-      @Override
-      public InputStream getBody() throws IOException {
-         return fis;
-      }
-
-      @Override
-      public Map<String, List<String>> getHeaders() throws IOException {
-         return headers;
-      }
-   }
-
    /**
     * Private constructor to prevent instantiation.
     */
    private LocalResponseCache() {}
+
+   public static void installResponseCache() {
+      if (!IS_CACHE_DISABLED) {
+         ResponseCache.setDefault(new LocalResponseCache());
+      }
+   }
 
    /**
     * Returns the local File corresponding to the given remote URI.
@@ -101,12 +52,6 @@ public class LocalResponseCache extends ResponseCache {
       final int code = remoteUri.hashCode();
       final String fileName = Integer.toString(code >= 0 ? code : -code);
       return new File(CHACHE_DIR, fileName);
-   }
-
-   public static void installResponseCache() {
-      if (!IS_CACHE_DISABLED) {
-         ResponseCache.setDefault(new LocalResponseCache());
-      }
    }
 
    /**
@@ -180,5 +125,60 @@ public class LocalResponseCache extends ResponseCache {
 
       final File localFile = getLocalFile(uri);
       return new LocalCacheRequest(localFile);
+   }
+
+   private class LocalCacheResponse extends CacheResponse {
+      private FileInputStream                 fis;
+      private final Map<String, List<String>> headers;
+
+      private LocalCacheResponse(final File localFile, final Map<String, List<String>> rqstHeaders) {
+         try {
+            fis = new FileInputStream(localFile);
+         } catch (final FileNotFoundException ex) {
+            // should not happen, since we already checked for existence
+            ex.printStackTrace();
+         }
+         headers = rqstHeaders;
+      }
+
+      @Override
+      public Map<String, List<String>> getHeaders() throws IOException {
+         return headers;
+      }
+
+      @Override
+      public InputStream getBody() throws IOException {
+         return fis;
+      }
+   }
+
+   private class LocalCacheRequest extends CacheRequest {
+      private final File       localFile;
+      private FileOutputStream fos;
+
+      private LocalCacheRequest(final File localFile) {
+         this.localFile = localFile;
+         try {
+            fos = new FileOutputStream(localFile);
+         } catch (final FileNotFoundException ex) {
+            // should not happen
+            ex.printStackTrace();
+         }
+      }
+
+      @Override
+      public OutputStream getBody() throws IOException {
+         return fos;
+      }
+
+      @Override
+      public void abort() {
+         // abandon the cache attempt by closing the stream and deleting
+         // the local file
+         try {
+            fos.close();
+            localFile.delete();
+         } catch (final IOException e) {}
+      }
    }
 }
