@@ -15,12 +15,9 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -56,9 +53,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageWeather extends PreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String     ID         = "net.tourbook.preferences.PrefPageWeather"; //$NON-NLS-1$
+   public static final String     ID         = "net.tourbook.preferences.PrefPageWeather";                           //$NON-NLS-1$
 
-   private static HttpClient    httpClient                 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+   private static HttpClient      httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
    private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
@@ -196,32 +193,29 @@ public class PrefPageWeather extends PreferencePage implements IWorkbenchPrefere
 
             try {
 
-               final URL url = new URL(HistoricalWeatherRetriever.getApiUrl() + _textApiKey.getText());
-               final HttpRequest request = HttpRequest.newBuilder(URI.create(weatherRequestWithParameters)).GET().build();
+               final HttpRequest request = HttpRequest.newBuilder(URI.create(HistoricalWeatherRetriever.getApiUrl() + _textApiKey.getText())).GET()
+                     .build();
 
                final HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
-               // TODO FB
-               final HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-               urlConn.connect();
 
-               final int response = urlConn.getResponseCode();
-               final String responseMessage = urlConn.getResponseMessage();
+               final int statusCode = response.statusCode();
+               final String responseMessage = response.body();
 
-               final String message = response == HttpURLConnection.HTTP_OK
+               final String message = statusCode == HttpURLConnection.HTTP_OK
                      ? NLS.bind(Messages.Pref_Weather_CheckHTTPConnection_OK_Message, HistoricalWeatherRetriever.getBaseApiUrl())
                      : NLS.bind(
                            Messages.Pref_Weather_CheckHTTPConnection_FAILED_Message,
                            new Object[] {
                                  HistoricalWeatherRetriever.getBaseApiUrl(),
-                                 Integer.toString(response),
-                                 responseMessage == null ? UI.EMPTY_STRING : responseMessage });
+                                 statusCode,
+                                 responseMessage });
 
                MessageDialog.openInformation(
                      Display.getCurrent().getActiveShell(),
                      Messages.Pref_Weather_CheckHTTPConnection_Message,
                      message);
 
-            } catch (final IOException e) {
+            } catch (final IOException | InterruptedException e) {
                e.printStackTrace();
             }
          }

@@ -15,11 +15,14 @@
  *******************************************************************************/
 package net.tourbook.srtm;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.preferences.ITourbookPreferences;
@@ -58,6 +61,8 @@ public class PrefPageSRTMData extends PreferencePage implements IWorkbenchPrefer
    public static final String PROTOCOL_FTP   = "ftp://";   //$NON-NLS-1$
 
 //	http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/Eurasia/N47E008.hgt.zip
+
+   private static HttpClient    httpClient           = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
    private IPreferenceStore     _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
 
@@ -272,30 +277,29 @@ public class PrefPageSRTMData extends PreferencePage implements IWorkbenchPrefer
                baseUrl = _txtSRTM3HttpUrl.getText().trim();
 
                try {
-                  final URL url = new URL(baseUrl);
-                  //TODO FB
-                  //response.statusCode();
-                  final HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-                  urlConn.connect();
+                  final HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl)).GET()
+                        .build();
 
-                  final int response = urlConn.getResponseCode();
-                  final String responseMessage = urlConn.getResponseMessage();
+                  final HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-                  final String message = response == HttpURLConnection.HTTP_OK//
+                  final int statusCode = response.statusCode();
+                  final String responseMessage = response.body();
+
+                  final String message = statusCode == HttpURLConnection.HTTP_OK
                         ? NLS.bind(Messages.prefPage_srtm_checkHTTPConnectionOK_message, baseUrl)
                         : NLS.bind(
                               Messages.prefPage_srtm_checkHTTPConnectionFAILED_message, //
                               new Object[] {
                                     baseUrl,
-                                    Integer.toString(response),
-                                    responseMessage == null ? UI.EMPTY_STRING : responseMessage });
+                                    statusCode,
+                                    responseMessage });
 
                   MessageDialog.openInformation(
                         Display.getCurrent().getActiveShell(),
                         Messages.prefPage_srtm_checkHTTPConnection_title,
                         message);
 
-               } catch (final IOException e) {
+               } catch (final IOException | InterruptedException e) {
 
                   MessageDialog.openInformation(
                         Display.getCurrent().getActiveShell(),

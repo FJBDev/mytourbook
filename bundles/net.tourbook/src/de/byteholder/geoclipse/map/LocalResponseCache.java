@@ -133,7 +133,7 @@ public class LocalResponseCache extends ResponseCache {
 
       final long localLastMod = localFile.lastModified();
       long remoteLastMod = 0L;
-      //TODO FB
+
       final HttpURLConnection httpconn = (HttpURLConnection) conn;
       // disable caching so we don't get in feedback loop with ResponseCache
       httpconn.setUseCaches(false);
