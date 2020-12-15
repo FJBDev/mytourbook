@@ -84,7 +84,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 93
       //GoldenCheetah 3.6 value: 94
-      assertEquals(89, govss);
+      assertEquals(81, govss);
    }
 
    @Test
@@ -93,7 +93,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 116
       //GoldenCheetah 3.6 value: 117
-      assertEquals(107, govss);
+      assertEquals(103, govss);
    }
 
    @Test
@@ -102,7 +102,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 75
       //GoldenCheetah 3.6 value: 59
-      assertEquals(46, govss);
+      assertEquals(42, govss);
    }
 
    @Test
@@ -111,7 +111,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 82
       //GoldenCheetah 3.6 value: 58
-      assertEquals(68, govss);
+      assertEquals(61, govss);
    }
 
    @Test
@@ -120,7 +120,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 89
       //GoldenCheetah 3.6 value: 79
-      assertEquals(89, govss);
+      assertEquals(80, govss);
    }
 
    @Test
@@ -129,7 +129,7 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 179
       //GoldenCheetah 3.6 value: 147
-      assertEquals(142, govss);
+      assertEquals(136, govss);
    }
 
    @Test
@@ -138,6 +138,6 @@ class GovssTest {
 
       //TopoFusion 5.71 value: 246
       //GoldenCheetah 3.6 value: 242
-      assertEquals(199, govss);
+      assertEquals(191, govss);
    }
 }
