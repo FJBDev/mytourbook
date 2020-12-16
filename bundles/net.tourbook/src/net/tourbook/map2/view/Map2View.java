@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -135,9 +136,9 @@ import net.tourbook.tour.filter.geo.GeoFilter_LoaderData;
 import net.tourbook.tour.filter.geo.TourGeoFilter;
 import net.tourbook.tour.filter.geo.TourGeoFilter_Loader;
 import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
-import net.tourbook.tour.photo.Slideout_Map2_PhotoFilter;
 import net.tourbook.tour.photo.IPhotoFilterListener;
 import net.tourbook.tour.photo.PhotoFilterEvent;
+import net.tourbook.tour.photo.Slideout_Map2_PhotoFilter;
 import net.tourbook.tour.photo.TourPhotoLink;
 import net.tourbook.tour.photo.TourPhotoLinkSelection;
 import net.tourbook.training.TrainingManager;
@@ -440,7 +441,7 @@ public class Map2View extends ViewPart implements
    private ActionMap2_MapProvider            _actionMap2_MapProvider;
    private ActionMap2_Options                _actionMap2_Options;
    private ActionMap2_Graphs                 _actionMap2_TourColors;
-   private ActionPhotoFilter             _actionPhotoFilter;
+   private ActionPhotoFilter                 _actionPhotoFilter;
    private ActionReloadFailedMapImages       _actionReloadFailedMapImages;
    private ActionSaveDefaultPosition         _actionSaveDefaultPosition;
    private ActionSearchTourByLocation        _actionSearchTourByLocation;
@@ -1241,18 +1242,15 @@ public class Map2View extends ViewPart implements
 
          private void onPartVisible(final IWorkbenchPartReference partRef) {
 
-            if (partRef.getPart(false) == Map2View.this) {
+            if (partRef.getPart(false) == Map2View.this && _isPartVisible == false) {
 
-               if (_isPartVisible == false) {
+               _isPartVisible = true;
 
-                  _isPartVisible = true;
+               if (_selectionWhenHidden != null) {
 
-                  if (_selectionWhenHidden != null) {
+                  onSelectionChanged(_selectionWhenHidden, true);
 
-                     onSelectionChanged(_selectionWhenHidden, true);
-
-                     _selectionWhenHidden = null;
-                  }
+                  _selectionWhenHidden = null;
                }
             }
          }
@@ -2711,12 +2709,12 @@ public class Map2View extends ViewPart implements
 
          hideGeoGrid();
 
-         final ArrayList<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
+         final List<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
          if (tourIds.isEmpty()) {
 
             // history tour (without tours) is displayed
 
-            final ArrayList<Photo> allPhotos = paintPhotoSelection(selection);
+            final List<Photo> allPhotos = paintPhotoSelection(selection);
 
             if (allPhotos.size() > 0) {
 
@@ -3143,7 +3141,7 @@ public class Map2View extends ViewPart implements
     * @param selection
     * @return Returns a list which contains all photos.
     */
-   private ArrayList<Photo> paintPhotoSelection(final ISelection selection) {
+   private List<Photo> paintPhotoSelection(final ISelection selection) {
 
       _isLinkPhotoDisplayed = false;
 
@@ -3178,7 +3176,7 @@ public class Map2View extends ViewPart implements
       return allPhotos;
    }
 
-   private void paintTours(final ArrayList<Long> allTourIds) {
+   private void paintTours(final List<Long> allTourIds) {
 
       /*
        * TESTING if a map redraw can be avoided, 15.6.2015
@@ -3300,11 +3298,8 @@ public class Map2View extends ViewPart implements
       }
 
       // prevent loading the same tour
-      if (forceRedraw == false) {
-
-         if ((_allTourData.size() == 1) && (_allTourData.get(0) == tourData)) {
-            return;
-         }
+      if (forceRedraw == false && _allTourData.size() == 1 && _allTourData.get(0) == tourData) {
+         return;
       }
 
       // force multiple tours to be repainted

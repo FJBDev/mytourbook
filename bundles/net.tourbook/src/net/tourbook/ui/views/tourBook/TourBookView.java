@@ -53,6 +53,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.export.ActionExport;
+import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
@@ -341,6 +342,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private ActionSetPerson                 _actionSetOtherPerson;
    private ActionToggleViewLayout          _actionToggleViewLayout;
    private ActionTourBookOptions           _actionTourBookOptions;
+   private ActionUpload                    _actionUploadTour;
    //
    private PixelConverter                  _pc;
    /*
@@ -1132,6 +1134,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _actionSelectAllTours = new ActionSelectAllTours(this);
       _actionToggleViewLayout = new ActionToggleViewLayout(this);
       _actionTourBookOptions = new ActionTourBookOptions();
+      _actionUploadTour = new ActionUpload(this);
 
       _actionLinkWithOtherViews = new ActionLinkWithOtherViews();
 
@@ -1323,9 +1326,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       // add single click handler to sort the column without pressing additional the ALT key
       sortHeaderLayer.addConfiguration(new SingleClickSortConfiguration_MT(_columnManager_NatTable));
-      sortHeaderLayer.addLayerListener(listener -> {
-         natTable_OnColumnSort(listener);
-      });
+      sortHeaderLayer.addLayerListener(listener -> natTable_OnColumnSort(listener));
 
       /*
        * Row header layer
@@ -1778,6 +1779,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       _actionSelectAllTours.setEnabled(isTreeLayout);
       _actionToggleViewLayout.setEnabled(true);
+      _actionUploadTour.setEnabled(isTourSelected);
 
       _tagMenuManager.enableTagActions(isTourSelected, isOneTour, firstTourItem == null ? null : firstTourItem.getTagIds());
 
@@ -1849,6 +1851,9 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       }
 
       menuMgr.add(new Separator());
+      if (_actionUploadTour.hasUploaders()) {
+         menuMgr.add(_actionUploadTour);
+      }
       menuMgr.add(_actionExportTour);
       menuMgr.add(_actionExportViewCSV);
       menuMgr.add(_actionPrintTour);
@@ -2039,9 +2044,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       final ArrayList<TourData> selectedTourData = new ArrayList<>();
 
-      BusyIndicator.showWhile(_pageBook.getDisplay(), () -> {
-         TourManager.loadTourData(new ArrayList<>(tourIds), selectedTourData, false);
-      });
+      BusyIndicator.showWhile(_pageBook.getDisplay(), () -> TourManager.loadTourData(new ArrayList<>(tourIds), selectedTourData, false));
 
       return selectedTourData;
    }
@@ -2249,9 +2252,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
          // move selected tour into view
 
-         _pageBook.getDisplay().timerExec(1, () -> {
-            natTable_ScrollSelectedToursIntoView();
-         });
+         _pageBook.getDisplay().timerExec(1, () -> natTable_ScrollSelectedToursIntoView());
       }
    }
 
@@ -2367,7 +2368,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
          // fire selection that nothing is selected
 
-         selection = new SelectionTourIds(new ArrayList<Long>());
+         selection = new SelectionTourIds(new ArrayList<>());
 
       } else {
 
@@ -3028,7 +3029,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       }
 
       // check with old id
-      final long oldTourId = _selectedTourIds != null && _selectedTourIds.size() == 1
+      final long oldTourId = _selectedTourIds.size() == 1
             ? _selectedTourIds.get(0)
             : -1;
 
@@ -3082,7 +3083,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
                      /**
                       * <code>
-
+                     
                         Caused by: java.lang.NullPointerException
                         at org.eclipse.jface.viewers.AbstractTreeViewer.getSelection(AbstractTreeViewer.java:2956)
                         at org.eclipse.jface.viewers.StructuredViewer.handleSelect(StructuredViewer.java:1211)
@@ -3100,13 +3101,13 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                         at org.eclipse.jface.viewers.AbstractTreeViewer.internalCollapseToLevel(AbstractTreeViewer.java:1586)
                         at org.eclipse.jface.viewers.AbstractTreeViewer.collapseToLevel(AbstractTreeViewer.java:751)
                         at org.eclipse.jface.viewers.AbstractTreeViewer.collapseAll(AbstractTreeViewer.java:733)
-
+                     
                         at net.tourbook.ui.views.tourBook.TourBookView$70.run(TourBookView.java:3406)
-
+                     
                         at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
                         at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
                         ... 22 more
-
+                     
                       * </code>
                       */
 

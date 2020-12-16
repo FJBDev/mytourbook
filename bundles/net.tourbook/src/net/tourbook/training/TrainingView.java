@@ -18,6 +18,7 @@ package net.tourbook.training;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -990,7 +991,7 @@ public class TrainingView extends ViewPart {
       } else if (selection instanceof SelectionTourIds) {
 
          final SelectionTourIds selectionTourId = (SelectionTourIds) selection;
-         final ArrayList<Long> tourIds = selectionTourId.getTourIds();
+         final List<Long> tourIds = selectionTourId.getTourIds();
          if (tourIds != null && tourIds.size() > 0) {
             updateUI(tourIds.get(0));
          }

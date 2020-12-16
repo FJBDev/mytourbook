@@ -3,13 +3,19 @@
 <plugin>
 	
    <extension   point="net.tourbook.fileSystem">
-   
       <fileSystem
          id             ="net.tourbook.cloud.DropboxFileSystem"
          name           ="Dropbox File System"
          class          ="net.tourbook.cloud.dropbox.DropboxFileSystem"
       />
+   </extension>
       
+   <extension   point="net.tourbook.cloudUploader">
+      <cloudUploader
+         id             ="net.tourbook.cloud.StravaUploader"
+         name           ="Strava Uploader"
+         class          ="net.tourbook.cloud.strava.StravaUploader"
+      />
    </extension>
 
    <!-- Dropbox -->

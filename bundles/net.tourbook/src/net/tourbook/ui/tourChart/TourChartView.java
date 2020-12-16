@@ -16,6 +16,7 @@
 package net.tourbook.ui.tourChart;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -625,7 +626,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
             // only 1 tour can be displayed in the tour chart
 
-            final ArrayList<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
+            final List<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
 
             boolean isChartPainted = false;
 
@@ -911,7 +912,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
     *
     * @param tourIds
     */
-   private void updateChart(final ArrayList<Long> tourIds) {
+   private void updateChart(final List<Long> tourIds) {
 
       final TourData multipleTourData = TourManager.createJoinedTourData(tourIds);
 
