@@ -13,7 +13,7 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud.dropbox;
+package net.tourbook.cloud.strava;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
@@ -31,22 +31,26 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String ID         = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
 
    private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+
+   private String             _accessToken;
+   private String             _refreshToken;
+
    /*
     * UI controls
     */
-   private Text               _textAccessToken;
+   private Button _buttonConnect;
 
    @Override
    protected void createFieldEditors() {
@@ -63,31 +67,29 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
       {
          /*
-          * Authorize button
+          * Connect button
           */
-         final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
-         setButtonLayoutData(btnAuthorizeConnection);
-         btnAuthorizeConnection.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
-         btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
+
+         // As mentioned here : https://developers.strava.com/guidelines/
+         // "All apps must use the Connect with Strava button for OAuth that links to
+         // https://www.strava.com/oauth/authorize or https://www.strava.com/oauth/mobile/authorize.
+         // No variations or modifications are acceptable."
+
+         _buttonConnect = new Button(container, SWT.NONE);
+         setButtonLayoutData(_buttonConnect);
+         final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
+         _buttonConnect.setImage(imageConnect);
+         _buttonConnect.setSize(48, 1);
+         _buttonConnect.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(final SelectionEvent e) {
                onClickAuthorize();
             }
          });
-
-         /*
-          * Access Token
-          */
-         _textAccessToken = new Text(container, SWT.BORDER);
-         _textAccessToken.setEditable(false);
-         _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
-         GridDataFactory.fillDefaults()
-               .grab(true, false)
-               .applyTo(_textAccessToken);
       }
    }
 
@@ -96,24 +98,15 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
    /**
     * When the user clicks on the "Authorize" button, a browser is opened
-    * so that the user can allow the MyTourbook Dropbox app to have access
-    * to their Dropbox account.
+    * so that the user can allow the MyTourbook Strava app to have access
+    * to their Strava account.
     */
    private void onClickAuthorize() {
 
       final OAuth2Client client = new OAuth2Client();
 
-      // Per Dropbox recommendation :
-      // "The app key is considered public and does not need to be protected."
-      // source https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Proper-way-of-handling-APP-KEY-and-APP-SECRET/m-p/410478
-      // We use the implicit grant flow as we can't keep the secret_id secure
-      // "It is intended to be used for user-agent-based clients (e.g. single page web apps)
-      // that can’t keep a client secret because all of the application code and storage is easily accessible."
-      // source : https://alexbilbie.com/guide-to-oauth-2-grants/
-      client.setId("vye6ci8xzzsuiao"); //$NON-NLS-1$
-
-      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
-      client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
+      client.setAuthorizeUrl("https://mytourbook-oauth-passeur.herokuapp.com/authorize"); //$NON-NLS-1$
+      client.setRedirectUri("http://mytourbook.sourceforge.net/mytourbook"); //$NON-NLS-1$
 
       final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client);
       //Opens the dialog
@@ -121,24 +114,27 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          return;
       }
 
-      final String token = oAuth2Browser.getAccessToken();
-      final String dialogMessage = StringUtils.isNullOrEmpty(token) ? NLS.bind(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved,
-            oAuth2Browser.getResponse()) : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
-
-      if (!StringUtils.isNullOrEmpty(token)) {
-         _textAccessToken.setText(token);
-      }
+      _accessToken = oAuth2Browser.getAccessToken();
+      _refreshToken = oAuth2Browser.getRefreshToken();
+      final String dialogMessage = StringUtils.isNullOrEmpty(_accessToken) ? NLS.bind(
+            Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
+            oAuth2Browser.getResponse()) : Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
 
       MessageDialog.openInformation(
             Display.getCurrent().getActiveShell(),
-            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
+            Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieval_Title,
             dialogMessage);
+
+      UpdateButtonConnectState();
    }
 
    @Override
    protected void performDefaults() {
 
-      _textAccessToken.setText(_prefStore.getDefaultString(IPreferences.DROPBOX_ACCESSTOKEN));
+      _accessToken = _prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN);
+      _refreshToken = _prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN);
+
+      UpdateButtonConnectState();
 
       super.performDefaults();
    }
@@ -149,13 +145,22 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
+         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, _accessToken);
+         _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _refreshToken);
       }
 
       return isOK;
    }
 
    private void restoreState() {
-      _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+      _accessToken = _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
+      _refreshToken = _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
+
+      UpdateButtonConnectState();
+   }
+
+   private void UpdateButtonConnectState() {
+      final boolean isNotAuthorized = StringUtils.isNullOrEmpty(_accessToken) || StringUtils.isNullOrEmpty(_refreshToken);
+      _buttonConnect.setEnabled(isNotAuthorized);
    }
 }

@@ -25,6 +25,11 @@ public interface IOAuth2Constants {
    String PARAM_ACCESS_TOKEN  = "access_token";  //$NON-NLS-1$
 
    /**
+    * PARAM_REFRESH_TOKEN
+    */
+   String PARAM_REFRESH_TOKEN = "refresh_token"; //$NON-NLS-1$
+
+   /**
     * PARAM_CLIENT_ID
     */
    String PARAM_CLIENT_ID     = "client_id";     //$NON-NLS-1$

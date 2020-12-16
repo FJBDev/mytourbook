@@ -30,5 +30,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
       store.setDefault(IPreferences.DROPBOX_ACCESSTOKEN, UI.EMPTY_STRING);
+
+      store.setDefault(IPreferences.STRAVA_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(IPreferences.STRAVA_REFRESHTOKEN, UI.EMPTY_STRING);
    }
 }

@@ -13,18 +13,23 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud;
+package net.tourbook.cloud.strava;
 
-public interface IPreferences {
+import org.eclipse.osgi.util.NLS;
 
-   /*
-    * Dropbox preferences
-    */
-   public static final String DROPBOX_ACCESSTOKEN = "DROPBOX_ACCESSTOKEN"; //$NON-NLS-1$
+public class Messages extends NLS {
 
-   /*
-    * Strava preferences
-    */
-   public static final String STRAVA_ACCESSTOKEN  = "STRAVA_ACCESSTOKEN";  //$NON-NLS-1$
-   public static final String STRAVA_REFRESHTOKEN = "STRAVA_REFRESHTOKEN"; //$NON-NLS-1$
+   private static final String BUNDLE_NAME = "net.tourbook.cloud.strava.messages";       //$NON-NLS-1$
+
+   public static String        Image__Connect_With_Strava;
+   public static String        Pref_CloudConnectivity_Strava_AccessToken_Retrieval_Title;
+   public static String        Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved;
+   public static String        Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
+
+   static {
+      // initialize resource bundle
+      NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+   }
+
+   private Messages() {}
 }

@@ -40,13 +40,12 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OAuth2BrowserDialog extends Dialog {
 
-   private static final String paramAccessToken = IOAuth2Constants.PARAM_ACCESS_TOKEN;
-
    private final String        url;
 
    private final String        redirectUri;
 
-   private String              token;
+   private String              accessToken;
+   private String              refreshToken;
 
    private String              response;
 
@@ -122,6 +121,10 @@ public class OAuth2BrowserDialog extends Dialog {
       return control;
    }
 
+   public String getAccessToken() {
+      return accessToken;
+   }
+
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
       final String sectionName = getClass().getName() + ".dialogBounds"; //$NON-NLS-1$
@@ -134,12 +137,12 @@ public class OAuth2BrowserDialog extends Dialog {
       return section;
    }
 
-   public String getResponse() {
-      return response;
+   public String getRefreshToken() {
+      return refreshToken;
    }
 
-   public String getToken() {
-      return token;
+   public String getResponse() {
+      return response;
    }
 
    @Override
@@ -155,9 +158,11 @@ public class OAuth2BrowserDialog extends Dialog {
 
       final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
       for (final NameValuePair param : params) {
-         if (paramAccessToken.equals(param.getName())) {
-            token = param.getValue();
-            break;
+         if (IOAuth2Constants.PARAM_ACCESS_TOKEN.equals(param.getName())) {
+            accessToken = param.getValue();
+         }
+         if (IOAuth2Constants.PARAM_REFRESH_TOKEN.equals(param.getName())) {
+            refreshToken = param.getValue();
          }
       }
    }

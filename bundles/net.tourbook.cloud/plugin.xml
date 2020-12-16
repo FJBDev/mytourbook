@@ -22,6 +22,16 @@
       </page>
    </extension>
    
+   <!-- Strava -->
+   <extension	point="org.eclipse.ui.preferencePages">
+      <page
+            category="net.tourbook.preferences.PrefPageCloudConnectivity"
+            class="net.tourbook.cloud.strava.PrefPageStrava"
+            id="net.tourbook.strava.PrefPageStrava"
+            name="Strava">
+      </page>
+   </extension>
+   
     <extension   point="org.eclipse.core.runtime.preferences">
    
       <initializer
