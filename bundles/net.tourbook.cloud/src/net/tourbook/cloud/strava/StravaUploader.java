@@ -18,20 +18,12 @@ package net.tourbook.cloud.strava;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
@@ -42,14 +34,19 @@ import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class StravaUploader extends TourbookCloudUploader {
 
-   private static HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-
-   private IPreferenceStore  _prefStore = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -82,20 +79,26 @@ public class StravaUploader extends TourbookCloudUploader {
       final ObjectMapper objectMapper = new ObjectMapper();
       final String requestBody = objectMapper
             .writeValueAsString(values);
-      final String boundary = new BigInteger(256, new Random()).toString();
-      final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://www.strava.com/api/v3/uploads"))
-            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-//                  HttpRequest.BodyPublishers.ofInputStream( -> inputStream(new FileInputStream(tcxgz)))
-//            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("/home/frederic/Downloads/export.gpx")))
-            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("C:\\Users\\frederic\\Downloads\\export.gpx")))
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+
+      final HttpEntity entity = MultipartEntityBuilder
+            .create()
+            .addTextBody("number", "5555555555")
+            .addTextBody("clip", "rickroll")
+            .addBinaryBody("upload_file",
+                  new File("C:\\Users\\frederic\\Downloads\\export.gpx"),
+                  ContentType.create("application/octet-stream"),
+                  "filename")
+            .addTextBody("tos", "agree")
             .build();
 
-      try {
-         final HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+      try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+         final HttpPost httpPost = new HttpPost("https://www.strava.com/api/v3/uploads");
+         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
+         httpPost.setEntity(entity);
+         final HttpResponse response = httpClient.execute(httpPost);
+         final HttpEntity result = response.getEntity();
 
-         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+         if (response.getStatusLine() == HttpURLConnection.HTTP_OK) {
             //Generate link
             System.out.println(response);
             TourLogManager.showLogView();
@@ -103,7 +106,7 @@ public class StravaUploader extends TourbookCloudUploader {
                   TourLogState.DEFAULT,
                   "LINK");
          }
-      } catch (IOException | InterruptedException e) {
+      } catch (final IOException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
