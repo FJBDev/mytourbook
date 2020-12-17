@@ -51,6 +51,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 public class StravaUploader extends TourbookCloudUploader {
 
    private static HttpClient    httpClient                 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
+   private static final String _stravaBaseUrl = "https://www.strava.com/api/v3/";
+
    private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
@@ -62,10 +64,11 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private String getActivityId(final String id_str) {
+      //TODO FB Maybe we don't want to do that as it is possible that activites are not fully processed
       final HttpRequest request = HttpRequest.newBuilder()
             .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
             .GET()
-            .uri(URI.create("https://www.strava.com/api/v3/uploads/" + id_str))
+            .uri(URI.create(_stravaBaseUrl + "uploads/" + id_str))
             .build();
 
       try {
@@ -77,6 +80,8 @@ public class StravaUploader extends TourbookCloudUploader {
                UploadResponse.class);
          return result2.getActivity_id();
       }
+      //else
+      // if not ok, display the string in  "error": null,
       } catch (IOException | InterruptedException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -135,7 +140,7 @@ public class StravaUploader extends TourbookCloudUploader {
             activityId = getActivityId(result2.getId_str());
             TourLogManager.addLog(//
                   TourLogState.DEFAULT,
-                  "https://www.strava.com/activities/" + activityId);
+                  "<a>https://www.strava.com/activities/" + activityId + "</a>");
          }
       } catch (final IOException e) {
          // TODO Auto-generated catch block
