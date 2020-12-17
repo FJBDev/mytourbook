@@ -35,6 +35,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -81,6 +82,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_buttonConnect);
          final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
          _buttonConnect.setImage(imageConnect);
+         _buttonConnect.setToolTipText("TOWRITE");
          _buttonConnect.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -88,6 +90,17 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                onClickAuthorize();
             }
          });
+
+         /*
+          * Checkbox image
+          */
+         final Label toto = new Label(container, SWT.NONE);
+         final Image imageCheck = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_OK).createImage();
+
+         /*
+          * Trash image
+          */
+         final Image imageTrash = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_Trash).createImage();
       }
    }
 
