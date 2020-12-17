@@ -696,14 +696,11 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
                if (tourId instanceof Long) {
 
                   final TourData tourData = TourManager.getInstance().getTourData((Long) tourId);
-                  if (tourData != null) {
+                  if (tourData != null && _tourData != null && _tourData.equals(tourData)) {
 
-                     if (_tourData != null && _tourData.equals(tourData)) {
+                     // it's the same tour, overwrite chart
 
-                        // it's the same tour, overwrite chart
-
-                        xSliderPosition.setChart(_tourChart);
-                     }
+                     xSliderPosition.setChart(_tourChart);
                   }
                }
             }

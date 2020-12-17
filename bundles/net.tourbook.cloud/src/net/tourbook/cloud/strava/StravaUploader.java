@@ -13,19 +13,24 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.common;
+package net.tourbook.cloud.strava;
 
-public abstract class TourbookCloudUploader {
+import java.util.List;
 
-   private String CLOUD_UPLOADER_ID;
-   private String CLOUD_UPLOADER_NAME;
+import net.tourbook.data.TourData;
+import net.tourbook.extension.upload.TourbookCloudUploader;
 
-   public TourbookCloudUploader(final String id, final String name) {
-      CLOUD_UPLOADER_ID = id;
-      CLOUD_UPLOADER_NAME = name;
+public class StravaUploader extends TourbookCloudUploader {
+
+   public StravaUploader() {
+      super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
-   protected String getName() {
-      return CLOUD_UPLOADER_NAME;
+   @Override
+   public void uploadTours(final List<TourData> selectedTours, final int _tourStartIndex, final int _tourEndIndex) {
+      // TODO Auto-generated method stub
+      System.out.println("TOTO!!!!!");
+
    }
+
 }
