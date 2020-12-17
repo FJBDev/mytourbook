@@ -172,18 +172,15 @@ public class TourInfo_View extends ViewPart {
 
                onSelectionChanged((ISelection) eventData);
 
-            } else if (eventId == TourEventId.MARKER_SELECTION) {
+            } else if (eventId == TourEventId.MARKER_SELECTION && eventData instanceof SelectionTourMarker) {
 
-               if (eventData instanceof SelectionTourMarker) {
+               final TourData tourData = ((SelectionTourMarker) eventData).getTourData();
 
-                  final TourData tourData = ((SelectionTourMarker) eventData).getTourData();
+               if (tourData != _tourData) {
 
-                  if (tourData != _tourData) {
+                  _tourData = tourData;
 
-                     _tourData = tourData;
-
-                     updateUI();
-                  }
+                  updateUI();
                }
             }
          }

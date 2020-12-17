@@ -365,14 +365,11 @@ public class TrainingView extends ViewPart {
                if ((modifiedTours != null) && (modifiedTours.size() > 0)) {
                   updateUI_20(modifiedTours.get(0));
                }
-            } else if (eventId == TourEventId.TOUR_CHART_PROPERTY_IS_MODIFIED) {
+            } else if (eventId == TourEventId.TOUR_CHART_PROPERTY_IS_MODIFIED && _tourData != null) {
 
-               if (_tourData != null) {
+               _tourData.clearComputedSeries();
 
-                  _tourData.clearComputedSeries();
-
-                  updateUI_20(_tourData);
-               }
+               updateUI_20(_tourData);
             }
          }
       };

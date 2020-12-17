@@ -819,11 +819,9 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       // keep export path
       _state.put(STATE_CSV_EXPORT_PATH, exportFilePath.getPath());
 
-      if (exportFilePath.exists()) {
-         if (net.tourbook.ui.UI.confirmOverwrite(exportFilePath) == false) {
-            // don't overwrite file, nothing more to do
-            return;
-         }
+      if (exportFilePath.exists() && net.tourbook.ui.UI.confirmOverwrite(exportFilePath) == false) {
+         // don't overwrite file, nothing more to do
+         return;
       }
 
       new CSVExport(selection, selectedFilePath, this);

@@ -17,18 +17,36 @@ package net.tourbook.cloud.strava;
 
 import java.util.List;
 
+import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.IPreferences;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
 public class StravaUploader extends TourbookCloudUploader {
+
+   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
    @Override
+   protected boolean isReady() {
+      return StringUtils.hasContent(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN)) &&
+            StringUtils.hasContent(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
+   }
+
+   @Override
    public void uploadTours(final List<TourData> selectedTours, final int _tourStartIndex, final int _tourEndIndex) {
       // TODO Auto-generated method stub
+      // Validate Token
+
+      // Generate TCX.gz file
+
+      // Send TCX.gz file
       System.out.println("TOTO!!!!!");
 
    }

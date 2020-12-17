@@ -44,15 +44,15 @@ import org.eclipse.swt.widgets.Menu;
  */
 public class ActionUpload extends Action implements IMenuCreator {
 
-   private static List<TourbookCloudUploader> _tourbookCloudUploaders;
+   private static List<TourbookCloudUploader> _tourbookCloudUploaders = new ArrayList<>();
 
-   private Menu                                  _menu;
-   private ArrayList<ActionUploadTour>           _exportTourActions;
+   private Menu                               _menu;
+   private ArrayList<ActionUploadTour>        _uploadTourActions;
 
-   private final ITourProvider                   _tourProvider;
+   private final ITourProvider                _tourProvider;
 
-   private int                                   _tourStartIndex = -1;
-   private int                                   _tourEndIndex   = -1;
+   private int                                _tourStartIndex         = -1;
+   private int                                _tourEndIndex           = -1;
 
    private class ActionUploadTour extends Action {
 
@@ -63,6 +63,10 @@ public class ActionUpload extends Action implements IMenuCreator {
          super(tourbookCloudUploader.getName());
 
          _tourbookCloudUploader = tourbookCloudUploader;
+      }
+
+      public boolean isCloudReady() {
+         return _tourbookCloudUploader.isReady();
       }
 
       @Override
@@ -102,19 +106,19 @@ public class ActionUpload extends Action implements IMenuCreator {
 
       _tourProvider = tourProvider;
 
-      setText(Messages.action_export_tour);
+      setText(Messages.action_upload_tour);
       setMenuCreator(this);
 
-      getExtensionPoints();
+      getCloudUploaders();
       createActions();
    }
 
    /**
     * read extension points {@link TourbookPlugin#EXT_POINT_EXPORT_TOUR}
     */
-   private static List<TourbookCloudUploader> getExtensionPoints() {
+   private static List<TourbookCloudUploader> getCloudUploaders() {
 
-      if (_tourbookCloudUploaders != null) {
+      if (!_tourbookCloudUploaders.isEmpty()) {
          return _tourbookCloudUploaders;
       }
 
@@ -138,27 +142,28 @@ public class ActionUpload extends Action implements IMenuCreator {
             .getExtensionRegistry()
             .getExtensionPoint("net.tourbook", extensionPointName); //$NON-NLS-1$
 
-      if (extPoint != null) {
+      if (extPoint == null) {
+         return cloudUploadersList;
+      }
 
-         for (final IExtension extension : extPoint.getExtensions()) {
+      for (final IExtension extension : extPoint.getExtensions()) {
 
-            for (final IConfigurationElement configElement : extension.getConfigurationElements()) {
+         for (final IConfigurationElement configElement : extension.getConfigurationElements()) {
 
-               if (configElement.getName().equalsIgnoreCase("cloudUploader")) { //$NON-NLS-1$
+            if (configElement.getName().equalsIgnoreCase("cloudUploader")) { //$NON-NLS-1$
 
-                  Object object;
-                  try {
+               Object object;
+               try {
 
-                     object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
+                  object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 
-                     if (object instanceof TourbookCloudUploader) {
-                        final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
-                        cloudUploadersList.add(cloudUploader);
-                     }
-
-                  } catch (final CoreException e) {
-                     e.printStackTrace();
+                  if (object instanceof TourbookCloudUploader) {
+                     final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
+                     cloudUploadersList.add(cloudUploader);
                   }
+
+               } catch (final CoreException e) {
+                  e.printStackTrace();
                }
             }
          }
@@ -174,23 +179,28 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    private void createActions() {
 
-      if (_exportTourActions != null) {
+      if (_uploadTourActions != null) {
          return;
       }
 
-      _exportTourActions = new ArrayList<>();
+      _uploadTourActions = new ArrayList<>();
 
       for (final TourbookCloudUploader tourbookCloudUploader : _tourbookCloudUploaders) {
-         _exportTourActions.add(new ActionUploadTour(tourbookCloudUploader));
+
+         final ActionUploadTour actionUploadTour = new ActionUploadTour(tourbookCloudUploader);
+         actionUploadTour.setEnabled(actionUploadTour.isCloudReady());
+         _uploadTourActions.add(actionUploadTour);
       }
    }
 
    @Override
    public void dispose() {
-      if (_menu != null) {
-         _menu.dispose();
-         _menu = null;
+      if (_menu == null) {
+         return;
       }
+
+      _menu.dispose();
+      _menu = null;
    }
 
    @Override
@@ -204,7 +214,7 @@ public class ActionUpload extends Action implements IMenuCreator {
       dispose();
       _menu = new Menu(parent);
 
-      for (final ActionUploadTour action : _exportTourActions) {
+      for (final ActionUploadTour action : _uploadTourActions) {
          addActionToMenu(action);
       }
 
@@ -212,7 +222,7 @@ public class ActionUpload extends Action implements IMenuCreator {
    }
 
    public boolean hasUploaders() {
-      return _tourbookCloudUploaders != null && _tourbookCloudUploaders.size() > 0;
+      return getCloudUploaders().size() > 0;
    }
 
    public void setNumberOfTours(final int numTours) {
