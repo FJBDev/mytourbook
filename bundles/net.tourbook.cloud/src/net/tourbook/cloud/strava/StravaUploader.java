@@ -15,21 +15,27 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.export.DialogExportTour;
 import net.tourbook.extension.upload.TourbookCloudUploader;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -44,6 +50,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class StravaUploader extends TourbookCloudUploader {
 
+   private static HttpClient    httpClient                 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
    private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
@@ -54,9 +61,32 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
    }
 
+   private String getActivityId(final String id_str) {
+      final HttpRequest request = HttpRequest.newBuilder()
+            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+            .GET()
+            .uri(URI.create("https://www.strava.com/api/v3/uploads/" + id_str))
+            .build();
+
+      try {
+         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+         final ObjectMapper mapper = new ObjectMapper();
+
+         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+         final UploadResponse result2 = mapper.readValue(response.body(),
+               UploadResponse.class);
+         return result2.getActivity_id();
+      }
+      } catch (IOException | InterruptedException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
+      return null;
+   }
+
    private String getRefreshToken() {
-      final String toto = _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
-      return toto;
+      return _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
    }
 
    @Override
@@ -65,26 +95,14 @@ public class StravaUploader extends TourbookCloudUploader {
             StringUtils.hasContent(getRefreshToken());
    }
 
-   private void uploadFiles(final String tcxgz) throws FileNotFoundException, JsonProcessingException {
-      // TODO Auto-generated method stub
+   private void uploadFiles(final String tcxgz, final String tourTitle, final String tourDescription) {
 
-      final HashMap<String, String> values = new HashMap<>() {
-         {
-            put("data_type", "tcx.gz");
-         }
-      };
-
-      final ObjectMapper objectMapper = new ObjectMapper();
-      final String requestBody = objectMapper
-            .writeValueAsString(values);
-
+      final List<String> uploadIds = new ArrayList<>();
       final HttpEntity entity = MultipartEntityBuilder
             .create()
             .addTextBody("data_type", "tcx.gz")
-            .addTextBody("trainer", "false")
-            .addTextBody("commute", "false")
-            .addTextBody("name", "Yosemite Run")
-            .addTextBody("description", "Un truc que jaimerais faire a Yosemite")
+            .addTextBody("name", tourTitle)
+            .addTextBody("description", tourDescription)
             .addBinaryBody("file",
                   new File("C:\\Users\\frederic\\Downloads\\2016-05-11_05-37-42.tcx.gz"),
                   ContentType.create("application/octet-stream"),
@@ -102,14 +120,23 @@ public class StravaUploader extends TourbookCloudUploader {
          final String content = EntityUtils.toString(result);
          System.out.println(content);
 
-//         if (response.getStatusLine() == HttpURLConnection.HTTP_OK) {
-//            //Generate link
-//            System.out.println(response);
-//            TourLogManager.showLogView();
-//            TourLogManager.addLog(//
-//                  TourLogState.DEFAULT,
-//                  "LINK");
-//         }
+         if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_CREATED) {
+            //Generate link
+            System.out.println(response);
+            TourLogManager.showLogView();
+            String activityId = UI.EMPTY_STRING;
+
+            final ObjectMapper mapper = new ObjectMapper();
+
+            final UploadResponse result2 = mapper.readValue(content,
+                  UploadResponse.class);
+            uploadIds.add(result2.getId_str());
+
+            activityId = getActivityId(result2.getId_str());
+            TourLogManager.addLog(//
+                  TourLogState.DEFAULT,
+                  "https://www.strava.com/activities/" + activityId);
+         }
       } catch (final IOException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -130,16 +157,8 @@ public class StravaUploader extends TourbookCloudUploader {
       System.out.println(toto);
       // Send TCX.gz file
 
-      final String tcxgz = "";
-      try {
-         uploadFiles(tcxgz);
-      } catch (final FileNotFoundException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      } catch (final JsonProcessingException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
+      final TourData tourData = selectedTours.get(0);
+      uploadFiles("unused", tourData.getTourTitle(), tourData.getTourDescription());
    }
 
 }
