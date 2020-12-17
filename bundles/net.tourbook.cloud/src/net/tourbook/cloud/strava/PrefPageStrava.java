@@ -66,7 +66,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       GridLayoutFactory.fillDefaults().applyTo(parent);
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
       {
          /*
@@ -79,7 +78,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          // No variations or modifications are acceptable."
 
          _buttonConnect = new Button(container, SWT.NONE);
-         setButtonLayoutData(_buttonConnect);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_buttonConnect);
          final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
          _buttonConnect.setImage(imageConnect);
          _buttonConnect.addSelectionListener(new SelectionAdapter() {
