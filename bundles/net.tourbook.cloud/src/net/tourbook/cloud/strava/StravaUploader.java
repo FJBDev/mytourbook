@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,8 +30,6 @@ import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.export.DialogExportTour;
 import net.tourbook.extension.upload.TourbookCloudUploader;
-import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -42,6 +39,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class StravaUploader extends TourbookCloudUploader {
@@ -82,13 +80,15 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final HttpEntity entity = MultipartEntityBuilder
             .create()
-            .addTextBody("number", "5555555555")
-            .addTextBody("clip", "rickroll")
-            .addBinaryBody("upload_file",
-                  new File("C:\\Users\\frederic\\Downloads\\export.gpx"),
+            .addTextBody("data_type", "tcx.gz")
+            .addTextBody("trainer", "false")
+            .addTextBody("commute", "false")
+            .addTextBody("name", "Yosemite Run")
+            .addTextBody("description", "Un truc que jaimerais faire a Yosemite")
+            .addBinaryBody("file",
+                  new File("C:\\Users\\frederic\\Downloads\\2016-05-11_05-37-42.tcx.gz"),
                   ContentType.create("application/octet-stream"),
-                  "filename")
-            .addTextBody("tos", "agree")
+                  "export")
             .build();
 
       try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -98,14 +98,18 @@ public class StravaUploader extends TourbookCloudUploader {
          final HttpResponse response = httpClient.execute(httpPost);
          final HttpEntity result = response.getEntity();
 
-         if (response.getStatusLine() == HttpURLConnection.HTTP_OK) {
-            //Generate link
-            System.out.println(response);
-            TourLogManager.showLogView();
-            TourLogManager.addLog(//
-                  TourLogState.DEFAULT,
-                  "LINK");
-         }
+         // Read the contents of an entity and return it as a String.
+         final String content = EntityUtils.toString(result);
+         System.out.println(content);
+
+//         if (response.getStatusLine() == HttpURLConnection.HTTP_OK) {
+//            //Generate link
+//            System.out.println(response);
+//            TourLogManager.showLogView();
+//            TourLogManager.addLog(//
+//                  TourLogState.DEFAULT,
+//                  "LINK");
+//         }
       } catch (final IOException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -115,6 +119,8 @@ public class StravaUploader extends TourbookCloudUploader {
    @Override
    public void uploadTours(final List<TourData> selectedTours, final int _tourStartIndex, final int _tourEndIndex) {
 
+      //check that a tour has a non empty time serie to avoid this strava error
+      //"error": "Time information is missing from file.
       //Check that current token is not expired
 
       // If it is, refresh token with heroku /refreshToken
@@ -123,7 +129,6 @@ public class StravaUploader extends TourbookCloudUploader {
       final String toto = DialogExportTour.convertTourToTCX();
       System.out.println(toto);
       // Send TCX.gz file
-      System.out.println("TOTO!!!!!");
 
       final String tcxgz = "";
       try {
