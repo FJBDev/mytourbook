@@ -126,7 +126,7 @@ public class TourLogView extends ViewPart {
 
       if (isBrowserAvailable && _isBrowserCompleted == false) {
 
-         // this occures when the view is opening but not yet ready
+         // this occurs when the view is opening but not yet ready
          return;
       }
 

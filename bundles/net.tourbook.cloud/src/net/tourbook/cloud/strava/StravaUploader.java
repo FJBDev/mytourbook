@@ -50,10 +50,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class StravaUploader extends TourbookCloudUploader {
 
-   private static HttpClient    httpClient                 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
+   private static HttpClient   httpClient     = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
    private static final String _stravaBaseUrl = "https://www.strava.com/api/v3/";
 
-   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore    _prefStore     = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -76,12 +76,12 @@ public class StravaUploader extends TourbookCloudUploader {
          final ObjectMapper mapper = new ObjectMapper();
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK) {
-         final UploadResponse result2 = mapper.readValue(response.body(),
-               UploadResponse.class);
-         return result2.getActivity_id();
-      }
-      //else
-      // if not ok, display the string in  "error": null,
+            final ActivityUpload result2 = mapper.readValue(response.body(),
+                  ActivityUpload.class);
+            return result2.getActivity_id();
+         }
+         //else
+         // if not ok, display the string in  "error": null,
       } catch (IOException | InterruptedException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
@@ -133,11 +133,12 @@ public class StravaUploader extends TourbookCloudUploader {
 
             final ObjectMapper mapper = new ObjectMapper();
 
-            final UploadResponse result2 = mapper.readValue(content,
-                  UploadResponse.class);
+            final ActivityUpload result2 = mapper.readValue(content,
+                  ActivityUpload.class);
             uploadIds.add(result2.getId_str());
 
             activityId = getActivityId(result2.getId_str());
+            //TODO See email to Wolfgang
             TourLogManager.addLog(//
                   TourLogState.DEFAULT,
                   "<a>https://www.strava.com/activities/" + activityId + "</a>");

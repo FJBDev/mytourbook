@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
-public class UploadResponse {
+public class ActivityUpload {
    private long   id;
    private String id_str;
    private String external_id;
@@ -48,30 +48,4 @@ public class UploadResponse {
    public String getStatus() {
       return status;
    }
-
-   // Setter Methods
-
-   public void setActivity_id(final String activity_id) {
-      this.activity_id = activity_id;
-   }
-
-   public void setError(final String error) {
-      this.error = error;
-   }
-
-   public void setExternal_id(final String external_id) {
-      this.external_id = external_id;
-   }
-
-   public void setId(final long id) {
-      this.id = id;
-   }
-
-   public void setId_str(final String id_str) {
-      this.id_str = id_str;
-   }
-
-   public void setStatus(final String status) {
-       this.status = status;
-      }
 }
