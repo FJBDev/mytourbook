@@ -26,6 +26,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationAdapter;
@@ -47,6 +48,7 @@ public class OAuth2BrowserDialog extends Dialog {
    private String              accessToken;
    private String              refreshToken;
 
+   private String       vendorName;
    private String              response;
 
    /**
@@ -54,11 +56,14 @@ public class OAuth2BrowserDialog extends Dialog {
     * @param url
     * @param redirectUri
     */
-   public OAuth2BrowserDialog(final OAuth2Client client) {
+   public OAuth2BrowserDialog(final OAuth2Client client, final String vendorName) {
 
       this(PlatformUI.getWorkbench()
             .getDisplay()
-            .getActiveShell(), OAuth2Utils.getAuthorizeUrl(client), client.getRedirectUri());
+            .getActiveShell(),
+            OAuth2Utils.getAuthorizeUrl(client),
+            client.getRedirectUri(),
+            vendorName);
    }
 
    /**
@@ -67,12 +72,14 @@ public class OAuth2BrowserDialog extends Dialog {
     * @param parameterName
     * @param redirectUri
     */
-   public OAuth2BrowserDialog(final Shell shell,
+   private OAuth2BrowserDialog(final Shell shell,
                               final String url,
-                              final String redirectUri) {
+                               final String redirectUri,
+                               final String vendorName) {
       super(shell);
       this.url = url;
       this.redirectUri = redirectUri;
+      this.vendorName = vendorName;
    }
 
    @Override
@@ -117,7 +124,7 @@ public class OAuth2BrowserDialog extends Dialog {
          }
 
       });
-      getShell().setText(Messages.OAuth2BrowserDialog_Title);
+      getShell().setText(NLS.bind(Messages.OAuth2BrowserDialog_Title, vendorName));
       return control;
    }
 
