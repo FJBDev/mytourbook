@@ -95,12 +95,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
           * Checkbox image
           */
          final Label toto = new Label(container, SWT.NONE);
-         final Image imageCheck = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_OK).createImage();
+//         final Image imageCheck = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_OK).createImage();
 
          /*
           * Trash image
           */
-         final Image imageTrash = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_Trash).createImage();
+//         final Image imageTrash = Activator.getImageDescriptor(net.tourbook.Messages.Image__App_Trash).createImage();
       }
    }
 

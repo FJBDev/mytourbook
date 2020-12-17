@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
@@ -36,6 +39,8 @@ import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.export.DialogExportTour;
 import net.tourbook.extension.upload.TourbookCloudUploader;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -51,8 +56,7 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private String getAccessToken() {
-      final String toto = _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
-      return toto;
+      return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
    }
 
    private String getRefreshToken() {
@@ -78,20 +82,27 @@ public class StravaUploader extends TourbookCloudUploader {
       final ObjectMapper objectMapper = new ObjectMapper();
       final String requestBody = objectMapper
             .writeValueAsString(values);
-
+      final String boundary = new BigInteger(256, new Random()).toString();
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://www.strava.com/api/v3/uploads"))
             .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
 //                  HttpRequest.BodyPublishers.ofInputStream( -> inputStream(new FileInputStream(tcxgz)))
 //            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("/home/frederic/Downloads/export.gpx")))
-            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("/home/frederic/Downloads/export.gpx")))
+            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("C:\\Users\\frederic\\Downloads\\export.gpx")))
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build();
 
       try {
          final HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-         System.out.println(response);
+         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+            //Generate link
+            System.out.println(response);
+            TourLogManager.showLogView();
+            TourLogManager.addLog(//
+                  TourLogState.DEFAULT,
+                  "LINK");
+         }
       } catch (IOException | InterruptedException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
