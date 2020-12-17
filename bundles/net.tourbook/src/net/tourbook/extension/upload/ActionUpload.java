@@ -46,8 +46,8 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    private static List<TourbookCloudUploader> _tourbookCloudUploaders = new ArrayList<>();
 
+   private static List<ActionUploadTour>      _uploadTourActions      = new ArrayList<>();
    private Menu                               _menu;
-   private ArrayList<ActionUploadTour>        _uploadTourActions;
 
    private final ITourProvider                _tourProvider;
 
@@ -65,7 +65,7 @@ public class ActionUpload extends Action implements IMenuCreator {
          _tourbookCloudUploader = tourbookCloudUploader;
       }
 
-      public boolean isCloudReady() {
+      public boolean isVendorReady() {
          return _tourbookCloudUploader.isReady();
       }
 
@@ -118,11 +118,14 @@ public class ActionUpload extends Action implements IMenuCreator {
     */
    private static List<TourbookCloudUploader> getCloudUploaders() {
 
-      if (!_tourbookCloudUploaders.isEmpty()) {
-         return _tourbookCloudUploaders;
+      if (_tourbookCloudUploaders.isEmpty()) {
+      _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader");
       }
 
-      _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader");
+      for (final ActionUploadTour actionUploadTour : _uploadTourActions)
+      {
+         actionUploadTour.setEnabled(actionUploadTour.isVendorReady());
+      }
 
       return _tourbookCloudUploaders;
    }
@@ -179,17 +182,13 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    private void createActions() {
 
-      if (_uploadTourActions != null) {
+      if (!_uploadTourActions.isEmpty()) {
          return;
       }
 
-      _uploadTourActions = new ArrayList<>();
-
       for (final TourbookCloudUploader tourbookCloudUploader : _tourbookCloudUploaders) {
 
-         final ActionUploadTour actionUploadTour = new ActionUploadTour(tourbookCloudUploader);
-         actionUploadTour.setEnabled(actionUploadTour.isCloudReady());
-         _uploadTourActions.add(actionUploadTour);
+         _uploadTourActions.add(new ActionUploadTour(tourbookCloudUploader));
       }
    }
 

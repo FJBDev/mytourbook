@@ -34,6 +34,7 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
+import net.tourbook.export.DialogExportTour;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 
 import org.apache.http.HttpHeaders;
@@ -49,28 +50,38 @@ public class StravaUploader extends TourbookCloudUploader {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
+   private String getAccessToken() {
+      final String toto = _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
+      return toto;
+   }
+
+   private String getRefreshToken() {
+      final String toto = _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
+      return toto;
+   }
+
    @Override
    protected boolean isReady() {
-      return StringUtils.hasContent(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN)) &&
-            StringUtils.hasContent(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
+      return StringUtils.hasContent(getAccessToken()) &&
+            StringUtils.hasContent(getRefreshToken());
    }
 
    private void uploadFiles(final String tcxgz) throws FileNotFoundException, JsonProcessingException {
       // TODO Auto-generated method stub
 
-      final var values = new HashMap<String, String>() {
+      final HashMap<String, String> values = new HashMap<>() {
          {
             put("data_type", "tcx.gz");
          }
       };
 
-      final var objectMapper = new ObjectMapper();
+      final ObjectMapper objectMapper = new ObjectMapper();
       final String requestBody = objectMapper
             .writeValueAsString(values);
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://www.strava.com/api/v3/uploads"))
-            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN))
+            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
 //                  HttpRequest.BodyPublishers.ofInputStream( -> inputStream(new FileInputStream(tcxgz)))
 //            .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("/home/frederic/Downloads/export.gpx")))
             .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("/home/frederic/Downloads/export.gpx")))
@@ -95,7 +106,8 @@ public class StravaUploader extends TourbookCloudUploader {
       // If it is, refresh token with heroku /refreshToken
 
       // Generate TCX.gz file
-
+      final String toto = DialogExportTour.convertTourToTCX();
+      System.out.println(toto);
       // Send TCX.gz file
       System.out.println("TOTO!!!!!");
 

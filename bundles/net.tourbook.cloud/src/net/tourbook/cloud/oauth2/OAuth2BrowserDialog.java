@@ -41,15 +41,15 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OAuth2BrowserDialog extends Dialog {
 
-   private final String        url;
+   private final String url;
 
-   private final String        redirectUri;
+   private final String redirectUri;
 
-   private String              accessToken;
-   private String              refreshToken;
+   private String       accessToken;
+   private String       refreshToken;
 
    private String       vendorName;
-   private String              response;
+   private String       response;
 
    /**
     * @param shell
@@ -73,7 +73,7 @@ public class OAuth2BrowserDialog extends Dialog {
     * @param redirectUri
     */
    private OAuth2BrowserDialog(final Shell shell,
-                              final String url,
+                               final String url,
                                final String redirectUri,
                                final String vendorName) {
       super(shell);

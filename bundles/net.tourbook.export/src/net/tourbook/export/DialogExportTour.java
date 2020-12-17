@@ -352,6 +352,11 @@ public class DialogExportTour extends TitleAreaDialog {
       VelocityService.init();
    }
 
+   public static String convertTourToTCX()
+   {
+      return "";
+   }
+
    @Override
    public boolean close() {
 
@@ -1243,6 +1248,7 @@ public class DialogExportTour extends TitleAreaDialog {
                                  final GarminLap lap,
                                  final String exportFileName) throws IOException {
 
+      //TODO FB THis is the code to TCX that needs to get extracted and made public somehow
       boolean isOverwrite = true;
 
       final File exportFile = new File(exportFileName);
