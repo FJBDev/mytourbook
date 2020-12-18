@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Token {
    private long   expires_at;
    private String refresh_token;

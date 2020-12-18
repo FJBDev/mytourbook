@@ -149,21 +149,20 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private void tryRenewTokens() {
-      if (!isAccessTokenExpired()) {
-         return;
-      }
+
 
       final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}";
       final HttpRequest request = HttpRequest.newBuilder()
+            .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(body))
             .uri(URI.create("https://mytourbook-oauth-passeur.herokuapp.com/refreshToken"))//$NON-NLS-1$
             .build();
 
       try {
          final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-         final ObjectMapper mapper = new ObjectMapper();
 
-         if (response.statusCode() == HttpURLConnection.HTTP_CREATED) {
+         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
+            final ObjectMapper mapper = new ObjectMapper();
             final Token result2 = mapper.readValue(response.body(),
                   Token.class);
 
