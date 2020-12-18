@@ -17,7 +17,9 @@ package net.tourbook.cloud.oauth2;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -45,11 +47,10 @@ public class OAuth2BrowserDialog extends Dialog {
 
    private final String redirectUri;
 
-   private String       accessToken;
-   private String       refreshToken;
-
    private String       vendorName;
    private String       response;
+
+   private Map<String, String> responseContent = new HashMap<>();
 
    /**
     * @param shell
@@ -129,7 +130,7 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    public String getAccessToken() {
-      return accessToken;
+      return getResponseContent().get(IOAuth2Constants.PARAM_ACCESS_TOKEN);
    }
 
    @Override
@@ -145,11 +146,15 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    public String getRefreshToken() {
-      return refreshToken;
+      return getResponseContent().get(IOAuth2Constants.PARAM_REFRESH_TOKEN);
    }
 
    public String getResponse() {
       return response;
+   }
+
+   public Map<String, String> getResponseContent() {
+      return responseContent;
    }
 
    @Override
@@ -165,12 +170,10 @@ public class OAuth2BrowserDialog extends Dialog {
 
       final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
       for (final NameValuePair param : params) {
-         if (IOAuth2Constants.PARAM_ACCESS_TOKEN.equals(param.getName())) {
-            accessToken = param.getValue();
-         }
-         if (IOAuth2Constants.PARAM_REFRESH_TOKEN.equals(param.getName())) {
-            refreshToken = param.getValue();
-         }
+
+         final String name = param.getName();
+         final String value = param.getValue();
+         getResponseContent().put(name, value);
       }
    }
 }
