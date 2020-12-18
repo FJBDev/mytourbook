@@ -35,7 +35,7 @@ import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
-import net.tourbook.export.DialogExportTour;
+import net.tourbook.export.TcxExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
@@ -65,16 +65,17 @@ public class StravaUploader extends TourbookCloudUploader {
 //https://www.journaldev.com/966/java-gzip-example-compress-decompress-file
    private static void compressGzipFile(final String file, final String gzipFile) {
       try (final FileInputStream fis = new FileInputStream(file);
-          final FileOutputStream fos = new FileOutputStream(gzipFile);
-          final GZIPOutputStream gzipOS = new GZIPOutputStream(fos)){
-          final byte[] buffer = new byte[1024];
-          int len;
-          while((len=fis.read(buffer)) != -1){
-              gzipOS.write(buffer, 0, len);
-          }
+            final FileOutputStream fos = new FileOutputStream(gzipFile);
+            final GZIPOutputStream gzipOS = new GZIPOutputStream(fos)) {
+         final byte[] buffer = new byte[1024];
+         int len;
+         while ((len = fis.read(buffer)) != -1) {
+            gzipOS.write(buffer, 0, len);
+         }
       } catch (final IOException e) {
-          e.printStackTrace();
-      }}
+         e.printStackTrace();
+      }
+   }
 
    private String getAccessToken() {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
@@ -126,7 +127,7 @@ public class StravaUploader extends TourbookCloudUploader {
             .addTextBody("name", tourTitle)
             .addTextBody("description", tourDescription)
             .addBinaryBody("file",
-                  new File("C:\\Users\\frederic\\Downloads\\2016-05-11_05-37-42.tcx.gz"),
+                  new File(tcxgz),
                   ContentType.create("application/octet-stream"),
                   "export")
             .build();
@@ -176,14 +177,14 @@ public class StravaUploader extends TourbookCloudUploader {
       // If it is, refresh token with heroku /refreshToken
 
       // Generate TCX file
-      final boolean toto = DialogExportTour.exportTourToTcx(selectedTours.get(0), "ourtcx");
-      System.out.println(toto);
+      final TcxExporter tcxExporter = new TcxExporter(selectedTours.get(0), "/format-templates/tcx-2.0.vm");
+      final boolean toto = tcxExporter.export("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx");
 
       // Gzip the tour
-
+      compressGzipFile("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx", "C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx.gz");
 
       // Send TCX.gz file
       final TourData tourData = selectedTours.get(0);
-      uploadFiles("unused", tourData.getTourTitle(), tourData.getTourDescription());
+      uploadFiles("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx.gz", tourData.getTourTitle(), tourData.getTourDescription());
    }
 }
