@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.tourbook.common.UI;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.dialogs.Dialog;
@@ -43,12 +45,12 @@ import org.eclipse.ui.PlatformUI;
  */
 public class OAuth2BrowserDialog extends Dialog {
 
-   private final String url;
+   private final String        url;
 
-   private final String redirectUri;
+   private final String        redirectUri;
 
-   private String       vendorName;
-   private String       response;
+   private String              vendorName;
+   private String              response;
 
    private Map<String, String> responseContent = new HashMap<>();
 
@@ -130,7 +132,9 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    public String getAccessToken() {
-      return getResponseContent().get(IOAuth2Constants.PARAM_ACCESS_TOKEN);
+      return getResponseContent().containsKey(IOAuth2Constants.PARAM_ACCESS_TOKEN)
+            ? getResponseContent().get(IOAuth2Constants.PARAM_ACCESS_TOKEN)
+            : UI.EMPTY_STRING;
    }
 
    @Override
@@ -146,7 +150,9 @@ public class OAuth2BrowserDialog extends Dialog {
    }
 
    public String getRefreshToken() {
-      return getResponseContent().get(IOAuth2Constants.PARAM_REFRESH_TOKEN);
+      return getResponseContent().containsKey(IOAuth2Constants.PARAM_REFRESH_TOKEN)
+            ? getResponseContent().get(IOAuth2Constants.PARAM_REFRESH_TOKEN)
+            : UI.EMPTY_STRING;
    }
 
    public String getResponse() {

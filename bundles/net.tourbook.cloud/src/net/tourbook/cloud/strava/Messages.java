@@ -26,8 +26,14 @@ public class Messages extends NLS {
    public static String        Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved;
    public static String        Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
 
+   public static String        PrefPage_Account_Information_Group;
+   public static String        PrefPage_Account_Information_AthleteName_Label;
+   public static String        PrefPage_Account_Information_AthleteWebPage_Label;
+   public static String        PrefPage_Account_Information_AccessToken_Label;
+   public static String        PrefPage_Account_Information_RefreshToken_Label;
+   public static String        PrefPage_Account_Information_ExpiresAt_Label;
+
    static {
-      // initialize resource bundle
       NLS.initializeMessages(BUNDLE_NAME, Messages.class);
    }
 

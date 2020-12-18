@@ -27,7 +27,7 @@ public interface IPreferences {
     */
    public static final String STRAVA_ACCESSTOKEN            = "STRAVA_ACCESSTOKEN";            //$NON-NLS-1$
    public static final String STRAVA_REFRESHTOKEN           = "STRAVA_REFRESHTOKEN";           //$NON-NLS-1$
-   public static final String STRAVA_ACCESSTOKEN_EXPIRES_IN = "STRAVA_ACCESSTOKEN_EXPIRES_IN"; //$NON-NLS-1$
+   public static final String STRAVA_ACCESSTOKEN_EXPIRES_AT = "STRAVA_ACCESSTOKEN_EXPIRES_AT"; //$NON-NLS-1$
    public static final String STRAVA_ATHLETEID              = "STRAVA_ATHLETEID";              //$NON-NLS-1$
    public static final String STRAVA_ATHLETEFULLNAME        = "STRAVA_ATHLETEFULLNAME";        //$NON-NLS-1$
 }

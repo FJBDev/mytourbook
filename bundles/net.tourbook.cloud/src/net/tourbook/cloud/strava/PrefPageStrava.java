@@ -51,31 +51,34 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
    private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
 
-   private String             _accessToken;
-   private String             _refreshToken;
-
    /*
     * UI controls
     */
    private Button _buttonConnect;
 
-   private Label  labelAthleteFullName;
-   private Label  labelAthleteWebPage;
-   private Link   labelAthleteWebPageLink;
-   private Label  labelAthleteName;
-   private Label  labelToken;
-   private Label  token;
-   private Label  labelRefreshToken;
-   private Label  refreshToken;
+   private Label  _labelAthleteName;
+   private Label  _labelAthleteFullName;
+   private Label  _labelAthleteWebPage;
+   private Link   _labelAthleteWebPageLink;
+   private Label  _labelAccessToken;
+   private Label  _accessToken;
+   private Label  _labelRefreshToken;
+   private Label  _refreshToken;
+   private Label  _labelExpiresAt;
+   private Label  _expiresAt;
 
    private String athleteId;
 
    private String constructAthleteWebPageLink(final String athleteId) {
       if (StringUtils.hasContent(athleteId)) {
-         return "<a>https://www.strava.com/athletes/" + athleteId + "</a>";
+         return "https://www.strava.com/athletes/" + athleteId;
       }
 
       return UI.EMPTY_STRING;
+   }
+
+   private String constructAthleteWebPageLinkWithTags(final String athleteId) {
+      return "<a>" + constructAthleteWebPageLink(athleteId) + "</a>";
    }
 
    @Override
@@ -92,7 +95,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       GridLayoutFactory.fillDefaults().applyTo(parent);
 
       createUI_10_Connect(parent);
-      createUI_20_Tagging(parent);
+      createUI_20_AccountInformation(parent);
    }
 
    private void createUI_10_Connect(final Composite parent) {
@@ -112,7 +115,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          GridDataFactory.fillDefaults().applyTo(_buttonConnect);
          final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
          _buttonConnect.setImage(imageConnect);
-         _buttonConnect.setToolTipText("TOWRITE");
          _buttonConnect.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -120,52 +122,58 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                onClickAuthorize();
             }
          });
-
+         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_buttonConnect);
       }
    }
 
-   private void createUI_20_Tagging(final Composite parent) {
+   private void createUI_20_AccountInformation(final Composite parent) {
 
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
-      group.setText("Messages.Strava Account Information");
+      group.setText(Messages.PrefPage_Account_Information_Group);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
-         labelAthleteName = new Label(group, NONE);
-         labelAthleteName.setText("Messages.pref_appearance_number_of_recent_tags:");
-         labelAthleteName.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _labelAthleteName = new Label(group, SWT.NONE);
+         _labelAthleteName.setText(Messages.PrefPage_Account_Information_AthleteName_Label);
+         GridDataFactory.fillDefaults().applyTo(_labelAthleteName);
 
-         labelAthleteFullName = new Label(group, NONE);
+         _labelAthleteFullName = new Label(group, SWT.NONE);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.FILL).applyTo(_labelAthleteFullName);
 
-         labelAthleteWebPage = new Label(group, NONE);
-         labelAthleteWebPage.setText("Messages.pref_appearance_number_of_recent_tags:");
-         labelAthleteWebPage.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _labelAthleteWebPage = new Label(group, SWT.NONE);
+         _labelAthleteWebPage.setText(Messages.PrefPage_Account_Information_AthleteWebPage_Label);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAthleteWebPage);
 
-         labelAthleteWebPageLink = new Link(group, SWT.NONE);
-         labelAthleteWebPageLink.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
-         labelAthleteWebPageLink.setEnabled(true);
-         labelAthleteWebPageLink.addSelectionListener(new SelectionAdapter() {
+         _labelAthleteWebPageLink = new Link(group, SWT.NONE);
+         _labelAthleteWebPageLink.setEnabled(true);
+         _labelAthleteWebPageLink.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                WEB.openUrl(constructAthleteWebPageLink(athleteId));
             }
          });
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAthleteWebPageLink);
 
-         labelToken = new Label(group, NONE);
-         labelToken.setText("Messages.pref_appearance_number_of_recent_tags:");
-         labelToken.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _labelAccessToken = new Label(group, SWT.NONE);
+         _labelAccessToken.setText(Messages.PrefPage_Account_Information_AccessToken_Label);
+         GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
-         token = new Label(group, NONE);
-         token.setText("Messages.pref_appearance_number_of_recent_tags:");
-         token.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _accessToken = new Label(group, SWT.NONE);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_accessToken);
 
-         labelRefreshToken = new Label(group, NONE);
-         labelRefreshToken.setText("Messages.pref_appearance_number_of_recent_tags:");
-         labelRefreshToken.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _labelRefreshToken = new Label(group, SWT.NONE);
+         _labelRefreshToken.setText(Messages.PrefPage_Account_Information_RefreshToken_Label);
+         GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
-         refreshToken = new Label(group, NONE);
-         refreshToken.setText("Messages.pref_appearance_number_of_recent_tags:");
-         refreshToken.setToolTipText("Messages.pref_appearance_number_of_recent_tags_tooltip");
+         _refreshToken = new Label(group, SWT.NONE);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_refreshToken);
+
+         _labelExpiresAt = new Label(group, SWT.NONE);
+         _labelExpiresAt.setText(Messages.PrefPage_Account_Information_ExpiresAt_Label);
+         GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
+
+         _expiresAt = new Label(group, SWT.NONE);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_expiresAt);
       }
    }
 
@@ -185,26 +193,26 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       client.setRedirectUri("http://mytourbook.sourceforge.net/mytourbook"); //$NON-NLS-1$
 
       final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client, "Strava"); //$NON-NLS-1$
-      //Opens the dialog
       if (oAuth2Browser.open() != Window.OK) {
          return;
       }
 
-      _accessToken = oAuth2Browser.getAccessToken();
-      _refreshToken = oAuth2Browser.getRefreshToken();
-      final String dialogMessage = StringUtils.isNullOrEmpty(_accessToken) ? NLS.bind(
+      final String accessToken = oAuth2Browser.getAccessToken();
+      final String refreshToken = oAuth2Browser.getRefreshToken();
+      final String dialogMessage = StringUtils.isNullOrEmpty(accessToken) ? NLS.bind(
             Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
             oAuth2Browser.getResponse()) : Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
 
       final Map<String, String> responseContent = oAuth2Browser.getResponseContent();
 
-      token.setText(_accessToken);
-      refreshToken.setText(_refreshToken);
+      _accessToken.setText(accessToken);
+      _refreshToken.setText(refreshToken);
       if (responseContent.containsKey("athleteFullName")) {
-         labelAthleteFullName.setText(responseContent.get("athleteFullName"));
+         _labelAthleteFullName.setText(responseContent.get("athleteFullName"));
       }
       if (responseContent.containsKey("athleteId")) {
-         labelAthleteWebPageLink.setText(constructAthleteWebPageLink(responseContent.get("athleteId")));
+         athleteId = responseContent.get("athleteId");
+         _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
       }
 
       MessageDialog.openInformation(
@@ -218,10 +226,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    @Override
    protected void performDefaults() {
 
-      _accessToken = _prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN);
-      _refreshToken = _prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN);
-      labelAthleteFullName.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      labelAthleteWebPageLink.setText(constructAthleteWebPageLink(_prefStore.getString(IPreferences.STRAVA_ATHLETEID)));
+      _accessToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN));
+      _refreshToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN));
+      _labelAthleteFullName.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEFULLNAME));
+      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID)));
 
       UpdateButtonConnectState();
 
@@ -234,34 +242,35 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, _accessToken);
-         _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _refreshToken);
-         _prefStore.setValue(IPreferences.STRAVA_ATHLETEFULLNAME, labelAthleteFullName.getText());
+         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, _accessToken.getText());
+         _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _refreshToken.getText());
+         _prefStore.setValue(IPreferences.STRAVA_ATHLETEFULLNAME, _labelAthleteFullName.getText());
+         _prefStore.setValue(IPreferences.STRAVA_ATHLETEID, athleteId);
       }
 
       return isOK;
    }
 
    private void restoreState() {
-      _accessToken = _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
-      _refreshToken = _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
-      labelAthleteFullName.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      labelAthleteWebPageLink.setText(constructAthleteWebPageLink(_prefStore.getString(IPreferences.STRAVA_ATHLETEID)));
+      _accessToken.setText(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN));
+      _refreshToken.setText(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
+      _labelAthleteFullName.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
+      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_prefStore.getString(IPreferences.STRAVA_ATHLETEID)));
 
       UpdateButtonConnectState();
    }
 
    private void UpdateButtonConnectState() {
 
-      final boolean isAuthorized = StringUtils.hasContent(_accessToken) && StringUtils.hasContent(_refreshToken);
-      _buttonConnect.setEnabled(!isAuthorized);
+      final boolean isAuthorized = StringUtils.hasContent(_accessToken.getText()) && StringUtils.hasContent(_refreshToken.getText());
+//      _buttonConnect.setEnabled(!isAuthorized);
 
-      labelAthleteFullName.setEnabled(isAuthorized);
-      labelAthleteWebPage.setEnabled(isAuthorized);
-      labelAthleteWebPageLink.setEnabled(isAuthorized);
-      labelAthleteName.setEnabled(isAuthorized);
-      labelToken.setEnabled(isAuthorized);
-      labelRefreshToken.setEnabled(isAuthorized);
-      refreshToken.setEnabled(isAuthorized);
+      _labelAthleteFullName.setEnabled(isAuthorized);
+      _labelAthleteWebPage.setEnabled(isAuthorized);
+      _labelAthleteWebPageLink.setEnabled(isAuthorized);
+      _labelAthleteName.setEnabled(isAuthorized);
+      _labelAccessToken.setEnabled(isAuthorized);
+      _labelRefreshToken.setEnabled(isAuthorized);
+      _refreshToken.setEnabled(isAuthorized);
    }
 }
