@@ -357,6 +357,48 @@ public class DialogExportTour extends TitleAreaDialog {
       return "";
    }
 
+   private static GarminLap doExport_50_Lap(final TourData tourData) {
+
+      final GarminLap lap = new GarminLap();
+
+      /*
+       * Calories
+       */
+      lap.setCalories(tourData.getCalories());
+
+      /*
+       * Description
+       */
+      if (_exportState_IsDescription) {
+         final String notes = tourData.getTourDescription();
+         if ((notes != null) && (notes.length() > 0)) {
+            lap.setNotes(notes);
+         }
+      }
+
+      return lap;
+   }
+
+   public static boolean exportTourToTcx(final TourData tourData, final String exportFileName) throws IOException {
+
+      final ArrayList<GarminTrack> tracks = new ArrayList<>();
+      final ArrayList<TourWayPoint> wayPoints = new ArrayList<>();
+      final ArrayList<TourMarker> tourMarkers = new ArrayList<>();
+
+      final ZonedDateTime trackStartTime = tourData.getTourStartTime();
+
+      final GarminLap tourLap = doExport_50_Lap(tourData);
+
+      final GarminTrack track = doExport_60_TrackPoints(tourData, trackStartTime);
+      if (track != null) {
+         tracks.add(track);
+      }
+
+      doExport_70_WayPoints(wayPoints, tourMarkers, tourData, trackStartTime);
+
+      return doExport_10_Tour(tourData, tracks, wayPoints, tourMarkers, tourLap, exportFileName);
+   }
+
    @Override
    public boolean close() {
 
@@ -1064,23 +1106,9 @@ public class DialogExportTour extends TitleAreaDialog {
 
          // export one tour
 
-         final ArrayList<GarminTrack> tracks = new ArrayList<>();
-         final ArrayList<TourWayPoint> wayPoints = new ArrayList<>();
-         final ArrayList<TourMarker> tourMarkers = new ArrayList<>();
-
          final TourData tourData = _tourDataList.get(0);
-         final ZonedDateTime trackStartTime = tourData.getTourStartTime();
 
-         final GarminLap tourLap = doExport_50_Lap(tourData);
-
-         final GarminTrack track = doExport_60_TrackPoints(tourData, trackStartTime);
-         if (track != null) {
-            tracks.add(track);
-         }
-
-         doExport_70_WayPoints(wayPoints, tourMarkers, tourData, trackStartTime);
-
-         doExport_10_Tour(tourData, tracks, wayPoints, tourMarkers, tourLap, exportFileName);
+         exportTourToTcx(tourData, exportFileName);
 
       } else {
 
@@ -1241,7 +1269,7 @@ public class DialogExportTour extends TitleAreaDialog {
       }
    }
 
-   private void doExport_10_Tour(final TourData tourData,
+   private boolean doExport_10_Tour(final TourData tourData,
                                  final ArrayList<GarminTrack> tracks,
                                  final ArrayList<TourWayPoint> wayPoints,
                                  final ArrayList<TourMarker> tourMarkers,
@@ -1260,8 +1288,8 @@ public class DialogExportTour extends TitleAreaDialog {
          }
       }
 
-      if (isOverwrite == false) {
-         return;
+      if (!isOverwrite) {
+         return false;
       }
 
       final VelocityContext vc = new VelocityContext();
@@ -1306,7 +1334,10 @@ public class DialogExportTour extends TitleAreaDialog {
 
       } catch (final Exception e) {
          StatusUtil.showStatus(e);
+         return false;
       }
+
+      return true;
    }
 
    /**
@@ -1536,28 +1567,6 @@ public class DialogExportTour extends TitleAreaDialog {
       if (cadNum != 0) {
          vcContext.put("averagecadence", cadSum / cadNum); //$NON-NLS-1$
       }
-   }
-
-   private GarminLap doExport_50_Lap(final TourData tourData) {
-
-      final GarminLap lap = new GarminLap();
-
-      /*
-       * Calories
-       */
-      lap.setCalories(tourData.getCalories());
-
-      /*
-       * Description
-       */
-      if (_exportState_IsDescription) {
-         final String notes = tourData.getTourDescription();
-         if ((notes != null) && (notes.length() > 0)) {
-            lap.setNotes(notes);
-         }
-      }
-
-      return lap;
    }
 
    private void doExport_52_Laps(final TourData tourData, final GarminLap tourLap) {

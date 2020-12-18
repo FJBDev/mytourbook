@@ -18,6 +18,8 @@ package net.tourbook.cloud.strava;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -26,6 +28,7 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
@@ -58,6 +61,20 @@ public class StravaUploader extends TourbookCloudUploader {
    public StravaUploader() {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
+
+//https://www.journaldev.com/966/java-gzip-example-compress-decompress-file
+   private static void compressGzipFile(final String file, final String gzipFile) {
+      try (final FileInputStream fis = new FileInputStream(file);
+          final FileOutputStream fos = new FileOutputStream(gzipFile);
+          final GZIPOutputStream gzipOS = new GZIPOutputStream(fos)){
+          final byte[] buffer = new byte[1024];
+          int len;
+          while((len=fis.read(buffer)) != -1){
+              gzipOS.write(buffer, 0, len);
+          }
+      } catch (final IOException e) {
+          e.printStackTrace();
+      }}
 
    private String getAccessToken() {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
@@ -158,13 +175,15 @@ public class StravaUploader extends TourbookCloudUploader {
 
       // If it is, refresh token with heroku /refreshToken
 
-      // Generate TCX.gz file
-      final String toto = DialogExportTour.convertTourToTCX();
+      // Generate TCX file
+      final boolean toto = DialogExportTour.exportTourToTcx(selectedTours.get(0), "ourtcx");
       System.out.println(toto);
-      // Send TCX.gz file
 
+      // Gzip the tour
+
+
+      // Send TCX.gz file
       final TourData tourData = selectedTours.get(0);
       uploadFiles("unused", tourData.getTourTitle(), tourData.getTourDescription());
    }
-
 }
