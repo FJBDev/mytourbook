@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 
 import net.tourbook.cloud.Activator;
@@ -47,9 +49,15 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String ID         = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
+   private static final String ATHLETE_FULL_NAME = "athleteFullName";
 
-   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+   private static final String ATHLETE_ID        = "athleteId";
+
+   private static final String EXPIRES_AT        = "expires_at";
+
+   public static final String  ID                = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
+
+   private IPreferenceStore    _prefStore        = Activator.getDefault().getPreferenceStore();
 
    /*
     * UI controls
@@ -68,6 +76,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    private Label  _expiresAt;
 
    private String athleteId;
+   private long   expiresAt;
 
    private String constructAthleteWebPageLink(final String athleteId) {
       if (StringUtils.hasContent(athleteId)) {
@@ -79,6 +88,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
    private String constructAthleteWebPageLinkWithTags(final String athleteId) {
       return "<a>" + constructAthleteWebPageLink(athleteId) + "</a>";
+   }
+
+   private String constructLocalExpireAtDateTime(final long expireAt) {
+      return Instant.ofEpochMilli(expireAt).atZone(ZoneId.systemDefault()).toLocalDateTime().toString();
    }
 
    @Override
@@ -207,12 +220,16 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       _accessToken.setText(accessToken);
       _refreshToken.setText(refreshToken);
-      if (responseContent.containsKey("athleteFullName")) {
-         _labelAthleteFullName.setText(responseContent.get("athleteFullName"));
+      if (responseContent.containsKey(ATHLETE_FULL_NAME)) {
+         _labelAthleteFullName.setText(responseContent.get(ATHLETE_FULL_NAME));
       }
-      if (responseContent.containsKey("athleteId")) {
-         athleteId = responseContent.get("athleteId");
+      if (responseContent.containsKey(ATHLETE_ID)) {
+         athleteId = responseContent.get(ATHLETE_ID);
          _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
+      }
+      if (responseContent.containsKey(EXPIRES_AT)) {
+         expiresAt = Long.valueOf(responseContent.get(EXPIRES_AT));
+         _expiresAt.setText(constructLocalExpireAtDateTime(expiresAt));
       }
 
       MessageDialog.openInformation(
@@ -229,7 +246,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _accessToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN));
       _refreshToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN));
       _labelAthleteFullName.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID)));
+      athleteId = _prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID);
+      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
+      expiresAt = _prefStore.getDefaultLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _expiresAt.setText(constructLocalExpireAtDateTime(expiresAt));
 
       UpdateButtonConnectState();
 
@@ -246,6 +266,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _refreshToken.getText());
          _prefStore.setValue(IPreferences.STRAVA_ATHLETEFULLNAME, _labelAthleteFullName.getText());
          _prefStore.setValue(IPreferences.STRAVA_ATHLETEID, athleteId);
+         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, expiresAt);
       }
 
       return isOK;
@@ -255,7 +276,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _accessToken.setText(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN));
       _refreshToken.setText(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
       _labelAthleteFullName.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_prefStore.getString(IPreferences.STRAVA_ATHLETEID)));
+      athleteId = _prefStore.getString(IPreferences.STRAVA_ATHLETEID);
+      _labelAthleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
+      expiresAt = _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _expiresAt.setText(constructLocalExpireAtDateTime(expiresAt));
 
       UpdateButtonConnectState();
    }
@@ -263,7 +287,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    private void UpdateButtonConnectState() {
 
       final boolean isAuthorized = StringUtils.hasContent(_accessToken.getText()) && StringUtils.hasContent(_refreshToken.getText());
-//      _buttonConnect.setEnabled(!isAuthorized);
 
       _labelAthleteFullName.setEnabled(isAuthorized);
       _labelAthleteWebPage.setEnabled(isAuthorized);
@@ -272,5 +295,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _labelAccessToken.setEnabled(isAuthorized);
       _labelRefreshToken.setEnabled(isAuthorized);
       _refreshToken.setEnabled(isAuthorized);
+      _expiresAt.setEnabled(isAuthorized);
    }
 }
