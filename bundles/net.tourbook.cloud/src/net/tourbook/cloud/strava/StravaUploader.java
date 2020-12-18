@@ -83,6 +83,10 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
    }
 
+   private long getAcessTokenExpirationDate() {
+      return _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+   }
+
    private String getActivityId(final String id_str) {
       //TODO FB Maybe we don't want to do that as it is possible that activites are not fully processed
       final HttpRequest request = HttpRequest.newBuilder()
@@ -114,10 +118,66 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
    }
 
+   /**
+    * We consider that an access token is expired if there are less
+    * than 5 mins remaining until the actual expiration
+    *
+    * @return
+    */
+   private boolean isAccessTokenExpired() {
+
+      final long toto = getAcessTokenExpirationDate() - System.currentTimeMillis();
+      return toto - 300000 < 0;
+   }
+
    @Override
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) &&
             StringUtils.hasContent(getRefreshToken());
+   }
+
+   private void setAccessToken(final String accessToken) {
+      _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, accessToken);
+   }
+
+   private void setAccessTokenExpirationDate(final long expireAt) {
+      _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, expireAt);
+   }
+
+   private void setRefreshToken(final String refreshToken) {
+      _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, refreshToken);
+   }
+
+   private void tryRenewTokens() {
+      if (!isAccessTokenExpired()) {
+         return;
+      }
+
+      final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}";
+      final HttpRequest request = HttpRequest.newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .uri(URI.create("https://mytourbook-oauth-passeur.herokuapp.com/refreshToken"))//$NON-NLS-1$
+            .build();
+
+      try {
+         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+         final ObjectMapper mapper = new ObjectMapper();
+
+         if (response.statusCode() == HttpURLConnection.HTTP_CREATED) {
+            final Token result2 = mapper.readValue(response.body(),
+                  Token.class);
+
+            setAccessTokenExpirationDate(result2.getExpires_at());
+            setRefreshToken(result2.getRefresh_token());
+            setAccessToken(result2.getAccess_token());
+         }
+         //else
+         // if not ok, display the string in  "error": null,
+      } catch (IOException | InterruptedException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
    }
 
    private void uploadFiles(final String tcxgz, final String tourTitle, final String tourDescription) {
@@ -170,6 +230,8 @@ public class StravaUploader extends TourbookCloudUploader {
 
    @Override
    public void uploadTours(final List<TourData> selectedTours, final int _tourStartIndex, final int _tourEndIndex) {
+
+      tryRenewTokens();
 
       //check that a tour has a non empty time serie to avoid this strava error
       //"error": "Time information is missing from file.
