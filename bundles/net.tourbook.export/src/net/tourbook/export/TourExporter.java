@@ -59,7 +59,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.framework.Version;
 
-public class TcxExporter {
+public class TourExporter {
    /*
     * Velocity (VC) context values
     */
@@ -139,7 +139,7 @@ public class TcxExporter {
       GPX, TCX
    }
 
-   public TcxExporter(final TourData tourData,
+   public TourExporter(final TourData tourData,
                       final String formatTemplate) {
       _tourData = tourData;
       _formatTemplate = formatTemplate;

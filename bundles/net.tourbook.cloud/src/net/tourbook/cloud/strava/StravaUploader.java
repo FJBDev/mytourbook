@@ -35,7 +35,7 @@ import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
-import net.tourbook.export.TcxExporter;
+import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
@@ -177,7 +177,7 @@ public class StravaUploader extends TourbookCloudUploader {
       // If it is, refresh token with heroku /refreshToken
 
       // Generate TCX file
-      final TcxExporter tcxExporter = new TcxExporter(selectedTours.get(0), "/format-templates/tcx-2.0.vm");
+      final TourExporter tcxExporter = new TourExporter(selectedTours.get(0), "/format-templates/tcx-2.0.vm");
       final boolean toto = tcxExporter.export("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx");
 
       // Gzip the tour

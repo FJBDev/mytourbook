@@ -107,15 +107,13 @@ public class DialogExportTour extends TitleAreaDialog {
    private static final String STATE_EXPORT_PATH_NAME            = "exportPathName";                    //$NON-NLS-1$
    private static final String STATE_EXPORT_FILE_NAME            = "exportFileName";                    //$NON-NLS-1$
 
-
    //$NON-NLS-1$
 
+   private static final int           VERTICAL_SECTION_MARGIN = 10;
+   private static final int           SIZING_TEXT_FIELD_WIDTH = 250;
+   private static final int           COMBO_HISTORY_LENGTH    = 20;
 
-   private static final int               VERTICAL_SECTION_MARGIN = 10;
-   private static final int               SIZING_TEXT_FIELD_WIDTH = 250;
-   private static final int               COMBO_HISTORY_LENGTH    = 20;
-
-   private static String                  _dlgDefaultMessage;
+   private static String              _dlgDefaultMessage;
    //
    private static final DecimalFormat _nf3                    = (DecimalFormat) NumberFormat.getInstance(Locale.US);
 
@@ -129,7 +127,6 @@ public class DialogExportTour extends TitleAreaDialog {
    private final static String[]     StravaActivityTypes = new String[] {
          "Biking", "Running", "Hiking", "Walking", "Swimming", "Other"                                                                                    //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
    };
-
 
    private final IDialogSettings     _state              = TourbookPlugin
          .getState("DialogExportTour");                                                                                                                   //$NON-NLS-1$
@@ -998,7 +995,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
          final TourData tourData = _tourDataList.get(0);
 
-         new TcxExporter(tourData, _formatTemplate).export(exportFileName);
+         new TourExporter(tourData, _formatTemplate).export(exportFileName);
 
       } else {
 
@@ -1085,7 +1082,7 @@ public class DialogExportTour extends TitleAreaDialog {
                trackStartTime = tourData.getTourStartTime();
             }
 
-            final TcxExporter tcxExporter = new TcxExporter(tourData, _formatTemplate);
+            final TourExporter tcxExporter = new TourExporter(tourData, _formatTemplate);
             final GarminTrack track = tcxExporter.doExport_60_TrackPoints(trackStartTime);
             if (track != null) {
                tracks.add(track);
@@ -1114,7 +1111,7 @@ public class DialogExportTour extends TitleAreaDialog {
             return;
          }
 
-         new TcxExporter(null, "").doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
+         new TourExporter(null, "").doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
 
       } else {
 
@@ -1149,7 +1146,7 @@ public class DialogExportTour extends TitleAreaDialog {
                         tourSize,
                         exportFilePathName }));
 
-            final TcxExporter tcxExporter = new TcxExporter(tourData, _formatTemplate);
+            final TourExporter tcxExporter = new TourExporter(tourData, _formatTemplate);
             tcxExporter.export(exportFilePathName);
 
             // check if overwrite dialog was canceled
