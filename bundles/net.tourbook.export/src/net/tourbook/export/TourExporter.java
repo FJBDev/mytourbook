@@ -190,7 +190,7 @@ public class TourExporter {
       try (final FileOutputStream fileOutputStream = new FileOutputStream(exportFile);
             final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, UI.UTF_8);
             final Writer exportWriter = new BufferedWriter(outputStreamWriter);
-            final Reader templateReader = new InputStreamReader(this.getClass().getResourceAsStream(_formatTemplate))) {
+            final Reader templateReader = new InputStreamReader(TourExporter.class.getClassLoader().getResourceAsStream(_formatTemplate))) {
 
          Velocity.evaluate(vc, exportWriter, "MyTourbook", templateReader); //$NON-NLS-1$
 

@@ -38,7 +38,6 @@ import net.tourbook.data.TourData;
 import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
@@ -150,6 +149,9 @@ public class StravaUploader extends TourbookCloudUploader {
 
    private void tryRenewTokens() {
 
+      if (!isAccessTokenExpired()) {
+         return;
+      }
 
       final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}";
       final HttpRequest request = HttpRequest.newBuilder()
@@ -218,9 +220,10 @@ public class StravaUploader extends TourbookCloudUploader {
 
             activityId = getActivityId(result2.getId_str());
             //TODO See email to Wolfgang
-            TourLogManager.addLog(//
-                  TourLogState.DEFAULT,
+            TourLogManager.logInfo(
                   "<a>https://www.strava.com/activities/" + activityId + "</a>");
+            TourLogManager.logInfo(
+                  "<a href=\"link\">https://www.strava.com/activities/</a>");
          }
       } catch (final IOException e) {
          e.printStackTrace();
