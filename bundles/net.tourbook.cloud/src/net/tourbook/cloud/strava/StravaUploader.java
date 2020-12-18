@@ -40,6 +40,7 @@ import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -62,11 +63,12 @@ public class StravaUploader extends TourbookCloudUploader {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
-//https://www.journaldev.com/966/java-gzip-example-compress-decompress-file
    private static void compressGzipFile(final String file, final String gzipFile) {
+
       try (final FileInputStream fis = new FileInputStream(file);
             final FileOutputStream fos = new FileOutputStream(gzipFile);
             final GZIPOutputStream gzipOS = new GZIPOutputStream(fos)) {
+
          final byte[] buffer = new byte[1024];
          int len;
          while ((len = fis.read(buffer)) != -1) {
@@ -84,9 +86,9 @@ public class StravaUploader extends TourbookCloudUploader {
    private String getActivityId(final String id_str) {
       //TODO FB Maybe we don't want to do that as it is possible that activites are not fully processed
       final HttpRequest request = HttpRequest.newBuilder()
-            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
             .GET()
-            .uri(URI.create(_stravaBaseUrl + "uploads/" + id_str))
+            .uri(URI.create(_stravaBaseUrl + "uploads/" + id_str))//$NON-NLS-1$
             .build();
 
       try {
@@ -124,19 +126,19 @@ public class StravaUploader extends TourbookCloudUploader {
       final HttpEntity entity = MultipartEntityBuilder
             .create()
             .addTextBody("data_type", "tcx.gz")
-            .addTextBody("name", tourTitle)
-            .addTextBody("description", tourDescription)
-            .addBinaryBody("file",
+            .addTextBody("name", tourTitle) //$NON-NLS-1$
+            .addTextBody("description", tourDescription) //$NON-NLS-1$
+            .addBinaryBody("file", //$NON-NLS-1$
                   new File(tcxgz),
-                  ContentType.create("application/octet-stream"),
-                  "export")
+                  ContentType.create("application/octet-stream"), //$NON-NLS-1$
+                  FilenameUtils.removeExtension(tcxgz))
             .build();
 
-      try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
-         final HttpPost httpPost = new HttpPost("https://www.strava.com/api/v3/uploads");
+      try (final CloseableHttpClient apacheHttpClient = HttpClients.createDefault()) {
+         final HttpPost httpPost = new HttpPost(_stravaBaseUrl + "/uploads");//$NON-NLS-1$
          httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
          httpPost.setEntity(entity);
-         final HttpResponse response = httpClient.execute(httpPost);
+         final HttpResponse response = apacheHttpClient.execute(httpPost);
          final HttpEntity result = response.getEntity();
 
          // Read the contents of an entity and return it as a String.
@@ -162,7 +164,6 @@ public class StravaUploader extends TourbookCloudUploader {
                   "<a>https://www.strava.com/activities/" + activityId + "</a>");
          }
       } catch (final IOException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }
@@ -177,6 +178,7 @@ public class StravaUploader extends TourbookCloudUploader {
       // If it is, refresh token with heroku /refreshToken
 
       // Generate TCX file
+      //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
       final TourExporter tcxExporter = new TourExporter(selectedTours.get(0), "/format-templates/tcx-2.0.vm");
       final boolean toto = tcxExporter.export("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx");
 
@@ -186,5 +188,7 @@ public class StravaUploader extends TourbookCloudUploader {
       // Send TCX.gz file
       final TourData tourData = selectedTours.get(0);
       uploadFiles("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx.gz", tourData.getTourTitle(), tourData.getTourDescription());
+
+      //Delete the temp tcx and tcx.gz file
    }
 }

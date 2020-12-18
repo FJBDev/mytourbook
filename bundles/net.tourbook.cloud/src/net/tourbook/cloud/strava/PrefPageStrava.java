@@ -16,7 +16,7 @@
 package net.tourbook.cloud.strava;
 
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import net.tourbook.cloud.Activator;
@@ -24,6 +24,7 @@ import net.tourbook.cloud.IPreferences;
 import net.tourbook.cloud.oauth2.OAuth2BrowserDialog;
 import net.tourbook.cloud.oauth2.OAuth2Client;
 import net.tourbook.common.UI;
+import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
@@ -91,7 +92,11 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    }
 
    private String constructLocalExpireAtDateTime(final long expireAt) {
-      return Instant.ofEpochMilli(expireAt).atZone(ZoneId.systemDefault()).toLocalDateTime().toString();
+      if (expireAt == 0) {
+         return UI.EMPTY_STRING;
+      }
+
+      return Instant.ofEpochMilli(expireAt).atZone(TimeTools.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
    }
 
    @Override
