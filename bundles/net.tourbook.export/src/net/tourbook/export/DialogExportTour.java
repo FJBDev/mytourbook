@@ -124,7 +124,7 @@ public class DialogExportTour extends TitleAreaDialog {
       _nf3.setGroupingUsed(false);
    }
 
-   private final static String[]     StravaActivityTypes = new String[] {
+   private static final String[]     StravaActivityTypes = new String[] {
          "Biking", "Running", "Hiking", "Walking", "Swimming", "Other"                                                                                    //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
    };
 
@@ -259,8 +259,7 @@ public class DialogExportTour extends TitleAreaDialog {
                   | SWT.CLOSE
                   | SWT.MIN
 //				| SWT.MAX
-                  | SWT.RESIZE
-                  | SWT.NONE;
+                  | SWT.RESIZE;
 
       // make dialog resizable
       setShellStyle(shellStyle);
@@ -1572,12 +1571,10 @@ public class DialogExportTour extends TitleAreaDialog {
        * validate fields
        */
 
-      if (_isSetup_TCX) {
-         if (_rdoTCX_Courses.getSelection() && getCourseName().length() == 0) {
-            setError(Messages.Dialog_Export_Error_CourseNameIsInvalid);
-            _comboTcxCourseName.setFocus();
-            return;
-         }
+      if (_isSetup_TCX && _rdoTCX_Courses.getSelection() && getCourseName().length() == 0) {
+         setError(Messages.Dialog_Export_Error_CourseNameIsInvalid);
+         _comboTcxCourseName.setFocus();
+         return;
       }
 
       if (validateFilePath() == false) {

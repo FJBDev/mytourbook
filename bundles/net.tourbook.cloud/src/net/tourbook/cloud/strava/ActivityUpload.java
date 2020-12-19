@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ActivityUpload {
    private long   id;
    private String id_str;
@@ -22,8 +25,6 @@ public class ActivityUpload {
    private String error       = null;
    private String status;
    private String activity_id = null;
-
-   // Getter Methods
 
    public String getActivity_id() {
       return activity_id;
@@ -33,19 +34,7 @@ public class ActivityUpload {
       return error;
    }
 
-   public String getExternal_id() {
-      return external_id;
-   }
-
-   public float getId() {
-      return id;
-   }
-
    public String getId_str() {
       return id_str;
-   }
-
-   public String getStatus() {
-      return status;
    }
 }

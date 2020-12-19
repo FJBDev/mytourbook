@@ -63,8 +63,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    /*
     * UI controls
     */
-   private Button _buttonConnect;
-
    private Label  _labelAthleteName;
    private Label  _athleteFullName;
    private Label  _labelAthleteWebPage;
@@ -129,18 +127,18 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          // https://www.strava.com/oauth/authorize or https://www.strava.com/oauth/mobile/authorize.
          // No variations or modifications are acceptable."
 
-         _buttonConnect = new Button(container, SWT.NONE);
-         GridDataFactory.fillDefaults().applyTo(_buttonConnect);
+         final Button buttonConnect = new Button(container, SWT.NONE);
+         GridDataFactory.fillDefaults().applyTo(buttonConnect);
          final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
-         _buttonConnect.setImage(imageConnect);
-         _buttonConnect.addSelectionListener(new SelectionAdapter() {
+         buttonConnect.setImage(imageConnect);
+         buttonConnect.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(final SelectionEvent e) {
                onClickAuthorize();
             }
          });
-         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(_buttonConnect);
+         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(buttonConnect);
       }
    }
 

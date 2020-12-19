@@ -218,11 +218,11 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
 // SET_FORMATTING_ON
    //
-   static public final String ID = "net.tourbook.views.tourListView"; //$NON-NLS-1$
+   public static final String ID = "net.tourbook.views.tourListView"; //$NON-NLS-1$
 
 //
-   private final static IPreferenceStore   _prefStore                                      = TourbookPlugin.getPrefStore();
-   private final static IPreferenceStore   _prefStore_Common                               = CommonActivator.getPrefStore();
+   private static final IPreferenceStore   _prefStore                                      = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore   _prefStore_Common                               = CommonActivator.getPrefStore();
    //
    private static final IDialogSettings    _state                                          = TourbookPlugin.getState(ID);
    private static final IDialogSettings    _state_NatTable                                 = TourbookPlugin.getState(ID + "_NAT_TABLE"); //$NON-NLS-1$
@@ -375,11 +375,6 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       @Override
       protected void onBeforeOpenSlideout() {
          closeOpenedDialogs(this);
-      }
-
-      @Override
-      protected void onSelect() {
-         super.onSelect();
       }
    }
 
@@ -3081,7 +3076,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
                      /**
                       * <code>
-
+                     
                         Caused by: java.lang.NullPointerException
                         at org.eclipse.jface.viewers.AbstractTreeViewer.getSelection(AbstractTreeViewer.java:2956)
                         at org.eclipse.jface.viewers.StructuredViewer.handleSelect(StructuredViewer.java:1211)
@@ -3099,13 +3094,13 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                         at org.eclipse.jface.viewers.AbstractTreeViewer.internalCollapseToLevel(AbstractTreeViewer.java:1586)
                         at org.eclipse.jface.viewers.AbstractTreeViewer.collapseToLevel(AbstractTreeViewer.java:751)
                         at org.eclipse.jface.viewers.AbstractTreeViewer.collapseAll(AbstractTreeViewer.java:733)
-
+                     
                         at net.tourbook.ui.views.tourBook.TourBookView$70.run(TourBookView.java:3406)
-
+                     
                         at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
                         at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
                         ... 22 more
-
+                     
                       * </code>
                       */
 
