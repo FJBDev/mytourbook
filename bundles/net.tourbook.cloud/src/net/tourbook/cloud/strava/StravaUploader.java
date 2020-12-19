@@ -28,6 +28,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,16 @@ public class StravaUploader extends TourbookCloudUploader {
       return absoluteFilePath;
    }
 
+   private void deleteTemporaryFiles(final String absoluteTourFilePath, final String absoluteCompressedTourFilePath) {
+      try {
+         Files.delete(Paths.get(absoluteTourFilePath));
+         Files.delete(Paths.get(absoluteCompressedTourFilePath));
+      } catch (final IOException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+
    private String getAccessToken() {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
    }
@@ -123,9 +134,9 @@ public class StravaUploader extends TourbookCloudUploader {
 
       try {
          final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-         final ObjectMapper mapper = new ObjectMapper();
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+            final ObjectMapper mapper = new ObjectMapper();
             final ActivityUpload result2 = mapper.readValue(response.body(),
                   ActivityUpload.class);
             return result2.getActivity_id();
@@ -160,6 +171,19 @@ public class StravaUploader extends TourbookCloudUploader {
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) &&
             StringUtils.hasContent(getRefreshToken());
+   }
+
+   private String processTour(final TourData tourData, final String absoluteTourFilePath) {
+
+      final TourExporter tcxExporter = new TourExporter(
+            ExportTourTCX.TCX_2_0_TEMPLATE,
+            true,
+            true).useTourData(tourData);
+
+      final boolean toto = tcxExporter.export(absoluteTourFilePath);
+
+      // Gzip the tour
+      return compressGzipFile(absoluteTourFilePath);
    }
 
    private void setAccessToken(final String accessToken) {
@@ -270,34 +294,30 @@ public class StravaUploader extends TourbookCloudUploader {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
+            monitor.beginTask("TOTO", selectedTours.size());
+
             // loop over all tours and compute values
             for (final TourData tourData : selectedTours) {
                //check that a tour has a non empty time serie to avoid this strava error
                //"error": "Time information is missing from file.
-               //Check that current token is not expired
+
+               if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
+                  //TODO add log
+                  monitor.worked(1);
+                  continue;
+               }
 
                // If it is, refresh token with heroku /refreshToken
-               monitor.beginTask("TOTO", selectedTours.size());
 
                // Generate TCX file
                //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
 
                final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx");
-
-               final TourExporter tcxExporter = new TourExporter(
-                     ExportTourTCX.TCX_2_0_TEMPLATE,
-                     true,
-                     true).useTourData(tourData);
-
-               final boolean toto = tcxExporter.export(absoluteTourFilePath);
-
-               // Gzip the tour
-               final String absoluteCompressedTourFilePath = compressGzipFile(absoluteTourFilePath);
-
+               final String absoluteCompressedTourFilePath = processTour(tourData, absoluteTourFilePath);
                // Send TCX.gz file
                uploadFiles(absoluteCompressedTourFilePath, tourData.getTourTitle(), tourData.getTourDescription());
 
-               //Delete the temp tcx and tcx.gz file
+               deleteTemporaryFiles(absoluteTourFilePath, absoluteCompressedTourFilePath);
 
                monitor.subTask("DSNFKJ");
                monitor.worked(1);
