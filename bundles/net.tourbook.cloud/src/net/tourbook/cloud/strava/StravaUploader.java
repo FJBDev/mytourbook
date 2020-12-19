@@ -287,19 +287,7 @@ public class StravaUploader extends TourbookCloudUploader {
                final TourExporter tcxExporter = new TourExporter(
                      ExportTourTCX.TCX_2_0_TEMPLATE,
                      true,
-                     false,
-                     0,
-                     false,
-                     0,
-                     0,
-                     false,
-                     false,
-                     "",
-                     true,
-                     false,
-                     false,
-                     false,
-                     "").useTourData(tourData);
+                     true).useTourData(tourData);
 
                final boolean toto = tcxExporter.export(absoluteTourFilePath);
 

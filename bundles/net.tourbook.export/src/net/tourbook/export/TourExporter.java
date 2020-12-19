@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -136,6 +137,17 @@ public class TourExporter {
 
    public TourExporter(final String formatTemplate,
                        final boolean useAbsoluteDistance,
+                       final boolean useDescription) {
+      _formatTemplate = formatTemplate;
+      _useAbsoluteDistance = useAbsoluteDistance;
+      _useDescription = useDescription;
+
+      _isGPX = formatTemplate.toLowerCase().contains("gpx");
+      _isTCX = formatTemplate.toLowerCase().contains("tcx");
+   }
+
+   public TourExporter(final String formatTemplate,
+                       final boolean useAbsoluteDistance,
                        final boolean isCamouflageSpeed,
                        final float camouflageSpeed,
                        final boolean isRange,
@@ -148,10 +160,10 @@ public class TourExporter {
                        final boolean isExportSurfingWaves,
                        final boolean isExportAllTourData,
                        final boolean isCourse,
-                       final String courseName
+                       final String courseName) {
 
-   ) {
-      _formatTemplate = formatTemplate;
+      this(formatTemplate, useAbsoluteDistance, useDescription);
+
       _useAbsoluteDistance = useAbsoluteDistance;
       _isExportWithBarometer = isExportWithBarometer;
       _isCamouflageSpeed = isCamouflageSpeed;
@@ -161,7 +173,6 @@ public class TourExporter {
       _tourEndIndex = tourEndIndex;
       _useActivityType = useActivityType;
       _activityType = activityType;
-      _useDescription = useDescription;
 
       //For GPX
       _IsExportSurfingWaves = isExportSurfingWaves;
@@ -170,9 +181,6 @@ public class TourExporter {
       //For TCX
       _isCourse = isCourse;
       _courseName = courseName;
-
-      _isGPX = formatTemplate.toLowerCase().contains("gpx");
-      _isTCX = formatTemplate.toLowerCase().contains("tcx");
    }
 
    public boolean doExport_10_Tour(final List<GarminTrack> tracks,
@@ -216,7 +224,7 @@ public class TourExporter {
       doExport_20_TourValues(vc);
 
       try (final FileOutputStream fileOutputStream = new FileOutputStream(exportFile);
-            final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, UI.UTF_8);
+            final OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
             final Writer exportWriter = new BufferedWriter(outputStreamWriter);
             final Reader templateReader = new InputStreamReader(TourExporter.class.getClassLoader().getResourceAsStream(_formatTemplate))) {
 
@@ -280,11 +288,14 @@ public class TourExporter {
       /*
        * Creator
        */
-      String creatorText = String.format("MyTourbook %d.%d.%d.%s - http://mytourbook.sourceforge.net", //$NON-NLS-1$
-            version.getMajor(),
-            version.getMinor(),
-            version.getMicro(),
-            version.getQualifier());
+      String creatorText = UI.EMPTY_STRING;
+      if (version != null) {
+         creatorText = String.format("MyTourbook %d.%d.%d.%s - http://mytourbook.sourceforge.net", //$NON-NLS-1$
+               version.getMajor(),
+               version.getMinor(),
+               version.getMicro(),
+               version.getQualifier());
+      }
 
       if (_isExportWithBarometer) {
          creatorText += STRAVA_WITH_BAROMETER;
@@ -612,7 +623,7 @@ public class TourExporter {
 
                isCreateTrackSegment = true;
 
-            } else if (isDataPointVisible == false) {
+            } else if (!isDataPointVisible) {
 
                // hide time slices until they are visible again
 
@@ -754,10 +765,8 @@ public class TourExporter {
          final int serieIndex = tourMarker.getSerieIndex();
 
          // skip markers when they are not in the defined range
-         if (isRange) {
-            if ((serieIndex < startIndex) || (serieIndex > endIndex)) {
-               continue;
-            }
+         if (isRange && (serieIndex < startIndex) || (serieIndex > endIndex)) {
+            continue;
          }
 
          /*
@@ -770,12 +779,9 @@ public class TourExporter {
 
                distance = distanceSerie[serieIndex];
 
-            } else if (distanceSerie != null) {
-
+            } else if (distanceSerie != null && serieIndex > startIndex) {
                // skip first distance difference
-               if (serieIndex > startIndex) {
-                  distance = distanceSerie[serieIndex] - distanceSerie[serieIndex - 1];
-               }
+               distance = distanceSerie[serieIndex] - distanceSerie[serieIndex - 1];
             }
          }
 
