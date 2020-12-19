@@ -220,10 +220,11 @@ public class StravaUploader extends TourbookCloudUploader {
 
             activityId = getActivityId(result2.getId_str());
             //TODO See email to Wolfgang
+            final String link = "https://www.strava.com/activities/" + activityId;
             TourLogManager.logInfo(
-                  "<a>https://www.strava.com/activities/" + activityId + "</a>");
+                  "<br><a>https://www.strava.com/activities/" + activityId + "</a>");
             TourLogManager.logInfo(
-                  "<a href=\"link\">https://www.strava.com/activities/</a>");
+                  "<br><a href=\"" + link + "\">https://www.strava.com/activities/</a>");
          }
       } catch (final IOException e) {
          e.printStackTrace();
