@@ -136,6 +136,7 @@ public class DialogExportTour extends TitleAreaDialog {
    private final List<TourData>      _tourDataList;
    private final int                 _tourStartIndex;
    private final int                 _tourEndIndex;
+   private TourExporter              _tourExporter;
 
    /**
     * Is <code>true</code> when multiple tours are selected and NOT merged into 1 file.
@@ -164,8 +165,8 @@ public class DialogExportTour extends TitleAreaDialog {
     */
    private boolean                   _isSetup_MultipleTours;
 
-   private int                       _mergedDistance;
-   private ZonedDateTime             _mergedTime;
+   private int[]                     _mergedDistance     = new int[1];
+   private ZonedDateTime[]           _mergedTime         = new ZonedDateTime[1];
 
    private Point                     _shellDefaultSize;
 
@@ -988,13 +989,28 @@ public class DialogExportTour extends TitleAreaDialog {
 
       final String exportFileName = _txtFilePath.getText();
 
+      _tourExporter = new TourExporter(
+            _formatTemplate,
+            _exportState_isAbsoluteDistance,
+            _exportState_IsCamouflageSpeed,
+            _exportState_CamouflageSpeed,
+            _exportState_IsRange,
+            _tourStartIndex,
+            _tourEndIndex,
+            _exportState_GPX_IsExportWithBarometer,
+            _exportState_TCX_IsActivities,
+            _exportState_TCX_ActivityType,
+            _exportState_IsDescription,
+            _exportState_GPX_IsExportSurfingWaves,
+            _exportState_GPX_IsExportAllTourData,
+            _exportState_TCX_IsCourses,
+            _exportState_TCX_CourseName);
+
       if (_tourDataList.size() == 1) {
 
          // export one tour
 
-         final TourData tourData = _tourDataList.get(0);
-
-         new TourExporter(tourData, _formatTemplate).export(exportFileName);
+         _tourExporter.useTourData(_tourDataList.get(0)).export(exportFileName);
 
       } else {
 
@@ -1049,8 +1065,8 @@ public class DialogExportTour extends TitleAreaDialog {
           * merge all tours into one
           */
 
-         _mergedTime = _tourDataList.get(0).getTourStartTime();
-         _mergedDistance = 0;
+         _mergedTime[0] = _tourDataList.get(0).getTourStartTime();
+         _mergedDistance[0] = 0;
 
          final ArrayList<GarminTrack> tracks = new ArrayList<>();
          final ArrayList<TourWayPoint> wayPoints = new ArrayList<>();
@@ -1076,18 +1092,22 @@ public class DialogExportTour extends TitleAreaDialog {
 
             ZonedDateTime trackStartTime;
             if (_exportState_IsCamouflageSpeed) {
-               trackStartTime = _mergedTime;
+               trackStartTime = _mergedTime[0];
             } else {
                trackStartTime = tourData.getTourStartTime();
             }
 
-            final TourExporter tcxExporter = new TourExporter(tourData, _formatTemplate);
-            final GarminTrack track = tcxExporter.doExport_60_TrackPoints(trackStartTime);
+            final GarminTrack track = _tourExporter.useTourData(tourData).doExport_60_TrackPoints(trackStartTime, _mergedTime, _mergedDistance);
             if (track != null) {
                tracks.add(track);
             }
 
-            tcxExporter.doExport_70_WayPoints(wayPoints, tourMarkers, trackStartTime);
+            // get markers when this option is checked
+            if (!_exportState_GPX_IsExportMarkers) {
+               return;
+            }
+
+            _tourExporter.doExport_70_WayPoints(wayPoints, tourMarkers, trackStartTime);
          }
 
          /*
@@ -1110,7 +1130,7 @@ public class DialogExportTour extends TitleAreaDialog {
             return;
          }
 
-         new TourExporter(null, "").doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
+         _tourExporter.doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
 
       } else {
 
@@ -1128,7 +1148,7 @@ public class DialogExportTour extends TitleAreaDialog {
             }
 
             // merge distance is also used as total distance for not merged tours
-            _mergedDistance = 0;
+            _mergedDistance[0] = 0;
 
             // create file path name
             final String tourFileName = net.tourbook.ui.UI.format_yyyymmdd_hhmmss(tourData);
@@ -1145,8 +1165,8 @@ public class DialogExportTour extends TitleAreaDialog {
                         tourSize,
                         exportFilePathName }));
 
-            final TourExporter tcxExporter = new TourExporter(tourData, _formatTemplate);
-            tcxExporter.export(exportFilePathName);
+            _tourExporter.useTourData(tourData);
+            _tourExporter.export(exportFilePathName);
 
             // check if overwrite dialog was canceled
             if (_exportState_FileCollisionBehaviour.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {

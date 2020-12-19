@@ -21,10 +21,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,7 @@ import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
+import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
@@ -49,7 +53,11 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 
 public class StravaUploader extends TourbookCloudUploader {
 
@@ -62,10 +70,12 @@ public class StravaUploader extends TourbookCloudUploader {
       super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
-   private static void compressGzipFile(final String file, final String gzipFile) {
+   private static String compressGzipFile(final String file) {
+
+      final String compressedFilePath = file + ".gz";
 
       try (final FileInputStream fis = new FileInputStream(file);
-            final FileOutputStream fos = new FileOutputStream(gzipFile);
+            final FileOutputStream fos = new FileOutputStream(compressedFilePath);
             final GZIPOutputStream gzipOS = new GZIPOutputStream(fos)) {
 
          final byte[] buffer = new byte[1024];
@@ -75,7 +85,24 @@ public class StravaUploader extends TourbookCloudUploader {
          }
       } catch (final IOException e) {
          e.printStackTrace();
+         return UI.EMPTY_STRING;
       }
+
+      return compressedFilePath;
+   }
+
+   private String createTemporaryTourFile(final String tourId, final String extension) {
+      String absoluteFilePath = UI.EMPTY_STRING;
+
+      try {
+         final Path temp = Files.createTempFile(tourId, "." + extension);
+
+         absoluteFilePath = temp.toString();
+
+      } catch (final IOException e) {
+         e.printStackTrace();
+      }
+      return absoluteFilePath;
    }
 
    private String getAccessToken() {
@@ -236,24 +263,70 @@ public class StravaUploader extends TourbookCloudUploader {
 
       tryRenewTokens();
 
-      //check that a tour has a non empty time serie to avoid this strava error
-      //"error": "Time information is missing from file.
-      //Check that current token is not expired
+      final boolean[] isCanceled = new boolean[] { false };
 
-      // If it is, refresh token with heroku /refreshToken
+      final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
-      // Generate TCX file
-      //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
-      final TourExporter tcxExporter = new TourExporter(selectedTours.get(0), "/format-templates/tcx-2.0.vm");
-      final boolean toto = tcxExporter.export("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx");
+         @Override
+         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-      // Gzip the tour
-      compressGzipFile("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx", "C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx.gz");
+            // loop over all tours and compute values
+            for (final TourData tourData : selectedTours) {
+               //check that a tour has a non empty time serie to avoid this strava error
+               //"error": "Time information is missing from file.
+               //Check that current token is not expired
 
-      // Send TCX.gz file
-      final TourData tourData = selectedTours.get(0);
-      uploadFiles("C:\\Users\\frederic\\Downloads\\STMigration\\test.tcx.gz", tourData.getTourTitle(), tourData.getTourDescription());
+               // If it is, refresh token with heroku /refreshToken
+               monitor.beginTask("TOTO", selectedTours.size());
 
-      //Delete the temp tcx and tcx.gz file
+               // Generate TCX file
+               //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
+
+               final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx");
+
+               final TourExporter tcxExporter = new TourExporter(
+                     ExportTourTCX.TCX_2_0_TEMPLATE,
+                     true,
+                     false,
+                     0,
+                     false,
+                     0,
+                     0,
+                     false,
+                     false,
+                     "",
+                     true,
+                     false,
+                     false,
+                     false,
+                     "").useTourData(tourData);
+
+               final boolean toto = tcxExporter.export(absoluteTourFilePath);
+
+               // Gzip the tour
+               final String absoluteCompressedTourFilePath = compressGzipFile(absoluteTourFilePath);
+
+               // Send TCX.gz file
+               uploadFiles(absoluteCompressedTourFilePath, tourData.getTourTitle(), tourData.getTourDescription());
+
+               //Delete the temp tcx and tcx.gz file
+
+               monitor.subTask("DSNFKJ");
+               monitor.worked(1);
+
+               if (monitor.isCanceled()) {
+                  isCanceled[0] = true;
+                  break;
+               }
+            }
+         }
+      };
+      try {
+
+         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
+
+      } catch (final InvocationTargetException | InterruptedException e) {
+         e.printStackTrace();
+      }
    }
 }

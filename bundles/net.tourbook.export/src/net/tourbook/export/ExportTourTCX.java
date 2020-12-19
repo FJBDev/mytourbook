@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ExportTourTCX extends ExportTourExtension {
 
-   private static final String TCX_2_0_TEMPLATE = "/format-templates/tcx-2.0.vm"; //$NON-NLS-1$
+   public static final String TCX_2_0_TEMPLATE = "/format-templates/tcx-2.0.vm"; //$NON-NLS-1$
 
    /**
     * Plugin extension constructor
