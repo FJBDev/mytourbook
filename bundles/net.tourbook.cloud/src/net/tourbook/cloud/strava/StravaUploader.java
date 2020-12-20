@@ -30,7 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import net.tourbook.cloud.Activator;
@@ -99,7 +101,13 @@ public class StravaUploader extends TourbookCloudUploader {
       String absoluteFilePath = UI.EMPTY_STRING;
 
       try {
-         final Path temp = Files.createTempFile(tourId, "." + extension);//$NON-NLS-1$
+         final String fileName = tourId + "." + extension;
+         final Path filePath = Paths.get(fileName);
+         if (Files.exists(filePath)) {
+            Files.delete(filePath);
+         }
+
+         final Path temp = Files.createTempFile(tourId, "." + extension);
 
          absoluteFilePath = temp.toString();
 
@@ -109,11 +117,10 @@ public class StravaUploader extends TourbookCloudUploader {
       return absoluteFilePath;
    }
 
-   private void deleteTemporaryFiles(final String absoluteTourFilePath, final String absoluteCompressedTourFilePath) {
+   private void deleteTemporaryFile(final String filePath) {
 
       try {
-         Files.delete(Paths.get(absoluteTourFilePath));
-         Files.delete(Paths.get(absoluteCompressedTourFilePath));
+         Files.delete(Paths.get(filePath));
       } catch (final IOException e) {
          e.printStackTrace();
       }
@@ -290,8 +297,9 @@ public class StravaUploader extends TourbookCloudUploader {
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
                   Messages.UploadToursToStrava_Icon_Hourglass,
-                  Messages.UploadToursToStrava_Icon_Hourglass));
+                  UI.EMPTY_STRING));
 
+            final Map<String, TourData> toursToUpload = new HashMap<>();
             for (int index = 0; index < selectedTours.size() && !monitor.isCanceled(); ++index) {
 
                final TourData tourData = selectedTours.get(index);
@@ -304,29 +312,40 @@ public class StravaUploader extends TourbookCloudUploader {
                if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
 
                   TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_002_NoTimeDataSeries, tourDate));
-                  monitor.worked(1);
+                  monitor.worked(2);
                   continue;
                }
 
                //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
 
                final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
-               final String absoluteCompressedTourFilePath = processTour(tourData, absoluteTourFilePath);
+
+               toursToUpload.put(processTour(tourData, absoluteTourFilePath), tourData);
+
+               deleteTemporaryFile(absoluteTourFilePath);
 
                monitor.worked(1);
-               monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
-                     Messages.UploadToursToStrava_Icon_Check,
-                     Messages.UploadToursToStrava_Icon_Hourglass));
+            }
+
+            monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
+                  Messages.UploadToursToStrava_Icon_Check,
+                  Messages.UploadToursToStrava_Icon_Hourglass));
+
+            for (final Map.Entry<String, TourData> tourToUpload : toursToUpload.entrySet()) {
+
+               final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
+               final TourData tourData = tourToUpload.getValue();
+               final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
                // Send TCX.gz file
-               final ActivityUpload activityUpload = uploadFile(absoluteCompressedTourFilePath, tourData);
+               final ActivityUpload activityUpload = uploadFile(compressedTourAbsoluteFilePath, tourData);
 
-               deleteTemporaryFiles(absoluteTourFilePath, absoluteCompressedTourFilePath);
+               if (monitor.isCanceled()) {
+                  break;
+               }
 
-               monitor.worked(1);
-               monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
-                     Messages.UploadToursToStrava_Icon_Check,
-                     Messages.UploadToursToStrava_Icon_Check));
+               //TODO disable cancel button ? is it possible?
+               deleteTemporaryFile(compressedTourAbsoluteFilePath);
 
                if (StringUtils.hasContent(activityUpload.getError())) {
                   TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_003_UploadError, tourDate, activityUpload.getError()));
@@ -338,7 +357,13 @@ public class StravaUploader extends TourbookCloudUploader {
                                     activityUpload.getId(),
                                     activityUpload.getStatus() }));
                }
+
+               monitor.worked(1);
             }
+
+            monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
+                  Messages.UploadToursToStrava_Icon_Check,
+                  Messages.UploadToursToStrava_Icon_Check));
          }
       };
 
