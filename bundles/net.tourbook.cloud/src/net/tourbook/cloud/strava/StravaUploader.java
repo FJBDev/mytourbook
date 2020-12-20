@@ -191,12 +191,12 @@ public class StravaUploader extends TourbookCloudUploader {
 
    private String processTour(final TourData tourData, final String absoluteTourFilePath) {
 
-      final TourExporter tcxExporter = new TourExporter(
+      final TourExporter tourExporter = new TourExporter(
             ExportTourTCX.TCX_2_0_TEMPLATE,
             true,
             true).useTourData(tourData);
 
-      tcxExporter.export(absoluteTourFilePath);
+      tourExporter.export(absoluteTourFilePath);
 
       // Gzip the tour
       return gzipFile(absoluteTourFilePath);

@@ -15,8 +15,6 @@
  *******************************************************************************/
 package utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import de.byteholder.geoclipse.map.UI;
 
 import java.io.BufferedWriter;
@@ -31,6 +29,7 @@ import java.util.Map;
 
 import net.tourbook.data.TourData;
 
+import org.junit.jupiter.api.Assertions;
 import org.skyscreamer.jsonassert.ArrayValueMatcher;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONCompare;
@@ -85,7 +84,7 @@ public class Comparison {
          writeErroneousFiles(controlFileName, testJson);
       }
 
-      assertEquals(true, result.passed(), result.getMessage());
+      Assertions.assertTrue(result.passed(), result.getMessage());
    }
 
    public static TourData retrieveImportedTour(final Map<Long, TourData> newlyImportedTours) {
