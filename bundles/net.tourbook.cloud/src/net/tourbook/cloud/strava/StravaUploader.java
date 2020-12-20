@@ -58,6 +58,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -101,13 +102,13 @@ public class StravaUploader extends TourbookCloudUploader {
       String absoluteFilePath = UI.EMPTY_STRING;
 
       try {
-         final String fileName = tourId + "." + extension;
+         final String fileName = tourId + UI.SYMBOL_DOT + extension;
          final Path filePath = Paths.get(fileName);
          if (Files.exists(filePath)) {
             Files.delete(filePath);
          }
 
-         final Path temp = Files.createTempFile(tourId, "." + extension);
+         final Path temp = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension);
 
          absoluteFilePath = temp.toString();
 
@@ -288,19 +289,22 @@ public class StravaUploader extends TourbookCloudUploader {
 
       tryRenewTokens();
 
+      final int numberOfUploadedTours = 0;
+      final int numberOfTours = selectedTours.size();
+
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask(Messages.UploadToursToStrava_Task, selectedTours.size() * 2);
+            monitor.beginTask(Messages.UploadToursToStrava_Task, numberOfTours * 2);
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
                   Messages.UploadToursToStrava_Icon_Hourglass,
                   UI.EMPTY_STRING));
 
             final Map<String, TourData> toursToUpload = new HashMap<>();
-            for (int index = 0; index < selectedTours.size() && !monitor.isCanceled(); ++index) {
+            for (int index = 0; index < numberOfTours && !monitor.isCanceled(); ++index) {
 
                final TourData tourData = selectedTours.get(index);
                final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
@@ -348,10 +352,10 @@ public class StravaUploader extends TourbookCloudUploader {
                deleteTemporaryFile(compressedTourAbsoluteFilePath);
 
                if (StringUtils.hasContent(activityUpload.getError())) {
-                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_003_UploadError, tourDate, activityUpload.getError()));
+                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_004_UploadError, tourDate, activityUpload.getError()));
                } else {
                   TourLogManager.addLog(TourLogState.IMPORT_OK,
-                        NLS.bind(Messages.Log_UploadToursToStrava_002_UploadStatus,
+                        NLS.bind(Messages.Log_UploadToursToStrava_003_UploadStatus,
                               new Object[] {
                                     tourDate,
                                     activityUpload.getId(),
@@ -371,11 +375,16 @@ public class StravaUploader extends TourbookCloudUploader {
          final long start = System.currentTimeMillis();
 
          TourLogManager.showLogView();
-         TourLogManager.logTitle(NLS.bind(Messages.Log_UploadToursToStrava_001_Start, selectedTours.size()));
+         TourLogManager.logTitle(NLS.bind(Messages.Log_UploadToursToStrava_001_Start, numberOfTours));
 
          new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
 
-         TourLogManager.logTitle(String.format(Messages.Log_UploadToursToStrava_004_End, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.logTitle(String.format(Messages.Log_UploadToursToStrava_005_End, (System.currentTimeMillis() - start) / 1000.0));
+
+         MessageDialog.openInformation(
+               Display.getDefault().getActiveShell(),
+               Messages.Dialog_StravaUpload_Summary,
+               NLS.bind(Messages.Dialog_StravaUpload_Message, numberOfUploadedTours, numberOfTours - numberOfUploadedTours));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          e.printStackTrace();
