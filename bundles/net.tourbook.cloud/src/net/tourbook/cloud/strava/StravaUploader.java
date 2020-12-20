@@ -30,19 +30,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.UI;
+import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
@@ -58,22 +59,23 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 public class StravaUploader extends TourbookCloudUploader {
 
    private static HttpClient   httpClient     = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
-   private static final String _stravaBaseUrl = "https://www.strava.com/api/v3/";
+   private static final String _stravaBaseUrl = "https://www.strava.com/api/v3/";                                      //$NON-NLS-1$
 
    private IPreferenceStore    _prefStore     = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
-      super("STRAVA", "Strava"); //$NON-NLS-1$ //$NON-NLS-2$
+      super("STRAVA", Messages.VendorName_Strava); //$NON-NLS-1$
    }
 
-   private static String compressGzipFile(final String file) {
+   private static String gzipFile(final String file) {
 
-      final String compressedFilePath = file + ".gz";
+      final String compressedFilePath = file + ".gz"; //$NON-NLS-1$
 
       try (final FileInputStream fis = new FileInputStream(file);
             final FileOutputStream fos = new FileOutputStream(compressedFilePath);
@@ -93,10 +95,11 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private String createTemporaryTourFile(final String tourId, final String extension) {
+
       String absoluteFilePath = UI.EMPTY_STRING;
 
       try {
-         final Path temp = Files.createTempFile(tourId, "." + extension);
+         final Path temp = Files.createTempFile(tourId, "." + extension);//$NON-NLS-1$
 
          absoluteFilePath = temp.toString();
 
@@ -107,11 +110,11 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private void deleteTemporaryFiles(final String absoluteTourFilePath, final String absoluteCompressedTourFilePath) {
+
       try {
          Files.delete(Paths.get(absoluteTourFilePath));
          Files.delete(Paths.get(absoluteCompressedTourFilePath));
       } catch (final IOException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }
@@ -124,32 +127,38 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
    }
 
-   private String getActivityId(final String id_str) {
-      //TODO FB Maybe we don't want to do that as it is possible that activites are not fully processed
-      final HttpRequest request = HttpRequest.newBuilder()
-            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
-            .GET()
-            .uri(URI.create(_stravaBaseUrl + "uploads/" + id_str))//$NON-NLS-1$
-            .build();
-
-      try {
-         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-
-         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
-            final ObjectMapper mapper = new ObjectMapper();
-            final ActivityUpload result2 = mapper.readValue(response.body(),
-                  ActivityUpload.class);
-            return result2.getActivity_id();
-         }
-         //else
-         // if not ok, display the string in  "error": null,
-      } catch (IOException | InterruptedException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-
-      return null;
-   }
+//   /**
+//    * Retrieving the activity Id after the uploaded activity was created.
+//    * Note: Maybe we don't want to do that as it is possible that activities are not fully processed
+//    * and that it can take quite some times, and therefore a lot of API calls, until the activity is
+//    * available
+//    *
+//    * @param uploadId
+//    * @return The activity Id
+//    */
+//   private String getActivityId(final String uploadId) {
+//
+//      final HttpRequest request = HttpRequest.newBuilder()
+//            .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
+//            .GET()
+//            .uri(URI.create(_stravaBaseUrl + "uploads/" + uploadId))//$NON-NLS-1$
+//            .build();
+//
+//      try {
+//         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+//
+//         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+//            final ObjectMapper mapper = new ObjectMapper();
+//            final ActivityUpload activityUpload = mapper.readValue(response.body(),
+//                  ActivityUpload.class);
+//            return activityUpload.getActivity_id();
+//         }
+//      } catch (IOException | InterruptedException e) {
+//         e.printStackTrace();
+//      }
+//
+//      return UI.EMPTY_STRING;
+//   }
 
    private String getRefreshToken() {
       return _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
@@ -163,8 +172,7 @@ public class StravaUploader extends TourbookCloudUploader {
     */
    private boolean isAccessTokenExpired() {
 
-      final long toto = getAcessTokenExpirationDate() - System.currentTimeMillis();
-      return toto - 300000 < 0;
+      return getAcessTokenExpirationDate() - System.currentTimeMillis() - 300000 < 0;
    }
 
    @Override
@@ -180,10 +188,10 @@ public class StravaUploader extends TourbookCloudUploader {
             true,
             true).useTourData(tourData);
 
-      final boolean toto = tcxExporter.export(absoluteTourFilePath);
+      tcxExporter.export(absoluteTourFilePath);
 
       // Gzip the tour
-      return compressGzipFile(absoluteTourFilePath);
+      return gzipFile(absoluteTourFilePath);
    }
 
    private void setAccessToken(final String accessToken) {
@@ -204,9 +212,9 @@ public class StravaUploader extends TourbookCloudUploader {
          return;
       }
 
-      final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}";
+      final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}"; //$NON-NLS-1$  //$NON-NLS-2$
       final HttpRequest request = HttpRequest.newBuilder()
-            .header("Content-Type", "application/json")
+            .header("Content-Type", "application/json") //$NON-NLS-1$ //$NON-NLS-2$
             .POST(HttpRequest.BodyPublishers.ofString(body))
             .uri(URI.create("https://mytourbook-oauth-passeur.herokuapp.com/refreshToken"))//$NON-NLS-1$
             .build();
@@ -223,28 +231,25 @@ public class StravaUploader extends TourbookCloudUploader {
             setRefreshToken(result2.getRefresh_token());
             setAccessToken(result2.getAccess_token());
          }
-         //else
-         // if not ok, display the string in  "error": null,
       } catch (IOException | InterruptedException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
-
    }
 
-   private void uploadFiles(final String tcxgz, final String tourTitle, final String tourDescription) {
+   private ActivityUpload uploadFile(final String absoluteCompressedTourFilePath, final TourData tourData) {
 
-      final List<String> uploadIds = new ArrayList<>();
       final HttpEntity entity = MultipartEntityBuilder
             .create()
             .addTextBody("data_type", "tcx.gz")
-            .addTextBody("name", tourTitle) //$NON-NLS-1$
-            .addTextBody("description", tourDescription) //$NON-NLS-1$
+            .addTextBody("name", tourData.getTourTitle()) //$NON-NLS-1$
+            .addTextBody("description", tourData.getTourDescription()) //$NON-NLS-1$
             .addBinaryBody("file", //$NON-NLS-1$
-                  new File(tcxgz),
+                  new File(absoluteCompressedTourFilePath),
                   ContentType.create("application/octet-stream"), //$NON-NLS-1$
-                  FilenameUtils.removeExtension(tcxgz))
+                  FilenameUtils.removeExtension(absoluteCompressedTourFilePath))
             .build();
+
+      ActivityUpload activityUpload = new ActivityUpload();
 
       try (final CloseableHttpClient apacheHttpClient = HttpClients.createDefault()) {
          final HttpPost httpPost = new HttpPost(_stravaBaseUrl + "/uploads");//$NON-NLS-1$
@@ -255,83 +260,88 @@ public class StravaUploader extends TourbookCloudUploader {
 
          // Read the contents of an entity and return it as a String.
          final String content = EntityUtils.toString(result);
-         System.out.println(content);
 
          if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_CREATED) {
-            //Generate link
-            System.out.println(response);
-            TourLogManager.showLogView();
-            String activityId = UI.EMPTY_STRING;
 
             final ObjectMapper mapper = new ObjectMapper();
-
-            final ActivityUpload result2 = mapper.readValue(content,
-                  ActivityUpload.class);
-            uploadIds.add(result2.getId_str());
-
-            activityId = getActivityId(result2.getId_str());
-            //TODO See email to Wolfgang
-            final String link = "https://www.strava.com/activities/" + activityId;
-            TourLogManager.logInfo(
-                  "<br><a>https://www.strava.com/activities/" + activityId + "</a>");
-            TourLogManager.logInfo(
-                  "<br><a href=\"" + link + "\">https://www.strava.com/activities/</a>");
+            activityUpload = mapper.readValue(content, ActivityUpload.class);
+         } else {
+            activityUpload.setError(content);
          }
       } catch (final IOException e) {
          e.printStackTrace();
       }
+
+      return activityUpload;
    }
 
    @Override
-   public void uploadTours(final List<TourData> selectedTours, final int _tourStartIndex, final int _tourEndIndex) {
+   public void uploadTours(final List<TourData> selectedTours) {
 
       tryRenewTokens();
-
-      final boolean[] isCanceled = new boolean[] { false };
 
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask("TOTO", selectedTours.size());
+            monitor.beginTask("TOTO", selectedTours.size() * 2);
 
-            // loop over all tours and compute values
-            for (final TourData tourData : selectedTours) {
-               //check that a tour has a non empty time serie to avoid this strava error
+            monitor.subTask("DSNFKJ....\u231B\nfeff.....\u2713\neffe...");
+
+            for (int index = 0; index < selectedTours.size() && !monitor.isCanceled(); ++index) {
+
+               final TourData tourData = selectedTours.get(index);
+               final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+
+               //Check that a tour has a non empty time serie to avoid this Strava error
                //"error": "Time information is missing from file.
-
+               //TODO? V2: Create activities without timeseries using this API endpoint :
+               //https://developers.strava.com/playground/#/Activities/createActivity
                if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
-                  //TODO add log
+
+                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_002_NoTimeDataSeries, tourDate));
                   monitor.worked(1);
                   continue;
                }
 
-               // If it is, refresh token with heroku /refreshToken
-
-               // Generate TCX file
                //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
 
                final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx");
                final String absoluteCompressedTourFilePath = processTour(tourData, absoluteTourFilePath);
+
+               monitor.worked(1);
+
                // Send TCX.gz file
-               uploadFiles(absoluteCompressedTourFilePath, tourData.getTourTitle(), tourData.getTourDescription());
+               final ActivityUpload activityUpload = uploadFile(absoluteCompressedTourFilePath, tourData);
 
                deleteTemporaryFiles(absoluteTourFilePath, absoluteCompressedTourFilePath);
 
-               monitor.subTask("DSNFKJ");
                monitor.worked(1);
 
-               if (monitor.isCanceled()) {
-                  isCanceled[0] = true;
-                  break;
+               if (StringUtils.hasContent(activityUpload.getError())) {
+                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_003_UploadError, tourDate, activityUpload.getError()));
+               } else {
+                  TourLogManager.addLog(TourLogState.IMPORT_OK,
+                        NLS.bind(Messages.Log_UploadToursToStrava_002_UploadStatus,
+                              new Object[] {
+                                    tourDate,
+                                    activityUpload.getId(),
+                                    activityUpload.getStatus() }));
                }
             }
          }
       };
+
       try {
+         final long start = System.currentTimeMillis();
+
+         TourLogManager.showLogView();
+         TourLogManager.logTitle(NLS.bind(Messages.Log_UploadToursToStrava_001_Start, selectedTours.size()));
 
          new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
+
+         TourLogManager.logTitle(String.format(Messages.Log_UploadToursToStrava_004_End, (System.currentTimeMillis() - start) / 1000.0));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          e.printStackTrace();

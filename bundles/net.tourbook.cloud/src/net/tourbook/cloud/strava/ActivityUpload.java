@@ -19,14 +19,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ActivityUpload {
-   private long   id;
    private String id_str;
-   private String external_id;
    private String error       = null;
    private String status;
    private String activity_id = null;
 
-   public String getActivity_id() {
+   ActivityUpload() {}
+
+   public String getActivityId() {
       return activity_id;
    }
 
@@ -34,7 +34,15 @@ public class ActivityUpload {
       return error;
    }
 
-   public String getId_str() {
+   public String getId() {
       return id_str;
+   }
+
+   public String getStatus() {
+      return status;
+   }
+
+   public void setError(final String error) {
+      this.error = error;
    }
 }

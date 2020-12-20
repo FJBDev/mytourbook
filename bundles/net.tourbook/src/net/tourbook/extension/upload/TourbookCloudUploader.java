@@ -35,5 +35,5 @@ public abstract class TourbookCloudUploader {
 
    protected abstract boolean isReady();
 
-   public abstract void uploadTours(List<TourData> selectedTours, int _tourStartIndex, int _tourEndIndex);
+   public abstract void uploadTours(List<TourData> selectedTours);
 }

@@ -51,9 +51,6 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    private final ITourProvider                _tourProvider;
 
-   private int                                _tourStartIndex         = -1;
-   private int                                _tourEndIndex           = -1;
-
    private class ActionUploadTour extends Action {
 
       private final TourbookCloudUploader _tourbookCloudUploader;
@@ -87,7 +84,7 @@ public class ActionUpload extends Action implements IMenuCreator {
          // sort by date/time
          Collections.sort(selectedTours);
 
-         _tourbookCloudUploader.uploadTours(selectedTours, _tourStartIndex, _tourEndIndex);
+         _tourbookCloudUploader.uploadTours(selectedTours);
       }
 
    }
@@ -119,11 +116,10 @@ public class ActionUpload extends Action implements IMenuCreator {
    private static List<TourbookCloudUploader> getCloudUploaders() {
 
       if (_tourbookCloudUploaders.isEmpty()) {
-      _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader");
+         _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader"); //$NON-NLS-1$
       }
 
-      for (final ActionUploadTour actionUploadTour : _uploadTourActions)
-      {
+      for (final ActionUploadTour actionUploadTour : _uploadTourActions) {
          actionUploadTour.setEnabled(actionUploadTour.isVendorReady());
       }
 
@@ -228,10 +224,4 @@ public class ActionUpload extends Action implements IMenuCreator {
 
       setText(Messages.action_export_tour + String.format(" (%d)", numTours)); //$NON-NLS-1$
    }
-
-   public void setTourRange(final int tourStartIndex, final int tourEndIndex) {
-      _tourStartIndex = tourStartIndex;
-      _tourEndIndex = tourEndIndex;
-   }
-
 }

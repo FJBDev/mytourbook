@@ -22,10 +22,18 @@ public class Messages extends NLS {
    private static final String BUNDLE_NAME = "net.tourbook.cloud.strava.messages";       //$NON-NLS-1$
 
    public static String        Image__Connect_With_Strava;
+
+   public static String        Log_UploadToursToStrava_001_Start;
+   public static String        Log_UploadToursToStrava_002_NoTimeDataSeries;
+   public static String        Log_UploadToursToStrava_002_UploadStatus;
+   public static String        Log_UploadToursToStrava_003_UploadError;
+   public static String        Log_UploadToursToStrava_004_End;
+
    public static String        Pref_CloudConnectivity_Strava_AccessToken_Retrieval_Title;
    public static String        Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved;
    public static String        Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
 
+   public static String        VendorName_Strava;
    public static String        PrefPage_Account_Information_Group;
    public static String        PrefPage_Account_Information_AthleteName_Label;
    public static String        PrefPage_Account_Information_AthleteWebPage_Label;
