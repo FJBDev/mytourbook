@@ -240,7 +240,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final HttpEntity entity = MultipartEntityBuilder
             .create()
-            .addTextBody("data_type", "tcx.gz")
+            .addTextBody("data_type", "tcx.gz") //$NON-NLS-1$ //$NON-NLS-2$
             .addTextBody("name", tourData.getTourTitle()) //$NON-NLS-1$
             .addTextBody("description", tourData.getTourDescription()) //$NON-NLS-1$
             .addBinaryBody("file", //$NON-NLS-1$
@@ -252,8 +252,9 @@ public class StravaUploader extends TourbookCloudUploader {
       ActivityUpload activityUpload = new ActivityUpload();
 
       try (final CloseableHttpClient apacheHttpClient = HttpClients.createDefault()) {
+
          final HttpPost httpPost = new HttpPost(_stravaBaseUrl + "/uploads");//$NON-NLS-1$
-         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
+         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()); //$NON-NLS-1$
          httpPost.setEntity(entity);
          final HttpResponse response = apacheHttpClient.execute(httpPost);
          final HttpEntity result = response.getEntity();
@@ -285,9 +286,11 @@ public class StravaUploader extends TourbookCloudUploader {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask("TOTO", selectedTours.size() * 2);
+            monitor.beginTask(Messages.UploadToursToStrava_Task, selectedTours.size() * 2);
 
-            monitor.subTask("DSNFKJ....\u231B\nfeff.....\u2713\neffe...");
+            monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
+                  Messages.UploadToursToStrava_Icon_Hourglass,
+                  Messages.UploadToursToStrava_Icon_Hourglass));
 
             for (int index = 0; index < selectedTours.size() && !monitor.isCanceled(); ++index) {
 
@@ -307,10 +310,13 @@ public class StravaUploader extends TourbookCloudUploader {
 
                //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
 
-               final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx");
+               final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
                final String absoluteCompressedTourFilePath = processTour(tourData, absoluteTourFilePath);
 
                monitor.worked(1);
+               monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
+                     Messages.UploadToursToStrava_Icon_Check,
+                     Messages.UploadToursToStrava_Icon_Hourglass));
 
                // Send TCX.gz file
                final ActivityUpload activityUpload = uploadFile(absoluteCompressedTourFilePath, tourData);
@@ -318,6 +324,9 @@ public class StravaUploader extends TourbookCloudUploader {
                deleteTemporaryFiles(absoluteTourFilePath, absoluteCompressedTourFilePath);
 
                monitor.worked(1);
+               monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
+                     Messages.UploadToursToStrava_Icon_Check,
+                     Messages.UploadToursToStrava_Icon_Check));
 
                if (StringUtils.hasContent(activityUpload.getError())) {
                   TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_003_UploadError, tourDate, activityUpload.getError()));

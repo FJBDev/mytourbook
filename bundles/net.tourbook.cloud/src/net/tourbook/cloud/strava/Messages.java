@@ -41,6 +41,11 @@ public class Messages extends NLS {
    public static String        PrefPage_Account_Information_RefreshToken_Label;
    public static String        PrefPage_Account_Information_ExpiresAt_Label;
 
+   public static String        UploadToursToStrava_Task;
+   public static String        UploadToursToStrava_SubTask;
+   public static String        UploadToursToStrava_Icon_Hourglass;
+   public static String        UploadToursToStrava_Icon_Check;
+
    static {
       NLS.initializeMessages(BUNDLE_NAME, Messages.class);
    }
