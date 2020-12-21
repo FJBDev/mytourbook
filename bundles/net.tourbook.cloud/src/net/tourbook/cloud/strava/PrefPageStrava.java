@@ -205,7 +205,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final OAuth2Client client = new OAuth2Client();
 
-      client.setAuthorizeUrl("https://mytourbook-oauth-passeur.herokuapp.com/authorize"); //$NON-NLS-1$
+      client.setAuthorizeUrl(StravaUploader.HerokuAppUrl + "/authorize"); //$NON-NLS-1$
       client.setRedirectUri("http://mytourbook.sourceforge.net/mytourbook"); //$NON-NLS-1$
 
       final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client, "Strava"); //$NON-NLS-1$

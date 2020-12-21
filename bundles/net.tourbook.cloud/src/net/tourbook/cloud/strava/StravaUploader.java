@@ -68,10 +68,12 @@ import org.eclipse.swt.widgets.Display;
 
 public class StravaUploader extends TourbookCloudUploader {
 
-   private static HttpClient   httpClient     = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
-   private static final String _stravaBaseUrl = "https://www.strava.com/api/v3/";                                      //$NON-NLS-1$
+   private static HttpClient       httpClient     = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
+   private static final String     _stravaBaseUrl = "https://www.strava.com/api/v3/";                                      //$NON-NLS-1$
 
-   private IPreferenceStore    _prefStore     = Activator.getDefault().getPreferenceStore();
+   public static final String      HerokuAppUrl   = "https://passeur-mytourbook-strava.herokuapp.com";
+
+   private static IPreferenceStore _prefStore     = Activator.getDefault().getPreferenceStore();
 
    public StravaUploader() {
       super("STRAVA", Messages.VendorName_Strava); //$NON-NLS-1$
@@ -208,7 +210,6 @@ public class StravaUploader extends TourbookCloudUploader {
 
       tourExporter.export(absoluteTourFilePath);
 
-      // Gzip the tour
       return gzipFile(absoluteTourFilePath);
    }
 
@@ -234,7 +235,7 @@ public class StravaUploader extends TourbookCloudUploader {
       final HttpRequest request = HttpRequest.newBuilder()
             .header("Content-Type", "application/json") //$NON-NLS-1$ //$NON-NLS-2$
             .POST(HttpRequest.BodyPublishers.ofString(body))
-            .uri(URI.create("https://mytourbook-oauth-passeur.herokuapp.com/refreshToken"))//$NON-NLS-1$
+            .uri(URI.create(HerokuAppUrl + "/refreshToken"))//$NON-NLS-1$
             .build();
 
       try {
