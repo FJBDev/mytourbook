@@ -111,22 +111,22 @@ public class TourExporter {
       _dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
    }
 
-   private final String _formatTemplate;
-   private TourData     _tourData;
-   private float        _camouflageSpeed;
-   private boolean      _isCamouflageSpeed;
-   private boolean      _isRange;
-   private int          _tourStartIndex;
-   private int          _tourEndIndex;
-   private boolean      _isExportWithBarometer;
    private String       _activityType;
+   private float        _camouflageSpeed;
+   private String       _courseName;
+   private final String _formatTemplate;
+   private boolean      _isCamouflageSpeed;
+   private boolean      _isCourse;
+   private boolean      _isExportAllTourData;
+   private boolean      _isExportSurfingWaves;
+   private boolean      _isExportWithBarometer;
+   private boolean      _isRange;
+   private TourData     _tourData;
+   private int          _tourEndIndex;
+   private int          _tourStartIndex;
    private boolean      _useAbsoluteDistance;
    private boolean      _useActivityType;
    private boolean      _useDescription;
-   private boolean      _IsExportSurfingWaves;
-   private boolean      _isExportAllTourData;
-   private Object       _isCourse;
-   private Object       _courseName;
 
    private boolean      _isGPX;
    private boolean      _isTCX;
@@ -163,8 +163,8 @@ public class TourExporter {
 
       setUseAbsoluteDistance(useAbsoluteDistance);
       setUseDescription(useDescription);
-      _isExportWithBarometer = isExportWithBarometer;
-      _isCamouflageSpeed = isCamouflageSpeed;
+      setIsExportWithBarometer(isExportWithBarometer);
+      setCamouflageSpeed(camouflageSpeed);
       _camouflageSpeed = camouflageSpeed;
       _isRange = isRange;
       _tourStartIndex = tourStartIndex;
@@ -173,12 +173,12 @@ public class TourExporter {
       setActivityType(activityType);
 
       //For GPX
-      _IsExportSurfingWaves = isExportSurfingWaves;
+      setIsExportSurfingWaves(isExportSurfingWaves);
       setIsExportAllTourData(isExportAllTourData);
 
       //For TCX
-      _isCourse = isCourse;
-      _courseName = courseName;
+      setIsCourse(isCourse);
+      setCourseName(courseName);
    }
 
    public boolean doExport_10_Tour(final List<GarminTrack> tracks,
@@ -540,7 +540,7 @@ public class TourExporter {
        */
       boolean[] visibleDataPointSerie = null;
       boolean isPrevDataPointVisible = false;
-      if (_IsExportSurfingWaves && _tourData.isVisiblePointsSaved_ForSurfing()) {
+      if (_isExportSurfingWaves && _tourData.isVisiblePointsSaved_ForSurfing()) {
 
          visibleDataPointSerie = _tourData.visibleDataPointSerie;
          isPrevDataPointVisible = visibleDataPointSerie[0];
@@ -882,6 +882,34 @@ public class TourExporter {
       _activityType = activityType;
    }
 
+   public void setCamouflageSpeed(final float camouflageSpeed) {
+      _camouflageSpeed = camouflageSpeed;
+   }
+
+   public void setCourseName(final String courseName) {
+      _courseName = courseName;
+   }
+
+   public void setIsCamouflageSpeed(final boolean isCamouflageSpeed) {
+      _isCamouflageSpeed = isCamouflageSpeed;
+   }
+
+   public void setIsCourse(final boolean isCourse) {
+      _isCourse = isCourse;
+   }
+
+   public void setIsExportAllTourData(final boolean isExportAllTourData) {
+      _isExportAllTourData = isExportAllTourData;
+   }
+
+   public void setIsExportSurfingWaves(final boolean isExportSurfingWaves) {
+      _isExportSurfingWaves = isExportSurfingWaves;
+   }
+
+   public void setIsExportWithBarometer(final boolean isExportWithBarometer) {
+      _isExportWithBarometer = isExportWithBarometer;
+   }
+
    public void setUseAbsoluteDistance(final boolean useAbsoluteDistance) {
       _useAbsoluteDistance = useAbsoluteDistance;
    }
@@ -898,9 +926,5 @@ public class TourExporter {
       _tourData = tourData;
 
       return this;
-   }
-
-   public void setIsExportAllTourData(boolean _isExportAllTourData) {
-      this._isExportAllTourData = _isExportAllTourData;
    }
 }

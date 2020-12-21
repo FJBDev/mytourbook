@@ -6605,7 +6605,7 @@
 				</Track>
 			</Lap>
             <Creator xsi:type="Device_t">
-              <Name>MyTourbook 20.12.0.20201221-0549 - http://mytourbook.sourceforge.net</Name>
+              <Name>MyTourbook 20.12.0.qualifier - http://mytourbook.sourceforge.net</Name>
               <UnitId>0</UnitId>
               <ProductID>0</ProductID>
               <Version>
@@ -6618,7 +6618,7 @@
 		</Activity>
 	</Activities>
 	<Author xsi:type="Application_t">
-		<Name>MyTourbook 20.12.0.20201221-0549 - http://mytourbook.sourceforge.net</Name>
+		<Name>MyTourbook 20.12.0.qualifier - http://mytourbook.sourceforge.net</Name>
 		<Build>
 			<Version>
 				<VersionMajor>20</VersionMajor>

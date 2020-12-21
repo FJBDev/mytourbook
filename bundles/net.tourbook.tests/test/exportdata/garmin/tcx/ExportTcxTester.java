@@ -26,6 +26,7 @@ import net.tourbook.export.TourExporter;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
@@ -37,18 +38,15 @@ public class ExportTcxTester {
    private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";       //$NON-NLS-1$
 
    private static TourExporter _tourExporter;
+   private static TourData     _tour;
 
    @BeforeAll
    static void initAll() {
-      //TODO Fix : the pop up to confirm the overwrite of files doesn't seem to work anymore
-      //
-      final TourData tour = Initializer.importTour();
+
+      _tour = Initializer.importTour();
       final TourType tourType = new TourType();
       tourType.setName("Running"); //$NON-NLS-1$
-      tour.setTourType(tourType);
-
-      _tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(tour);
-      _tourExporter.setActivityType(tourType.getName());
+      _tour.setTourType(tourType);
    }
 
    @AfterEach
@@ -64,6 +62,13 @@ public class ExportTcxTester {
       }
    }
 
+   @BeforeEach
+   void beforeEach() {
+
+      _tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(_tour);
+      _tourExporter.setActivityType(_tour.getTourType().getName());
+   }
+
    private void executeTest(final String controlTourFileName) {
 
       _tourExporter.export(_testTourFilePath);
@@ -76,6 +81,10 @@ public class ExportTcxTester {
 
       final String controlTourFileName = "LongsPeak-CamouflageSpeed-15kmh-BikingActivity.tcx";
 
+      _tourExporter.setActivityType("Biking");
+      _tourExporter.setIsCamouflageSpeed(true);
+      _tourExporter.setCamouflageSpeed(15f);
+
       executeTest(controlTourFileName);
    }
 
@@ -83,6 +92,9 @@ public class ExportTcxTester {
    void testTcxExportCourse() {
 
       final String controlTourFileName = "LongsPeak-Course.tcx";
+
+      _tourExporter.setIsCourse(true);
+      _tourExporter.setCourseName("Longs Peak");
 
       executeTest(controlTourFileName);
    }
@@ -97,9 +109,6 @@ public class ExportTcxTester {
       _tourExporter.setUseActivityType(true);
       _tourExporter.setIsExportAllTourData(true);
 
-      //TODO FB Maybe implement the setters as it will be useful when doing a test with setIsCamoufalge Speed.
-      // instead of recreating the whole TouRExporter
-
       executeTest(controlTourFileName);
    }
 
@@ -107,6 +116,8 @@ public class ExportTcxTester {
    void testTcxExportHikingActivity() {
 
       final String controlTourFileName = "LongsPeak-HikingActivity.tcx";
+
+      _tourExporter.setActivityType("Hiking");
 
       executeTest(controlTourFileName);
    }

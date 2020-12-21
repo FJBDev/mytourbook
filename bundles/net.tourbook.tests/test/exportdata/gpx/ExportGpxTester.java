@@ -40,8 +40,7 @@ public class ExportGpxTester {
 
    @BeforeAll
    static void initAll() {
-      //TODO Fix : the pop up to confirm the overwrite of files doesn't seem to work anymore
-      //
+
       final TourData tour = Initializer.importTour();
       final TourType tourType = new TourType();
       tourType.setName("Running");
@@ -76,7 +75,12 @@ public class ExportGpxTester {
 
       final String controlTourFileName = "LongsPeak-AllOptions-RelativeDistance.gpx";
 
-      _tourExporter.setUseAbsoluteDistance(true);
+      _tourExporter.setUseDescription(true);
+      _tourExporter.setIsExportAllTourData(true);
+      _tourExporter.setIsExportSurfingWaves(true);
+      _tourExporter.setIsExportWithBarometer(true);
+      _tourExporter.setIsCamouflageSpeed(true);
+      _tourExporter.setCamouflageSpeed(15f);
 
       executeTest(controlTourFileName);
    }
