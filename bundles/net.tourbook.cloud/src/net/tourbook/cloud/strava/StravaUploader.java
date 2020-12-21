@@ -196,10 +196,10 @@ public class StravaUploader extends TourbookCloudUploader {
 
       tourExporter.setUseAbsoluteDistance(true);
       tourExporter.setUseDescription(true);
-      tourExporter.setUseActivityType(true);
 
       final TourType tourType = tourData.getTourType();
       if (tourType != null) {
+         tourExporter.setUseActivityType(true);
          tourExporter.setActivityType(tourType.getName());
       }
 
