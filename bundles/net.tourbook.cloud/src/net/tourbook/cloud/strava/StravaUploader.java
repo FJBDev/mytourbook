@@ -289,7 +289,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
       tryRenewTokens();
 
-      final int numberOfUploadedTours = 0;
+      final int[] numberOfUploadedTours = new int[1];
       final int numberOfTours = selectedTours.size();
 
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
@@ -354,6 +354,8 @@ public class StravaUploader extends TourbookCloudUploader {
                if (StringUtils.hasContent(activityUpload.getError())) {
                   TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_004_UploadError, tourDate, activityUpload.getError()));
                } else {
+                  ++numberOfUploadedTours[0];
+
                   TourLogManager.addLog(TourLogState.IMPORT_OK,
                         NLS.bind(Messages.Log_UploadToursToStrava_003_UploadStatus,
                               new Object[] {
@@ -384,7 +386,7 @@ public class StravaUploader extends TourbookCloudUploader {
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
                Messages.Dialog_StravaUpload_Summary,
-               NLS.bind(Messages.Dialog_StravaUpload_Message, numberOfUploadedTours, numberOfTours - numberOfUploadedTours));
+               NLS.bind(Messages.Dialog_StravaUpload_Message, numberOfUploadedTours[0], numberOfTours - numberOfUploadedTours[0]));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          e.printStackTrace();
