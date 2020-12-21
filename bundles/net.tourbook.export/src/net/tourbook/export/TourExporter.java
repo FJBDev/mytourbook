@@ -113,7 +113,6 @@ public class TourExporter {
 
    private final String _formatTemplate;
    private TourData     _tourData;
-   private boolean      _useAbsoluteDistance;
    private float        _camouflageSpeed;
    private boolean      _isCamouflageSpeed;
    private boolean      _isRange;
@@ -121,6 +120,7 @@ public class TourExporter {
    private int          _tourEndIndex;
    private boolean      _isExportWithBarometer;
    private String       _activityType;
+   private boolean      _useAbsoluteDistance;
    private boolean      _useActivityType;
    private boolean      _useDescription;
    private boolean      _IsExportSurfingWaves;
@@ -135,12 +135,9 @@ public class TourExporter {
       GPX, TCX
    }
 
-   public TourExporter(final String formatTemplate,
-                       final boolean useAbsoluteDistance,
-                       final boolean useDescription) {
+   public TourExporter(final String formatTemplate) {
+
       _formatTemplate = formatTemplate;
-      _useAbsoluteDistance = useAbsoluteDistance;
-      _useDescription = useDescription;
 
       _isGPX = formatTemplate.toLowerCase().contains("gpx");
       _isTCX = formatTemplate.toLowerCase().contains("tcx");
@@ -162,17 +159,18 @@ public class TourExporter {
                        final boolean isCourse,
                        final String courseName) {
 
-      this(formatTemplate, useAbsoluteDistance, useDescription);
+      this(formatTemplate);
 
-      _useAbsoluteDistance = useAbsoluteDistance;
+      setUseAbsoluteDistance(useAbsoluteDistance);
+      setUseDescription(useDescription);
       _isExportWithBarometer = isExportWithBarometer;
       _isCamouflageSpeed = isCamouflageSpeed;
       _camouflageSpeed = camouflageSpeed;
       _isRange = isRange;
       _tourStartIndex = tourStartIndex;
       _tourEndIndex = tourEndIndex;
-      _useActivityType = useActivityType;
-      _activityType = activityType;
+      setUseActivityType(useActivityType);
+      setActivityType(activityType);
 
       //For GPX
       _IsExportSurfingWaves = isExportSurfingWaves;
@@ -878,6 +876,22 @@ public class TourExporter {
          e.printStackTrace();
       }
       return false;
+   }
+
+   public void setActivityType(final String activityType) {
+      _activityType = activityType;
+   }
+
+   public void setUseAbsoluteDistance(final boolean useAbsoluteDistance) {
+      _useAbsoluteDistance = useAbsoluteDistance;
+   }
+
+   public void setUseActivityType(final boolean useActivityType) {
+      _useActivityType = useActivityType;
+   }
+
+   public void setUseDescription(final boolean useDescription) {
+      _useDescription = useDescription;
    }
 
    public TourExporter useTourData(final TourData tourData) {

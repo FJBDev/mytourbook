@@ -41,6 +41,7 @@ import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
+import net.tourbook.data.TourType;
 import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
@@ -191,10 +192,19 @@ public class StravaUploader extends TourbookCloudUploader {
 
    private String processTour(final TourData tourData, final String absoluteTourFilePath) {
 
-      final TourExporter tourExporter = new TourExporter(
-            ExportTourTCX.TCX_2_0_TEMPLATE,
-            true,
-            true).useTourData(tourData);
+      final TourExporter tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(tourData);
+
+      tourExporter.setUseAbsoluteDistance(true);
+      tourExporter.setUseDescription(true);
+      tourExporter.setUseActivityType(true);
+
+      final TourType tourType = tourData.getTourType();
+      if (tourType != null) {
+         tourExporter.setActivityType(tourType.getName());
+      }
+
+      //TODO FB what if the tour type doesn't exist ? Do we need to have the tour type be one of the values offered by Strava ?
+      //If yes, make a mapping
 
       tourExporter.export(absoluteTourFilePath);
 

@@ -18,6 +18,7 @@ package exportdata.garmin.tcx;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import net.tourbook.data.TourData;
+import net.tourbook.data.TourType;
 import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 
@@ -38,7 +39,12 @@ public class ExportTcxTester {
    @Test
    void testTcxExport() {
 
+      //TODO Fix : the pop up to confirm the overwrite of files doesn't seem to work anymore
+      //
       final TourData tour = Initializer.importTour();
+      final TourType tourType = new TourType();
+      tourType.setName("Running");
+      tour.setTourType(tourType);
 
       final TourExporter tourExporter = new TourExporter(
             ExportTourTCX.TCX_2_0_TEMPLATE,
@@ -49,8 +55,8 @@ public class ExportTcxTester {
             0, //final int tourStartIndex,
             0, //final int tourEndIndex,
             false, //final boolean isExportWithBarometer,
-            false, //final boolean useActivityType,
-            "", //final String activityType,
+            true, //final boolean useActivityType,
+            tour.getTourType().getName(), //final String activityType,
             true, //final boolean useDescription,
             false, //final boolean isExportSurfingWaves,
             true, //final boolean isExportAllTourData,
