@@ -74,7 +74,7 @@ public class ExportGpxTester {
    @Test
    void testGpxExportAllOptions() {
 
-      final String controlTourFileName = "LongsPeak-AllOptions.gpx";
+      final String controlTourFileName = "LongsPeak-AllOptions-RelativeDistance.gpx";
 
       _tourExporter.setUseAbsoluteDistance(true);
 

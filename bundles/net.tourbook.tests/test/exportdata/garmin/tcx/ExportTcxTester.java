@@ -72,9 +72,17 @@ public class ExportTcxTester {
    }
 
    @Test
-   void testTcxExportAllOptions() {
+   void testTcxExportCamouflage15KmHBikingActivity() {
 
-      final String controlTourFileName = "LongsPeak-AllOptions.tcx";
+      final String controlTourFileName = "LongsPeak-CamouflageSpeed-15kmh-BikingActivity.tcx";
+
+      executeTest(controlTourFileName);
+   }
+
+   @Test
+   void testTcxExportCourse() {
+
+      final String controlTourFileName = "LongsPeak-Course.tcx";
 
       executeTest(controlTourFileName);
    }
@@ -91,6 +99,14 @@ public class ExportTcxTester {
 
       //TODO FB Maybe implement the setters as it will be useful when doing a test with setIsCamoufalge Speed.
       // instead of recreating the whole TouRExporter
+
+      executeTest(controlTourFileName);
+   }
+
+   @Test
+   void testTcxExportHikingActivity() {
+
+      final String controlTourFileName = "LongsPeak-HikingActivity.tcx";
 
       executeTest(controlTourFileName);
    }
