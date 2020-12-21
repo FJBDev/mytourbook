@@ -205,9 +205,6 @@ public class StravaUploader extends TourbookCloudUploader {
          tourExporter.setActivityType(tourType.getName());
       }
 
-      //TODO FB what if the tour type doesn't exist ? Do we need to have the tour type be one of the values offered by Strava ?
-      //If yes, make a mapping
-
       tourExporter.export(absoluteTourFilePath);
 
       return gzipFile(absoluteTourFilePath);
