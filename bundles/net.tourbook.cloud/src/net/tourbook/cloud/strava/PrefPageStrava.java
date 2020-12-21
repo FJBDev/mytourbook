@@ -144,7 +144,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
    private void createUI_20_AccountInformation(final Composite parent) {
 
-      //TODO FB at times the labels are all funky and the name is sometimes empty !??!
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       group.setText(Messages.PrefPage_Account_Information_Group);
@@ -155,11 +154,11 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          GridDataFactory.fillDefaults().applyTo(_labelAthleteName);
 
          _athleteFullName = new Label(group, SWT.NONE);
-         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.FILL).applyTo(_athleteFullName);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_athleteFullName);
 
          _labelAthleteWebPage = new Label(group, SWT.NONE);
          _labelAthleteWebPage.setText(Messages.PrefPage_Account_Information_AthleteWebPage_Label);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAthleteWebPage);
+         GridDataFactory.fillDefaults().applyTo(_labelAthleteWebPage);
 
          _athleteWebPageLink = new Link(group, SWT.NONE);
          _athleteWebPageLink.setEnabled(true);
@@ -277,6 +276,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    }
 
    private void restoreState() {
+
       _accessToken.setText(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN));
       _refreshToken.setText(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
       _athleteFullName.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
