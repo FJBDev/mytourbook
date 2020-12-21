@@ -17,7 +17,6 @@ package net.tourbook.cloud.strava;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
@@ -50,15 +49,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String ATHLETE_FULL_NAME = "athleteFullName";                          //$NON-NLS-1$
+   public static final String ID         = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
 
-   private static final String ATHLETE_ID        = "athleteId";                                //$NON-NLS-1$
-
-   private static final String EXPIRES_AT        = "expires_at";                               //$NON-NLS-1$
-
-   public static final String  ID                = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
-
-   private IPreferenceStore    _prefStore        = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
 
    /*
     * UI controls
@@ -206,33 +199,39 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       final OAuth2Client client = new OAuth2Client();
 
       client.setAuthorizeUrl(StravaUploader.HerokuAppUrl + "/authorize"); //$NON-NLS-1$
-      client.setRedirectUri("http://mytourbook.sourceforge.net/mytourbook"); //$NON-NLS-1$
+      client.setRedirectUri("http://localhost:5000"); //$NON-NLS-1$
 
       final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client, "Strava"); //$NON-NLS-1$
       if (oAuth2Browser.open() != Window.OK) {
          return;
       }
 
-      final String accessToken = oAuth2Browser.getAccessToken();
-      final String refreshToken = oAuth2Browser.getRefreshToken();
-      final String dialogMessage = StringUtils.isNullOrEmpty(accessToken) ? NLS.bind(
-            Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
-            oAuth2Browser.getResponse()) : Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
+      final String authorizationCode = oAuth2Browser.getAuthorizationCode();
 
-      final Map<String, String> responseContent = oAuth2Browser.getResponseContent();
+      String dialogMessage;
+      if (StringUtils.isNullOrEmpty(authorizationCode)) {
+         dialogMessage = NLS.bind(
+               Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
+               oAuth2Browser.getResponse());
+      } else {
+         final Tokens newTokens = StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
 
-      _accessToken.setText(accessToken);
-      _refreshToken.setText(refreshToken);
-      if (responseContent.containsKey(ATHLETE_FULL_NAME)) {
-         _athleteFullName.setText(responseContent.get(ATHLETE_FULL_NAME));
-      }
-      if (responseContent.containsKey(ATHLETE_ID)) {
-         _athleteId = responseContent.get(ATHLETE_ID);
-         _athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_athleteId));
-      }
-      if (responseContent.containsKey(EXPIRES_AT)) {
-         _accessTokenExpiresAt = Long.valueOf(responseContent.get(EXPIRES_AT));
-         _labelAccessTokenExpiresAt.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
+         if (newTokens != null) {
+
+            _accessToken.setText(newTokens.getAccess_token());
+            _refreshToken.setText(newTokens.getRefresh_token());
+            _accessTokenExpiresAt = newTokens.getExpires_at();
+            _labelAccessTokenExpiresAt.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
+
+            final Athlete athlete = newTokens.getAthlete();
+            if (athlete != null) {
+               _athleteFullName.setText(athlete.getFirstName() + UI.SPACE1 + athlete.getLastName());
+               _athleteId = athlete.getId();
+               _athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_athleteId));
+            }
+         }
+
+         dialogMessage = Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
       }
 
       MessageDialog.openInformation(

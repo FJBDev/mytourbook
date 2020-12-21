@@ -79,6 +79,38 @@ public class StravaUploader extends TourbookCloudUploader {
       super("STRAVA", Messages.VendorName_Strava); //$NON-NLS-1$
    }
 
+   public static Tokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+
+      String body;
+      if (isRefreshToken) {
+         body = "{\"refresh_token\" : \"" + refreshToken + "\"}"; //$NON-NLS-1$  //$NON-NLS-2$
+      } else
+
+      {
+         body = "{\"code\" : \"" + authorizationCode + "\"}";//$NON-NLS-1$  //$NON-NLS-2$
+      }
+
+      final HttpRequest request = HttpRequest.newBuilder()
+            .header("Content-Type", "application/json") //$NON-NLS-1$ //$NON-NLS-2$
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .uri(URI.create(HerokuAppUrl + "/token"))//$NON-NLS-1$
+            .build();
+
+      try {
+         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
+            final Tokens token = new ObjectMapper().readValue(response.body(), Tokens.class);
+
+            return token;
+         }
+      } catch (IOException | InterruptedException e) {
+         e.printStackTrace();
+      }
+
+      return null;
+   }
+
    private static String gzipFile(final String file) {
 
       final String compressedFilePath = file + ".gz"; //$NON-NLS-1$
@@ -134,10 +166,6 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
    }
 
-   private long getAcessTokenExpirationDate() {
-      return _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
-   }
-
 //   /**
 //    * Retrieving the activity Id after the uploaded activity was created.
 //    * Note: Maybe we don't want to do that as it is possible that activities are not fully processed
@@ -170,6 +198,10 @@ public class StravaUploader extends TourbookCloudUploader {
 //
 //      return UI.EMPTY_STRING;
 //   }
+
+   private long getAcessTokenExpirationDate() {
+      return _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+   }
 
    private String getRefreshToken() {
       return _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
@@ -228,27 +260,12 @@ public class StravaUploader extends TourbookCloudUploader {
          return;
       }
 
-      final String body = "{\"refresh_token\" : \"" + getRefreshToken() + "\"}"; //$NON-NLS-1$  //$NON-NLS-2$
-      final HttpRequest request = HttpRequest.newBuilder()
-            .header("Content-Type", "application/json") //$NON-NLS-1$ //$NON-NLS-2$
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .uri(URI.create(HerokuAppUrl + "/refreshToken"))//$NON-NLS-1$
-            .build();
+      final Tokens newTokens = getTokens(UI.EMPTY_STRING, true, getRefreshToken());
 
-      try {
-         final java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-
-         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
-            final ObjectMapper mapper = new ObjectMapper();
-            final Token result2 = mapper.readValue(response.body(),
-                  Token.class);
-
-            setAccessTokenExpirationDate(result2.getExpires_at());
-            setRefreshToken(result2.getRefresh_token());
-            setAccessToken(result2.getAccess_token());
-         }
-      } catch (IOException | InterruptedException e) {
-         e.printStackTrace();
+      if (newTokens != null) {
+         setAccessTokenExpirationDate(newTokens.getExpires_at());
+         setRefreshToken(newTokens.getRefresh_token());
+         setAccessToken(newTokens.getAccess_token());
       }
    }
 

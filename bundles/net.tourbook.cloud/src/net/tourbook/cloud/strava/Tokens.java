@@ -18,10 +18,12 @@ package net.tourbook.cloud.strava;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Token {
+public class Tokens {
+
    private long   expires_at;
    private String refresh_token;
    private String access_token;
+   Athlete        athlete;
 
    public String getAccess_token() {
       return access_token;
@@ -33,5 +35,9 @@ public class Token {
 
    public String getRefresh_token() {
       return refresh_token;
+   }
+
+   public Athlete getAthlete() {
+      return athlete;
    }
 }

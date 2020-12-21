@@ -60,6 +60,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.framework.Version;
 
 public class TourExporter {
+   //TODO FB the confirm dialog is broken and doesn't show up anymore TOFIX
    /*
     * Velocity (VC) context values
     */
