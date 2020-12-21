@@ -36,6 +36,8 @@ import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
 public class Comparison {
 
@@ -79,6 +81,20 @@ public class Comparison {
       }
 
       Assertions.assertTrue(result.passed(), result.getMessage());
+   }
+
+   public static void compareXmlAgainstControl(final String controlTourFilePath, final String testTourFilePath) {
+
+      final String controlTour = Comparison.readFileContent(controlTourFilePath);
+      final String testTour = Comparison.readFileContent(testTourFilePath);
+
+      final Diff documentDiff = DiffBuilder
+            .compare(controlTour)
+            .withTest(testTour)
+//            .withNodeFilter(node -> !node.getNodeName().equals("someName"))
+            .build();
+
+      Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());
    }
 
    public static String readFileContent(final String controlDocumentFileName) {

@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ExportTourGPX extends ExportTourExtension {
 
-   private static final String GPX_1_0_TEMPLATE = "/format-templates/gpx-1.0.vm"; //$NON-NLS-1$
+   public static final String GPX_1_0_TEMPLATE = "/format-templates/gpx-1.0.vm"; //$NON-NLS-1$
 
    /**
     * plugin extension constructor
