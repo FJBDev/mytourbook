@@ -10,7 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.tourbook.ext.jars,
  net.tourbook.ext.velocity
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: net.tourbook.ext.velocity
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .,
@@ -24,9 +23,9 @@ Import-Package: com.fasterxml.jackson.core,
  net.tourbook.application,
  net.tourbook.data,
  net.tourbook.export,
+ net.tourbook.ext.velocity,
  net.tourbook.extension.upload,
  net.tourbook.tour,
- net.tourbook.ext.velocity,
  net.tourbook.web,
  org.apache.commons.io,
  org.apache.http,
@@ -39,7 +38,5 @@ Import-Package: com.fasterxml.jackson.core,
  org.apache.http.impl.client,
  org.apache.http.message,
  org.apache.http.util,
- org.apache.velocity,
- org.apache.velocity.app,
  org.json
 Automatic-Module-Name: net.tourbook.cloud

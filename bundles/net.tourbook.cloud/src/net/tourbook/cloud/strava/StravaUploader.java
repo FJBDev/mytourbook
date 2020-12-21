@@ -44,6 +44,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
+import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
@@ -74,9 +75,16 @@ public class StravaUploader extends TourbookCloudUploader {
    public static final String      HerokuAppUrl   = "https://passeur-mytourbook-strava.herokuapp.com";
 
    private static IPreferenceStore _prefStore     = Activator.getDefault().getPreferenceStore();
+   private static TourExporter     _tourExporter  = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE);
 
    public StravaUploader() {
       super("STRAVA", Messages.VendorName_Strava); //$NON-NLS-1$
+
+      _tourExporter.setUseAbsoluteDistance(true);
+      _tourExporter.setUseDescription(true);
+
+      // initialize velocity
+      VelocityService.init();
    }
 
    public static Tokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
@@ -226,18 +234,20 @@ public class StravaUploader extends TourbookCloudUploader {
 
    private String processTour(final TourData tourData, final String absoluteTourFilePath) {
 
-      final TourExporter tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(tourData);
-
-      tourExporter.setUseAbsoluteDistance(true);
-      tourExporter.setUseDescription(true);
+      _tourExporter.useTourData(tourData);
 
       final TourType tourType = tourData.getTourType();
-      if (tourType != null) {
-         tourExporter.setUseActivityType(true);
-         tourExporter.setActivityType(tourType.getName());
-      }
 
-      tourExporter.export(absoluteTourFilePath);
+      boolean useActivityType = false;
+      String activityName = UI.EMPTY_STRING;
+      if (tourType != null) {
+         useActivityType = true;
+         activityName = tourType.getName();
+      }
+      _tourExporter.setUseActivityType(useActivityType);
+      _tourExporter.setActivityType(activityName);
+
+      _tourExporter.export(absoluteTourFilePath);
 
       return gzipFile(absoluteTourFilePath);
    }
@@ -336,7 +346,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
                //Check that a tour has a non empty time serie to avoid this Strava error
                //"error": "Time information is missing from file.
-               //TODO? V2: Create activities without timeseries using this API endpoint :
+               //TODO ? V2: Create activities without timeseries using this API endpoint :
                //https://developers.strava.com/playground/#/Activities/createActivity
                if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
 
@@ -344,8 +354,6 @@ public class StravaUploader extends TourbookCloudUploader {
                   monitor.worked(2);
                   continue;
                }
-
-               //TODO FB Why the .vm file doens't get loaded but works if I have just exported a TCX file ?!
 
                final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
 
