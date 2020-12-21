@@ -52,7 +52,7 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  each file system requires a unique id
+                  each cloud uploader requires a unique id
                </documentation>
             </annotation>
          </attribute>
