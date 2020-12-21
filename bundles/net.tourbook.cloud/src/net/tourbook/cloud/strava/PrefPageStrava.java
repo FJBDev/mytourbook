@@ -66,16 +66,16 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    private Label  _labelAthleteName;
    private Label  _athleteFullName;
    private Label  _labelAthleteWebPage;
-   private Link   athleteWebPageLink;
+   private Link   _athleteWebPageLink;
    private Label  _labelAccessToken;
    private Label  _accessToken;
    private Label  _labelRefreshToken;
    private Label  _refreshToken;
    private Label  _labelExpiresAt;
-   private Label  _accessTokenExpiresAt;
+   private Label  _labelAccessTokenExpiresAt;
 
-   private String athleteId;
-   private long   accessTokenExpiresAt;
+   private String _athleteId;
+   private long   _accessTokenExpiresAt;
 
    private String constructAthleteWebPageLink(final String athleteId) {
       if (StringUtils.hasContent(athleteId)) {
@@ -160,15 +160,15 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _labelAthleteWebPage.setText(Messages.PrefPage_Account_Information_AthleteWebPage_Label);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAthleteWebPage);
 
-         athleteWebPageLink = new Link(group, SWT.NONE);
-         athleteWebPageLink.setEnabled(true);
-         athleteWebPageLink.addSelectionListener(new SelectionAdapter() {
+         _athleteWebPageLink = new Link(group, SWT.NONE);
+         _athleteWebPageLink.setEnabled(true);
+         _athleteWebPageLink.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
-               WEB.openUrl(constructAthleteWebPageLink(athleteId));
+               WEB.openUrl(constructAthleteWebPageLink(_athleteId));
             }
          });
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(athleteWebPageLink);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_athleteWebPageLink);
 
          _labelAccessToken = new Label(group, SWT.NONE);
          _labelAccessToken.setText(Messages.PrefPage_Account_Information_AccessToken_Label);
@@ -188,8 +188,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _labelExpiresAt.setText(Messages.PrefPage_Account_Information_ExpiresAt_Label);
          GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
-         _accessTokenExpiresAt = new Label(group, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(_accessTokenExpiresAt);
+         _labelAccessTokenExpiresAt = new Label(group, SWT.NONE);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAccessTokenExpiresAt);
       }
    }
 
@@ -227,12 +227,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _athleteFullName.setText(responseContent.get(ATHLETE_FULL_NAME));
       }
       if (responseContent.containsKey(ATHLETE_ID)) {
-         athleteId = responseContent.get(ATHLETE_ID);
-         athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
+         _athleteId = responseContent.get(ATHLETE_ID);
+         _athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       }
       if (responseContent.containsKey(EXPIRES_AT)) {
-         accessTokenExpiresAt = Long.valueOf(responseContent.get(EXPIRES_AT));
-         _accessTokenExpiresAt.setText(constructLocalExpireAtDateTime(accessTokenExpiresAt));
+         _accessTokenExpiresAt = Long.valueOf(responseContent.get(EXPIRES_AT));
+         _labelAccessTokenExpiresAt.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
       }
 
       MessageDialog.openInformation(
@@ -249,10 +249,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _accessToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN));
       _refreshToken.setText(_prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN));
       _athleteFullName.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      athleteId = _prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID);
-      athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
-      accessTokenExpiresAt = _prefStore.getDefaultLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
-      _accessTokenExpiresAt.setText(constructLocalExpireAtDateTime(accessTokenExpiresAt));
+      _athleteId = _prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID);
+      _athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_athleteId));
+      _accessTokenExpiresAt = _prefStore.getDefaultLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _labelAccessTokenExpiresAt.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
 
       UpdateButtonConnectState();
 
@@ -268,8 +268,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, _accessToken.getText());
          _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _refreshToken.getText());
          _prefStore.setValue(IPreferences.STRAVA_ATHLETEFULLNAME, _athleteFullName.getText());
-         _prefStore.setValue(IPreferences.STRAVA_ATHLETEID, athleteId);
-         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, accessTokenExpiresAt);
+         _prefStore.setValue(IPreferences.STRAVA_ATHLETEID, _athleteId);
+         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
       }
 
       return isOK;
@@ -279,10 +279,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _accessToken.setText(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN));
       _refreshToken.setText(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
       _athleteFullName.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      athleteId = _prefStore.getString(IPreferences.STRAVA_ATHLETEID);
-      athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(athleteId));
-      accessTokenExpiresAt = _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
-      _accessTokenExpiresAt.setText(constructLocalExpireAtDateTime(accessTokenExpiresAt));
+      _athleteId = _prefStore.getString(IPreferences.STRAVA_ATHLETEID);
+      _athleteWebPageLink.setText(constructAthleteWebPageLinkWithTags(_athleteId));
+      _accessTokenExpiresAt = _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _labelAccessTokenExpiresAt.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
 
       UpdateButtonConnectState();
    }
@@ -293,12 +293,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       _athleteFullName.setEnabled(isAuthorized);
       _labelAthleteWebPage.setEnabled(isAuthorized);
-      athleteWebPageLink.setEnabled(isAuthorized);
+      _athleteWebPageLink.setEnabled(isAuthorized);
       _labelAthleteName.setEnabled(isAuthorized);
       _labelAccessToken.setEnabled(isAuthorized);
       _labelRefreshToken.setEnabled(isAuthorized);
       _refreshToken.setEnabled(isAuthorized);
-      _accessTokenExpiresAt.setEnabled(isAuthorized);
+      _labelAccessTokenExpiresAt.setEnabled(isAuthorized);
       _labelExpiresAt.setEnabled(isAuthorized);
    }
 }
