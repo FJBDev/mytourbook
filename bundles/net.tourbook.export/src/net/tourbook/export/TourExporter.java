@@ -164,6 +164,7 @@ public class TourExporter {
       setUseAbsoluteDistance(useAbsoluteDistance);
       setUseDescription(useDescription);
       setIsExportWithBarometer(isExportWithBarometer);
+      setIsCamouflageSpeed(isCamouflageSpeed);
       setCamouflageSpeed(camouflageSpeed);
       _camouflageSpeed = camouflageSpeed;
       _isRange = isRange;
