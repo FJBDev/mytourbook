@@ -70,7 +70,7 @@ public class TourExporter {
 
    private static final String            VC_TOUR_MARKERS            = "tourMarkers";                                      //$NON-NLS-1$
    private static final String            VC_TRACKS                  = "tracks";                                           //$NON-NLS-1$
-   private static final String            VC_WAY_POINTS              = "wayPoints";
+   private static final String            VC_WAY_POINTS              = "wayPoints"; //$NON-NLS-1$
    private static final String            VC_LAP                     = "lap";                                              //$NON-NLS-1$
    private static final String            VC_TOUR_DATA               = "tourData";                                         //$NON-NLS-1$
 
@@ -139,8 +139,8 @@ public class TourExporter {
 
       _formatTemplate = formatTemplate;
 
-      _isGPX = formatTemplate.toLowerCase().contains("gpx");
-      _isTCX = formatTemplate.toLowerCase().contains("tcx");
+      _isGPX = formatTemplate.toLowerCase().contains("gpx"); //$NON-NLS-1$
+      _isTCX = formatTemplate.toLowerCase().contains("tcx"); //$NON-NLS-1$
    }
 
    public TourExporter(final String formatTemplate,
