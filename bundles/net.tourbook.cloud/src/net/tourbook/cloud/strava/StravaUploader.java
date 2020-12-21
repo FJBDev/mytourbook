@@ -354,7 +354,8 @@ public class StravaUploader extends TourbookCloudUploader {
 
                // Send TCX.gz file
                final ActivityUpload activityUpload = uploadFile(compressedTourAbsoluteFilePath, tourData);
-
+//TODO FB async
+               //   https: //hc.apache.org/httpcomponents-asyncclient-dev/quickstart.html
                if (monitor.isCanceled()) {
                   break;
                }

@@ -117,7 +117,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    private void createUI_10_Connect(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
+      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
+      GridLayoutFactory.fillDefaults().applyTo(container);
       {
          /*
           * Connect button
@@ -128,7 +129,6 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          // No variations or modifications are acceptable."
 
          final Button buttonConnect = new Button(container, SWT.NONE);
-         GridDataFactory.fillDefaults().applyTo(buttonConnect);
          final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
          buttonConnect.setImage(imageConnect);
          buttonConnect.addSelectionListener(new SelectionAdapter() {
@@ -138,12 +138,13 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                onClickAuthorize();
             }
          });
-         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(buttonConnect);
+         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, true).applyTo(buttonConnect);
       }
    }
 
    private void createUI_20_AccountInformation(final Composite parent) {
 
+      //TODO FB at times the labels are all funky and the name is sometimes empty !??!
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       group.setText(Messages.PrefPage_Account_Information_Group);
