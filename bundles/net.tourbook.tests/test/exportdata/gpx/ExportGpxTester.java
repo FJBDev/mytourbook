@@ -72,7 +72,17 @@ public class ExportGpxTester {
    }
 
    @Test
-   void testTcxExportDescriptionAndActivity() {
+   void testGpxExportAllOptions() {
+
+      final String controlTourFileName = "LongsPeak-AllOptions.gpx";
+
+      _tourExporter.setUseAbsoluteDistance(true);
+
+      executeTest(controlTourFileName);
+   }
+
+   @Test
+   void testGpxExportDescriptionAndActivity() {
 
       final String controlTourFileName = "LongsPeak-AbsoluteDistance.gpx";
 

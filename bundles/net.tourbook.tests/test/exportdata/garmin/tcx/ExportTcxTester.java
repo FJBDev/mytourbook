@@ -72,6 +72,14 @@ public class ExportTcxTester {
    }
 
    @Test
+   void testTcxExportAllOptions() {
+
+      final String controlTourFileName = "LongsPeak-AllOptions.tcx";
+
+      executeTest(controlTourFileName);
+   }
+
+   @Test
    void testTcxExportDescriptionAndActivity() {
 
       final String controlTourFileName = "LongsPeak-Description-RunningActivity.tcx"; //$NON-NLS-1$
