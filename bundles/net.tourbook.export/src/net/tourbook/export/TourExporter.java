@@ -174,7 +174,7 @@ public class TourExporter {
 
       //For GPX
       _IsExportSurfingWaves = isExportSurfingWaves;
-      _isExportAllTourData = isExportAllTourData;
+      setIsExportAllTourData(isExportAllTourData);
 
       //For TCX
       _isCourse = isCourse;
@@ -898,5 +898,9 @@ public class TourExporter {
       _tourData = tourData;
 
       return this;
+   }
+
+   public void setIsExportAllTourData(boolean _isExportAllTourData) {
+      this._isExportAllTourData = _isExportAllTourData;
    }
 }

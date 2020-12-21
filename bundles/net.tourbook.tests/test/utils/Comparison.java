@@ -52,13 +52,7 @@ public class Comparison {
    public static void compareTourDataAgainstControl(final TourData testTourData,
                                                     final String controlFileName) {
 
-      final String controlDocumentFilePath = Paths.get(controlFileName + JSON).toAbsolutePath().toString();
-      String controlDocument = UI.EMPTY_STRING;
-      try {
-         controlDocument = Files.readString(Paths.get(controlDocumentFilePath), StandardCharsets.US_ASCII);
-      } catch (final IOException e) {
-         e.printStackTrace();
-      }
+      final String controlDocument = readFileContent(controlFileName + JSON);
 
       testTourData.getTourMarkersSorted();
       final String testJson = testTourData.toJson();
@@ -85,6 +79,19 @@ public class Comparison {
       }
 
       Assertions.assertTrue(result.passed(), result.getMessage());
+   }
+
+   public static String readFileContent(final String controlDocumentFileName) {
+
+      final String controlDocumentFilePath = Paths.get(controlDocumentFileName).toAbsolutePath().toString();
+
+      String controlDocument = UI.EMPTY_STRING;
+      try {
+         controlDocument = Files.readString(Paths.get(controlDocumentFilePath), StandardCharsets.US_ASCII);
+      } catch (final IOException e) {
+         e.printStackTrace();
+      }
+      return controlDocument;
    }
 
    public static TourData retrieveImportedTour(final Map<Long, TourData> newlyImportedTours) {

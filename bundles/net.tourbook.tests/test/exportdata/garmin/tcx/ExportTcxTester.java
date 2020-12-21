@@ -15,7 +15,9 @@
  *******************************************************************************/
 package exportdata.garmin.tcx;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
@@ -23,22 +25,23 @@ import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
+import utils.Comparison;
 import utils.Initializer;
 
 public class ExportTcxTester {
 
-   private static final String IMPORT_PATH = "/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
+   private static final String IMPORT_PATH       = "test/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
+   private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";
 
-   public void compareTcxAgainstControl(final TourData testTourData,
-                                        final String controlFileName) {
-      assertEquals(true, false);
-   }
+   private static TourExporter _tourExporter;
 
-   @Test
-   void testTcxExport() {
-
+   @BeforeAll
+   static void initAll() {
       //TODO Fix : the pop up to confirm the overwrite of files doesn't seem to work anymore
       //
       final TourData tour = Initializer.importTour();
@@ -46,25 +49,46 @@ public class ExportTcxTester {
       tourType.setName("Running");
       tour.setTourType(tourType);
 
-      final TourExporter tourExporter = new TourExporter(
-            ExportTourTCX.TCX_2_0_TEMPLATE,
-            true, //final boolean useAbsoluteDistance,
-            false, //final boolean isCamouflageSpeed,
-            0, //final float camouflageSpeed,
-            false, //final boolean isRange,
-            0, //final int tourStartIndex,
-            0, //final int tourEndIndex,
-            false, //final boolean isExportWithBarometer,
-            true, //final boolean useActivityType,
-            tour.getTourType().getName(), //final String activityType,
-            true, //final boolean useDescription,
-            false, //final boolean isExportSurfingWaves,
-            true, //final boolean isExportAllTourData,
-            false, //final boolean isCourse,
-            "").useTourData(tour);//final String courseName) {
+      _tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(tour);
+      _tourExporter.setActivityType(tourType.getName());
+   }
+
+   private void compareTcxAgainstControl(final String controlTourFileName) {
+
+      _tourExporter.export(_testTourFilePath);
+
+      final String controlTour = Comparison.readFileContent(IMPORT_PATH + controlTourFileName);
+      final String testTour = Comparison.readFileContent(_testTourFilePath);
+
+      final Diff documentDiff = DiffBuilder
+            .compare(controlTour)
+            .withTest(testTour)
+//            .withNodeFilter(node -> !node.getNodeName().equals("someName"))
+            .build();
+
+      try {
+         Files.delete(Paths.get(_testTourFilePath));
+      } catch (final IOException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+
+      Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());
+   }
+
+   @Test
+   void testTcxExportDescriptionAndActivity() {
+
+      final String controlTourFileName = "LongsPeak-Description-RunningActivity.tcx";
+
+      _tourExporter.setUseAbsoluteDistance(true);
+      _tourExporter.setUseDescription(true);
+      _tourExporter.setUseActivityType(true);
+      _tourExporter.setIsExportAllTourData(true);
+
       //TODO FB Maybe implement the setters as it will be useful when doing a test with setIsCamoufalge Speed.
       // instead of recreating the whole TouRExporter
 
-      Assertions.assertTrue(tourExporter.export("/home/frederic/Desktop/toto.tcx"));
+      compareTcxAgainstControl(controlTourFileName);
    }
 }
