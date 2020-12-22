@@ -286,6 +286,35 @@ public class DialogExportTour extends TitleAreaDialog {
       VelocityService.init();
    }
 
+   private String appendSurfingParameters(final TourData minTourData) {
+
+      String postFilename = UI.EMPTY_STRING;
+
+      if (!_isSetup_GPX || !_chkGPX_SurfingWaves.getSelection()) {
+         return postFilename;
+      }
+
+      postFilename = String.format(
+
+            "__%d-%d-%d-%d", //$NON-NLS-1$
+
+            // min start/stop speed
+            minTourData.getSurfing_MinSpeed_StartStop(),
+
+            // min surfing speed
+            minTourData.getSurfing_MinSpeed_Surfing(),
+
+            // min time duration
+            minTourData.getSurfing_MinTimeDuration(),
+
+            // min distance
+            minTourData.isSurfing_IsMinDistance() ? minTourData.getSurfing_MinDistance() : 0
+
+      );
+
+      return postFilename;
+   }
+
    @Override
    public boolean close() {
 
@@ -942,7 +971,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
    }
 
-   private void doExport() throws IOException {
+   private void doExport() {
 
       // disable buttons
       getButton(IDialogConstants.OK_ID).setEnabled(false);
@@ -988,6 +1017,20 @@ public class DialogExportTour extends TitleAreaDialog {
       }
 
       final String exportFileName = _txtFilePath.getText();
+
+      boolean isOverwrite = true;
+      final File exportFile = new File(exportFileName);
+      if (exportFile.exists()) {
+         if (_exportState_IsOverwriteFiles) {
+            // overwrite is enabled in the UI
+         } else {
+            isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
+         }
+      }
+
+      if (isOverwrite == false) {
+         return;
+      }
 
       _tourExporter = new TourExporter(
             _formatTemplate,
@@ -1048,7 +1091,6 @@ public class DialogExportTour extends TitleAreaDialog {
          } catch (final InvocationTargetException | InterruptedException e) {
             StatusUtil.showStatus(e);
          }
-
       }
    }
 
@@ -1115,21 +1157,6 @@ public class DialogExportTour extends TitleAreaDialog {
           */
          monitor.subTask(NLS.bind(Messages.Dialog_Export_SubTask_CreatingExportFile, exportFileName));
 
-         boolean isOverwrite = true;
-
-         final File exportFile = new File(exportFileName);
-         if (exportFile.exists()) {
-            if (_exportState_IsOverwriteFiles) {
-               // overwrite is enabled in the UI
-            } else {
-               isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
-            }
-         }
-
-         if (!isOverwrite) {
-            return;
-         }
-
          _tourExporter.doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
 
       } else {
@@ -1141,11 +1168,9 @@ public class DialogExportTour extends TitleAreaDialog {
          final IPath exportFilePath = new Path(exportFileName).addTrailingSeparator();
          final String fileExtension = _exportExtensionPoint.getFileExtension();
 
-         for (final TourData tourData : _tourDataList) {
+         for (int index = 0; index < _tourDataList.size() && !monitor.isCanceled(); ++index) {
 
-            if (monitor.isCanceled()) {
-               break;
-            }
+            final TourData tourData = _tourDataList.get(index);
 
             // merge distance is also used as total distance for not merged tours
             _mergedDistance[0] = 0;
@@ -1297,11 +1322,7 @@ public class DialogExportTour extends TitleAreaDialog {
       BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
          @Override
          public void run() {
-            try {
-               doExport();
-            } catch (final IOException e) {
-               StatusUtil.log(e);
-            }
+            doExport();
          }
       });
 
@@ -1527,30 +1548,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
          // display the tour date/time
 
-         String postFilename = UI.EMPTY_STRING;
-
-         if (_isSetup_GPX && _chkGPX_SurfingWaves.getSelection()) {
-
-            // append surfing parameters
-
-            postFilename = String.format(
-
-                  "__%d-%d-%d-%d", //$NON-NLS-1$
-
-                  // min start/stop speed
-                  minTourData.getSurfing_MinSpeed_StartStop(),
-
-                  // min surfing speed
-                  minTourData.getSurfing_MinSpeed_Surfing(),
-
-                  // min time duration
-                  minTourData.getSurfing_MinTimeDuration(),
-
-                  // min distance
-                  minTourData.isSurfing_IsMinDistance() ? minTourData.getSurfing_MinDistance() : 0
-
-            );
-         }
+         final String postFilename = appendSurfingParameters(minTourData);
 
          _comboFile.setText(net.tourbook.ui.UI.format_yyyymmdd_hhmmss(minTourData) + postFilename);
       }

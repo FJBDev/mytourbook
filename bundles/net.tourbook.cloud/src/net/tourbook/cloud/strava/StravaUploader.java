@@ -39,6 +39,7 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
@@ -118,7 +119,7 @@ public class StravaUploader extends TourbookCloudUploader {
             return token;
          }
       } catch (IOException | InterruptedException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
 
       return null;
@@ -138,7 +139,7 @@ public class StravaUploader extends TourbookCloudUploader {
             gzipOS.write(buffer, 0, len);
          }
       } catch (final IOException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
          return UI.EMPTY_STRING;
       }
 
@@ -156,12 +157,10 @@ public class StravaUploader extends TourbookCloudUploader {
             Files.delete(filePath);
          }
 
-         final Path temp = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension);
-
-         absoluteFilePath = temp.toString();
+         absoluteFilePath = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension).toString();
 
       } catch (final IOException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
       return absoluteFilePath;
    }
@@ -171,7 +170,7 @@ public class StravaUploader extends TourbookCloudUploader {
       try {
          Files.delete(Paths.get(filePath));
       } catch (final IOException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
    }
 
@@ -318,7 +317,7 @@ public class StravaUploader extends TourbookCloudUploader {
             activityUpload.setError(content);
          }
       } catch (final IOException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
 
       return activityUpload;
@@ -428,7 +427,7 @@ public class StravaUploader extends TourbookCloudUploader {
                NLS.bind(Messages.Dialog_StravaUpload_Message, numberOfUploadedTours[0], numberOfTours - numberOfUploadedTours[0]));
 
       } catch (final InvocationTargetException | InterruptedException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
    }
 }

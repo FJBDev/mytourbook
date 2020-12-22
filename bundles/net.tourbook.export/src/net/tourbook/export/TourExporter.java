@@ -60,7 +60,6 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.framework.Version;
 
 public class TourExporter {
-   //TODO FB the confirm dialog is broken and doesn't show up anymore TOFIX
    /*
     * Velocity (VC) context values
     */
@@ -71,7 +70,7 @@ public class TourExporter {
 
    private static final String            VC_TOUR_MARKERS            = "tourMarkers";                                      //$NON-NLS-1$
    private static final String            VC_TRACKS                  = "tracks";                                           //$NON-NLS-1$
-   private static final String            VC_WAY_POINTS              = "wayPoints"; //$NON-NLS-1$
+   private static final String            VC_WAY_POINTS              = "wayPoints";                                        //$NON-NLS-1$
    private static final String            VC_LAP                     = "lap";                                              //$NON-NLS-1$
    private static final String            VC_TOUR_DATA               = "tourData";                                         //$NON-NLS-1$
 
