@@ -37,8 +37,8 @@ public class ExportTcxTester {
    private static final String IMPORT_PATH       = "test/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
    private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";       //$NON-NLS-1$
 
-   private static TourExporter _tourExporter;
    private static TourData     _tour;
+   private  TourExporter _tourExporter;
 
    @BeforeAll
    static void initAll() {

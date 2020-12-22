@@ -124,8 +124,7 @@ public class Comparison {
     */
    private static void writeErroneousFiles(final String controlFileName, final String testJson) {
 
-      final File myFile = new File(
-            controlFileName + ".json"); //$NON-NLS-1$
+      final File myFile = new File(controlFileName + JSON);
 
       try (Writer writer = new FileWriter(myFile);
             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {

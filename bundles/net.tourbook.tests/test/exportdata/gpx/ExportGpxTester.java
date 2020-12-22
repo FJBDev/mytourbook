@@ -26,6 +26,7 @@ import net.tourbook.export.TourExporter;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
@@ -36,18 +37,17 @@ public class ExportGpxTester {
    private static final String IMPORT_PATH       = "test/exportdata/gpx/files/"; //$NON-NLS-1$
    private static final String _testTourFilePath = IMPORT_PATH + "GPXExport.gpx";
 
-   private static TourExporter _tourExporter;
+   private static TourData     _tour;
+   private TourExporter        _tourExporter;
 
    @BeforeAll
    static void initAll() {
 
-      final TourData tour = Initializer.importTour();
+      _tour = Initializer.importTour();
       final TourType tourType = new TourType();
       tourType.setName("Running");
-      tour.setTourType(tourType);
+      _tour.setTourType(tourType);
 
-      _tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE).useTourData(tour);
-      _tourExporter.setActivityType(tourType.getName());
    }
 
    @AfterEach
@@ -61,6 +61,13 @@ public class ExportGpxTester {
       } catch (final IOException e) {
          e.printStackTrace();
       }
+   }
+
+   @BeforeEach
+   void beforeEach() {
+
+      _tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE).useTourData(_tour);
+      _tourExporter.setActivityType(_tour.getTourType().getName());
    }
 
    private void executeTest(final String controlTourFileName) {
