@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import org.skyscreamer.jsonassert.JSONCompareResult;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.Difference;
 
 public class Comparison {
 
@@ -78,7 +80,7 @@ public class Comparison {
       final JSONCompareResult result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
 
       if (result.failed()) {
-         writeErroneousFiles(controlFileName, testJson);
+         writeErroneousFiles(controlFileName + JSON, testJson);
       }
 
       Assertions.assertTrue(result.passed(), result.getMessage());
@@ -96,10 +98,12 @@ public class Comparison {
             .withNodeFilter(node -> !nodesToFilter.contains(node.getNodeName()))
             .build();
 
-      //TODO FB leverage
-      //  if (result.failed()) {
-      //    writeErroneousFiles(controlFileName, testJson);
-      //  }
+      if (documentDiff.hasDifferences()) {
+         final Iterable<Difference> differences = documentDiff.getDifferences();
+         if (((Collection<?>) differences).size() > 1 && !differences.iterator().next().getComparison().toString().contains("Cadence")) {
+            writeErroneousFiles(controlTourFilePath, testTour);
+         }
+      }
 
       Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());
    }
@@ -126,16 +130,16 @@ public class Comparison {
     * Code useful when the tests fail and one wants to be able to compare the expected vs actual
     * file
     *
-    * @param controlFileName
-    * @param testJson
+    * @param controlFilePath
+    * @param testContent
     */
-   private static void writeErroneousFiles(final String controlFileName, final String testJson) {
+   private static void writeErroneousFiles(final String controlFilePath, final String testContent) {
 
-      final File myFile = new File(controlFileName + JSON);
+      final File myFile = new File(controlFilePath);
 
       try (Writer writer = new FileWriter(myFile);
             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
-         bufferedWriter.write(testJson);
+         bufferedWriter.write(testContent);
       } catch (final IOException e) {
          e.printStackTrace();
       }

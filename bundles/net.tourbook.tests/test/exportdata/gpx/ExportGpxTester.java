@@ -90,7 +90,8 @@ public class ExportGpxTester {
       _tourExporter.setIsExportSurfingWaves(true);
       _tourExporter.setIsExportWithBarometer(true);
       _tourExporter.setIsCamouflageSpeed(true);
-      _tourExporter.setCamouflageSpeed(15f);
+      _tourExporter.setCamouflageSpeed(15 / 3.6f);
+      _tour.setBodyWeight(77.7f);
 
       executeTest(controlTourFileName);
    }

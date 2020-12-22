@@ -69,8 +69,7 @@ public class ExportTcxTester {
 
       _tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(_tour);
       _tourExporter.setActivityType(_tour.getTourType().getName());
-      // .tcx files always contain absolute distances
-      _tourExporter.setUseAbsoluteDistance(true);
+
    }
 
    private void executeTest(final String controlTourFileName) {
@@ -89,7 +88,7 @@ public class ExportTcxTester {
       _tourExporter.setUseActivityType(true);
       _tourExporter.setActivityType("Biking");
       _tourExporter.setIsCamouflageSpeed(true);
-      _tourExporter.setCamouflageSpeed(15f);
+      _tourExporter.setCamouflageSpeed(15 / 3.6f);
 
       executeTest(controlTourFileName);
    }

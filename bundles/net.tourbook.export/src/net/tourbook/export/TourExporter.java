@@ -141,10 +141,12 @@ public class TourExporter {
 
       _isGPX = formatTemplate.toLowerCase().contains("gpx"); //$NON-NLS-1$
       _isTCX = formatTemplate.toLowerCase().contains("tcx"); //$NON-NLS-1$
+
+      // .tcx files always contain absolute distances
+      setUseAbsoluteDistance(true);
    }
 
    public TourExporter(final String formatTemplate,
-                       final boolean useAbsoluteDistance,
                        final boolean isCamouflageSpeed,
                        final float camouflageSpeed,
                        final boolean isRange,
@@ -161,7 +163,6 @@ public class TourExporter {
 
       this(formatTemplate);
 
-      setUseAbsoluteDistance(useAbsoluteDistance);
       setUseDescription(useDescription);
       setIsExportWithBarometer(isExportWithBarometer);
       setIsCamouflageSpeed(isCamouflageSpeed);

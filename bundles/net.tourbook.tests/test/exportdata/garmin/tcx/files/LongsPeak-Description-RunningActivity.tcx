@@ -6604,6 +6604,7 @@
 					</Trackpoint>
 				</Track>
 			</Lap>
+			<Notes><![CDATA[Jog to Longs Peak]]></Notes>
             <Creator xsi:type="Device_t">
               <Name>MyTourbook 20.12.0.qualifier - http://mytourbook.sourceforge.net</Name>
               <UnitId>0</UnitId>

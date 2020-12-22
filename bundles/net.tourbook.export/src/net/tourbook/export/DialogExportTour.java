@@ -1004,9 +1004,6 @@ public class DialogExportTour extends TitleAreaDialog {
 
       } else if (_isSetup_TCX) {
 
-         // .tcx files always contain absolute distances
-         _exportState_isAbsoluteDistance = true;
-
          _exportState_IsDescription = _chkTCX_Description.getSelection();
 
          _exportState_TCX_IsActivities = _rdoTCX_Activities.getSelection();
@@ -1034,7 +1031,6 @@ public class DialogExportTour extends TitleAreaDialog {
 
       _tourExporter = new TourExporter(
             _formatTemplate,
-            _exportState_isAbsoluteDistance,
             _exportState_IsCamouflageSpeed,
             _exportState_CamouflageSpeed,
             _exportState_IsRange,
@@ -1048,6 +1044,10 @@ public class DialogExportTour extends TitleAreaDialog {
             _exportState_GPX_IsExportAllTourData,
             _exportState_TCX_IsCourses,
             _exportState_TCX_CourseName);
+
+      if (_exportState_isAbsoluteDistance) {
+         _tourExporter.setUseAbsoluteDistance(true);
+      }
 
       if (_tourDataList.size() == 1) {
 

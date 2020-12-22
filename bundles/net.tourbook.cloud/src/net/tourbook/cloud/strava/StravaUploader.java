@@ -81,8 +81,6 @@ public class StravaUploader extends TourbookCloudUploader {
    public StravaUploader() {
       super("STRAVA", Messages.VendorName_Strava); //$NON-NLS-1$
 
-      // .tcx files always contain absolute distances
-      _tourExporter.setUseAbsoluteDistance(true);
       _tourExporter.setUseDescription(true);
 
       // initialize velocity
