@@ -72,7 +72,7 @@ public class StravaUploader extends TourbookCloudUploader {
    private static HttpClient       httpClient     = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
    private static final String     _stravaBaseUrl = "https://www.strava.com/api/v3/";                                      //$NON-NLS-1$
 
-   public static final String      HerokuAppUrl   = "https://passeur-mytourbook-strava.herokuapp.com";
+   public static final String      HerokuAppUrl   = "https://passeur-mytourbook-strava.herokuapp.com";                     //$NON-NLS-1$
 
    private static IPreferenceStore _prefStore     = Activator.getDefault().getPreferenceStore();
    private static TourExporter     _tourExporter  = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE);
@@ -89,18 +89,23 @@ public class StravaUploader extends TourbookCloudUploader {
 
    public static Tokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
-      String body;
+      final StringBuilder body = new StringBuilder();
+      String grantType;
       if (isRefreshToken) {
-         body = "{\"refresh_token\" : \"" + refreshToken + "\"}"; //$NON-NLS-1$  //$NON-NLS-2$
+         body.append("{\"refresh_token\" : \"" + refreshToken); //$NON-NLS-1$
+         grantType = "refresh_token"; //$NON-NLS-1$
       } else
 
       {
-         body = "{\"code\" : \"" + authorizationCode + "\"}";//$NON-NLS-1$  //$NON-NLS-2$
+         body.append("{\"code\" : \"" + authorizationCode);//$NON-NLS-1$
+         grantType = "authorization_code"; //$NON-NLS-1$
       }
+
+      body.append("\", \"grant_type\" : \"" + grantType + "\"}"); //$NON-NLS-1$ //$NON-NLS-2$
 
       final HttpRequest request = HttpRequest.newBuilder()
             .header("Content-Type", "application/json") //$NON-NLS-1$ //$NON-NLS-2$
-            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
             .uri(URI.create(HerokuAppUrl + "/token"))//$NON-NLS-1$
             .build();
 
