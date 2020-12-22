@@ -1004,7 +1004,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
       } else if (_isSetup_TCX) {
 
-         // .tcx files do always contain absolute distances
+         // .tcx files always contain absolute distances
          _exportState_isAbsoluteDistance = true;
 
          _exportState_IsDescription = _chkTCX_Description.getSelection();

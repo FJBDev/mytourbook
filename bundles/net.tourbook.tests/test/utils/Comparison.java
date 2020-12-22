@@ -91,7 +91,8 @@ public class Comparison {
       final Diff documentDiff = DiffBuilder
             .compare(controlTour)
             .withTest(testTour)
-//            .withNodeFilter(node -> !node.getNodeName().equals("someName"))
+            .ignoreWhitespace()
+            .withNodeFilter(node -> !node.getNodeName().equalsIgnoreCase("cadence"))
             .build();
 
       Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());
