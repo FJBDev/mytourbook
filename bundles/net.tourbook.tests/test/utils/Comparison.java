@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 import net.tourbook.data.TourData;
@@ -83,7 +84,7 @@ public class Comparison {
       Assertions.assertTrue(result.passed(), result.getMessage());
    }
 
-   public static void compareXmlAgainstControl(final String controlTourFilePath, final String testTourFilePath) {
+   public static void compareXmlAgainstControl(final String controlTourFilePath, final String testTourFilePath, final List<String> nodesToFilter) {
 
       final String controlTour = Comparison.readFileContent(controlTourFilePath);
       final String testTour = Comparison.readFileContent(testTourFilePath);
@@ -92,8 +93,13 @@ public class Comparison {
             .compare(controlTour)
             .withTest(testTour)
             .ignoreWhitespace()
-            .withNodeFilter(node -> !node.getNodeName().equalsIgnoreCase("cadence"))
+            .withNodeFilter(node -> !nodesToFilter.contains(node.getNodeName()))
             .build();
+
+      //TODO FB leverage
+      //  if (result.failed()) {
+      //    writeErroneousFiles(controlFileName, testJson);
+      //  }
 
       Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());
    }

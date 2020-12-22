@@ -18,6 +18,8 @@ package exportdata.gpx;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
@@ -74,7 +76,8 @@ public class ExportGpxTester {
 
       _tourExporter.export(_testTourFilePath);
 
-      Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath);
+      final List<String> nodesToFilter = Arrays.asList("Cadence");
+      Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath, nodesToFilter);
    }
 
    @Test

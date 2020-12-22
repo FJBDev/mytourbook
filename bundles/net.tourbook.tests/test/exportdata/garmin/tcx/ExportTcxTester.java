@@ -18,6 +18,8 @@ package exportdata.garmin.tcx;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
@@ -38,7 +40,7 @@ public class ExportTcxTester {
    private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";       //$NON-NLS-1$
 
    private static TourData     _tour;
-   private  TourExporter _tourExporter;
+   private TourExporter        _tourExporter;
 
    @BeforeAll
    static void initAll() {
@@ -75,7 +77,8 @@ public class ExportTcxTester {
 
       _tourExporter.export(_testTourFilePath);
 
-      Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath);
+      final List<String> nodesToFilter = Arrays.asList("Cadence");
+      Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath, nodesToFilter);
    }
 
    @Test
