@@ -25,7 +25,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ import org.skyscreamer.jsonassert.JSONCompareResult;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.Difference;
 
 public class Comparison {
 
@@ -99,10 +97,7 @@ public class Comparison {
             .build();
 
       if (documentDiff.hasDifferences()) {
-         final Iterable<Difference> differences = documentDiff.getDifferences();
-         if (((Collection<?>) differences).size() > 1 && !differences.iterator().next().getComparison().toString().contains("Cadence")) {
-            writeErroneousFiles(controlTourFilePath, testTour);
-         }
+         writeErroneousFiles(controlTourFilePath, testTour);
       }
 
       Assertions.assertFalse(documentDiff.hasDifferences(), documentDiff.toString());

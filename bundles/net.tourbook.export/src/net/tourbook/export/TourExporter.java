@@ -143,7 +143,9 @@ public class TourExporter {
       _isTCX = formatTemplate.toLowerCase().contains("tcx"); //$NON-NLS-1$
 
       // .tcx files always contain absolute distances
-      setUseAbsoluteDistance(true);
+      if (_isTCX) {
+         setUseAbsoluteDistance(true);
+      }
    }
 
    public TourExporter(final String formatTemplate,
@@ -874,8 +876,7 @@ public class TourExporter {
       try {
          return doExport_10_Tour(tracks, wayPoints, tourMarkers, tourLap, exportFileName);
       } catch (final IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
       return false;
    }

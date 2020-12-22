@@ -36,8 +36,8 @@ import utils.Initializer;
 
 public class ExportGpxTester {
 
-   private static final String IMPORT_PATH       = "test/exportdata/gpx/files/"; //$NON-NLS-1$
-   private static final String _testTourFilePath = IMPORT_PATH + "GPXExport.gpx";
+   private static final String IMPORT_PATH       = "test/exportdata/gpx/files/";  //$NON-NLS-1$
+   private static final String _testTourFilePath = IMPORT_PATH + "GPXExport.gpx"; //$NON-NLS-1$
 
    private static TourData     _tour;
    private TourExporter        _tourExporter;
@@ -47,9 +47,8 @@ public class ExportGpxTester {
 
       _tour = Initializer.importTour();
       final TourType tourType = new TourType();
-      tourType.setName("Running");
+      tourType.setName("Running"); //$NON-NLS-1$
       _tour.setTourType(tourType);
-
    }
 
    @AfterEach
@@ -76,21 +75,21 @@ public class ExportGpxTester {
 
       _tourExporter.export(_testTourFilePath);
 
-      final List<String> nodesToFilter = Arrays.asList("Cadence");
+      final List<String> nodesToFilter = Arrays.asList("Cadence", "mt:tourType", "mt:tourDistance"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath, nodesToFilter);
    }
 
    @Test
    void testGpxExportAllOptions() {
 
-      final String controlTourFileName = "LongsPeak-AllOptions-RelativeDistance.gpx";
+      final String controlTourFileName = "LongsPeak-AllOptions-RelativeDistance.gpx"; //$NON-NLS-1$
 
       _tourExporter.setUseDescription(true);
       _tourExporter.setIsExportAllTourData(true);
       _tourExporter.setIsExportSurfingWaves(true);
       _tourExporter.setIsExportWithBarometer(true);
       _tourExporter.setIsCamouflageSpeed(true);
-      _tourExporter.setCamouflageSpeed(15 / 3.6f);
+      _tourExporter.setCamouflageSpeed(15 / 3.6f); // 15km/h
       _tour.setBodyWeight(77.7f);
 
       executeTest(controlTourFileName);
@@ -99,7 +98,7 @@ public class ExportGpxTester {
    @Test
    void testGpxExportDescriptionAndActivity() {
 
-      final String controlTourFileName = "LongsPeak-AbsoluteDistance.gpx";
+      final String controlTourFileName = "LongsPeak-AbsoluteDistance.gpx"; //$NON-NLS-1$
 
       _tourExporter.setUseAbsoluteDistance(true);
 
