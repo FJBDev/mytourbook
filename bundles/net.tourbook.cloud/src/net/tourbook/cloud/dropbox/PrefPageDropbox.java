@@ -15,19 +15,23 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import com.sun.net.httpserver.HttpServer;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
-import net.tourbook.cloud.oauth2.OAuth2BrowserDialog;
 import net.tourbook.cloud.oauth2.OAuth2Client;
-import net.tourbook.common.util.StringUtils;
+import net.tourbook.web.WEB;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.window.Window;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,10 +47,34 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    public static final String ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
    private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+   private HttpServer         _server;
+   private ThreadPoolExecutor _threadPoolExecutor;
+   private MyHttpHandler      _myHttpHandler;
    /*
     * UI controls
     */
    private Text               _textAccessToken;
+
+   private void createCallBackServer() {
+      try {
+         final HttpServer _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+         _myHttpHandler = new MyHttpHandler();
+         _server.createContext("/authorizationCode", _myHttpHandler);
+         _threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+
+         _server.setExecutor(_threadPoolExecutor);
+
+
+         _server.start();
+
+         System.out.println(" Server started on port 8001");
+
+
+      } catch (final IOException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
 
    @Override
    protected void createFieldEditors() {
@@ -101,6 +129,8 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
     */
    private void onClickAuthorize() {
 
+      createCallBackServer();
+
       final OAuth2Client client = new OAuth2Client();
 
       // Per Dropbox recommendation :
@@ -115,31 +145,23 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
       client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
 
-      final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client, "Dropbox"); //$NON-NLS-1$
-      //Opens the dialog
-      if (oAuth2Browser.open() != Window.OK) {
-         return;
-      }
+      WEB.openUrl("https://www.dropbox.com/oauth2/authorize");
 
-      final String token = oAuth2Browser.getAccessToken();
-      final String dialogMessage = StringUtils.isNullOrEmpty(token) ? NLS.bind(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved,
-            oAuth2Browser.getResponse()) : Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
+      //Register to the modificatons of authorizationCode in the HttpHandler
 
-      if (!StringUtils.isNullOrEmpty(token)) {
-         _textAccessToken.setText(token);
-      }
+      stopCallBackServer();
 
-      MessageDialog.openInformation(
-            Display.getCurrent().getActiveShell(),
-            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
-            dialogMessage);
+      //TODO FB Get token
    }
 
    @Override
    protected void performDefaults() {
 
       _textAccessToken.setText(_prefStore.getDefaultString(IPreferences.DROPBOX_ACCESSTOKEN));
-
+      MessageDialog.openInformation(
+            Display.getCurrent().getActiveShell(),
+            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
+            "dialogMessage");
       super.performDefaults();
    }
 
@@ -157,5 +179,13 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
    private void restoreState() {
       _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+   }
+
+   private void stopCallBackServer() {
+         _textAccessToken.setText(_myHttpHandler.getAuthorizationCode());
+
+      _server.stop(1);
+      _threadPoolExecutor.shutdownNow();
+
    }
 }
