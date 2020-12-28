@@ -18,13 +18,17 @@ package net.tourbook.cloud.dropbox;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
-import net.tourbook.cloud.oauth2.OAuth2Client;
 import net.tourbook.web.WEB;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -32,6 +36,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,20 +61,18 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
     */
    private Text               _textAccessToken;
 
-   private void createCallBackServer() {
+   private void createCallBackServer(final String codeVerifier) {
       try {
-         final HttpServer _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+         _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
          _myHttpHandler = new MyHttpHandler();
-         _server.createContext("/authorizationCode", _myHttpHandler);
+         _server.createContext("/dropboxAuthorizationCode", _myHttpHandler);
          _threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
          _server.setExecutor(_threadPoolExecutor);
 
-
          _server.start();
 
          System.out.println(" Server started on port 8001");
-
 
       } catch (final IOException e) {
          // TODO Auto-generated catch block
@@ -119,8 +123,41 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       }
    }
 
+   private String generateCodeChallenge(final String codeVerifier) {
+
+      byte[] digest = null;
+      try {
+         final byte[] bytes = codeVerifier.getBytes("US-ASCII");
+         final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+         messageDigest.update(bytes, 0, bytes.length);
+         digest = messageDigest.digest();
+      } catch (final UnsupportedEncodingException | NoSuchAlgorithmException e) {
+         e.printStackTrace();
+      }
+
+      return digest == null ? null : Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
+   }
+
+   private String generateCodeVerifier() {
+      final SecureRandom secureRandom = new SecureRandom();
+      final byte[] codeVerifier = new byte[32];
+      secureRandom.nextBytes(codeVerifier);
+      return Base64.getUrlEncoder().withoutPadding().encodeToString(codeVerifier);
+   }
+
    @Override
-   public void init(final IWorkbench workbench) {}
+   public void init(final IWorkbench workbench) {
+
+      _prefStore.addPropertyChangeListener(new IPropertyChangeListener() {
+         @Override
+         public void propertyChange(final PropertyChangeEvent event) {
+            if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
+
+               stopCallBackServer();
+            }
+         }
+      });
+   }
 
    /**
     * When the user clicks on the "Authorize" button, a browser is opened
@@ -129,29 +166,17 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
     */
    private void onClickAuthorize() {
 
-      createCallBackServer();
+      final String codeVerifier = generateCodeVerifier();
+      final String codeChallenge = generateCodeChallenge(codeVerifier);
+      createCallBackServer(codeVerifier);
 
-      final OAuth2Client client = new OAuth2Client();
-
-      // Per Dropbox recommendation :
-      // "The app key is considered public and does not need to be protected."
-      // source https://www.dropboxforum.com/t5/Dropbox-API-Support-Feedback/Proper-way-of-handling-APP-KEY-and-APP-SECRET/m-p/410478
-      // We use the implicit grant flow as we can't keep the secret_id secure
-      // "It is intended to be used for user-agent-based clients (e.g. single page web apps)
-      // that can’t keep a client secret because all of the application code and storage is easily accessible."
-      // source : https://alexbilbie.com/guide-to-oauth-2-grants/
-      client.setId("vye6ci8xzzsuiao"); //$NON-NLS-1$
-
-      client.setAuthorizeUrl("https://www.dropbox.com/oauth2/authorize"); //$NON-NLS-1$
-      client.setRedirectUri("https://sourceforge.net/projects/mytourbook"); //$NON-NLS-1$
-
-      WEB.openUrl("https://www.dropbox.com/oauth2/authorize");
-
-      //Register to the modificatons of authorizationCode in the HttpHandler
-
-      stopCallBackServer();
-
-      //TODO FB Get token
+      WEB.openUrl(
+            "https://www.dropbox.com/oauth2/authorize?" +
+                  "client_id=vye6ci8xzzsuiao" +
+                  "&response_type=code" +
+                  "&redirect_uri=" + MyHttpHandler.DropboxCallbackUrl +
+                  "&code_challenge=" + codeChallenge +
+                  "&code_challenge_method=S256&token_access_type=offline");
    }
 
    @Override
@@ -182,7 +207,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    }
 
    private void stopCallBackServer() {
-         _textAccessToken.setText(_myHttpHandler.getAuthorizationCode());
+      _textAccessToken.setText(_myHttpHandler.getAuthorizationCode());
 
       _server.stop(1);
       _threadPoolExecutor.shutdownNow();
