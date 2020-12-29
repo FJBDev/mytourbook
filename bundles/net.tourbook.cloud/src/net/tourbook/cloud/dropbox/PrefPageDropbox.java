@@ -62,6 +62,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
     * UI controls
     */
    private Text                    _textAccessToken;
+   //TODO FB Same UI as Dropbox
 
    private void addPrefListener() {
 
@@ -136,9 +137,8 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          _textAccessToken = new Text(container, SWT.BORDER);
          _textAccessToken.setEditable(false);
          _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
-         GridDataFactory.fillDefaults()
-               .grab(true, false)
-               .applyTo(_textAccessToken);
+         _textAccessToken.setTextLimit(50);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_textAccessToken);
       }
    }
 
