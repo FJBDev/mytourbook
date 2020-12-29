@@ -16,7 +16,9 @@
 package net.tourbook.cloud.oauth2;
 
 public abstract class Tokens {
+
    private long   expires_at;
+   private int    expires_in;
    private String refresh_token;
    private String access_token;
 
@@ -30,5 +32,9 @@ public abstract class Tokens {
 
    public String getRefresh_token() {
       return refresh_token;
+   }
+
+   public int getExpires_in() {
+      return expires_in;
    }
 }

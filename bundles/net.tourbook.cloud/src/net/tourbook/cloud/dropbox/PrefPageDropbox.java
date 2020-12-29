@@ -29,6 +29,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.oauth2.IOAuth2Constants;
+import net.tourbook.common.UI;
 import net.tourbook.web.WEB;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -51,23 +53,23 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends PreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String      ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   private IPreferenceStore        _prefStore = Activator.getDefault().getPreferenceStore();
-   private IPropertyChangeListener _prefChangeListener;
+   public static final String       ClientId = "vye6ci8xzzsuiao";
 
-   private HttpServer              _server;
-   private ThreadPoolExecutor      _threadPoolExecutor;
-   private TokensRetrievalHandler  _tokensRetrievalHandler;
+   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+
+   private HttpServer         _server;
+   private ThreadPoolExecutor _threadPoolExecutor;
    /*
     * UI controls
     */
-   private Text                    _textAccessToken;
+   private Text               _textAccessToken;
    //TODO FB Same UI as Dropbox
 
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
+      final IPropertyChangeListener prefChangeListener = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
             if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
@@ -77,23 +79,27 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                   public void run() {
 
                      _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+
+                     stopCallBackServer();
                   }
-
                });
-
-               stopCallBackServer();
             }
          }
       };
 
-      _prefStore.addPropertyChangeListener(_prefChangeListener);
+      _prefStore.addPropertyChangeListener(prefChangeListener);
    }
 
    private void createCallBackServer(final String codeVerifier) {
+
+      if (_server != null) {
+         return;
+      }
+
       try {
-         _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-         _tokensRetrievalHandler = new TokensRetrievalHandler(codeVerifier);
-         _server.createContext("/dropboxAuthorizationCode", _tokensRetrievalHandler);
+         _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0); //$NON-NLS-1$
+         final TokensRetrievalHandler tokensRetrievalHandler = new TokensRetrievalHandler(codeVerifier);
+         _server.createContext("/dropboxAuthorizationCode", tokensRetrievalHandler); //$NON-NLS-1$
          _threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
          _server.setExecutor(_threadPoolExecutor);
@@ -142,11 +148,10 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
          /*
           * Access Token
           */
-         _textAccessToken = new Text(container, SWT.BORDER);
+         _textAccessToken = new Text(container, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
          _textAccessToken.setEditable(false);
          _textAccessToken.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
-         _textAccessToken.setTextLimit(50);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(_textAccessToken);
+         GridDataFactory.fillDefaults().applyTo(_textAccessToken);
       }
 
       return container;
@@ -157,7 +162,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       byte[] digest = null;
       try {
          final byte[] bytes = codeVerifier.getBytes(StandardCharsets.US_ASCII);
-         final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+         final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256"); //$NON-NLS-1$
          messageDigest.update(bytes, 0, bytes.length);
          digest = messageDigest.digest();
       } catch (final NoSuchAlgorithmException e) {
@@ -168,6 +173,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    }
 
    private String generateCodeVerifier() {
+
       final SecureRandom secureRandom = new SecureRandom();
       final byte[] codeVerifier = new byte[32];
       secureRandom.nextBytes(codeVerifier);
@@ -186,15 +192,22 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
       final String codeVerifier = generateCodeVerifier();
       final String codeChallenge = generateCodeChallenge(codeVerifier);
-      createCallBackServer(codeVerifier);
 
-      WEB.openUrl(
-            "https://www.dropbox.com/oauth2/authorize?" +
-                  "client_id=vye6ci8xzzsuiao" +
-                  "&response_type=code" +
-                  "&redirect_uri=" + TokensRetrievalHandler.DropboxCallbackUrl +
-                  "&code_challenge=" + codeChallenge +
-                  "&code_challenge_method=S256&token_access_type=offline");
+      Display.getDefault().syncExec(new Runnable() {
+         @Override
+         public void run() {
+
+            createCallBackServer(codeVerifier);
+
+            WEB.openUrl(
+                  "https://www.dropbox.com/oauth2/authorize?" + //$NON-NLS-1$
+                        IOAuth2Constants.PARAM_CLIENT_ID + UI.SYMBOL_EQUAL + ClientId +
+                        "&response_type=" + IOAuth2Constants.PARAM_CODE + //$NON-NLS-1$
+                        "&" + IOAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + TokensRetrievalHandler.DropboxCallbackUrl + //$NON-NLS-1$
+                        "&code_challenge=" + codeChallenge + //$NON-NLS-1$
+                        "&code_challenge_method=S256&token_access_type=offline"); //$NON-NLS-1$
+         }
+      });
    }
 
    @Override
@@ -216,7 +229,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       MessageDialog.openInformation(
             Display.getCurrent().getActiveShell(),
             Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
-            "dialogMessage");
+            "dialogMessage"); //$NON-NLS-1$
       super.performDefaults();
    }
 
@@ -241,7 +254,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    private void stopCallBackServer() {
 
       if (_server != null) {
-         _server.stop(1);
+         _server.stop(0);
+         _server = null;
       }
       if (_threadPoolExecutor != null) {
          _threadPoolExecutor.shutdownNow();
