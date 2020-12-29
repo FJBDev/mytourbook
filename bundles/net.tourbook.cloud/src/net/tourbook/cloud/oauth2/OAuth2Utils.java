@@ -51,4 +51,16 @@ public class OAuth2Utils {
       final String query = URLEncodedUtils.format(params, StandardCharsets.UTF_8);
       return client.getAuthorizeUrl() + '?' + query;
    }
+
+   /**
+    * We consider that an access token is expired if there are less
+    * than 5 mins remaining until the actual expiration
+    *
+    * @return
+    */
+   public static boolean isAccessTokenExpired(final long tokenExpirationDate) {
+
+      //getAcessTokenExpirationDate();
+      return tokenExpirationDate - System.currentTimeMillis() - 300000 < 0;
+   }
 }

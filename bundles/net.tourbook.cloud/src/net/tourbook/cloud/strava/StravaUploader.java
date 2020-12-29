@@ -42,6 +42,7 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.cloud.oauth2.MultiPartBodyPublisher;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
@@ -251,17 +252,6 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(Preferences.STRAVA_REFRESHTOKEN);
    }
 
-   /**
-    * We consider that an access token is expired if there are less
-    * than 5 mins remaining until the actual expiration
-    *
-    * @return
-    */
-   private boolean isAccessTokenExpired() {
-
-      return getAcessTokenExpirationDate() - System.currentTimeMillis() - 300000 < 0;
-   }
-
    @Override
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) &&
@@ -302,7 +292,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
    private void tryRenewTokens() {
 
-      if (!isAccessTokenExpired()) {
+      if (!OAuth2Utils.isAccessTokenExpired(getAcessTokenExpirationDate())) {
          return;
       }
 

@@ -33,6 +33,7 @@ import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.web.WEB;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -53,32 +54,35 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends PreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String      ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   public static final String ClientId   = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   public static final String      ClientId   = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
 
-   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore = Activator.getDefault().getPreferenceStore();
+   private IPropertyChangeListener _prefChangeListener;
 
-   private HttpServer         _server;
-   private ThreadPoolExecutor _threadPoolExecutor;
+   private HttpServer              _server;
+   private ThreadPoolExecutor      _threadPoolExecutor;
    /*
     * UI controls
     */
-   private Label              _labelAccessToken;
-   private Label              _labelAccessToken_Value;
-   private Label              _labelExpiresAt;
-   private Label              _labelExpiresAt_Value;
-   private Label              _labelRefreshToken;
-   private Label              _labelRefreshToken_Value;
+   private Label                   _labelAccessToken_Value;
+   private Label                   _labelExpiresAt_Value;
+   private Label                   _labelRefreshToken_Value;
    //TODO FB renew token if expired
 
    private void addPrefListener() {
 
-      final IPropertyChangeListener prefChangeListener = new IPropertyChangeListener() {
+      _prefChangeListener = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
 
             if (event.getProperty().equals(Preferences.DROPBOX_ACCESSTOKEN)) {
+
+               MessageDialog.openInformation(
+                     Display.getCurrent().getActiveShell(),
+                     Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
+                     "dialogMessage"); //$NON-NLS-1$
 
                Display.getDefault().syncExec(new Runnable() {
                   @Override
@@ -96,7 +100,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
          }
       };
 
-      _prefStore.addPropertyChangeListener(prefChangeListener);
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
    }
 
    private void createCallBackServer(final String codeVerifier) {
@@ -171,26 +175,26 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          {
-            _labelAccessToken = new Label(group, SWT.NONE);
-            _labelAccessToken.setText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label);
-            GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
+            final Label labelAccessToken = new Label(group, SWT.NONE);
+            labelAccessToken.setText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label);
+            GridDataFactory.fillDefaults().applyTo(labelAccessToken);
 
             _labelAccessToken_Value = new Label(group, SWT.NONE);
             _labelAccessToken_Value.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAccessToken_Value);
          }
          {
-            _labelRefreshToken = new Label(group, SWT.NONE);
-            _labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
-            GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
+            final Label labelRefreshToken = new Label(group, SWT.NONE);
+            labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
+            GridDataFactory.fillDefaults().applyTo(labelRefreshToken);
 
             _labelRefreshToken_Value = new Label(group, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelRefreshToken_Value);
          }
          {
-            _labelExpiresAt = new Label(group, SWT.NONE);
-            _labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
-            GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
+            final Label labelExpiresAt = new Label(group, SWT.NONE);
+            labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
+            GridDataFactory.fillDefaults().applyTo(labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(group, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
@@ -267,10 +271,6 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    protected void performDefaults() {
 
       _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN));
-//      MessageDialog.openInformation(
-//            Display.getCurrent().getActiveShell(),
-//            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
-//            "dialogMessage"); //$NON-NLS-1$
       _labelExpiresAt_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_REFRESHTOKEN));
 
@@ -309,5 +309,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       if (_threadPoolExecutor != null) {
          _threadPoolExecutor.shutdownNow();
       }
+
+      _prefStore.removePropertyChangeListener(_prefChangeListener);
    }
 }
