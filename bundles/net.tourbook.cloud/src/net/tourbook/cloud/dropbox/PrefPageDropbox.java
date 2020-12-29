@@ -32,6 +32,7 @@ import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -69,7 +70,6 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    private Label                   _labelAccessToken_Value;
    private Label                   _labelExpiresAt_Value;
    private Label                   _labelRefreshToken_Value;
-   //TODO FB renew token if expired
 
    private void addPrefListener() {
 
@@ -106,7 +106,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    private void createCallBackServer(final String codeVerifier) {
 
       if (_server != null) {
-         return;
+         stopCallBackServer();
       }
 
       try {
@@ -119,6 +119,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
          _server.start();
 
+         addPrefListener();
+
       } catch (final IOException e) {
          e.printStackTrace();
       }
@@ -130,8 +132,6 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       final Composite ui = createUI(parent);
 
       restoreState();
-
-      addPrefListener();
 
       return ui;
    }
@@ -249,7 +249,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                   "https://www.dropbox.com/oauth2/authorize?" + //$NON-NLS-1$
                         IOAuth2Constants.PARAM_CLIENT_ID + UI.SYMBOL_EQUAL + ClientId +
                         "&response_type=" + IOAuth2Constants.PARAM_CODE + //$NON-NLS-1$
-                        "&" + IOAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + TokensRetrievalHandler.DropboxCallbackUrl + //$NON-NLS-1$
+                        "&" + IOAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + DropboxClient.DropboxCallbackUrl + //$NON-NLS-1$
                         "&code_challenge=" + codeChallenge + //$NON-NLS-1$
                         "&code_challenge_method=S256&token_access_type=offline"); //$NON-NLS-1$
          }
@@ -286,6 +286,10 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       if (isOK) {
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.DROPBOX_REFRESHTOKEN, _labelRefreshToken_Value.getText());
+         if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
+            _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, UI.EMPTY_STRING);
+            _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
+         }
 
          stopCallBackServer();
       }
@@ -305,11 +309,11 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       if (_server != null) {
          _server.stop(0);
          _server = null;
+
+         _prefStore.removePropertyChangeListener(_prefChangeListener);
       }
       if (_threadPoolExecutor != null) {
          _threadPoolExecutor.shutdownNow();
       }
-
-      _prefStore.removePropertyChangeListener(_prefChangeListener);
    }
 }

@@ -252,17 +252,6 @@ public class StravaUploader extends TourbookCloudUploader {
       return _prefStore.getString(Preferences.STRAVA_REFRESHTOKEN);
    }
 
-   /**
-    * We consider that an access token is expired if there are less
-    * than 5 mins remaining until the actual expiration
-    *
-    * @return
-    */
-   private boolean isAccessTokenExpired() {
-
-      return getAccessTokenExpirationDate() - System.currentTimeMillis() - 300000 < 0;
-   }
-
    @Override
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) &&

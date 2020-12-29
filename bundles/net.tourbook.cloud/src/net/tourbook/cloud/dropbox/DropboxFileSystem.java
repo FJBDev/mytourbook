@@ -116,7 +116,7 @@ public class DropboxFileSystem extends TourbookFileSystem {
 
       boolean result = false;
 
-      final String accessToken = _prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN);
+      final String accessToken = DropboxClient.getValidTokens();
       if (StringUtils.isNullOrEmpty(accessToken)) {
          _dropboxFileSystem = null;
          return result;
@@ -208,7 +208,7 @@ public class DropboxFileSystem extends TourbookFileSystem {
       BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
          @Override
          public void run() {
-            final String accessToken = _prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN);
+            final String accessToken = DropboxClient.getValidTokens();
 
             dropboxFolderChooser[0] = new DialogDropboxFolderBrowser(Display.getCurrent().getActiveShell(),
                   accessToken,
