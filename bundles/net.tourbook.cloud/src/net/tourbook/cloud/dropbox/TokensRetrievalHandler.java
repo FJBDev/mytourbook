@@ -31,7 +31,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-public class MyHttpHandler implements HttpHandler {
+public class TokensRetrievalHandler implements HttpHandler {
 
    private static HttpClient   _httpClient        = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
    private static final String DropboxApiBaseUrl  = "https://api.dropboxapi.com";                                         //$NON-NLS-1$
@@ -42,7 +42,7 @@ public class MyHttpHandler implements HttpHandler {
    private IPreferenceStore    _prefStore         = Activator.getDefault().getPreferenceStore();
    private String              _authorizationCode;
 
-   public MyHttpHandler(final String codeVerifier) {
+   public TokensRetrievalHandler(final String codeVerifier) {
       _codeVerifier = codeVerifier;
    }
 

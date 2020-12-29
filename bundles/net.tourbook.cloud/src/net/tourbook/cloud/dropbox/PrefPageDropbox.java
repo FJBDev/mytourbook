@@ -58,7 +58,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
    private HttpServer              _server;
    private ThreadPoolExecutor      _threadPoolExecutor;
-   private MyHttpHandler           _myHttpHandler;
+   private TokensRetrievalHandler  _tokensRetrievalHandler;
    /*
     * UI controls
     */
@@ -76,7 +76,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                   @Override
                   public void run() {
 
-               _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+                     _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
                   }
 
                });
@@ -92,8 +92,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    private void createCallBackServer(final String codeVerifier) {
       try {
          _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-         _myHttpHandler = new MyHttpHandler(codeVerifier);
-         _server.createContext("/dropboxAuthorizationCode", _myHttpHandler);
+         _tokensRetrievalHandler = new TokensRetrievalHandler(codeVerifier);
+         _server.createContext("/dropboxAuthorizationCode", _tokensRetrievalHandler);
          _threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
          _server.setExecutor(_threadPoolExecutor);
@@ -192,7 +192,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
             "https://www.dropbox.com/oauth2/authorize?" +
                   "client_id=vye6ci8xzzsuiao" +
                   "&response_type=code" +
-                  "&redirect_uri=" + MyHttpHandler.DropboxCallbackUrl +
+                  "&redirect_uri=" + TokensRetrievalHandler.DropboxCallbackUrl +
                   "&code_challenge=" + codeChallenge +
                   "&code_challenge_method=S256&token_access_type=offline");
    }
