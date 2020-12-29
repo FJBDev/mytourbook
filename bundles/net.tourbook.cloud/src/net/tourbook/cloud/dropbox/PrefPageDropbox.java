@@ -72,7 +72,14 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
          public void propertyChange(final PropertyChangeEvent event) {
             if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
 
+               Display.getDefault().syncExec(new Runnable() {
+                  @Override
+                  public void run() {
+
                _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+                  }
+
+               });
 
                stopCallBackServer();
             }

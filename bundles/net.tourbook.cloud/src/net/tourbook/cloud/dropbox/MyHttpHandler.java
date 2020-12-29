@@ -116,18 +116,45 @@ public class MyHttpHandler implements HttpHandler {
    @Override
    public void handle(final HttpExchange httpExchange) throws IOException {
 
+      String accessToken = UI.EMPTY_STRING;
       if ("GET".equals(httpExchange.getRequestMethod())) {
 
-         handleGetRequest(httpExchange);
+         accessToken = handleGetRequest(httpExchange);
          //TODO return boolean ?
       }
 
       handleResponse(httpExchange);
+
+      if (StringUtils.hasContent(accessToken)) {
+         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, accessToken);
+      }
    }
 
-   private void handleGetRequest(final HttpExchange httpExchange) {
+   private String handleGetRequest(final HttpExchange httpExchange) {
 
-      retrieveTokensFromResponse(httpExchange.getRequestURI());
+      final char[] separators = { '#', '&', '?' };
+
+      final String response = httpExchange.getRequestURI().toString();
+      System.out.println(response);
+
+      String authorizationCode = UI.EMPTY_STRING;
+      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+      for (final NameValuePair param : params) {
+         if (param.getName().equals(IOAuth2Constants.PARAM_CODE)) {
+            authorizationCode = param.getValue();
+            break;
+         }
+      }
+
+      if (StringUtils.isNullOrEmpty(authorizationCode)) {
+         return UI.EMPTY_STRING;
+      }
+
+      //get tokens from auth code
+      final DropboxTokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING);
+
+      return newTokens.getAccess_token();
+
    }
 
    private void handleResponse(final HttpExchange httpExchange) throws IOException {
@@ -169,31 +196,4 @@ public class MyHttpHandler implements HttpHandler {
 
    }
 
-   private void retrieveTokensFromResponse(final URI uri) {
-
-      final char[] separators = { '#', '&', '?' };
-
-      final String response = uri.toString();
-      System.out.println(response);
-
-      String authorizationCode = UI.EMPTY_STRING;
-      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
-      for (final NameValuePair param : params) {
-         if (param.getName().equals(IOAuth2Constants.PARAM_CODE)) {
-            authorizationCode = param.getValue();
-            break;
-         }
-      }
-
-      if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return;
-      }
-
-      //get tokens from auth code
-      final DropboxTokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING);
-
-      if (StringUtils.hasContent(newTokens.getAccess_token())) {
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, newTokens.getAccess_token());
-      }
-   }
 }
