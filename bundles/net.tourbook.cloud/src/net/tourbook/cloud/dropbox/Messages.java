@@ -27,6 +27,8 @@ public class Messages extends NLS {
    public static String        Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip;
    public static String        Dialog_DropboxBrowser_Button_SelectFolder;
 
+   public static String        Html_CloseBrowser_Text;
+
    public static String        Image__Dropbox_Logo;
    public static String        Image__Dropbox_File;
    public static String        Image__Dropbox_Folder;

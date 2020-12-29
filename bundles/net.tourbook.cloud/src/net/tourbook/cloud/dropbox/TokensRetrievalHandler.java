@@ -165,7 +165,7 @@ public class TokensRetrievalHandler implements HttpHandler {
       final OutputStream outputStream = httpExchange.getResponseBody();
 
       final StringBuilder htmlBuilder = new StringBuilder();
-      htmlBuilder.append("<html><body><h1>" + "</h1></body></html>");
+      htmlBuilder.append("<html><body><h1>" + Messages.Html_CloseBrowser_Text + "</h1></body></html>");
 
       // this line is a must
       httpExchange.sendResponseHeaders(200, htmlBuilder.length());

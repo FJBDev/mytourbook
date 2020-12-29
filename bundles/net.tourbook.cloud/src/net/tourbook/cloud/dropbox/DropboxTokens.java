@@ -22,4 +22,20 @@ import net.tourbook.cloud.oauth2.Tokens;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DropboxTokens extends Tokens {
 
+   private String uid;
+   private String token_type;
+   private String account_id;
+
+   public String getAccount_id() {
+      return account_id;
+   }
+
+   public String getToken_type() {
+      return token_type;
+   }
+
+   public String getUid() {
+      return uid;
+   }
+
 }
