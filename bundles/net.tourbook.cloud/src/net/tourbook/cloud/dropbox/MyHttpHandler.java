@@ -29,11 +29,9 @@ import net.tourbook.common.util.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
+public class MyHttpHandler implements HttpHandler {
 
    private static HttpClient   _httpClient        = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
    private static final String DropboxApiBaseUrl  = "https://api.dropboxapi.com";                                         //$NON-NLS-1$
@@ -49,9 +47,8 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
    }
 
    private static DropboxTokens getTokens(final String authorizationCode,
-                                   final boolean isRefreshToken,
-                                   final String refreshToken,
-                                   final String codeVerifier) {
+                                          final boolean isRefreshToken,
+                                          final String refreshToken) {
 
       final Map<String, String> data = new HashMap<>();
       data.put(IOAuth2Constants.PARAM_REDIRECT_URI, DropboxCallbackUrl);
@@ -63,7 +60,7 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
          data.put(IOAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
          grantType = IOAuth2Constants.PARAM_REFRESH_TOKEN;
       } else {
-         data.put(IOAuth2Constants.PARAM_AUTHORIZATION_CODE, authorizationCode);
+         data.put(IOAuth2Constants.PARAM_CODE, authorizationCode);
          grantType = "authorization_code"; //$NON-NLS-1$
       }
 
@@ -172,12 +169,6 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
 
    }
 
-   @Override
-   public void propertyChange(final PropertyChangeEvent arg0) {
-      // TODO Auto-generated method stub
-
-   }
-
    private void retrieveTokensFromResponse(final URI uri) {
 
       final char[] separators = { '#', '&', '?' };
@@ -188,7 +179,7 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
       String authorizationCode = UI.EMPTY_STRING;
       final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
       for (final NameValuePair param : params) {
-         if (param.getName().equals(IOAuth2Constants.PARAM_AUTHORIZATION_CODE)) {
+         if (param.getName().equals(IOAuth2Constants.PARAM_CODE)) {
             authorizationCode = param.getValue();
             break;
          }
@@ -199,7 +190,7 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
       }
 
       //get tokens from auth code
-      final DropboxTokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING, _codeVerifier);
+      final DropboxTokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING);
 
       if (StringUtils.hasContent(newTokens.getAccess_token())) {
          _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, newTokens.getAccess_token());

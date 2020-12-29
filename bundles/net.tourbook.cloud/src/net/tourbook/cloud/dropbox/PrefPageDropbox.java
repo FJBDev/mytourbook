@@ -34,8 +34,8 @@ import net.tourbook.web.WEB;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -43,12 +43,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PrefPageDropbox extends PreferencePage implements IWorkbenchPreferencePage {
 
    public static final String      ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
@@ -98,19 +99,19 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    }
 
    @Override
-   protected void createFieldEditors() {
+   protected Control createContents(final Composite parent) {
 
-      createUI();
+      final Composite ui = createUI(parent);
 
       restoreState();
 
       addPrefListener();
 
+      return ui;
    }
 
-   private void createUI() {
+   private Composite createUI(final Composite parent) {
 
-      final Composite parent = getFieldEditorParent();
       GridLayoutFactory.fillDefaults().applyTo(parent);
 
       final Composite container = new Composite(parent, SWT.NONE);
@@ -140,6 +141,8 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          _textAccessToken.setTextLimit(50);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_textAccessToken);
       }
+
+      return container;
    }
 
    private String generateCodeChallenge(final String codeVerifier) {
