@@ -54,20 +54,20 @@ public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
                                    final String codeVerifier) {
 
       final Map<String, String> data = new HashMap<>();
-      data.put("redirect_uri", DropboxCallbackUrl);
-      data.put("client_id", "vye6ci8xzzsuiao");
+      data.put(IOAuth2Constants.PARAM_REDIRECT_URI, DropboxCallbackUrl);
+      data.put(IOAuth2Constants.PARAM_CLIENT_ID, "vye6ci8xzzsuiao");
       data.put("code_verifier", _codeVerifier);
 
       String grantType;
       if (isRefreshToken) {
-         data.put("refresh_token", refreshToken);
-         grantType = "refresh_token"; //$NON-NLS-1$
+         data.put(IOAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
+         grantType = IOAuth2Constants.PARAM_REFRESH_TOKEN;
       } else {
-         data.put("code", authorizationCode);
+         data.put(IOAuth2Constants.PARAM_AUTHORIZATION_CODE, authorizationCode);
          grantType = "authorization_code"; //$NON-NLS-1$
       }
 
-      data.put("grant_type", grantType);
+      data.put(IOAuth2Constants.PARAM_GRANT_TYPE, grantType);
 
       final HttpRequest request = HttpRequest.newBuilder()
             .header("Content-Type", "application/x-www-form-urlencoded") //$NON-NLS-1$ //$NON-NLS-2$
