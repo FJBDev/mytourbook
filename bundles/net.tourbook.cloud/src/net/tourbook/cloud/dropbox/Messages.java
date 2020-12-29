@@ -29,7 +29,6 @@ public class Messages extends NLS {
 
    public static String        Html_CloseBrowser_Text;
 
-   public static String        Image__Connect_With_Dropbox;
    public static String        Image__Dropbox_Logo;
    public static String        Image__Dropbox_File;
    public static String        Image__Dropbox_Folder;
@@ -40,6 +39,7 @@ public class Messages extends NLS {
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_NotRetrieved;
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title;
    public static String        Pref_CloudConnectivity_Dropbox_AccessToken_Retrieved;
+   public static String        Pref_CloudConnectivity_Dropbox_Button_Authorize;
    public static String        Pref_CloudConnectivity_Dropbox_RefreshToken_Label;
    public static String        Pref_CloudConnectivity_Dropbox_ExpiresAt_Label;
    public static String        Pref_CloudConnectivity_Dropbox_Tokens_Information_Group;

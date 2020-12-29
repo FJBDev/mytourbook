@@ -42,7 +42,6 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -78,6 +77,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       final IPropertyChangeListener prefChangeListener = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
+
             if (event.getProperty().equals(Preferences.DROPBOX_ACCESSTOKEN)) {
 
                Display.getDefault().syncExec(new Runnable() {
@@ -85,6 +85,9 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                   public void run() {
 
                      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
+                     _labelExpiresAt_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
+                     _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
+                     //_prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
 
                      stopCallBackServer();
                   }
@@ -146,20 +149,17 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       GridLayoutFactory.fillDefaults().applyTo(container);
       {
          /*
-          * Connect button
+          * Authorize button
           */
-
-         final Button buttonConnect = new Button(container, SWT.NONE);
-         final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Dropbox).createImage();
-         buttonConnect.setImage(imageConnect);
-         buttonConnect.addSelectionListener(new SelectionAdapter() {
-
+         final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
+         setButtonLayoutData(btnAuthorizeConnection);
+         btnAuthorizeConnection.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+         btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                onClickAuthorize();
             }
          });
-         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, true).applyTo(buttonConnect);
       }
    }
 
@@ -271,6 +271,9 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 //            Display.getCurrent().getActiveShell(),
 //            Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
 //            "dialogMessage"); //$NON-NLS-1$
+      _labelExpiresAt_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
+      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_REFRESHTOKEN));
+
       super.performDefaults();
    }
 
@@ -281,6 +284,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
       if (isOK) {
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, _labelAccessToken_Value.getText());
+         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, _labelExpiresAt_Value.getText());
+         _prefStore.setValue(Preferences.DROPBOX_REFRESHTOKEN, _labelRefreshToken_Value.getText());
 
          stopCallBackServer();
       }
@@ -290,6 +295,9 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
    private void restoreState() {
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
+      _labelExpiresAt_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
+      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
+
    }
 
    private void stopCallBackServer() {
