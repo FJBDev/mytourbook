@@ -60,7 +60,6 @@ public class OAuth2Utils {
     */
    public static boolean isAccessTokenExpired(final long tokenExpirationDate) {
 
-      //getAcessTokenExpirationDate();
       return tokenExpirationDate - System.currentTimeMillis() - 300000 < 0;
    }
 }
