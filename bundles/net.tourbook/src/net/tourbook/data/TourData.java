@@ -3884,7 +3884,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
             maxPace = paceMetricSeconds;
          }
 
-
          paceSerieSeconds[serieIndex] = paceMetricSeconds;
          paceSerieSecondsImperial[serieIndex] = paceImperialSeconds;
 
