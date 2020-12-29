@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2BrowserDialog;
 import net.tourbook.cloud.oauth2.OAuth2Client;
 import net.tourbook.common.UI;
@@ -252,12 +252,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    @Override
    protected void performDefaults() {
 
-      _labelAccessToken_Value.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ACCESSTOKEN));
-      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(IPreferences.STRAVA_REFRESHTOKEN));
-      _labelAthleteName_Value.setText(_prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      _athleteId = _prefStore.getDefaultString(IPreferences.STRAVA_ATHLETEID);
+      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_ACCESSTOKEN));
+      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_REFRESHTOKEN));
+      _labelAthleteName_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_ATHLETEFULLNAME));
+      _athleteId = _prefStore.getDefaultString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
-      _accessTokenExpiresAt = _prefStore.getDefaultLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _accessTokenExpiresAt = _prefStore.getDefaultLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
       _labelExpiresAt_Value.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
 
       UpdateButtonConnectState();
@@ -271,11 +271,11 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, _labelAccessToken_Value.getText());
-         _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, _labelRefreshToken_Value.getText());
-         _prefStore.setValue(IPreferences.STRAVA_ATHLETEFULLNAME, _labelAthleteName_Value.getText());
-         _prefStore.setValue(IPreferences.STRAVA_ATHLETEID, _athleteId);
-         _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
+         _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, _labelAccessToken_Value.getText());
+         _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, _labelRefreshToken_Value.getText());
+         _prefStore.setValue(Preferences.STRAVA_ATHLETEFULLNAME, _labelAthleteName_Value.getText());
+         _prefStore.setValue(Preferences.STRAVA_ATHLETEID, _athleteId);
+         _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
       }
 
       return isOK;
@@ -283,12 +283,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
    private void restoreState() {
 
-      _labelAccessToken_Value.setText(_prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN));
-      _labelRefreshToken_Value.setText(_prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN));
-      _labelAthleteName_Value.setText(_prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME));
-      _athleteId = _prefStore.getString(IPreferences.STRAVA_ATHLETEID);
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
+      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
+      _labelAthleteName_Value.setText(_prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME));
+      _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
-      _accessTokenExpiresAt = _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
       _labelExpiresAt_Value.setText(constructLocalExpireAtDateTime(_accessTokenExpiresAt));
 
       UpdateButtonConnectState();

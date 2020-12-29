@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.web.WEB;
@@ -72,13 +72,13 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       final IPropertyChangeListener prefChangeListener = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
-            if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
+            if (event.getProperty().equals(Preferences.DROPBOX_ACCESSTOKEN)) {
 
                Display.getDefault().syncExec(new Runnable() {
                   @Override
                   public void run() {
 
-                     _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+                     _textAccessToken.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
 
                      stopCallBackServer();
                   }
@@ -225,7 +225,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    @Override
    protected void performDefaults() {
 
-      _textAccessToken.setText(_prefStore.getDefaultString(IPreferences.DROPBOX_ACCESSTOKEN));
+      _textAccessToken.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN));
       MessageDialog.openInformation(
             Display.getCurrent().getActiveShell(),
             Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
@@ -239,7 +239,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
+         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
 
          stopCallBackServer();
       }
@@ -248,7 +248,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    }
 
    private void restoreState() {
-      _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+      _textAccessToken.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
    }
 
    private void stopCallBackServer() {

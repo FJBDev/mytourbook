@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
@@ -126,10 +126,10 @@ public class TokensRetrievalHandler implements HttpHandler {
       handleResponse(httpExchange);
 
       if (StringUtils.hasContent(tokens.getAccess_token())) {
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, tokens.getAccess_token());
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, tokens.getExpires_in());
-         _prefStore.setValue(IPreferences.DROPBOX_REFRESHTOKEN, tokens.getRefresh_token());
-         _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
+         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, tokens.getAccess_token());
+         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, tokens.getExpires_in());
+         _prefStore.setValue(Preferences.DROPBOX_REFRESHTOKEN, tokens.getRefresh_token());
+         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
 
       }
    }

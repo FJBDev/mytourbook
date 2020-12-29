@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.Preferences;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -40,17 +40,15 @@ import org.osgi.framework.Version;
 
 public class DropboxClient {
 
-   private static DbxClientV2      _dropboxClient;
-   private static DbxRequestConfig _requestConfig;
-   static final IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
-   private static String           _accessToken;
+   private static DbxClientV2    _dropboxClient;
+   static final IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
 
    static {
       final IPropertyChangeListener prefChangeListenerCommon = new IPropertyChangeListener() {
          @Override
          public void propertyChange(final PropertyChangeEvent event) {
 
-            if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
+            if (event.getProperty().equals(Preferences.DROPBOX_ACCESSTOKEN)) {
 
                // Re create the Dropbox client
                createDefaultDropboxClient();
@@ -111,9 +109,9 @@ public class DropboxClient {
     */
    private static void createDefaultDropboxClient() {
 
-      _accessToken = _prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN);
+      final String accessToken = _prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN);
 
-      _dropboxClient = createDropboxClient(_accessToken);
+      _dropboxClient = createDropboxClient(accessToken);
    }
 
    /**
@@ -129,9 +127,10 @@ public class DropboxClient {
       //Getting the current version of MyTourbook
       final Version version = FrameworkUtil.getBundle(DropboxClient.class).getVersion();
 
-      _requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", UI.EMPTY_STRING)).build(); //$NON-NLS-1$ //$NON-NLS-2$
+      final DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("mytourbook/" + version.toString().replace(".qualifier", UI.EMPTY_STRING)) //$NON-NLS-1$//$NON-NLS-2$
+            .build();
 
-      return new DbxClientV2(_requestConfig, accessToken);
+      return new DbxClientV2(requestConfig, accessToken);
    }
 
    /**

@@ -39,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.zip.GZIPOutputStream;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.IPreferences;
+import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
 import net.tourbook.cloud.oauth2.MultiPartBodyPublisher;
 import net.tourbook.common.UI;
@@ -240,15 +240,15 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private String getAccessToken() {
-      return _prefStore.getString(IPreferences.STRAVA_ACCESSTOKEN);
+      return _prefStore.getString(Preferences.STRAVA_ACCESSTOKEN);
    }
 
    private long getAcessTokenExpirationDate() {
-      return _prefStore.getLong(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      return _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
    }
 
    private String getRefreshToken() {
-      return _prefStore.getString(IPreferences.STRAVA_REFRESHTOKEN);
+      return _prefStore.getString(Preferences.STRAVA_REFRESHTOKEN);
    }
 
    /**
@@ -289,15 +289,15 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private void setAccessToken(final String accessToken) {
-      _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN, accessToken);
+      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, accessToken);
    }
 
    private void setAccessTokenExpirationDate(final long expireAt) {
-      _prefStore.setValue(IPreferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, expireAt);
+      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, expireAt);
    }
 
    private void setRefreshToken(final String refreshToken) {
-      _prefStore.setValue(IPreferences.STRAVA_REFRESHTOKEN, refreshToken);
+      _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, refreshToken);
    }
 
    private void tryRenewTokens() {
@@ -378,7 +378,7 @@ public class StravaUploader extends TourbookCloudUploader {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask(NLS.bind(Messages.UploadToursToStrava_Task, _prefStore.getString(IPreferences.STRAVA_ATHLETEFULLNAME)),
+            monitor.beginTask(NLS.bind(Messages.UploadToursToStrava_Task, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
                   numberOfTours * 2);
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,

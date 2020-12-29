@@ -15,13 +15,13 @@
  *******************************************************************************/
 package net.tourbook.cloud;
 
-public interface IPreferences {
+public final class Preferences {
 
    /*
     * Dropbox preferences
     */
-   public static final String DROPBOX_ACCESSTOKEN = "DROPBOX_ACCESSTOKEN"; //$NON-NLS-1$
-   public static final String DROPBOX_REFRESHTOKEN = "DROPBOX_REFRESHTOKEN"; //$NON-NLS-1$
+   public static final String DROPBOX_ACCESSTOKEN                = "DROPBOX_ACCESSTOKEN";                //$NON-NLS-1$
+   public static final String DROPBOX_REFRESHTOKEN               = "DROPBOX_REFRESHTOKEN";               //$NON-NLS-1$
    public static final String DROPBOX_ACCESSTOKEN_EXPIRES_IN     = "DROPBOX_ACCESSTOKEN_EXPIRES_IN";     //$NON-NLS-1$
    public static final String DROPBOX_ACCESSTOKEN_ISSUE_DATETIME = "DROPBOX_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
 
