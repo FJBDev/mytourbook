@@ -30,10 +30,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
 import net.tourbook.web.WEB;
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -79,19 +79,13 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
             if (event.getProperty().equals(Preferences.DROPBOX_ACCESSTOKEN)) {
 
-               MessageDialog.openInformation(
-                     Display.getCurrent().getActiveShell(),
-                     Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Retrieval_Title,
-                     "dialogMessage"); //$NON-NLS-1$
-
                Display.getDefault().syncExec(new Runnable() {
                   @Override
                   public void run() {
 
                      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
-                     _labelExpiresAt_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
+                     _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
                      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
-                     //_prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
 
                      stopCallBackServer();
                   }
@@ -101,6 +95,12 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       };
 
       _prefStore.addPropertyChangeListener(_prefChangeListener);
+   }
+
+   private String computeAccessTokenExpirationDate() {
+
+      return OAuth2Utils.constructLocalExpireAtDateTime(_prefStore.getLong(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
+            Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
    }
 
    private void createCallBackServer(final String codeVerifier) {
@@ -140,16 +140,16 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
       GridLayoutFactory.fillDefaults().applyTo(parent);
 
-      createUI_10_Connect(parent);
+      createUI_10_Authorize(parent);
       createUI_20_TokensInformation(parent);
 
       return parent;
    }
 
-   private void createUI_10_Connect(final Composite parent) {
+   private void createUI_10_Authorize(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().applyTo(container);
       {
          /*
@@ -164,6 +164,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                onClickAuthorize();
             }
          });
+         GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, true).applyTo(btnAuthorizeConnection);
       }
    }
 
@@ -184,20 +185,20 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAccessToken_Value);
          }
          {
-            final Label labelRefreshToken = new Label(group, SWT.NONE);
-            labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
-            GridDataFactory.fillDefaults().applyTo(labelRefreshToken);
-
-            _labelRefreshToken_Value = new Label(group, SWT.NONE);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelRefreshToken_Value);
-         }
-         {
             final Label labelExpiresAt = new Label(group, SWT.NONE);
             labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
             GridDataFactory.fillDefaults().applyTo(labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(group, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
+         }
+         {
+            final Label labelRefreshToken = new Label(group, SWT.NONE);
+            labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
+            GridDataFactory.fillDefaults().applyTo(labelRefreshToken);
+
+            _labelRefreshToken_Value = new Label(group, SWT.NONE);
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelRefreshToken_Value);
          }
       }
    }
@@ -271,7 +272,7 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    protected void performDefaults() {
 
       _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN));
-      _labelExpiresAt_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
+      _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_REFRESHTOKEN));
 
       super.performDefaults();
@@ -284,7 +285,6 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
       if (isOK) {
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, _labelAccessToken_Value.getText());
-         _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, _labelExpiresAt_Value.getText());
          _prefStore.setValue(Preferences.DROPBOX_REFRESHTOKEN, _labelRefreshToken_Value.getText());
 
          stopCallBackServer();
@@ -294,10 +294,10 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    }
 
    private void restoreState() {
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
-      _labelExpiresAt_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN));
-      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
 
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
+      _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
+      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
    }
 
    private void stopCallBackServer() {

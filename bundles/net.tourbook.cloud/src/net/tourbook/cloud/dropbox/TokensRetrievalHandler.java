@@ -79,7 +79,7 @@ public class TokensRetrievalHandler implements HttpHandler {
       final Map<String, String> data = new HashMap<>();
       data.put(IOAuth2Constants.PARAM_REDIRECT_URI, DropboxCallbackUrl);
       data.put(IOAuth2Constants.PARAM_CLIENT_ID, PrefPageDropbox.ClientId);
-      data.put("code_verifier", _codeVerifier);
+      data.put("code_verifier", _codeVerifier); //$NON-NLS-1$
 
       String grantType;
       if (isRefreshToken) {
@@ -118,7 +118,7 @@ public class TokensRetrievalHandler implements HttpHandler {
    public void handle(final HttpExchange httpExchange) throws IOException {
 
       DropboxTokens tokens = new DropboxTokens();
-      if ("GET".equals(httpExchange.getRequestMethod())) {
+      if ("GET".equals(httpExchange.getRequestMethod())) { //$NON-NLS-1$
 
          tokens = handleGetRequest(httpExchange);
       }
@@ -126,11 +126,11 @@ public class TokensRetrievalHandler implements HttpHandler {
       handleResponse(httpExchange);
 
       if (StringUtils.hasContent(tokens.getAccess_token())) {
+
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, tokens.getAccess_token());
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, tokens.getExpires_in());
          _prefStore.setValue(Preferences.DROPBOX_REFRESHTOKEN, tokens.getRefresh_token());
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
-
       }
    }
 
@@ -165,7 +165,7 @@ public class TokensRetrievalHandler implements HttpHandler {
       final OutputStream outputStream = httpExchange.getResponseBody();
 
       final StringBuilder htmlBuilder = new StringBuilder();
-      htmlBuilder.append("<html><body><h1>" + Messages.Html_CloseBrowser_Text + "</h1></body></html>");
+      htmlBuilder.append("<html><body><h1>" + Messages.Html_CloseBrowser_Text + "</h1></body></html>"); //$NON-NLS-1$ //$NON-NLS-2$
 
       // this line is a must
       httpExchange.sendResponseHeaders(200, htmlBuilder.length());

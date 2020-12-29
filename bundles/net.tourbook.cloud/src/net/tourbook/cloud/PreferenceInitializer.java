@@ -31,7 +31,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.DROPBOX_REFRESHTOKEN, UI.EMPTY_STRING);
-      store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, 0);
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, 0);
 
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN, UI.EMPTY_STRING);
