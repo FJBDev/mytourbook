@@ -22,7 +22,6 @@ import java.util.Map;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.IPreferences;
 import net.tourbook.cloud.oauth2.IOAuth2Constants;
-import net.tourbook.cloud.strava.Tokens;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -30,9 +29,11 @@ import net.tourbook.common.util.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-public class MyHttpHandler implements HttpHandler {
+public class MyHttpHandler implements HttpHandler, IPropertyChangeListener {
 
    private static HttpClient   _httpClient        = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
    private static final String DropboxApiBaseUrl  = "https://api.dropboxapi.com";                                         //$NON-NLS-1$
@@ -47,7 +48,7 @@ public class MyHttpHandler implements HttpHandler {
       _codeVerifier = codeVerifier;
    }
 
-   private static Tokens getTokens(final String authorizationCode,
+   private static DropboxTokens getTokens(final String authorizationCode,
                                    final boolean isRefreshToken,
                                    final String refreshToken,
                                    final String codeVerifier) {
@@ -74,12 +75,12 @@ public class MyHttpHandler implements HttpHandler {
             .uri(URI.create(DropboxApiBaseUrl + "/oauth2/token"))//$NON-NLS-1$
             .build();
 
-      Tokens token = new Tokens();
+      DropboxTokens token = new DropboxTokens();
       try {
          final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
-            token = new ObjectMapper().readValue(response.body(), Tokens.class);
+            token = new ObjectMapper().readValue(response.body(), DropboxTokens.class);
 
             return token;
          }
@@ -171,6 +172,12 @@ public class MyHttpHandler implements HttpHandler {
 
    }
 
+   @Override
+   public void propertyChange(final PropertyChangeEvent arg0) {
+      // TODO Auto-generated method stub
+
+   }
+
    private void retrieveTokensFromResponse(final URI uri) {
 
       final char[] separators = { '#', '&', '?' };
@@ -192,7 +199,7 @@ public class MyHttpHandler implements HttpHandler {
       }
 
       //get tokens from auth code
-      final Tokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING, _codeVerifier);
+      final DropboxTokens newTokens = getTokens(authorizationCode, false, UI.EMPTY_STRING, _codeVerifier);
 
       if (StringUtils.hasContent(newTokens.getAccess_token())) {
          _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, newTokens.getAccess_token());

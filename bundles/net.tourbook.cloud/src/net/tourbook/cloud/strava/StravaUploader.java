@@ -101,7 +101,7 @@ public class StravaUploader extends TourbookCloudUploader {
       return activityUpload;
    }
 
-   public static Tokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+   public static StravaTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
       final StringBuilder body = new StringBuilder();
       String grantType;
@@ -127,7 +127,7 @@ public class StravaUploader extends TourbookCloudUploader {
          final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
          if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
-            final Tokens token = new ObjectMapper().readValue(response.body(), Tokens.class);
+            final StravaTokens token = new ObjectMapper().readValue(response.body(), StravaTokens.class);
 
             return token;
          }
@@ -305,7 +305,7 @@ public class StravaUploader extends TourbookCloudUploader {
          return;
       }
 
-      final Tokens newTokens = getTokens(UI.EMPTY_STRING, true, getRefreshToken());
+      final StravaTokens newTokens = getTokens(UI.EMPTY_STRING, true, getRefreshToken());
 
       if (newTokens != null) {
          setAccessTokenExpirationDate(newTokens.getExpires_at());

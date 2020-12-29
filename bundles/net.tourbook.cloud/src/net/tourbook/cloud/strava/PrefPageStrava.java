@@ -221,7 +221,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
                oAuth2Browser.getResponse());
       } else {
-         final Tokens newTokens = StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
+         final StravaTokens newTokens = StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
 
          if (newTokens != null) {
 
