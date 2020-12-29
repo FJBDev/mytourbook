@@ -213,6 +213,10 @@ public class DropboxClient {
 
    public static String getValidTokens() {
 
+      if (StringUtils.isNullOrEmpty(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN))) {
+         return UI.EMPTY_STRING;
+      }
+
       if (!OAuth2Utils.isAccessTokenExpired(_prefStore.getLong(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
             Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN) * 1000)) {
          return _prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN);

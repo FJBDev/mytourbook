@@ -37,6 +37,7 @@ import net.tourbook.web.WEB;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -67,8 +68,11 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
    /*
     * UI controls
     */
+   private Label                   _labelAccessToken;
    private Label                   _labelAccessToken_Value;
+   private Label                   _labelExpiresAt;
    private Label                   _labelExpiresAt_Value;
+   private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
 
    private void addPrefListener() {
@@ -88,6 +92,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
                      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
 
                      stopCallBackServer();
+
+                     updateTokensInformationGroup();
                   }
                });
             }
@@ -170,35 +176,37 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
 
    private void createUI_20_TokensInformation(final Composite parent) {
 
+      final PixelConverter pc = new PixelConverter(parent);
+
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       group.setText(Messages.Pref_CloudConnectivity_Dropbox_Tokens_Information_Group);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          {
-            final Label labelAccessToken = new Label(group, SWT.NONE);
-            labelAccessToken.setText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label);
-            GridDataFactory.fillDefaults().applyTo(labelAccessToken);
+            _labelAccessToken = new Label(group, SWT.NONE);
+            _labelAccessToken.setText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label);
+            GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
-            _labelAccessToken_Value = new Label(group, SWT.NONE);
+            _labelAccessToken_Value = new Label(group, SWT.WRAP);
             _labelAccessToken_Value.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAccessToken_Value);
+            GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_labelAccessToken_Value);
          }
          {
-            final Label labelExpiresAt = new Label(group, SWT.NONE);
-            labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
-            GridDataFactory.fillDefaults().applyTo(labelExpiresAt);
+            _labelExpiresAt = new Label(group, SWT.NONE);
+            _labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
+            GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(group, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
          }
          {
-            final Label labelRefreshToken = new Label(group, SWT.NONE);
-            labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
-            GridDataFactory.fillDefaults().applyTo(labelRefreshToken);
+            _labelRefreshToken = new Label(group, SWT.NONE);
+            _labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
+            GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
-            _labelRefreshToken_Value = new Label(group, SWT.NONE);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelRefreshToken_Value);
+            _labelRefreshToken_Value = new Label(group, SWT.WRAP);
+            GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_labelRefreshToken_Value);
          }
       }
    }
@@ -275,6 +283,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.DROPBOX_REFRESHTOKEN));
 
+      updateTokensInformationGroup();
+
       super.performDefaults();
    }
 
@@ -302,6 +312,8 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
       _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
       _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
+
+      updateTokensInformationGroup();
    }
 
    private void stopCallBackServer() {
@@ -315,5 +327,14 @@ public class PrefPageDropbox extends PreferencePage implements IWorkbenchPrefere
       if (_threadPoolExecutor != null) {
          _threadPoolExecutor.shutdownNow();
       }
+   }
+
+   private void updateTokensInformationGroup() {
+
+      final boolean isAuthorized = StringUtils.hasContent(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
+
+      _labelRefreshToken.setEnabled(isAuthorized);
+      _labelExpiresAt.setEnabled(isAuthorized);
+      _labelAccessToken.setEnabled(isAuthorized);
    }
 }
