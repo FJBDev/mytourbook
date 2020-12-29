@@ -18,8 +18,8 @@ package net.tourbook.cloud.dropbox;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -50,21 +50,40 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String      ID         = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
-   private HttpServer         _server;
-   private ThreadPoolExecutor _threadPoolExecutor;
-   private MyHttpHandler      _myHttpHandler;
+   private IPreferenceStore        _prefStore = Activator.getDefault().getPreferenceStore();
+   private IPropertyChangeListener _prefChangeListener;
+
+   private HttpServer              _server;
+   private ThreadPoolExecutor      _threadPoolExecutor;
+   private MyHttpHandler           _myHttpHandler;
    /*
     * UI controls
     */
-   private Text               _textAccessToken;
+   private Text                    _textAccessToken;
+
+   private void addPrefListener() {
+
+      _prefChangeListener = new IPropertyChangeListener() {
+         @Override
+         public void propertyChange(final PropertyChangeEvent event) {
+            if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
+
+               _textAccessToken.setText(_prefStore.getString(IPreferences.DROPBOX_ACCESSTOKEN));
+
+               stopCallBackServer();
+            }
+         }
+      };
+
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
+   }
 
    private void createCallBackServer(final String codeVerifier) {
       try {
          _server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-         _myHttpHandler = new MyHttpHandler();
+         _myHttpHandler = new MyHttpHandler(codeVerifier);
          _server.createContext("/dropboxAuthorizationCode", _myHttpHandler);
          _threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
@@ -72,10 +91,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
          _server.start();
 
-         System.out.println(" Server started on port 8001");
-
       } catch (final IOException e) {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
    }
@@ -86,6 +102,9 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       createUI();
 
       restoreState();
+
+      addPrefListener();
+
    }
 
    private void createUI() {
@@ -127,11 +146,11 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       byte[] digest = null;
       try {
-         final byte[] bytes = codeVerifier.getBytes("US-ASCII");
+         final byte[] bytes = codeVerifier.getBytes(StandardCharsets.US_ASCII);
          final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
          messageDigest.update(bytes, 0, bytes.length);
          digest = messageDigest.digest();
-      } catch (final UnsupportedEncodingException | NoSuchAlgorithmException e) {
+      } catch (final NoSuchAlgorithmException e) {
          e.printStackTrace();
       }
 
@@ -146,18 +165,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    }
 
    @Override
-   public void init(final IWorkbench workbench) {
-
-      _prefStore.addPropertyChangeListener(new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
-            if (event.getProperty().equals(IPreferences.DROPBOX_ACCESSTOKEN)) {
-
-               stopCallBackServer();
-            }
-         }
-      });
-   }
+   public void init(final IWorkbench workbench) {}
 
    /**
     * When the user clicks on the "Authorize" button, a browser is opened
@@ -180,6 +188,18 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    }
 
    @Override
+   public boolean performCancel() {
+
+      final boolean isCancel = super.performCancel();
+
+      if (isCancel) {
+         stopCallBackServer();
+      }
+
+      return isCancel;
+   }
+
+   @Override
    protected void performDefaults() {
 
       _textAccessToken.setText(_prefStore.getDefaultString(IPreferences.DROPBOX_ACCESSTOKEN));
@@ -197,6 +217,8 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       if (isOK) {
          _prefStore.setValue(IPreferences.DROPBOX_ACCESSTOKEN, _textAccessToken.getText());
+
+         stopCallBackServer();
       }
 
       return isOK;
@@ -207,10 +229,12 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    }
 
    private void stopCallBackServer() {
-      _textAccessToken.setText(_myHttpHandler.getAuthorizationCode());
 
-      _server.stop(1);
-      _threadPoolExecutor.shutdownNow();
-
+      if (_server != null) {
+         _server.stop(1);
+      }
+      if (_threadPoolExecutor != null) {
+         _threadPoolExecutor.shutdownNow();
+      }
    }
 }
