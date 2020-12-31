@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1110,6 +1110,7 @@ public class GPX_SAX_Handler extends DefaultHandler {
          _tourData.setTourDeviceTime_Recorded(_tourData.getTourDeviceTime_Elapsed());
          _tourData.computeTourMovingTime();
          _tourData.computeComputedValues();
+         _tourData.computeTrainingStressData();
 
          finalizeTour_AdjustMarker();
          finalizeTour_TourType();

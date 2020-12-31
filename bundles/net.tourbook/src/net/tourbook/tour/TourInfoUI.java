@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.IToolTipProvider;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
@@ -45,6 +46,7 @@ import net.tourbook.ui.action.ActionTourToolTip_EditTour;
 import net.tourbook.ui.action.Action_ToolTip_EditPreferences;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -192,6 +194,7 @@ public class TourInfoUI {
    private Label     _lblAvgCadenceUnit;
    private Label     _lblAvg_Power;
    private Label     _lblAvg_PowerUnit;
+   private Label     _lblBikeScore;
    private Label     _lblBodyWeight;
    private Label     _lblBreakTime;
    private Label     _lblBreakTime_Unit;
@@ -209,6 +212,7 @@ public class TourInfoUI {
    private Label     _lblGear_FrontShifts;
    private Label     _lblGear_RearShifts;
    private Label     _lblMaxAltitude;
+   private Label     _lblGovss;
    private Label     _lblMaxAltitudeUnit;
    private Label     _lblMaxPace;
    private Label     _lblMaxPaceUnit;
@@ -225,6 +229,7 @@ public class TourInfoUI {
    private Label     _lblRecordedTime;
    private Label     _lblRecordedTime_Unit;
    private Label     _lblRestPulse;
+   private Label     _lblSwimScore;
    private Label     _lblTemperature;
    private Label     _lblTimeZone_Value;
    private Label     _lblTimeZoneDifference;
@@ -275,7 +280,7 @@ public class TourInfoUI {
 
       public ActionCloseTooltip() {
 
-         super(null, Action.AS_PUSH_BUTTON);
+         super(null, IAction.AS_PUSH_BUTTON);
 
          setToolTipText(APP_ACTION_CLOSE_TOOLTIP);
          setImageDescriptor(CommonActivator.getImageDescriptor(IMAGE_APP_CLOSE));
@@ -527,6 +532,7 @@ public class TourInfoUI {
       {
          createUI_32_Time(container);
          createUI_34_DistanceAltitude(container);
+         createUI_35_TrainingStress(container);
          createUI_36_Misc(container);
 
          // gear data
@@ -652,6 +658,39 @@ public class TourInfoUI {
       _lblAltitudeDownUnit = createUI_LabelValue(container, SWT.LEAD);
 
       createUI_Spacer(container);
+   }
+
+   private void createUI_35_TrainingStress(final Composite parent) {
+
+      /*
+       * BikeScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_BikeScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblBikeScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * GOVSS
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_Govss);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblGovss = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * SwimScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_SwimScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblSwimScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      // spacer
+      createUI_Spacer(parent);
    }
 
    private void createUI_36_Misc(final Composite container) {
@@ -1410,7 +1449,7 @@ public class TourInfoUI {
       }
 
       String tourTitle = _tourData.getTourTitle();
-      if (tourTitle == null || tourTitle.trim().length() == 0) {
+      if (StringUtils.isNullOrEmpty(tourTitle)) {
 
          if (_uiTourTypeName == null) {
             tourTitle = Messages.Tour_Tooltip_Label_DefaultTitle;
@@ -1632,6 +1671,19 @@ public class TourInfoUI {
       final double avgPower = _tourData.getPower_Avg();
       _lblAvg_Power.setText(FormatManager.formatPower(avgPower));
       _lblAvg_PowerUnit.setText(UI.UNIT_POWER);
+
+      /*
+       * Training Stress
+       */
+      // BikeScore
+      final int bikeScore = _tourData.getBikeScore();
+      _lblBikeScore.setText(String.valueOf(bikeScore));
+      // GOVSS
+      final int govss = _tourData.getGovss();
+      _lblGovss.setText(String.valueOf(govss));
+      // SwimScore
+      final int swimScore = _tourData.getSwimScore();
+      _lblSwimScore.setText(String.valueOf(swimScore));
 
       // calories
       final double calories = _tourData.getCalories();

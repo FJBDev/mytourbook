@@ -262,6 +262,8 @@ public class Messages extends NLS {
    public static String        ColumnFactory_NumberOfTours_Header;
    public static String        ColumnFactory_NumberOfTours_Label;
    public static String        ColumnFactory_NumberOfTours_Tooltip;
+   public static String        ColumnFactory_Pace_Normalized_Label;
+   public static String        ColumnFactory_Pace_Normalized_Tooltip;
    public static String        ColumnFactory_PhotoTimeAdjustment_Header;
    public static String        ColumnFactory_PhotoTimeAdjustment_Label;
    public static String        ColumnFactory_PhotoTimeAdjustment_Tooltip;
@@ -502,6 +504,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_AvgPower;
    public static String        Tour_Tooltip_Label_AvgPulse;
    public static String        Tour_Tooltip_Label_AvgSpeed;
+   public static String        Tour_Tooltip_Label_BikeScore;
    public static String        Tour_Tooltip_Label_BodyWeight;
    public static String        Tour_Tooltip_Label_BreakTime;
    public static String        Tour_Tooltip_Label_Calories;
@@ -512,6 +515,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_Description;
    public static String        Tour_Tooltip_Label_Distance;
    public static String        Tour_Tooltip_Label_GearShifts;
+   public static String        Tour_Tooltip_Label_Govss;
    public static String        Tour_Tooltip_Label_Hour;
    public static String        Tour_Tooltip_Label_MaxAltitude;
    public static String        Tour_Tooltip_Label_MaxPace;
@@ -538,6 +542,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Avg;
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Max;
    public static String        Tour_Tooltip_Label_RunDyn_VerticalRatio_Min;
+   public static String        Tour_Tooltip_Label_SwimScore;
    public static String        Tour_Tooltip_Label_Tags;
    public static String        Tour_Tooltip_Label_Temperature;
    public static String        Tour_Tooltip_Label_TimeZone;

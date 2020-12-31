@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -584,5 +584,11 @@ public interface ITourbookPreferences {
     */
    public static final String WEATHER_USE_WEATHER_RETRIEVAL = "WEATHER_STATE_USE_WEATHER_RETRIEVAL"; //$NON-NLS-1$
    public static final String WEATHER_API_KEY               = "WEATHER_API_KEY";                     //$NON-NLS-1$
+
+   /*
+    * Predicted Performance
+    */
+   public static final String FITNESS_DECAY = "FITNESS_DECAY"; //$NON-NLS-1$
+   public static final String FATIGUE_DECAY = "FATIGUE_DECAY"; //$NON-NLS-1$
 
 }
