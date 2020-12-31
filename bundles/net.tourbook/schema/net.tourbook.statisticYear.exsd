@@ -105,6 +105,8 @@
                   </enumeration>
                   <enumeration value="AthleteData">
                   </enumeration>
+                  <enumeration value="TrainingStress">
+                  </enumeration>
                </restriction>
             </simpleType>
          </attribute>

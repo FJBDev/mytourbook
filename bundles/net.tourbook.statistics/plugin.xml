@@ -231,6 +231,40 @@
          category-data  ="AthleteData"
          category-time  ="Year"
       />
+      
+      <!-- TRAINING STRESS -->
+
+      <statistic
+         name           ="%Pref_Day_Summary_TrainingStress"
+         class          ="net.tourbook.statistics.graphs.StatisticDay_TrainingStress"
+         id             ="net.tourbook.statistics.StatisticSummaryDayTrainingStress"
+         category-data  ="TrainingStress"
+         category-time  ="Day"
+      />
+         
+      <statistic
+         name           ="%Pref_Week_Summary_TrainingStress"
+         class          ="net.tourbook.statistics.graphs.StatisticWeek_TrainingStress"
+         id             ="net.tourbook.statistics.StatisticSummaryWeekTrainingStress"
+         category-data  ="TrainingStress"
+         category-time  ="Week"
+      />
+         
+      <statistic
+         name           ="%Pref_Month_Summary_TrainingStress"
+         class          ="net.tourbook.statistics.graphs.StatisticMonth_TrainingStress"
+         id             ="net.tourbook.statistics.StatisticSummaryMonthTrainingStress"
+         category-data  ="TrainingStress"
+         category-time  ="Month"
+      />
+         
+      <statistic
+         name           ="%Pref_Year_Summary_TrainingStress"
+         class          ="net.tourbook.statistics.graphs.StatisticYear_TrainingStress"
+         id             ="net.tourbook.statistics.StatisticSummaryYearTrainingStress"
+         category-data  ="TrainingStress"
+         category-time  ="Year"
+      />
             
    </extension>
 
