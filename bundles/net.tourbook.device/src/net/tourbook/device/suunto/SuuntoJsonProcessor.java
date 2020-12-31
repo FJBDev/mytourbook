@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
+import de.byteholder.geoclipse.map.UI;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -22,7 +24,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +83,7 @@ public class SuuntoJsonProcessor {
    private static final String TotalLengths         = "TotalLengths";                                  //$NON-NLS-1$
    private static final String Stroke               = "Stroke";                                        //$NON-NLS-1$
    private static final String Turn                 = "Turn";                                          //$NON-NLS-1$
-   private static int          previousTotalLengths = 0;
+   private int                 previousTotalLengths = 0;
 
    private List<TimeData>      _sampleList;
    private int                 _numLaps;
@@ -123,15 +124,12 @@ public class SuuntoJsonProcessor {
    private void cleanUpActivity(final List<TimeData> activityData, final boolean isIndoorTour) {
 
       // Also, we first need to make sure that they truly are in chronological order.
-      Collections.sort(activityData, new Comparator<TimeData>() {
-         @Override
-         public int compare(final TimeData firstTimeData, final TimeData secondTimeData) {
-            // -1 - less than, 1 - greater than, 0 - equal.
+      Collections.sort(activityData, (firstTimeData, secondTimeData) -> {
+         // -1 - less than, 1 - greater than, 0 - equal.
 
-            final int isLessThanOrEqual = firstTimeData.absoluteTime < secondTimeData.absoluteTime ? -1 : 0;
+         final int isLessThanOrEqual = firstTimeData.absoluteTime < secondTimeData.absoluteTime ? -1 : 0;
 
-            return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : isLessThanOrEqual;
-         }
+         return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : isLessThanOrEqual;
       });
 
       final Iterator<TimeData> sampleListIterator = activityData.iterator();
@@ -456,8 +454,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddAltitudeData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_ALTITUDE)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_ALTITUDE);
+      if (StringUtils.hasContent(value)) {
          timeData.absoluteAltitude = Util.parseFloat(value);
          return true;
       }
@@ -474,8 +472,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddCadenceData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_CADENCE)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_CADENCE);
+      if (StringUtils.hasContent(value)) {
          timeData.cadence = Util.parseFloat(value) * 60.0f;
          return true;
       }
@@ -492,8 +490,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddDistanceData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_DISTANCE)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_DISTANCE);
+      if (StringUtils.hasContent(value)) {
          timeData.absoluteDistance = Util.parseFloat(value);
          return true;
       }
@@ -541,8 +539,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddHeartRateData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_HR)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_HR);
+      if (StringUtils.hasContent(value)) {
          timeData.pulse = Util.parseFloat(value) * 60.0f;
          return true;
       }
@@ -560,8 +558,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddPowerData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_POWER)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_POWER);
+      if (StringUtils.hasContent(value)) {
          timeData.power = Util.parseFloat(value);
          return true;
       }
@@ -578,8 +576,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddSpeedData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_SPEED)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_SPEED);
+      if (StringUtils.hasContent(value)) {
          timeData.speed = Util.parseFloat(value);
          return true;
       }
@@ -609,7 +607,11 @@ public class SuuntoJsonProcessor {
       final JSONObject array = (JSONObject) Events.get(0);
       final String swimmingSample = ((JSONObject) array.get(Swimming)).toString();
 
-      final SwimData previousSwimData = allSwimData.isEmpty() ? null : allSwimData.get(allSwimData.size() - 1);
+      if (allSwimData.isEmpty()) {
+         return false;
+      }
+
+      final SwimData previousSwimData = allSwimData.get(allSwimData.size() - 1);
 
       final String swimmingType = TryRetrieveStringElementValue(
             swimmingSample,
@@ -654,6 +656,7 @@ public class SuuntoJsonProcessor {
                break;
 
             case Other:
+            default:
                break;
             }
          }
@@ -663,6 +666,9 @@ public class SuuntoJsonProcessor {
 
          wasDataPopulated = true;
          previousTotalLengths = currentTotalLengths;
+         break;
+
+      default:
          break;
       }
 
@@ -679,8 +685,8 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddTemperatureData(final String currentSample, final TimeData timeData) {
-      String value = null;
-      if ((value = TryRetrieveStringElementValue(currentSample, TAG_TEMPERATURE)) != null) {
+      final String value = TryRetrieveStringElementValue(currentSample, TAG_TEMPERATURE);
+      if (StringUtils.hasContent(value)) {
          timeData.temperature = (float) (Util.parseFloat(value) + net.tourbook.math.Fmath.T_ABS);
          return true;
       }
@@ -724,7 +730,7 @@ public class SuuntoJsonProcessor {
             // Heart rate (bpm) = 60 / R-R (seconds)
             // If the RR value is the sum of several intervals, we average it
             // using the difference between the current index and the last used index.
-            final float convertedNumber = 60 / (currentRRSum / 1000f) * (currentRRindex - lastRRIndex + 1);
+            final float convertedNumber = currentRRSum == 0 ? 0 : 60 / (currentRRSum / 1000f) * (currentRRindex - lastRRIndex + 1);
             activityData.get(currentActivityIndex).pulse = convertedNumber;
 
             currentRRSum = rrDataList.get(currentRRindex);
@@ -746,7 +752,7 @@ public class SuuntoJsonProcessor {
       final ArrayList<Integer> elementValues = new ArrayList<>();
       final String elements = TryRetrieveStringElementValue(token, elementName);
 
-      if (elements == null) {
+      if (StringUtils.hasContent(elements)) {
          return elementValues;
       }
 
@@ -769,16 +775,14 @@ public class SuuntoJsonProcessor {
     */
    private String TryRetrieveStringElementValue(final String token, final String elementName) {
       if (!token.contains(elementName)) {
-         return null;
+         return UI.EMPTY_STRING;
       }
 
-      String result = null;
-      try {
-         result = new JSONObject(token).get(elementName).toString();
-         if (result.equals("null")) { //$NON-NLS-1$
-            return null;
-         }
-      } catch (final Exception e) {}
+      String result;
+      result = new JSONObject(token).get(elementName).toString();
+      if (result.equals("null")) { //$NON-NLS-1$
+         return UI.EMPTY_STRING;
+      }
 
       return result;
    }
