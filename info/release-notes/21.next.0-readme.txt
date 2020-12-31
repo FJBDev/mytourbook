@@ -1,0 +1,75 @@
+21.next.0                                                 ?. Month 2021
+
+
+TODO's
+======
+
+* Website: Document cloud connections
+
+  @wolfgang-ch In the Strava guidelines, I read this : https://developers.strava.com/guidelines/
+  "All apps must display the “Powered by Strava” logo or “Compatible with Strava” logo on all websites, apps and any distributable media such as images, videos or prints. No variations or modifications are acceptable."
+
+  I am thinking you could display the logo "Compatible With Strava" on the website in the next release and that would comply with their requirements ?
+
+* Frederic : Remove the unused redirect_uri in the Dropbox app console once the new version is released
+
+
+Issues
+======
+
+*  java.lang.NullPointerException
+    at net.tourbook.tour.DialogAdjustAltitude.spline_CreateDefaultSplineData(DialogAdjustAltitude.java:2231)
+    at net.tourbook.tour.DialogAdjustAltitude.createDialogArea(DialogAdjustAltitude.java:823)
+    at org.eclipse.jface.dialogs.TitleAreaDialog.createContents(TitleAreaDialog.java:161)
+    at org.eclipse.jface.window.Window.create(Window.java:431)
+    at org.eclipse.jface.dialogs.Dialog.create(Dialog.java:1094)
+    at net.tourbook.tour.DialogAdjustAltitude.create(DialogAdjustAltitude.java:629)
+    at org.eclipse.jface.window.Window.open(Window.java:788)
+    at net.tourbook.tour.ActionOpenAdjustAltitudeDialog.doAction(ActionOpenAdjustAltitudeDialog.java:95)
+    at net.tourbook.tour.ActionOpenAdjustAltitudeDialog.run(ActionOpenAdjustAltitudeDialog.java:116)
+    at org.eclipse.jface.action.Action.runWithEvent(Action.java:474)
+
+
+  
+New
+===
+
+* Strava Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/273
+  - Ability to upload tours to a Strava account.
+
+
+
+Improvements
+============
+
+* 
+
+
+Changes  
+=======
+
+* Dropbox Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/277
+  - Switched to the new PKCE OAuth2 flow (The Implicit grant flow previously used is now considered deprecated by Dropbox: "[Legacy. We recommend the PKCE flow.]")
+  - Because Dropbox doesn't support Web Views, the authorization is now done in the user's default browser. See the PR link for the details about the new authorization steps
+
+
+Bugfix
+======
+
+* A few measurement system values were wrong
+
+
+Translation    
+===========
+
+- Czech 20.11 (Lukas)
+- Dutch (Maarten)
+- French (Frederic)
+- German
+- Italian (Doriano)
+
+ 
+System   
+======
+
+* Eclipse 2020-12 (maybe)

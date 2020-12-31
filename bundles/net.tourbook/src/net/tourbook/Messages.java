@@ -452,6 +452,7 @@ public class Messages extends NLS {
    public static String        action_tourbook_select_year_month_tours;
    public static String        action_tourCatalog_open_compare_wizard;
    public static String        action_tourType_modify_tourTypes;
+   public static String        App_Action_Upload_Tour;
 
    public static String        adjust_altitude_action_create_spline_point;
    public static String        adjust_altitude_btn_reset_altitude;
@@ -1506,13 +1507,17 @@ public class Messages extends NLS {
 
    public static String        Photo_Filter_Label_NumberOfAllPhotos_Tooltip;
    public static String        Photo_Filter_Label_NumberOfFilteredPhotos_Tooltip;
-   public static String        Photo_Filter_Label_PhotoFilter;
    public static String        Photo_Filter_Label_RatingStars;
    public static String        Photo_Filter_Label_RatingStars_Tooltip;
+   public static String        Photo_Filter_Operator_HasAny;
+   public static String        Photo_Filter_Operator_HasAny_Tooltip;
    public static String        Photo_Filter_Operator_IsEqual;
+   public static String        Photo_Filter_Operator_IsEqual_Tooltip;
    public static String        Photo_Filter_Operator_IsLess;
+   public static String        Photo_Filter_Operator_IsLess_Tooltip;
    public static String        Photo_Filter_Operator_IsMore;
-
+   public static String        Photo_Filter_Operator_IsMore_Tooltip;
+   public static String        Photo_Filter_Title_Map2PhotoFilter;
    public static String        Photo_Gallery_Action_ToggleGalleryHorizontal_ToolTip;
    public static String        Photo_Gallery_Action_ToggleGalleryVertical_ToolTip;
    public static String        Photo_Gallery_Label_NoTourWithPhoto;
