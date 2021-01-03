@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -66,6 +66,9 @@ public abstract class TourStatisticData_Common {
    float[]   athleteBodyWeight_High;
    float[]   athleteBodyFat_Low;
    float[]   athleteBodyFat_High;
+
+   float[]   predictedPerformance_Low;
+   float[]   predictedPerformance_High;
 
    /**
     * Contains the used {@link TourType} ID or -1 when not available. This data has the same length

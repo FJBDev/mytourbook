@@ -312,8 +312,8 @@ public abstract class StatisticYear extends TourbookStatistic {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.LINE,
-            _statisticData_Year.athleteBodyFat_Low,
-            _statisticData_Year.athleteBodyFat_High);
+            _statisticData_Year.predictedPerformance_Low,
+            _statisticData_Year.predictedPerformance_High);
 
       yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
       yData.setUnitLabel(UI.UNIT_PERCENT);
