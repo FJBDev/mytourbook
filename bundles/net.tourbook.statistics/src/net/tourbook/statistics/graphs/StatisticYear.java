@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,6 @@ package net.tourbook.statistics.graphs;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartDataSerie;
@@ -46,14 +45,11 @@ import net.tourbook.ui.ChartOptions_Grid;
 import net.tourbook.ui.TourTypeFilter;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
 public abstract class StatisticYear extends TourbookStatistic {
-
-   private final IPreferenceStore   _prefStore             = TourbookPlugin.getPrefStore();
 
    private TourStatisticData_Year   _statisticData_Year;
    private DataProvider_Tour_Year   _tourYear_DataProvider = new DataProvider_Tour_Year();
@@ -84,8 +80,8 @@ public abstract class StatisticYear extends TourbookStatistic {
 
       final int yearCounter = tourDataYear.elevationUp_High[0].length;
 
-      final double segmentStart[] = new double[_statNumberOfYears];
-      final double segmentEnd[] = new double[_statNumberOfYears];
+      final double[] segmentStart = new double[_statNumberOfYears];
+      final double[] segmentEnd = new double[_statNumberOfYears];
       final String[] segmentTitle = new String[_statNumberOfYears];
 
       final int oldestYear = _statFirstYear - _statNumberOfYears + 1;
@@ -158,7 +154,7 @@ public abstract class StatisticYear extends TourbookStatistic {
 
       // set the x-axis
       final ChartDataXSerie xData = new ChartDataXSerie(createYearData(_statisticData_Year));
-      xData.setAxisUnit(ChartDataXSerie.X_AXIS_UNIT_YEAR);
+      xData.setAxisUnit(ChartDataSerie.X_AXIS_UNIT_YEAR);
       xData.setChartSegments(createChartSegments(_statisticData_Year));
       chartDataModel.setXData(xData);
    }
@@ -312,10 +308,48 @@ public abstract class StatisticYear extends TourbookStatistic {
       chartDataModel.addYData(yData);
    }
 
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.athleteBodyFat_Low,
+            _statisticData_Year.athleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.athleteBodyFat_Low,
+            _statisticData_Year.athleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _appTourTypeFilter);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
    private double[] createYearData(final TourStatisticData_Year tourDataYear) {
 
       final int yearCounter = tourDataYear.elevationUp_High[0].length;
-      final double allYears[] = new double[yearCounter];
+      final double[] allYears = new double[yearCounter];
 
       for (int yearIndex = 0; yearIndex < yearCounter; yearIndex++) {
          allYears[yearIndex] = yearIndex;

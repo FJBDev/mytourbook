@@ -18,27 +18,27 @@ package net.tourbook.statistics.graphs;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
 
-public class StatisticYear_TrainingStress extends StatisticYear {
+public class StatisticMonth_TrainingStress extends StatisticMonth {
 
    @Override
    protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_YEAR_TRAINING_STRESS;
+      return STATE_BAR_ORDERING_MONTH_ATHLETEDATA;
    }
 
    @Override
    ChartDataModel getChartDataModel() {
 
-      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
+      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
-      createXData_Year(chartDataModel);
-      createYData_PredictedPerformance(chartDataModel);
-      createYData_TrainingStress(chartDataModel);
+      createXData_Months(chartDataModel);
+//      createYData_TrainingStress(chartDataModel);
+//      createYData_PredictedPerformance(chartDataModel);
 
       return chartDataModel;
    }
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_YEAR_ATHLETEDATA;
+      return GRID_MONTH_TRAININGSTRESS;
    }
 }

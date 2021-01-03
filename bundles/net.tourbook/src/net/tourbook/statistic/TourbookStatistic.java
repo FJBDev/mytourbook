@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,44 +47,49 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_YEAR_SUMMARY            = "STATE_BAR_ORDERING_YEAR_SUMMARY";            //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_TIME               = "STATE_BAR_ORDERING_YEAR_TIME";               //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_ATHLETEDATA        = "STATE_BAR_ORDERING_YEAR_WEIGHT";             //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_YEAR_TRAINING_STRESS    = "STATE_BAR_ORDERING_YEAR_TRAINING_STRESS";    //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH = "STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH"; ////$NON-NLS-1$
 
    /*
     * Grid prefixes
     */
-   protected static final String    GRID_DAY_ALTITUDE      = "GRID_DAY_ALTITUDE__";        //$NON-NLS-1$
-   protected static final String    GRID_DAY_DISTANCE      = "GRID_DAY_DISTANCE__";        //$NON-NLS-1$
-   protected static final String    GRID_DAY_SUMMARY       = "GRID_DAY_SUMMARY__";         //$NON-NLS-1$
-   protected static final String    GRID_DAY_TIME          = "GRID_DAY_TIME__";            //$NON-NLS-1$
-   protected static final String    GRID_DAY_ATHLETEDATA   = "GRID_DAY_WEIGHT__";          //$NON-NLS-1$
+   protected static final String    GRID_DAY_ALTITUDE         = "GRID_DAY_ALTITUDE__";         //$NON-NLS-1$
+   protected static final String    GRID_DAY_ATHLETEDATA      = "GRID_DAY_ATHLETEDATA__";      //$NON-NLS-1$
+   protected static final String    GRID_DAY_DISTANCE         = "GRID_DAY_DISTANCE__";         //$NON-NLS-1$
+   protected static final String    GRID_DAY_SUMMARY          = "GRID_DAY_SUMMARY__";          //$NON-NLS-1$
+   protected static final String    GRID_DAY_TIME             = "GRID_DAY_TIME__";             //$NON-NLS-1$
+   protected static final String    GRID_DAY_TRAININGSTRESS   = "GRID_DAY_TRAININGSTRESS__";   //$NON-NLS-1$
 
-   protected static final String    GRID_WEEK_ALTITUDE     = "GRID_WEEK_ALTITUDE__";       //$NON-NLS-1$
-   protected static final String    GRID_WEEK_DISTANCE     = "GRID_WEEK_DISTANCE__";       //$NON-NLS-1$
-   protected static final String    GRID_WEEK_SUMMARY      = "GRID_WEEK_SUMMARY__";        //$NON-NLS-1$
-   protected static final String    GRID_WEEK_TIME         = "GRID_WEEK_TIME__";           //$NON-NLS-1$
-   protected static final String    GRID_WEEK_ATHLETEDATA  = "GRID_WEEK_WEIGHT__";         //$NON-NLS-1$
+   protected static final String    GRID_WEEK_ALTITUDE        = "GRID_WEEK_ALTITUDE__";        //$NON-NLS-1$
+   protected static final String    GRID_WEEK_ATHLETEDATA     = "GRID_WEEK_ATHLETEDATA__";     //$NON-NLS-1$
+   protected static final String    GRID_WEEK_DISTANCE        = "GRID_WEEK_DISTANCE__";        //$NON-NLS-1$
+   protected static final String    GRID_WEEK_SUMMARY         = "GRID_WEEK_SUMMARY__";         //$NON-NLS-1$
+   protected static final String    GRID_WEEK_TIME            = "GRID_WEEK_TIME__";            //$NON-NLS-1$
+   protected static final String    GRID_WEEK_TRAININGSTRESS  = "GRID_WEEK_TRAININGSTRESS__";  //$NON-NLS-1$
 
-   protected static final String    GRID_MONTH_ALTITUDE    = "GRID_MONTH_ALTITUDE__";      //$NON-NLS-1$
-   protected static final String    GRID_MONTH_DISTANCE    = "GRID_MONTH_DISTANCE__";      //$NON-NLS-1$
-   protected static final String    GRID_MONTH_SUMMARY     = "GRID_MONTH_SUMMARY__";       //$NON-NLS-1$
-   protected static final String    GRID_MONTH_TIME        = "GRID_MONTH_TIME__";          //$NON-NLS-1$
-   protected static final String    GRID_MONTH_ATHLETEDATA = "GRID_MONTH_WEIGHT__";        //$NON-NLS-1$
+   protected static final String    GRID_MONTH_ALTITUDE       = "GRID_MONTH_ALTITUDE__";       //$NON-NLS-1$
+   protected static final String    GRID_MONTH_ATHLETEDATA    = "GRID_MONTH_ATHLETEDATA__";    //$NON-NLS-1$
+   protected static final String    GRID_MONTH_DISTANCE       = "GRID_MONTH_DISTANCE__";       //$NON-NLS-1$
+   protected static final String    GRID_MONTH_SUMMARY        = "GRID_MONTH_SUMMARY__";        //$NON-NLS-1$
+   protected static final String    GRID_MONTH_TIME           = "GRID_MONTH_TIME__";           //$NON-NLS-1$
+   protected static final String    GRID_MONTH_TRAININGSTRESS = "GRID_MONTH_TRAININGSTRESS__"; //$NON-NLS-1$
 
-   protected static final String    GRID_YEAR_ALTITUDE     = "GRID_YEAR_ALTITUDE__";       //$NON-NLS-1$
-   protected static final String    GRID_YEAR_DISTANCE     = "GRID_YEAR_DISTANCE__";       //$NON-NLS-1$
-   protected static final String    GRID_YEAR_SUMMARY      = "GRID_YEAR_SUMMARY__";        //$NON-NLS-1$
-   protected static final String    GRID_YEAR_TIME         = "GRID_YEAR_TIME__";           //$NON-NLS-1$
-   protected static final String    GRID_YEAR_ATHLETEDATA  = "GRID_YEAR_WEIGHT__";         //$NON-NLS-1$
+   protected static final String    GRID_YEAR_ALTITUDE        = "GRID_YEAR_ALTITUDE__";        //$NON-NLS-1$
+   protected static final String    GRID_YEAR_ATHLETEDATA     = "GRID_YEAR_ATHLETEDATA__";     //$NON-NLS-1$
+   protected static final String    GRID_YEAR_DISTANCE        = "GRID_YEAR_DISTANCE__";        //$NON-NLS-1$
+   protected static final String    GRID_YEAR_SUMMARY         = "GRID_YEAR_SUMMARY__";         //$NON-NLS-1$
+   protected static final String    GRID_YEAR_TIME            = "GRID_YEAR_TIME__";            //$NON-NLS-1$
+   protected static final String    GRID_YEAR_TRAININGSTRESS  = "GRID_YEAR_TRAININGSTRESS__";  //$NON-NLS-1$
 
-   protected static final String    GRID_WEEK_HR_ZONE      = "GRID_WEEK_HR_ZONE__";        //$NON-NLS-1$
-   protected static final String    GRID_MONTH_HR_ZONE     = "GRID_MONTH_HR_ZONE__";       //$NON-NLS-1$
+   protected static final String    GRID_WEEK_HR_ZONE         = "GRID_WEEK_HR_ZONE__";         //$NON-NLS-1$
+   protected static final String    GRID_MONTH_HR_ZONE        = "GRID_MONTH_HR_ZONE__";        //$NON-NLS-1$
 
-   protected static final String    GRID_TOUR_FREQUENCY    = "GRID_TOUR_FREQUENCY__";      //$NON-NLS-1$
-   protected static final String    GRID_TOUR_TIME         = "GRID_TOUR_TIME__";           //$NON-NLS-1$
+   protected static final String    GRID_TOUR_FREQUENCY       = "GRID_TOUR_FREQUENCY__";       //$NON-NLS-1$
+   protected static final String    GRID_TOUR_TIME            = "GRID_TOUR_TIME__";            //$NON-NLS-1$
 
-   protected static final String    GRID_TRAINING_BAR      = "GRID_TRAINING_BAR__";        //$NON-NLS-1$
-   protected static final String    GRID_TRAINING_LINE     = "GRID_TRAINING_LINE__";       //$NON-NLS-1$
+   protected static final String    GRID_TRAINING_BAR         = "GRID_TRAINING_BAR__";         //$NON-NLS-1$
+   protected static final String    GRID_TRAINING_LINE        = "GRID_TRAINING_LINE__";        //$NON-NLS-1$
 
    /** ID from plugin.xml */
    public String                    plugin_StatisticId;
@@ -100,7 +105,7 @@ public abstract class TourbookStatistic {
 
    private boolean                  _isDataDirty;
 
-   protected final IPreferenceStore _prefStore             = TourbookPlugin.getPrefStore();
+   protected final IPreferenceStore _prefStore                = TourbookPlugin.getPrefStore();
 
    private IPropertyChangeListener  _prefChangeListener;
 

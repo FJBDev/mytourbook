@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -391,6 +391,42 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT, _activeTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Day.allAthleteBodyFat_Low,
+            _statisticData_Day.allAthleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _activeTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Day.allAthleteBodyFat_Low,
+            _statisticData_Day.allAthleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _activeTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }
