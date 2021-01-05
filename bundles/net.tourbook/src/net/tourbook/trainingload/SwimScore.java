@@ -13,30 +13,30 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.trainingstress;
+package net.tourbook.trainingload;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 
-public class BikeScore extends TrainingStress {
+public class SwimScore extends TrainingStress {
 
-   public BikeScore(final TourPerson tourPerson) {
+   public SwimScore(final TourPerson tourPerson) {
       super(tourPerson, null);
    }
 
-   public BikeScore(final TourPerson tourPerson, final TourData tourData) {
+   public SwimScore(final TourPerson tourPerson, final TourData tourData) {
       super(tourPerson, tourData);
    }
 
    /**
-    * Function that calculates the BikeScore for a given bike activity and athlete.
+    * Function that calculates the SwimScore for a given swim activity and athlete.
     * References
-    * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.564.9255&rep=rep1&type=pdf
-    * https://3record.de/about/power_estimation#bike
-    * Note : This function will assume that the tour is a bike activity. If not, be aware that the
-    * BikeScore value will be worthless.
+    * https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.590.2897&rep=rep1&type=pdf
+    * https://3record.de/about/power_estimation#swim
+    * Note : This function will assume that the tour is a swim activity. If not, be aware that the
+    * SwimScore value will be worthless.
     *
-    * @return The GOVSS value
+    * @return The SwimScore value
     */
    @Override
    public int Compute(final int startIndex, final int endIndex) {

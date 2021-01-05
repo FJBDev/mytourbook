@@ -18,30 +18,22 @@ package net.tourbook.statistics.graphs;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
 
-public class StatisticYear_TrainingStress extends StatisticYear {
-
-   //TODO FB rename to  Training Load
-   //Du coup, en francais, je ne vois pas mieux d'utiliser Charge d'entrainement pour training score et training stress
-
-   @Override
-   protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_YEAR_TRAINING_STRESS;
-   }
+public class StatisticWeek_TrainingLoad extends StatisticWeek {
 
    @Override
    ChartDataModel getChartDataModel() {
 
-      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.BAR);
+      final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
-      createXData_Year(chartDataModel);
-      createYData_PredictedPerformance(chartDataModel);
-      createYData_TrainingStress(chartDataModel);
+      createXData_Week(chartDataModel);
+//    createYData_TrainingStress(chartDataModel);
+//    createYData_PredictedPerformance(chartDataModel);
 
       return chartDataModel;
    }
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_YEAR_ATHLETEDATA;
+      return GRID_WEEK_TRAININGSTRESS;
    }
 }

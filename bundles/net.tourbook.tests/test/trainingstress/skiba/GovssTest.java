@@ -13,7 +13,7 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.device.garmin.GarminDeviceDataReader;
 import net.tourbook.device.gpx.GPX_SAX_Handler;
 import net.tourbook.importdata.DeviceData;
-import net.tourbook.trainingstress.Govss;
+import net.tourbook.trainingload.Govss;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

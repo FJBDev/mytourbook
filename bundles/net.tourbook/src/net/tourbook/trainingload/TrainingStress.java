@@ -13,37 +13,33 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.trainingstress;
+package net.tourbook.trainingload;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 
-public class SwimScore extends TrainingStress {
+public abstract class TrainingStress {
 
-   public SwimScore(final TourPerson tourPerson) {
-      super(tourPerson, null);
-   }
+   protected TourPerson _tourPerson;
+   protected TourData   _tourData;
 
-   public SwimScore(final TourPerson tourPerson, final TourData tourData) {
-      super(tourPerson, tourData);
+   protected TrainingStress(final TourPerson tourPerson, final TourData tourData) {
+      this._tourPerson = tourPerson;
+      this._tourData = tourData;
    }
 
    /**
-    * Function that calculates the SwimScore for a given swim activity and athlete.
-    * References
-    * https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.590.2897&rep=rep1&type=pdf
-    * https://3record.de/about/power_estimation#swim
-    * Note : This function will assume that the tour is a swim activity. If not, be aware that the
-    * SwimScore value will be worthless.
+    * Method that calculates the training stress for a given tour and athlete.
     *
-    * @return The SwimScore value
+    * @return The training stress value
     */
-   @Override
-   public int Compute(final int startIndex, final int endIndex) {
-      if (_tourPerson == null || _tourData == null || _tourData.timeSerie == null || startIndex >= endIndex) {
+   public int Compute() {
+      if (_tourData == null || _tourData.timeSerie == null || _tourData.timeSerie.length < 2) {
          return 0;
       }
 
-      return 0;
+      return Compute(0, _tourData.timeSerie.length);
    }
+
+   abstract int Compute(final int startIndex, final int endIndex);
 }

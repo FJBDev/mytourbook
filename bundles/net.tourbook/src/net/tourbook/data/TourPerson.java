@@ -44,7 +44,7 @@ import net.tourbook.common.util.StringUtils;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.training.TrainingManager;
-import net.tourbook.trainingstress.TrainingStressType;
+import net.tourbook.trainingload.TrainingStressType;
 import net.tourbook.ui.UI;
 
 import org.hibernate.annotations.Cascade;

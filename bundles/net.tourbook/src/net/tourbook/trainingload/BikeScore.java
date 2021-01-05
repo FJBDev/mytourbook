@@ -13,33 +13,37 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.trainingstress;
+package net.tourbook.trainingload;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 
-public abstract class TrainingStress {
+public class BikeScore extends TrainingStress {
 
-   protected TourPerson _tourPerson;
-   protected TourData   _tourData;
+   public BikeScore(final TourPerson tourPerson) {
+      super(tourPerson, null);
+   }
 
-   public TrainingStress(final TourPerson tourPerson, final TourData tourData) {
-      this._tourPerson = tourPerson;
-      this._tourData = tourData;
+   public BikeScore(final TourPerson tourPerson, final TourData tourData) {
+      super(tourPerson, tourData);
    }
 
    /**
-    * Method that calculates the training stress for a given tour and athlete.
+    * Function that calculates the BikeScore for a given bike activity and athlete.
+    * References
+    * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.564.9255&rep=rep1&type=pdf
+    * https://3record.de/about/power_estimation#bike
+    * Note : This function will assume that the tour is a bike activity. If not, be aware that the
+    * BikeScore value will be worthless.
     *
-    * @return The training stress value
+    * @return The GOVSS value
     */
-   public int Compute() {
-      if (_tourData == null || _tourData.timeSerie == null || _tourData.timeSerie.length < 2) {
+   @Override
+   public int Compute(final int startIndex, final int endIndex) {
+      if (_tourPerson == null || _tourData == null || _tourData.timeSerie == null || startIndex >= endIndex) {
          return 0;
       }
 
-      return Compute(0, _tourData.timeSerie.length);
+      return 0;
    }
-
-   abstract int Compute(final int startIndex, final int endIndex);
 }

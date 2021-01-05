@@ -75,7 +75,7 @@ public class GraphColorManager {
    public static final String            PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";       //$NON-NLS-1$
    public static final String            PREF_GRAPH_BODYFAT                      = "BodyFat";                    //$NON-NLS-1$
    public static final String            PREF_GRAPH_BODYWEIGHT                   = "BodyWeight";                 //$NON-NLS-1$
-   public static final String            PREF_GRAPH_PREDICTED_PERFORMANCE        = "TrainingStress_Performance"; //$NON-NLS-1$
+   public static final String            PREF_GRAPH_PREDICTED_PERFORMANCE        = "Predicted_Performance";      //$NON-NLS-1$
    public static final String            PREF_GRAPH_TRAINING_STRESS              = "Training_Stress";            //$NON-NLS-1$
 
    public static final String            PREF_COLOR_BRIGHT                       = "bright";                     //$NON-NLS-1$

@@ -44,11 +44,11 @@ import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
 import net.tourbook.training.DialogHRZones;
 import net.tourbook.training.TrainingManager;
-import net.tourbook.trainingstress.PrefPageBikeScore;
-import net.tourbook.trainingstress.PrefPageGovss;
-import net.tourbook.trainingstress.PrefPageSwimScore;
-import net.tourbook.trainingstress.PrefPageTrainingStressModel;
-import net.tourbook.trainingstress.PrefPageTrainingStressModel.IPersonModifiedListener;
+import net.tourbook.trainingload.PrefPageBikeScore;
+import net.tourbook.trainingload.PrefPageGovss;
+import net.tourbook.trainingload.PrefPageSwimScore;
+import net.tourbook.trainingload.PrefPageTrainingStressModel;
+import net.tourbook.trainingload.PrefPageTrainingStressModel.IPersonModifiedListener;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
