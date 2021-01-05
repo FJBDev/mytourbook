@@ -20,6 +20,9 @@ import net.tourbook.chart.ChartType;
 
 public class StatisticYear_TrainingStress extends StatisticYear {
 
+   //TODO FB rename to  Training Load
+   //Du coup, en francais, je ne vois pas mieux d'utiliser Charge d'entrainement pour training score et training stress
+
    @Override
    protected String getBarOrderingStateKey() {
       return STATE_BAR_ORDERING_YEAR_TRAINING_STRESS;
