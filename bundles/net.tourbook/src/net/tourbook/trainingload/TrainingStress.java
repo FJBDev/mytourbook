@@ -24,8 +24,8 @@ public abstract class TrainingStress {
    protected TourData   _tourData;
 
    protected TrainingStress(final TourPerson tourPerson, final TourData tourData) {
-      this._tourPerson = tourPerson;
-      this._tourData = tourData;
+      _tourPerson = tourPerson;
+      _tourData = tourData;
    }
 
    /**
