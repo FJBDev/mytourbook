@@ -263,7 +263,11 @@ public class StravaUploader extends TourbookCloudUploader {
             StringUtils.hasContent(getRefreshToken());
    }
 
-   private String mapTourType(final TourData manualTour) {
+   private String mapTourType(final TourData manualTour, final boolean isTrainerActivity) {
+
+      if (isTrainerActivity) {
+         return StravaActivityTypes.get(0);
+      }
 
       final String tourTypeName = manualTour.getTourType() != null ? manualTour.getTourType().getName() : UI.EMPTY_STRING;
 
@@ -272,6 +276,7 @@ public class StravaUploader extends TourbookCloudUploader {
             return stravaActivityType;
          }
       }
+
       return UI.EMPTY_STRING;
    }
 
@@ -336,6 +341,13 @@ public class StravaUploader extends TourbookCloudUploader {
       }
    }
 
+   /**
+    * https://developers.strava.com/playground/#/Uploads/createUpload
+    *
+    * @param compressedTourAbsoluteFilePath
+    * @param tourData
+    * @return
+    */
    private CompletableFuture<ActivityUpload> uploadFile(final String compressedTourAbsoluteFilePath, final TourData tourData) {
 
       final MultiPartBodyPublisher publisher = new MultiPartBodyPublisher()
@@ -363,7 +375,9 @@ public class StravaUploader extends TourbookCloudUploader {
     */
    private CompletableFuture<ActivityUpload> uploadManualTour(final TourData manualTour) {
 
-      final String stravaActivityType = mapTourType(manualTour);
+      final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer");
+
+      final String stravaActivityType = mapTourType(manualTour, isTrainerActivity);
 
       final String body = "{" + //$NON-NLS-1$
             "\"name\": \"" + manualTour.getTourTitle() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
@@ -371,7 +385,8 @@ public class StravaUploader extends TourbookCloudUploader {
             "\"start_date_local\": \"" + manualTour.getTourStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + "\"," + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             "\"elapsed_time\": \"" + manualTour.getTourDeviceTime_Elapsed() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"description\": \"" + manualTour.getTourDescription() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
-            "\"distance\": \"" + manualTour.getTourDistance() + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
+            "\"distance\": \"" + manualTour.getTourDistance() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
+            "\"trainer\": \"" + (isTrainerActivity ? "1" : "0") + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(StravaBaseUrl + "/activities")) //$NON-NLS-1$
