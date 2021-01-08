@@ -263,11 +263,9 @@ public class StravaUploader extends TourbookCloudUploader {
             StringUtils.hasContent(getRefreshToken());
    }
 
-   private String mapTourType(final TourData manualTour, final boolean isTrainerActivity) {
+   private String mapTourType(final TourData manualTour) {
 
-      if (isTrainerActivity) {
-         return StravaActivityTypes.get(0);
-      }
+      final String defaultStravaActivityType = StravaActivityTypes.get(0);
 
       final String tourTypeName = manualTour.getTourType() != null ? manualTour.getTourType().getName() : UI.EMPTY_STRING;
 
@@ -277,7 +275,7 @@ public class StravaUploader extends TourbookCloudUploader {
          }
       }
 
-      return UI.EMPTY_STRING;
+      return defaultStravaActivityType;
    }
 
    private String processTour(final TourData tourData, final String absoluteTourFilePath) {
@@ -375,9 +373,9 @@ public class StravaUploader extends TourbookCloudUploader {
     */
    private CompletableFuture<ActivityUpload> uploadManualTour(final TourData manualTour) {
 
-      final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer");
+      final String stravaActivityType = mapTourType(manualTour);
 
-      final String stravaActivityType = mapTourType(manualTour, isTrainerActivity);
+      final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer");
 
       final String body = "{" + //$NON-NLS-1$
             "\"name\": \"" + manualTour.getTourTitle() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
