@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -375,16 +374,16 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final String stravaActivityType = mapTourType(manualTour);
 
-      final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer");
+      final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer"); //$NON-NLS-1$
 
       final String body = "{" + //$NON-NLS-1$
             "\"name\": \"" + manualTour.getTourTitle() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"type\": \"" + stravaActivityType + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
-            "\"start_date_local\": \"" + manualTour.getTourStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + "\"," + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            "\"start_date_local\": \"" + TimeTools.getUTCISODateTime(manualTour.getTourStartTimeMS()) + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"elapsed_time\": \"" + manualTour.getTourDeviceTime_Elapsed() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"description\": \"" + manualTour.getTourDescription() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"distance\": \"" + manualTour.getTourDistance() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
-            "\"trainer\": \"" + (isTrainerActivity ? "1" : "0") + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
+            "\"trainer\": \"" + (isTrainerActivity ? "1" : "0") + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(StravaBaseUrl + "/activities")) //$NON-NLS-1$
