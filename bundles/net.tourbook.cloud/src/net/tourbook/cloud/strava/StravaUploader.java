@@ -203,16 +203,28 @@ public class StravaUploader extends TourbookCloudUploader {
       if (StringUtils.hasContent(activityUpload.getError())) {
 
          TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_004_UploadError, activityUpload.getTourDate(), activityUpload.getError()));
+
       } else {
 
          ++_numberOfUploadedTours[0];
 
-         TourLogManager.addLog(TourLogState.IMPORT_OK,
-               NLS.bind(Messages.Log_UploadToursToStrava_003_UploadStatus,
-                     new Object[] {
-                           activityUpload.getTourDate(),
-                           activityUpload.getId(),
-                           activityUpload.getStatus() }));
+         if (StringUtils.hasContent(activityUpload.getName())) {
+
+            TourLogManager.addLog(TourLogState.IMPORT_OK,
+                  NLS.bind(Messages.Log_UploadToursToStrava_003_ActivityLink,
+                        activityUpload.getTourDate(),
+                        activityUpload.getId()));
+
+         } else {
+
+            TourLogManager.addLog(TourLogState.IMPORT_OK,
+                  NLS.bind(Messages.Log_UploadToursToStrava_003_UploadStatus,
+                        new Object[] {
+                              activityUpload.getTourDate(),
+                              activityUpload.getId(),
+                              activityUpload.getStatus() }));
+
+         }
       }
    }
 
@@ -422,26 +434,18 @@ public class StravaUploader extends TourbookCloudUploader {
 
                if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
 
-                  manualToursToUpload.add(tourData);
-//                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_002_NoTimeDataSeries, tourDate));
-                  //TODO FB Remove that message and rename the other ones (correct number)
-                  // Update the serialization to return the proper data on a manual upload instead of that : Upload Id: "null". Creation Activity Status: "null"
-                  // Return the link of the activities : strava.com/activities/xxxxxx
-                  //{
-//  "resource_state": 3,
-//                  "athlete": {
-//                      "id": 71222600,
-//                      "resource_state": 1
-//                  },
-//                  "name": "dafdw",
-//                  "distance": 0.0,
-//                  "moving_time": 3600,
-//                  "elapsed_time": 3600,
-//                  "total_elevation_gain": 0,
-//                  "type": "Run",
-//                  "workout_type": null,
-//                  "id": 4584160522,
-                  monitor.worked(1);
+                  if (StringUtils.isNullOrEmpty(tourData.getTourTitle())) {
+
+                     final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+
+                     TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_002_NoTourTitle, tourDate));
+                     monitor.worked(2);
+
+                  } else {
+
+                     manualToursToUpload.add(tourData);
+                     monitor.worked(1);
+                  }
                } else {
 
                   final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
@@ -449,8 +453,9 @@ public class StravaUploader extends TourbookCloudUploader {
                   toursToUpload.put(processTour(tourData, absoluteTourFilePath), tourData);
 
                   deleteTemporaryFile(absoluteTourFilePath);
+
+                  monitor.worked(1);
                }
-               monitor.worked(1);
             }
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
