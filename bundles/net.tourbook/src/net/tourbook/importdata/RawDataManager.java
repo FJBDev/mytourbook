@@ -1467,6 +1467,13 @@ public class RawDataManager {
          if (pausedTime_Start != null && pausedTime_Start.length > 0) {
             final List<Long> listPausedTime_Start = Arrays.stream(pausedTime_Start).boxed().collect(Collectors.toList());
             final List<Long> listPausedTime_End = Arrays.stream(reimportedTourData.getPausedTime_End()).boxed().collect(Collectors.toList());
+
+            //HACK
+            for (int index = 0; index < listPausedTime_Start.size(); ++index) {
+               listPausedTime_Start.set(index, listPausedTime_Start.get(index) - 3600000);
+               listPausedTime_End.set(index, listPausedTime_End.get(index) - 3600000);
+            }
+
             oldTourData.finalizeTour_TimerPauses(listPausedTime_Start, listPausedTime_End);
          }
 
