@@ -1182,7 +1182,7 @@ public class RawDataManager {
       for (final TourData reimportedTourData : _newlyImportedTours.values()) {
 
          // skip tours which have a different tour start time
-         final long reimportTourStartTime = reimportedTourData.getTourStartTimeMS();
+         final long reimportTourStartTime = reimportedTourData.getTourStartTimeMS() - 3600000;
          final long oldTourStartTime = oldTourData.getTourStartTimeMS();
          final long timeDiff = reimportTourStartTime > oldTourStartTime
                ? reimportTourStartTime - oldTourStartTime
