@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -130,6 +130,9 @@ public class TourExporter {
 
    private boolean      _isGPX;
    private boolean      _isTCX;
+
+   //TODO FB Fix the issue where a course can't be imported to Garmin center (an activity as well?)
+   //Fix unit tests/add unit tests with power
 
    public enum ExportType {
       GPX, TCX
