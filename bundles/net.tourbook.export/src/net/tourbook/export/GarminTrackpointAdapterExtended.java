@@ -20,15 +20,25 @@ import org.dinopolis.gpstool.gpsinput.garmin.GarminTrackpointAdapter;
 
 public class GarminTrackpointAdapterExtended extends GarminTrackpointAdapter {
 
+   private double _speed       = Double.NaN;
    private double _temperature = Double.NaN;
-   private long   gear;
+   private short  _power       = Short.MIN_VALUE;
+   private long   _gear;
 
    public GarminTrackpointAdapterExtended(final GarminTrackpoint trackpoint) {
       super(trackpoint);
    }
 
    public long getGear() {
-      return gear;
+      return _gear;
+   }
+
+   public double getPower() {
+      return _power;
+   }
+
+   public String getSpeed() {
+      return String.format("%.1f", _speed);
    }
 
    /**
@@ -51,7 +61,15 @@ public class GarminTrackpointAdapterExtended extends GarminTrackpointAdapter {
     * @return Returns <code>true</code> when valid gear is available.
     */
    public boolean hasValidGear() {
-      return (gear != 0);
+      return _gear != 0;
+   }
+
+   public boolean hasValidPower() {
+      return Short.MIN_VALUE != _power;
+   }
+
+   public boolean hasValidSpeed() {
+      return !Double.isNaN(_speed);
    }
 
    /**
@@ -61,11 +79,19 @@ public class GarminTrackpointAdapterExtended extends GarminTrackpointAdapter {
     * @return Returns <code>true</code> if waypoint has valid temperature.
     */
    public boolean hasValidTemperature() {
-      return (!Double.isNaN(_temperature));
+      return !Double.isNaN(_temperature);
    }
 
    public void setGear(final long gear) {
-      this.gear = gear;
+      _gear = gear;
+   }
+
+   public void setPower(final short power) {
+      _power = power;
+   }
+
+   public void setSpeed(final double speed) {
+      _speed = speed;
    }
 
    public void setTemperature(final double temperature) {

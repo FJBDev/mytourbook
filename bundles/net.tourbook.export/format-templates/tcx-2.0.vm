@@ -2,7 +2,7 @@
 <TrainingCenterDatabase 
 	xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
+	xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd http://www.garmin.com/xmlschemas/ActivityExtension/v2 https://www8.garmin.com/xmlschemas/ActivityExtensionv2.xsd">
 #if($iscourses)
 	<Courses>
 		<Course>
@@ -49,12 +49,20 @@
 #if($point.hasValidDistance())
 						<DistanceMeters>$nf3.format($point.Distance)</DistanceMeters>
 #end
-#if($point.hasValidHeartrate())
+#if($point.hasValidHeartrate() && !$iscourses)
 						<HeartRateBpm xsi:type="HeartRateInBeatsPerMinute_t">
 							<Value>$point.Heartrate</Value>
 						</HeartRateBpm>
-#if($point.hasValidCadence())
+#if($point.hasValidCadence() && !$iscourses)
 						<Cadence type="CadenceValue_t">$point.Cadence</Cadence>
+#end
+#if(!$iscourses && ($point.hasValidPower() || $point.hasValidSpeed()))
+						<Extensions>
+           					<TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+              				<Speed>$point.getSpeed()</Speed>
+              				<Watts>$point.getPower()</Watts>
+            				</TPX>
+          				</Extensions>
 #end
 #end
 					</Trackpoint>

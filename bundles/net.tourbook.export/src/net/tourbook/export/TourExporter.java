@@ -518,6 +518,8 @@ public class TourExporter {
       final double[] longitudeSerie = _tourData.longitudeSerie;
       final float[] pulseSerie = _tourData.pulseSerie;
       final float[] temperatureSerie = _tourData.temperatureSerie;
+      final float[] powerSerie = _tourData.getPowerSerie();
+      final float[] speedSerie = _tourData.getSpeedSerieMetric();
 
       final boolean isAltitude = (altitudeSerie != null) && (altitudeSerie.length > 0);
       final boolean isCadence = (cadenceSerie != null) && (cadenceSerie.length > 0);
@@ -525,6 +527,8 @@ public class TourExporter {
       final boolean isGear = (gearSerie != null) && (gearSerie.length > 0);
       final boolean isPulse = (pulseSerie != null) && (pulseSerie.length > 0);
       final boolean isTemperature = (temperatureSerie != null) && (temperatureSerie.length > 0);
+      final boolean isPower = (powerSerie != null) && (powerSerie.length > 0);
+      final boolean isSpeed = (speedSerie != null) && (speedSerie.length > 0);
 
       int prevTime = -1;
       ZonedDateTime lastTrackDateTime = null;
@@ -697,6 +701,14 @@ public class TourExporter {
 
          if (isGear) {
             tpExt.setGear(gearSerie[serieIndex]);
+         }
+
+         if (isPower) {
+            tpExt.setPower((short) powerSerie[serieIndex]);
+         }
+
+         if (isSpeed) {
+            tpExt.setSpeed(speedSerie[serieIndex] * 10 / 10);
          }
 
          // ignore trackpoints which have the same time
