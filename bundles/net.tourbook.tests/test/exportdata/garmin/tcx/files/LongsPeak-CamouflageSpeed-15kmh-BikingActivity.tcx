@@ -2,7 +2,7 @@
 <TrainingCenterDatabase 
 	xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
+	xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd http://www.garmin.com/xmlschemas/ActivityExtension/v2 https://www8.garmin.com/xmlschemas/ActivityExtensionv2.xsd">
 	<Activities>
 		<Activity Sport="Biking">
 			<Id>2020-07-04T11:00:00Z</Id>
