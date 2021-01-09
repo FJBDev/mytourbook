@@ -133,6 +133,7 @@ public class TourExporter {
 
    //TODO FB Fix the issue where a course can't be imported to Garmin center (an activity as well?)
    //Fix unit tests/add unit tests with power
+   //Validate tcx unit tests with xmlspy
 
    public enum ExportType {
       GPX, TCX
