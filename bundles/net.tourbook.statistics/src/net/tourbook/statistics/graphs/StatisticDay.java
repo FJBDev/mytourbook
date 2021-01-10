@@ -291,7 +291,6 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
     */
    private void createToolTipUI(final IToolTipProvider toolTipProvider,
                                 final Composite parent,
-                                final int serieIndex,
                                 int valueIndex) {
 
       final int[] tourDOYValues = _statisticData_Day.getDoyValues();
@@ -421,7 +420,10 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setAllValueColors(0);
       yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+      yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
@@ -672,7 +674,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
          @Override
          public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
-            StatisticDay.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+            StatisticDay.this.createToolTipUI(toolTipProvider, parent, valueIndex);
          }
       });
 
