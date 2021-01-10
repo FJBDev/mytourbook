@@ -396,19 +396,49 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
    void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
 
+//      final ChartDataYSerie yData = new ChartDataYSerie(
+//            ChartType.LINE,
+//            _statisticData_Day.allTraining_Load_PredictedPerformance_Low,
+//            _statisticData_Day.allTraining_Load_PredictedPerformance_High);
+
+      final float[][] lowValueSeries = new float[2][2];
+      final float[][] highValueSeries = new float[2][2];
+      lowValueSeries[0] = new float[2];
+      lowValueSeries[0][0] = 150;
+      lowValueSeries[0][1] = 75;
+      lowValueSeries[1][0] = 250;
+      lowValueSeries[1][1] = 95;
+
+      highValueSeries[0] = new float[2];
+      highValueSeries[0][0] = 123;
+      highValueSeries[0][1] = 24;
+      highValueSeries[1][0] = 65;
+      highValueSeries[1][1] = 7;
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.LINE,
-            _statisticData_Day.allTraining_Load_PredictedPerformance_Low,
-            _statisticData_Day.allTraining_Load_PredictedPerformance_High);
+            lowValueSeries,
+            highValueSeries);
 
       yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE, _activeTourTypeFilter);
 
       chartDataModel.addYData(yData);
+
+//      final ChartDataYSerie yData2 = new ChartDataYSerie(
+//            ChartType.LINE,
+//            _statisticData_Day.allAthleteBodyWeight_Low,
+//            _statisticData_Day.allAthleteBodyWeight_High);
+//
+//      yData2.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+//      yData2.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+//      yData2.setShowYSlider(true);
+//
+//      StatisticServices.setDefaultColors(yData2, GraphColorManager.PREF_GRAPH_BODYFAT);
+//
+//      chartDataModel.addYData(yData2);
    }
 
    void createYData_TrainingStress(final ChartDataModel chartDataModel) {

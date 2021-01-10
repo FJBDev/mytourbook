@@ -24,7 +24,7 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
    ChartDataModel getChartDataModel() {
 
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE_WITH_BARS);
-
+//      chartDataModel.setIsGraphOverlapped(true);
       //TODO FB Why does the weird cursor appear ?
       createXDataDay(chartDataModel);
       createYData_PredictedPerformance(chartDataModel);
