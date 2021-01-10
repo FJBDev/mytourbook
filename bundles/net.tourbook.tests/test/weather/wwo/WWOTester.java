@@ -27,6 +27,11 @@ public class WWOTester {
     */
 //   @Test
    void testWeatherRetrieval() {
+      //TODO FB
+//      /https://keyholesoftware.com/2018/02/12/disabling-filtering-tests-junit-5/
+      //add a file containig all the keys and add it to the .gitignore file
+      //if the key returned is empty, then ignore the test
+      //otherwise, run it
 
       final TourData tour = Initializer.importTour();
       TourManager.retrieveWeatherData(tour);
