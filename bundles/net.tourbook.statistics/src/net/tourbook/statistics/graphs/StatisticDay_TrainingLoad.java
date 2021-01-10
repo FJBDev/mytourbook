@@ -23,9 +23,6 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
    @Override
    ChartDataModel getChartDataModel() {
 
-      //it worked with weight and fat.
-      //now i need to find a way to display the tooltip for a given tour
-      //worst case, we just have the predicted performance chart with ctl and atl but thats not ideal
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE_WITH_BARS);
 
       createXDataDay(chartDataModel);
