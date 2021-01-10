@@ -399,16 +399,15 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       final ChartDataYSerie yData = new ChartDataYSerie(
             ChartType.LINE,
-            _statisticData_Day.allAthleteBodyFat_Low,
-            _statisticData_Day.allAthleteBodyFat_High);
+            _statisticData_Day.allTraining_Load_PredictedPerformance_Low,
+            _statisticData_Day.allTraining_Load_PredictedPerformance_High);
 
       yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
-      yData.setUnitLabel(UI.UNIT_PERCENT);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _activeTourTypeFilter);
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE, _activeTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }
@@ -416,17 +415,16 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    void createYData_TrainingStress(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
-            ChartType.LINE,
-            _statisticData_Day.allAthleteBodyFat_Low,
-            _statisticData_Day.allAthleteBodyFat_High);
+            ChartType.BAR,
+            _statisticData_Day.allTraining_Load_TrainingStress_Low,
+            _statisticData_Day.allTraining_Load_TrainingStress_High);
 
       yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
-      yData.setUnitLabel(UI.UNIT_PERCENT);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _activeTourTypeFilter);
+      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }
@@ -509,7 +507,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       yData.setYTitle(Messages.LABEL_GRAPH_DISTANCE);
       yData.setUnitLabel(UI.UNIT_LABEL_DISTANCE);
-      yData.setAxisUnit(ChartDataXSerie.AXIS_UNIT_NUMBER);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setAllValueColors(0);
       yData.setShowYSlider(true);
       yData.setVisibleMinValue(0);

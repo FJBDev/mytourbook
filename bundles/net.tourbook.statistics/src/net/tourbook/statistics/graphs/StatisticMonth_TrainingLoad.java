@@ -22,7 +22,7 @@ public class StatisticMonth_TrainingLoad extends StatisticMonth {
 
    @Override
    protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_MONTH_ATHLETEDATA;
+      return STATE_BAR_ORDERING_MONTH_TRAINING_LOAD;
    }
 
    @Override

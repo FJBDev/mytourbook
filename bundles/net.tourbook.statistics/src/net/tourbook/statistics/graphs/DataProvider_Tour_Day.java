@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -335,7 +335,11 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   jTdataTtag.TourTag_tagId," + NL //               18 //$NON-NLS-1$
 
                + "   BodyWeight,         " + NL //      19 //$NON-NLS-1$
-               + "   BodyFat          " + NL //      20 //$NON-NLS-1$
+               + "   BodyFat,          " + NL //      20 //$NON-NLS-1$
+
+               + "   Govss,          " + NL //      21 //$NON-NLS-1$
+               + "   BikeScore,          " + NL //      22 //$NON-NLS-1$
+               + "   SwimScore          " + NL //      23 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 
@@ -377,6 +381,9 @@ public class DataProvider_Tour_Day extends DataProvider {
 
          final TFloatArrayList dbAllBodyWeight = new TFloatArrayList();
          final TFloatArrayList dbAllBodyFat = new TFloatArrayList();
+
+         final TFloatArrayList dbAllPredictedPerformance = new TFloatArrayList();
+         final TFloatArrayList dbAllTrainingStress = new TFloatArrayList();
 
          final ArrayList<String> dbAllTourTitle = new ArrayList<>();
          final ArrayList<String> dbAllTourDescription = new ArrayList<>();
@@ -443,6 +450,11 @@ public class DataProvider_Tour_Day extends DataProvider {
                final float bodyWeight    =  result.getFloat(19) * UI.UNIT_VALUE_WEIGHT;
                final float bodyFat    =  result.getFloat(20);
 
+               final float govss    =  result.getInt(21);
+               final float bikeScore    =  result.getInt(22);
+ final float swimScore    = result.getInt(23);
+
+
 // SET_FORMATTING_ON
 
                final TourDateTime tourDateTime = TimeTools.createTourDateTime(dbStartTimeMilli, dbTimeZoneId);
@@ -492,6 +504,9 @@ public class DataProvider_Tour_Day extends DataProvider {
 
                dbAllBodyWeight.add(bodyWeight);
                dbAllBodyFat.add(bodyFat);
+
+               dbAllPredictedPerformance.add(govss);
+               dbAllTrainingStress.add(govss + bikeScore + swimScore);
 
                // round distance
                final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;
@@ -559,6 +574,10 @@ public class DataProvider_Tour_Day extends DataProvider {
 
          final float[] bodyWeight_High = dbAllBodyWeight.toArray();
          final float[] bodyFat_High = dbAllBodyFat.toArray();
+
+         //TODO compute from the trainingstress values using a static class
+         final float[] predictedPerformance_High = dbAllPredictedPerformance.toArray();
+         final float[] trainingStress_High = dbAllTrainingStress.toArray();
 
          final int serieLength = durationTime_High.length;
 
@@ -658,6 +677,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          adjustValues_Avg(dbAllTourStartDateTime,  bodyWeight_High);
          adjustValues_Avg(dbAllTourStartDateTime,  bodyFat_High);
 
+         adjustValues_Avg(dbAllTourStartDateTime,    predictedPerformance_High);
+         adjustValues_Avg(dbAllTourStartDateTime,        trainingStress_High);
+
 //SET_FORMATTING_ON
 
          // get number of days for all years
@@ -726,6 +748,12 @@ public class DataProvider_Tour_Day extends DataProvider {
 
          _tourDayData.allAthleteBodyFat_Low = new float[yearDays];
          _tourDayData.allAthleteBodyFat_High = bodyFat_High;
+
+         _tourDayData.allTraining_Load_PredictedPerformance_Low = new float[yearDays];
+         _tourDayData.allTraining_Load_PredictedPerformance_High = predictedPerformance_High;
+
+         _tourDayData.allTraining_Load_TrainingStress_Low = new float[yearDays];
+         _tourDayData.allTraining_Load_TrainingStress_High = trainingStress_High;
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;

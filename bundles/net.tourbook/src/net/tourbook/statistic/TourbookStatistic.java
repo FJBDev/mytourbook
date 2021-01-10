@@ -25,7 +25,6 @@ import net.tourbook.ui.ChartOptions_Grid;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
@@ -60,7 +59,7 @@ public abstract class TourbookStatistic {
    protected static final String    GRID_DAY_DISTANCE       = "GRID_DAY_DISTANCE__";        //$NON-NLS-1$
    protected static final String    GRID_DAY_SUMMARY        = "GRID_DAY_SUMMARY__";         //$NON-NLS-1$
    protected static final String    GRID_DAY_TIME           = "GRID_DAY_TIME__";            //$NON-NLS-1$
-   protected static final String    GRID_DAY_TRAININGSTRESS = "GRID_DAY_TRAININGSTRESS__";  //$NON-NLS-1$
+   protected static final String    GRID_DAY_TRAININGLOAD   = "GRID_DAY_TRAININGLOAD__";    //$NON-NLS-1$
 
    protected static final String    GRID_WEEK_ALTITUDE      = "GRID_WEEK_ALTITUDE__";       //$NON-NLS-1$
    protected static final String    GRID_WEEK_ATHLETEDATA   = "GRID_WEEK_ATHLETEDATA__";    //$NON-NLS-1$
@@ -132,31 +131,28 @@ public abstract class TourbookStatistic {
       final String gridIsVGridline = gridPrefix + ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES;
 
       // create pref listener
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
-            final String property = event.getProperty();
+      _prefChangeListener = event -> {
+         final String property = event.getProperty();
 
-            // test if the color or statistic data have changed
-            if (property.equals(ITourbookPreferences.GRAPH_COLORS_HAS_CHANGED)
-                  //
-                  || property.equals(gridHDistance)
-                  || property.equals(gridVDistance)
-                  || property.equals(gridIsHGridline)
-                  || property.equals(gridIsVGridline)
+         // test if the color or statistic data have changed
+         if (property.equals(ITourbookPreferences.GRAPH_COLORS_HAS_CHANGED)
+               //
+               || property.equals(gridHDistance)
+               || property.equals(gridVDistance)
+               || property.equals(gridIsHGridline)
+               || property.equals(gridIsVGridline)
 
-                  || property.equals(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR)
-                  || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR)
-            //
-            ) {
+               || property.equals(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR)
+               || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR)
+         //
+         ) {
 
-               _isInPrefUpdate = true;
-               {
-                  // update chart
-                  preferencesHasChanged();
-               }
-               _isInPrefUpdate = false;
+            _isInPrefUpdate = true;
+            {
+               // update chart
+               preferencesHasChanged();
             }
+            _isInPrefUpdate = false;
          }
       };
 
