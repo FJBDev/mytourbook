@@ -25,6 +25,7 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
 
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE_WITH_BARS);
 
+      //TODO FB Why does the weird cursor appear ?
       createXDataDay(chartDataModel);
       createYData_PredictedPerformance(chartDataModel);
       createYData_TrainingStress(chartDataModel);

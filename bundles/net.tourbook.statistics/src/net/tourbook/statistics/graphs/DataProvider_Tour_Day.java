@@ -42,6 +42,7 @@ import net.tourbook.database.TourDatabase;
 import net.tourbook.statistic.DurationTime;
 import net.tourbook.statistics.StatisticServices;
 import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
+import net.tourbook.trainingload.PredictedPerformance;
 import net.tourbook.ui.SQLFilter;
 import net.tourbook.ui.TourTypeFilter;
 
@@ -226,6 +227,25 @@ public class DataProvider_Tour_Day extends DataProvider {
             highValues[avgIndex] = maxValue;
          }
       }
+   }
+
+   private void ComputeAndAddPredictedPerformanceValue(final TFloatArrayList dbAllPredictedPerformance,
+                                                       final float trainingStress,
+                                                       final TFloatArrayList dbAllTrainingStress) {
+
+      int numberOfDaysSinceLastTrainingStress = dbAllTrainingStress.size();
+
+      for (int index = dbAllTrainingStress.size() - 1; index >= 0; --index) {
+         if (dbAllTrainingStress.get(index) == 0) {
+            numberOfDaysSinceLastTrainingStress -= index;
+            break;
+         }
+      }
+
+      dbAllPredictedPerformance.add(PredictedPerformance.computeResponseValue(numberOfDaysSinceLastTrainingStress,
+            dbAllTrainingStress.size() < 2 ? 0 : (int) dbAllTrainingStress.get(dbAllTrainingStress.size() - 2),
+            (int) trainingStress));
+
    }
 
    TourStatisticData_Day getDayData(final TourPerson person,
@@ -505,7 +525,7 @@ public class DataProvider_Tour_Day extends DataProvider {
                dbAllBodyWeight.add(bodyWeight);
                dbAllBodyFat.add(bodyFat);
 
-               dbAllPredictedPerformance.add(govss);
+               ComputeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, govss + bikeScore + swimScore, dbAllTrainingStress);
                dbAllTrainingStress.add(govss + bikeScore + swimScore);
 
                // round distance

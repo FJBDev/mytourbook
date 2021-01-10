@@ -690,8 +690,6 @@ public class Messages extends NLS {
    public static String        Compute_HrZones_Job_ComputeAllTours_Result;
    public static String        Compute_HrZones_Job_ComputeAllTours_SubTask;
 
-   public static String        Compute_PredictedPerformance_Button_ComputeValues;
-   public static String        Compute_PredictedPerformance_Button_ComputeValues_Tooltip;
    public static String        Compute_PerformanceModelingChart_Label_Days;
    public static String        Compute_PerformanceModelingChart_Label_FatigueDecay;
    public static String        Compute_PerformanceModelingChart_Label_FatigueDecay_Tooltip;
