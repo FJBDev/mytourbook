@@ -47,8 +47,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -57,7 +55,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -462,12 +459,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
             });
             layouter.addColumnData(new ColumnWeightData(1));
 
-            _tourTypesViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-               @Override
-               public void selectionChanged(final SelectionChangedEvent event) {
-                  enableControls();
-               }
-            });
+            _tourTypesViewer.addSelectionChangedListener(event -> enableControls());
          }
       }
 
@@ -598,12 +590,9 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
          }
       };
 
-      _defaultMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            UI.adjustSpinnerValueOnMouseScroll(event);
-            onComputeThresholdPower();
-         }
+      _defaultMouseWheelListener = event -> {
+         UI.adjustSpinnerValueOnMouseScroll(event);
+         onComputeThresholdPower();
       };
 
    }
