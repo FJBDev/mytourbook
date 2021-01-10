@@ -25,7 +25,7 @@ public class StatisticYear_TrainingLoad extends StatisticYear {
 
    @Override
    protected String getBarOrderingStateKey() {
-      return STATE_BAR_ORDERING_YEAR_TRAINING_STRESS;
+      return STATE_BAR_ORDERING_YEAR_TRAINING_LOAD;
    }
 
    @Override
@@ -42,6 +42,6 @@ public class StatisticYear_TrainingLoad extends StatisticYear {
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_YEAR_ATHLETEDATA;
+      return GRID_YEAR_TRAININGLOAD;
    }
 }

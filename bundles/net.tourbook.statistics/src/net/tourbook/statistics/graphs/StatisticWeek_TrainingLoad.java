@@ -34,6 +34,6 @@ public class StatisticWeek_TrainingLoad extends StatisticWeek {
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_WEEK_TRAININGSTRESS;
+      return GRID_WEEK_TRAININGLOAD;
    }
 }

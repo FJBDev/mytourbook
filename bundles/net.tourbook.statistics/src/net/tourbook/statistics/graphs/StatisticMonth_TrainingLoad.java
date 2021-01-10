@@ -31,14 +31,14 @@ public class StatisticMonth_TrainingLoad extends StatisticMonth {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
       createXData_Months(chartDataModel);
-//      createYData_TrainingStress(chartDataModel);
 //      createYData_PredictedPerformance(chartDataModel);
+//      createYData_TrainingStress(chartDataModel);
 
       return chartDataModel;
    }
 
    @Override
    protected String getGridPrefPrefix() {
-      return GRID_MONTH_TRAININGSTRESS;
+      return GRID_MONTH_TRAININGLOAD;
    }
 }
