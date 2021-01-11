@@ -43,7 +43,7 @@
 #foreach ($point in $points)
 					<Trackpoint>
 #if($point.getDate())
-                        			<Time>$dateformat.format($point.getDate())</Time>
+						<Time>$dateformat.format($point.getDate())</Time>
 #end
 						<Position>
 							<LatitudeDegrees>$nf8.format($point.Latitude)</LatitudeDegrees>
@@ -66,8 +66,12 @@
 #if($point.hasValidPower() || $point.hasValidSpeed())
 						<Extensions>
            						<TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+#if($point.hasValidSpeed())
               							<Speed>$point.getSpeed()</Speed>
+#end
+#if($point.hasValidPower())
 		              					<Watts>$point.getPower()</Watts>
+#end
             						</TPX>
           					</Extensions>
 #end
@@ -84,7 +88,7 @@
 #foreach ($point in $points)
 				<Trackpoint>
 #if($point.getDate())
-                       			<Time>$dateformat.format($point.getDate())</Time>
+					<Time>$dateformat.format($point.getDate())</Time>
 #end
 					<Position>
 						<LatitudeDegrees>$nf8.format($point.Latitude)</LatitudeDegrees>
