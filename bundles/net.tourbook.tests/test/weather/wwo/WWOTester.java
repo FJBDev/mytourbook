@@ -48,7 +48,7 @@ public class WWOTester {
    @Test
    void testWeatherRetrieval() {
 
-      //If the API key was not found, we just consider the unit tests successful for now
+      //If the API key is not found, we just consider the unit tests successful for now
       //A possible more elegant solution
       //https://keyholesoftware.com/2018/02/12/disabling-filtering-tests-junit-5/
       if (StringUtils.isNullOrEmpty(API_KEY)) {
@@ -63,12 +63,12 @@ public class WWOTester {
       Assertions.assertEquals(9, tour.getWeatherWindSpeed());
       Assertions.assertEquals(136, tour.getWeatherWindDir());
       Assertions.assertEquals("Partly cloudy", tour.getWeather()); //$NON-NLS-1$
-      Assertions.assertEquals("<<weather-cloudy>>", tour.getWeatherClouds()); //$NON-NLS-1$
-      Assertions.assertEquals(55, tour.getWeather_Humidity());
-      Assertions.assertEquals(6.8, Math.round(tour.getWeather_Precipitation() * 10.0) / 10.0);
-      Assertions.assertEquals(1018, tour.getWeather_Pressure());
-      Assertions.assertEquals(20, tour.getWeather_Temperature_Max());
-      Assertions.assertEquals(9, tour.getWeather_Temperature_Min());
-      Assertions.assertEquals(15, tour.getWeather_Temperature_WindChill());
+      Assertions.assertEquals("weather-cloudy", tour.getWeatherClouds()); //$NON-NLS-1$
+      Assertions.assertEquals(50, tour.getWeather_Humidity());
+      Assertions.assertEquals(1.6, Math.round(tour.getWeather_Precipitation() * 10.0) / 10.0);
+      Assertions.assertEquals(1017, tour.getWeather_Pressure());
+      Assertions.assertEquals(19, tour.getWeather_Temperature_Max());
+      Assertions.assertEquals(8, tour.getWeather_Temperature_Min());
+      Assertions.assertEquals(16, tour.getWeather_Temperature_WindChill());
    }
 }
