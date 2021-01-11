@@ -63,7 +63,7 @@ public class WWOTester {
       Assertions.assertEquals(9, tour.getWeatherWindSpeed());
       Assertions.assertEquals(136, tour.getWeatherWindDir());
       Assertions.assertEquals("Partly cloudy", tour.getWeather()); //$NON-NLS-1$
-      Assertions.assertEquals("<weather-cloudy>", tour.getWeatherClouds()); //$NON-NLS-1$
+      Assertions.assertEquals("<<weather-cloudy>>", tour.getWeatherClouds()); //$NON-NLS-1$
       Assertions.assertEquals(55, tour.getWeather_Humidity());
       Assertions.assertEquals(6.8, Math.round(tour.getWeather_Precipitation() * 10.0) / 10.0);
       Assertions.assertEquals(1018, tour.getWeather_Pressure());
