@@ -33,12 +33,12 @@ public class GarminTrackpointAdapterExtended extends GarminTrackpointAdapter {
       return _gear;
    }
 
-   public double getPower() {
+   public short getPower() {
       return _power;
    }
 
-   public String getSpeed() {
-      return String.format("%.1f", _speed);
+   public double getSpeed() {
+      return _speed;
    }
 
    /**

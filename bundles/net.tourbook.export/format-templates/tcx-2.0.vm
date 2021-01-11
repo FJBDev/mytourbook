@@ -50,11 +50,11 @@
 						<DistanceMeters>$nf3.format($point.Distance)</DistanceMeters>
 #end
 #if($point.hasValidHeartrate() && !$iscourses)
-						<HeartRateBpm xsi:type="HeartRateInBeatsPerMinute_t">
+						<HeartRateBpm>
 							<Value>$point.Heartrate</Value>
 						</HeartRateBpm>
 #if($point.hasValidCadence() && !$iscourses)
-						<Cadence type="CadenceValue_t">$point.Cadence</Cadence>
+						<Cadence>point.Cadence</Cadence>
 #end
 #if(!$iscourses && ($point.hasValidPower() || $point.hasValidSpeed()))
 						<Extensions>

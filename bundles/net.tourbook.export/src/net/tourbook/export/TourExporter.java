@@ -483,7 +483,7 @@ public class TourExporter {
       /*
        * Calories
        */
-      lap.setCalories(_tourData.getCalories());
+      lap.setCalories(_tourData.getCalories() / 1000);
 
       /*
        * Description
@@ -708,11 +708,12 @@ public class TourExporter {
          }
 
          if (isPower) {
-            tpExt.setPower((short) powerSerie[serieIndex]);
+            tpExt.setPower((short) Math.round(powerSerie[serieIndex]));
          }
 
          if (isSpeed) {
-            tpExt.setSpeed(speedSerie[serieIndex] * 10 / 10);
+            final double speedValue = Math.round(speedSerie[serieIndex] * 10.0) / 10.0;
+            tpExt.setSpeed(speedValue);
          }
 
          // ignore trackpoints which have the same time
