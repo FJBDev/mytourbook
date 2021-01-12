@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -2657,8 +2657,8 @@ public class DialogMPProfile extends DialogMP implements ITileListener, IMapDefa
       _isInitUI = true;
       {
          // zoom level
-         final int minZoomLevel = _mpProfile.getMinZoomLevel();
-         final int maxZoomLevel = _mpProfile.getMaxZoomLevel();
+         final int minZoomLevel = _mpProfile.getMinimumZoomLevel();
+         final int maxZoomLevel = _mpProfile.getMaximumZoomLevel();
          _spinMinZoom.setSelection(minZoomLevel + Map.UI_MIN_ZOOM_LEVEL);
          _spinMaxZoom.setSelection(maxZoomLevel + Map.UI_MIN_ZOOM_LEVEL);
 

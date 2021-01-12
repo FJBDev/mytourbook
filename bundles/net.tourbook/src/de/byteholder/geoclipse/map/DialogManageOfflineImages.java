@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1102,7 +1102,7 @@ public class DialogManageOfflineImages extends TitleAreaDialog implements ITileL
        * get valid zoom levels
        */
       _validMapZoomLevel = _mapZoomLevel;
-      final int mapMaxZoom = _selectedMp.getMaxZoomLevel();
+      final int mapMaxZoom = _selectedMp.getMaximumZoomLevel();
 
       // check if the map zoom level is higher than the available mp zoom levels
       if (_mapZoomLevel > mapMaxZoom) {
