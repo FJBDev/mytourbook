@@ -47,6 +47,7 @@ import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.map.MapUI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.map2.view.Map2View;
 
@@ -1818,7 +1819,8 @@ public class MapProviderManager {
             mapProvider.setImageFormat(xmlImageFormat == null ? DEFAULT_IMAGE_FORMAT : xmlImageFormat);
 
             // User Agent
-            mapProvider.setUserAgent(userAgent);
+            mapProvider.setUserAgent(StringUtils.hasContent(userAgent) ? userAgent : UI.EMPTY_STRING);
+
             // zoom level
             final int minZoom = xmlZoomMin == null ? 0 : xmlZoomMin;
             final int maxZoom = xmlZoomMax == null ? 17 : xmlZoomMax;
