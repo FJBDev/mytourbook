@@ -794,16 +794,13 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
       {
          // label: image format
          final Label label = new Label(container, SWT.NONE);
-         GridDataFactory.fillDefaults().applyTo(label);
-         label.setText("USer Agent");
+         GridDataFactory.fillDefaults().grab(false, true).align(SWT.FILL, SWT.CENTER).applyTo(label);
+         label.setText(Messages.Dialog_CustomConfig_Text_UserAgent_Label);
 
          // label: image format value
-         _txtUserAgent = new Text(container, SWT.NONE);
+         _txtUserAgent = new Text(container, SWT.BORDER);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_txtUserAgent);
-         _txtUserAgent.setToolTipText(Messages.Dialog_CustomConfig_Text_ImageFormat_Tooltip);
-         _txtUserAgent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-         _txtUserAgent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-
+         _txtUserAgent.setToolTipText(Messages.Dialog_CustomConfig_Text_UserAgent_Tooltip);
       }
    }
 
