@@ -301,7 +301,7 @@ public class MapProviderManager {
          WMS_LOCK.lock();
          try {
 
-            // recheck again, it's possible tha another thread could have loaded the caps
+            // recheck again, it's possible that another thread could have loaded the caps
             if (mpWms == null || mpWms.getWmsCaps() == null) {
                checkWmsRunnable(mpWms, capsUrl, returnMpWms);
             }
@@ -379,14 +379,11 @@ public class MapProviderManager {
 
       final Display display = Display.getDefault();
 
-      display.syncExec(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               new ProgressMonitorDialog(display.getActiveShell()).run(false, false, progressRunnable);
-            } catch (final InvocationTargetException | InterruptedException e1) {
-               StatusUtil.showStatus(e1.getMessage(), e1);
-            }
+      display.syncExec(() -> {
+         try {
+            new ProgressMonitorDialog(display.getActiveShell()).run(false, false, progressRunnable);
+         } catch (final InvocationTargetException | InterruptedException e1) {
+            StatusUtil.showStatus(e1.getMessage(), e1);
          }
       });
    }

@@ -285,7 +285,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
    /**
     */
-   public MP() {
+   protected MP() {
 
       _projection = new Mercator();
 
@@ -419,26 +419,23 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
       final Display display = Display.getDefault();
 
-      display.syncExec(new Runnable() {
-         @Override
-         public void run() {
+      display.syncExec(() -> {
 
-            final int tileSize = getTileSize();
+         final int tileSize = getTileSize();
 
-            _errorImage = new Image(display, tileSize, tileSize);
+         _errorImage = new Image(display, tileSize, tileSize);
 
-            final Color bgColor = new Color(display, Map.OSM_BACKGROUND_RGB);
-            final GC gc = new GC(getErrorImage());
-            {
-               gc.setBackground(bgColor);
-               gc.fillRectangle(0, 0, tileSize, tileSize);
+         final Color bgColor = new Color(display, Map.OSM_BACKGROUND_RGB);
+         final GC gc = new GC(getErrorImage());
+         {
+            gc.setBackground(bgColor);
+            gc.fillRectangle(0, 0, tileSize, tileSize);
 
-               gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-               gc.drawString(Messages.geoclipse_extensions_loading_failed, 5, 5);
-            }
-            gc.dispose();
-            bgColor.dispose();
+            gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
+            gc.drawString(Messages.geoclipse_extensions_loading_failed, 5, 5);
          }
+         gc.dispose();
+         bgColor.dispose();
       });
    }
 
@@ -446,26 +443,23 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
       final Display display = Display.getDefault();
 
-      display.syncExec(new Runnable() {
-         @Override
-         public void run() {
+      display.syncExec(() -> {
 
-            final int tileSize = getTileSize();
+         final int tileSize = getTileSize();
 
-            _loadingImage = new Image(display, tileSize, tileSize);
+         _loadingImage = new Image(display, tileSize, tileSize);
 
-            final Color bgColor = new Color(display, Map.OSM_BACKGROUND_RGB);
-            final GC gc = new GC(getLoadingImage());
-            {
-               gc.setBackground(bgColor);
-               gc.fillRectangle(0, 0, tileSize, tileSize);
+         final Color bgColor = new Color(display, Map.OSM_BACKGROUND_RGB);
+         final GC gc = new GC(getLoadingImage());
+         {
+            gc.setBackground(bgColor);
+            gc.fillRectangle(0, 0, tileSize, tileSize);
 
-               gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-               gc.drawString(Messages.geoclipse_extensions_loading, 5, 5);
-            }
-            gc.dispose();
-            bgColor.dispose();
+            gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
+            gc.drawString(Messages.geoclipse_extensions_loading, 5, 5);
          }
+         gc.dispose();
+         bgColor.dispose();
       });
    }
 

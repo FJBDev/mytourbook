@@ -57,7 +57,7 @@ public class TileImageLoader implements Runnable {
 
       if (tile.isLoadingError()) {
 
-         // move tile from tile cache into the cache which contails tiles with errors
+         // move tile from tile cache into the cache which contains tiles with errors
 
          MP.getErrorTiles().add(tileKey, tile);
 
@@ -483,7 +483,7 @@ public class TileImageLoader implements Runnable {
 
             } else if (tile.isOfflimeImageAvailable()) {
 
-               // parent tile has no chilren which needs to be loaded, behave as a normal tile
+               // parent tile has no children which needs to be loaded, behave as a normal tile
 
                getTileImage(tile);
 

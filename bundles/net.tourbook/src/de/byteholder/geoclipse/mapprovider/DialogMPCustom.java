@@ -1335,7 +1335,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             _statIsQueued--;
          }
 
-         // when stat is cleared, que can get negative, prevent this
+         // when stat is cleared, queue can get negative, prevent this
          if (_statIsQueued < 0) {
             _statIsQueued = 0;
          }
@@ -1361,7 +1361,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
 
                // check if this is the last created runnable
                if (fRunnableCounter != _statUpdateCounter) {
-                  // a new update event occured
+                  // a new update event occurred
                   return;
                }
 
