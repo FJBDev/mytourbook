@@ -11,6 +11,8 @@ TODO's
 
   I am thinking you could display the logo "Compatible With Strava" on the website in the next release and that would comply with their requirements ?
 
+* Website: Map providers list in https://osmlab.github.io/editor-layer-index/
+
 * Frederic : Remove the unused redirect_uri in the Dropbox app console once the new version is released
 
 
@@ -42,7 +44,8 @@ New
 Improvements
 ============
 
-* 
+* TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
+  - Added the speed and power values in the TCX exports
 
 
 Changes  
@@ -57,6 +60,9 @@ Bugfix
 ======
 
 * A few measurement system values were wrong
+
+* TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
+  - Fixed the TCX Course Export format as it was not properly formatted before and was preventing from importing TCX Courses in Garmin Connect
 
 
 Translation    

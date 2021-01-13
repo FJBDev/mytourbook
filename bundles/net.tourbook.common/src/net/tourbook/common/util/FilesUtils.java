@@ -13,47 +13,26 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud.strava;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+package net.tourbook.common.util;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ActivityUpload {
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-   private String id;
-   private String error;
-   private String name;
-   private String status;
+import net.tourbook.common.UI;
 
-   private String tourDate;
+public final class FilesUtils {
 
-   ActivityUpload() {}
+   public static String readFileContentString(final String filePath) {
 
-   public String getError() {
-      return error;
-   }
-
-   public String getId() {
-      return id;
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public String getStatus() {
-      return status;
-   }
-
-   public String getTourDate() {
-      return tourDate;
-   }
-
-   public void setError(final String error) {
-      this.error = error;
-   }
-
-   public void setTourDate(final String tourDate) {
-      this.tourDate = tourDate;
+      String fileContent = UI.EMPTY_STRING;
+      try {
+         fileContent = Files.readString(Paths.get(filePath), StandardCharsets.US_ASCII);
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+      return fileContent;
    }
 }

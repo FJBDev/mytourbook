@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,47 +13,21 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud.strava;
+package net.tourbook.cloud.oauth2;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+public class OAuth2Constants {
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ActivityUpload {
+   public static final String CONTENT_TYPE             = "Content-Type";       //$NON-NLS-1$
 
-   private String id;
-   private String error;
-   private String name;
-   private String status;
+   public static final String PARAM_AUTHORIZATION_CODE = "authorization_code"; //$NON-NLS-1$
 
-   private String tourDate;
+   public static final String PARAM_REFRESH_TOKEN      = "refresh_token";      //$NON-NLS-1$
 
-   ActivityUpload() {}
+   public static final String PARAM_CLIENT_ID          = "client_id";          //$NON-NLS-1$
 
-   public String getError() {
-      return error;
-   }
+   public static final String PARAM_CODE               = "code";               //$NON-NLS-1$
 
-   public String getId() {
-      return id;
-   }
+   public static final String PARAM_GRANT_TYPE         = "grant_type";         //$NON-NLS-1$
 
-   public String getName() {
-      return name;
-   }
-
-   public String getStatus() {
-      return status;
-   }
-
-   public String getTourDate() {
-      return tourDate;
-   }
-
-   public void setError(final String error) {
-      this.error = error;
-   }
-
-   public void setTourDate(final String tourDate) {
-      this.tourDate = tourDate;
-   }
+   public static final String PARAM_REDIRECT_URI       = "redirect_uri";       //$NON-NLS-1$
 }
