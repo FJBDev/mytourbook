@@ -203,9 +203,9 @@ public class SuuntoJsonProcessor {
          return null;
       }
 
+      //TODO FB Use ObjectMapper to have an easier deserialization ?
       // We detect the available sensors
-      if (jsonFileContent.contains(TAG_HR) ||
-            jsonFileContent.contains(TAG_RR)) {
+      if (jsonFileContent.contains(TAG_HR) || jsonFileContent.contains(TAG_RR)) {
          tourData.setIsPulseSensorPresent(true);
       }
 
@@ -223,11 +223,10 @@ public class SuuntoJsonProcessor {
       String currentSampleSml;
       String currentSampleData;
       String sampleTime;
-      JSONObject sample;
 
       for (int i = 0; i < samples.length(); ++i) {
          try {
-            sample = samples.getJSONObject(i);
+            final JSONObject sample = samples.getJSONObject(i);
             if (!sample.toString().contains(TAG_TIMEISO8601)) {
                continue;
             }
@@ -413,6 +412,7 @@ public class SuuntoJsonProcessor {
    private TourData InitializeActivity(final JSONObject firstSample,
                                        final TourData activityToReUse,
                                        final List<TimeData> sampleListToReUse) {
+
       TourData tourData = new TourData();
       final String firstSampleAttributes = firstSample.get(TAG_ATTRIBUTES).toString();
 
@@ -454,6 +454,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddAltitudeData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_ALTITUDE);
       if (StringUtils.hasContent(value)) {
          timeData.absoluteAltitude = Util.parseFloat(value);
@@ -472,6 +473,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddCadenceData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_CADENCE);
       if (StringUtils.hasContent(value)) {
          timeData.cadence = Util.parseFloat(value) * 60.0f;
@@ -490,6 +492,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddDistanceData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_DISTANCE);
       if (StringUtils.hasContent(value)) {
          timeData.absoluteDistance = Util.parseFloat(value);
@@ -508,6 +511,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddGpsData(final String currentSample, final TimeData timeData) {
+
       try {
          final JSONObject currentSampleJson = new JSONObject(currentSample);
          final float latitude = Util.parseFloat(currentSampleJson.get(TAG_LATITUDE).toString());
@@ -539,6 +543,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddHeartRateData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_HR);
       if (StringUtils.hasContent(value)) {
          timeData.pulse = Util.parseFloat(value) * 60.0f;
@@ -558,6 +563,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddPowerData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_POWER);
       if (StringUtils.hasContent(value)) {
          timeData.power = Util.parseFloat(value);
@@ -576,6 +582,7 @@ public class SuuntoJsonProcessor {
     * @return True if successful, false otherwise.
     */
    private boolean TryAddSpeedData(final String currentSample, final TimeData timeData) {
+
       final String value = TryRetrieveStringElementValue(currentSample, TAG_SPEED);
       if (StringUtils.hasContent(value)) {
          timeData.speed = Util.parseFloat(value);
