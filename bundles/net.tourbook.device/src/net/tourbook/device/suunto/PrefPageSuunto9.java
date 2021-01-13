@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2018, 2020 Frédéric Bard
+ * Copyright (C) 2018, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,11 +31,11 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private final static String[]  AltitudeData = new String[] {
+   private static final String[]  AltitudeData = new String[] {
          Messages.pref_altitude_gps,
          Messages.pref_altitude_barometer
    };
-   private final static String[]  DistanceData = new String[] {
+   private static final String[]  DistanceData = new String[] {
          Messages.pref_distance_gps,
          Messages.pref_distance_providedvalues
    };
@@ -45,13 +45,8 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
    /*
     * UI controls
     */
-   private Group _groupData;
-
-   private Combo _comboAltitudeDataSource;
+   private Combo comboAltitudeDataSource;
    private Combo _comboDistanceDataSource;
-
-   private Label _lblAltitudeDataSource;
-   private Label _lblDistanceDataSource;
 
    @Override
    protected void createFieldEditors() {
@@ -70,40 +65,42 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
       /*
        * Data
        */
-      _groupData = new Group(parent, SWT.NONE);
-      _groupData.setText(Messages.pref_data_source);
-      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_groupData);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(_groupData);
+      final Group groupData = new Group(parent, SWT.NONE);
+      groupData.setText(Messages.pref_data_source);
+      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(groupData);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(groupData);
       {
          // label: Altitude data source
-         _lblAltitudeDataSource = new Label(_groupData, SWT.NONE);
+         final Label _lblAltitudeDataSource = new Label(groupData, SWT.NONE);
          _lblAltitudeDataSource.setText(Messages.pref_altitude_source);
 
          /*
           * combo: Altitude source
           */
-         _comboAltitudeDataSource = new Combo(_groupData, SWT.READ_ONLY | SWT.BORDER);
-         _comboAltitudeDataSource.setVisibleItemCount(2);
+         comboAltitudeDataSource = new Combo(groupData, SWT.READ_ONLY | SWT.BORDER);
+         comboAltitudeDataSource.setVisibleItemCount(2);
 
          // label: Distance data source
-         _lblDistanceDataSource = new Label(_groupData, SWT.NONE);
-         _lblDistanceDataSource.setText(Messages.pref_distance_source);
+         final Label lblDistanceDataSource = new Label(groupData, SWT.NONE);
+         lblDistanceDataSource.setText(Messages.pref_distance_source);
 
          /*
           * combo: Distance source
           */
-         _comboDistanceDataSource = new Combo(_groupData, SWT.READ_ONLY | SWT.BORDER);
+         _comboDistanceDataSource = new Combo(groupData, SWT.READ_ONLY | SWT.BORDER);
          _comboDistanceDataSource.setVisibleItemCount(2);
       }
    }
 
    @Override
-   public void init(final IWorkbench workbench) {}
+   public void init(final IWorkbench workbench) {
+      //Not needed
+   }
 
    @Override
    protected void performDefaults() {
 
-      _comboAltitudeDataSource.select(1);
+      comboAltitudeDataSource.select(1);
       _comboDistanceDataSource.select(0);
    }
 
@@ -113,8 +110,8 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(IPreferences.ALTITUDE_DATA_SOURCE, _comboAltitudeDataSource.getSelectionIndex());
-         _prefStore.setValue(IPreferences.DISTANCE_DATA_SOURCE, _comboDistanceDataSource.getSelectionIndex());
+         _prefStore.setValue(Preferences.ALTITUDE_DATA_SOURCE, comboAltitudeDataSource.getSelectionIndex());
+         _prefStore.setValue(Preferences.DISTANCE_DATA_SOURCE, _comboDistanceDataSource.getSelectionIndex());
       }
       return isOK;
    }
@@ -125,9 +122,9 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
        * Fill-up the altitude data choices
        */
       for (final String altitudeDataType : AltitudeData) {
-         _comboAltitudeDataSource.add(altitudeDataType);
+         comboAltitudeDataSource.add(altitudeDataType);
       }
-      _comboAltitudeDataSource.select(_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE));
+      comboAltitudeDataSource.select(_prefStore.getInt(Preferences.ALTITUDE_DATA_SOURCE));
 
       /*
        * Fill-up the distance data choices
@@ -135,7 +132,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
       for (final String distanceDataType : DistanceData) {
          _comboDistanceDataSource.add(distanceDataType);
       }
-      _comboDistanceDataSource.select(_prefStore.getInt(IPreferences.DISTANCE_DATA_SOURCE));
+      _comboDistanceDataSource.select(_prefStore.getInt(Preferences.DISTANCE_DATA_SOURCE));
    }
 
 }

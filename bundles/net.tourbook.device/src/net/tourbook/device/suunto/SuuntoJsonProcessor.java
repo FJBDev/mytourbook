@@ -348,7 +348,7 @@ public class SuuntoJsonProcessor {
          wasDataPopulated |= TryAddCadenceData(currentSampleData, timeData);
 
          // Barometric Altitude
-         if (_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE) == 1 ||
+         if (_prefStore.getInt(Preferences.ALTITUDE_DATA_SOURCE) == 1 ||
                isIndoorTour) {
             wasDataPopulated |= TryAddAltitudeData(currentSampleData, timeData);
          }
@@ -363,7 +363,7 @@ public class SuuntoJsonProcessor {
          wasDataPopulated |= wasPowerDataPopulated;
 
          // Distance
-         if (_prefStore.getInt(IPreferences.DISTANCE_DATA_SOURCE) == 1 ||
+         if (_prefStore.getInt(Preferences.DISTANCE_DATA_SOURCE) == 1 ||
                isIndoorTour) {
             wasDataPopulated |= TryAddDistanceData(currentSampleData, timeData);
          }
@@ -518,7 +518,7 @@ public class SuuntoJsonProcessor {
          timeData.longitude = (longitude * 180) / Math.PI;
 
          // GPS altitude
-         if (_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE) == 0) {
+         if (_prefStore.getInt(Preferences.ALTITUDE_DATA_SOURCE) == 0) {
             timeData.absoluteAltitude = altitude;
          }
 
