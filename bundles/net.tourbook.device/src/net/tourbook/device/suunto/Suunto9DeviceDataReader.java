@@ -45,7 +45,7 @@ import org.json.JSONObject;
 
 public class Suunto9DeviceDataReader extends TourbookDevice {
 
-   private static final String               JSON_GZ                      = ".json.gz"; //$NON-NLS-1$
+   private static final String               JSON_GZ                      = ".json.gz";     //$NON-NLS-1$
 
    private HashMap<TourData, List<TimeData>> _processedActivities         = new HashMap<>();
 
@@ -360,9 +360,7 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
          }
 
          if (parentEntry == null) {
-            if (!_childrenActivitiesToProcess.containsKey(filePath)) {
-               _childrenActivitiesToProcess.put(filePath, jsonFileContent);
-            }
+            _childrenActivitiesToProcess.computeIfAbsent(filePath, key -> jsonFileContent);
          } else {
             activity = suuntoJsonProcessor.ImportActivity(
                   jsonFileContent,
