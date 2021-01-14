@@ -21,6 +21,8 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.map2.messages";    //$NON-NLS-1$
 
+   public static String        Image__floppy_disk;
+
    public static String        App_Action_Apply;
 
    public static String        Default_Label_NewTourMarker;

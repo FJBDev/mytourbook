@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.map2.action;
 
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.map2.Messages;
 import net.tourbook.map2.view.DialogMap2ExportViewImage;
 import net.tourbook.map2.view.Map2View;
@@ -29,6 +30,7 @@ public class ActionExportMapViewImage extends Action {
    public ActionExportMapViewImage(final Map2View mapView) {
 
       super(Messages.map_action_export_map_view_image, AS_PUSH_BUTTON);
+      setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__floppy_disk));
 
       _map2View = mapView;
    }
