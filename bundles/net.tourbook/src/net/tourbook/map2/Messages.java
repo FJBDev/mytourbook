@@ -167,6 +167,9 @@ public class Messages extends NLS {
    public static String        Tour_Action_RunDyn_StepLength_Tooltip;
    public static String        Tour_Action_ShowHrZones_Tooltip;
 
+   public static String        map_dialog_export_group_image_format;
+   public static String        map_dialog_export_group_image_format_label;
+
    static {
       // initialize resource bundle
       NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -16,9 +16,13 @@
 package net.tourbook.map2.view;
 
 import java.io.File;
+import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorDefinition;
+import net.tourbook.common.util.StringUtils;
+import net.tourbook.common.util.Util;
 import net.tourbook.map2.Messages;
 
 import org.eclipse.core.runtime.Path;
@@ -43,6 +47,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -52,15 +57,36 @@ import org.eclipse.swt.widgets.Text;
 
 public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
-   private final IDialogSettings _state = TourbookPlugin.getState("DialogMap2ExportViewImage"); //$NON-NLS-1$
+   private static final List<String> DistanceData                             = List.of(UI.EMPTY_STRING, "jpg", "png", "bmp");
 
-   private ColorDefinition       _colorDefinition;
+   private static final String       APP_BTN_BROWSE                           =
+         net.tourbook.Messages.app_btn_browse;
+   private static final String       DIALOG_EXPORT_CHK_OVERWRITEFILES         =
+         net.tourbook.Messages.dialog_export_chk_overwriteFiles;
+   private static final String       DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP =
+         net.tourbook.Messages.dialog_export_chk_overwriteFiles_tooltip;
+   private static final String       DIALOG_EXPORT_DIR_DIALOG_MESSAGE         =
+         net.tourbook.Messages.dialog_export_dir_dialog_message;
+   private static final String       DIALOG_EXPORT_DIR_DIALOG_TEXT            =
+         net.tourbook.Messages.dialog_export_dir_dialog_text;
+   private static final String       DIALOG_EXPORT_LABEL_FILENAME             =
+         net.tourbook.Messages.dialog_export_label_fileName;
+   private static final String       DIALOG_EXPORT_LABEL_EXPORTFILEPATH       =
+         net.tourbook.Messages.dialog_export_label_exportFilePath;
+   private static final String       DIALOG_EXPORT_GROUP_EXPORTFILENAME       =
+         net.tourbook.Messages.dialog_export_group_exportFileName;
+   private static final String       DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP       =
+         net.tourbook.Messages.dialog_export_txt_filePath_tooltip;
 
-   private boolean               _isInitializeControls;
+   private static final String       STATE_IMAGE_FORMAT                       = "STATE_IMAGE_FORMAT";                                 //$NON-NLS-1$
 
-   private PixelConverter        _pc;
+   private final IDialogSettings     _state                                   = TourbookPlugin.getState("DialogMap2ExportViewImage"); //$NON-NLS-1$
 
-   private Map2View              _map2View;
+   private ColorDefinition           _colorDefinition;
+
+   private PixelConverter            _pc;
+
+   private Map2View                  _map2View;
 
    /*
     * UI controls
@@ -69,19 +95,12 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    private Composite _inputContainer;
 
    private Button    _btnApply;
-
    private Combo     _comboFile;
-
    private Button    _btnSelectFile;
-
    private Combo     _comboPath;
-
    private Button    _btnSelectDirectory;
-
    private Text      _txtFilePath;
-
    private Button    _chkOverwriteFiles;
-
    private Combo     _comboImageFormat;
 
    public DialogMap2ExportViewImage(final Shell parentShell, final Map2View map2View) {
@@ -110,24 +129,14 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       getShell().setText(Messages.map_dialog_export_view_to_image_title);
 
-      /*
-       * initialize dialog by selecting select first value point
-       */
-
-      _isInitializeControls = true;
-      {
-         updateUI();
-      }
-      _isInitializeControls = false;
-
       setTitle(Messages.map_dialog_export_view_to_image_title);
       setMessage(Messages.map_dialog_export_view_to_image_message);
+
+      restoreState();
    }
 
    @Override
    protected Control createDialogArea(final Composite parent) {
-
-//      initUI(parent);
 
       _dlgContainer = (Composite) super.createDialogArea(parent);
 
@@ -152,27 +161,25 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    private void createUI_10_ImageFormat(final Composite parent) {
 
       /*
-       * group: filename
+       * group: Image format
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText("Messages.dialog_export_group_exportFileName");
+      group.setText(Messages.map_dialog_export_group_image_format);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
          /*
-          * label: filename
+          * label: Image format
           */
          final Label label = new Label(group, SWT.NONE);
-         label.setText("Messages.dialog_export_label_fileName");
+         label.setText(Messages.map_dialog_export_group_image_format_label);
 
          /*
-          * combo: path
+          * combo: Image format
           */
          _comboImageFormat = new Combo(group, SWT.READ_ONLY | SWT.BORDER);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboImageFormat);
-//         ((GridData) _comboPath.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
+         GridDataFactory.fillDefaults().applyTo(_comboImageFormat);
          _comboImageFormat.setVisibleItemCount(20);
-//         _comboPath.addModifyListener(filePathModifyListener);
          _comboImageFormat.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -199,7 +206,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
        * group: filename
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText("Messages.dialog_export_group_exportFileName");
+      group.setText(DIALOG_EXPORT_GROUP_EXPORTFILENAME);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -207,16 +214,15 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
           * label: filename
           */
          label = new Label(group, SWT.NONE);
-         label.setText("Messages.dialog_export_label_fileName");
+         label.setText(DIALOG_EXPORT_LABEL_FILENAME);
 
          /*
           * combo: path
           */
          _comboFile = new Combo(group, SWT.SINGLE | SWT.BORDER);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboFile);
-//         ((GridData) _comboFile.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
          _comboFile.setVisibleItemCount(20);
-         _comboFile.addVerifyListener(net.tourbook.common.UI.verifyFilenameInput());
+         _comboFile.addVerifyListener(UI.verifyFilenameInput());
          _comboFile.addModifyListener(filePathModifyListener);
          _comboFile.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -229,7 +235,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
           * button: browse
           */
          _btnSelectFile = new Button(group, SWT.PUSH);
-         _btnSelectFile.setText("Messages.app_btn_browse");
+         _btnSelectFile.setText(APP_BTN_BROWSE);
          _btnSelectFile.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -245,14 +251,13 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
           * label: path
           */
          label = new Label(group, SWT.NONE);
-         label.setText("Messages.dialog_export_label_exportFilePath");
+         label.setText(DIALOG_EXPORT_LABEL_EXPORTFILEPATH);
 
          /*
           * combo: path
           */
          _comboPath = new Combo(group, SWT.SINGLE | SWT.BORDER);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboPath);
-//         ((GridData) _comboPath.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
          _comboPath.setVisibleItemCount(20);
          _comboPath.addModifyListener(filePathModifyListener);
          _comboPath.addSelectionListener(new SelectionAdapter() {
@@ -266,7 +271,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
           * button: browse
           */
          _btnSelectDirectory = new Button(group, SWT.PUSH);
-         _btnSelectDirectory.setText("Messages.app_btn_browse");
+         _btnSelectDirectory.setText(APP_BTN_BROWSE);
          _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -282,14 +287,14 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
           * label: file path
           */
          label = new Label(group, SWT.NONE);
-         label.setText("Messages.dialog_export_label_filePath");
+         label.setText(DIALOG_EXPORT_LABEL_EXPORTFILEPATH);
 
          /*
           * text: filename
           */
-         _txtFilePath = new Text(group, /* SWT.BORDER | */SWT.READ_ONLY);
+         _txtFilePath = new Text(group, SWT.READ_ONLY);
          GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_txtFilePath);
-         _txtFilePath.setToolTipText("Messages.dialog_export_txt_filePath_tooltip");
+         _txtFilePath.setToolTipText(DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP);
          _txtFilePath.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 
          // -----------------------------------------------------------------------------
@@ -303,8 +308,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
                .span(3, 1)
                .indent(0, _pc.convertVerticalDLUsToPixels(4))
                .applyTo(_chkOverwriteFiles);
-         _chkOverwriteFiles.setText("Messages.dialog_export_chk_overwriteFiles");
-         _chkOverwriteFiles.setToolTipText("Messages.dialog_export_chk_overwriteFiles_tooltip");
+         _chkOverwriteFiles.setText(DIALOG_EXPORT_CHK_OVERWRITEFILES);
+         _chkOverwriteFiles.setToolTipText(DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP);
       }
 
    }
@@ -332,16 +337,14 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       gc.copyArea(image, 0, 0);
       final ImageLoader saver = new ImageLoader();
       saver.data = new ImageData[] { image.getImageData() };
-      saver.save(exportFileName, SWT.IMAGE_BMP);
+      saver.save(exportFileName, getSwtImageType());
       image.dispose();
       gc.dispose();
 
    }
+
    private void enableControls() {
 
-      // min brightness
-
-      // live update/apply
       final boolean isLiveUpdate = true;//_chkLiveUpdate.getSelection();
       _btnApply.setEnabled(isLiveUpdate == false);
    }
@@ -352,11 +355,38 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          okButton.setEnabled(isEnabled);
       }
    }
+
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
 
       // keep window size and position
       return _state;
+   }
+
+   private String getExportPathName() {
+
+      return _comboPath.getText().trim();
+   }
+
+   private String getFileExtension() {
+
+      return UI.SYMBOL_DOT + _comboImageFormat.getText();
+   }
+
+   private int getSwtImageType() {
+
+      switch (_comboImageFormat.getSelectionIndex()) {
+
+      case 1:
+         return SWT.IMAGE_PNG;
+
+      case 2:
+         return SWT.IMAGE_BMP;
+
+      case 0:
+      default:
+         return SWT.IMAGE_JPEG;
+      }
    }
 
    @Override
@@ -370,18 +400,33 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
             doExport();
          }
 
-
       });
 
       super.okPressed();
    }
 
+   private void onSelectBrowseDirectory() {
+
+      final DirectoryDialog dialog = new DirectoryDialog(_dlgContainer.getShell(), SWT.SAVE);
+      dialog.setText(DIALOG_EXPORT_DIR_DIALOG_TEXT);
+      dialog.setMessage(DIALOG_EXPORT_DIR_DIALOG_MESSAGE);
+
+      dialog.setFilterPath(getExportPathName());
+
+      final String selectedDirectoryName = dialog.open();
+
+      if (selectedDirectoryName != null) {
+         setErrorMessage(null);
+         _comboPath.setText(selectedDirectoryName);
+      }
+   }
+
    private void onSelectBrowseFile() {
 
-      final String fileExtension = _exportExtensionPoint.getFileExtension();
+      final String fileExtension = getFileExtension();
 
       final FileDialog dialog = new FileDialog(_dlgContainer.getShell(), SWT.SAVE);
-      dialog.setText(Messages.dialog_export_file_dialog_text);
+      dialog.setText(DIALOG_EXPORT_DIR_DIALOG_TEXT);
 
       dialog.setFilterPath(getExportPathName());
       dialog.setFilterExtensions(new String[] { fileExtension });
@@ -396,42 +441,28 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    }
 
    private void restoreState() {
-//      _chkLiveUpdate.setSelection(_state.getBoolean(STATE_LIVE_UPDATE));
+
+      for (final String imageFormat : DistanceData) {
+         _comboImageFormat.add(imageFormat);
+      }
+      _comboImageFormat.select(Util.getStateInt(_state, STATE_IMAGE_FORMAT, 0));
    }
 
    private void saveState() {
-//      _state.put(STATE_LIVE_UPDATE, _chkLiveUpdate.getSelection());
+
+      _state.put(STATE_IMAGE_FORMAT, _comboImageFormat.getSelectionIndex());
    }
 
-
-
-   /**
-    * Update legend data from the UI
-    */
    private void updateModelFromUI() {
 
-      // update color selector
-
       enableControls();
-
-   }
-
-   /**
-    * Update UI from legend data
-    */
-   private void updateUI() {
-
    }
 
    private void validateFields() {
 
-      if (_isInitializeControls) {
-         return;
-      }
-
       setErrorMessage(null);
 
-      if (true) {
+      if (_comboImageFormat.getSelectionIndex() == 0 || StringUtils.isNullOrEmpty(_txtFilePath.getText())) {
 
          setErrorMessage(Messages.legendcolor_dialog_error_max_greater_min);
          enableOK(false);
