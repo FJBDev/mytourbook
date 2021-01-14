@@ -46,22 +46,21 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private final IDialogSettings _state = TourbookPlugin.getState("DialogMap2ExportViewImage"); //$NON-NLS-1$
 
+   private ColorDefinition       _colorDefinition;
 
-   private ColorDefinition              _colorDefinition;
+   private boolean               _isInitializeControls;
 
-   private boolean                      _isInitializeControls;
-
-   private PixelConverter               _pc;
+   private PixelConverter        _pc;
 
    /*
     * UI controls
     */
-   private Composite     _dlgContainer;
-   private Composite     _inputContainer;
+   private Composite _dlgContainer;
+   private Composite _inputContainer;
 
-   private Button        _btnApply;
+   private Button    _btnApply;
 
-   private Combo         _comboFile;
+   private Combo     _comboFile;
 
    private Button    _btnSelectFile;
 
@@ -302,7 +301,6 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       // min brightness
 
-
       // live update/apply
       final boolean isLiveUpdate = true;//_chkLiveUpdate.getSelection();
       _btnApply.setEnabled(isLiveUpdate == false);
@@ -321,7 +319,6 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       // keep window size and position
       return _state;
    }
-
 
    private void restoreState() {
 //      _chkLiveUpdate.setSelection(_state.getBoolean(STATE_LIVE_UPDATE));
@@ -359,8 +356,6 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       // update color selector
 
-
-
       enableControls();
 
    }
@@ -370,11 +365,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
     */
    private void updateUI() {
 
-
    }
-
-
-
 
    private void validateFields() {
 
