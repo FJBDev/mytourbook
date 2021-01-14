@@ -36,8 +36,8 @@ public class ActionExportMapViewImage extends Action {
    @Override
    public void run() {
 
-      final DialogMap2ExportViewImage toto = new DialogMap2ExportViewImage(Display.getCurrent().getActiveShell());
-      toto.open();
+      final DialogMap2ExportViewImage dialogMap2ExportViewImage = new DialogMap2ExportViewImage(Display.getCurrent().getActiveShell());
+      dialogMap2ExportViewImage.open();
 //      final Composite mainComposite = _map2View.getMainComposite();
 //
 //      final GC gc = new GC(mainComposite);
