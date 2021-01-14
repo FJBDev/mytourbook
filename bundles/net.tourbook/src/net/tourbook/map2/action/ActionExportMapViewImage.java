@@ -16,15 +16,11 @@
 package net.tourbook.map2.action;
 
 import net.tourbook.map2.Messages;
+import net.tourbook.map2.view.DialogMap2ExportViewImage;
 import net.tourbook.map2.view.Map2View;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 public class ActionExportMapViewImage extends Action {
 
@@ -40,18 +36,20 @@ public class ActionExportMapViewImage extends Action {
    @Override
    public void run() {
 
-      final Composite mainComposite = _map2View.getMainComposite();
-
-      final GC gc = new GC(mainComposite);
-      final Image image = new Image(mainComposite.getDisplay(),
-            mainComposite.getSize().x,
-            mainComposite.getSize().y);
-      gc.copyArea(image, 0, 0);
-      final ImageLoader saver = new ImageLoader();
-      saver.data = new ImageData[] { image.getImageData() };
-      saver.save("C:\\Users\\frederic\\Desktop\\output.bmp", SWT.IMAGE_BMP);
-      image.dispose();
-      gc.dispose();
+      final DialogMap2ExportViewImage toto = new DialogMap2ExportViewImage(Display.getCurrent().getActiveShell());
+      toto.open();
+//      final Composite mainComposite = _map2View.getMainComposite();
+//
+//      final GC gc = new GC(mainComposite);
+//      final Image image = new Image(mainComposite.getDisplay(),
+//            mainComposite.getSize().x,
+//            mainComposite.getSize().y);
+//      gc.copyArea(image, 0, 0);
+//      final ImageLoader saver = new ImageLoader();
+//      saver.data = new ImageData[] { image.getImageData() };
+//      saver.save("C:\\Users\\frederic\\Desktop\\output.bmp", SWT.IMAGE_BMP);
+//      image.dispose();
+//      gc.dispose();
    }
 
 }
