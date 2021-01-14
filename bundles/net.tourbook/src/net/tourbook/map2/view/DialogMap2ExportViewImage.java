@@ -15,11 +15,13 @@
  *******************************************************************************/
 package net.tourbook.map2.view;
 
+import java.io.File;
+
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.color.ColorDefinition;
-import net.tourbook.common.color.Map2ColorProfile;
 import net.tourbook.map2.Messages;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -28,15 +30,21 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -51,6 +59,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    private boolean               _isInitializeControls;
 
    private PixelConverter        _pc;
+
+   private Map2View              _map2View;
 
    /*
     * UI controls
@@ -72,14 +82,16 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private Button    _chkOverwriteFiles;
 
-   private Combo     _comboImageFormatType;
+   private Combo     _comboImageFormat;
 
-   public DialogMap2ExportViewImage(final Shell parentShell) {
+   public DialogMap2ExportViewImage(final Shell parentShell, final Map2View map2View) {
 
       super(parentShell);
 
       // make dialog resizable
       setShellStyle(getShellStyle() | SWT.RESIZE);
+
+      _map2View = map2View;
 
    }
 
@@ -96,7 +108,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       super.create();
 
-      getShell().setText(Messages.legendcolor_dialog_title_name);
+      getShell().setText(Messages.map_dialog_export_view_to_image_title);
 
       /*
        * initialize dialog by selecting select first value point
@@ -108,8 +120,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       }
       _isInitializeControls = false;
 
-      setTitle(Messages.legendcolor_dialog_title);
-      setMessage(Messages.legendcolor_dialog_title_message);
+      setTitle(Messages.map_dialog_export_view_to_image_title);
+      setMessage(Messages.map_dialog_export_view_to_image_message);
    }
 
    @Override
@@ -156,12 +168,12 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          /*
           * combo: path
           */
-         _comboImageFormatType = new Combo(group, SWT.SINGLE | SWT.BORDER);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboImageFormatType);
+         _comboImageFormat = new Combo(group, SWT.READ_ONLY | SWT.BORDER);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboImageFormat);
 //         ((GridData) _comboPath.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
-         _comboImageFormatType.setVisibleItemCount(20);
+         _comboImageFormat.setVisibleItemCount(20);
 //         _comboPath.addModifyListener(filePathModifyListener);
-         _comboImageFormatType.addSelectionListener(new SelectionAdapter() {
+         _comboImageFormat.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                validateFields();
@@ -221,7 +233,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          _btnSelectFile.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
-//               onSelectBrowseFile();
+               onSelectBrowseFile();
                validateFields();
             }
          });
@@ -258,7 +270,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
-//               onSelectBrowseDirectory();
+               onSelectBrowseDirectory();
                validateFields();
             }
          });
@@ -297,6 +309,34 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    }
 
+   private void doExport() {
+
+      final String exportFileName = _txtFilePath.getText();
+
+      final boolean isOverwrite = true;
+      final File exportFile = new File(exportFileName);
+//      if (exportFile.exists() && _chkOverwriteFiles.getSelection()) {
+//            isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
+//      }
+
+      if (isOverwrite == false) {
+         return;
+      }
+
+      final Composite mainComposite = _map2View.getMainComposite();
+
+      final GC gc = new GC(mainComposite);
+      final Image image = new Image(mainComposite.getDisplay(),
+            mainComposite.getSize().x,
+            mainComposite.getSize().y);
+      gc.copyArea(image, 0, 0);
+      final ImageLoader saver = new ImageLoader();
+      saver.data = new ImageData[] { image.getImageData() };
+      saver.save(exportFileName, SWT.IMAGE_BMP);
+      image.dispose();
+      gc.dispose();
+
+   }
    private void enableControls() {
 
       // min brightness
@@ -312,12 +352,47 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          okButton.setEnabled(isEnabled);
       }
    }
-
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
 
       // keep window size and position
       return _state;
+   }
+
+   @Override
+   protected void okPressed() {
+
+      net.tourbook.ui.UI.disableAllControls(_inputContainer);
+
+      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+         @Override
+         public void run() {
+            doExport();
+         }
+
+
+      });
+
+      super.okPressed();
+   }
+
+   private void onSelectBrowseFile() {
+
+      final String fileExtension = _exportExtensionPoint.getFileExtension();
+
+      final FileDialog dialog = new FileDialog(_dlgContainer.getShell(), SWT.SAVE);
+      dialog.setText(Messages.dialog_export_file_dialog_text);
+
+      dialog.setFilterPath(getExportPathName());
+      dialog.setFilterExtensions(new String[] { fileExtension });
+      dialog.setFileName("*." + fileExtension);//$NON-NLS-1$
+
+      final String selectedFilePath = dialog.open();
+
+      if (selectedFilePath != null) {
+         setErrorMessage(null);
+         _comboFile.setText(new Path(selectedFilePath).toFile().getName());
+      }
    }
 
    private void restoreState() {
@@ -328,26 +403,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 //      _state.put(STATE_LIVE_UPDATE, _chkLiveUpdate.getSelection());
    }
 
-   /**
-    * Initialized the dialog by setting the {@link Map2ColorProfile} which will be displayed in
-    * this dialog, it will use a copy of the supplied {@link Map2ColorProfile}
-    *
-    * @param colorDefinition
-    */
-   public void setLegendColor(final ColorDefinition colorDefinition) {
 
-      _colorDefinition = colorDefinition;
-
-      // use a copy of the legendColor to support the cancel feature
-
-//		System.out.println(UI.timeStampNano()
-//				+ " ["
-//				+ getClass().getSimpleName()
-//				+ "] \t"
-//				+ Arrays.toString(colorValues));
-//		// TODO remove SYSTEM.OUT.PRINTLN
-
-   }
 
    /**
     * Update legend data from the UI

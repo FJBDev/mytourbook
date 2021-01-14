@@ -36,20 +36,8 @@ public class ActionExportMapViewImage extends Action {
    @Override
    public void run() {
 
-      final DialogMap2ExportViewImage dialogMap2ExportViewImage = new DialogMap2ExportViewImage(Display.getCurrent().getActiveShell());
+      final DialogMap2ExportViewImage dialogMap2ExportViewImage = new DialogMap2ExportViewImage(Display.getCurrent().getActiveShell(), _map2View);
       dialogMap2ExportViewImage.open();
-//      final Composite mainComposite = _map2View.getMainComposite();
-//
-//      final GC gc = new GC(mainComposite);
-//      final Image image = new Image(mainComposite.getDisplay(),
-//            mainComposite.getSize().x,
-//            mainComposite.getSize().y);
-//      gc.copyArea(image, 0, 0);
-//      final ImageLoader saver = new ImageLoader();
-//      saver.data = new ImageData[] { image.getImageData() };
-//      saver.save("C:\\Users\\frederic\\Desktop\\output.bmp", SWT.IMAGE_BMP);
-//      image.dispose();
-//      gc.dispose();
    }
 
 }

@@ -154,6 +154,9 @@ public class Messages extends NLS {
    public static String        map_dlg_dim_warning_title;
    public static String        map_dlg_dim_warning_toggle_message;
 
+   public static String        map_dialog_export_view_to_image_title;
+   public static String        map_dialog_export_view_to_image_message;
+
    public static String        map_properties_map_dim_level;
 
    public static String        statusLine_mapInfo_data;
