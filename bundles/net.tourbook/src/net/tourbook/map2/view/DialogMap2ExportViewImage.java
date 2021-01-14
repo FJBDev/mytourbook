@@ -16,18 +16,20 @@
 package net.tourbook.map2.view;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
-import net.tourbook.common.color.ColorDefinition;
-import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.map2.Messages;
+import net.tourbook.ui.FileCollisionBehavior;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -82,26 +84,28 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private final IDialogSettings     _state                                   = TourbookPlugin.getState("DialogMap2ExportViewImage"); //$NON-NLS-1$
 
-   private ColorDefinition           _colorDefinition;
-
    private PixelConverter            _pc;
 
    private Map2View                  _map2View;
 
+   private FileCollisionBehavior     _exportState_FileCollisionBehaviour;
+
    /*
     * UI controls
     */
-   private Composite _dlgContainer;
-   private Composite _inputContainer;
+   private Composite        _dlgContainer;
+   private Composite        _inputContainer;
 
-   private Button    _btnApply;
-   private Combo     _comboFile;
-   private Button    _btnSelectFile;
-   private Combo     _comboPath;
-   private Button    _btnSelectDirectory;
-   private Text      _txtFilePath;
-   private Button    _chkOverwriteFiles;
-   private Combo     _comboImageFormat;
+   private Combo            _comboImageFormat;
+   private Button           _btnSelectFile;
+   private Text             _txtFilePath;
+   private Combo            _comboFile;
+   private Button           _btnSelectDirectory;
+   private Combo            _comboPath;
+   private Button           _chkOverwriteFiles;
+
+   private ModifyListener   _filePathModifyListener;
+   private SelectionAdapter _selectionAdapter;
 
    public DialogMap2ExportViewImage(final Shell parentShell, final Map2View map2View) {
 
@@ -133,6 +137,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       setMessage(Messages.map_dialog_export_view_to_image_message);
 
       restoreState();
+      validateFields();
    }
 
    @Override
@@ -148,6 +153,20 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    private void createUI(final Composite parent) {
 
       _pc = new PixelConverter(parent);
+
+      _filePathModifyListener = new ModifyListener() {
+         @Override
+         public void modifyText(final ModifyEvent e) {
+            validateFields();
+         }
+      };
+
+      _selectionAdapter = new SelectionAdapter() {
+         @Override
+         public void widgetSelected(final SelectionEvent e) {
+            validateFields();
+         }
+      };
 
       _inputContainer = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(_inputContainer);
@@ -195,13 +214,6 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       Label label;
 
-      final ModifyListener filePathModifyListener = new ModifyListener() {
-         @Override
-         public void modifyText(final ModifyEvent e) {
-            validateFields();
-         }
-      };
-
       /*
        * group: filename
        */
@@ -223,13 +235,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboFile);
          _comboFile.setVisibleItemCount(20);
          _comboFile.addVerifyListener(UI.verifyFilenameInput());
-         _comboFile.addModifyListener(filePathModifyListener);
-         _comboFile.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               validateFields();
-            }
-         });
+         _comboFile.addModifyListener(_filePathModifyListener);
+         _comboFile.addSelectionListener(_selectionAdapter);
 
          /*
           * button: browse
@@ -259,13 +266,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          _comboPath = new Combo(group, SWT.SINGLE | SWT.BORDER);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboPath);
          _comboPath.setVisibleItemCount(20);
-         _comboPath.addModifyListener(filePathModifyListener);
-         _comboPath.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               validateFields();
-            }
-         });
+         _comboPath.addModifyListener(_filePathModifyListener);
+         _comboPath.addSelectionListener(_selectionAdapter);
 
          /*
           * button: browse
@@ -318,11 +320,11 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       final String exportFileName = _txtFilePath.getText();
 
-      final boolean isOverwrite = true;
+      boolean isOverwrite = true;
       final File exportFile = new File(exportFileName);
-//      if (exportFile.exists() && _chkOverwriteFiles.getSelection()) {
-//            isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
-//      }
+      if (exportFile.exists() && _chkOverwriteFiles.getSelection()) {
+         isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
+      }
 
       if (isOverwrite == false) {
          return;
@@ -343,13 +345,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    }
 
-   private void enableControls() {
-
-      final boolean isLiveUpdate = true;//_chkLiveUpdate.getSelection();
-      _btnApply.setEnabled(isLiveUpdate == false);
-   }
-
    private void enableOK(final boolean isEnabled) {
+
       final Button okButton = getButton(IDialogConstants.OK_ID);
       if (okButton != null) {
          okButton.setEnabled(isEnabled);
@@ -361,6 +358,10 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       // keep window size and position
       return _state;
+   }
+
+   private String getExportFileName() {
+      return _comboFile.getText().trim();
    }
 
    private String getExportPathName() {
@@ -453,26 +454,96 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       _state.put(STATE_IMAGE_FORMAT, _comboImageFormat.getSelectionIndex());
    }
 
-   private void updateModelFromUI() {
-
-      enableControls();
+   private void setError(final String message) {
+      setErrorMessage(message);
+      enableOK(false);
    }
 
    private void validateFields() {
 
       setErrorMessage(null);
 
-      if (_comboImageFormat.getSelectionIndex() == 0 || StringUtils.isNullOrEmpty(_txtFilePath.getText())) {
+      if (_comboImageFormat.getSelectionIndex() == 0) {
 
          setErrorMessage(Messages.legendcolor_dialog_error_max_greater_min);
-         enableOK(false);
          return;
       }
 
-      setMessage(NLS.bind(Messages.legendcolor_dialog_title_message, _colorDefinition.getVisibleName()));
+      if (validateFilePath() == false) {
+         return;
+      }
 
-      updateModelFromUI();
-
+      setErrorMessage(null);
       enableOK(true);
+   }
+
+   private boolean validateFilePath() {
+
+      // check path
+      IPath filePath = new Path(getExportPathName());
+      if (new File(filePath.toOSString()).exists() == false) {
+
+         // invalid path
+         setError(NLS.bind("Messages.dialog_export_msg_pathIsNotAvailable", filePath.toOSString()));
+         return false;
+      }
+
+      boolean returnValue = false;
+
+      String fileName = getExportFileName();
+
+      // remove extensions
+      final int extPos = fileName.indexOf('.');
+      if (extPos != -1) {
+         fileName = fileName.substring(0, extPos);
+      }
+
+      // build file path with extension
+      filePath = filePath
+            .addTrailingSeparator()
+            .append(fileName)
+            .addFileExtension(getFileExtension());
+
+      final File newFile = new File(filePath.toOSString());
+
+      if ((fileName.length() == 0) || newFile.isDirectory()) {
+
+         // invalid filename
+
+         setError("Messages.dialog_export_msg_fileNameIsInvalid");
+
+      } else if (newFile.exists()) {
+
+         // file already exists
+
+         setMessage(
+               NLS.bind("Messages.dialog_export_msg_fileAlreadyExists", filePath.toOSString()),
+               IMessageProvider.WARNING);
+         returnValue = true;
+
+      } else {
+
+         setMessage("_dlgDefaultMessage");
+
+         try {
+            final boolean isFileCreated = newFile.createNewFile();
+
+            // name is correct
+
+            if (isFileCreated) {
+               // delete file because the file is created for checking validity
+               newFile.delete();
+            }
+            returnValue = true;
+
+         } catch (final IOException ioe) {
+            setError("Messages.dialog_export_msg_fileNameIsInvalid");
+         }
+
+      }
+
+      _txtFilePath.setText(filePath.toOSString());
+
+      return returnValue;
    }
 }
