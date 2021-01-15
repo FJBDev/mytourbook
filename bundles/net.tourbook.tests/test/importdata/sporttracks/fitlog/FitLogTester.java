@@ -49,7 +49,6 @@ public class FitLogTester {
       alreadyImportedTours = new HashMap<>();
       deviceDataReader = new FitLogDeviceDataReader();
 
-          // Exception occurs here
           Persistence.createEntityManagerFactory("tourdatabase").createEntityManager();
    }
 
