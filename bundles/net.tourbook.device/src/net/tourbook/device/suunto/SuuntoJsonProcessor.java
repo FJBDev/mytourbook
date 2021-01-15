@@ -15,8 +15,6 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.swimming.SwimStroke;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -203,7 +202,7 @@ public class SuuntoJsonProcessor {
          return null;
       }
 
-      //TODO FB Use ObjectMapper to have an easier deserialization ?
+      //TODO FB Use ObjectMapper to have an easier deserialization
       // We detect the available sensors
       if (jsonFileContent.contains(TAG_HR) || jsonFileContent.contains(TAG_RR)) {
          tourData.setIsPulseSensorPresent(true);
@@ -759,11 +758,11 @@ public class SuuntoJsonProcessor {
       final ArrayList<Integer> elementValues = new ArrayList<>();
       final String elements = TryRetrieveStringElementValue(token, elementName);
 
-      if (StringUtils.hasContent(elements)) {
+      if (StringUtils.isNullOrEmpty(elements)) {
          return elementValues;
       }
 
-      final String[] stringValues = elements.split(","); //$NON-NLS-1$
+      final String[] stringValues = elements.split(UI.SYMBOL_COMMA);
 
       Arrays.stream(stringValues).forEach(stringValue -> elementValues.add(Integer.parseInt(stringValue)));
 
