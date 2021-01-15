@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import javax.persistence.Persistence;
 import javax.xml.parsers.SAXParser;
 
 import net.tourbook.data.TourData;
@@ -26,12 +27,13 @@ import net.tourbook.device.sporttracks.FitLogDeviceDataReader;
 import net.tourbook.device.sporttracks.FitLogSAXHandler;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
 import utils.Initializer;
 
-class FitLogTester {
+public class FitLogTester {
 
    private static final String            IMPORT_PATH = "/importdata/sporttracks/fitlog/files/"; //$NON-NLS-1$
 
@@ -46,6 +48,9 @@ class FitLogTester {
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
       deviceDataReader = new FitLogDeviceDataReader();
+
+          // Exception occurs here
+          Persistence.createEntityManagerFactory("tourdatabase").createEntityManager();
    }
 
    /**
@@ -55,7 +60,7 @@ class FitLogTester {
     * tourdatabase
     * at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:56)
     */
-//   @Test
+   @Test
    void testImport20152018() throws SAXException, IOException {
       final String filePathWithoutExtension = IMPORT_PATH +
             "SportTracks2015-2018"; //$NON-NLS-1$
