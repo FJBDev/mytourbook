@@ -621,8 +621,10 @@ public class SuuntoJsonProcessor {
 
       switch (swimmingType) {
       case Stroke:
-         ++previousSwimData.swim_Strokes;
-         wasDataPopulated = true;
+         if (previousSwimData != null) {
+            ++previousSwimData.swim_Strokes;
+            wasDataPopulated = true;
+         }
          break;
       case Turn:
          final String currentTotalLengthsString = TryRetrieveStringElementValue(
