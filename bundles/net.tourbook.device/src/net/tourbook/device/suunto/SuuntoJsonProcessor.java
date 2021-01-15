@@ -613,11 +613,7 @@ public class SuuntoJsonProcessor {
       final JSONObject array = (JSONObject) Events.get(0);
       final String swimmingSample = ((JSONObject) array.get(Swimming)).toString();
 
-      if (allSwimData.isEmpty()) {
-         return false;
-      }
-
-      final SwimData previousSwimData = allSwimData.get(allSwimData.size() - 1);
+      final SwimData previousSwimData = allSwimData.isEmpty() ? null : allSwimData.get(allSwimData.size() - 1);
 
       final String swimmingType = TryRetrieveStringElementValue(
             swimmingSample,
