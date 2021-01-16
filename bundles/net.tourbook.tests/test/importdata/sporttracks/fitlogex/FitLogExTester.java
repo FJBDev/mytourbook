@@ -52,9 +52,9 @@ class FitLogExTester {
    }
 
    @Test
-   void testImport20152018() throws SAXException, IOException {
+   void testImportTimothyLake() throws SAXException, IOException {
       final String filePathWithoutExtension = IMPORT_PATH +
-            "SportTracks2015-2018"; //$NON-NLS-1$
+            "TimothyLake"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".fitlogEx"; //$NON-NLS-1$
       final InputStream fitLogExFile = FitLogExTester.class.getResourceAsStream(importFilePath);
 
