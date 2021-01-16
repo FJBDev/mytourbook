@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,6 +26,7 @@ import net.tourbook.device.sporttracks.FitLogDeviceDataReader;
 import net.tourbook.device.sporttracks.FitLogSAXHandler;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
@@ -42,6 +43,8 @@ class FitLogExTester {
 
    @BeforeAll
    static void initAll() {
+
+      Initializer.initializeDatabase();
       parser = Initializer.initializeParser();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
@@ -55,7 +58,7 @@ class FitLogExTester {
     * tourdatabase
     * at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:56)
     */
-//   @Test
+   @Test
    void testImport20152018() throws SAXException, IOException {
       final String filePathWithoutExtension = IMPORT_PATH +
             "SportTracks2015-2018"; //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import javax.persistence.Persistence;
 import javax.xml.parsers.SAXParser;
 
 import net.tourbook.data.TourData;
@@ -44,12 +43,12 @@ public class FitLogTester {
 
    @BeforeAll
    static void initAll() {
+
+      Initializer.initializeDatabase();
       parser = Initializer.initializeParser();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
       deviceDataReader = new FitLogDeviceDataReader();
-
-          Persistence.createEntityManagerFactory("tourdatabase").createEntityManager();
    }
 
    /**
