@@ -51,13 +51,6 @@ public class FitLogTester {
       deviceDataReader = new FitLogDeviceDataReader();
    }
 
-   /**
-    * 2015-1018
-    * NOTE: Test skipped at the moment because I don't know how to resolve this issue
-    * javax.persistence.PersistenceException: No Persistence provider for EntityManager named
-    * tourdatabase
-    * at javax.persistence.Persistence.createEntityManagerFactory(Persistence.java:56)
-    */
    @Test
    void testImport20152018() throws SAXException, IOException {
       final String filePathWithoutExtension = IMPORT_PATH +
