@@ -229,22 +229,27 @@ public class DataProvider_Tour_Day extends DataProvider {
       }
    }
 
-   private void ComputeAndAddPredictedPerformanceValue(final TFloatArrayList dbAllPredictedPerformance,
-                                                       final float trainingStress,
+   private void computeAndAddPredictedPerformanceValue(final TFloatArrayList dbAllPredictedPerformance,
                                                        final TFloatArrayList dbAllTrainingStress) {
 
-      int numberOfDaysSinceLastTrainingStress = dbAllTrainingStress.size();
+      final int currentFitnessValue = dbAllTrainingStress.isEmpty() ? 0 : (int) dbAllTrainingStress.get(dbAllTrainingStress.size() - 1);
+      int previousFitnessValue = 0;
 
-      for (int index = dbAllTrainingStress.size() - 1; index >= 0; --index) {
-         if (dbAllTrainingStress.get(index) == 0) {
-            numberOfDaysSinceLastTrainingStress -= index;
+      int numberOfDaysSinceLastTrainingStress = 0;
+      for (int index = dbAllTrainingStress.size() - 2; index >= 0; --index) {
+
+         previousFitnessValue = (int) dbAllTrainingStress.get(index);
+         ++numberOfDaysSinceLastTrainingStress;
+
+         if (previousFitnessValue > 0) {
             break;
          }
       }
+      //TODO FB i would think that only the day summary would be useful. are the week/month/year valuable ?
 
       dbAllPredictedPerformance.add(PredictedPerformance.computePredictedPerformanceValue(numberOfDaysSinceLastTrainingStress,
-            dbAllTrainingStress.size() < 2 ? 0 : (int) dbAllTrainingStress.get(dbAllTrainingStress.size() - 2),
-            (int) trainingStress));
+            previousFitnessValue,
+            currentFitnessValue));
 
    }
 
@@ -434,7 +439,7 @@ public class DataProvider_Tour_Day extends DataProvider {
 
                // get additional tags from tag join
 
-               if (dbTagId instanceof Long) {
+               if (dbTagId instanceof Long && tagIds != null) {
                   tagIds.add((Long) dbTagId);
                }
 
@@ -525,8 +530,8 @@ public class DataProvider_Tour_Day extends DataProvider {
                dbAllBodyWeight.add(bodyWeight);
                dbAllBodyFat.add(bodyFat);
 
-               ComputeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, govss + bikeScore + swimScore, dbAllTrainingStress);
                dbAllTrainingStress.add(govss + bikeScore + swimScore);
+               computeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, dbAllTrainingStress);
 
                // round distance
                final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;

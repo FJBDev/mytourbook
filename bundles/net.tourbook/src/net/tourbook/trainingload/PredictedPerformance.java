@@ -26,6 +26,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
  */
 public final class PredictedPerformance {
 
+   //TODO FB make it implement an interface. ITrainingLoadModel ????
+   //Preference menu just ofr this or keep it in the computed values ?
    //https://github.com/FJBDev/mytourbook/blob/04a6cd970ed157bd8f784eca2b9c0dc7843c5d6d/bundles/net.tourbook/src/net/tourbook/data/PerformanceModelingData.java
 //   store.setDefault(ITourbookPreferences.FATIGUE_DECAY, 15);
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
