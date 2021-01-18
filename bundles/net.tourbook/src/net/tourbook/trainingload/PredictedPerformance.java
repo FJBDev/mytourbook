@@ -27,22 +27,19 @@ public final class PredictedPerformance {
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
    /**
-    * Computes the response level value for a given date and a given previous training data
+    * Computes the fitness value for a given date and a given previous training data
+    * Fitness = g(t) = g(t-i)e^(-i/T1) + w(t)
     *
     * @param numberOfDays
     *           The number of days between the current's day of training and the previous day of
     *           training.
-    * @param previousResponseValue
-    * @param trainingStressValue
+    * @param previousFitnessValue
+    * @param totalGovss
     * @return
     */
-   public static int computeResponseValue(final int numberOfDays,
-                                          final int previousResponseValue,
-                                          final int trainingStressValue) {
+   private static int computeFatigueValue(final int numberOfDays, final int previousFitnessValue, final int totalGovss) {
 
-      final float exponent = numberOfDays * -1f / _prefStore.getInt(ITourbookPreferences.FITNESS_DECAY);
-
-      return (int) (previousResponseValue * Math.exp(exponent) + trainingStressValue);
+      return computeResponseValue(numberOfDays, previousFitnessValue, totalGovss, _prefStore.getInt(ITourbookPreferences.FATIGUE_DECAY));
    }
 
    /**
@@ -56,9 +53,46 @@ public final class PredictedPerformance {
     * @param totalGovss
     * @return
     */
-   private int computeFitnessValue(final int numberOfDays, final int previousFitnessValue, final int totalGovss) {
+   private static int computeFitnessValue(final int numberOfDays, final int previousFitnessValue, final int totalGovss) {
 
-      return computeResponseValue(numberOfDays, previousFitnessValue, totalGovss);
+      return computeResponseValue(numberOfDays, previousFitnessValue, totalGovss, _prefStore.getInt(ITourbookPreferences.FITNESS_DECAY));
+   }
+
+   /**
+    * Computes the fitness value for a given date and a given previous training data
+    * Fitness = g(t) = g(t-i)e^(-i/T1) + w(t)
+    *
+    * @param numberOfDays
+    *           The number of days between the current's day of training and the previous day of
+    *           training.
+    * @param previousFitnessValue
+    * @param totalGovss
+    * @return
+    */
+   public static int computePredictedPerformanceValue(final int numberOfDays, final int previousFitnessValue, final int totalGovss) {
+
+      return computeFitnessValue(numberOfDays, previousFitnessValue, totalGovss) -
+            computeFatigueValue(numberOfDays, previousFitnessValue, totalGovss);
+   }
+
+   /**
+    * Computes the response level value for a given date and a given previous training data
+    *
+    * @param numberOfDays
+    *           The number of days between the current day of training and the last day of
+    *           training.
+    * @param previousResponseValue
+    * @param trainingStressValue
+    * @return
+    */
+   private static int computeResponseValue(final int numberOfDays,
+                                           final int previousResponseValue,
+                                           final int trainingStressValue,
+                                           final int decay) {
+
+      final float exponent = numberOfDays * -1f / decay;
+
+      return (int) (previousResponseValue * Math.exp(exponent) + trainingStressValue);
    }
 
 }

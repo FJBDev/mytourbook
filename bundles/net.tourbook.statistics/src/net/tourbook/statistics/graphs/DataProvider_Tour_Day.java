@@ -242,7 +242,7 @@ public class DataProvider_Tour_Day extends DataProvider {
          }
       }
 
-      dbAllPredictedPerformance.add(PredictedPerformance.computeResponseValue(numberOfDaysSinceLastTrainingStress,
+      dbAllPredictedPerformance.add(PredictedPerformance.computePredictedPerformanceValue(numberOfDaysSinceLastTrainingStress,
             dbAllTrainingStress.size() < 2 ? 0 : (int) dbAllTrainingStress.get(dbAllTrainingStress.size() - 2),
             (int) trainingStress));
 
