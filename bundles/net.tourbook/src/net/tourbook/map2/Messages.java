@@ -101,7 +101,9 @@ public class Messages extends NLS {
 
    public static String        map_action_dim_map;
    public static String        map_action_dim_map_disabled;
+   public static String        map_action_export_map_view_clipboard;
    public static String        map_action_export_map_view_image;
+   public static String        map_action_export_map_view_image_tooltip;
    public static String        map_action_reload_map;
    public static String        map_action_save_default_position;
    public static String        map_action_set_default_position;
@@ -171,8 +173,6 @@ public class Messages extends NLS {
 
    public static String        map_dialog_export_group_image_format;
    public static String        map_dialog_export_group_image_format_label;
-
-   public static String        map_dialog_error_image_format_not_selected;
 
    static {
       // initialize resource bundle
