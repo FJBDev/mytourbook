@@ -20,6 +20,10 @@ import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
+/**
+ * Class that implements the Predicted Performance model from EW Banister
+ * Source : https://www.researchgate.net/publication/20910238_Modeling_human_performance_in_running
+ */
 public final class PredictedPerformance {
 
    //https://github.com/FJBDev/mytourbook/blob/04a6cd970ed157bd8f784eca2b9c0dc7843c5d6d/bundles/net.tourbook/src/net/tourbook/data/PerformanceModelingData.java

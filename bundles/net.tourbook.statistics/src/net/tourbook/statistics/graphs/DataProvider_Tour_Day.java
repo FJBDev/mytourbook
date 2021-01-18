@@ -595,7 +595,6 @@ public class DataProvider_Tour_Day extends DataProvider {
          final float[] bodyWeight_High = dbAllBodyWeight.toArray();
          final float[] bodyFat_High = dbAllBodyFat.toArray();
 
-         //TODO compute from the trainingstress values using a static class
          final float[] predictedPerformance_High = dbAllPredictedPerformance.toArray();
          final float[] trainingStress_High = dbAllTrainingStress.toArray();
 
