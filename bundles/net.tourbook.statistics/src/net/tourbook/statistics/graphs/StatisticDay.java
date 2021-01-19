@@ -308,7 +308,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    void createXDataDay(final ChartDataModel chartModel) {
 
       final ChartDataXSerie xData = new ChartDataXSerie(_statisticData_Day.getDoyValuesDouble());
-      xData.setAxisUnit(ChartDataXSerie.X_AXIS_UNIT_DAY);
+      xData.setAxisUnit(ChartDataSerie.X_AXIS_UNIT_DAY);
 //      xData.setVisibleMaxValue(fCurrentYear);
       xData.setChartSegments(createChartSegments(_statisticData_Day));
 
@@ -361,6 +361,9 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       chartDataModel.addYData(yData);
    }
 
+   /**
+    * Predicted Performance
+    */
    void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
@@ -390,6 +393,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
 
       StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
 
@@ -409,6 +413,9 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 //      chartDataModel.addYData(yData2);
    }
 
+   /**
+    * Training Stress
+    */
    void createYData_TrainingStress(final ChartDataModel chartDataModel) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
@@ -646,7 +653,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       // find the tour which has the same tourId as the selected tour
       for (int tourIndex = 0; tourIndex < tourIds.length; tourIndex++) {
-         final boolean isTourSelected = tourIds[tourIndex] == tourId ? true : false;
+         final boolean isTourSelected = tourIds[tourIndex] == tourId;
          if (isTourSelected) {
             isSelected = true;
             _selectedTourId = tourId;

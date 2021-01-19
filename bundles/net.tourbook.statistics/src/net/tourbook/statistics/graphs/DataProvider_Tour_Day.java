@@ -246,6 +246,10 @@ public class DataProvider_Tour_Day extends DataProvider {
          }
       }
       //TODO FB i would think that only the day summary would be useful. are the week/month/year valuable ?
+      //Issue: the problem with using the current statistics is that when starting a new year, it doesn't take into account the previous years
+      //predicted performance values.
+      //specific sql queries for computing the predicted performance values that would use the
+      //current query but go back as far as possible ???
 
       dbAllPredictedPerformance.add(PredictedPerformance.computePredictedPerformanceValue(numberOfDaysSinceLastTrainingStress,
             previousFitnessValue,
@@ -701,8 +705,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          adjustValues_Avg(dbAllTourStartDateTime,  bodyWeight_High);
          adjustValues_Avg(dbAllTourStartDateTime,  bodyFat_High);
 
-         adjustValues_Avg(dbAllTourStartDateTime,    predictedPerformance_High);
-         adjustValues_Avg(dbAllTourStartDateTime,        trainingStress_High);
+         //TODO FB what is that for ? is it necessary ?
+//         adjustValues_Avg(dbAllTourStartDateTime,    predictedPerformance_High);
+//         adjustValues_Avg(dbAllTourStartDateTime,        trainingStress_High);
 
 //SET_FORMATTING_ON
 

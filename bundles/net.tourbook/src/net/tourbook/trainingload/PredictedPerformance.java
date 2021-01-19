@@ -39,13 +39,13 @@ public final class PredictedPerformance {
     * @param numberOfDays
     *           The number of days between the current's day of training and the previous day of
     *           training.
-    * @param previousFitnessValue
-    * @param currentFitnessValue
+    * @param previousFatigueValue
+    * @param currentFatigueValue
     * @return
     */
-   private static int computeFatigueValue(final int numberOfDays, final int previousFitnessValue, final int currentFitnessValue) {
+   private static int computeFatigueValue(final int numberOfDays, final int previousFatigueValue, final int currentFatigueValue) {
 
-      return computeResponseValue(numberOfDays, previousFitnessValue, currentFitnessValue, _prefStore.getInt(ITourbookPreferences.FATIGUE_DECAY));
+      return computeResponseValue(numberOfDays, previousFatigueValue, currentFatigueValue, _prefStore.getInt(ITourbookPreferences.FATIGUE_DECAY));
    }
 
    /**
@@ -71,14 +71,14 @@ public final class PredictedPerformance {
     * @param numberOfDays
     *           The number of days between the current's day of training and the previous day of
     *           training.
-    * @param previousFitnessValue
-    * @param currentFitnessValue
+    * @param previousStressValue
+    * @param currentStressValue
     * @return
     */
-   public static int computePredictedPerformanceValue(final int numberOfDays, final int previousFitnessValue, final int currentFitnessValue) {
+   public static int computePredictedPerformanceValue(final int numberOfDays, final int previousStressValue, final int currentStressValue) {
 
-      return computeFitnessValue(numberOfDays, previousFitnessValue, currentFitnessValue) -
-            computeFatigueValue(numberOfDays, previousFitnessValue, currentFitnessValue);
+      return computeFitnessValue(numberOfDays, previousStressValue, currentStressValue) -
+            computeFatigueValue(numberOfDays, previousStressValue, currentStressValue);
    }
 
    /**
@@ -88,17 +88,18 @@ public final class PredictedPerformance {
     *           The number of days between the current day of training and the last day of
     *           training.
     * @param previousResponseValue
-    * @param currentFitnessValue
+    * @param currentResponseValue
     * @return
     */
    private static int computeResponseValue(final int numberOfDays,
                                            final int previousResponseValue,
-                                           final int currentFitnessValue,
+                                           final int currentResponseValue,
                                            final int decay) {
 
       final float exponent = numberOfDays * -1f / decay;
 
-      return (int) (previousResponseValue * Math.exp(exponent) + currentFitnessValue);
+      final int resulttoremove = (int) (previousResponseValue * Math.exp(exponent) + currentResponseValue);
+      return resulttoremove;
    }
 
 }
