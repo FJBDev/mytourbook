@@ -13,22 +13,33 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.chart;
+package net.tourbook.ui.tourChart;
 
-public enum ChartType {
+/**
+ * Pulse graph parts which are displayed in the pulse graph
+ */
+public enum PulseGraph {
 
-   BAR,
+   /**
+    * Device bpm values are displayed as graph, pulse times are displayed as line
+    */
+   DEVICE_BPM__2ND__RR_INTERVALS,
 
-   DOT,
+   /**
+    * Only device bpm values are displayed, however when not available then the pulse time values
+    * are displayed
+    */
+   DEVICE_BPM_ONLY,
 
-   HISTORY,
+   /**
+    * Pulse times are displayed as line, device bpm values are displayed as graph
+    */
+   RR_INTERVALS__2ND_DEVICE_BPM,
 
-   HORIZONTAL_BAR,
-
-   LINE,
-
-   LINE_WITH_BARS,
-
-   XY_SCATTER,
+   /**
+    * Only pulse time values are displayed, however when not available then the device bpm values
+    * are displayed
+    */
+   RR_INTERVALS_ONLY
 
 }

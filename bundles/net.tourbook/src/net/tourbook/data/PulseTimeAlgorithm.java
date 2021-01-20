@@ -13,22 +13,17 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.chart;
+package net.tourbook.data;
 
-public enum ChartType {
+public enum PulseTimeAlgorithm {
 
-   BAR,
+   AVERAGE,
 
-   DOT,
+   MIN,
 
-   HISTORY,
+   MAX,
 
-   HORIZONTAL_BAR,
+   FIRST,
 
-   LINE,
-
-   LINE_WITH_BARS,
-
-   XY_SCATTER,
-
+   LAST
 }
