@@ -714,6 +714,7 @@ public class SuuntoJsonProcessor {
       if (rrDataList.isEmpty()) {
          return;
       }
+      //TODO FB use the new TourData pulseTimeSerie
 
       long currentRRSum = 0;
       int lastRRIndex = 0;
