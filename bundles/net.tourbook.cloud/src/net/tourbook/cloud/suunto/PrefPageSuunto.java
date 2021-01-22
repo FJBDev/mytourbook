@@ -24,7 +24,6 @@ import java.util.Base64;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
-import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
@@ -55,7 +54,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    public static final String      ID                                          = "net.tourbook.cloud.PrefPageSuunto";        //$NON-NLS-1$
 
-   public static final String      ClientId                                    = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   public static final String      ClientId                                    = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";     //$NON-NLS-1$
 
    public static final int         CALLBACK_PORT                               = 4919;
 
@@ -238,8 +237,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    /**
     * When the user clicks on the "Authorize" button, a browser is opened
-    * so that the user can allow the MyTourbook Dropbox app to have access
-    * to their Dropbox account.
+    * so that the user can allow the MyTourbook Suunto app to have access
+    * to their Suunto account.
     */
    private void onClickAuthorize() {
 
@@ -251,7 +250,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      Display.getDefault().syncExec(() -> WEB.openUrl(OAuth2Constants.HEROKU_APP_URL + "/suunto/authorize"));//$NON-NLS-1$
+      Display.getDefault().syncExec(() -> WEB.openUrl(
+            "https://cloudapi-oauth.suunto.com/oauth/authorize?response_type=code&client_id=" + ClientId + "&redirect_uri=http://localhost:4919"));//$NON-NLS-1$
    }
 
    @Override
