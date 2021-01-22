@@ -38,6 +38,16 @@
       </page>
    </extension>
    
+   <!-- Suunto -->
+   <extension	point="org.eclipse.ui.preferencePages">
+      <page
+            category="net.tourbook.preferences.PrefPageCloudConnectivity"
+            class="net.tourbook.cloud.suunto.PrefPageSuunto"
+            id="net.tourbook.strava.PrefPageSuunto"
+            name="Suunto">
+      </page>
+   </extension>
+   
     <extension   point="org.eclipse.core.runtime.preferences">
    
       <initializer
