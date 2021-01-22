@@ -101,16 +101,18 @@ public class Messages extends NLS {
 
    public static String        map_action_dim_map;
    public static String        map_action_dim_map_disabled;
-   public static String        map_action_export_map_view;
-   public static String        map_action_export_map_view_clipboard;
-   public static String        map_action_export_map_view_image;
-   public static String        map_action_export_map_view_image_tooltip;
    public static String        map_action_reload_map;
    public static String        map_action_save_default_position;
    public static String        map_action_set_default_position;
 
    public static String        Map_Action_CreateTourMarkerFromMap;
    public static String        Map_Action_Edit2DMapPreferences;
+
+   public static String        Map_Action_Export_Map_Clipboard_Copied_Info;
+   public static String        Map_Action_Export_Map_View;
+   public static String        Map_Action_Export_Map_View_Clipboard;
+   public static String        Map_Action_Export_Map_View_Image;
+   public static String        Map_Action_Export_Map_View_Image_Tooltip;
 
    public static String        Map_Action_ManageMapProviders;
    public static String        Map_Action_PhotoFilter_Tooltip;
@@ -171,6 +173,8 @@ public class Messages extends NLS {
    public static String        Tour_Action_ShowHrZones_Tooltip;
 
    public static String        Dialog_ExportImage_Group_Format;
+   public static String        Dialog_ExportImage_Group_Compression_Label;
+   public static String        Dialog_ExportImage_Group_Compression_Tooltip;
    public static String        Dialog_ExportImage_Group_Format_Label;
    public static String        Dialog_ExportImage_Title;
    public static String        Dialog_ExportImage_Message;
