@@ -15,17 +15,67 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
+import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.Tokens;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
+import net.tourbook.common.UI;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
-   private IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
+   private static HttpClient _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
+   private IPreferenceStore  _prefStore  = Activator.getDefault().getPreferenceStore();
+
+   public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+
+      final StringBuilder body = new StringBuilder();
+      String grantType;
+      if (isRefreshToken) {
+         body.append("{\"" + OAuth2Constants.PARAM_REFRESH_TOKEN + "\" : \"" + refreshToken); //$NON-NLS-1$ //$NON-NLS-2$
+         grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
+      } else {
+         body.append("{\"" + OAuth2Constants.PARAM_CODE + "\" : \"" + authorizationCode);//$NON-NLS-1$ //$NON-NLS-2$
+         grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
+      }
+
+      body.append("\", \"" + OAuth2Constants.PARAM_GRANT_TYPE + "\" : \"" + grantType + "\"}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+      final HttpRequest request = HttpRequest.newBuilder()
+            .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
+            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/token"))//$NON-NLS-1$
+            .build();
+
+      try {
+         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
+            final SuuntoTokens token = new ObjectMapper().readValue(response.body(), SuuntoTokens.class);
+
+            return token;
+         }
+      } catch (IOException | InterruptedException e) {
+         StatusUtil.log(e);
+         Thread.currentThread().interrupt();
+      }
+
+      return null;
+   }
 
    @Override
    public Tokens retrieveTokens(final String authorizationCode) {
@@ -34,8 +84,7 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
          return newTokens;
       }
 
-      return newTokens;
-//      return StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
+      return getTokens(authorizationCode, false, UI.EMPTY_STRING);
    }
 
    @Override

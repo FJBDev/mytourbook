@@ -2087,6 +2087,14 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                Messages.Import_Data_HTML_Action_OldUI_Tooltip,
                (HTTP_DUMMY + HREF_ACTION_OLD_UI),
                null);
+
+         //TODO FB for each CloudFileDownloader, add their name, image and action link
+         createHTML_92_TileAction(
+               sb,
+               "suunto",
+               "suunto",
+               (HTTP_DUMMY + "suuntodownloadfiles"),
+               null);
       }
       sb.append("   </tr></tbody></table>\n"); // //$NON-NLS-1$
       sb.append("</div>\n"); //$NON-NLS-1$
