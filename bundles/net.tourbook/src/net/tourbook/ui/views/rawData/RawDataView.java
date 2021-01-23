@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -121,7 +121,6 @@ import net.tourbook.web.WEB;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -136,16 +135,11 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -184,7 +178,6 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
@@ -591,13 +584,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          final int selectedIndex = ((Number) arguments[0]).intValue();
 
-         Display.getCurrent().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-
-               onSelectImportConfig(selectedIndex);
-            }
-         });
+         Display.getCurrent().asyncExec(() -> onSelectImportConfig(selectedIndex));
 
 //// this can be used to show created JS in the debugger
 //         if (true) {
@@ -873,49 +860,46 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)) {
-               if (_isPartVisible) {
-                  updateViewerPersonData();
-               } else {
-                  // keep new active person until the view is visible
-                  _newActivePerson = TourbookPlugin.getActivePerson();
-               }
-
-            } else if (property.equals(ITourbookPreferences.TOUR_PERSON_LIST_IS_MODIFIED)) {
-
-               _actionSaveTour.resetPeopleList();
-
-            } else if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
-
-               // tour type images can have been changed
-               disposeConfigImages();
-
-               // update tour type in the raw data
-               _rawDataMgr.updateTourData_InImportView_FromDb(null);
-
-               _tourViewer.refresh();
-
-            } else if (property.equals(ITourbookPreferences.VIEW_TOOLTIP_IS_MODIFIED)) {
-
-               updateToolTipState();
-
-            } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
-
-               _tourViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
-
-               _tourViewer.refresh();
-
-               /*
-                * the tree must be redrawn because the styled text does not show with the new color
-                */
-               _tourViewer.getTable().redraw();
+         if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)) {
+            if (_isPartVisible) {
+               updateViewerPersonData();
+            } else {
+               // keep new active person until the view is visible
+               _newActivePerson = TourbookPlugin.getActivePerson();
             }
+
+         } else if (property.equals(ITourbookPreferences.TOUR_PERSON_LIST_IS_MODIFIED)) {
+
+            _actionSaveTour.resetPeopleList();
+
+         } else if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
+
+            // tour type images can have been changed
+            disposeConfigImages();
+
+            // update tour type in the raw data
+            _rawDataMgr.updateTourData_InImportView_FromDb(null);
+
+            _tourViewer.refresh();
+
+         } else if (property.equals(ITourbookPreferences.VIEW_TOOLTIP_IS_MODIFIED)) {
+
+            updateToolTipState();
+
+         } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
+
+            _tourViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
+
+            _tourViewer.refresh();
+
+            /*
+             * the tree must be redrawn because the styled text does not show with the new color
+             */
+            _tourViewer.getTable().redraw();
          }
       };
 
@@ -924,23 +908,19 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       /*
        * Common preferences
        */
-      _prefChangeListener_Common = new IPropertyChangeListener() {
+      _prefChangeListener_Common = propertyChangeEvent -> {
 
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+         final String property = propertyChangeEvent.getProperty();
 
-            final String property = event.getProperty();
+         if (property.equals(ICommonPreferences.TIME_ZONE_LOCAL_ID)) {
 
-            if (property.equals(ICommonPreferences.TIME_ZONE_LOCAL_ID)) {
+            recreateViewer();
 
-               recreateViewer();
+         } else if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
 
-            } else if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+            // measurement system has changed
 
-               // measurement system has changed
-
-               recreateViewer();
-            }
+            recreateViewer();
          }
       };
 
@@ -950,70 +930,64 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
    private void addSelectionListener() {
 
-      _postSelectionListener = new ISelectionListener() {
-         @Override
-         public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
+      _postSelectionListener = (workbenchPart, selection) -> {
 
-            if (part == RawDataView.this) {
-               return;
-            }
-
-            onSelectionChanged(selection);
+         if (workbenchPart == RawDataView.this) {
+            return;
          }
+
+         onSelectionChanged(selection);
       };
       getSite().getPage().addPostSelectionListener(_postSelectionListener);
    }
 
    private void addTourEventListener() {
 
-      _tourEventListener = new ITourEventListener() {
-         @Override
-         public void tourChanged(final IWorkbenchPart part, final TourEventId eventId, final Object eventData) {
+      _tourEventListener = (workbenchPart, tourEventId, eventData) -> {
 
-            if (part == RawDataView.this) {
-               return;
+         if (workbenchPart == RawDataView.this) {
+            return;
+         }
+         if (_isInUpdate) {
+            return;
+         }
+
+         if ((tourEventId == TourEventId.TOUR_CHANGED) && (eventData instanceof TourEvent)) {
+
+            // update modified tours
+            final ArrayList<TourData> modifiedTours = ((TourEvent) eventData).getModifiedTours();
+            if (modifiedTours != null) {
+
+               // update model
+               _rawDataMgr.updateTourDataModel(modifiedTours);
+
+               // update viewer
+               _tourViewer.update(modifiedTours.toArray(), null);
+
+               // remove old selection, old selection can have the same tour but with old data
+               _postSelectionProvider.clearSelection();
             }
-            if (_isInUpdate) {
-               return;
+
+         } else if (tourEventId == TourEventId.ALL_TOURS_ARE_MODIFIED) {
+
+            // save imported file names
+            final HashSet<String> importedFiles = _rawDataMgr.getImportedFiles();
+            _state.put(STATE_IMPORTED_FILENAMES, importedFiles.toArray(new String[importedFiles.size()]));
+
+            if (RawDataManager.isReimportingActive() == false) {
+
+               /*
+                * Re-import files because computed values could be changed, e.g. elevation gain
+                */
+
+               reimportAllImportFiles(false);
             }
 
-            if ((eventId == TourEventId.TOUR_CHANGED) && (eventData instanceof TourEvent)) {
+         } else if (tourEventId == TourEventId.TAG_STRUCTURE_CHANGED) {
 
-               // update modified tours
-               final ArrayList<TourData> modifiedTours = ((TourEvent) eventData).getModifiedTours();
-               if (modifiedTours != null) {
+            _rawDataMgr.updateTourData_InImportView_FromDb(null);
 
-                  // update model
-                  _rawDataMgr.updateTourDataModel(modifiedTours);
-
-                  // update viewer
-                  _tourViewer.update(modifiedTours.toArray(), null);
-
-                  // remove old selection, old selection can have the same tour but with old data
-                  _postSelectionProvider.clearSelection();
-               }
-
-            } else if (eventId == TourEventId.ALL_TOURS_ARE_MODIFIED) {
-
-               // save imported file names
-               final HashSet<String> importedFiles = _rawDataMgr.getImportedFiles();
-               _state.put(STATE_IMPORTED_FILENAMES, importedFiles.toArray(new String[importedFiles.size()]));
-
-               if (RawDataManager.isReimportingActive() == false) {
-
-                  /*
-                   * Re-import files because computed values could be changed, e.g. elevation gain
-                   */
-
-                  reimportAllImportFiles(false);
-               }
-
-            } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED) {
-
-               _rawDataMgr.updateTourData_InImportView_FromDb(null);
-
-               reloadViewer();
-            }
+            reloadViewer();
          }
       };
       TourManager.getInstance().addTourEventListener(_tourEventListener);
@@ -2157,13 +2131,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       _viewerMenuManager = new MenuManager("#PopupMenu"); //$NON-NLS-1$
       _viewerMenuManager.setRemoveAllWhenShown(true);
-      _viewerMenuManager.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager manager) {
-
-            fillContextMenu(manager);
-         }
-      });
+      _viewerMenuManager.addMenuListener(this::fillContextMenu);
    }
 
    @Override
@@ -2582,7 +2550,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                @Override
                public void completed(final ProgressEvent event) {
 
-                  onBrowser_Completed(event);
+                  onBrowser_Completed();
 
                }
             });
@@ -2628,28 +2596,22 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       _tourViewer.setContentProvider(new TourDataContentProvider());
       _tourViewer.setComparator(_importComparator);
 
-      _tourViewer.addDoubleClickListener(new IDoubleClickListener() {
-         @Override
-         public void doubleClick(final DoubleClickEvent event) {
+      _tourViewer.addDoubleClickListener(doubleClickEvent -> {
 
-            final Object firstElement = ((IStructuredSelection) _tourViewer.getSelection()).getFirstElement();
+         final Object firstElement = ((IStructuredSelection) _tourViewer.getSelection()).getFirstElement();
 
-            if ((firstElement != null) && (firstElement instanceof TourData)) {
-               TourManager.getInstance().tourDoubleClickAction(RawDataView.this, _tourDoubleClickState);
-            }
+         if (firstElement instanceof TourData) {
+            TourManager.getInstance().tourDoubleClickAction(RawDataView.this, _tourDoubleClickState);
          }
       });
 
-      _tourViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(final SelectionChangedEvent event) {
+      _tourViewer.addSelectionChangedListener(selectionChangedEvent -> {
 
-            if (_isInUpdate) {
-               return;
-            }
-
-            fireSelectedTour();
+         if (_isInUpdate) {
+            return;
          }
+
+         fireSelectedTour();
       });
 
       // set tour info tooltip provider
@@ -3427,8 +3389,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, fileNamePath);
       }
-
-      return;
    }
 
    @Override
@@ -4200,7 +4160,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       return _watchingStoresThread != null;
    }
 
-   private void onBrowser_Completed(final ProgressEvent event) {
+   private void onBrowser_Completed() {
 
       _isBrowserCompleted = true;
 
@@ -4236,14 +4196,9 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       final String[] locationParts = location.split(HREF_TOKEN);
 
       if (locationParts.length > 1) {
-
+//todo fb
          // finalize loading of the browser page and then start the action
-         _browser.getDisplay().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-               onBrowser_LocationChanging_Runnable(locationParts);
-            }
-         });
+         _browser.getDisplay().asyncExec(() -> onBrowser_LocationChanging_Runnable(locationParts));
       }
 
       // prevent to load a new url
@@ -4258,7 +4213,10 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private void onBrowser_LocationChanging_Runnable(final String[] locationParts) {
 
       final String hrefAction = locationParts[1];
+//todo fb
 
+      //if action string is contained in one of the cloud files downaloder
+      // cloudFilesDownloader.importFiles()
       if (ACTION_DEVICE_IMPORT.equals(hrefAction)) {
 
          final long tileId = Long.parseLong(locationParts[2]);
@@ -4524,40 +4482,37 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          _rawDataMgr.updateTourData_InImportView_FromDb(monitor);
 
-         Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
+         Display.getDefault().asyncExec(() -> {
 
-               reloadViewer();
+            reloadViewer();
 
-               /*
-                * restore selected tour
-                */
-               final String[] viewerIndices = _state.getArray(STATE_SELECTED_TOUR_INDICES);
+            /*
+             * restore selected tour
+             */
+            final String[] viewerIndices = _state.getArray(STATE_SELECTED_TOUR_INDICES);
 
-               if (viewerIndices != null) {
+            if (viewerIndices != null) {
 
-                  final ArrayList<Object> viewerTourData = new ArrayList<>();
+               final ArrayList<Object> viewerTourData = new ArrayList<>();
 
-                  for (final String viewerIndex : viewerIndices) {
+               for (final String viewerIndex : viewerIndices) {
 
-                     Object tourData = null;
+                  Object tourData = null;
 
-                     try {
-                        final int index = Integer.parseInt(viewerIndex);
-                        tourData = _tourViewer.getElementAt(index);
-                     } catch (final NumberFormatException e) {
-                        // just ignore
-                     }
-
-                     if (tourData != null) {
-                        viewerTourData.add(tourData);
-                     }
+                  try {
+                     final int index = Integer.parseInt(viewerIndex);
+                     tourData = _tourViewer.getElementAt(index);
+                  } catch (final NumberFormatException e) {
+                     // just ignore
                   }
 
-                  if (viewerTourData.size() > 0) {
-                     _tourViewer.setSelection(new StructuredSelection(viewerTourData.toArray()), true);
+                  if (tourData != null) {
+                     viewerTourData.add(tourData);
                   }
+               }
+
+               if (viewerTourData.size() > 0) {
+                  _tourViewer.setSelection(new StructuredSelection(viewerTourData.toArray()), true);
                }
             }
          });
@@ -4601,7 +4556,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             // remove tour properties
             tourData.setTourType(null);
             tourData.setTourTitle(UI.EMPTY_STRING);
-            tourData.setTourTags(new HashSet<TourTag>());
+            tourData.setTourTags(new HashSet<>());
 
             /**
              * when a remove tour is saved again, this will cause the exception: <br>
@@ -4662,12 +4617,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
       updateToolTipState();
 
-      Display.getCurrent().asyncExec(new Runnable() {
-         @Override
-         public void run() {
-            reimportAllImportFiles(true);
-         }
-      });
+      Display.getCurrent().asyncExec(() -> reimportAllImportFiles(true));
    }
 
    private void runEasyImport(final long tileId) {
@@ -4767,12 +4717,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          // open import config dialog to solve problems
          if (importState.isOpenSetup) {
 
-            _parent.getDisplay().asyncExec(new Runnable() {
-               @Override
-               public void run() {
-                  action_Easy_SetupImport(0);
-               }
-            });
+            _parent.getDisplay().asyncExec(() -> action_Easy_SetupImport(0));
 
             return;
          }
@@ -5259,12 +5204,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       if (_postSelectionProvider.getSelection() == null) {
 
          // fire a selected tour when the selection provider was cleared sometime before
-         Display.getCurrent().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-               fireSelectedTour();
-            }
-         });
+         Display.getCurrent().asyncExec(this::fireSelectedTour);
       }
    }
 
@@ -5306,18 +5246,15 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       if (_browser == null || _browser.isDisposed()) {
 
          // show OLD UI after 5 seconds
-         Display.getDefault().timerExec(5000, new Runnable() {
-            @Override
-            public void run() {
+         Display.getDefault().timerExec(5000, () -> {
 
-               if (_parent.isDisposed()) {
-                  return;
-               }
+            if (_parent.isDisposed()) {
+               return;
+            }
 
-               // check again because the browser could be set
-               if (_browser == null || _browser.isDisposed()) {
-                  onSelectUI_Old();
-               }
+            // check again because the browser could be set
+            if (_browser == null || _browser.isDisposed()) {
+               onSelectUI_Old();
             }
          });
       }
@@ -5432,95 +5369,93 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
     */
    private Runnable thread_WatchFolders_Runnable() {
 
-      return new Runnable() {
-         @Override
-         public void run() {
+      return () -> {
 
-            WatchService folderWatcher = null;
-            WatchKey watchKey = null;
+         WatchService folderWatcher = null;
+         WatchKey watchKey = null;
 
-            try {
+         try {
 
-               final EasyConfig easyConfig = getEasyConfig();
-               final ImportConfig importConfig = easyConfig.getActiveImportConfig();
+            final EasyConfig easyConfig = getEasyConfig();
+            final ImportConfig importConfig = easyConfig.getActiveImportConfig();
 
-               /*
-                * Check device folder
-                */
-               boolean isDeviceFolderValid = false;
-               final String deviceFolder = importConfig.getDeviceOSFolder();
+            /*
+             * Check device folder
+             */
+            boolean isDeviceFolderValid = false;
+            final String deviceFolder = importConfig.getDeviceOSFolder();
 
-               final FileSystem tourbookFileSystem = NIO.isTourBookFileSystem(
-                     deviceFolder)
-                           ? FileSystemManager.getFileSystem(deviceFolder) : null;
+            final FileSystem tourbookFileSystem = NIO.isTourBookFileSystem(
+                  deviceFolder)
+                        ? FileSystemManager.getFileSystem(deviceFolder) : null;
 
-               // keep watcher local because it could be set to null !!!
-               folderWatcher = _folderWatcher =
-                     tourbookFileSystem != null
-                           ? tourbookFileSystem.newWatchService()
-                           : FileSystems.getDefault().newWatchService();
+            // keep watcher local because it could be set to null !!!
+            folderWatcher = _folderWatcher =
+                  tourbookFileSystem != null
+                        ? tourbookFileSystem.newWatchService()
+                        : FileSystems.getDefault().newWatchService();
 
-               if (deviceFolder != null) {
+            if (deviceFolder != null) {
 
-                  try {
+               try {
 
-                     final Path deviceFolderPath = NIO.getDeviceFolderPath(deviceFolder);
+                  final Path deviceFolderPath = NIO.getDeviceFolderPath(deviceFolder);
 
-                     if (Files.exists(deviceFolderPath)) {
+                  if (Files.exists(deviceFolderPath)) {
 
-                        isDeviceFolderValid = true;
+                     isDeviceFolderValid = true;
 
-                        deviceFolderPath.register(folderWatcher, ENTRY_CREATE, ENTRY_DELETE);
-                     }
-
-                  } catch (final Exception e) {}
-               }
-
-               if (isDeviceFolderValid) {
-
-                  Thread.currentThread().setName("WatchingDeviceFolder: " + deviceFolder + " - " + TimeTools.now()); //$NON-NLS-1$ //$NON-NLS-2$
-
-               } else {
-
-                  // the device folder is not available, update the folder state
-
-                  updateUI_DeviceState();
-
-                  return;
-               }
-
-               /*
-                * Check backup folder
-                */
-               final String backupFolder = importConfig.getBackupOSFolder();
-               if (backupFolder != null) {
-
-                  try {
-
-                     final Path watchBackupFolder = Paths.get(backupFolder);
-
-                     if (Files.exists(watchBackupFolder)) {
-                        watchBackupFolder.register(folderWatcher, ENTRY_CREATE, ENTRY_DELETE);
-                     }
-
-                  } catch (final Exception e) {}
-               }
-
-               do {
-
-                  // wait for the next event
-                  watchKey = folderWatcher.take();
-
-                  if (Thread.currentThread().isInterrupted()) {
-                     Thread.currentThread().interrupt();
-                     throw new InterruptedException(); // Needed because DropboxFileWatcher take() doesn't throw interruptedException when interrupted
+                     deviceFolderPath.register(folderWatcher, ENTRY_CREATE, ENTRY_DELETE);
                   }
 
-                  /*
-                   * Events MUST be polled otherwise this will stay in an endless loop.
-                   */
-                  @SuppressWarnings("unused")
-                  final List<WatchEvent<?>> polledEvents = watchKey.pollEvents();
+               } catch (final Exception e1) {}
+            }
+
+            if (isDeviceFolderValid) {
+
+               Thread.currentThread().setName("WatchingDeviceFolder: " + deviceFolder + " - " + TimeTools.now()); //$NON-NLS-1$ //$NON-NLS-2$
+
+            } else {
+
+               // the device folder is not available, update the folder state
+
+               updateUI_DeviceState();
+
+               return;
+            }
+
+            /*
+             * Check backup folder
+             */
+            final String backupFolder = importConfig.getBackupOSFolder();
+            if (backupFolder != null) {
+
+               try {
+
+                  final Path watchBackupFolder = Paths.get(backupFolder);
+
+                  if (Files.exists(watchBackupFolder)) {
+                     watchBackupFolder.register(folderWatcher, ENTRY_CREATE, ENTRY_DELETE);
+                  }
+
+               } catch (final Exception e2) {}
+            }
+
+            do {
+
+               // wait for the next event
+               watchKey = folderWatcher.take();
+
+               if (Thread.currentThread().isInterrupted()) {
+                  Thread.currentThread().interrupt();
+                  throw new InterruptedException(); // Needed because DropboxFileWatcher take() doesn't throw interruptedException when interrupted
+               }
+
+               /*
+                * Events MUST be polled otherwise this will stay in an endless loop.
+                */
+               @SuppressWarnings("unused")
+               final List<WatchEvent<?>> polledEvents = watchKey.pollEvents();
 
 //// log events, they are not used
 //                  for (final WatchEvent<?> event : polledEvents) {
@@ -5532,31 +5467,30 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 //                     // TODO remove SYSTEM.OUT.PRINTLN
 //                  }
 
-                  // do not update the device state when the import is running otherwise the import file list can be wrong
-                  if (_isUpdateDeviceState) {
-                     thread_UpdateDeviceState();
-                  }
-
+               // do not update the device state when the import is running otherwise the import file list can be wrong
+               if (_isUpdateDeviceState) {
+                  thread_UpdateDeviceState();
                }
-               while (watchKey.reset());
 
-            } catch (final InterruptedException | ClosedWatchServiceException e) {
-               // no-op
-            } catch (final Exception e) {
-               TourLogManager.logEx(e);
-            } finally {
+            }
+            while (watchKey.reset());
 
-               try {
-                  if (watchKey != null) {
-                     watchKey.cancel();
-                  }
+         } catch (final InterruptedException | ClosedWatchServiceException e3) {
+            // no-op
+         } catch (final Exception e4) {
+            TourLogManager.logEx(e4);
+         } finally {
 
-                  if (folderWatcher != null) {
-                     folderWatcher.close();
-                  }
-               } catch (final Exception e) {
-                  TourLogManager.logEx(e);
+            try {
+               if (watchKey != null) {
+                  watchKey.cancel();
                }
+
+               if (folderWatcher != null) {
+                  folderWatcher.close();
+               }
+            } catch (final Exception e5) {
+               TourLogManager.logEx(e5);
             }
          }
       };
@@ -5738,27 +5672,24 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          if (_isNewUI) {
 
-            _parent.getDisplay().asyncExec(new Runnable() {
-               @Override
-               public void run() {
+            _parent.getDisplay().asyncExec(() -> {
 
-                  _isInUIStartup = isInStartUp;
+               _isInUIStartup = isInStartUp;
 
-                  createUI_NewUI();
-                  _topPageBook.showPage(_topPage_Dashboard);
+               createUI_NewUI();
+               _topPageBook.showPage(_topPage_Dashboard);
 
-                  // create dashboard UI
-                  updateUI_2_Dashboard();
+               // create dashboard UI
+               updateUI_2_Dashboard();
 
-                  if (_browser == null) {
+               if (_browser == null) {
 
-                     // deactivate background task
+                  // deactivate background task
 
-                     setWatcher_Off();
-                  }
-
-                  // the watcher is started in onBrowser_Completed
+                  setWatcher_Off();
                }
+
+               // the watcher is started in onBrowser_Completed
             });
 
          } else {
@@ -5805,20 +5736,17 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
    private void updateUI_DeviceState() {
 
-      Display.getDefault().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getDefault().asyncExec(() -> {
 
-            if (_browser.isDisposed()) {
-               // this occurred
-               return;
-            }
+         if (_browser.isDisposed()) {
+            // this occurred
+            return;
+         }
 
-            if (_isBrowserCompleted) {
-               updateUI_DeviceState_DOM();
-            } else {
-               _isDeviceStateUpdateDelayed.set(true);
-            }
+         if (_isBrowserCompleted) {
+            updateUI_DeviceState_DOM();
+         } else {
+            _isDeviceStateUpdateDelayed.set(true);
          }
       });
    }
