@@ -73,6 +73,7 @@ import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.export.ActionExport;
+import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.importdata.DeviceImportState;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.importdata.EasyConfig;
@@ -349,6 +350,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private ActionSaveTourInDatabase       _actionSaveTourWithPerson;
    private ActionSetupImport              _actionSetupImport;
    private ActionSetTourTypeMenu          _actionSetTourType;
+   private ActionUpload                   _actionUploadTour;
    //
    protected TourPerson                   _activePerson;
    protected TourPerson                   _newActivePerson;
@@ -1017,6 +1019,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       _actionSaveTourWithPerson = new ActionSaveTourInDatabase(this, true);
       _actionSetupImport = new ActionSetupImport(this);
       _actionSetTourType = new ActionSetTourTypeMenu(this);
+      _actionUploadTour = new ActionUpload(this);
    }
 
    /**
@@ -3634,6 +3637,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       _actionRemoveTour.setEnabled(selectedTours > 0);
       _actionExportTour.setEnabled(selectedNotDeleteTours > 0);
       _actionJoinTours.setEnabled(selectedNotDeleteTours > 1);
+      _actionUploadTour.setEnabled(selectedTours > 0 && _actionUploadTour.hasUploaders());
 
       _actionEditTour.setEnabled(isOneSavedAndNotDeleteTour);
       _actionEditQuick.setEnabled(isOneSavedAndNotDeleteTour);
@@ -3705,6 +3709,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       menuMgr.add(_actionJoinTours);
 
       menuMgr.add(new Separator());
+      menuMgr.add(_actionUploadTour);
       menuMgr.add(_actionExportTour);
       menuMgr.add(_actionReimport_Tours);
       menuMgr.add(_actionEditImportPreferences);
