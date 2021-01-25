@@ -35,6 +35,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.json.JSONObject;
 
 public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
@@ -43,18 +44,17 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
    public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
-      final StringBuilder body = new StringBuilder();
+      JSONObject body;
       String grantType;
       if (isRefreshToken) {
-         body.append("{\"" + OAuth2Constants.PARAM_REFRESH_TOKEN + "\" : \"" + refreshToken); //$NON-NLS-1$ //$NON-NLS-2$
+         body = new JSONObject().put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
          grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
       } else {
-         body.append("{\"" + OAuth2Constants.PARAM_CODE + "\" : \"" + authorizationCode);//$NON-NLS-1$ //$NON-NLS-2$
+         body = new JSONObject().put(OAuth2Constants.PARAM_CODE, authorizationCode);
          grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
       }
 
-      body.append("\", \"" + OAuth2Constants.PARAM_GRANT_TYPE + "\" : \"" + grantType + "\"}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
+      body.put(OAuth2Constants.PARAM_GRANT_TYPE, grantType);
       final HttpRequest request = HttpRequest.newBuilder()
             .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
@@ -92,19 +92,19 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       if (!(tokens instanceof SuuntoTokens) || !StringUtils.hasContent(tokens.getAccess_token())) {
 
-         final String currentAccessToken = _prefStore.getString(Preferences.STRAVA_ACCESSTOKEN);
-         _prefStore.firePropertyChangeEvent(Preferences.STRAVA_ACCESSTOKEN,
+         final String currentAccessToken = _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
+         _prefStore.firePropertyChangeEvent(Preferences.SUUNTO_ACCESSTOKEN,
                currentAccessToken,
                currentAccessToken);
          return;
       }
 
-      final SuuntoTokens stravaTokens = (SuuntoTokens) tokens;
+      final SuuntoTokens suuntoTokens = (SuuntoTokens) tokens;
 
-      _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, stravaTokens.getRefresh_token());
-      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, stravaTokens.getExpires_at());
+      _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, suuntoTokens.getRefresh_token());
+      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_AT, suuntoTokens.getExpires_at());
 
       //Setting it last so that we trigger the preference change when everything is ready
-      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, stravaTokens.getAccess_token());
+      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, suuntoTokens.getAccess_token());
    }
 }

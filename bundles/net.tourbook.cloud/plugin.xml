@@ -17,6 +17,14 @@
          class          ="net.tourbook.cloud.strava.StravaUploader"
       />
    </extension>
+   
+   <extension   point="net.tourbook.cloudUploader">
+      <cloudUploader
+         id             ="net.tourbook.cloud.SuuntoUploader"
+         name           ="Suunto Uploader"
+         class          ="net.tourbook.cloud.suunto.SuuntoUploader"
+      />
+   </extension>
 
    <!-- Dropbox -->
    <extension	point="org.eclipse.ui.preferencePages">
