@@ -15,12 +15,6 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
@@ -49,16 +43,18 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String     PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP =
-         net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   //
+   private static final String PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   private static final String PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE     = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Button_Authorize;
+   //
 
-   public static final String      ID                                          = "net.tourbook.cloud.PrefPageSuunto";        //$NON-NLS-1$
+   public static final String      ID            = "net.tourbook.cloud.PrefPageSuunto";        //$NON-NLS-1$
 
-   public static final String      ClientId                                    = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";     //$NON-NLS-1$
+   public static final String      ClientId      = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";     //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                               = 4919;
+   public static final int         CALLBACK_PORT = 4919;
 
-   private IPreferenceStore        _prefStore                                  = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -133,7 +129,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
           */
          final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
          setButtonLayoutData(btnAuthorizeConnection);
-         btnAuthorizeConnection.setText("Messages.Pref_CloudConnectivity_Dropbox_Button_Authoriz");
+         btnAuthorizeConnection.setText(PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE);
          btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -195,29 +191,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
          }
       }
-   }
-
-   private String generateCodeChallenge(final String codeVerifier) {
-
-      byte[] digest = null;
-      try {
-         final byte[] bytes = codeVerifier.getBytes(StandardCharsets.US_ASCII);
-         final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256"); //$NON-NLS-1$
-         messageDigest.update(bytes, 0, bytes.length);
-         digest = messageDigest.digest();
-      } catch (final NoSuchAlgorithmException e) {
-         e.printStackTrace();
-      }
-
-      return digest == null ? null : Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-   }
-
-   private String generateCodeVerifier() {
-
-      final SecureRandom secureRandom = new SecureRandom();
-      final byte[] codeVerifier = new byte[32];
-      secureRandom.nextBytes(codeVerifier);
-      return Base64.getUrlEncoder().withoutPadding().encodeToString(codeVerifier);
    }
 
    @Override

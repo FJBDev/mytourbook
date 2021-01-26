@@ -50,16 +50,18 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String     PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP =
-         net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   //
+   private static final String PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   private static final String PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE     = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Button_Authorize;
+   //
 
-   public static final String      ID                                          = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String      ID            = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   public static final String      ClientId                                    = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   public static final String      ClientId      = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                               = 4917;
+   public static final int         CALLBACK_PORT = 4917;
 
-   private IPreferenceStore        _prefStore                                  = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -134,7 +136,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
           */
          final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
          setButtonLayoutData(btnAuthorizeConnection);
-         btnAuthorizeConnection.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+         btnAuthorizeConnection.setText(PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE);
          btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
