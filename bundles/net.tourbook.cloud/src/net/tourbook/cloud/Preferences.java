@@ -33,4 +33,12 @@ public final class Preferences {
    public static final String STRAVA_ACCESSTOKEN_EXPIRES_AT = "STRAVA_ACCESSTOKEN_EXPIRES_AT"; //$NON-NLS-1$
    public static final String STRAVA_ATHLETEID              = "STRAVA_ATHLETEID";              //$NON-NLS-1$
    public static final String STRAVA_ATHLETEFULLNAME        = "STRAVA_ATHLETEFULLNAME";        //$NON-NLS-1$
+
+   /*
+    * Suunto preferences
+    */
+   public static final String SUUNTO_ACCESSTOKEN            = "SUUNTO_ACCESSTOKEN";            //$NON-NLS-1$
+   public static final String SUUNTO_REFRESHTOKEN           = "SUUNTO_REFRESHTOKEN";           //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN_EXPIRES_AT = "SUUNTO_ACCESSTOKEN_EXPIRES_AT"; //$NON-NLS-1$
+   public static final String SUUNTO_ATHLETEID              = "SUUNTO_ATHLETEID";              //$NON-NLS-1$
 }

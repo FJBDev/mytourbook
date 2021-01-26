@@ -2090,6 +2090,14 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                Messages.Import_Data_HTML_Action_OldUI_Tooltip,
                (HTTP_DUMMY + HREF_ACTION_OLD_UI),
                null);
+
+         //TODO FB for each CloudFileDownloader, add their name, image and action link
+         createHTML_92_TileAction(
+               sb,
+               "suunto",
+               "suunto",
+               (HTTP_DUMMY + "suuntodownloadfiles"),
+               null);
       }
       sb.append("   </tr></tbody></table>\n"); // //$NON-NLS-1$
       sb.append("</div>\n"); //$NON-NLS-1$
@@ -3422,8 +3430,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, fileNamePath);
       }
-
-      return;
    }
 
    @Override
@@ -4233,7 +4239,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       final String[] locationParts = location.split(HREF_TOKEN);
 
       if (locationParts.length > 1) {
-
+//todo fb
          // finalize loading of the browser page and then start the action
          _browser.getDisplay().asyncExec(new Runnable() {
             @Override
@@ -4255,7 +4261,10 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private void onBrowser_LocationChanging_Runnable(final String[] locationParts) {
 
       final String hrefAction = locationParts[1];
+//todo fb
 
+      //if action string is contained in one of the cloud files downaloder
+      // cloudFilesDownloader.importFiles()
       if (ACTION_DEVICE_IMPORT.equals(hrefAction)) {
 
          final long tileId = Long.parseLong(locationParts[2]);
@@ -4598,7 +4607,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             // remove tour properties
             tourData.setTourType(null);
             tourData.setTourTitle(UI.EMPTY_STRING);
-            tourData.setTourTags(new HashSet<TourTag>());
+            tourData.setTourTags(new HashSet<>());
 
             /**
              * when a remove tour is saved again, this will cause the exception: <br>
