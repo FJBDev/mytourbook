@@ -47,6 +47,7 @@ import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 
+import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -54,6 +55,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.json.JSONObject;
 
 public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
@@ -80,7 +82,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       //todo fb in the server.js, return verbatim what suunto returns
       System.out.println(name.body());
-      return "TOTO";
+      return "";
    }
 
    private String convertTourToGpx(final TourData tourData) {
@@ -150,15 +152,27 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
 
-      final HttpRequest request = HttpRequest.newBuilder()
-               .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
-               .header(OAuth2Constants.CONTENT_TYPE, "application/gpx+xml") //$NON-NLS-1$
-               .timeout(Duration.ofMinutes(5))
-               .POST(BodyPublishers.ofString(tourGpx))
-               .build();
+      final JSONObject jsonObject = new JSONObject();
+      jsonObject.put("gpxRoute", tourGpx.replace("\"", "\\\""));
+       String payload = jsonObject.toString();
 
+      payload = "{\n"
+            + "   \"gpxRoute\": \"<?xml version=\\\"1.0\\\"?><gpx xmlns=\\\"http://www.topografix.com/GPX/1/1\\\" xmlns:gpxx=\\\"http://www.garmin.com/xmlschemas/GpxExtensions/v3\\\" creator=\\\"CALTOPO\\\" version=\\\"1.1\\\"><trk><extensions><gpxx:TrackExtension><gpxx:DisplayColor>Red</gpxx:DisplayColor></gpxx:TrackExtension></extensions><trkseg><trkpt lat=\\\"28.379715028429334\\\" lon=\\\"100.35107374191286\\\"/><trkpt lat=\\\"28.378129195464343\\\" lon=\\\"100.35379886627199\\\"/><trkpt lat=\\\"28.376222388718578\\\" lon=\\\"100.35491466522218\\\"/><trkpt lat=\\\"28.381432987382748\\\" lon=\\\"100.43254852294923\\\"/><trkpt lat=\\\"28.394118591849054\\\" lon=\\\"100.44490814208986\\\"/></trkseg></trk></gpx>\"\n"
+            + "}";
+
+      try {
+      final HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
+            .POST(BodyPublishers.ofString(payload))
+            .build();
 
       return sendAsyncRequest(tourStartTimeMS, request);
+   } catch (final Exception e) {
+      System.out.println(e.getMessage());
+
+   }
+   return null;
    }
 
    private void uploadRoutes(final Map<Long, String> toursWithGpsSeries) {
