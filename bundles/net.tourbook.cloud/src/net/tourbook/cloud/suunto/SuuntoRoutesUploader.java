@@ -76,9 +76,37 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       System.out.println(activityupload1);
    }
 
-   private String ConvertResponseToUpload(final HttpResponse<String> name, final String tourDate) {
-      // TODO Auto-generated method stub
+   private String ConvertResponseToUpload(final HttpResponse<String> name, final long tourStartTimeMS) {
+
+      //todo fb in the server.js, return verbatim what suunto returns
+      System.out.println(name.body());
       return "TOTO";
+   }
+
+   private String convertTourToGpx(final TourData tourData) {
+
+      final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "gpx"); //$NON-NLS-1$
+
+      _tourExporter.useTourData(tourData);
+
+      final TourType tourType = tourData.getTourType();
+
+      boolean useActivityType = false;
+      String activityName = UI.EMPTY_STRING;
+      if (tourType != null) {
+         useActivityType = true;
+         activityName = tourType.getName();
+      }
+      _tourExporter.setUseActivityType(useActivityType);
+      _tourExporter.setActivityType(activityName);
+
+      _tourExporter.export(absoluteTourFilePath);
+
+      final String tourGpx = FilesUtils.readFileContentString(absoluteTourFilePath);
+
+      FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
+
+      return tourGpx;
    }
 
    //TODO FB put in file utils
@@ -97,7 +125,6 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return absoluteFilePath;
    }
 
-
    private String getAccessToken() {
       return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
    }
@@ -111,73 +138,42 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
-   private String processTour(final TourData tourData, final String absoluteTourFilePath) {
-
-      _tourExporter.useTourData(tourData);
-
-      final TourType tourType = tourData.getTourType();
-
-      boolean useActivityType = false;
-      String activityName = UI.EMPTY_STRING;
-      if (tourType != null) {
-         useActivityType = true;
-         activityName = tourType.getName();
-      }
-      _tourExporter.setUseActivityType(useActivityType);
-      _tourExporter.setActivityType(activityName);
-
-      _tourExporter.export(absoluteTourFilePath);
-
-      return FilesUtils.readFileContentString(absoluteTourFilePath);
-   }
-
-   private CompletableFuture<String> sendAsyncRequest(final TourData manualTour, final HttpRequest request) {
-      final String tourDate = manualTour.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+   private CompletableFuture<String> sendAsyncRequest(final long tourStartTimeMS, final HttpRequest request) {
 
       final CompletableFuture<String> activityUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(name -> ConvertResponseToUpload(name, tourDate))
+            .thenApply(name -> ConvertResponseToUpload(name, tourStartTimeMS))
             .exceptionally(e -> {
                return e.getMessage();
             });
       return activityUpload;
    }
-   private CompletableFuture<String> uploadFile(final String tourAbsoluteFilePath, final TourData tourData) {
 
-      HttpRequest request = null;
-      try {
-         request = HttpRequest.newBuilder()
+   private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
+
+      final HttpRequest request = HttpRequest.newBuilder()
                .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
                .header(OAuth2Constants.CONTENT_TYPE, "application/gpx+xml") //$NON-NLS-1$
                .timeout(Duration.ofMinutes(5))
-               .POST(BodyPublishers.ofString(Files.readString(Paths.get(tourAbsoluteFilePath))))
+               .POST(BodyPublishers.ofString(tourGpx))
                .build();
-      } catch (final IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
 
-      return sendAsyncRequest(tourData, request);
+
+      return sendAsyncRequest(tourStartTimeMS, request);
    }
 
-   private void uploadRoutes(final Map<String, TourData> toursWithGpsSeries) {
+   private void uploadRoutes(final Map<Long, String> toursWithGpsSeries) {
 
       final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
 
-      for (final Map.Entry<String, TourData> tourToUpload : toursWithGpsSeries.entrySet()) {
+      for (final Map.Entry<Long, String> tourToUpload : toursWithGpsSeries.entrySet()) {
 
-         final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
-         final TourData tourData = tourToUpload.getValue();
+         final long tourStartTimeMS = tourToUpload.getKey();
+         final String tourGpx = tourToUpload.getValue();
 
-         activityUploads.add(uploadFile(compressedTourAbsoluteFilePath, tourData));
+         activityUploads.add(uploadRoute(tourStartTimeMS, tourGpx));
       }
 
       activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoRoutesUploader::logUploadResult);
-
-      for (final Map.Entry<String, TourData> tourToUpload : toursWithGpsSeries.entrySet()) {
-
-         final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
-         FilesUtils.deleteFile(Paths.get(compressedTourAbsoluteFilePath));
-      }
    }
 
    @Override
@@ -198,7 +194,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                   "Messages.UploadToursToStrava_Icon_Hourglass",
                   UI.EMPTY_STRING));
 
-            final Map<String, TourData> toursWithGpsSeries = new HashMap<>();
+            final Map<Long, String> toursWithGpsSeries = new HashMap<>();
             for (int index = 0; index < numberOfTours; ++index) {
 
                final TourData tourData = selectedTours.get(index);
@@ -207,16 +203,12 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
                   final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
-                     TourLogManager.logError(NLS.bind("Messages.Log_UploadToursToStrava_002_NoTourTitle", tourDate));
-                     monitor.worked(2);
+                  TourLogManager.logError(NLS.bind("Messages.Log_UploadToursToStrava_002_NoTourTitle", tourDate));
+                  monitor.worked(2);
 
                } else {
 
-                  final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
-
-                  toursWithGpsSeries.put(processTour(tourData, absoluteTourFilePath), tourData);
-
-                  FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
+                  toursWithGpsSeries.put(tourData.getTourStartTimeMS(), convertTourToGpx(tourData));
 
                   monitor.worked(1);
                }

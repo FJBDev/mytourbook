@@ -289,8 +289,9 @@ public class StravaUploader extends TourbookCloudUploader {
       return gzipFile(absoluteTourFilePath);
    }
 
-   private CompletableFuture<ActivityUpload> sendAsyncRequest(final TourData manualTour, final HttpRequest request) {
-      final String tourDate = manualTour.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+   private CompletableFuture<ActivityUpload> sendAsyncRequest(final TourData tour, final HttpRequest request) {
+
+      final String tourDate = tour.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
       final CompletableFuture<ActivityUpload> activityUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             .thenApply(name -> ConvertResponseToUpload(name, tourDate))
@@ -300,6 +301,7 @@ public class StravaUploader extends TourbookCloudUploader {
                errorUpload.setError(e.getMessage());
                return errorUpload;
             });
+
       return activityUpload;
    }
 
