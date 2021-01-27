@@ -121,6 +121,18 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    public void downloadTours() {
       MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "HIIHHAAA!", getAccessToken());
 
+      //Get the list of workouts
+
+      // get all the startTime
+
+      //loop all the starttimes
+      // if the starttime /1000 equals one in the db => ignore
+      // else add to the list of tfile to donwload
+
+      // async download of the files
+
+      //
+
    }
 
    private String getAccessToken() {
