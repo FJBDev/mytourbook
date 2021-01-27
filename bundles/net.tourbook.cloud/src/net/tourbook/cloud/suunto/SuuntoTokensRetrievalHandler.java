@@ -101,8 +101,9 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       final SuuntoTokens suuntoTokens = (SuuntoTokens) tokens;
 
+      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, suuntoTokens.getExpires_in());
       _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, suuntoTokens.getRefresh_token());
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_AT, suuntoTokens.getExpires_at());
+      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
 
       //Setting it last so that we trigger the preference change when everything is ready
       _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, suuntoTokens.getAccess_token());

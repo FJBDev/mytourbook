@@ -18,8 +18,8 @@ package net.tourbook.cloud.suunto;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
-import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
@@ -44,8 +44,12 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
    //
-   private static final String PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
-   private static final String PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE     = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Button_Authorize;
+   private static final String PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
+   private static final String PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   private static final String PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL    = net.tourbook.cloud.Messages.Pref_CloudConnectivity_ExpiresAt_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_WEBPAGE_LABEL      = net.tourbook.cloud.Messages.Pref_CloudConnectivity_WebPage_Label;
    //
 
    public static final String      ID            = "net.tourbook.cloud.PrefPageSuunto";        //$NON-NLS-1$
@@ -68,15 +72,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
 
-   private String computeAccessTokenExpirationDate() {
-
-      final long expireAt = 0;// _prefStore.getLong(
-      //Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
-      //     Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN);
-
-      return (expireAt == 0) ? UI.EMPTY_STRING : TimeTools.getUTCISODateTime(expireAt);
-   }
-
    @Override
    protected void createFieldEditors() {
 
@@ -93,7 +88,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
                if (!event.getOldValue().equals(event.getNewValue())) {
 
                   _labelAccessToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
-                  _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
+                  _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
+                        _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
+                        _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
                   _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
                   _group.redraw();
@@ -129,7 +126,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
           */
          final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
          setButtonLayoutData(btnAuthorizeConnection);
-         btnAuthorizeConnection.setText(PREF_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE);
+         btnAuthorizeConnection.setText(PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON);
          btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -146,37 +143,36 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(_group);
-      _group.setText(PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP);
+      _group.setText(PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_group);
       {
          {
             final Label labelWebPage = new Label(_group, SWT.NONE);
-            labelWebPage.setText("Messages.Pref_CloudConnectivity_Dropbox_WebPage_Label");
+            labelWebPage.setText(PREF_CLOUDCONNECTIVITY_WEBPAGE_LABEL);
             GridDataFactory.fillDefaults().applyTo(labelWebPage);
 
             final Link linkWebPage = new Link(_group, SWT.NONE);
-            linkWebPage.setText(UI.LINK_TAG_START + "Messages.Pref_CloudConnectivity_Dropbox_WebPage_Link" + UI.LINK_TAG_END);
+            linkWebPage.setText(UI.LINK_TAG_START + Messages.Pref_AccountInformation_SuuntoApp_WebPage_Link + UI.LINK_TAG_END);
             linkWebPage.setEnabled(true);
             linkWebPage.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
-                  WEB.openUrl("Messages.Pref_CloudConnectivity_Dropbox_WebPage_Link");
+                  WEB.openUrl(Messages.Pref_AccountInformation_SuuntoApp_WebPage_Link);
                }
             });
             GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
          }
          {
             _labelAccessToken = new Label(_group, SWT.NONE);
-            _labelAccessToken.setText("Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label");
+            _labelAccessToken.setText(PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _labelAccessToken_Value = new Label(_group, SWT.WRAP);
-            _labelAccessToken_Value.setToolTipText("Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip");
             GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_labelAccessToken_Value);
          }
          {
             _labelRefreshToken = new Label(_group, SWT.NONE);
-            _labelRefreshToken.setText("Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label");
+            _labelRefreshToken.setText(PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _labelRefreshToken_Value = new Label(_group, SWT.WRAP);
@@ -184,7 +180,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelExpiresAt = new Label(_group, SWT.NONE);
-            _labelExpiresAt.setText("Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label");
+            _labelExpiresAt.setText(PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(_group, SWT.NONE);
@@ -224,7 +220,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
 
       Display.getDefault().syncExec(() -> WEB.openUrl(
-            "https://cloudapi-oauth.suunto.com/oauth/authorize?response_type=code&client_id=" + ClientId + "&redirect_uri=http://localhost:4919"));//$NON-NLS-1$
+            "https://cloudapi-oauth.suunto.com/oauth/authorize?response_type=code&client_id=" + ClientId + "&redirect_uri=http://localhost:4919"));//$NON-NLS-1$ //$NON-NLS-2$
    }
 
    @Override
@@ -260,8 +256,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
          if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
-//            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, UI.EMPTY_STRING);
-//            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
+            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, UI.EMPTY_STRING);
+            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
          }
 
          if (_server != null) {
@@ -275,7 +271,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private void restoreState() {
 
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
-      _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
+      _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
+            _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
+            _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
       _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
       updateTokensInformationGroup();

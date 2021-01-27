@@ -36,9 +36,6 @@ public class Messages extends NLS {
    public static String        VendorName_Strava;
    public static String        PrefPage_Account_Information_AthleteName_Label;
    public static String        PrefPage_Account_Information_AthleteWebPage_Label;
-   public static String        PrefPage_Account_Information_AccessToken_Label;
-   public static String        PrefPage_Account_Information_RefreshToken_Label;
-   public static String        PrefPage_Account_Information_ExpiresAt_Label;
 
    public static String        UploadToursToStrava_Task;
    public static String        UploadToursToStrava_SubTask;

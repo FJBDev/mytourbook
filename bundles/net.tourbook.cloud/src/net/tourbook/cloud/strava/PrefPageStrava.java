@@ -44,6 +44,13 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+   //
+   private static final String PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   private static final String PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL    = net.tourbook.cloud.Messages.Pref_CloudConnectivity_ExpiresAt_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
+   //
+
    public static final String      ID            = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
    public static final int         CALLBACK_PORT = 4918;
 
@@ -157,7 +164,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
-      group.setText(net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group);
+      group.setText(PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          {
@@ -185,7 +192,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelAccessToken = new Label(group, SWT.NONE);
-            _labelAccessToken.setText(Messages.PrefPage_Account_Information_AccessToken_Label);
+            _labelAccessToken.setText(PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _labelAccessToken_Value = new Label(group, SWT.NONE);
@@ -193,7 +200,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelRefreshToken = new Label(group, SWT.NONE);
-            _labelRefreshToken.setText(Messages.PrefPage_Account_Information_RefreshToken_Label);
+            _labelRefreshToken.setText(PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _labelRefreshToken_Value = new Label(group, SWT.NONE);
@@ -201,7 +208,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelExpiresAt = new Label(group, SWT.NONE);
-            _labelExpiresAt.setText(Messages.PrefPage_Account_Information_ExpiresAt_Label);
+            _labelExpiresAt.setText(PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(group, SWT.NONE);

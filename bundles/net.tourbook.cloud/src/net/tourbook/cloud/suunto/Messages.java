@@ -21,6 +21,8 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.cloud.suunto.messages"; //$NON-NLS-1$
 
+   public static String        Pref_AccountInformation_SuuntoApp_WebPage_Link;
+
    public static String        VendorName_Suunto_Routes;
 
    static {

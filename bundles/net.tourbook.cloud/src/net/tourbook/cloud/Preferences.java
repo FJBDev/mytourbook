@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -37,8 +37,8 @@ public final class Preferences {
    /*
     * Suunto preferences
     */
-   public static final String SUUNTO_ACCESSTOKEN            = "SUUNTO_ACCESSTOKEN";            //$NON-NLS-1$
-   public static final String SUUNTO_REFRESHTOKEN           = "SUUNTO_REFRESHTOKEN";           //$NON-NLS-1$
-   public static final String SUUNTO_ACCESSTOKEN_EXPIRES_AT = "SUUNTO_ACCESSTOKEN_EXPIRES_AT"; //$NON-NLS-1$
-   public static final String SUUNTO_ATHLETEID              = "SUUNTO_ATHLETEID";              //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN                = "SUUNTO_ACCESSTOKEN";                //$NON-NLS-1$
+   public static final String SUUNTO_REFRESHTOKEN               = "SUUNTO_REFRESHTOKEN";               //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN     = "SUUNTO_ACCESSTOKEN_EXPIRES_IN";     //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME = "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
 }
