@@ -19,11 +19,21 @@ package net.tourbook.common.util;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import net.tourbook.common.UI;
 
 public final class FilesUtils {
+
+   public static void deleteFile(final Path filePath) {
+
+      try {
+         Files.deleteIfExists(filePath);
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+   }
 
    public static String readFileContentString(final String filePath) {
 

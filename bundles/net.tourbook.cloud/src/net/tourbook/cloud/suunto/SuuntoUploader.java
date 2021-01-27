@@ -36,6 +36,7 @@ import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.FilesUtils;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
@@ -88,7 +89,7 @@ public class SuuntoUploader extends TourbookCloudUploader {
       String absoluteFilePath = UI.EMPTY_STRING;
 
       try {
-         deleteTemporaryFile(tourId + UI.SYMBOL_DOT + extension);
+         FilesUtils.deleteFile(Paths.get(tourId + UI.SYMBOL_DOT + extension));
 
          absoluteFilePath = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension).toString();
 
@@ -98,14 +99,6 @@ public class SuuntoUploader extends TourbookCloudUploader {
       return absoluteFilePath;
    }
 
-   private void deleteTemporaryFile(final String filePath) {
-
-      try {
-         Files.deleteIfExists(Paths.get(filePath));
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-   }
 
    private String getAccessToken() {
       return _prefStore.getString(Preferences.STRAVA_ACCESSTOKEN);
@@ -208,7 +201,7 @@ public class SuuntoUploader extends TourbookCloudUploader {
       for (final Map.Entry<String, TourData> tourToUpload : toursWithTimeSeries.entrySet()) {
 
          final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
-         deleteTemporaryFile(compressedTourAbsoluteFilePath);
+         FilesUtils.deleteFile(Paths.get(compressedTourAbsoluteFilePath));
       }
    }
 
@@ -255,7 +248,7 @@ public class SuuntoUploader extends TourbookCloudUploader {
 
                   toursWithTimeSeries.put(processTour(tourData, absoluteTourFilePath), tourData);
 
-                  deleteTemporaryFile(absoluteTourFilePath);
+                  FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
 
                   monitor.worked(1);
                }
