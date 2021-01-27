@@ -99,15 +99,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
 
    private String getAccessToken() {
-      return _prefStore.getString(Preferences.STRAVA_ACCESSTOKEN);
-   }
-
-   private long getAccessTokenExpirationDate() {
-      return _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+      return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
    }
 
    private String getRefreshToken() {
-      return _prefStore.getString(Preferences.STRAVA_REFRESHTOKEN);
+      return _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN);
    }
 
    @Override
@@ -163,11 +159,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return sendAsyncRequest(tourData, request);
    }
 
-   private void uploadRoutes(final Map<String, TourData> toursWithTimeSeries) {
+   private void uploadRoutes(final Map<String, TourData> toursWithGpsSeries) {
 
       final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
 
-      for (final Map.Entry<String, TourData> tourToUpload : toursWithTimeSeries.entrySet()) {
+      for (final Map.Entry<String, TourData> tourToUpload : toursWithGpsSeries.entrySet()) {
 
          final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
          final TourData tourData = tourToUpload.getValue();
@@ -177,7 +173,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoRoutesUploader::logUploadResult);
 
-      for (final Map.Entry<String, TourData> tourToUpload : toursWithTimeSeries.entrySet()) {
+      for (final Map.Entry<String, TourData> tourToUpload : toursWithGpsSeries.entrySet()) {
 
          final String compressedTourAbsoluteFilePath = tourToUpload.getKey();
          FilesUtils.deleteFile(Paths.get(compressedTourAbsoluteFilePath));
@@ -202,30 +198,23 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                   "Messages.UploadToursToStrava_Icon_Hourglass",
                   UI.EMPTY_STRING));
 
-            final Map<String, TourData> toursWithTimeSeries = new HashMap<>();
-            final List<TourData> manualTours = new ArrayList<>();
+            final Map<String, TourData> toursWithGpsSeries = new HashMap<>();
             for (int index = 0; index < numberOfTours; ++index) {
 
                final TourData tourData = selectedTours.get(index);
 
-               if (tourData.timeSerie == null || tourData.timeSerie.length == 0) {
+               if (tourData.latitudeSerie == null || tourData.latitudeSerie.length == 0) {
 
-                  if (StringUtils.isNullOrEmpty(tourData.getTourTitle())) {
-
-                     final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+                  final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
                      TourLogManager.logError(NLS.bind("Messages.Log_UploadToursToStrava_002_NoTourTitle", tourDate));
                      monitor.worked(2);
 
-                  } else {
-
-                     monitor.worked(1);
-                  }
                } else {
 
                   final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "tcx"); //$NON-NLS-1$
 
-                  toursWithTimeSeries.put(processTour(tourData, absoluteTourFilePath), tourData);
+                  toursWithGpsSeries.put(processTour(tourData, absoluteTourFilePath), tourData);
 
                   FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
 
@@ -239,9 +228,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
 //                     tryRenewTokens();
 
-            uploadRoutes(toursWithTimeSeries);
+            uploadRoutes(toursWithGpsSeries);
 
-            monitor.worked(toursWithTimeSeries.size() + manualTours.size());
+            monitor.worked(toursWithGpsSeries.size());
 
             monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
                   "Messages.UploadToursToStrava_Icon_Check",
