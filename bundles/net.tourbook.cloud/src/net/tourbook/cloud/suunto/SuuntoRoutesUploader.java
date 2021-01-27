@@ -55,16 +55,14 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
-public class SuuntoUploader extends TourbookCloudUploader {
-
-   private static final String     StravaBaseUrl = "https://www.strava.com/api/v3";                                      //$NON-NLS-1$
+public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static IPreferenceStore _prefStore    = Activator.getDefault().getPreferenceStore();
    private static TourExporter     _tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE);
    private static int[]            _numberOfUploadedTours;
 
-   public SuuntoUploader() {
+   public SuuntoRoutesUploader() {
       super("SUUNTO", Messages.VendorName_Suunto_Routes); //$NON-NLS-1$
 
       _tourExporter.setUseDescription(true);
@@ -134,13 +132,7 @@ public class SuuntoUploader extends TourbookCloudUploader {
 
       _tourExporter.export(absoluteTourFilePath);
 
-      try {
-         return Files.readString(Paths.get(absoluteTourFilePath));
-      } catch (final IOException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-         return "";
-      }
+      return FilesUtils.readFileContentString(absoluteTourFilePath);
    }
 
    private CompletableFuture<String> sendAsyncRequest(final TourData manualTour, final HttpRequest request) {
@@ -153,19 +145,6 @@ public class SuuntoUploader extends TourbookCloudUploader {
             });
       return activityUpload;
    }
-
-   private void setAccessToken(final String accessToken) {
-      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, accessToken);
-   }
-
-   private void setAccessTokenExpirationDate(final long expireAt) {
-      _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, expireAt);
-   }
-
-   private void setRefreshToken(final String refreshToken) {
-      _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, refreshToken);
-   }
-
    private CompletableFuture<String> uploadFile(final String tourAbsoluteFilePath, final TourData tourData) {
 
       HttpRequest request = null;
@@ -196,7 +175,7 @@ public class SuuntoUploader extends TourbookCloudUploader {
          activityUploads.add(uploadFile(compressedTourAbsoluteFilePath, tourData));
       }
 
-      activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoUploader::logUploadResult);
+      activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoRoutesUploader::logUploadResult);
 
       for (final Map.Entry<String, TourData> tourToUpload : toursWithTimeSeries.entrySet()) {
 

@@ -20,9 +20,9 @@
    
    <extension   point="net.tourbook.cloudUploader">
       <cloudUploader
-         id             ="net.tourbook.cloud.SuuntoUploader"
-         name           ="Suunto Uploader"
-         class          ="net.tourbook.cloud.suunto.SuuntoUploader"
+         id             ="net.tourbook.cloud.SuuntoRoutesUploader"
+         name           ="Suunto Routes Uploader"
+         class          ="net.tourbook.cloud.suunto.SuuntoRoutesUploader"
       />
    </extension>
 
