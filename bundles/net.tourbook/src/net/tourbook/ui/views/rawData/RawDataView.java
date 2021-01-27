@@ -72,6 +72,8 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.extension.download.CloudDownloaderManager;
+import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.importdata.DeviceImportState;
@@ -448,26 +450,28 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    /*
     * UI controls
     */
-   private PageBook  _topPageBook;
-   private Composite _topPage_Dashboard;
-   private Composite _topPage_ImportViewer;
-   private Composite _topPage_OldUI;
-   private Composite _topPage_Startup;
+   private PageBook                      _topPageBook;
+   private Composite                     _topPage_Dashboard;
+   private Composite                     _topPage_ImportViewer;
+   private Composite                     _topPage_OldUI;
+   private Composite                     _topPage_Startup;
 
-   private PageBook  _dashboard_PageBook;
-   private Composite _dashboardPage_NoBrowser;
-   private Composite _dashboardPage_WithBrowser;
+   private PageBook                      _dashboard_PageBook;
+   private Composite                     _dashboardPage_NoBrowser;
+   private Composite                     _dashboardPage_WithBrowser;
 
-   private Composite _parent;
-   private Composite _viewerContainer;
+   private Composite                     _parent;
+   private Composite                     _viewerContainer;
 
-   private Text      _txtNoBrowser;
+   private Text                          _txtNoBrowser;
 
-   private Link      _linkImport;
+   private Link                          _linkImport;
 
-   private Browser   _browser;
+   private Browser                       _browser;
 
-   private Menu      _tableContextMenu;
+   private Menu                          _tableContextMenu;
+
+   private List<TourbookCloudDownloader> cloudDownloaderList = CloudDownloaderManager.getCloudDownloaderList();
 
    private class ImportComparator extends ViewerComparator {
 
@@ -2091,13 +2095,14 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                (HTTP_DUMMY + HREF_ACTION_OLD_UI),
                null);
 
-         //TODO FB for each CloudFileDownloader, add their name, image and action link
-         createHTML_92_TileAction(
-               sb,
-               "suunto",
-               "suunto",
-               (HTTP_DUMMY + "suuntodownloadfiles"),
-               null);
+         for (final var cloudDownloader : cloudDownloaderList) {
+            createHTML_92_TileAction(
+                  sb,
+                  cloudDownloader.getName(),
+                  cloudDownloader.getDescription(),
+                  (HTTP_DUMMY + HREF_TOKEN + cloudDownloader.getId()),
+                  cloudDownloader.getIconUrl());
+         }
       }
       sb.append("   </tr></tbody></table>\n"); // //$NON-NLS-1$
       sb.append("</div>\n"); //$NON-NLS-1$
@@ -4294,6 +4299,13 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       } else if (ACTION_OLD_UI.equals(hrefAction)) {
 
          onSelectUI_Old();
+      } else {
+         for (final var cloudDownloader : cloudDownloaderList) {
+            if (cloudDownloader.getId().equals(hrefAction)) {
+               cloudDownloader.downloadTours();
+            }
+         }
+
       }
    }
 
