@@ -234,7 +234,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                   "Messages.UploadToursToStrava_Icon_Check",
                   "Messages.UploadToursToStrava_Icon_Hourglass"));
 
-//                     tryRenewTokens();
+            tryRenewTokens();
 
             uploadRoutes(toursWithGpsSeries);
 

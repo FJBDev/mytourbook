@@ -15,34 +15,22 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
-import net.tourbook.cloud.suunto.workouts.Workout;
-import net.tourbook.common.UI;
-import net.tourbook.common.util.FilesUtils;
+import net.tourbook.cloud.suunto.workouts.Workouts;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
-import net.tourbook.data.TourData;
-import net.tourbook.data.TourType;
-import net.tourbook.export.ExportTourGPX;
-import net.tourbook.export.TourExporter;
-import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 
 import org.apache.http.HttpHeaders;
@@ -50,88 +38,41 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
-   private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
-   private static IPreferenceStore _prefStore    = Activator.getDefault().getPreferenceStore();
-   private static TourExporter     _tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE);
-   private static int[]            _numberOfUploadedTours;
+   private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
+   private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
    public SuuntoCloudDownloader() {
       super("SUUNTO", Messages.VendorName_Suunto_Routes, "DESCRIPTION", "URL"); //$NON-NLS-1$
 
-      _tourExporter.setUseDescription(true);
-
-      VelocityService.init();
    }
 
    //todo fb put the common method in a common cloud utils file so they can be resued and we can remove duplicated code
+//
+//   private static void logUploadResult(final String activityupload1) {
+//      System.out.println(activityupload1);
+//   }
 
-   private static void logUploadResult(final String activityupload1) {
-      System.out.println(activityupload1);
-   }
-
-   private String ConvertResponseToUpload(final HttpResponse<String> name) {
-
-      //todo fb in the server.js, return verbatim what suunto returns
-      System.out.println(name.body());
-
-      final ObjectMapper mapper = new ObjectMapper();
-      Workout activityUpload = null;
-      try {
-         activityUpload = mapper.readValue(name.body(), Workout.class);
-      } catch (final JsonProcessingException e) {
-         e.printStackTrace();
-      }
-return activityUpload.toString();
-   }
-
-   private String convertTourToGpx(final TourData tourData) {
-
-      final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "gpx"); //$NON-NLS-1$
-
-      _tourExporter.useTourData(tourData);
-
-      final TourType tourType = tourData.getTourType();
-
-      boolean useActivityType = false;
-      String activityName = UI.EMPTY_STRING;
-      if (tourType != null) {
-         useActivityType = true;
-         activityName = tourType.getName();
-      }
-      _tourExporter.setUseActivityType(useActivityType);
-      _tourExporter.setActivityType(activityName);
-
-      _tourExporter.export(absoluteTourFilePath);
-
-      final String tourGpx = FilesUtils.readFileContentString(absoluteTourFilePath);
-
-      FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
-
-      return tourGpx;
-   }
-
-   //TODO FB put in file utils
-   private String createTemporaryTourFile(final String tourId, final String extension) {
-
-      String absoluteFilePath = UI.EMPTY_STRING;
-
-      try {
-         FilesUtils.deleteFile(Paths.get(tourId + UI.SYMBOL_DOT + extension));
-
-         absoluteFilePath = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension).toString();
-
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-      return absoluteFilePath;
-   }
+//   private String ConvertResponseToUpload(final HttpResponse<String> name) {
+//
+//      //todo fb in the server.js, return verbatim what suunto returns
+//      System.out.println(name.body());
+//
+//      final ObjectMapper mapper = new ObjectMapper();
+//      Workout activityUpload = null;
+//      try {
+//         activityUpload = mapper.readValue(name.body(), Workout.class);
+//      } catch (final JsonProcessingException e) {
+//         e.printStackTrace();
+//      }
+//return activityUpload.toString();
+//   }
 
    @Override
    public void downloadTours() {
-      uploadRoutes();
-//      MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "HIIHHAAA!", getAccessToken());
 
       //Get the list of workouts
+      final Workouts workouts = retrieveWorkoutsList();
+      System.out.println(workouts.payload.size());
 
       // get all the startTime
 
@@ -182,25 +123,26 @@ return activityUpload.toString();
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
-   private CompletableFuture<String> sendAsyncRequest(final HttpRequest request) {
-
-      final CompletableFuture<String> activityUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(name -> ConvertResponseToUpload(name))
-            .exceptionally(e -> {
-               return e.getMessage();
-            });
-      return activityUpload;
-   }
-
-   private CompletableFuture<String> uploadRoute() {
+   private Workouts retrieveWorkoutsList() {
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts"))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
             .GET()
             .build();
 
-      return sendAsyncRequest(request);
+      try {
+         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
+            return new ObjectMapper().readValue(response.body(), Workouts.class);
+         }
+      } catch (IOException | InterruptedException e) {
+         StatusUtil.log(e);
+         Thread.currentThread().interrupt();
+      }
+
+      return new Workouts();
    }
 
 //   @Override
@@ -278,12 +220,4 @@ return activityUpload.toString();
 //      }
 //   }
 
-   private void uploadRoutes() {
-
-      final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
-
-      activityUploads.add(uploadRoute());
-
-      activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoCloudDownloader::logUploadResult);
-   }
 }

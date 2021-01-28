@@ -28,6 +28,7 @@ import java.time.Duration;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.Tokens;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
 import net.tourbook.common.UI;
@@ -75,6 +76,21 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       }
 
       return null;
+   }
+
+   public static boolean tryRenewTokens() {
+
+      if (!OAuth2Utils.isAccessTokenExpired(_prefStore.getLong(Preferences.SuuACCESSTOKEN_EXPIRES_AT))) {
+         return;
+      }
+
+      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, getRefreshToken());
+
+      if (newTokens != null) {
+         setAccessTokenExpirationDate(newTokens.getExpires_at());
+         setRefreshToken(newTokens.getRefresh_token());
+         setAccessToken(newTokens.getAccess_token());
+      }
    }
 
    @Override
