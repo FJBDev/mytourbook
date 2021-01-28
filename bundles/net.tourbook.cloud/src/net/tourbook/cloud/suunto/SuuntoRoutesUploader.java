@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,19 +153,15 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
 
-      final JSONObject jsonObject = new JSONObject();
-      jsonObject.put("gpxRoute", tourGpx.replace("\"", "\\\""));
-       String payload = jsonObject.toString();
-
-      payload = "{\n"
-            + "   \"gpxRoute\": \"<?xml version=\\\"1.0\\\"?><gpx xmlns=\\\"http://www.topografix.com/GPX/1/1\\\" xmlns:gpxx=\\\"http://www.garmin.com/xmlschemas/GpxExtensions/v3\\\" creator=\\\"CALTOPO\\\" version=\\\"1.1\\\"><trk><extensions><gpxx:TrackExtension><gpxx:DisplayColor>Red</gpxx:DisplayColor></gpxx:TrackExtension></extensions><trkseg><trkpt lat=\\\"28.379715028429334\\\" lon=\\\"100.35107374191286\\\"/><trkpt lat=\\\"28.378129195464343\\\" lon=\\\"100.35379886627199\\\"/><trkpt lat=\\\"28.376222388718578\\\" lon=\\\"100.35491466522218\\\"/><trkpt lat=\\\"28.381432987382748\\\" lon=\\\"100.43254852294923\\\"/><trkpt lat=\\\"28.394118591849054\\\" lon=\\\"100.44490814208986\\\"/></trkseg></trk></gpx>\"\n"
-            + "}";
+      final JSONObject payload = new JSONObject();
+      payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes()));
 
       try {
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
+            .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
-            .POST(BodyPublishers.ofString(payload))
+            .POST(BodyPublishers.ofString(payload.toString()))
             .build();
 
       return sendAsyncRequest(tourStartTimeMS, request);
