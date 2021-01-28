@@ -153,6 +153,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
 
+      //TODO FB specify the activities
+      //https://apimgmtstfbqznm5nc6zmvgx.blob.core.windows.net/content/MediaLibrary/docs/Suunto%20Watches-%20SuuntoApp%20-Movescount-FIT-Activities.pdf
+
+      //create a vm template just for that ?
+      //https://apizone.suunto.com/route-description
       final JSONObject payload = new JSONObject();
       payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes()));
 

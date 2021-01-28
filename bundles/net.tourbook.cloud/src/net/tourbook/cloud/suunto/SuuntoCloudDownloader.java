@@ -19,14 +19,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import net.tourbook.cloud.Activator;
@@ -43,9 +41,8 @@ import net.tourbook.export.TourExporter;
 import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.apache.http.HttpHeaders;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Display;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
@@ -68,7 +65,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       System.out.println(activityupload1);
    }
 
-   private String ConvertResponseToUpload(final HttpResponse<String> name, final long tourStartTimeMS) {
+   private String ConvertResponseToUpload(final HttpResponse<String> name) {
 
       //todo fb in the server.js, return verbatim what suunto returns
       System.out.println(name.body());
@@ -119,7 +116,8 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    @Override
    public void downloadTours() {
-      MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "HIIHHAAA!", getAccessToken());
+      uploadRoutes();
+//      MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "HIIHHAAA!", getAccessToken());
 
       //Get the list of workouts
 
@@ -148,27 +146,26 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
-   private CompletableFuture<String> sendAsyncRequest(final long tourStartTimeMS, final HttpRequest request) {
+   private CompletableFuture<String> sendAsyncRequest(final HttpRequest request) {
 
       final CompletableFuture<String> activityUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(name -> ConvertResponseToUpload(name, tourStartTimeMS))
+            .thenApply(name -> ConvertResponseToUpload(name))
             .exceptionally(e -> {
                return e.getMessage();
             });
       return activityUpload;
    }
 
-   private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
+   private CompletableFuture<String> uploadRoute() {
 
       final HttpRequest request = HttpRequest.newBuilder()
-               .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
-               .header(OAuth2Constants.CONTENT_TYPE, "application/gpx+xml") //$NON-NLS-1$
-               .timeout(Duration.ofMinutes(5))
-               .POST(BodyPublishers.ofString(tourGpx))
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts"))//$NON-NLS-1$
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
+            .GET()
                .build();
 
 
-      return sendAsyncRequest(tourStartTimeMS, request);
+      return sendAsyncRequest(request);
    }
 
 //   @Override
@@ -246,17 +243,11 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 //      }
 //   }
 
-   private void uploadRoutes(final Map<Long, String> toursWithGpsSeries) {
+   private void uploadRoutes() {
 
       final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
 
-      for (final Map.Entry<Long, String> tourToUpload : toursWithGpsSeries.entrySet()) {
-
-         final long tourStartTimeMS = tourToUpload.getKey();
-         final String tourGpx = tourToUpload.getValue();
-
-         activityUploads.add(uploadRoute(tourStartTimeMS, tourGpx));
-      }
+         activityUploads.add(uploadRoute());
 
       activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoCloudDownloader::logUploadResult);
    }
