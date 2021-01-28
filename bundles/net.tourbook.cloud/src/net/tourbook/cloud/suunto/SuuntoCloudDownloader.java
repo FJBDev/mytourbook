@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.suunto.workouts.Workout;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.FilesUtils;
 import net.tourbook.common.util.StatusUtil;
@@ -69,7 +73,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       //todo fb in the server.js, return verbatim what suunto returns
       System.out.println(name.body());
-      return "TOTO";
+
+      final ObjectMapper mapper = new ObjectMapper();
+      Workout activityUpload = null;
+      try {
+         activityUpload = mapper.readValue(name.body(), Workout.class);
+      } catch (final JsonProcessingException e) {
+         e.printStackTrace();
+      }
+return activityUpload.toString();
    }
 
    private String convertTourToGpx(final TourData tourData) {
@@ -162,8 +174,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts"))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
             .GET()
-               .build();
-
+            .build();
 
       return sendAsyncRequest(request);
    }
@@ -247,7 +258,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
 
-         activityUploads.add(uploadRoute());
+      activityUploads.add(uploadRoute());
 
       activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoCloudDownloader::logUploadResult);
    }
