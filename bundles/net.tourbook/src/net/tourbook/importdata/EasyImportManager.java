@@ -427,6 +427,7 @@ public class EasyImportManager {
          throw new InterruptedException();
       }
 
+      //todo fb
       final HashSet<String> dbFileNames = getDbFileNames(availableFiles);
       RawDataView.THREAD_WATCHER_LOCK.unlock();
 
@@ -908,6 +909,7 @@ public class EasyImportManager {
       /*
        * Check import files
        */
+      //TOdo fb
       final ArrayList<OSFile> notImportedFiles = easyConfig.notImportedFiles;
       if (notImportedFiles.isEmpty()) {
 
