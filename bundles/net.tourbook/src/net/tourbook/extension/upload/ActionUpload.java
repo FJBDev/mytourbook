@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +21,8 @@ import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.TourbookFileSystem;
 import net.tourbook.data.TourData;
+import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.ITourProviderAll;
@@ -127,11 +127,11 @@ public class ActionUpload extends Action implements IMenuCreator {
    }
 
    /**
-    * Read and collects all the extensions that implement {@link TourbookFileSystem}.
+    * Read and collects all the extensions that implement {@link TourbookCloudDownloader}.
     *
     * @param extensionPointName
     *           The extension point name
-    * @return The list of {@link TourbookFileSystem}.
+    * @return The list of {@link TourbookCloudDownloader}.
     */
    private static List<TourbookCloudUploader> readCloudUploaderExtensions(final String extensionPointName) {
 
@@ -149,7 +149,7 @@ public class ActionUpload extends Action implements IMenuCreator {
 
          for (final IConfigurationElement configElement : extension.getConfigurationElements()) {
 
-            if (configElement.getName().equalsIgnoreCase("cloudUploader")) { //$NON-NLS-1$
+            if (configElement.getName().equalsIgnoreCase(extensionPointName)) {
 
                Object object;
                try {

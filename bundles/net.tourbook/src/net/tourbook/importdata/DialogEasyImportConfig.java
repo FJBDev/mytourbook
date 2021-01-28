@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -1355,10 +1354,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog {
                .applyTo(_comboIC_DeviceType);
 
          _comboIC_DeviceType.add(Messages.Dialog_ImportConfig_Combo_Device_LocalDevice);
-         final List<String> fileSystemsIds = FileSystemManager.getFileSystemsIds();
-         for (final String fileSystemsId : fileSystemsIds) {
-            _comboIC_DeviceType.add(fileSystemsId);
-         }
+         FileSystemManager.getFileSystemsIds().forEach(_comboIC_DeviceType::add);
          _comboIC_DeviceType.addModifyListener(deviceTypeListener);
       }
 
@@ -4213,8 +4209,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog {
 
       if (isDeviceLocal && NIO.isTourBookFileSystem(deviceFolder)) {
          deviceFolder = UI.EMPTY_STRING;
-      } else if (!isDeviceLocal &&
-            !NIO.isTourBookFileSystem(deviceFolder)) {
+      } else if (!isDeviceLocal && !NIO.isTourBookFileSystem(deviceFolder)) {
          deviceFolder = FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText()).getDisplayId();
       }
       _comboIC_DeviceFolder.setText(deviceFolder);

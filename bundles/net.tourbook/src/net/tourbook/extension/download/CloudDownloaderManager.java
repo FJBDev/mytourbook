@@ -18,8 +18,6 @@ package net.tourbook.extension.download;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.tourbook.common.TourbookFileSystem;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -50,38 +48,13 @@ public class CloudDownloaderManager {
       return _cloudDownloadersList;
    }
 
-//   /**
-//    * Returns the {@link TourbookFileSystem}, if found, for a given device folder.
-//    *
-//    * @param deviceFolder
-//    * @return
-//    */
-//   public static TourbookFileSystem getTourbookFileSystem(final String deviceFolder) {
-//
-//      if (StringUtils.isNullOrEmpty(deviceFolder)) {
-//         return null;
-//      }
-//
-//      getFileSystemsList();
-//
-//      final Optional<TourbookFileSystem> fileSystemSearchResult = _fileSystemsList.stream()
-//            .filter(tfs -> deviceFolder.toLowerCase().startsWith(tfs.getId().toLowerCase()) ||
-//                  deviceFolder.toLowerCase().startsWith(tfs.getDisplayId().toLowerCase()))
-//            .findAny();
-//
-//      if (fileSystemSearchResult.isPresent()) {
-//         return fileSystemSearchResult.get();
-//      }
-//
-//      return null;
-//   }
 
    /**
-    * Read and collects all the extensions that implement {@link TourbookFileSystem}.
+    * Read and collects all the extensions that implement {@link TourbookCloudDownloader}.
     *
     * @param extensionPointName
     *           The extension point name
-    * @return The list of {@link TourbookFileSystem}.
+    * @return The list of {@link TourbookCloudDownloader}.
     */
    private static ArrayList<TourbookCloudDownloader> readCloudDownloadersExtensions(final String extensionPointName) {
 
