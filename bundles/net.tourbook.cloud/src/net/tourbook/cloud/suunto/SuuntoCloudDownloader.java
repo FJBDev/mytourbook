@@ -139,6 +139,30 @@ return activityUpload.toString();
       // if the starttime /1000 equals one in the db => ignore
       // else add to the list of tfile to donwload
 
+      //something like this or is there already a "getAllTours" functio ?
+//      try (Connection conn = TourDatabase.getInstance().getConnection();
+//            Statement stmt = conn.createStatement()) {
+//
+//         final String sqlQuery = UI.EMPTY_STRING//
+//               + "SELECT" //                                            //$NON-NLS-1$
+//               + " TourImportFileName" //                                  //$NON-NLS-1$
+//               + " FROM " + TourDatabase.TABLE_TOUR_DATA //                   //$NON-NLS-1$
+//               + (" WHERE TourImportFileName IN (" + deviceFileNameINList + UI.SYMBOL_BRACKET_RIGHT) //  //$NON-NLS-1$
+//               + " ORDER BY TourImportFileName"; //                           //$NON-NLS-1$
+//
+//         final ResultSet result = stmt.executeQuery(sqlQuery);
+//
+//         while (result.next()) {
+//
+//            final String dbFileName = result.getString(1);
+//
+//            dbFileNames.add(dbFileName);
+//         }
+//
+//      } catch (final SQLException e) {
+//         SQL.showException(e);
+//      }
+
       // async download of the files
 
       //
