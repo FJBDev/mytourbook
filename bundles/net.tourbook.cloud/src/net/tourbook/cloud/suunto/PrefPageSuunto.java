@@ -15,14 +15,21 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
@@ -59,6 +66,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    public static final int         CALLBACK_PORT = 4919;
 
    private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
+   private final IDialogSettings   _state        = TourbookPlugin.getState(DialogEasyImportConfig.ID);
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -263,6 +271,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          if (_server != null) {
             _server.stopCallBackServer();
          }
+         final String[] ffdsw = _state.getArray(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS);
+         final List<String> titi = new ArrayList<>(Arrays.asList(ffdsw));
+         titi.add("file:///home/frederic/Downloads/S9FilesToImport");
+         _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS, titi.toArray(new String[titi.size()]));
       }
 
       return isOK;

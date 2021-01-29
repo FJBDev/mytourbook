@@ -133,14 +133,14 @@ import org.joda.time.PeriodType;
  */
 public class DialogEasyImportConfig extends TitleAreaDialog {
 
-   private static final String          ID                                = "DialogEasyImportConfig";               //$NON-NLS-1$
+   public static final String           ID                                = "DialogEasyImportConfig";               //$NON-NLS-1$
    //
    private static final String          COLUMN_ADJUST_TEMPERATURE         = "{0} - {1} {2}";                        //$NON-NLS-1$
    //
    private static final String          STATE_BACKUP_DEVICE_HISTORY_ITEMS = "STATE_BACKUP_DEVICE_HISTORY_ITEMS";    //$NON-NLS-1$
    private static final String          STATE_BACKUP_FOLDER_HISTORY_ITEMS = "STATE_BACKUP_FOLDER_HISTORY_ITEMS";    //$NON-NLS-1$
    private static final String          STATE_DEVICE_DEVICE_HISTORY_ITEMS = "STATE_DEVICE_DEVICE_HISTORY_ITEMS";    //$NON-NLS-1$
-   private static final String          STATE_DEVICE_FOLDER_HISTORY_ITEMS = "STATE_DEVICE_FOLDER_HISTORY_ITEMS";    //$NON-NLS-1$
+   public static final String           STATE_DEVICE_FOLDER_HISTORY_ITEMS = "STATE_DEVICE_FOLDER_HISTORY_ITEMS";    //$NON-NLS-1$
    private static final String          STATE_SELECTED_IMPORT_LAUNCHER    = "STATE_SELECTED_IMPORT_LAUNCHER";       //$NON-NLS-1$
    private static final String          STATE_SELECTED_TAB_FOLDER         = "STATE_SELECTED_TAB_FOLDER";            //$NON-NLS-1$
    //
@@ -4178,46 +4178,44 @@ public class DialogEasyImportConfig extends TitleAreaDialog {
 
    private void onSelectDevice() {
 
-      if (_comboIC_DeviceType == null) {
-         return;
-      }
-      final int deviceIndex = _comboIC_DeviceType.getSelectionIndex();
-
-      if (_lblIC_DeviceFolder == null) {
+      if (_comboIC_DeviceType == null && _lblIC_DeviceFolder == null && StringUtils.isNullOrEmpty(_comboIC_DeviceType.getText())) {
          return;
       }
 
-      final boolean isDeviceLocal = deviceIndex == 0; //Local device
-      _lblIC_DeviceFolder.setEnabled(isDeviceLocal);
-      _comboIC_DeviceFolder.setEnabled(isDeviceLocal);
+      final boolean isTourbookFileSystem = NIO.isTourBookFileSystem(_comboIC_DeviceType.getText());
+
+      _lblIC_DeviceFolder.setEnabled(!isTourbookFileSystem);
+      _comboIC_DeviceFolder.setEnabled(!isTourbookFileSystem);
+
+      Util.disposeResource(_imageFileSystem);
+      _imageFileSystem = TourbookPlugin.getImageDescriptor(Messages.Image__easy_import_config_harddrive).createImage();
 
       String deviceFolder = _selectedIC.getDeviceFolder();
+      if (isTourbookFileSystem) {
 
-      //We update the file system icon
-      Util.disposeResource(_imageFileSystem);
-      if (isDeviceLocal) {
-         _imageFileSystem = TourbookPlugin.getImageDescriptor(Messages.Image__easy_import_config_harddrive).createImage();
-      } else if (NIO.isTourBookFileSystem(_comboIC_DeviceType.getText())) {
-         final ImageDescriptor fileSystemImageDescriptor = FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText())
-               .getFileSystemImageDescriptor();
-         _imageFileSystem = fileSystemImageDescriptor.createImage();
+         deviceFolder = FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText()).getDisplayId();
+         if (FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText())
+               .getFileSystemImageDescriptor() != null) {
+            _imageFileSystem = FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText())
+                  .getFileSystemImageDescriptor().createImage();
+         }
+      } else //The device is a local one (example : C:\)
+      {
+
+         deviceFolder = UI.EMPTY_STRING;
       }
 
+      _comboIC_DeviceFolder.setText(deviceFolder);
+
+      //We update the file system icon
       if (_imageFileSystem != null && !_imageFileSystem.isDisposed()) {
          _lblIC_FileSystemImage.setImage(_imageFileSystem);
       }
 
-      if (isDeviceLocal && NIO.isTourBookFileSystem(deviceFolder)) {
-         deviceFolder = UI.EMPTY_STRING;
-      } else if (!isDeviceLocal && !NIO.isTourBookFileSystem(deviceFolder)) {
-         deviceFolder = FileSystemManager.getTourbookFileSystem(_comboIC_DeviceType.getText()).getDisplayId();
-      }
-      _comboIC_DeviceFolder.setText(deviceFolder);
+      _chkIC_CreateBackup.setEnabled(!isTourbookFileSystem);
+      _chkIC_DeleteDeviceFiles.setEnabled(!isTourbookFileSystem);
 
-      _chkIC_CreateBackup.setEnabled(isDeviceLocal);
-      _chkIC_DeleteDeviceFiles.setEnabled(isDeviceLocal);
-
-      if (!isDeviceLocal) {
+      if (isTourbookFileSystem) {
          _comboIC_BackupFolder.setText(UI.EMPTY_STRING);
          _comboIC_BackupFolder.setEnabled(false);
          _chkIC_CreateBackup.setSelection(false);

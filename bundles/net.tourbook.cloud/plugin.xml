@@ -12,14 +12,6 @@
       />
    </extension>
    
-    <extension   point="net.tourbook.fileSystem">
-      <fileSystem
-         id             ="net.tourbook.cloud.SuuntoFileSystem"
-         name           ="Suunto File System"
-         class          ="net.tourbook.cloud.suunto.SuuntoFileSystem"
-      />
-   </extension>
-   
 	<!-- FILE SYSTEMS -->
 	
 	
