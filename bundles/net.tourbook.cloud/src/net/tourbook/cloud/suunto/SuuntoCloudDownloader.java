@@ -78,6 +78,29 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 //return activityUpload.toString();
 //   }
 
+   private void downloadFiles(final List<Payload> newWorkouts) {
+
+      final String workoutKey = newWorkouts.get(0).workoutKey;
+      final HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit/" + workoutKey))//$NON-NLS-1$
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
+            .GET()
+            .build();
+
+      try {
+         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
+            return new ObjectMapper().readValue(response.body(), Workouts.class);
+         }
+      } catch (IOException | InterruptedException e) {
+         StatusUtil.log(e);
+         Thread.currentThread().interrupt();
+      }
+
+
+   }
+
    @Override
    public void downloadTours() {
 
@@ -128,10 +151,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
             newWorkouts.add(suuntoWorkout);
          }
-         // if the starttime /1000 equals one in the db => ignore
-         // else add to the list of tfile to donwload
 
          // async download of the files
+         downloadFiles(newWorkouts);
 
          //
       });
