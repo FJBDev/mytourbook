@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -86,8 +85,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final String workoutKey = newWorkouts.get(0).workoutKey;
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
+            .uri(URI.create("https://cloudapi.suunto.com/v2/workout/exportFit/" + workoutKey))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
+            .header("Ocp-Apim-Subscription-Key", "") //$NON-NLS-1$
             .GET()
             .build();
 
@@ -97,11 +97,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK) {
 
-            final byte[] buffer = new byte[response.body().available()];
-            response.body().read(buffer);
-            final File targetFile = new File("C:\\Users\\frederic\\toto.fit");
-            final OutputStream outStream = new FileOutputStream(targetFile);
-            outStream.write(buffer);
+            final String filePath = "/home/frederic/Downloads/toto.fit";
+            final FileOutputStream fos = new FileOutputStream(new File(filePath));
+            int inByte;
+            while ((inByte = response.body().read()) != -1) {
+               fos.write(inByte);
+            }
+            response.body().close();
+            fos.close();
+
             return;
          }
       } catch (IOException | InterruptedException e) {
@@ -134,10 +138,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          try (Connection conn = TourDatabase.getInstance().getConnection();
                Statement stmt = conn.createStatement()) {
 
-            final String sqlQuery =
-                  "SELECT" //                                            //$NON-NLS-1$
-                        + " tourStartTime" //                                  //$NON-NLS-1$
-                        + " FROM " + TourDatabase.TABLE_TOUR_DATA; //                           //$NON-NLS-1$
+            final String sqlQuery = "SELECT tourStartTime FROM " + TourDatabase.TABLE_TOUR_DATA; //$NON-NLS-1$
 
             final ResultSet result = stmt.executeQuery(sqlQuery);
 
