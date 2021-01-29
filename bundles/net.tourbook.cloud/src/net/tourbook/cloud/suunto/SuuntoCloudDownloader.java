@@ -17,7 +17,11 @@ package net.tourbook.cloud.suunto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -82,16 +86,23 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final String workoutKey = newWorkouts.get(0).workoutKey;
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit/" + workoutKey))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
             .GET()
             .build();
 
       try {
-         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+         final HttpResponse<InputStream> response = _httpClient.send(request,
+               HttpResponse.BodyHandlers.ofInputStream());
 
-         if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
-            return new ObjectMapper().readValue(response.body(), Workouts.class);
+         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+
+            final byte[] buffer = new byte[response.body().available()];
+            response.body().read(buffer);
+            final File targetFile = new File("C:\\Users\\frederic\\toto.fit");
+            final OutputStream outStream = new FileOutputStream(targetFile);
+            outStream.write(buffer);
+            return;
          }
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
