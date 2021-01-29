@@ -22,7 +22,6 @@ import java.util.List;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.data.TourData;
-import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.ITourProviderAll;
@@ -119,19 +118,17 @@ public class ActionUpload extends Action implements IMenuCreator {
          _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader"); //$NON-NLS-1$
       }
 
-      for (final ActionUploadTour actionUploadTour : _uploadTourActions) {
-         actionUploadTour.setEnabled(actionUploadTour.isVendorReady());
-      }
+      _uploadTourActions.forEach(actionUploadTour -> actionUploadTour.setEnabled(actionUploadTour.isVendorReady()));
 
       return _tourbookCloudUploaders;
    }
 
    /**
-    * Read and collects all the extensions that implement {@link TourbookCloudDownloader}.
+    * Read and collects all the extensions that implement {@link TourbookCloudUploader}.
     *
     * @param extensionPointName
     *           The extension point name
-    * @return The list of {@link TourbookCloudDownloader}.
+    * @return The list of {@link TourbookCloudUploader}.
     */
    private static List<TourbookCloudUploader> readCloudUploaderExtensions(final String extensionPointName) {
 
@@ -149,21 +146,22 @@ public class ActionUpload extends Action implements IMenuCreator {
 
          for (final IConfigurationElement configElement : extension.getConfigurationElements()) {
 
-            if (configElement.getName().equalsIgnoreCase(extensionPointName)) {
+            if (!configElement.getName().equalsIgnoreCase(extensionPointName)) {
+               continue;
+            }
 
-               Object object;
-               try {
+            Object object;
+            try {
 
-                  object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
+               object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 
-                  if (object instanceof TourbookCloudUploader) {
-                     final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
-                     cloudUploadersList.add(cloudUploader);
-                  }
-
-               } catch (final CoreException e) {
-                  e.printStackTrace();
+               if (object instanceof TourbookCloudUploader) {
+                  final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
+                  cloudUploadersList.add(cloudUploader);
                }
+
+            } catch (final CoreException e) {
+               e.printStackTrace();
             }
          }
       }
@@ -182,10 +180,7 @@ public class ActionUpload extends Action implements IMenuCreator {
          return;
       }
 
-      for (final TourbookCloudUploader tourbookCloudUploader : _tourbookCloudUploaders) {
-
-         _uploadTourActions.add(new ActionUploadTour(tourbookCloudUploader));
-      }
+      _tourbookCloudUploaders.forEach(tourbookCloudUploader -> _uploadTourActions.add(new ActionUploadTour(tourbookCloudUploader)));
    }
 
    @Override
@@ -209,19 +204,12 @@ public class ActionUpload extends Action implements IMenuCreator {
       dispose();
       _menu = new Menu(parent);
 
-      for (final ActionUploadTour action : _uploadTourActions) {
-         addActionToMenu(action);
-      }
+      _uploadTourActions.forEach(this::addActionToMenu);
 
       return _menu;
    }
 
    public boolean hasUploaders() {
       return getCloudUploaders().size() > 0;
-   }
-
-   public void setNumberOfTours(final int numTours) {
-
-      setText(Messages.action_export_tour + String.format(" (%d)", numTours)); //$NON-NLS-1$
    }
 }

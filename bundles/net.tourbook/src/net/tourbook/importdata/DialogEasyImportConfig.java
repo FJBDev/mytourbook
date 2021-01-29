@@ -4178,7 +4178,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog {
 
    private void onSelectDevice() {
 
-      if (_comboIC_DeviceType == null && _lblIC_DeviceFolder == null && StringUtils.isNullOrEmpty(_comboIC_DeviceType.getText())) {
+      if (_comboIC_DeviceType == null || _lblIC_DeviceFolder == null || _comboIC_DeviceType == null) {
          return;
       }
 
