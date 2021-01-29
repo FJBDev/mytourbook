@@ -40,8 +40,8 @@ import org.json.JSONObject;
 
 public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
-   private static HttpClient _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
-   private IPreferenceStore  _prefStore  = Activator.getDefault().getPreferenceStore();
+   private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
+   private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
    public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
@@ -78,19 +78,26 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       return null;
    }
 
-   public static boolean tryRenewTokens() {
+   public static boolean getValidTokens() {
 
-      if (!OAuth2Utils.isAccessTokenExpired(_prefStore.getLong(Preferences.SuuACCESSTOKEN_EXPIRES_AT))) {
-         return;
+      if (!OAuth2Utils.isAccessTokenExpired(
+            _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
+                  Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000)) {
+         return true;
       }
 
-      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, getRefreshToken());
+      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
+      boolean isTokenValid = false;
       if (newTokens != null) {
-         setAccessTokenExpirationDate(newTokens.getExpires_at());
-         setRefreshToken(newTokens.getRefresh_token());
-         setAccessToken(newTokens.getAccess_token());
+         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, newTokens.getExpires_in());
+         _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, newTokens.getRefresh_token());
+         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
+         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, newTokens.getAccess_token());
+         isTokenValid = true;
       }
+
+      return isTokenValid;
    }
 
    @Override
@@ -106,7 +113,7 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
    @Override
    public void saveTokensInPreferences(final Tokens tokens) {
 
-      if (!(tokens instanceof SuuntoTokens) || !StringUtils.hasContent(tokens.getAccess_token())) {
+      if (!(tokens instanceof SuuntoTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
 
          final String currentAccessToken = _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
          _prefStore.firePropertyChangeEvent(Preferences.SUUNTO_ACCESSTOKEN,

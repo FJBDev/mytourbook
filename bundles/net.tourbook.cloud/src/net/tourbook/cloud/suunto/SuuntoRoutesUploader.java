@@ -234,7 +234,8 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                   "Messages.UploadToursToStrava_Icon_Check",
                   "Messages.UploadToursToStrava_Icon_Hourglass"));
 
-            tryRenewTokens();
+            //todo fb if token not valid, do not continue and do the same for strava
+            SuuntoTokensRetrievalHandler.getValidTokens();
 
             uploadRoutes(toursWithGpsSeries);
 

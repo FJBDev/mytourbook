@@ -23,18 +23,29 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
+import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Display;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
@@ -70,43 +81,60 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    @Override
    public void downloadTours() {
 
-      //Get the list of workouts
-      final Workouts workouts = retrieveWorkoutsList();
-      System.out.println(workouts.payload.size());
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+         //todo fb if token not valid, do not continue and do the same for strava
+         if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+            return;
+         }
 
-      // get all the startTime
+         //Get the list of workouts
+         final Workouts workouts = retrieveWorkoutsList();
 
-      //loop all the starttimes
-      // if the starttime /1000 equals one in the db => ignore
-      // else add to the list of tfile to donwload
+         if (workouts.payload.size() == 0) {
+            return;
+         }
 
-      //something like this or is there already a "getAllTours" functio ?
-//      try (Connection conn = TourDatabase.getInstance().getConnection();
-//            Statement stmt = conn.createStatement()) {
-//
-//         final String sqlQuery = UI.EMPTY_STRING//
-//               + "SELECT" //                                            //$NON-NLS-1$
-//               + " TourImportFileName" //                                  //$NON-NLS-1$
-//               + " FROM " + TourDatabase.TABLE_TOUR_DATA //                   //$NON-NLS-1$
-//               + (" WHERE TourImportFileName IN (" + deviceFileNameINList + UI.SYMBOL_BRACKET_RIGHT) //  //$NON-NLS-1$
-//               + " ORDER BY TourImportFileName"; //                           //$NON-NLS-1$
-//
-//         final ResultSet result = stmt.executeQuery(sqlQuery);
-//
-//         while (result.next()) {
-//
-//            final String dbFileName = result.getString(1);
-//
-//            dbFileNames.add(dbFileName);
-//         }
-//
-//      } catch (final SQLException e) {
-//         SQL.showException(e);
-//      }
+         // get all the startTimes
+         //something like this or is there already a "getAllTours" functio ?
+         final List<Long> tourStartTimes = new ArrayList<>();
+         try (Connection conn = TourDatabase.getInstance().getConnection();
+               Statement stmt = conn.createStatement()) {
 
-      // async download of the files
+            final String sqlQuery =
+                  "SELECT" //                                            //$NON-NLS-1$
+                        + " tourStartTime" //                                  //$NON-NLS-1$
+                        + " FROM " + TourDatabase.TABLE_TOUR_DATA; //                           //$NON-NLS-1$
 
-      //
+            final ResultSet result = stmt.executeQuery(sqlQuery);
+
+            while (result.next()) {
+
+               tourStartTimes.add(result.getLong(1));
+            }
+
+         } catch (final SQLException e) {
+            SQL.showException(e);
+         }
+
+         System.out.println(tourStartTimes.size());
+
+         final List<Payload> newWorkouts = new ArrayList<>();
+         //loop all the starttimes
+         for (final Payload suuntoWorkout : workouts.payload) {
+
+            if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
+               continue;
+            }
+
+            newWorkouts.add(suuntoWorkout);
+         }
+         // if the starttime /1000 equals one in the db => ignore
+         // else add to the list of tfile to donwload
+
+         // async download of the files
+
+         //
+      });
 
    }
 
@@ -126,7 +154,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    private Workouts retrieveWorkoutsList() {
 
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts"))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=1611616018000"))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
             .GET()
             .build();
