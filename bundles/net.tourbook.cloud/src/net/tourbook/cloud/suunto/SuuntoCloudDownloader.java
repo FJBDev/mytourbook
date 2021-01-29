@@ -33,12 +33,14 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -85,9 +87,8 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final String workoutKey = newWorkouts.get(0).workoutKey;
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://cloudapi.suunto.com/v2/workout/exportFit/" + workoutKey))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
-            .header("Ocp-Apim-Subscription-Key", "") //$NON-NLS-1$
             .GET()
             .build();
 
@@ -97,7 +98,13 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK) {
 
-            final String filePath = "/home/frederic/Downloads/toto.fit";
+            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition");
+            String fileName = UI.EMPTY_STRING;
+            if (contentDisposition.isPresent()) {
+               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1");
+            }
+
+            final String filePath = "C:\\Users\\frederic\\Desktop\\" + StringUtils.sanitizeFileName(fileName);
             final FileOutputStream fos = new FileOutputStream(new File(filePath));
             int inByte;
             while ((inByte = response.body().read()) != -1) {

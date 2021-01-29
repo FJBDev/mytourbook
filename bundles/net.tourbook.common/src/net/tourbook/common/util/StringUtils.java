@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -60,5 +60,13 @@ public final class StringUtils {
       }
 
       return sb.toString();
+   }
+
+   public static String sanitizeFileName(final String fileName) {
+      if (StringUtils.isNullOrEmpty(fileName)) {
+         return fileName;
+      }
+
+      return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
    }
 }

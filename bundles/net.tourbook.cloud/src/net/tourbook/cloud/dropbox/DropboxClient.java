@@ -225,7 +225,6 @@ public class DropboxClient {
 
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, newTokens.getExpires_in());
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
-         //todo fb forgot to save the new refresh token ??
          _prefStore.setValue(Preferences.DROPBOX_ACCESSTOKEN, newTokens.getAccess_token());
          return newTokens.getAccess_token();
       }
