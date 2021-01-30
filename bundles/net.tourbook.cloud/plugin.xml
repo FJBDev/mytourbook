@@ -69,7 +69,7 @@
       <page
             category="net.tourbook.preferences.PrefPageCloudConnectivity"
             class="net.tourbook.cloud.strava.PrefPageStrava"
-            id="net.tourbook.strava.PrefPageStrava"
+            id="net.tourbook.cloud.PrefPageStrava"
             name="Strava">
       </page>
    </extension>
@@ -79,7 +79,7 @@
       <page
             category="net.tourbook.preferences.PrefPageCloudConnectivity"
             class="net.tourbook.cloud.suunto.PrefPageSuunto"
-            id="net.tourbook.strava.PrefPageSuunto"
+            id="net.tourbook.cloud.PrefPageSuunto"
             name="Suunto">
       </page>
    </extension>

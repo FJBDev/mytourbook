@@ -52,6 +52,7 @@ import org.apache.http.HttpHeaders;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
@@ -120,17 +121,28 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          Thread.currentThread().interrupt();
       }
 
-
    }
 
    @Override
    public void downloadTours() {
 
-      BusyIndicator.showWhile(Display.getCurrent(), () -> {
-         //todo fb if token not valid, do not continue and do the same for strava
-         if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+      //todo fb if token not valid, do not continue and do the same for strava
+      //display a message for the user
+      if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
+      {
+
+         final int returnResult = PreferencesUtil.createPreferenceDialogOn(
+               Display.getCurrent().getActiveShell(),
+               PrefPageSuunto.ID,
+               null,
+               null).open();
+
+         if (returnResult != 0) {
             return;
          }
+      }
+
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
 
          //Get the list of workouts
          final Workouts workouts = retrieveWorkoutsList();
@@ -194,8 +206,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    private Workouts retrieveWorkoutsList() {
 
+      final var toto = _prefStore.getLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE);
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=1611616018000"))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=" + toto))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
             .GET()
             .build();

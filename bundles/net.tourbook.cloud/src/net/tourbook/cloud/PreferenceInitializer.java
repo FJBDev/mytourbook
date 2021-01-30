@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,5 +39,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, 0);
       store.setDefault(Preferences.STRAVA_ATHLETEID, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_ATHLETEFULLNAME, UI.EMPTY_STRING);
+
+      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
+      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
+      store.setDefault(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
+      store.setDefault(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE, 1577836800000L);
+
    }
 }

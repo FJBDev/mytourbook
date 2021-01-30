@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,7 @@ import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
+import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
@@ -42,6 +45,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -85,6 +89,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
    private Combo                   _comboPath;
+   private DateTime                _dtDownloadSinceFilter;
 
    @Override
    protected void createFieldEditors() {
@@ -239,6 +244,43 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          });
          setButtonLayoutData(btnSelectDirectory);
       }
+      {
+
+         /*
+          * date-time: Download files for which the start date is greater than
+          */
+         final Label label = new Label(container, SWT.NONE);
+         label.setText("File Date Download Filter");
+         label.setToolTipText("Only download files for which the start date is greater than");
+
+         _dtDownloadSinceFilter = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
+         _dtDownloadSinceFilter.setToolTipText("Only download files for which the start date is greater than");
+         GridDataFactory.fillDefaults()//
+               .align(SWT.BEGINNING, SWT.FILL)
+               .applyTo(_dtDownloadSinceFilter);
+         _dtDownloadSinceFilter.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+
+               if (UI.isLinuxAsyncEvent(e.widget)) {
+                  return;
+               }
+            }
+         });
+      }
+   }
+
+   private long getSinceDateFilter() {
+
+      return ZonedDateTime.of(
+            _dtDownloadSinceFilter.getYear(),
+            _dtDownloadSinceFilter.getMonth() + 1,
+            _dtDownloadSinceFilter.getDay(),
+            0,
+            0,
+            0,
+            0,
+            TimeTools.getDefaultTimeZone()).toEpochSecond() * 1000;
    }
 
    @Override
@@ -313,6 +355,12 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _comboPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER));
 
+      final LocalDate suuntoFileDownloadSinceDate = TimeTools.toLocalDate(_prefStore.getDefaultLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE));
+
+      _dtDownloadSinceFilter.setDate(suuntoFileDownloadSinceDate.getYear(),
+            suuntoFileDownloadSinceDate.getMonthValue(),
+            suuntoFileDownloadSinceDate.getDayOfMonth());
+
       super.performDefaults();
    }
 
@@ -343,6 +391,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS,
                   stateDeviceFolderHistoryItems.toArray(new String[stateDeviceFolderHistoryItems.size()]));
          }
+
+         _prefStore.setValue(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE, getSinceDateFilter());
       }
 
       return isOK;
@@ -359,6 +409,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       updateTokensInformationGroup();
 
       _comboPath.setText(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER));
+
+      final LocalDate suuntoFileDownloadSinceDate = TimeTools.toLocalDate(_prefStore.getLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE));
+
+      _dtDownloadSinceFilter.setDate(suuntoFileDownloadSinceDate.getYear(), suuntoFileDownloadSinceDate.getMonthValue(), suuntoFileDownloadSinceDate.getDayOfMonth());
    }
 
    private void updateTokensInformationGroup() {
