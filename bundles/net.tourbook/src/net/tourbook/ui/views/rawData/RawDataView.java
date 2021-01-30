@@ -2088,13 +2088,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                (HTTP_DUMMY + HREF_ACTION_SERIAL_PORT_DIRECTLY),
                _imageUrl_SerialPort_Directly);
 
-         createHTML_92_TileAction(
-               sb,
-               Messages.Import_Data_HTML_Action_OldUI,
-               Messages.Import_Data_HTML_Action_OldUI_Tooltip,
-               (HTTP_DUMMY + HREF_ACTION_OLD_UI),
-               null);
-
          for (final var cloudDownloader : _cloudDownloaderList) {
 
             createHTML_92_TileAction(
@@ -2104,6 +2097,13 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                   (HTTP_DUMMY + HREF_TOKEN + cloudDownloader.getId()),
                   cloudDownloader.getIconUrl());
          }
+
+         createHTML_92_TileAction(
+               sb,
+               Messages.Import_Data_HTML_Action_OldUI,
+               Messages.Import_Data_HTML_Action_OldUI_Tooltip,
+               (HTTP_DUMMY + HREF_ACTION_OLD_UI),
+               null);
       }
       sb.append("   </tr></tbody></table>\n"); // //$NON-NLS-1$
       sb.append("</div>\n"); //$NON-NLS-1$

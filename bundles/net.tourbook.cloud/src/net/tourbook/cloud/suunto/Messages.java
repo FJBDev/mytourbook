@@ -23,7 +23,10 @@ public class Messages extends NLS {
 
    public static String        Pref_AccountInformation_SuuntoApp_WebPage_Link;
 
+   public static String        Image__SuuntoApp_Icon;
+   public static String        Suunto_Workouts_Description;
    public static String        VendorName_Suunto_Routes;
+   public static String        VendorName_Suunto_Workouts;
 
    static {
       NLS.initializeMessages(BUNDLE_NAME, Messages.class);

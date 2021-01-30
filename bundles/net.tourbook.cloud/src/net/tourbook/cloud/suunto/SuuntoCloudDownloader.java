@@ -61,8 +61,11 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
    public SuuntoCloudDownloader() {
-      super("SUUNTO", Messages.VendorName_Suunto_Routes, "DESCRIPTION", "URL"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
+      super("SUUNTO", //$NON-NLS-1$
+            Messages.VendorName_Suunto_Workouts,
+            Messages.Suunto_Workouts_Description,
+            Activator.getImageAbsoluteFilePath(Messages.Image__SuuntoApp_Icon));
    }
 
    private static void logDownloadResult(final WorkoutDownload workoutdownload) {}

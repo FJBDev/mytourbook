@@ -394,6 +394,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             final List<String> stateDeviceFolderHistoryItems = currentDeviceFolderHistoryItems != null ? new ArrayList<>(Arrays.asList(
                   currentDeviceFolderHistoryItems))
                   : new ArrayList<>();
+
+            //todo fb, make sure it doesnt exist to not add it twice or more!
             stateDeviceFolderHistoryItems.add(downloadFolder);
             _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS,
                   stateDeviceFolderHistoryItems.toArray(new String[stateDeviceFolderHistoryItems.size()]));
