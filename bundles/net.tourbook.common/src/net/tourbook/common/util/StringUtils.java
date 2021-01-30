@@ -67,6 +67,6 @@ public final class StringUtils {
          return fileName;
       }
 
-      return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+      return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "-");
    }
 }

@@ -40,7 +40,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -50,18 +52,21 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   //
+// SET_FORMATTING_OFF
    private static final String PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
    private static final String PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
    private static final String PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
    private static final String PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL    = net.tourbook.cloud.Messages.Pref_CloudConnectivity_ExpiresAt_Label;
    private static final String PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
    private static final String PREF_CLOUDCONNECTIVITY_WEBPAGE_LABEL      = net.tourbook.cloud.Messages.Pref_CloudConnectivity_WebPage_Label;
-   //
+   private static final String   APP_BTN_BROWSE                           = net.tourbook.Messages.app_btn_browse;
+   private static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE         = net.tourbook.Messages.dialog_export_dir_dialog_message;
+   private static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT            = net.tourbook.Messages.dialog_export_dir_dialog_text;
+// SET_FORMATTING_ON
 
-   public static final String      ID            = "net.tourbook.cloud.PrefPageSuunto";        //$NON-NLS-1$
+   public static final String      ID            = "net.tourbook.cloud.PrefPageSuunto";               //$NON-NLS-1$
 
-   public static final String      ClientId      = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";     //$NON-NLS-1$
+   public static final String      ClientId      = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";            //$NON-NLS-1$
 
    public static final int         CALLBACK_PORT = 4919;
 
@@ -79,6 +84,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Label                   _labelExpiresAt_Value;
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
+   private Combo                   _comboPath;
 
    @Override
    protected void createFieldEditors() {
@@ -119,6 +125,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       createUI_10_Authorize(parent);
       createUI_20_TokensInformation(parent);
+      createUI_30_Misc(parent);
 
       return parent;
    }
@@ -197,6 +204,43 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
    }
 
+   private void createUI_30_Misc(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      {
+         /*
+          * Display the Suunto App action in the status bar instead of a message dialog
+          */
+         final Button btnDisplayActionsInStatusBar = new Button(container, SWT.CHECK);
+         setButtonLayoutData(btnDisplayActionsInStatusBar);
+         btnDisplayActionsInStatusBar.setText("Display Suunto App actions in the status bar instead of a message dialog");
+         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).span(2, 1).applyTo(btnDisplayActionsInStatusBar);
+      }
+      {
+         /*
+          * combo: path
+          */
+         _comboPath = new Combo(container, SWT.SINGLE | SWT.BORDER);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboPath);
+         _comboPath.setEnabled(false);
+
+         /*
+          * button: browse
+          */
+         final Button btnSelectDirectory = new Button(container, SWT.PUSH);
+         btnSelectDirectory.setText(APP_BTN_BROWSE);
+         btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+               onSelectBrowseDirectory();
+            }
+         });
+         setButtonLayoutData(btnSelectDirectory);
+      }
+   }
+
    @Override
    public void init(final IWorkbench workbench) {
       //Not needed
@@ -231,6 +275,21 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             "https://cloudapi-oauth.suunto.com/oauth/authorize?response_type=code&client_id=" + ClientId + "&redirect_uri=http://localhost:4919"));//$NON-NLS-1$ //$NON-NLS-2$
    }
 
+   private void onSelectBrowseDirectory() {
+
+      final DirectoryDialog dialog = new DirectoryDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
+      dialog.setText(DIALOG_EXPORT_DIR_DIALOG_TEXT);
+      dialog.setMessage(DIALOG_EXPORT_DIR_DIALOG_MESSAGE);
+
+      final String selectedDirectoryName = dialog.open();
+
+      if (selectedDirectoryName != null) {
+
+         setErrorMessage(null);
+         _comboPath.setText(selectedDirectoryName);
+      }
+   }
+
    @Override
    public boolean performCancel() {
 
@@ -252,6 +311,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       updateTokensInformationGroup();
 
+      _comboPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER));
+
       super.performDefaults();
    }
 
@@ -271,10 +332,17 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          if (_server != null) {
             _server.stopCallBackServer();
          }
-         final String[] ffdsw = _state.getArray(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS);
-         final List<String> titi = new ArrayList<>(Arrays.asList(ffdsw));
-         titi.add("file:///home/frederic/Downloads/S9FilesToImport");
-         _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS, titi.toArray(new String[titi.size()]));
+
+         final String downloadFolder = _comboPath.getText();
+         _prefStore.setValue(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER, downloadFolder);
+         if (StringUtils.hasContent(downloadFolder)) {
+
+            final List<String> stateDeviceFolderHistoryItems = new ArrayList<>(Arrays.asList(_state.getArray(
+                  DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS)));
+            stateDeviceFolderHistoryItems.add(downloadFolder);
+            _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS,
+                  stateDeviceFolderHistoryItems.toArray(new String[stateDeviceFolderHistoryItems.size()]));
+         }
       }
 
       return isOK;
@@ -289,6 +357,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
       updateTokensInformationGroup();
+
+      _comboPath.setText(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER));
    }
 
    private void updateTokensInformationGroup() {

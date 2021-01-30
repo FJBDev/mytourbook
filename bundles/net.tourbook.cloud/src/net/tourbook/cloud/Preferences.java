@@ -41,4 +41,5 @@ public final class Preferences {
    public static final String SUUNTO_REFRESHTOKEN               = "SUUNTO_REFRESHTOKEN";               //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN     = "SUUNTO_ACCESSTOKEN_EXPIRES_IN";     //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME = "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
+   public static final String SUUNTO_FILE_DOWNLOAD_FOLDER       = "SUUNTO_FILE_DOWNLOAD_FOLDER";       //$NON-NLS-1$
 }

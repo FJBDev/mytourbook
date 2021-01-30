@@ -17,7 +17,6 @@ package net.tourbook.cloud.suunto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +25,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -104,8 +105,8 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
                fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1");
             }
 
-            final String filePath = "C:\\Users\\frederic\\Desktop\\" + StringUtils.sanitizeFileName(fileName);
-            final FileOutputStream fos = new FileOutputStream(new File(filePath));
+            final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
+            final FileOutputStream fos = new FileOutputStream(filePath.toFile());
             int inByte;
             while ((inByte = response.body().read()) != -1) {
                fos.write(inByte);
@@ -113,7 +114,6 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             response.body().close();
             fos.close();
 
-            return;
          }
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
