@@ -34,4 +34,6 @@ public class OAuth2Constants {
    public static final String PARAM_GRANT_TYPE         = "grant_type";                                         //$NON-NLS-1$
 
    public static final String PARAM_REDIRECT_URI       = "redirect_uri";                                       //$NON-NLS-1$
+
+   public static final String PARAM_RESPONSE_TYPE      = "response_type";                                      //$NON-NLS-1$
 }

@@ -41,6 +41,6 @@ public final class Preferences {
    public static final String SUUNTO_REFRESHTOKEN               = "SUUNTO_REFRESHTOKEN";               //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN     = "SUUNTO_ACCESSTOKEN_EXPIRES_IN";     //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME = "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
-   public static final String SUUNTO_FILE_DOWNLOAD_FOLDER       = "SUUNTO_FILE_DOWNLOAD_FOLDER";       //$NON-NLS-1$
-   public static final String SUUNTO_FILE_DOWNLOAD_SINCE_DATE   = "SUUNTO_FILE_DOWNLOAD_SINCE_DATE";   //$NON-NLS-1$
+   public static final String SUUNTO_WORKOUT_DOWNLOAD_FOLDER    = "SUUNTO_DOWNLOAD_FOLDER";            //$NON-NLS-1$
+   public static final String SUUNTO_WORKOUT_FILTER_SINCE_DATE  = "SUUNTO_WORKOUT_FILTER_SINCE_DATE";  //$NON-NLS-1$
 }

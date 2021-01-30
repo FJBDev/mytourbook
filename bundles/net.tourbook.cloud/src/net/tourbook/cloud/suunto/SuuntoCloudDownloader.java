@@ -100,16 +100,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       //todo fb if token not valid, do not continue and do the same for strava
       //if the preferences have not been set (tokens, folder)
-      if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
+      if (!isReady())
       {
-
          final int returnResult = PreferencesUtil.createPreferenceDialogOn(
                Display.getCurrent().getActiveShell(),
                PrefPageSuunto.ID,
                null,
                null).open();
 
-         if (returnResult != 0) {
+         if (returnResult != 0) {// The OK button was not clicked
             return;
          }
       }
@@ -140,9 +139,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             newWorkouts.add(suuntoWorkout);
          }
 
-         // async download of the files
          downloadFiles(newWorkouts);
-
       });
 
    }
@@ -151,13 +148,18 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
    }
 
+   private String getDownloadFolder() {
+      return _prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER);
+   }
+
    private String getRefreshToken() {
       return _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN);
    }
 
    @Override
    protected boolean isReady() {
-      return StringUtils.hasContent(getAccessToken() + getRefreshToken());
+      return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getRefreshToken()) &&
+            StringUtils.hasContent(getDownloadFolder());
    }
 
    private List<Long> retrieveAllTourStartTimes() {
@@ -183,9 +185,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    private Workouts retrieveWorkoutsList() {
 
-      final var toto = _prefStore.getLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE);
+      final var sinceDateFilter = _prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE);
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=" + toto))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=" + sinceDateFilter))//$NON-NLS-1$
             .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .GET()
             .build();
@@ -194,6 +196,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
+
             return new ObjectMapper().readValue(response.body(), Workouts.class);
          }
       } catch (IOException | InterruptedException e) {
@@ -218,12 +221,13 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       final WorkoutDownload workoutDownload = new WorkoutDownload(workoutKey);
 
       final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
+
       String fileName = UI.EMPTY_STRING;
       if (contentDisposition.isPresent()) {
          fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
       }
 
-      final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
+      final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
 
       try (InputStream inputStream = response.body();
             FileOutputStream fileOutputStream = new FileOutputStream(filePath.toFile())) {

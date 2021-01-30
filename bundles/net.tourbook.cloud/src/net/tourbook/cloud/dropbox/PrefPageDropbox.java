@@ -255,8 +255,8 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       Display.getDefault().syncExec(() -> WEB.openUrl(
             "https://www.dropbox.com/oauth2/authorize?" + //$NON-NLS-1$
-                  OAuth2Constants.PARAM_CLIENT_ID + UI.SYMBOL_EQUAL + ClientId +
-                  "&response_type=" + OAuth2Constants.PARAM_CODE + //$NON-NLS-1$
+                  OAuth2Constants.PARAM_CLIENT_ID + '=' + ClientId +
+                  '&' + OAuth2Constants.PARAM_RESPONSE_TYPE + '=' + OAuth2Constants.PARAM_CODE +
                   "&" + OAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + DropboxClient.DropboxCallbackUrl + //$NON-NLS-1$
                   "&code_challenge=" + codeChallenge + //$NON-NLS-1$
                   "&code_challenge_method=S256&token_access_type=offline") //$NON-NLS-1$

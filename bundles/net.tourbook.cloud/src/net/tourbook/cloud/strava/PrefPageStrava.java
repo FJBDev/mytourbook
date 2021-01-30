@@ -254,8 +254,9 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       }
 
       Display.getDefault().syncExec(() -> WEB.openUrl(
-            "http://www.strava.com/oauth/authorize?client_id=" + ClientId //$NON-NLS-1$
-                  + "&response_type=" + OAuth2Constants.PARAM_CODE + //$NON-NLS-1$
+            "http://www.strava.com/oauth/authorize?" + //$NON-NLS-1$
+                  OAuth2Constants.PARAM_RESPONSE_TYPE + '=' + OAuth2Constants.PARAM_CODE +
+                  '&' + OAuth2Constants.PARAM_CLIENT_ID + '=' + ClientId +
                   "&" + OAuth2Constants.PARAM_REDIRECT_URI + "=http://localhost:" + CALLBACK_PORT + //$NON-NLS-1$ //$NON-NLS-2$
                   "&scope=read,activity:write")); //$NON-NLS-1$
    }
