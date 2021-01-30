@@ -471,7 +471,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
    private Menu                          _tableContextMenu;
 
-   private List<TourbookCloudDownloader> cloudDownloaderList = CloudDownloaderManager.getCloudDownloaderList();
+   private List<TourbookCloudDownloader> _cloudDownloaderList = CloudDownloaderManager.getCloudDownloaderList();
 
    private class ImportComparator extends ViewerComparator {
 
@@ -2095,7 +2095,8 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                (HTTP_DUMMY + HREF_ACTION_OLD_UI),
                null);
 
-         for (final var cloudDownloader : cloudDownloaderList) {
+         for (final var cloudDownloader : _cloudDownloaderList) {
+
             createHTML_92_TileAction(
                   sb,
                   cloudDownloader.getName(),
@@ -4244,7 +4245,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       final String[] locationParts = location.split(HREF_TOKEN);
 
       if (locationParts.length > 1) {
-//todo fb
+
          // finalize loading of the browser page and then start the action
          _browser.getDisplay().asyncExec(new Runnable() {
             @Override
@@ -4266,10 +4267,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private void onBrowser_LocationChanging_Runnable(final String[] locationParts) {
 
       final String hrefAction = locationParts[1];
-//todo fb
 
-      //if action string is contained in one of the cloud files downaloder
-      // cloudFilesDownloader.importFiles()
       if (ACTION_DEVICE_IMPORT.equals(hrefAction)) {
 
          final long tileId = Long.parseLong(locationParts[2]);
@@ -4300,7 +4298,9 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          onSelectUI_Old();
       } else {
-         for (final var cloudDownloader : cloudDownloaderList) {
+
+         for (final var cloudDownloader : _cloudDownloaderList) {
+
             if (cloudDownloader.getId().equals(hrefAction)) {
                cloudDownloader.downloadTours();
             }

@@ -90,33 +90,6 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       workoutDownloads.stream().map(CompletableFuture::join).forEach(SuuntoCloudDownloader::logDownloadResult);
 
-//      final String workoutKey = newWorkouts.get(0).workoutKey;
-//      final HttpRequest request = HttpRequest.newBuilder()
-//            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
-//            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
-//            .GET()
-//            .build();
-//
-//      try {
-//         final HttpResponse<InputStream> response = _httpClient.send(request,
-//               HttpResponse.BodyHandlers.ofInputStream());
-//
-//         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
-//
-//            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
-//            String fileName = UI.EMPTY_STRING;
-//            if (contentDisposition.isPresent()) {
-//               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
-//            }
-//
-//            writeFileToFolder(response.body(), fileName);
-//
-//         }
-//      } catch (IOException | InterruptedException e) {
-//         StatusUtil.log(e);
-//         Thread.currentThread().interrupt();
-//      }
-
    }
 
    @Override
@@ -232,9 +205,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final CompletableFuture<WorkoutDownload> workoutDownload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(response -> writeFileToFolder(workoutKey, response))
-            .exceptionally(e -> {
-               return new WorkoutDownload(workoutKey);
-            });
+            .exceptionally(e -> new WorkoutDownload(workoutKey));
 
       return workoutDownload;
    }
@@ -258,7 +229,6 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          while ((inByte = inputStream.read()) != -1) {
             fileOutputStream.write(inByte);
          }
-         inputStream.close();
 
       } catch (final IOException e) {
          StatusUtil.log(e);

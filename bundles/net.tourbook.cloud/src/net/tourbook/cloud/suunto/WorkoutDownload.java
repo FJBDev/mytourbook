@@ -18,7 +18,7 @@ package net.tourbook.cloud.suunto;
 public class WorkoutDownload {
 
    private String  _workoutKey;
-   private boolean _downloaded;
+   private boolean _successfullyDownloaded;
    private String  _absoluteFilePath;
 
    public WorkoutDownload(final String workoutKey) {
@@ -32,7 +32,7 @@ public class WorkoutDownload {
    }
 
    public void setDownloaded(final boolean downloaded) {
-      _downloaded = downloaded;
+      _successfullyDownloaded = downloaded;
    }
 
 }
