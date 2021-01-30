@@ -100,6 +100,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          useActivityType = true;
          activityName = tourType.getName();
       }
+      //todo fb set activity type ?
       _tourExporter.setUseActivityType(useActivityType);
       _tourExporter.setActivityType(activityName);
 
@@ -162,19 +163,20 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes()));
 
       try {
-      final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
-            .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$     .timeout(Duration.ofMinutes(5))
-            .POST(BodyPublishers.ofString(payload.toString()))
-            .build();
+         final HttpRequest request = HttpRequest.newBuilder()
+               .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/route/import"))//$NON-NLS-1$
+               .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
+               .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken()) //     .timeout(Duration.ofMinutes(5))
+               .POST(BodyPublishers.ofString(payload.toString()))
+               .build();
 
-      return sendAsyncRequest(tourStartTimeMS, request);
-   } catch (final Exception e) {
-      System.out.println(e.getMessage());
+         return sendAsyncRequest(tourStartTimeMS, request);
 
-   }
-   return null;
+      } catch (final Exception e) {
+         StatusUtil.log(e);
+      }
+
+      return null;
    }
 
    private void uploadRoutes(final Map<Long, String> toursWithGpsSeries) {

@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
@@ -64,133 +65,108 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    }
 
-   //todo fb put the common method in a common cloud utils file so they can be resued and we can remove duplicated code
-//
-//   private static void logUploadResult(final String activityupload1) {
-//      System.out.println(activityupload1);
-//   }
+   private static void logDownloadResult(final WorkoutDownload workoutdownload) {}
 
-//   private String ConvertResponseToUpload(final HttpResponse<String> name) {
-//
-//      //todo fb in the server.js, return verbatim what suunto returns
-//      System.out.println(name.body());
-//
-//      final ObjectMapper mapper = new ObjectMapper();
-//      Workout activityUpload = null;
-//      try {
-//         activityUpload = mapper.readValue(name.body(), Workout.class);
-//      } catch (final JsonProcessingException e) {
-//         e.printStackTrace();
-//      }
-//return activityUpload.toString();
-//   }
+   private CompletableFuture<WorkoutDownload> downloadFile(final String workoutKey) {
 
-   private void downloadFiles(final List<Payload> newWorkouts) {
-
-      final String workoutKey = newWorkouts.get(0).workoutKey;
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
+            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .GET()
             .build();
 
-      try {
-         final HttpResponse<InputStream> response = _httpClient.send(request,
-               HttpResponse.BodyHandlers.ofInputStream());
+      return sendAsyncRequest(workoutKey, request);
+   }
 
-         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+   private void downloadFiles(final List<Payload> newWorkouts) {
 
-            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
-            String fileName = UI.EMPTY_STRING;
-            if (contentDisposition.isPresent()) {
-               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
-            }
 
-            final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
-            final FileOutputStream fos = new FileOutputStream(filePath.toFile());
-            int inByte;
-            while ((inByte = response.body().read()) != -1) {
-               fos.write(inByte);
-            }
-            response.body().close();
-            fos.close();
+      final List<CompletableFuture<WorkoutDownload>> workoutDownloads = new ArrayList<>();
 
-         }
-      } catch (IOException | InterruptedException e) {
-         StatusUtil.log(e);
-         Thread.currentThread().interrupt();
+      for (final Payload payload : newWorkouts) {
+
+         workoutDownloads.add(downloadFile(payload.workoutKey));
       }
+
+      workoutDownloads.stream().map(CompletableFuture::join).forEach(SuuntoCloudDownloader::logDownloadResult);
+
+//      final String workoutKey = newWorkouts.get(0).workoutKey;
+//      final HttpRequest request = HttpRequest.newBuilder()
+//            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
+//            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+//            .GET()
+//            .build();
+//
+//      try {
+//         final HttpResponse<InputStream> response = _httpClient.send(request,
+//               HttpResponse.BodyHandlers.ofInputStream());
+//
+//         if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+//
+//            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
+//            String fileName = UI.EMPTY_STRING;
+//            if (contentDisposition.isPresent()) {
+//               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
+//            }
+//
+//            writeFileToFolder(response.body(), fileName);
+//
+//         }
+//      } catch (IOException | InterruptedException e) {
+//         StatusUtil.log(e);
+//         Thread.currentThread().interrupt();
+//      }
 
    }
 
    @Override
    public void downloadTours() {
 
-               //todo fb if token not valid, do not continue and do the same for strava
-               //if the preferences have not been set (tokens, folder)
-               if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
-               {
+      //todo fb if token not valid, do not continue and do the same for strava
+      //if the preferences have not been set (tokens, folder)
+      if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
+      {
 
-                  final int returnResult = PreferencesUtil.createPreferenceDialogOn(
-                        Display.getCurrent().getActiveShell(),
-                        PrefPageSuunto.ID,
-                        null,
-                        null).open();
+         final int returnResult = PreferencesUtil.createPreferenceDialogOn(
+               Display.getCurrent().getActiveShell(),
+               PrefPageSuunto.ID,
+               null,
+               null).open();
 
-                  if (returnResult != 0) {
-                     return;
-                  }
-               }
+         if (returnResult != 0) {
+            return;
+         }
+      }
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
-                  //if the tokens are not valid
-                  //display a message for the user
-                  if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
-                     return;
-                  }
+         //if the tokens are not valid
+         //display a message for the user
+         if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+            return;
+         }
 
-               //Get the list of workouts
-               final Workouts workouts = retrieveWorkoutsList();
+         //Get the list of workouts
+         final Workouts workouts = retrieveWorkoutsList();
 
-               if (workouts.payload.size() == 0) {
-                  return;
-               }
+         if (workouts.payload.size() == 0) {
+            return;
+         }
 
-               // get all the startTimes
-               //something like this or is there already a "getAllTours" functio ?
-               final List<Long> tourStartTimes = new ArrayList<>();
-               try (Connection conn = TourDatabase.getInstance().getConnection();
-                     Statement stmt = conn.createStatement()) {
+         final List<Long> tourStartTimes = retrieveAllTourStartTimes();
 
-                  final String sqlQuery = "SELECT tourStartTime FROM " + TourDatabase.TABLE_TOUR_DATA; //$NON-NLS-1$
+         //Identifying the workouts that have not yet been imported in the tour database
+         final List<Payload> newWorkouts = new ArrayList<>();
+         for (final Payload suuntoWorkout : workouts.payload) {
 
-                  final ResultSet result = stmt.executeQuery(sqlQuery);
+            if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
+               continue;
+            }
 
-                  while (result.next()) {
+            newWorkouts.add(suuntoWorkout);
+         }
 
-                     tourStartTimes.add(result.getLong(1));
-                  }
+         // async download of the files
+         downloadFiles(newWorkouts);
 
-               } catch (final SQLException e) {
-                  SQL.showException(e);
-               }
-
-               System.out.println(tourStartTimes.size());
-
-               final List<Payload> newWorkouts = new ArrayList<>();
-               //loop all the starttimes
-               for (final Payload suuntoWorkout : workouts.payload) {
-
-                  if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
-                     continue;
-                  }
-
-                  newWorkouts.add(suuntoWorkout);
-               }
-
-               // async download of the files
-               downloadFiles(newWorkouts);
-
-               //
       });
 
    }
@@ -208,12 +184,33 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
+   private List<Long> retrieveAllTourStartTimes() {
+
+      final List<Long> tourStartTimes = new ArrayList<>();
+      try (Connection conn = TourDatabase.getInstance().getConnection();
+            Statement stmt = conn.createStatement()) {
+
+         final String sqlQuery = "SELECT tourStartTime FROM " + TourDatabase.TABLE_TOUR_DATA; //$NON-NLS-1$
+
+         final ResultSet result = stmt.executeQuery(sqlQuery);
+
+         while (result.next()) {
+
+            tourStartTimes.add(result.getLong(1));
+         }
+
+      } catch (final SQLException e) {
+         SQL.showException(e);
+      }
+      return tourStartTimes;
+   }
+
    private Workouts retrieveWorkoutsList() {
 
       final var toto = _prefStore.getLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE);
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=" + toto))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()) //$NON-NLS-1$
+            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .GET()
             .build();
 
@@ -229,6 +226,48 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       }
 
       return new Workouts();
+   }
+
+   private CompletableFuture<WorkoutDownload> sendAsyncRequest(final String workoutKey, final HttpRequest request) {
+
+      final CompletableFuture<WorkoutDownload> workoutDownload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
+            .thenApply(response -> writeFileToFolder(workoutKey, response))
+            .exceptionally(e -> {
+               return new WorkoutDownload(workoutKey);
+            });
+
+      return workoutDownload;
+   }
+
+   private WorkoutDownload writeFileToFolder(final String workoutKey, final HttpResponse<InputStream> response) {
+
+      final WorkoutDownload workoutDownload = new WorkoutDownload(workoutKey);
+
+      final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
+      String fileName = UI.EMPTY_STRING;
+      if (contentDisposition.isPresent()) {
+         fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
+      }
+
+      final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
+
+      try (InputStream inputStream = response.body();
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath.toFile())) {
+
+         int inByte;
+         while ((inByte = inputStream.read()) != -1) {
+            fileOutputStream.write(inByte);
+         }
+         inputStream.close();
+
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+         return workoutDownload;
+      }
+      workoutDownload.setAbsoluteFilePath(filePath.toAbsolutePath().toString());
+      workoutDownload.setDownloaded(true);
+
+      return workoutDownload;
    }
 
 //   @Override
