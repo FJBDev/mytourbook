@@ -242,7 +242,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          return workoutDownload;
       }
       workoutDownload.setAbsoluteFilePath(filePath.toAbsolutePath().toString());
-      workoutDownload.setDownloaded(true);
+      workoutDownload.setSuccessfullyDownloaded(true);
 
       return workoutDownload;
    }

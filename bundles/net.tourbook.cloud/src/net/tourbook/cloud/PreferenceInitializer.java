@@ -45,6 +45,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
       store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
       store.setDefault(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
+      store.setDefault(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
       store.setDefault(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, 1577836800000L);
 
    }

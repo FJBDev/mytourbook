@@ -71,6 +71,16 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
     * Display.getCurrent().timerExec(3000, () -> statusLineManager.setMessage(null));
     */
 
+   /*
+    * use this ? but that reinforces the dependency on the apache http library
+    * URIBuilder builder = new URIBuilder();
+    * builder.setScheme("http");
+    * builder.setHost("IP");
+    * builder.setPath("/foldername/1234");
+    * builder.addParameter("abc", "xyz");
+    * URL url = builder.build().toURL();
+    */
+
 // SET_FORMATTING_OFF
    private static final String   PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
    private static final String   PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
@@ -361,6 +371,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _comboPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
 
       setFilterSinceDate(_prefStore.getDefaultLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
+//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
 
       super.performDefaults();
    }
@@ -401,6 +412,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          }
 
          _prefStore.setValue(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, getFilterSinceDate());
+//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       }
 
       return isOK;
@@ -419,6 +431,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _comboPath.setText(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
 
       setFilterSinceDate(_prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
+//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
    }
 
    private void setFilterSinceDate(final long filterSinceDate) {

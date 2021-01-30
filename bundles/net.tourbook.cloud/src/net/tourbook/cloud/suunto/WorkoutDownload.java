@@ -24,14 +24,14 @@ public class WorkoutDownload {
    public WorkoutDownload(final String workoutKey) {
 
       _workoutKey = workoutKey;
-      setDownloaded(false);
+      setSuccessfullyDownloaded(false);
    }
 
    public void setAbsoluteFilePath(final String absoluteFilePath) {
       _absoluteFilePath = absoluteFilePath;
    }
 
-   public void setDownloaded(final boolean downloaded) {
+   public void setSuccessfullyDownloaded(final boolean downloaded) {
       _successfullyDownloaded = downloaded;
    }
 
