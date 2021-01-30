@@ -16,6 +16,7 @@
 package net.tourbook.cloud.suunto;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -272,15 +273,18 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    private long getSinceDateFilter() {
 
+      final int year = _dtDownloadSinceFilter.getYear();
+      final int month = _dtDownloadSinceFilter.getMonth() + 1;
+      final int day = _dtDownloadSinceFilter.getDay();
       return ZonedDateTime.of(
-            _dtDownloadSinceFilter.getYear(),
-            _dtDownloadSinceFilter.getMonth() + 1,
-            _dtDownloadSinceFilter.getDay(),
+            year,
+            month,
+            day,
             0,
             0,
             0,
             0,
-            TimeTools.getDefaultTimeZone()).toEpochSecond() * 1000;
+            ZoneId.of("Etc/GMT")).toEpochSecond() * 1000;
    }
 
    @Override
@@ -385,8 +389,11 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER, downloadFolder);
          if (StringUtils.hasContent(downloadFolder)) {
 
-            final List<String> stateDeviceFolderHistoryItems = new ArrayList<>(Arrays.asList(_state.getArray(
-                  DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS)));
+            final String[] currentDeviceFolderHistoryItems = _state.getArray(
+                  DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS);
+            final List<String> stateDeviceFolderHistoryItems = currentDeviceFolderHistoryItems != null ? new ArrayList<>(Arrays.asList(
+                  currentDeviceFolderHistoryItems))
+                  : new ArrayList<>();
             stateDeviceFolderHistoryItems.add(downloadFolder);
             _state.put(DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS,
                   stateDeviceFolderHistoryItems.toArray(new String[stateDeviceFolderHistoryItems.size()]));
@@ -412,7 +419,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       final LocalDate suuntoFileDownloadSinceDate = TimeTools.toLocalDate(_prefStore.getLong(Preferences.SUUNTO_FILE_DOWNLOAD_SINCE_DATE));
 
-      _dtDownloadSinceFilter.setDate(suuntoFileDownloadSinceDate.getYear(), suuntoFileDownloadSinceDate.getMonthValue(), suuntoFileDownloadSinceDate.getDayOfMonth());
+      _dtDownloadSinceFilter.setDate(suuntoFileDownloadSinceDate.getYear(),
+            suuntoFileDownloadSinceDate.getMonthValue() - 1,
+            suuntoFileDownloadSinceDate.getDayOfMonth());
    }
 
    private void updateTokensInformationGroup() {

@@ -60,7 +60,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
    public SuuntoCloudDownloader() {
-      super("SUUNTO", Messages.VendorName_Suunto_Routes, "DESCRIPTION", "URL"); //$NON-NLS-1$
+      super("SUUNTO", Messages.VendorName_Suunto_Routes, "DESCRIPTION", "URL"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
    }
 
@@ -100,10 +100,10 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK) {
 
-            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition");
+            final Optional<String> contentDisposition = response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
             String fileName = UI.EMPTY_STRING;
             if (contentDisposition.isPresent()) {
-               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1");
+               fileName = contentDisposition.get().replaceFirst("(?i)^.*filename=\"([^\"]+)\".*$", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_FILE_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
@@ -126,67 +126,71 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    @Override
    public void downloadTours() {
 
-      //todo fb if token not valid, do not continue and do the same for strava
-      //display a message for the user
-      if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
-      {
+               //todo fb if token not valid, do not continue and do the same for strava
+               //if the preferences have not been set (tokens, folder)
+               if (!SuuntoTokensRetrievalHandler.getValidTokens()) // The OK button was not clicked
+               {
 
-         final int returnResult = PreferencesUtil.createPreferenceDialogOn(
-               Display.getCurrent().getActiveShell(),
-               PrefPageSuunto.ID,
-               null,
-               null).open();
+                  final int returnResult = PreferencesUtil.createPreferenceDialogOn(
+                        Display.getCurrent().getActiveShell(),
+                        PrefPageSuunto.ID,
+                        null,
+                        null).open();
 
-         if (returnResult != 0) {
-            return;
-         }
-      }
-
+                  if (returnResult != 0) {
+                     return;
+                  }
+               }
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
+                  //if the tokens are not valid
+                  //display a message for the user
+                  if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+                     return;
+                  }
 
-         //Get the list of workouts
-         final Workouts workouts = retrieveWorkoutsList();
+               //Get the list of workouts
+               final Workouts workouts = retrieveWorkoutsList();
 
-         if (workouts.payload.size() == 0) {
-            return;
-         }
+               if (workouts.payload.size() == 0) {
+                  return;
+               }
 
-         // get all the startTimes
-         //something like this or is there already a "getAllTours" functio ?
-         final List<Long> tourStartTimes = new ArrayList<>();
-         try (Connection conn = TourDatabase.getInstance().getConnection();
-               Statement stmt = conn.createStatement()) {
+               // get all the startTimes
+               //something like this or is there already a "getAllTours" functio ?
+               final List<Long> tourStartTimes = new ArrayList<>();
+               try (Connection conn = TourDatabase.getInstance().getConnection();
+                     Statement stmt = conn.createStatement()) {
 
-            final String sqlQuery = "SELECT tourStartTime FROM " + TourDatabase.TABLE_TOUR_DATA; //$NON-NLS-1$
+                  final String sqlQuery = "SELECT tourStartTime FROM " + TourDatabase.TABLE_TOUR_DATA; //$NON-NLS-1$
 
-            final ResultSet result = stmt.executeQuery(sqlQuery);
+                  final ResultSet result = stmt.executeQuery(sqlQuery);
 
-            while (result.next()) {
+                  while (result.next()) {
 
-               tourStartTimes.add(result.getLong(1));
-            }
+                     tourStartTimes.add(result.getLong(1));
+                  }
 
-         } catch (final SQLException e) {
-            SQL.showException(e);
-         }
+               } catch (final SQLException e) {
+                  SQL.showException(e);
+               }
 
-         System.out.println(tourStartTimes.size());
+               System.out.println(tourStartTimes.size());
 
-         final List<Payload> newWorkouts = new ArrayList<>();
-         //loop all the starttimes
-         for (final Payload suuntoWorkout : workouts.payload) {
+               final List<Payload> newWorkouts = new ArrayList<>();
+               //loop all the starttimes
+               for (final Payload suuntoWorkout : workouts.payload) {
 
-            if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
-               continue;
-            }
+                  if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
+                     continue;
+                  }
 
-            newWorkouts.add(suuntoWorkout);
-         }
+                  newWorkouts.add(suuntoWorkout);
+               }
 
-         // async download of the files
-         downloadFiles(newWorkouts);
+               // async download of the files
+               downloadFiles(newWorkouts);
 
-         //
+               //
       });
 
    }
