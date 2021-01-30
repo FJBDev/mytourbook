@@ -2643,7 +2643,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             final Object firstElement = ((IStructuredSelection) _tourViewer.getSelection()).getFirstElement();
 
-            if ((firstElement != null) && (firstElement instanceof TourData)) {
+            if (firstElement instanceof TourData) {
                TourManager.getInstance().tourDoubleClickAction(RawDataView.this, _tourDoubleClickState);
             }
          }
