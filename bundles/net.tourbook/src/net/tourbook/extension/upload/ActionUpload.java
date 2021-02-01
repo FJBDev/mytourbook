@@ -176,7 +176,7 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    private void createActions() {
 
-      if (!_uploadTourActions.isEmpty()) {
+      if (_uploadTourActions.size() > 0) {
          return;
       }
 
@@ -185,6 +185,7 @@ public class ActionUpload extends Action implements IMenuCreator {
 
    @Override
    public void dispose() {
+
       if (_menu == null) {
          return;
       }
