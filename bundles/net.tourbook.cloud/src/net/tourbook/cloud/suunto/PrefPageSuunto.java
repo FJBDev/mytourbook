@@ -84,7 +84,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private static final String   APP_BTN_BROWSE                            = net.tourbook.Messages.app_btn_browse;
    private static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE          = net.tourbook.Messages.dialog_export_dir_dialog_message;
    private static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT             = net.tourbook.Messages.dialog_export_dir_dialog_text;
-// SET_FORMATTING_ON
+   // SET_FORMATTING_ON
    public static final String      ID                                        = "net.tourbook.cloud.PrefPageSuunto";                                  //$NON-NLS-1$
 
    public static final String      ClientId                                  = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                               //$NON-NLS-1$

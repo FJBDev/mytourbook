@@ -68,6 +68,12 @@ import org.json.JSONObject;
 
 public class StravaUploader extends TourbookCloudUploader {
 
+   // SET_FORMATTING_OFF
+   private static final String   ICON_CHECK          = net.tourbook.cloud.Messages.Icon_Check;
+   private static final String   ICON_HOURGLASS      = net.tourbook.cloud.Messages.Icon_Hourglass;
+   private static final String   LOG_CLOUDACTION_END = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   // SET_FORMATTING_ON
+
    private static final String     StravaBaseUrl = "https://www.strava.com/api/v3";                                      //$NON-NLS-1$
 
    private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
@@ -405,7 +411,7 @@ public class StravaUploader extends TourbookCloudUploader {
                   numberOfTours * 2);
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
-                  Messages.UploadToursToStrava_Icon_Hourglass,
+                  ICON_HOURGLASS,
                   UI.EMPTY_STRING));
 
             final Map<String, TourData> toursWithTimeSeries = new HashMap<>();
@@ -441,8 +447,8 @@ public class StravaUploader extends TourbookCloudUploader {
             }
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
-                  Messages.UploadToursToStrava_Icon_Check,
-                  Messages.UploadToursToStrava_Icon_Hourglass));
+                  ICON_CHECK,
+                  ICON_HOURGLASS));
 
             tryRenewTokens();
 
@@ -451,8 +457,8 @@ public class StravaUploader extends TourbookCloudUploader {
             monitor.worked(toursWithTimeSeries.size() + manualTours.size());
 
             monitor.subTask(NLS.bind(Messages.UploadToursToStrava_SubTask,
-                  Messages.UploadToursToStrava_Icon_Check,
-                  Messages.UploadToursToStrava_Icon_Check));
+                  ICON_CHECK,
+                  ICON_CHECK));
          }
 
       };
@@ -465,7 +471,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
          new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, false, runnable);
 
-         TourLogManager.logTitle(String.format(Messages.Log_UploadToursToStrava_005_End, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.logTitle(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
 
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),

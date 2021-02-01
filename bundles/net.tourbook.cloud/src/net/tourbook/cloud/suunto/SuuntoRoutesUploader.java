@@ -60,6 +60,12 @@ import org.json.JSONObject;
 
 public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
+   // SET_FORMATTING_OFF
+   private static final String   ICON_CHECK          = net.tourbook.cloud.Messages.Icon_Check;
+   private static final String   ICON_HOURGLASS      = net.tourbook.cloud.Messages.Icon_Hourglass;
+   private static final String   LOG_CLOUDACTION_END = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   // SET_FORMATTING_ON
+
    private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static IPreferenceStore _prefStore    = Activator.getDefault().getPreferenceStore();
    private static TourExporter     _tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE);
@@ -205,11 +211,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask(NLS.bind("Messages.UploadToursToStrava_Task", numberOfTours, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
+            monitor.beginTask(NLS.bind(Messages.UploadToursToSuunto_Task, numberOfTours, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
                   numberOfTours * 2);
 
-            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-                  "Messages.UploadToursToStrava_Icon_Hourglass",
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
+                  ICON_HOURGLASS,
                   UI.EMPTY_STRING));
 
             final Map<Long, String> toursWithGpsSeries = new HashMap<>();
@@ -221,7 +227,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
                   final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
-                  TourLogManager.logError(NLS.bind("Messages.Log_UploadToursToStrava_002_NoTourTitle", tourDate));
+                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToSuunto_002_NoGpsCoordinate, tourDate));
                   monitor.worked(2);
 
                } else {
@@ -232,9 +238,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                }
             }
 
-            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-                  "Messages.UploadToursToStrava_Icon_Check",
-                  "Messages.UploadToursToStrava_Icon_Hourglass"));
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
+                  ICON_CHECK,
+                  ICON_HOURGLASS));
 
             //todo fb if token not valid, do not continue and do the same for strava
             SuuntoTokensRetrievalHandler.getValidTokens();
@@ -243,9 +249,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
             monitor.worked(toursWithGpsSeries.size());
 
-            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-                  "Messages.UploadToursToStrava_Icon_Check",
-                  "Messages.UploadToursToStrava_Icon_Check"));
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
+                  ICON_CHECK,
+                  ICON_CHECK));
          }
       };
 
@@ -253,11 +259,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          final long start = System.currentTimeMillis();
 
          TourLogManager.showLogView();
-         TourLogManager.logTitle(NLS.bind("Messages.Log_UploadToursToStrava_001_Start", numberOfTours));
+         TourLogManager.logTitle(NLS.bind(Messages.Log_UploadToursToSuunto_001_Start, numberOfTours));
 
          new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, false, runnable);
 
-         TourLogManager.logTitle(String.format("Messages.Log_UploadToursToStrava_005_End", (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.logTitle(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
 
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
