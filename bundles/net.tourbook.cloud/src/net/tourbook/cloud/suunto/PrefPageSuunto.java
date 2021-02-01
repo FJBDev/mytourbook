@@ -71,17 +71,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
     * Display.getCurrent().timerExec(3000, () -> statusLineManager.setMessage(null));
     */
 
-   /*
-    * use this ? but that reinforces the dependency on the apache http library
-    * URIBuilder builder = new URIBuilder();
-    * builder.setScheme("http");
-    * builder.setHost("IP");
-    * builder.setPath("/foldername/1234");
-    * builder.addParameter("abc", "xyz");
-    * URL url = builder.build().toURL();
-    */
-
-// SET_FORMATTING_OFF
+   // SET_FORMATTING_OFF
    private static final String   PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
    private static final String   PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
    private static final String   PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
@@ -92,15 +82,15 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE          = net.tourbook.Messages.dialog_export_dir_dialog_message;
    private static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT             = net.tourbook.Messages.dialog_export_dir_dialog_text;
 // SET_FORMATTING_ON
+   public static final String      ID                                        = "net.tourbook.cloud.PrefPageSuunto";                                  //$NON-NLS-1$
 
-   public static final String      ID            = "net.tourbook.cloud.PrefPageSuunto";               //$NON-NLS-1$
+   public static final String      ClientId                                  = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                               //$NON-NLS-1$
 
-   public static final String      ClientId      = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";            //$NON-NLS-1$
+   public static final int         CALLBACK_PORT                             = 4919;
 
-   public static final int         CALLBACK_PORT = 4919;
+   private IPreferenceStore        _prefStore                                = Activator.getDefault().getPreferenceStore();
 
-   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
-   private final IDialogSettings   _state        = TourbookPlugin.getState(DialogEasyImportConfig.ID);
+   private final IDialogSettings   _state                                    = TourbookPlugin.getState(DialogEasyImportConfig.ID);
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -113,7 +103,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Label                   _labelExpiresAt_Value;
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
-   private Combo                   _comboPath;
+   private Combo                   _comboFolderPath;
+   private Button                  _btnSelectDirectory;
+   private Button                  _chkUseDateFilter;
    private DateTime                _dtFilterSince;
 
    @Override
@@ -122,6 +114,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       createUI();
 
       restoreState();
+
+      enableControls();
 
       _prefChangeListener = event -> {
 
@@ -139,7 +133,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
                   _group.redraw();
 
-                  updateTokensInformationGroup();
+                  enableControls();
                }
 
                _server.stopCallBackServer();
@@ -155,7 +149,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       createUI_10_Authorize(parent);
       createUI_20_TokensInformation(parent);
-      createUI_30_Misc(parent);
+      createUI_30_DownloadFolderPath(parent);
+      createUI_40_Misc(parent);
 
       return parent;
    }
@@ -234,7 +229,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
    }
 
-   private void createUI_30_Misc(final Composite parent) {
+   private void createUI_30_DownloadFolderPath(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
@@ -244,31 +239,47 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             /*
              * combo: path
              */
-            _comboPath = new Combo(container, SWT.SINGLE | SWT.BORDER);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboPath);
-            _comboPath.setEnabled(false);
+            _comboFolderPath = new Combo(container, SWT.SINGLE | SWT.BORDER);
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboFolderPath);
+            _comboFolderPath.setEnabled(false);
 
             /*
              * button: browse
              */
-            final Button btnSelectDirectory = new Button(container, SWT.PUSH);
-            btnSelectDirectory.setText(APP_BTN_BROWSE);
-            btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
+            _btnSelectDirectory = new Button(container, SWT.PUSH);
+            _btnSelectDirectory.setText(APP_BTN_BROWSE);
+            _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
                   onSelectBrowseDirectory();
                }
             });
-            setButtonLayoutData(btnSelectDirectory);
+            setButtonLayoutData(_btnSelectDirectory);
          }
-         {
+      }
+   }
 
+   private void createUI_40_Misc(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      {
+         {
             /*
-             * date-time: Download files for which the start date is greater than
+             * Checkbox: Use a "since" date filter
              */
-            final Label label = new Label(container, SWT.NONE);
-            label.setText("File Date Download Filter");
-            label.setToolTipText("Only download files for which the start date is greater than");
+            _chkUseDateFilter = new Button(container, SWT.CHECK);
+            _chkUseDateFilter.setText("Use a date filter");
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.FILL)
+                  .applyTo(_chkUseDateFilter);
+            _chkUseDateFilter.addSelectionListener(new SelectionAdapter() {
+               @Override
+               public void widgetSelected(final SelectionEvent e) {
+                  _dtFilterSince.setEnabled(_chkUseDateFilter.getSelection());
+               }
+            });
 
             _dtFilterSince = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
             _dtFilterSince.setToolTipText("Only download files for which the start date is greater than");
@@ -277,6 +288,26 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
                   .applyTo(_dtFilterSince);
          }
       }
+   }
+
+   /*
+    * use this ? but that reinforces the dependency on the apache http library
+    * URIBuilder builder = new URIBuilder();
+    * builder.setScheme("http");
+    * builder.setHost("IP");
+    * builder.setPath("/foldername/1234");
+    * builder.addParameter("abc", "xyz");
+    * URL url = builder.build().toURL();
+    */
+
+   private void enableControls() {
+
+      final boolean isAuthorized = StringUtils.hasContent(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
+
+      _labelRefreshToken.setEnabled(isAuthorized);
+      _labelExpiresAt.setEnabled(isAuthorized);
+      _labelAccessToken.setEnabled(isAuthorized);
+      _dtFilterSince.setEnabled(_chkUseDateFilter.getSelection());
    }
 
    private long getFilterSinceDate() {
@@ -343,7 +374,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       if (selectedDirectoryName != null) {
 
          setErrorMessage(null);
-         _comboPath.setText(selectedDirectoryName);
+         _comboFolderPath.setText(selectedDirectoryName);
       }
    }
 
@@ -366,12 +397,12 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_REFRESHTOKEN));
 
-      updateTokensInformationGroup();
+      _comboFolderPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
 
-      _comboPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
-
+      _chkUseDateFilter.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       setFilterSinceDate(_prefStore.getDefaultLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
-//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
+
+      enableControls();
 
       super.performDefaults();
    }
@@ -393,7 +424,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             _server.stopCallBackServer();
          }
 
-         final String downloadFolder = _comboPath.getText();
+         final String downloadFolder = _comboFolderPath.getText();
          _prefStore.setValue(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, downloadFolder);
          if (StringUtils.hasContent(downloadFolder)) {
 
@@ -410,8 +441,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             }
          }
 
+         _prefStore.setValue(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, _chkUseDateFilter.getSelection());
          _prefStore.setValue(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, getFilterSinceDate());
-//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       }
 
       return isOK;
@@ -425,12 +456,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
       _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
-      updateTokensInformationGroup();
+      _comboFolderPath.setText(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
 
-      _comboPath.setText(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
-
+      _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       setFilterSinceDate(_prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
-//      _prefStore.getDefaultLong(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
    }
 
    private void setFilterSinceDate(final long filterSinceDate) {
@@ -440,15 +469,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _dtFilterSince.setDate(suuntoFileDownloadSinceDate.getYear(),
             suuntoFileDownloadSinceDate.getMonthValue() - 1,
             suuntoFileDownloadSinceDate.getDayOfMonth());
-   }
-
-   private void updateTokensInformationGroup() {
-
-      final boolean isAuthorized = StringUtils.hasContent(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
-
-      _labelRefreshToken.setEnabled(isAuthorized);
-      _labelExpiresAt.setEnabled(isAuthorized);
-      _labelAccessToken.setEnabled(isAuthorized);
    }
 
 }
