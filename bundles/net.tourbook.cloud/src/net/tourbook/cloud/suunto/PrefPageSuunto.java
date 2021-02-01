@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -30,10 +31,12 @@ import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -104,7 +107,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
    private Combo                   _comboFolderPath;
-   private Button                  _btnSelectDirectory;
    private Button                  _chkUseDateFilter;
    private DateTime                _dtFilterSince;
 
@@ -246,15 +248,15 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             /*
              * button: browse
              */
-            _btnSelectDirectory = new Button(container, SWT.PUSH);
-            _btnSelectDirectory.setText(APP_BTN_BROWSE);
-            _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
+            final Button btnSelectDirectory = new Button(container, SWT.PUSH);
+            btnSelectDirectory.setText(APP_BTN_BROWSE);
+            btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
                   onSelectBrowseDirectory();
                }
             });
-            setButtonLayoutData(_btnSelectDirectory);
+            setButtonLayoutData(btnSelectDirectory);
          }
       }
    }
@@ -289,16 +291,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          }
       }
    }
-
-   /*
-    * use this ? but that reinforces the dependency on the apache http library
-    * URIBuilder builder = new URIBuilder();
-    * builder.setScheme("http");
-    * builder.setHost("IP");
-    * builder.setPath("/foldername/1234");
-    * builder.addParameter("abc", "xyz");
-    * URL url = builder.build().toURL();
-    */
 
    private void enableControls() {
 
@@ -357,11 +349,20 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      Display.getDefault().syncExec(() -> WEB.openUrl(
-            "https://cloudapi-oauth.suunto.com/oauth/authorize?" + //$NON-NLS-1$
-                  OAuth2Constants.PARAM_RESPONSE_TYPE + '=' + OAuth2Constants.PARAM_CODE +
-                  '&' + OAuth2Constants.PARAM_CLIENT_ID + '=' + ClientId +
-                  '&' + OAuth2Constants.PARAM_REDIRECT_URI + "=http://localhost:" + CALLBACK_PORT));//$NON-NLS-1$
+      final URIBuilder authorizeUrlBuilder = new URIBuilder();
+      authorizeUrlBuilder.setScheme("https");
+      authorizeUrlBuilder.setHost("cloudapi-oauth.suunto.com");
+      authorizeUrlBuilder.setPath("/oauth/authorize");
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT);
+      try {
+         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+
+         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
+      } catch (final URISyntaxException e) {
+         StatusUtil.log(e);
+      }
    }
 
    private void onSelectBrowseDirectory() {

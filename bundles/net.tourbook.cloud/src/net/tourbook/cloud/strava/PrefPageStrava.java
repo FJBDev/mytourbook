@@ -15,15 +15,19 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
+import java.net.URISyntaxException;
+
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -253,12 +257,21 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      Display.getDefault().syncExec(() -> WEB.openUrl(
-            "http://www.strava.com/oauth/authorize?" + //$NON-NLS-1$
-                  OAuth2Constants.PARAM_RESPONSE_TYPE + '=' + OAuth2Constants.PARAM_CODE +
-                  '&' + OAuth2Constants.PARAM_CLIENT_ID + '=' + ClientId +
-                  "&" + OAuth2Constants.PARAM_REDIRECT_URI + "=http://localhost:" + CALLBACK_PORT + //$NON-NLS-1$ //$NON-NLS-2$
-                  "&scope=read,activity:write")); //$NON-NLS-1$
+      final URIBuilder authorizeUrlBuilder = new URIBuilder();
+      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
+      authorizeUrlBuilder.setHost("www.strava.com"); //$NON-NLS-1$
+      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter("scope", "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$
+      try {
+         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+
+         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
+      } catch (final URISyntaxException e) {
+         StatusUtil.log(e);
+      }
    }
 
    @Override
