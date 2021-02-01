@@ -317,7 +317,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
     */
    private void onClickAuthorize() {
 
-      final SuuntoTokensRetrievalHandler tokensRetrievalHandler = new SuuntoTokensRetrievalHandler();
+      final SuuntoTokensRetrievalHandler tokensRetrievalHandler = new SuuntoTokensRetrievalHandler(Display.getCurrent().getActiveShell());
       _server = new LocalHostServer(CALLBACK_PORT, "Suunto", _prefChangeListener); //$NON-NLS-1$
       final boolean isServerCreated = _server.createCallBackServer(tokensRetrievalHandler);
 

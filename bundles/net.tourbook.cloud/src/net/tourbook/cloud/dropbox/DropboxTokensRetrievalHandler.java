@@ -37,9 +37,8 @@ public class DropboxTokensRetrievalHandler extends TokensRetrievalHandler {
    @Override
    public Tokens retrieveTokens(final String authorizationCode) {
 
-      final DropboxTokens newTokens = new DropboxTokens();
       if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return newTokens;
+         return new DropboxTokens();
       }
 
       return DropboxClient.getTokens(authorizationCode, false, UI.EMPTY_STRING, _codeVerifier);

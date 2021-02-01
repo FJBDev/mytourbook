@@ -35,13 +35,23 @@ import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Shell;
 import org.json.JSONObject;
 
 public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
    private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
+
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
+   private static Shell            _shell;
+
+   protected SuuntoTokensRetrievalHandler(final Shell shell) {
+
+      _shell = shell;
+      MessageDialog.openError(_shell, "toto", "titi");
+   }
 
    public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
@@ -69,11 +79,8 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
             final SuuntoTokens token = new ObjectMapper().readValue(response.body(), SuuntoTokens.class);
 
             return token;
-         }
-         else {
-            //TODO FB
-//            MessageDialog.openError(Display.getCurrent().getActiveShell(), String.valueOf(response.statusCode()), response.body());
-            System.out.println(response.body());
+         } else {
+//            MessageDialog.openError(_shell, "toto", response.body());
          }
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
@@ -107,9 +114,9 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
    @Override
    public Tokens retrieveTokens(final String authorizationCode) {
-      final Tokens newTokens = new SuuntoTokens();
+
       if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return newTokens;
+         return new SuuntoTokens();
       }
 
       return getTokens(authorizationCode, false, UI.EMPTY_STRING);

@@ -31,9 +31,8 @@ public class StravaTokensRetrievalHandler extends TokensRetrievalHandler {
    @Override
    public Tokens retrieveTokens(final String authorizationCode) {
 
-      final Tokens newTokens = new StravaTokens();
       if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return newTokens;
+         return new StravaTokens();
       }
 
       return StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);

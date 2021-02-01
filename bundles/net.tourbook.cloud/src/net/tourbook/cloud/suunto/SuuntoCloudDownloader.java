@@ -112,6 +112,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             return;
          }
       }
+
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
          //if the tokens are not valid
          //display a message for the user
