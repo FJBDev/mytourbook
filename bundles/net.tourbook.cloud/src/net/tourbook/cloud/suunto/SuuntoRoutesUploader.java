@@ -214,9 +214,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
             monitor.beginTask(NLS.bind(Messages.UploadToursToSuunto_Task, numberOfTours, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
                   numberOfTours * 2);
 
-            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
-                  ICON_HOURGLASS,
-                  UI.EMPTY_STRING));
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask, ICON_HOURGLASS, UI.EMPTY_STRING));
 
             final Map<Long, String> toursWithGpsSeries = new HashMap<>();
             for (int index = 0; index < numberOfTours; ++index) {
@@ -238,9 +236,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                }
             }
 
-            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
-                  ICON_CHECK,
-                  ICON_HOURGLASS));
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask, ICON_CHECK, ICON_HOURGLASS));
 
             //todo fb if token not valid, do not continue and do the same for strava
             SuuntoTokensRetrievalHandler.getValidTokens();
@@ -249,9 +245,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
             monitor.worked(toursWithGpsSeries.size());
 
-            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask,
-                  ICON_CHECK,
-                  ICON_CHECK));
+            monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask, ICON_CHECK, ICON_CHECK));
          }
       };
 
