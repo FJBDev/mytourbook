@@ -165,13 +165,13 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
-   private CompletableFuture<RouteUpload> sendAsyncRequest(final String tourStartTimeMS, final HttpRequest request) {
+   private CompletableFuture<RouteUpload> sendAsyncRequest(final String tourStartTime, final HttpRequest request) {
 
       final CompletableFuture<RouteUpload> routeUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(routeUploadResponse -> convertResponseToUpload(routeUploadResponse, tourStartTimeMS))
+            .thenApply(routeUploadResponse -> convertResponseToUpload(routeUploadResponse, tourStartTime))
             .exceptionally(e -> {
                final RouteUpload errorUpload = new RouteUpload();
-               errorUpload.setTourDate(tourStartTimeMS);
+               errorUpload.setTourDate(tourStartTime);
                errorUpload.setError(e.getMessage());
                return errorUpload;
             });
@@ -179,7 +179,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return routeUpload;
    }
 
-   private CompletableFuture<RouteUpload> uploadRoute(final String tourStartTimeMS, final String tourGpx) {
+   private CompletableFuture<RouteUpload> uploadRoute(final String tourStartTime, final String tourGpx) {
 
       //create a vm template just for that ?
       //https://apizone.suunto.com/route-description
@@ -194,7 +194,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                .POST(BodyPublishers.ofString(payload.toString()))
                .build();
 
-         return sendAsyncRequest(tourStartTimeMS, request);
+         return sendAsyncRequest(tourStartTime, request);
 
       } catch (final Exception e) {
          StatusUtil.log(e);
@@ -209,10 +209,10 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       for (final Map.Entry<String, String> tourToUpload : toursWithGpsSeries.entrySet()) {
 
-         final String tourStartTimeMS = tourToUpload.getKey();
+         final String tourStartTime = tourToUpload.getKey();
          final String tourGpx = tourToUpload.getValue();
 
-         activityUploads.add(uploadRoute(tourStartTimeMS, tourGpx));
+         activityUploads.add(uploadRoute(tourStartTime, tourGpx));
       }
 
       activityUploads.stream().map(CompletableFuture::join).forEach(SuuntoRoutesUploader::logUploadResult);
@@ -237,18 +237,16 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
             for (int index = 0; index < numberOfTours; ++index) {
 
                final TourData tourData = selectedTours.get(index);
+               final String tourStartTime = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
 
                if (tourData.latitudeSerie == null || tourData.latitudeSerie.length == 0) {
 
-                  final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
-
-                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToSuunto_002_NoGpsCoordinate, tourDate));
+                  TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToSuunto_002_NoGpsCoordinate, tourStartTime));
                   monitor.worked(2);
 
                } else {
 
-                  final String tourStartTimeMS = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
-                  toursWithGpsSeries.put(tourStartTimeMS, convertTourToGpx(tourData));
+                  toursWithGpsSeries.put(tourStartTime, convertTourToGpx(tourData));
 
                   monitor.worked(1);
                }
