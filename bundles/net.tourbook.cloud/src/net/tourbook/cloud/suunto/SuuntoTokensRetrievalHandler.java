@@ -70,8 +70,11 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
             return token;
          }
-
-         //else messagedialog display error message at least status code
+         else {
+            //TODO FB
+//            MessageDialog.openError(Display.getCurrent().getActiveShell(), String.valueOf(response.statusCode()), response.body());
+            System.out.println(response.body());
+         }
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
          Thread.currentThread().interrupt();
