@@ -3681,7 +3681,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       _actionRemoveTour.setEnabled(selectedTours > 0);
       _actionExportTour.setEnabled(selectedNotDeleteTours > 0);
       _actionJoinTours.setEnabled(selectedNotDeleteTours > 1);
-      _actionUploadTour.setEnabled(selectedTours > 0 && _actionUploadTour.hasUploaders());
+      _actionUploadTour.setEnabled(selectedNotDeleteTours > 0);
 
       _actionEditTour.setEnabled(isOneSavedAndNotDeleteTour);
       _actionEditQuick.setEnabled(isOneSavedAndNotDeleteTour);

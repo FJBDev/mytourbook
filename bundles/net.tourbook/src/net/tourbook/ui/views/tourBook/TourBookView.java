@@ -1772,7 +1772,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       _actionSelectAllTours.setEnabled(isTreeLayout);
       _actionToggleViewLayout.setEnabled(true);
-      _actionUploadTour.setEnabled(isTourSelected && _actionUploadTour.hasUploaders());
+      _actionUploadTour.setEnabled(isTourSelected);
 
       _tagMenuManager.enableTagActions(isTourSelected, isOneTour, firstTourItem == null ? null : firstTourItem.getTagIds());
 
