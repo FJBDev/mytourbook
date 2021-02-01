@@ -45,13 +45,13 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
    public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
-      JSONObject body;
+      final JSONObject body = new JSONObject();
       String grantType;
       if (isRefreshToken) {
-         body = new JSONObject().put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
+         body.put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
          grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
       } else {
-         body = new JSONObject().put(OAuth2Constants.PARAM_CODE, authorizationCode);
+         body.put(OAuth2Constants.PARAM_CODE, authorizationCode);
          grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
       }
 
@@ -70,6 +70,8 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
             return token;
          }
+
+         //else messagedialog display error message at least status code
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
          Thread.currentThread().interrupt();

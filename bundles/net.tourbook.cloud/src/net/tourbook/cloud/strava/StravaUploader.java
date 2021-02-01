@@ -145,13 +145,13 @@ public class StravaUploader extends TourbookCloudUploader {
 
    public static StravaTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
-      JSONObject body;
+      final JSONObject body = new JSONObject();
       String grantType;
       if (isRefreshToken) {
-         body = new JSONObject().put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
+         body.put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
          grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
       } else {
-         body = new JSONObject().put(OAuth2Constants.PARAM_CODE, authorizationCode);
+         body.put(OAuth2Constants.PARAM_CODE, authorizationCode);
          grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
       }
 
