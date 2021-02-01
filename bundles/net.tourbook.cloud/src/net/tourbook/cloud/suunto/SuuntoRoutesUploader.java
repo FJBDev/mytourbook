@@ -15,14 +15,16 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.reflect.InvocationTargetException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import net.tourbook.export.TourExporter;
 import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -61,9 +64,10 @@ import org.json.JSONObject;
 public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    // SET_FORMATTING_OFF
-   private static final String   ICON_CHECK          = net.tourbook.cloud.Messages.Icon_Check;
-   private static final String   ICON_HOURGLASS      = net.tourbook.cloud.Messages.Icon_Hourglass;
-   private static final String   LOG_CLOUDACTION_END = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   private static final String   ICON_CHECK                    = net.tourbook.cloud.Messages.Icon_Check;
+   private static final String   ICON_HOURGLASS                = net.tourbook.cloud.Messages.Icon_Hourglass;
+   private static final String   LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   private static final String   LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
    // SET_FORMATTING_ON
 
    private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
@@ -79,22 +83,50 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       VelocityService.init();
    }
 
-   //todo fb put the common method in a common cloud utils file so they can be resued and we can remove duplicated code
+   private static void logUploadResult(final RouteUpload routeUpload) {
 
-   private static void logUploadResult(final String activityupload1) {
-      System.out.println(activityupload1);
+      if (StringUtils.hasContent(routeUpload.getError())) {
+
+         TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToSuunto_004_UploadError, routeUpload.getTourDate(), routeUpload.getError()));
+
+      } else {
+
+         ++_numberOfUploadedTours[0];
+
+         TourLogManager.addLog(TourLogState.IMPORT_OK,
+               NLS.bind(Messages.Log_UploadToursToSuunto_003_UploadStatus, routeUpload.getTourDate(), routeUpload.getId()));
+
+      }
    }
 
-   private String ConvertResponseToUpload(final HttpResponse<String> name, final long tourStartTimeMS) {
+   private RouteUpload convertResponseToUpload(final HttpResponse<String> routeUploadResponse, final String tourDate) {
 
-      //todo fb in the server.js, return verbatim what suunto returns
-      System.out.println(name.body());
-      return "";
+      RouteUploads routeUploads = new RouteUploads();
+      routeUploads.items = new ArrayList<>();
+      routeUploads.items.add(new RouteUpload());
+
+      final String routeUploadContent = routeUploadResponse.body();
+      if (routeUploadResponse.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(routeUploadContent)) {
+
+         final ObjectMapper mapper = new ObjectMapper();
+         try {
+            routeUploads = mapper.readValue(routeUploadContent, RouteUploads.class);
+
+         } catch (final JsonProcessingException e) {
+            StatusUtil.log(e);
+         }
+      } else {
+         routeUploads.items.get(0).setError(routeUploadContent);
+      }
+
+      routeUploads.items.get(0).setTourDate(tourDate);
+
+      return routeUploads.items.get(0);
    }
 
    private String convertTourToGpx(final TourData tourData) {
 
-      final String absoluteTourFilePath = createTemporaryTourFile(String.valueOf(tourData.getTourId()), "gpx"); //$NON-NLS-1$
+      final String absoluteTourFilePath = FilesUtils.createTemporaryFile(String.valueOf(tourData.getTourId()), "gpx"); //$NON-NLS-1$
 
       _tourExporter.useTourData(tourData);
 
@@ -106,7 +138,8 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          useActivityType = true;
          activityName = tourType.getName();
       }
-      //todo fb set activity type ?
+      //TODO FB specify the activities ??
+      //https://apimgmtstfbqznm5nc6zmvgx.blob.core.windows.net/content/MediaLibrary/docs/Suunto%20Watches-%20SuuntoApp%20-Movescount-FIT-Activities.pdf
       _tourExporter.setUseActivityType(useActivityType);
       _tourExporter.setActivityType(activityName);
 
@@ -117,22 +150,6 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       FilesUtils.deleteFile(Paths.get(absoluteTourFilePath));
 
       return tourGpx;
-   }
-
-   //TODO FB put in file utils
-   private String createTemporaryTourFile(final String tourId, final String extension) {
-
-      String absoluteFilePath = UI.EMPTY_STRING;
-
-      try {
-         FilesUtils.deleteFile(Paths.get(tourId + UI.SYMBOL_DOT + extension));
-
-         absoluteFilePath = Files.createTempFile(tourId, UI.SYMBOL_DOT + extension).toString();
-
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-      return absoluteFilePath;
    }
 
    private String getAccessToken() {
@@ -148,25 +165,26 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return StringUtils.hasContent(getAccessToken() + getRefreshToken());
    }
 
-   private CompletableFuture<String> sendAsyncRequest(final long tourStartTimeMS, final HttpRequest request) {
+   private CompletableFuture<RouteUpload> sendAsyncRequest(final String tourStartTimeMS, final HttpRequest request) {
 
-      final CompletableFuture<String> activityUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(name -> ConvertResponseToUpload(name, tourStartTimeMS))
+      final CompletableFuture<RouteUpload> routeUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(routeUploadResponse -> convertResponseToUpload(routeUploadResponse, tourStartTimeMS))
             .exceptionally(e -> {
-               return e.getMessage();
+               final RouteUpload errorUpload = new RouteUpload();
+               errorUpload.setTourDate(tourStartTimeMS);
+               errorUpload.setError(e.getMessage());
+               return errorUpload;
             });
-      return activityUpload;
+
+      return routeUpload;
    }
 
-   private CompletableFuture<String> uploadRoute(final long tourStartTimeMS, final String tourGpx) {
-
-      //TODO FB specify the activities
-      //https://apimgmtstfbqznm5nc6zmvgx.blob.core.windows.net/content/MediaLibrary/docs/Suunto%20Watches-%20SuuntoApp%20-Movescount-FIT-Activities.pdf
+   private CompletableFuture<RouteUpload> uploadRoute(final String tourStartTimeMS, final String tourGpx) {
 
       //create a vm template just for that ?
       //https://apizone.suunto.com/route-description
       final JSONObject payload = new JSONObject();
-      payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes()));
+      payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes())); //$NON-NLS-1$
 
       try {
          final HttpRequest request = HttpRequest.newBuilder()
@@ -185,13 +203,13 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return null;
    }
 
-   private void uploadRoutes(final Map<Long, String> toursWithGpsSeries) {
+   private void uploadRoutes(final Map<String, String> toursWithGpsSeries) {
 
-      final List<CompletableFuture<String>> activityUploads = new ArrayList<>();
+      final List<CompletableFuture<RouteUpload>> activityUploads = new ArrayList<>();
 
-      for (final Map.Entry<Long, String> tourToUpload : toursWithGpsSeries.entrySet()) {
+      for (final Map.Entry<String, String> tourToUpload : toursWithGpsSeries.entrySet()) {
 
-         final long tourStartTimeMS = tourToUpload.getKey();
+         final String tourStartTimeMS = tourToUpload.getKey();
          final String tourGpx = tourToUpload.getValue();
 
          activityUploads.add(uploadRoute(tourStartTimeMS, tourGpx));
@@ -211,12 +229,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            monitor.beginTask(NLS.bind(Messages.UploadToursToSuunto_Task, numberOfTours, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
-                  numberOfTours * 2);
+            monitor.beginTask(NLS.bind(Messages.UploadToursToSuunto_Task, numberOfTours), numberOfTours * 2);
 
             monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask, ICON_HOURGLASS, UI.EMPTY_STRING));
 
-            final Map<Long, String> toursWithGpsSeries = new HashMap<>();
+            final Map<String, String> toursWithGpsSeries = new HashMap<>();
             for (int index = 0; index < numberOfTours; ++index) {
 
                final TourData tourData = selectedTours.get(index);
@@ -230,7 +247,8 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
                } else {
 
-                  toursWithGpsSeries.put(tourData.getTourStartTimeMS(), convertTourToGpx(tourData));
+                  final String tourStartTimeMS = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+                  toursWithGpsSeries.put(tourStartTimeMS, convertTourToGpx(tourData));
 
                   monitor.worked(1);
                }
@@ -238,10 +256,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
             monitor.subTask(NLS.bind(Messages.UploadToursToSuunto_SubTask, ICON_CHECK, ICON_HOURGLASS));
 
-            //todo fb if token not valid, do not continue and do the same for strava
-            SuuntoTokensRetrievalHandler.getValidTokens();
-
-            uploadRoutes(toursWithGpsSeries);
+            if (SuuntoTokensRetrievalHandler.getValidTokens()) {
+               uploadRoutes(toursWithGpsSeries);
+            } else {
+               TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
+            }
 
             monitor.worked(toursWithGpsSeries.size());
 
@@ -261,8 +280,8 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
-               "Messages.Dialog_StravaUpload_Summary",
-               NLS.bind("Messages.Dialog_StravaUpload_Message", _numberOfUploadedTours[0], numberOfTours - _numberOfUploadedTours[0]));
+               Messages.Dialog_SuuntoUpload_Summary,
+               NLS.bind(Messages.Dialog_SuuntoRoutesUpload_Message, _numberOfUploadedTours[0], numberOfTours - _numberOfUploadedTours[0]));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          StatusUtil.log(e);

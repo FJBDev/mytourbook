@@ -13,30 +13,20 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.cloud.strava;
+package net.tourbook.cloud.suunto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.tourbook.cloud.TourUpload;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ActivityUpload extends TourUpload {
+public class RouteUpload extends TourUpload {
 
-   private String id;
-   private String name;
-   private String status;
-
-   public ActivityUpload() {}
+   @JsonProperty("id")
+   private String _id;
 
    public String getId() {
-      return id;
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public String getStatus() {
-      return status;
+      return _id;
    }
 }
