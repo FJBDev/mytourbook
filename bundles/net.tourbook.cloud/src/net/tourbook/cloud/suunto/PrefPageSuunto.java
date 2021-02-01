@@ -381,7 +381,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       final boolean isOK = super.performOk();
 
-      //todo fb why was this called when i clicked ok on the strava page !??!?
       if (isOK) {
          _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
