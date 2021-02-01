@@ -75,10 +75,6 @@ public class StravaUploader extends TourbookCloudUploader {
    private static TourExporter     _tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE);
    private static int[]            _numberOfUploadedTours;
 
-   //todo fb
-   //when first configuring strava tokens and immediately uploading a tour, it doesnt work and it seems that
-   // uploadTours() isnot even reached
-
    // Source : https://support.strava.com/hc/en-us/articles/216919407-Supported-Activity-Types-on-Strava
    private static final List<String> StravaActivityTypes = List.of(
          "Ride", //$NON-NLS-1$
@@ -132,7 +128,7 @@ public class StravaUploader extends TourbookCloudUploader {
          try {
             activityUpload = mapper.readValue(response.body(), ActivityUpload.class);
          } catch (final JsonProcessingException e) {
-            e.printStackTrace();
+            StatusUtil.log(e);
          }
       } else {
          activityUpload.setError(response.body());
