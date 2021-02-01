@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.common.util;
 
+import net.tourbook.common.UI;
+
 /**
  * String utilities.
  */
@@ -63,10 +65,11 @@ public final class StringUtils {
    }
 
    public static String sanitizeFileName(final String fileName) {
+
       if (StringUtils.isNullOrEmpty(fileName)) {
          return fileName;
       }
 
-      return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "-");
+      return fileName.replaceAll("[^a-zA-Z0-9 \\.\\-]", UI.DASH); //$NON-NLS-1$
    }
 }
