@@ -34,7 +34,8 @@ public class Messages extends NLS {
    public static String        Log_UploadToursToSuunto_004_UploadError;
    public static String        Log_DownloadWorkoutsToSuunto_001_Start;
    public static String        Log_DownloadWorkoutsToSuunto_002_NotFound;
-   public static String        Log_DownloadWorkoutsToSuunto_003_DownloadStatus;
+   public static String        Log_DownloadWorkoutsToSuunto_003_NoSpecifiedFolder;
+   public static String        Log_DownloadWorkoutsToSuunto_004_DownloadStatus;
    public static String        Pref_AccountInformation_SuuntoApp_WebPage_Link;
    public static String        Suunto_Workouts_Description;
    public static String        UploadToursToSuunto_Task;

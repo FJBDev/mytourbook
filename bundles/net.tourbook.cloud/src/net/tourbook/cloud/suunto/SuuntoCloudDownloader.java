@@ -75,7 +75,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
-   private static int[]                   _numberOfDownloadedTours;
+   private static int[]            _numberOfDownloadedTours;
    private int[]                   _numberOfAvailableTours;
 
    public SuuntoCloudDownloader() {
@@ -91,7 +91,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       ++_numberOfDownloadedTours[0];
 
       TourLogManager.addLog(TourLogState.IMPORT_OK,
-            NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_003_DownloadStatus,
+            NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_004_DownloadStatus,
                   workoutdownload.getWorkoutKey(),
                   workoutdownload.getAbsoluteFilePath()));
    }
@@ -131,18 +131,30 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
                null,
                null).open();
 
-         if (returnResult != 0) {// The OK button was not clicked
+         if (returnResult != 0) {// The OK button was not clicked or if the configuration is still not ready
             return;
          }
       }
 
+      final boolean[] stop = new boolean[1];
+      stop[0] = true;
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
 
          if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
-            printMessageInStatusLineManager(LOG_CLOUDACTION_INVALIDTOKENS);
+            TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
             return;
          }
+         if (StringUtils.isNullOrEmpty(getDownloadFolder())) {
+            TourLogManager.logError(Messages.Log_DownloadWorkoutsToSuunto_003_NoSpecifiedFolder);
+            return;
+         }
+
+         stop[0] = false;
       });
+
+      if (stop[0]) {
+         return;
+      }
 
       _numberOfAvailableTours = new int[1];
       _numberOfDownloadedTours = new int[1];
