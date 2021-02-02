@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -48,17 +49,34 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpHeaders;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
+   // SET_FORMATTING_OFF
+   private static final String   ICON_CHECK                    = net.tourbook.cloud.Messages.Icon_Check;
+   private static final String   ICON_HOURGLASS                = net.tourbook.cloud.Messages.Icon_Hourglass;
+   private static final String   LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   private static final String   LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
+   // SET_FORMATTING_ON
+
    private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
+   private static int[]                   _numberOfDownloadedTours;
+   private int[]                   _numberOfAvailableTours;
 
    public SuuntoCloudDownloader() {
 
@@ -68,7 +86,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             Activator.getImageAbsoluteFilePath(Messages.Image__SuuntoApp_Icon));
    }
 
-   private static void logDownloadResult(final WorkoutDownload workoutdownload) {}
+   private static void logDownloadResult(final WorkoutDownload workoutdownload) {
+
+      ++_numberOfDownloadedTours[0];
+
+      TourLogManager.addLog(TourLogState.IMPORT_OK,
+            NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_003_DownloadStatus,
+                  workoutdownload.getWorkoutKey(),
+                  workoutdownload.getAbsoluteFilePath()));
+   }
 
    private CompletableFuture<WorkoutDownload> downloadFile(final String workoutKey) {
 
@@ -82,7 +108,6 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    }
 
    private void downloadFiles(final List<Payload> newWorkouts) {
-
 
       final List<CompletableFuture<WorkoutDownload>> workoutDownloads = new ArrayList<>();
 
@@ -98,10 +123,8 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    @Override
    public void downloadTours() {
 
-      //todo fb if token not valid, do not continue and do the same for strava
-      //if the preferences have not been set (tokens, folder)
-      if (!isReady())
-      {
+      if (!isReady()) {
+
          final int returnResult = PreferencesUtil.createPreferenceDialogOn(
                Display.getCurrent().getActiveShell(),
                PrefPageSuunto.ID,
@@ -114,34 +137,85 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       }
 
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
-         //if the tokens are not valid
-         //display a message for the user
+
          if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+            printMessageInStatusLineManager(LOG_CLOUDACTION_INVALIDTOKENS);
             return;
          }
+      });
 
-         //Get the list of workouts
-         final Workouts workouts = retrieveWorkoutsList();
+      _numberOfAvailableTours = new int[1];
+      _numberOfDownloadedTours = new int[1];
 
-         if (workouts.payload.size() == 0) {
-            return;
-         }
+      final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
-         final List<Long> tourStartTimes = retrieveAllTourStartTimes();
+         @Override
+         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-         //Identifying the workouts that have not yet been imported in the tour database
-         final List<Payload> newWorkouts = new ArrayList<>();
-         for (final Payload suuntoWorkout : workouts.payload) {
+            monitor.beginTask(Messages.DownloadWorkoutsFromSuunto_Task, 2);
 
-            if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
-               continue;
+            monitor.subTask(NLS.bind(Messages.DownloadWorkoutsFromSuunto_SubTask,
+                  new Object[] {
+                        ICON_HOURGLASS,
+                        UI.EMPTY_STRING,
+                        UI.EMPTY_STRING }));
+
+            //Get the list of workouts
+            final Workouts workouts = retrieveWorkoutsList();
+            if (workouts.payload.size() == 0) {
+               TourLogManager.logInfo(Messages.Log_DownloadWorkoutsToSuunto_002_NotFound);
+               return;
             }
 
-            newWorkouts.add(suuntoWorkout);
+            final List<Long> tourStartTimes = retrieveAllTourStartTimes();
+
+            //Identifying the workouts that have not yet been imported in the tour database
+            final List<Payload> newWorkouts = new ArrayList<>();
+            for (final Payload suuntoWorkout : workouts.payload) {
+
+               if (tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L)) {
+                  continue;
+               }
+
+               newWorkouts.add(suuntoWorkout);
+            }
+
+            _numberOfAvailableTours[0] = newWorkouts.size();
+
+            monitor.worked(1);
+
+            monitor.subTask(NLS.bind(Messages.DownloadWorkoutsFromSuunto_SubTask,
+                  new Object[] {
+                        ICON_CHECK,
+                        _numberOfAvailableTours[0],
+                        ICON_HOURGLASS }));
+
+            downloadFiles(newWorkouts);
+
+            monitor.worked(1);
          }
 
-         downloadFiles(newWorkouts);
-      });
+      };
+
+      try {
+         final long start = System.currentTimeMillis();
+
+         TourLogManager.showLogView();
+         TourLogManager.logTitle(Messages.Log_DownloadWorkoutsToSuunto_001_Start);
+
+         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, false, runnable);
+
+         TourLogManager.logTitle(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+
+         MessageDialog.openInformation(
+               Display.getDefault().getActiveShell(),
+               Messages.Dialog_WorkoutsDownload_Summary,
+               NLS.bind(Messages.Dialog_WorkoutsDownload_Message, _numberOfAvailableTours[0], _numberOfDownloadedTours[0]));
+
+      } catch (final InvocationTargetException | InterruptedException e) {
+         StatusUtil.log(e);
+         Thread.currentThread().interrupt();
+      }
 
    }
 
@@ -161,6 +235,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getRefreshToken()) &&
             StringUtils.hasContent(getDownloadFolder());
+   }
+
+   private void printMessageInStatusLineManager(final String message) {
+      final IStatusLineManager statusLineManager = UI.getStatusLineManager();
+      if (statusLineManager == null) {
+         return;
+      }
+      statusLineManager.setMessage(message);
+      Display.getCurrent().timerExec(3000, () -> statusLineManager.setMessage(null));
    }
 
    private List<Long> retrieveAllTourStartTimes() {
@@ -247,80 +330,5 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       return workoutDownload;
    }
-
-//   @Override
-//   public void uploadTours(final List<TourData> selectedTours) {
-//
-//      final int numberOfTours = selectedTours.size();
-//      _numberOfUploadedTours = new int[1];
-//
-//      final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-//
-//         @Override
-//         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-//
-//            monitor.beginTask(NLS.bind("Messages.UploadToursToStrava_Task", numberOfTours, _prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME)),
-//                  numberOfTours * 2);
-//
-//            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-//                  "Messages.UploadToursToStrava_Icon_Hourglass",
-//                  UI.EMPTY_STRING));
-//
-//            final Map<Long, String> toursWithGpsSeries = new HashMap<>();
-//            for (int index = 0; index < numberOfTours; ++index) {
-//
-//               final TourData tourData = selectedTours.get(index);
-//
-//               if (tourData.latitudeSerie == null || tourData.latitudeSerie.length == 0) {
-//
-//                  final String tourDate = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
-//
-//                  TourLogManager.logError(NLS.bind("Messages.Log_UploadToursToStrava_002_NoTourTitle", tourDate));
-//                  monitor.worked(2);
-//
-//               } else {
-//
-//                  toursWithGpsSeries.put(tourData.getTourStartTimeMS(), convertTourToGpx(tourData));
-//
-//                  monitor.worked(1);
-//               }
-//            }
-//
-//            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-//                  "Messages.UploadToursToStrava_Icon_Check",
-//                  "Messages.UploadToursToStrava_Icon_Hourglass"));
-//
-////                     tryRenewTokens();
-//
-//            uploadRoutes(toursWithGpsSeries);
-//
-//            monitor.worked(toursWithGpsSeries.size());
-//
-//            monitor.subTask(NLS.bind("Messages.UploadToursToStrava_SubTask",
-//                  "Messages.UploadToursToStrava_Icon_Check",
-//                  "Messages.UploadToursToStrava_Icon_Check"));
-//         }
-//      };
-//
-//      try {
-//         final long start = System.currentTimeMillis();
-//
-//         TourLogManager.showLogView();
-//         TourLogManager.logTitle(NLS.bind("Messages.Log_UploadToursToStrava_001_Start", numberOfTours));
-//
-//         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, false, runnable);
-//
-//         TourLogManager.logTitle(String.format("Messages.Log_UploadToursToStrava_005_End", (System.currentTimeMillis() - start) / 1000.0));
-//
-//         MessageDialog.openInformation(
-//               Display.getDefault().getActiveShell(),
-//               "Messages.Dialog_StravaUpload_Summary",
-//               NLS.bind("Messages.Dialog_StravaUpload_Message", _numberOfUploadedTours[0], numberOfTours - _numberOfUploadedTours[0]));
-//
-//      } catch (final InvocationTargetException | InterruptedException e) {
-//         StatusUtil.log(e);
-//         Thread.currentThread().interrupt();
-//      }
-//   }
 
 }

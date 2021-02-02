@@ -15,16 +15,29 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class WorkoutDownload {
 
+   @JsonProperty("workoutKey")
    private String  _workoutKey;
    private boolean _successfullyDownloaded;
    private String  _absoluteFilePath;
 
+   @JsonIgnoreProperties(ignoreUnknown = true)
    public WorkoutDownload(final String workoutKey) {
 
       _workoutKey = workoutKey;
       setSuccessfullyDownloaded(false);
+   }
+
+   public String getAbsoluteFilePath() {
+      return _absoluteFilePath;
+   }
+
+   public String getWorkoutKey() {
+      return _workoutKey;
    }
 
    public void setAbsoluteFilePath(final String absoluteFilePath) {

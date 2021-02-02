@@ -61,19 +61,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   //TODO FB
-   //- Message dialogs download and upload (nice ones with glasshour etc... like strava)
-   //do the route upload like strava and display the vendor response of part of the vendor response in the log viewer
-   // add status line manager to show the total of files downloaded vs total of files failed to download
-   /*
-    * final IStatusLineManager statusLineManager = UI.getStatusLineManager();
-    * if (statusLineManager == null) {
-    * return;
-    * }
-    * statusLineManager.setMessage(Messages.Map_Action_Export_Map_Clipboard_Copied_Info);
-    * Display.getCurrent().timerExec(3000, () -> statusLineManager.setMessage(null));
-    */
-
    // SET_FORMATTING_OFF
    private static final String   PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
    private static final String   PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;

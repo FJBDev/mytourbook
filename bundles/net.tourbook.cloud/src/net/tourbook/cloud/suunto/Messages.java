@@ -21,13 +21,20 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.cloud.suunto.messages"; //$NON-NLS-1$
 
+   public static String        Dialog_WorkoutsDownload_Message;
+   public static String        Dialog_WorkoutsDownload_Summary;
    public static String        Dialog_SuuntoRoutesUpload_Message;
    public static String        Dialog_SuuntoUpload_Summary;
+   public static String        DownloadWorkoutsFromSuunto_Task;
+   public static String        DownloadWorkoutsFromSuunto_SubTask;
    public static String        Image__SuuntoApp_Icon;
    public static String        Log_UploadToursToSuunto_001_Start;
    public static String        Log_UploadToursToSuunto_002_NoGpsCoordinate;
    public static String        Log_UploadToursToSuunto_003_UploadStatus;
    public static String        Log_UploadToursToSuunto_004_UploadError;
+   public static String        Log_DownloadWorkoutsToSuunto_001_Start;
+   public static String        Log_DownloadWorkoutsToSuunto_002_NotFound;
+   public static String        Log_DownloadWorkoutsToSuunto_003_DownloadStatus;
    public static String        Pref_AccountInformation_SuuntoApp_WebPage_Link;
    public static String        Suunto_Workouts_Description;
    public static String        UploadToursToSuunto_Task;

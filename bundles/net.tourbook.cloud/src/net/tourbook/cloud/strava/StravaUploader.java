@@ -365,6 +365,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final boolean isTrainerActivity = manualTour.getTourType() != null && manualTour.getTourType().getName().equalsIgnoreCase("trainer"); //$NON-NLS-1$
 
+      //TODO FB
       final String body = "{" + //$NON-NLS-1$
             "\"name\": \"" + manualTour.getTourTitle() + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
             "\"type\": \"" + stravaActivityType + "\"," + //$NON-NLS-1$ //$NON-NLS-2$
