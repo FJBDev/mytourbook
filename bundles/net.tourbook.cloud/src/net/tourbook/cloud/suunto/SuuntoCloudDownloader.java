@@ -54,7 +54,6 @@ import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -247,15 +246,6 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    protected boolean isReady() {
       return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getRefreshToken()) &&
             StringUtils.hasContent(getDownloadFolder());
-   }
-
-   private void printMessageInStatusLineManager(final String message) {
-      final IStatusLineManager statusLineManager = UI.getStatusLineManager();
-      if (statusLineManager == null) {
-         return;
-      }
-      statusLineManager.setMessage(message);
-      Display.getCurrent().timerExec(3000, () -> statusLineManager.setMessage(null));
    }
 
    private List<Long> retrieveAllTourStartTimes() {

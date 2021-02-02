@@ -230,6 +230,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
              */
             _comboFolderPath = new Combo(container, SWT.SINGLE | SWT.BORDER);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboFolderPath);
+            _comboFolderPath.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
             _comboFolderPath.setEnabled(false);
 
             /*
@@ -237,6 +238,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
              */
             final Button btnSelectDirectory = new Button(container, SWT.PUSH);
             btnSelectDirectory.setText(APP_BTN_BROWSE);
+            btnSelectDirectory.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
             btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
@@ -259,7 +261,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
              * Checkbox: Use a "since" date filter
              */
             _chkUseDateFilter = new Button(container, SWT.CHECK);
-            _chkUseDateFilter.setText("Use a date filter");
+            _chkUseDateFilter.setText(Messages.Pref_Checkbox_Use_SinceDateFilter);
+            _chkUseDateFilter.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.FILL)
                   .applyTo(_chkUseDateFilter);
@@ -271,7 +274,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             });
 
             _dtFilterSince = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
-            _dtFilterSince.setToolTipText("Only download files for which the start date is greater than");
+            _dtFilterSince.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.FILL)
                   .applyTo(_dtFilterSince);
@@ -303,7 +306,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             0,
             0,
             0,
-            ZoneId.of("Etc/GMT")).toEpochSecond() * 1000;
+            ZoneId.of("Etc/GMT")).toEpochSecond() * 1000; //$NON-NLS-1$
    }
 
    @Override
@@ -337,12 +340,12 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
 
       final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https");
-      authorizeUrlBuilder.setHost("cloudapi-oauth.suunto.com");
-      authorizeUrlBuilder.setPath("/oauth/authorize");
+      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
+      authorizeUrlBuilder.setHost("cloudapi-oauth.suunto.com"); //$NON-NLS-1$
+      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
       authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
       authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
       try {
          final String authorizeUrl = authorizeUrlBuilder.build().toString();
 
