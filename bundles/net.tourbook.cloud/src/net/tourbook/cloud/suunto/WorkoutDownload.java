@@ -24,6 +24,7 @@ public class WorkoutDownload {
    private String  _workoutKey;
    private boolean _successfullyDownloaded;
    private String  _absoluteFilePath;
+   private String  _error;
 
    @JsonIgnoreProperties(ignoreUnknown = true)
    public WorkoutDownload(final String workoutKey) {
@@ -36,12 +37,24 @@ public class WorkoutDownload {
       return _absoluteFilePath;
    }
 
+   public String getError() {
+      return _error;
+   }
+
    public String getWorkoutKey() {
       return _workoutKey;
    }
 
+   public boolean isSuccessfullyDownloaded() {
+      return _successfullyDownloaded;
+   }
+
    public void setAbsoluteFilePath(final String absoluteFilePath) {
       _absoluteFilePath = absoluteFilePath;
+   }
+
+   public void setError(final String error) {
+      _error = error;
    }
 
    public void setSuccessfullyDownloaded(final boolean downloaded) {

@@ -85,14 +85,19 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             Activator.getImageAbsoluteFilePath(Messages.Image__SuuntoApp_Icon));
    }
 
-   private static void logDownloadResult(final WorkoutDownload workoutdownload) {
+   private static void logDownloadResult(final WorkoutDownload workoutDownload) {
 
-      ++_numberOfDownloadedTours[0];
+      if (workoutDownload.isSuccessfullyDownloaded()) {
 
-      TourLogManager.addLog(TourLogState.IMPORT_OK,
-            NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_004_DownloadStatus,
-                  workoutdownload.getWorkoutKey(),
-                  workoutdownload.getAbsoluteFilePath()));
+         ++_numberOfDownloadedTours[0];
+
+         TourLogManager.addLog(TourLogState.IMPORT_OK,
+               NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_004_DownloadStatus,
+                     workoutDownload.getWorkoutKey(),
+                     workoutDownload.getAbsoluteFilePath()));
+      } else {
+         TourLogManager.logError(workoutDownload.getError());
+      }
    }
 
    private CompletableFuture<WorkoutDownload> downloadFile(final String workoutKey) {
@@ -174,7 +179,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             //Get the list of workouts
             final Workouts workouts = retrieveWorkoutsList();
             if (workouts.payload.size() == 0) {
-               TourLogManager.logInfo(Messages.Log_DownloadWorkoutsToSuunto_002_NotFound);
+               TourLogManager.logInfo(Messages.Log_DownloadWorkoutsToSuunto_002_NewWorkoutsNotFound);
                return;
             }
 
@@ -221,7 +226,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
                Messages.Dialog_WorkoutsDownload_Summary,
-               NLS.bind(Messages.Dialog_WorkoutsDownload_Message, _numberOfAvailableTours[0], _numberOfDownloadedTours[0]));
+               NLS.bind(Messages.Dialog_WorkoutsDownload_Message,
+                     _numberOfDownloadedTours[0],
+                     _numberOfAvailableTours[0] - _numberOfDownloadedTours[0]));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          StatusUtil.log(e);
@@ -297,7 +304,14 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final CompletableFuture<WorkoutDownload> workoutDownload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
             .thenApply(response -> writeFileToFolder(workoutKey, response))
-            .exceptionally(e -> new WorkoutDownload(workoutKey));
+            .exceptionally(e -> {
+               final WorkoutDownload erroneousDownload = new WorkoutDownload(workoutKey);
+               erroneousDownload.setError(NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_006_Error,
+                     erroneousDownload.getWorkoutKey(),
+                     e.getMessage()));
+               erroneousDownload.setSuccessfullyDownloaded(false);
+               return erroneousDownload;
+            });
 
       return workoutDownload;
    }
@@ -314,6 +328,15 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       }
 
       final Path filePath = Paths.get(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER), StringUtils.sanitizeFileName(fileName));
+      workoutDownload.setAbsoluteFilePath(filePath.toAbsolutePath().toString());
+
+      if (filePath.toFile().exists()) {
+
+         workoutDownload.setError(NLS.bind(Messages.Log_DownloadWorkoutsToSuunto_005_FileAlreadyExists,
+               workoutDownload.getWorkoutKey(),
+               filePath.toAbsolutePath().toString()));
+         return workoutDownload;
+      }
 
       try (InputStream inputStream = response.body();
             FileOutputStream fileOutputStream = new FileOutputStream(filePath.toFile())) {
@@ -325,9 +348,10 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       } catch (final IOException e) {
          StatusUtil.log(e);
+         workoutDownload.setError(e.getMessage());
          return workoutDownload;
       }
-      workoutDownload.setAbsoluteFilePath(filePath.toAbsolutePath().toString());
+
       workoutDownload.setSuccessfullyDownloaded(true);
 
       return workoutDownload;
