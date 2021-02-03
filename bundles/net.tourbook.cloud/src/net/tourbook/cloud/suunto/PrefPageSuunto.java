@@ -263,9 +263,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             _chkUseDateFilter = new Button(container, SWT.CHECK);
             _chkUseDateFilter.setText(Messages.Pref_Checkbox_Use_SinceDateFilter);
             _chkUseDateFilter.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
-            GridDataFactory.fillDefaults()
-                  .align(SWT.BEGINNING, SWT.FILL)
-                  .applyTo(_chkUseDateFilter);
+            GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(_chkUseDateFilter);
             _chkUseDateFilter.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
@@ -275,9 +273,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
             _dtFilterSince = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
             _dtFilterSince.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
-            GridDataFactory.fillDefaults()
-                  .align(SWT.BEGINNING, SWT.FILL)
-                  .applyTo(_dtFilterSince);
+            GridDataFactory.fillDefaults().applyTo(_dtFilterSince);
          }
       }
    }
