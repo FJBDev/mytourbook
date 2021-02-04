@@ -45,7 +45,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
    /*
     * UI controls
     */
-   private Combo comboAltitudeDataSource;
+   private Combo _comboAltitudeDataSource;
    private Combo _comboDistanceDataSource;
 
    @Override
@@ -77,8 +77,8 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
          /*
           * combo: Altitude source
           */
-         comboAltitudeDataSource = new Combo(groupData, SWT.READ_ONLY | SWT.BORDER);
-         comboAltitudeDataSource.setVisibleItemCount(2);
+         _comboAltitudeDataSource = new Combo(groupData, SWT.READ_ONLY | SWT.BORDER);
+         _comboAltitudeDataSource.setVisibleItemCount(2);
 
          // label: Distance data source
          final Label lblDistanceDataSource = new Label(groupData, SWT.NONE);
@@ -100,7 +100,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
    @Override
    protected void performDefaults() {
 
-      comboAltitudeDataSource.select(1);
+      _comboAltitudeDataSource.select(1);
       _comboDistanceDataSource.select(0);
    }
 
@@ -110,7 +110,7 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(Preferences.ALTITUDE_DATA_SOURCE, comboAltitudeDataSource.getSelectionIndex());
+         _prefStore.setValue(Preferences.ALTITUDE_DATA_SOURCE, _comboAltitudeDataSource.getSelectionIndex());
          _prefStore.setValue(Preferences.DISTANCE_DATA_SOURCE, _comboDistanceDataSource.getSelectionIndex());
       }
       return isOK;
@@ -122,9 +122,9 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
        * Fill-up the altitude data choices
        */
       for (final String altitudeDataType : AltitudeData) {
-         comboAltitudeDataSource.add(altitudeDataType);
+         _comboAltitudeDataSource.add(altitudeDataType);
       }
-      comboAltitudeDataSource.select(_prefStore.getInt(Preferences.ALTITUDE_DATA_SOURCE));
+      _comboAltitudeDataSource.select(_prefStore.getInt(Preferences.ALTITUDE_DATA_SOURCE));
 
       /*
        * Fill-up the distance data choices
