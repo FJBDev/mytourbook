@@ -3418,11 +3418,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          getBreakTime();
       }
 
-      int prevTime = 0;
+      int previousTime = 0;
 
       final int cadenceZonesDelimiter = _prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER);
       cadenceZone_FastTime = 0;
       cadenceZone_SlowTime = 0;
+
+      final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
 
       // compute zone values
       for (int serieIndex = 0; serieIndex < timeSerie.length; serieIndex++) {
@@ -3430,27 +3432,18 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          final float cadence = cadenceSerie[serieIndex];
          final int time = timeSerie[serieIndex];
 
-         final int timeDiff = time - prevTime;
-         prevTime = time;
+         final int timeDifference = time - previousTime;
+         previousTime = time;
 
          // check if a break occurred, break time is ignored
-         if (breakTimeSerie != null) {
-
-            /*
-             * break time requires distance data, so it's possible that break time data are not
-             * available
-             */
-
-            if (breakTimeSerie[serieIndex]) {
-               // cadence zones are not set for break time
-               continue;
-            }
+         if (!isPaceAndSpeedFromRecordedTime && breakTimeSerie != null && breakTimeSerie[serieIndex]) {
+            continue;
          }
 
          if (cadence >= cadenceZonesDelimiter) {
-            cadenceZone_FastTime += timeDiff;
+            cadenceZone_FastTime += timeDifference;
          } else {
-            cadenceZone_SlowTime += timeDiff;
+            cadenceZone_SlowTime += timeDifference;
          }
       }
 
