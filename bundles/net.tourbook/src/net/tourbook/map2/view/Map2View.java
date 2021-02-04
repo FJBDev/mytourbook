@@ -428,6 +428,7 @@ public class Map2View extends ViewPart implements
    private ActionCreateTourMarkerFromMap     _actionCreateTourMarkerFromMap;
    private ActionDimMap                      _actionDimMap;
    private ActionOpenPrefDialog              _actionEditMap2Preferences;
+   private Action_ExportMap_SubMenu          _actionExportMap_SubMenu;
    private ActionManageMapProviders          _actionManageMapProvider;
    private ActionMapBookmarks                _actionMap2_Bookmarks;
    private ActionMap2Color                   _actionMap2_Color;
@@ -1041,7 +1042,7 @@ public class Map2View extends ViewPart implements
 
    public void actionShowSlider() {
 
-      if (_allTourData == null || _allTourData.isEmpty()) {
+      if (_allTourData.isEmpty()) {
          return;
       }
 
@@ -1611,7 +1612,7 @@ public class Map2View extends ViewPart implements
       _actionManageMapProvider            = new ActionManageMapProviders(this);
       _actionReloadFailedMapImages        = new ActionReloadFailedMapImages(this);
       _actionSaveDefaultPosition          = new ActionSaveDefaultPosition(this);
-      _action_ExportMap_SubMenu           = new Action_ExportMap_SubMenu(this);
+      _actionExportMap_SubMenu            = new Action_ExportMap_SubMenu(this);
       _actionSearchTourByLocation         = new ActionSearchTourByLocation();
       _actionSetDefaultPosition           = new ActionSetDefaultPosition(this);
       _actionShowAllFilteredPhotos        = new ActionShowAllFilteredPhotos(this);
@@ -2120,7 +2121,7 @@ public class Map2View extends ViewPart implements
 
       menuMgr.add(_actionSetDefaultPosition);
       menuMgr.add(_actionSaveDefaultPosition);
-      menuMgr.add(_action_ExportMap_SubMenu);
+      menuMgr.add(_actionExportMap_SubMenu);
 
       menuMgr.add(new Separator());
 
@@ -2356,8 +2357,11 @@ public class Map2View extends ViewPart implements
             _parent.getSize().x,
             _parent.getSize().y);
 
-      final GC gc = new GC(_parent);
-      gc.copyArea(image, 0, 0);
+      final GC gc = new GC(image);
+      _parent.print(gc);
+      //This produces the same result
+      //  final GC gc = new GC(_parent);
+      //  gc.copyArea(image, 0, 0);
       gc.dispose();
 
       return image;

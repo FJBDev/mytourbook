@@ -4,6 +4,10 @@
 TODO's
 ======
 
+* Fix tour marker editor dialog initial issue: tour chart is toooo small
+
+* 2D Map: reorder context menu actions a little bit
+
 * Website: Document cloud connections
 
   @wolfgang-ch In the Strava guidelines, I read this : https://developers.strava.com/guidelines/
@@ -41,7 +45,7 @@ New
 
 * 2D Map (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/289
  - Added the possibility to configure a "User-Agent" for a custom map provider
- - Added the possibility to export the current map view to an image file (jpg, png or bmp) or to the clipboard
+ - Added the possibility to export the current map view to an image file (jpeg, png or bmp) or to the clipboard
 
 
 Improvements
@@ -51,8 +55,15 @@ Improvements
   - Added the speed and power values in the TCX exports
   
 * Fit Import
-  - Import HRV-RR values which can be displayed in the Heart Rate Variability view
+  - Import R-R intervals
 
+* TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
+  - Added the speed and power values in the TCX exports
+
+* Tour Chart
+  - Show heartbeat values
+    - Beat values from device
+    - R-R intervals
 
 Changes  
 =======
@@ -70,6 +81,14 @@ Bugfix
 * TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
   - Fixed the TCX Course Export format as it was not properly formatted before and was preventing from importing TCX Courses in Garmin Connect
 
+* TCX Import (Frederic)
+  - The pause import for some TCX formats could lead to multiple erroneous pauses
+
+* Pause Re-Import (Frederic)
+  - In some scenarii, the pause re-import could be imcomplete if the tour originally contained pauses and the new file doesn't contain any
+
+* Fit Import (Frederic)
+  - When importing a file without pauses, the recorded time could sometimes be different by 1 or 2 seconds compared to the elapsed time.
 
 Translation    
 ===========
