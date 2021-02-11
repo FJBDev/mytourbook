@@ -314,6 +314,22 @@ public class Util {
       return buf.toString();
    }
 
+   /**
+    * Concatenate two int arrays into one
+    *
+    * @param firstValues
+    * @param secondValues
+    * @return
+    */
+   public static int[] concatInt(final int[] firstValues, final int[] secondValues) {
+
+      final int[] concatenatedValues = Arrays.copyOf(firstValues, firstValues.length + secondValues.length);
+
+      System.arraycopy(secondValues, 0, concatenatedValues, firstValues.length, secondValues.length);
+
+      return concatenatedValues;
+   }
+
    public static float[][] convertDoubleToFloat(final double[][] doubleSeries) {
 
       final float[][] floatSeries = new float[doubleSeries.length][];
@@ -1787,7 +1803,7 @@ public class Util {
    public static void logSimpleMessage(final Class<?> clazz,
                                        final String message) {
 
-      System.out.println(String.format("%s [%s] %s",
+      System.out.println(String.format("%s [%s] %s", //$NON-NLS-1$
             UI.timeStampNano(),
             clazz.getSimpleName(),
             message));
