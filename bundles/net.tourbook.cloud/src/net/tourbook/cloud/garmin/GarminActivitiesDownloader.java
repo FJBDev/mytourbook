@@ -43,8 +43,6 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
-import net.tourbook.cloud.suunto.PrefPageSuunto;
-import net.tourbook.cloud.suunto.SuuntoTokensRetrievalHandler;
 import net.tourbook.cloud.suunto.WorkoutDownload;
 import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
@@ -57,7 +55,6 @@ import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
 
-import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -66,6 +63,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.json.JSONObject;
 
 public class GarminActivitiesDownloader extends TourbookCloudDownloader {
 
@@ -88,10 +86,15 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
 
    private CompletableFuture<WorkoutDownload> downloadFile(final String workoutKey) {
 
+      final JSONObject body = new JSONObject();
+      body.put("oauthAccessToken", getAccessToken()); //$NON-NLS-1$
+      body.put("oauthAccessTokenSecret", getAccessTokenSecret()); //$NON-NLS-1$
+      body.put("uploadStartTimeInSeconds", "1613413915"); //$NON-NLS-1$
+      body.put("uploadEndTimeInSeconds", "1613500314"); //$NON-NLS-1$
+
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutKey))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
-            .GET()
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/wellness/activities" + workoutKey))//$NON-NLS-1$
+            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
             .build();
 
       return sendAsyncRequest(workoutKey, request);
@@ -120,7 +123,7 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
 
          final int returnResult = PreferencesUtil.createPreferenceDialogOn(
                Display.getCurrent().getActiveShell(),
-               PrefPageSuunto.ID,
+               PrefPageGarmin.ID,
                null,
                null).open();
 
@@ -139,9 +142,7 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
 
             monitor.beginTask(Messages.Dialog_DownloadWorkouts_Task, 2);
 
-            monitor.subTask(Messages.ValidatingSuuntoTokens_SubTask);
-
-            if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+            if (!isReady()) {
                TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
                return;
             }
@@ -219,20 +220,20 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
    }
 
    private String getAccessToken() {
-      return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
+      return _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN);
+   }
+
+   private String getAccessTokenSecret() {
+      return _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN_SECRET);
    }
 
    private String getDownloadFolder() {
       return _prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER);
    }
 
-   private String getRefreshToken() {
-      return _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN);
-   }
-
    @Override
    protected boolean isReady() {
-      return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getRefreshToken()) &&
+      return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getAccessTokenSecret()) &&
             StringUtils.hasContent(getDownloadFolder());
    }
 
@@ -278,10 +279,19 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
 
    private Workouts retrieveWorkoutsList() {
 
-      final var sinceDateFilter = _prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE);
+      final var sinceDateFilter = _prefStore.getLong(Preferences.GARMIN_WORKOUT_FILTER_SINCE_DATE);
+      final StringBuilder parameterBuilder = new StringBuilder();
+      parameterBuilder.append("oauthAccessToken=");
+      parameterBuilder.append(getAccessToken());
+      parameterBuilder.append("&oauthAccessTokenSecret=");
+      parameterBuilder.append(getAccessTokenSecret());
+      parameterBuilder.append("&uploadStartTimeInSeconds=");
+      parameterBuilder.append(sinceDateFilter);
+      parameterBuilder.append("&uploadEndTimeInSeconds=");
+      parameterBuilder.append(sinceDateFilter + 86400);
+
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workouts?since=" + sinceDateFilter))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/wellness/activities?" + parameterBuilder.toString()))//$NON-NLS-1$
             .GET()
             .build();
 

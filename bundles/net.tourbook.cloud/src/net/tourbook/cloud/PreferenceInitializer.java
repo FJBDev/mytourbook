@@ -34,6 +34,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, 0);
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, 0);
 
+      store.setDefault(Preferences.GARMIN_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_ACCESSTOKEN_SECRET, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_ACTIVITY_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_USE_WORKOUT_FILTER_SINCE_DATE, false);
+      store.setDefault(Preferences.GARMIN_WORKOUT_FILTER_SINCE_DATE, 1577836800000L);
+
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_REFRESHTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, 0);
