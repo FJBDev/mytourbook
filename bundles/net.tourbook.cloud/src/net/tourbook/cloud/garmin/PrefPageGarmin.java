@@ -72,8 +72,6 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
 
    public static final String      ID                                        = "net.tourbook.cloud.PrefPageGarmin";                                  //$NON-NLS-1$
 
-   public static final String      ClientId                                  = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                               //$NON-NLS-1$
-
    public static final int         CALLBACK_PORT                             = 4920;
 
    private IPreferenceStore        _prefStore                                = Activator.getDefault().getPreferenceStore();
