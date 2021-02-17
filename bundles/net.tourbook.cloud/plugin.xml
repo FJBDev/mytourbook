@@ -27,6 +27,16 @@
       />
    </extension>
    
+    <!-- Garmin -->
+ 	<extension   point="net.tourbook.cloudDownloader">
+      <cloudDownloader
+         id             ="net.tourbook.cloud.GarminActivitiesDownloader"
+         name           ="Garmin Activities Downloader"
+         class          ="net.tourbook.cloud.garmin.GarminActivitiesDownloader"
+      />
+   </extension>
+   
+   
 	<!-- CLOUD FILES DOWNLOADERS -->
       
       
