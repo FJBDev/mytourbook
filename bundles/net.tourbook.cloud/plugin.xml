@@ -64,6 +64,17 @@
    </extension>
    
    
+    <!-- Garmin -->
+   <extension	point="org.eclipse.ui.preferencePages">
+      <page
+            category="net.tourbook.preferences.PrefPageCloud"
+            class="net.tourbook.cloud.garmin.PrefPageGarmin"
+            id="net.tourbook.cloud.PrefPageGarmin"
+            name="Garmin">
+      </page>
+   </extension>
+   
+   
    <!-- Strava -->
    <extension	point="org.eclipse.ui.preferencePages">
       <page
