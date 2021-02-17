@@ -50,7 +50,7 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
       saveTokensInPreferences(tokens);
    }
 
-   private Tokens handleGetRequest(final HttpExchange httpExchange) {
+   public Tokens handleGetRequest(final HttpExchange httpExchange) {
 
       final char[] separators = { '#', '&', '?' };
 

@@ -16,6 +16,7 @@
 package net.tourbook.cloud.garmin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -23,7 +24,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
@@ -34,6 +38,8 @@ import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONObject;
 
@@ -97,6 +103,26 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
       }
 
       return isTokenValid;
+   }
+
+   @Override
+   public Tokens handleGetRequest(final HttpExchange httpExchange) {
+
+      final char[] separators = { '#', '&', '?' };
+
+      final String response = httpExchange.getRequestURI().toString();
+
+      String authorizationCode = UI.EMPTY_STRING;
+      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+      final Optional<NameValuePair> result = params
+            .stream()
+            .filter(param -> param.getName().equals(OAuth2Constants.PARAM_CODE)).findAny();
+
+      if (result.isPresent()) {
+         authorizationCode = result.get().getValue();
+      }
+
+      return retrieveTokens(authorizationCode);
    }
 
    @Override
