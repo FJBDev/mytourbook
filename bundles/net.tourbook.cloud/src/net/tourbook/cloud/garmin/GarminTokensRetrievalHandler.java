@@ -28,10 +28,8 @@ import java.time.Duration;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
-import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.Tokens;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
-import net.tourbook.cloud.suunto.SuuntoTokens;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -47,8 +45,13 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
 
    protected GarminTokensRetrievalHandler() {}
 
-   public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+   public static GarminTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
 
+//      {
+//         "oauth_token":"-53---",
+//         "oauth_token_secret":"",
+//         "oauth_verifier":""
+//     }
       final JSONObject body = new JSONObject();
       String grantType;
       if (isRefreshToken) {
@@ -63,18 +66,16 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
       final HttpRequest request = HttpRequest.newBuilder()
             .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/token"))//$NON-NLS-1$
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/access_token"))//$NON-NLS-1$
             .build();
 
       try {
          final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
          if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
-            final SuuntoTokens token = new ObjectMapper().readValue(response.body(), SuuntoTokens.class);
+            final GarminTokens token = new ObjectMapper().readValue(response.body(), GarminTokens.class);
 
             return token;
-         } else {
-//            MessageDialog.openError(_shell, "toto", response.body());
          }
       } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
@@ -86,20 +87,12 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
 
    public static boolean getValidTokens() {
 
-      if (!OAuth2Utils.isAccessTokenExpired(
-            _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
-                  Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000)) {
-         return true;
-      }
-
-      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
+      final GarminTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
 
       boolean isTokenValid = false;
       if (newTokens != null) {
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, newTokens.getExpires_in());
-         _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, newTokens.getRefresh_token());
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, newTokens.getAccess_token());
+         _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN_SECRET, newTokens.oauthAccessToken);
+         _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN, newTokens.oauthAccessToken);
          isTokenValid = true;
       }
 
@@ -110,7 +103,7 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
    public Tokens retrieveTokens(final String authorizationCode) {
 
       if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return new SuuntoTokens();
+         return new GarminTokens();
       }
 
       return getTokens(authorizationCode, false, UI.EMPTY_STRING);
@@ -119,22 +112,20 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
    @Override
    public void saveTokensInPreferences(final Tokens tokens) {
 
-      if (!(tokens instanceof SuuntoTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
+      if (!(tokens instanceof GarminTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
 
-         final String currentAccessToken = _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
-         _prefStore.firePropertyChangeEvent(Preferences.SUUNTO_ACCESSTOKEN,
+         final String currentAccessToken = _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN);
+         _prefStore.firePropertyChangeEvent(Preferences.GARMIN_ACCESSTOKEN,
                currentAccessToken,
                currentAccessToken);
          return;
       }
 
-      final SuuntoTokens suuntoTokens = (SuuntoTokens) tokens;
+      final GarminTokens garminTokens = (GarminTokens) tokens;
 
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, suuntoTokens.getExpires_in());
-      _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, suuntoTokens.getRefresh_token());
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
+      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN_SECRET, garminTokens.getRefresh_token());
 
       //Setting it last so that we trigger the preference change when everything is ready
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, suuntoTokens.getAccess_token());
+      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN, garminTokens.getAccess_token());
    }
 }

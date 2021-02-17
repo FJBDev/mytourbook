@@ -15,7 +15,15 @@
  *******************************************************************************/
 package net.tourbook.cloud.garmin;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,6 +39,7 @@ import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
@@ -59,25 +68,25 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   //TODO FB     //  response.redirect('https://connect.garmin.com/oauthConfirm?oauth_token=' + token);
+   private static final String PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
+   private static final String PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   private static final String PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
+   private static final String PREF_CLOUDCONNECTIVITY_WEBPAGE_LABEL      = net.tourbook.cloud.Messages.Pref_CloudConnectivity_WebPage_Label;
+   private static final String APP_BTN_BROWSE                            = net.tourbook.Messages.app_btn_browse;
+   private static final String DIALOG_EXPORT_DIR_DIALOG_MESSAGE          = net.tourbook.Messages.dialog_export_dir_dialog_message;
+   private static final String DIALOG_EXPORT_DIR_DIALOG_TEXT             = net.tourbook.Messages.dialog_export_dir_dialog_text;
 
-   private static final String     PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
-   private static final String     PREF_CLOUDCONNECTIVITY_AUTHORIZE_BUTTON   = net.tourbook.cloud.Messages.Pref_CloudConnectivity_Authorize_Button;
-   private static final String     PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
-   private static final String     PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL    = net.tourbook.cloud.Messages.Pref_CloudConnectivity_ExpiresAt_Label;
-   private static final String     PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
-   private static final String     PREF_CLOUDCONNECTIVITY_WEBPAGE_LABEL      = net.tourbook.cloud.Messages.Pref_CloudConnectivity_WebPage_Label;
-   private static final String     APP_BTN_BROWSE                            = net.tourbook.Messages.app_btn_browse;
-   private static final String     DIALOG_EXPORT_DIR_DIALOG_MESSAGE          = net.tourbook.Messages.dialog_export_dir_dialog_message;
-   private static final String     DIALOG_EXPORT_DIR_DIALOG_TEXT             = net.tourbook.Messages.dialog_export_dir_dialog_text;
+   //Put this httpclient in a static class to be reused ?
+   private static HttpClient       _httpClient   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
 
-   public static final String      ID                                        = "net.tourbook.cloud.PrefPageGarmin";                                  //$NON-NLS-1$
+   public static final String      ID            = "net.tourbook.cloud.PrefPageGarmin";                                  //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                             = 4920;
+   public static final int         CALLBACK_PORT = 4920;
 
-   private IPreferenceStore        _prefStore                                = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
 
-   private final IDialogSettings   _state                                    = TourbookPlugin.getState(DialogEasyImportConfig.ID);
+   private final IDialogSettings   _state        = TourbookPlugin.getState(DialogEasyImportConfig.ID);
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -309,6 +318,29 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
     */
    private void onClickAuthorize() {
 
+      //Retrieve the tokens before asking for consent
+
+      final HttpRequest request = HttpRequest.newBuilder()
+            .GET()
+            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/request_token"))//$NON-NLS-1$
+            .build();
+
+      GarminTokens garminTokens = null;
+      try {
+         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
+            garminTokens = new ObjectMapper().readValue(response.body(), GarminTokens.class);
+         }
+      } catch (IOException | InterruptedException e) {
+         StatusUtil.log(e);
+         Thread.currentThread().interrupt();
+      }
+
+      if (garminTokens == null) {
+         return;
+      }
+
       final GarminTokensRetrievalHandler tokensRetrievalHandler = new GarminTokensRetrievalHandler();
       _server = new LocalHostServer(CALLBACK_PORT, "Garmin", _prefChangeListener); //$NON-NLS-1$
       final boolean isServerCreated = _server.createCallBackServer(tokensRetrievalHandler);
@@ -317,7 +349,8 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      Display.getDefault().syncExec(() -> WEB.openUrl(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/oauth/request_token").toString()));
+      final String oauth_token = garminTokens.oauth_token;
+      Display.getDefault().syncExec(() -> WEB.openUrl("https://connect.garmin.com/oauthConfirm?oauth_token=" + oauth_token));//$NON-NLS-1$
    }
 
    private void onSelectBrowseDirectory() {
