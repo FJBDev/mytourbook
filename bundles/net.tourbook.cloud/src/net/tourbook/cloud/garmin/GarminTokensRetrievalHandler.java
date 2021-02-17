@@ -49,26 +49,20 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
 
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
-   protected GarminTokensRetrievalHandler() {}
+   private String                  _oauthTokenSecret;
 
-   public static GarminTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+   protected GarminTokensRetrievalHandler(final String oauthTokenSecret) {
+      _oauthTokenSecret = oauthTokenSecret;
+   }
 
-//      {
-//         "oauth_token":"-53---",
-//         "oauth_token_secret":"",
-//         "oauth_verifier":""
-//     }
+   public GarminTokens getTokens(final String oauthToken,
+                                 final String oauthVerifier) {
+
       final JSONObject body = new JSONObject();
-      String grantType;
-      if (isRefreshToken) {
-         body.put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
-         grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
-      } else {
-         body.put(OAuth2Constants.PARAM_CODE, authorizationCode);
-         grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
-      }
+      body.put("oauth_token", oauthToken);
+      body.put("oauth_verifier", oauthVerifier);
+      body.put("oauth_token_secret", _oauthTokenSecret);
 
-      body.put(OAuth2Constants.PARAM_GRANT_TYPE, grantType);
       final HttpRequest request = HttpRequest.newBuilder()
             .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
@@ -78,7 +72,7 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
       try {
          final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
+         if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
             final GarminTokens token = new ObjectMapper().readValue(response.body(), GarminTokens.class);
 
             return token;
@@ -91,20 +85,6 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
       return null;
    }
 
-   public static boolean getValidTokens() {
-
-      final GarminTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
-
-      boolean isTokenValid = false;
-      if (newTokens != null) {
-         _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN_SECRET, newTokens.oauthAccessToken);
-         _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN, newTokens.oauthAccessToken);
-         isTokenValid = true;
-      }
-
-      return isTokenValid;
-   }
-
    @Override
    public Tokens handleGetRequest(final HttpExchange httpExchange) {
 
@@ -112,33 +92,40 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
 
       final String response = httpExchange.getRequestURI().toString();
 
-      String authorizationCode = UI.EMPTY_STRING;
       final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
-      final Optional<NameValuePair> result = params
+      final Optional<NameValuePair> optionalOauthToken = params
             .stream()
-            .filter(param -> param.getName().equals(OAuth2Constants.PARAM_CODE)).findAny();
+            .filter(param -> param.getName().equals("oauth_token")).findAny();
 
-      if (result.isPresent()) {
-         authorizationCode = result.get().getValue();
+      final Optional<NameValuePair> optionalOauthVerifier = params
+            .stream()
+            .filter(param -> param.getName().equals("oauth_verifier")).findAny();
+
+      String oauthToken = UI.EMPTY_STRING;
+      String oauthVerifier = UI.EMPTY_STRING;
+      if (optionalOauthToken.isPresent()) {
+         oauthToken = optionalOauthToken.get().getValue();
+      }
+      if (optionalOauthVerifier.isPresent()) {
+         oauthVerifier = optionalOauthVerifier.get().getValue();
       }
 
-      return retrieveTokens(authorizationCode);
+      return getTokens(oauthToken, oauthVerifier);
+   }
+
+   public Tokens retrieveTokens() {
+      return null;
    }
 
    @Override
    public Tokens retrieveTokens(final String authorizationCode) {
-
-      if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         return new GarminTokens();
-      }
-
-      return getTokens(authorizationCode, false, UI.EMPTY_STRING);
+      return null;
    }
 
    @Override
    public void saveTokensInPreferences(final Tokens tokens) {
 
-      if (!(tokens instanceof GarminTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
+      if (!(tokens instanceof GarminTokens) || StringUtils.isNullOrEmpty(((GarminTokens) tokens).oauthAccessToken)) {
 
          final String currentAccessToken = _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN);
          _prefStore.firePropertyChangeEvent(Preferences.GARMIN_ACCESSTOKEN,
@@ -149,9 +136,9 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
 
       final GarminTokens garminTokens = (GarminTokens) tokens;
 
-      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN_SECRET, garminTokens.getRefresh_token());
+      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN_SECRET, garminTokens.oauthAccessTokenSecret);
 
       //Setting it last so that we trigger the preference change when everything is ready
-      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN, garminTokens.getAccess_token());
+      _prefStore.setValue(Preferences.GARMIN_ACCESSTOKEN, garminTokens.oauthAccessToken);
    }
 }

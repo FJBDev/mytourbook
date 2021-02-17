@@ -271,8 +271,8 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
       final boolean isAuthorized = StringUtils.hasContent(_labelAccessToken_Value.getText()) && StringUtils.hasContent(_labelAccessTokenSecret_Value
             .getText());
 
-      _labelAccessTokenSecret_Value.setEnabled(isAuthorized);
       _labelAccessToken.setEnabled(isAuthorized);
+      _labelAccessTokenSecret.setEnabled(isAuthorized);
       _labelDownloadFolder.setEnabled(isAuthorized);
       _comboDownloadFolderPath.setEnabled(isAuthorized);
       _btnSelectFolder.setEnabled(isAuthorized);
@@ -341,7 +341,7 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      final GarminTokensRetrievalHandler tokensRetrievalHandler = new GarminTokensRetrievalHandler();
+      final GarminTokensRetrievalHandler tokensRetrievalHandler = new GarminTokensRetrievalHandler(garminTokens.oauth_token_secret);
       _server = new LocalHostServer(CALLBACK_PORT, "Garmin", _prefChangeListener); //$NON-NLS-1$
       final boolean isServerCreated = _server.createCallBackServer(tokensRetrievalHandler);
 
