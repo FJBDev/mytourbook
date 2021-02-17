@@ -26,6 +26,15 @@ public final class Preferences {
    public static final String DROPBOX_ACCESSTOKEN_ISSUE_DATETIME = "DROPBOX_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
 
    /*
+    * Garmin preferences
+    */
+   public static final String GARMIN_ACCESSTOKEN                   = "GARMIN_ACCESSTOKEN";                   //$NON-NLS-1$
+   public static final String GARMIN_ACCESSTOKEN_SECRET            = "GARMIN_ACCESSTOKEN_SECRET";            //$NON-NLS-1$
+   public static final String GARMIN_ACTIVITY_DOWNLOAD_FOLDER      = "GARMIN_ACTIVITY_DOWNLOAD_FOLDER";      //$NON-NLS-1$
+   public static final String GARMIN_USE_WORKOUT_FILTER_SINCE_DATE = "GARMIN_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
+   public static final String GARMIN_WORKOUT_FILTER_SINCE_DATE     = "GARMIN_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
+
+   /*
     * Strava preferences
     */
    public static final String STRAVA_ACCESSTOKEN            = "STRAVA_ACCESSTOKEN";            //$NON-NLS-1$
@@ -44,4 +53,5 @@ public final class Preferences {
    public static final String SUUNTO_WORKOUT_DOWNLOAD_FOLDER       = "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
    public static final String SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE = "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
    public static final String SUUNTO_WORKOUT_FILTER_SINCE_DATE     = "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
+
 }

@@ -51,6 +51,9 @@ public class Messages extends NLS {
    public static String Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip;
    public static String Pref_CloudConnectivity_Dropbox_WebPage_Link;
 
+   //GARMIN
+   public static String Pref_AccountInformation_GarminConnect_WebPage_Link;
+
    //SUUNTO
    public static String Image__SuuntoApp_Icon;
 
