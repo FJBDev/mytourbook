@@ -440,8 +440,8 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
 
       _comboDownloadFolderPath.setText(_prefStore.getString(Preferences.GARMIN_ACTIVITY_DOWNLOAD_FOLDER));
 
-      _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.GARMIN_WORKOUT_FILTER_SINCE_DATE));
-      setFilterSinceDate(_prefStore.getLong(Preferences.GARMIN_USE_WORKOUT_FILTER_SINCE_DATE));
+      _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.GARMIN_USE_WORKOUT_FILTER_SINCE_DATE));
+      setFilterSinceDate(_prefStore.getLong(Preferences.GARMIN_WORKOUT_FILTER_SINCE_DATE));
    }
 
    private void setFilterSinceDate(final long filterSinceDate) {
