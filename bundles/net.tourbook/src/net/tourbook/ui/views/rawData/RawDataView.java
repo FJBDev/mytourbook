@@ -72,6 +72,8 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.extension.download.CloudDownloaderManager;
+import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.importdata.DeviceImportState;
@@ -384,59 +386,60 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             .withMillisRemoved();
    }
    //
-   private boolean                _isToolTipInDate;
-   private boolean                _isToolTipInTime;
-   private boolean                _isToolTipInTitle;
-   private boolean                _isToolTipInTags;
+   private boolean                       _isToolTipInDate;
+   private boolean                       _isToolTipInTime;
+   private boolean                       _isToolTipInTitle;
+   private boolean                       _isToolTipInTags;
    //
-   private TourDoubleClickState   _tourDoubleClickState       = new TourDoubleClickState();
+   private TourDoubleClickState          _tourDoubleClickState       = new TourDoubleClickState();
    //
-   private Thread                 _watchingStoresThread;
-   private Thread                 _watchingFolderThread;
-   private WatchService           _folderWatcher;
-   private AtomicBoolean          _isWatchingStores           = new AtomicBoolean();
-   private AtomicBoolean          _isDeviceStateUpdateDelayed = new AtomicBoolean();
-   private ReentrantLock          WATCH_LOCK                  = new ReentrantLock();
+   private Thread                        _watchingStoresThread;
+   private Thread                        _watchingFolderThread;
+   private WatchService                  _folderWatcher;
+   private AtomicBoolean                 _isWatchingStores           = new AtomicBoolean();
+   private AtomicBoolean                 _isDeviceStateUpdateDelayed = new AtomicBoolean();
+   private ReentrantLock                 WATCH_LOCK                  = new ReentrantLock();
    //
-   private HashMap<Long, Image>   _configImages               = new HashMap<>();
-   private HashMap<Long, Integer> _configImageHash            = new HashMap<>();
+   private HashMap<Long, Image>          _configImages               = new HashMap<>();
+   private HashMap<Long, Integer>        _configImageHash            = new HashMap<>();
    //
-   private boolean                _isBrowserCompleted;
-   private boolean                _isInUIStartup;
-   private boolean                _isInUpdate;
-   private boolean                _isNewUI;
+   private boolean                       _isBrowserCompleted;
+   private boolean                       _isInUIStartup;
+   private boolean                       _isInUpdate;
+   private boolean                       _isNewUI;
 
    /**
     * When <code>false</code> then the background WatchStores task must set it valid. Only when it
     * is valid then the device state icon displays the state, otherwise it shows a waiting icon.
     */
-   private boolean                _isDeviceStateValid;
-   private boolean                _isRunDashboardAnimation    = true;
-   private boolean                _isShowWatcherAnimation;
-   private boolean                _isUpdateDeviceState        = true;
+   private boolean                       _isDeviceStateValid;
+   private boolean                       _isRunDashboardAnimation    = true;
+   private boolean                       _isShowWatcherAnimation;
+   private boolean                       _isUpdateDeviceState        = true;
    //
-   private String                 _cssFonts;
-   private String                 _cssFromFile;
+   private String                        _cssFonts;
+   private String                        _cssFromFile;
    //
-   private String                 _imageUrl_Device_TurnOff;
-   private String                 _imageUrl_Device_TurnOn;
-   private String                 _imageUrl_DeviceFolder_OK;
-   private String                 _imageUrl_DeviceFolder_Disabled;
-   private String                 _imageUrl_DeviceFolder_NotAvailable;
-   private String                 _imageUrl_DeviceFolder_NotChecked;
-   private String                 _imageUrl_DeviceFolder_NotSetup;
-   private String                 _imageUrl_ImportFromFile;
-   private String                 _imageUrl_SerialPort_Configured;
-   private String                 _imageUrl_SerialPort_Directly;
-   private String                 _imageUrl_State_AdjustTemperature;
-   private String                 _imageUrl_State_RetrieveWeatherData;
-   private String                 _imageUrl_State_Error;
-   private String                 _imageUrl_State_OK;
-   private String                 _imageUrl_State_MovedFiles;
-   private String                 _imageUrl_State_SaveTour;
-   private String                 _imageUrl_State_TourMarker;
+   private String                        _imageUrl_Device_TurnOff;
+   private String                        _imageUrl_Device_TurnOn;
+   private String                        _imageUrl_DeviceFolder_OK;
+   private String                        _imageUrl_DeviceFolder_Disabled;
+   private String                        _imageUrl_DeviceFolder_NotAvailable;
+   private String                        _imageUrl_DeviceFolder_NotChecked;
+   private String                        _imageUrl_DeviceFolder_NotSetup;
+   private String                        _imageUrl_ImportFromFile;
+   private String                        _imageUrl_SerialPort_Configured;
+   private String                        _imageUrl_SerialPort_Directly;
+   private String                        _imageUrl_State_AdjustTemperature;
+   private String                        _imageUrl_State_RetrieveWeatherData;
+   private String                        _imageUrl_State_Error;
+   private String                        _imageUrl_State_OK;
+   private String                        _imageUrl_State_MovedFiles;
+   private String                        _imageUrl_State_SaveTour;
+   private String                        _imageUrl_State_TourMarker;
    //
-   private PixelConverter         _pc;
+   private PixelConverter                _pc;
+   private List<TourbookCloudDownloader> _cloudDownloadersList       = CloudDownloaderManager.getCloudDownloaderList();
 
    /*
     * resources
@@ -2084,6 +2087,16 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                (HTTP_DUMMY + HREF_ACTION_SERIAL_PORT_DIRECTLY),
                _imageUrl_SerialPort_Directly);
 
+         for (final var cloudDownloader : _cloudDownloadersList) {
+
+            createHTML_92_TileAction(
+                  sb,
+                  cloudDownloader.getName(),
+                  cloudDownloader.getDescription(),
+                  (HTTP_DUMMY + HREF_TOKEN + cloudDownloader.getId()),
+                  cloudDownloader.getIconUrl());
+         }
+
          createHTML_92_TileAction(
                sb,
                Messages.Import_Data_HTML_Action_OldUI,
@@ -2629,7 +2642,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
             final Object firstElement = ((IStructuredSelection) _tourViewer.getSelection()).getFirstElement();
 
-            if ((firstElement != null) && (firstElement instanceof TourData)) {
+            if (firstElement instanceof TourData) {
                TourManager.getInstance().tourDoubleClickAction(RawDataView.this, _tourDoubleClickState);
             }
          }
@@ -3422,8 +3435,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, fileNamePath);
       }
-
-      return;
    }
 
    @Override
@@ -3669,7 +3680,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       _actionRemoveTour.setEnabled(selectedTours > 0);
       _actionExportTour.setEnabled(selectedNotDeleteTours > 0);
       _actionJoinTours.setEnabled(selectedNotDeleteTours > 1);
-      _actionUploadTour.setEnabled(selectedTours > 0 && _actionUploadTour.hasUploaders());
+      _actionUploadTour.setEnabled(selectedNotDeleteTours > 0);
 
       _actionEditTour.setEnabled(isOneSavedAndNotDeleteTour);
       _actionEditQuick.setEnabled(isOneSavedAndNotDeleteTour);
@@ -4285,6 +4296,14 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       } else if (ACTION_OLD_UI.equals(hrefAction)) {
 
          onSelectUI_Old();
+      } else {
+
+         //We look for the cloud downloader that matches
+         //the action in {@link hrefAction} and execute its
+         //{@link TourbookCloudDownloader#downloadTours} method.
+         _cloudDownloadersList.stream()
+               .filter(cd -> cd.getId().equals(hrefAction))
+               .forEach(TourbookCloudDownloader::downloadTours);
       }
    }
 
@@ -4598,7 +4617,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
             // remove tour properties
             tourData.setTourType(null);
             tourData.setTourTitle(UI.EMPTY_STRING);
-            tourData.setTourTags(new HashSet<TourTag>());
+            tourData.setTourTags(new HashSet<>());
 
             /**
              * when a remove tour is saved again, this will cause the exception: <br>
