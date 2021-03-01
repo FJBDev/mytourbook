@@ -439,7 +439,6 @@ public class Map2View extends ViewPart implements
    private ActionMap2_Graphs                 _actionMap2_TourColors;
    private ActionReloadFailedMapImages       _actionReloadFailedMapImages;
    private ActionSaveDefaultPosition         _actionSaveDefaultPosition;
-   private Action_ExportMap_SubMenu          _action_ExportMap_SubMenu;
    private ActionSearchTourByLocation        _actionSearchTourByLocation;
    private ActionSetDefaultPosition          _actionSetDefaultPosition;
    private ActionShowAllFilteredPhotos       _actionShowAllFilteredPhotos;
@@ -2084,7 +2083,6 @@ public class Map2View extends ViewPart implements
       tbm.add(_actionMap2_Options);
    }
 
-
    @Override
    public void fillContextMenu(final IMenuManager menuMgr, final ActionManageOfflineImages actionManageOfflineImages) {
 
@@ -2121,10 +2119,8 @@ public class Map2View extends ViewPart implements
 
       menuMgr.add(_actionSetDefaultPosition);
       menuMgr.add(_actionSaveDefaultPosition);
-      menuMgr.add(_action_ExportMap_SubMenu);
 
       menuMgr.add(new Separator());
-
 
       menuMgr.add(_actionExportMap_SubMenu);
       menuMgr.add(_actionDimMap_SubMenu);
@@ -3859,10 +3855,21 @@ public class Map2View extends ViewPart implements
 
             final int ratingStars = photo.ratingStars;
 
-            if ((isNoStar && ratingStars == 0) ||
-                  (isEqual && ratingStars == _photoFilter_RatingStars) ||
-                  (isMore && ratingStars >= _photoFilter_RatingStars) ||
-                  (isLess && ratingStars <= _photoFilter_RatingStars)) {
+            if (isNoStar && ratingStars == 0) {
+
+               // only photos without stars are displayed
+
+               _filteredPhotos.add(photo);
+
+            } else if (isEqual && ratingStars == _photoFilter_RatingStars) {
+
+               _filteredPhotos.add(photo);
+
+            } else if (isMore && ratingStars >= _photoFilter_RatingStars) {
+
+               _filteredPhotos.add(photo);
+
+            } else if (isLess && ratingStars <= _photoFilter_RatingStars) {
 
                _filteredPhotos.add(photo);
             }
