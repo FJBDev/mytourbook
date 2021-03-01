@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.cloud.dropbox;
 
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,14 +23,17 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
-import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
@@ -50,16 +54,22 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String     PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP =
-         net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
+   //SET_FORMATTING_OFF
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_ACCESSTOKEN  = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_AccessToken;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE   = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Button_Authorize;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_GROUP_CLOUDACCOUNT = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Group_CloudAccount;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_EXPIRESAT    = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_ExpiresAt;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_REFRESHTOKEN = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_RefreshToken;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_WEBPAGE      = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_WebPage;
+   //SET_FORMATTING_ON
 
-   public static final String      ID                                          = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   public static final String      ID            = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   public static final String      ClientId                                    = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   public static final String      ClientId      = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                               = 4917;
+   public static final int         CALLBACK_PORT = 4917;
 
-   private IPreferenceStore        _prefStore                                  = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -72,15 +82,6 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    private Label                   _labelExpiresAt_Value;
    private Label                   _labelRefreshToken;
    private Label                   _labelRefreshToken_Value;
-
-   private String computeAccessTokenExpirationDate() {
-
-      final long expireAt = _prefStore.getLong(
-            Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
-                  Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN);
-
-      return (expireAt == 0) ? UI.EMPTY_STRING : TimeTools.getUTCISODateTime(expireAt);
-   }
 
    @Override
    protected void createFieldEditors() {
@@ -98,7 +99,9 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
                if (!event.getOldValue().equals(event.getNewValue())) {
 
                   _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
-                  _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
+                  _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
+                        _prefStore.getLong(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME),
+                        _prefStore.getInt(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN)));
                   _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
 
                   _group.redraw();
@@ -106,7 +109,9 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
                   updateTokensInformationGroup();
                }
 
-               _server.stopCallBackServer();
+               if (_server != null) {
+                  _server.stopCallBackServer();
+               }
             });
          }
       };
@@ -134,7 +139,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
           */
          final Button btnAuthorizeConnection = new Button(container, SWT.NONE);
          setButtonLayoutData(btnAuthorizeConnection);
-         btnAuthorizeConnection.setText(Messages.Pref_CloudConnectivity_Dropbox_Button_Authorize);
+         btnAuthorizeConnection.setText(PREFPAGE_CLOUDCONNECTIVITY_BUTTON_AUTHORIZE);
          btnAuthorizeConnection.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -151,37 +156,37 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       _group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(_group);
-      _group.setText(PREF_CLOUD_CONNECTIVITY_CLOUD_ACCOUNT_GROUP);
+      _group.setText(PREFPAGE_CLOUDCONNECTIVITY_GROUP_CLOUDACCOUNT);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_group);
       {
          {
             final Label labelWebPage = new Label(_group, SWT.NONE);
-            labelWebPage.setText(Messages.Pref_CloudConnectivity_Dropbox_WebPage_Label);
+            labelWebPage.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_WEBPAGE);
             GridDataFactory.fillDefaults().applyTo(labelWebPage);
 
             final Link linkWebPage = new Link(_group, SWT.NONE);
-            linkWebPage.setText(UI.LINK_TAG_START + Messages.Pref_CloudConnectivity_Dropbox_WebPage_Link + UI.LINK_TAG_END);
+            linkWebPage.setText(UI.LINK_TAG_START + Messages.PrefPage_CloudConnectivity_Dropbox_WebPage_Link + UI.LINK_TAG_END);
             linkWebPage.setEnabled(true);
             linkWebPage.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
-                  WEB.openUrl(Messages.Pref_CloudConnectivity_Dropbox_WebPage_Link);
+                  WEB.openUrl(Messages.PrefPage_CloudConnectivity_Dropbox_WebPage_Link);
                }
             });
             GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
          }
          {
             _labelAccessToken = new Label(_group, SWT.NONE);
-            _labelAccessToken.setText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Label);
+            _labelAccessToken.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_ACCESSTOKEN);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _labelAccessToken_Value = new Label(_group, SWT.WRAP);
-            _labelAccessToken_Value.setToolTipText(Messages.Pref_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+            _labelAccessToken_Value.setToolTipText(Messages.PrefPage_CloudConnectivity_Dropbox_AccessToken_Tooltip);
             GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_labelAccessToken_Value);
          }
          {
             _labelRefreshToken = new Label(_group, SWT.NONE);
-            _labelRefreshToken.setText(Messages.Pref_CloudConnectivity_Dropbox_RefreshToken_Label);
+            _labelRefreshToken.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_REFRESHTOKEN);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _labelRefreshToken_Value = new Label(_group, SWT.WRAP);
@@ -189,7 +194,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          }
          {
             _labelExpiresAt = new Label(_group, SWT.NONE);
-            _labelExpiresAt.setText(Messages.Pref_CloudConnectivity_Dropbox_ExpiresAt_Label);
+            _labelExpiresAt.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_EXPIRESAT);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(_group, SWT.NONE);
@@ -243,6 +248,10 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
     */
    private void onClickAuthorize() {
 
+      if (_server != null) {
+         _server.stopCallBackServer();
+      }
+
       final String codeVerifier = generateCodeVerifier();
       final String codeChallenge = generateCodeChallenge(codeVerifier);
 
@@ -254,14 +263,23 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          return;
       }
 
-      Display.getDefault().syncExec(() -> WEB.openUrl(
-            "https://www.dropbox.com/oauth2/authorize?" + //$NON-NLS-1$
-                  OAuth2Constants.PARAM_CLIENT_ID + UI.SYMBOL_EQUAL + ClientId +
-                  "&response_type=" + OAuth2Constants.PARAM_CODE + //$NON-NLS-1$
-                  "&" + OAuth2Constants.PARAM_REDIRECT_URI + UI.SYMBOL_EQUAL + DropboxClient.DropboxCallbackUrl + //$NON-NLS-1$
-                  "&code_challenge=" + codeChallenge + //$NON-NLS-1$
-                  "&code_challenge_method=S256&token_access_type=offline") //$NON-NLS-1$
-      );
+      final URIBuilder authorizeUrlBuilder = new URIBuilder();
+      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
+      authorizeUrlBuilder.setHost("www.dropbox.com"); //$NON-NLS-1$
+      authorizeUrlBuilder.setPath("/oauth2/authorize"); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, DropboxClient.DropboxCallbackUrl);
+      authorizeUrlBuilder.addParameter("code_challenge", codeChallenge); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter("code_challenge_method", "S256"); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrlBuilder.addParameter("token_access_type", "offline"); //$NON-NLS-1$ //$NON-NLS-2$
+      try {
+         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+
+         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
+      } catch (final URISyntaxException e) {
+         StatusUtil.log(e);
+      }
    }
 
    @Override
@@ -312,7 +330,9 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
    private void restoreState() {
 
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_ACCESSTOKEN));
-      _labelExpiresAt_Value.setText(computeAccessTokenExpirationDate());
+      _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
+            _prefStore.getLong(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME),
+            _prefStore.getInt(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN)));
       _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.DROPBOX_REFRESHTOKEN));
 
       updateTokensInformationGroup();

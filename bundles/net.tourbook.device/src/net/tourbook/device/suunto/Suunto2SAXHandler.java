@@ -339,11 +339,6 @@ public class Suunto2SAXHandler extends DefaultHandler {
          final float hr = Util.parseFloat(_characters.toString());
          _sampleData.pulse = hr * 60.0f;
 
-      } else if (name.equals(TAG_LAP)) {
-
-         // set a marker
-         _markerData.marker = 1;
-
       } else if (name.equals(TAG_LATITUDE)) {
 
          _isInLatitude = false;
@@ -382,13 +377,10 @@ public class Suunto2SAXHandler extends DefaultHandler {
                      _currentTime = TIME_FORMAT_RFC822.parse(timeString).getTime();
                   } catch (final ParseException e3) {
 
-                     Display.getDefault().syncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                           final String message = e3.getMessage();
-                           MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", message); //$NON-NLS-1$
-                           System.err.println(message + " in " + _importFilePath); //$NON-NLS-1$
-                        }
+                     Display.getDefault().syncExec(() -> {
+                        final String message = e3.getMessage();
+                        MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", message); //$NON-NLS-1$
+                        System.err.println(message + " in " + _importFilePath); //$NON-NLS-1$
                      });
                   }
                }
@@ -737,6 +729,11 @@ public class Suunto2SAXHandler extends DefaultHandler {
 
          isData = true;
          _isInPause = true;
+
+      } else if (name.equals(TAG_LAP)) {
+
+         // set a marker
+         _markerData.marker = 1;
 
       }
 

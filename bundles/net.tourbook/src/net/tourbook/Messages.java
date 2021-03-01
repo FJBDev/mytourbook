@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -565,6 +565,27 @@ public class Messages extends NLS {
    public static String        App_Cadence_Rpm;
    public static String        App_Cadence_Spm;
 
+   public static String        App_Db_Compress_Button_CompressByCopying;
+   public static String        App_Db_Compress_Button_CompressByCopying_Tooltip;
+   public static String        App_Db_Compress_Button_CompressDatabase;
+   public static String        App_Db_Compress_Button_CompressInplace;
+   public static String        App_Db_Compress_Button_CompressInplace_Tooltip;
+   public static String        App_Db_Compress_Dialog_ConfirmCompress_Message;
+   public static String        App_Db_Compress_DialogTitle;
+   public static String        App_Db_Compress_LogLabel_After;
+   public static String        App_Db_Compress_LogLabel_Before;
+   public static String        App_Db_Compress_LogLabel_Difference;
+   public static String        App_Db_Compress_LogLabel_Index;
+   public static String        App_Db_Compress_LogLabel_NotUsed;
+   public static String        App_Db_Compress_LogLabel_Table;
+   public static String        App_Db_Compress_LogLabel_Totals;
+   public static String        App_Db_Compress_LogLabel_Used;
+   public static String        App_Db_Compress_LogHeader_After;
+   public static String        App_Db_Compress_LogHeader_Before;
+   public static String        App_Db_Compress_LogHeader_Difference;
+   public static String        App_Db_Compress_Monitor_SubTask;
+   public static String        App_Db_Compress_Monitor_Task;
+
    public static String        App_Default_PersonFirstName;
 
    public static String        App_Dialog_FirstStartup_Message;
@@ -577,6 +598,7 @@ public class Messages extends NLS {
    public static String        App_Label_H_MM;
    public static String        App_Label_ISO8601;
    public static String        App_Label_max;
+   public static String        App_Label_NotAvailable;
    public static String        App_Label_NotAvailable_Shortcut;
 
    public static String        App_Link_RestoreDefaultValues;
@@ -2134,6 +2156,7 @@ public class Messages extends NLS {
    public static String Slideout_ChartMarkerOptions_Checkbox_IsShowTempPosition;
    public static String Slideout_ChartMarkerOptions_Checkbox_IsShowTempPosition_Tooltip;
    public static String Slideout_ChartMarkerOptions_Combo_TooltipPosition_Tooltip;
+   public static String Slideout_ChartMarkerOptions_Group_TooltipData;
    public static String Slideout_ChartMarkerOptions_Label_DeviceMarkerColor;
    public static String Slideout_ChartMarkerOptions_Label_DeviceMarkerColor_Tooltip;
    public static String Slideout_ChartMarkerOptions_Label_HiddenMarkerColor;
@@ -2305,6 +2328,8 @@ public class Messages extends NLS {
 
    public static String Slideout_StatisticOptions_Label_Title;
 
+   public static String Slideout_TourBlogOptions_Title;
+
    public static String Slideout_TourBookOptions_Checkbox_ShowTotalRow;
    public static String Slideout_TourBookOptions_Checkbox_ShowTotalRow_Tooltip;
    public static String Slideout_TourBookOptions_Label_Title;
@@ -2317,6 +2342,8 @@ public class Messages extends NLS {
    public static String Slideout_TourChartGraphBackground_Label_BackgroundSource;
    public static String Slideout_TourChartGraphBackground_Label_BackgroundStyle;
    public static String Slideout_TourChartGraphBackground_Label_Title;
+
+   public static String Slideout_TourChartOptions_Label_PulseGraph;
    public static String Slideout_TourChartOptions_Label_Title;
 
    public static String Slideout_TourChartSmoothing_Label_Title;
@@ -2596,6 +2623,7 @@ public class Messages extends NLS {
    public static String Tour_Database_PostUpdate_034_SetTourGeoParts;
    public static String Tour_Database_PostUpdate_037_SetHasGeoData;
    public static String Tour_Database_PostUpdate_040_SetTourRecordingTime;
+   public static String Tour_Database_PostUpdate_043_LatLonE6;
    public static String Tour_Database_PostUpdate011_SetTourCreateTime;
    public static String Tour_Database_PostUpdate020_ConvertIntToFloat;
    public static String Tour_Database_PostUpdate021_SetTourStartEndTime;
@@ -3036,6 +3064,12 @@ public class Messages extends NLS {
    public static String TourChart_Property_label_chart_type;
    public static String TourChart_Property_label_pace_speed;
    public static String TourChart_Property_label_time_slices;
+
+   public static String TourChart_PulseGraph_DeviceBpm_2nd_RRIntervals;
+   public static String TourChart_PulseGraph_DeviceBpm_Only;
+   public static String TourChart_PulseGraph_NotAvailable;
+   public static String TourChart_PulseGraph_RRIntervals_2nd_DeviceBpm;
+   public static String TourChart_PulseGraph_RRIntervals_Only;
 
    public static String TourChart_Smoothing_Algorithm_Initial;
    public static String TourChart_Smoothing_Algorithm_Jamet;

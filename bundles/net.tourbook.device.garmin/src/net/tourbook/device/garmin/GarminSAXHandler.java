@@ -441,7 +441,7 @@ public class GarminSAXHandler extends DefaultHandler {
       }
 
       //We remove any pauses that happened before the official tour start time
-      if (!_pausedTime_Start.isEmpty() && !_pausedTime_End.isEmpty()) {
+      if (_pausedTime_Start.size() > 0 && _pausedTime_End.size() > 0) {
 
          final List<Integer> pausesToRemove = new ArrayList<>();
          for (int index = 0; index < _pausedTime_Start.size(); ++index) {
@@ -694,9 +694,10 @@ public class GarminSAXHandler extends DefaultHandler {
             //we consider that a pause.
             if (_timeData.latitude == Double.MIN_VALUE &&
                   _timeData.longitude == Double.MIN_VALUE &&
-                  _timeData.altitude == Float.MIN_VALUE &&
-                  _timeData.distance == Float.MIN_VALUE &&
+                  _timeData.absoluteAltitude == Float.MIN_VALUE &&
+                  _timeData.absoluteDistance == Float.MIN_VALUE &&
                   _timeData.pulse == Float.MIN_VALUE &&
+                  _timeData.cadence == Float.MIN_VALUE &&
                   _timeData.speed == Float.MIN_VALUE &&
                   _timeData.power == Float.MIN_VALUE) {
 
@@ -1218,23 +1219,20 @@ public class GarminSAXHandler extends DefaultHandler {
          }
 
          // common tags
-         if (_dataVersion == 1 || _dataVersion == 2) {
+         if ((_dataVersion == 1 || _dataVersion == 2) && (_isInActivity || _isInCourse)) {
 
-            if (_isInActivity || _isInCourse) {
+            if (_isInCreator) {
+               getData_Creator_10_Start(name);
+            }
 
-               if (_isInCreator) {
-                  getData_Creator_10_Start(name);
-               }
+            if (name.equals(TAG_NOTES)) {
 
-               if (name.equals(TAG_NOTES)) {
+               _isInNotes = true;
+               _characters.delete(0, _characters.length());
 
-                  _isInNotes = true;
-                  _characters.delete(0, _characters.length());
+            } else if (name.equals(TAG_CREATOR)) {
 
-               } else if (name.equals(TAG_CREATOR)) {
-
-                  _isInCreator = true;
-               }
+               _isInCreator = true;
             }
          }
 
