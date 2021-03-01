@@ -106,8 +106,9 @@ public class TourDatabase {
    /**
     * Version for the database which is required that the tourbook application works successfully
     */
-   private static final int TOURBOOK_DB_VERSION = 43;
+   private static final int TOURBOOK_DB_VERSION = 99;
 
+//   private static final int TOURBOOK_DB_VERSION = 99; // 2X.X?
 //   private static final int TOURBOOK_DB_VERSION = 43; // 21.3?
 //   private static final int TOURBOOK_DB_VERSION = 42; // 20.11.1
 //   private static final int TOURBOOK_DB_VERSION = 41; // 20.8
@@ -5197,6 +5198,11 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_042_To_043(conn, splashManager);
          }
 
+         // XX -> 99
+         if (currentDbVersion == 43) {
+            currentDbVersion = _dbDesignVersion_New = updateDbDesign_043_to_044(conn, splashManager);
+         }
+
          // update db design version number
          updateVersionNumber_10_AfterDesignUpdate(conn, _dbDesignVersion_New);
 
@@ -7996,6 +8002,23 @@ public class TourDatabase {
       updateVersionNumber_20_AfterDataUpdate(conn, dbDataVersion, startTime);
    }
 
+   private int updateDb_042_To_043(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 43;
+
+      logDbUpdate_Start(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+      try (Statement stmt = conn.createStatement()) {
+
+         createTable_DbVersion_Data(stmt, _dbVersionOnStartup);
+      }
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
+   }
+
    /**
     * @param conn
     * @param splashManager
@@ -8156,7 +8179,7 @@ public class TourDatabase {
 
       final int newDbVersion = 43;
 
-      logDb_UpdateStart(newDbVersion);
+//      logDb_UpdateStart(newDbVersion);
       updateMonitor(splashManager, newDbVersion);
 
       final Statement stmt = conn.createStatement();
@@ -8183,24 +8206,7 @@ public class TourDatabase {
       }
       stmt.close();
 
-      logDb_UpdateEnd(newDbVersion);
-
-      return newDbVersion;
-   }
-
-   private void updateDbDesign_VersionNumber(final Connection conn, final int newVersion) throws SQLException {
-
-      final int newDbVersion = 43;
-
-      logDbUpdate_Start(newDbVersion);
-      updateMonitor(splashManager, newDbVersion);
-
-      try (Statement stmt = conn.createStatement()) {
-
-         createTable_DbVersion_Data(stmt, _dbVersionOnStartup);
-      }
-
-      logDbUpdate_End(newDbVersion);
+//      logDb_UpdateEnd(newDbVersion);
 
       return newDbVersion;
    }
