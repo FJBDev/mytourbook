@@ -2082,6 +2082,7 @@ public class Map2View extends ViewPart implements
       tbm.add(_actionMap2_MapProvider);
       tbm.add(_actionMap2_Options);
    }
+
    @Override
    public void fillContextMenu(final IMenuManager menuMgr, final ActionManageOfflineImages actionManageOfflineImages) {
 
@@ -2120,6 +2121,7 @@ public class Map2View extends ViewPart implements
       menuMgr.add(_actionSaveDefaultPosition);
 
       menuMgr.add(new Separator());
+
       menuMgr.add(_actionExportMap_SubMenu);
       menuMgr.add(_actionDimMap_SubMenu);
       menuMgr.add(_actionZoomLevelAdjustment);

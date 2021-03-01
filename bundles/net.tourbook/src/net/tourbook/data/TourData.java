@@ -5134,6 +5134,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       }
    }
 
+   public void computeTrainingStressData() {
+      computeGovss();
+      computeBikeScore();
+      computeSwimScore();
+   }
+
    /**
     * Convert old int[] data series into float[], this was done in the previous versions in this
     * method updateDatabase_019_to_020() but did not work in any cases
