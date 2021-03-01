@@ -5200,7 +5200,7 @@ public class TourDatabase {
 
          // XX -> 99
          if (currentDbVersion == 43) {
-            currentDbVersion = _dbDesignVersion_New = updateDbDesign_043_to_044(conn, splashManager);
+            currentDbVersion = _dbDesignVersion_New = updateDbDesign_043_to_099(conn, splashManager);
          }
 
          // update db design version number
@@ -8175,10 +8175,10 @@ public class TourDatabase {
       });
    }
 
-   private int updateDbDesign_043_to_044(final Connection conn, final SplashManager splashManager) throws SQLException {
+   private int updateDbDesign_043_to_099(final Connection conn, final SplashManager splashManager) throws SQLException {
 
-      final int newDbVersion = 43;
-
+      final int newDbVersion = 99;
+//TODO FB change 99 to the appropriate DB version
 //      logDb_UpdateStart(newDbVersion);
       updateMonitor(splashManager, newDbVersion);
 
