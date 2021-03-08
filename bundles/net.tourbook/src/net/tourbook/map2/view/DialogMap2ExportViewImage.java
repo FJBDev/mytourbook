@@ -215,7 +215,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
        * group: Image format
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ExportImage_Group_Format);
+      group.setText(Messages.Dialog_ExportImage_Group_Image);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -452,7 +452,13 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private String getFileExtension() {
 
-      return _comboImageFormat.getSelectionIndex() == 0 ? "jpg" : _comboImageFormat.getText().toLowerCase();
+      return _comboImageFormat.getSelectionIndex() == 0
+
+            // JPEG format
+            ? "jpg"//$NON-NLS-1$
+
+            // other formats
+            : _comboImageFormat.getText().toLowerCase();
    }
 
    private int getSwtImageType() {

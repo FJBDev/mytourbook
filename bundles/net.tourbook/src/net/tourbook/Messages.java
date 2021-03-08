@@ -754,7 +754,6 @@ public class Messages extends NLS {
 
    public static String        Database_Confirm_update;
    public static String        Database_Confirm_update_title;
-   public static String        Database_Confirm_Update20;
 
    public static String        Database_Monitor_CreateDatabase;
    public static String        Database_Monitor_db_service_task;
@@ -1526,8 +1525,6 @@ public class Messages extends NLS {
 
    public static String        Photo_Filter_Label_NumberOfAllPhotos_Tooltip;
    public static String        Photo_Filter_Label_NumberOfFilteredPhotos_Tooltip;
-   public static String        Photo_Filter_Label_RatingStars;
-   public static String        Photo_Filter_Label_RatingStars_Tooltip;
    public static String        Photo_Filter_Operator_HasAny;
    public static String        Photo_Filter_Operator_HasAny_Tooltip;
    public static String        Photo_Filter_Operator_IsEqual;
@@ -1677,6 +1674,7 @@ public class Messages extends NLS {
    public static String        Pref_Graphs_Error_one_graph_must_be_selected;
    public static String        Pref_Graphs_grid_horizontal_distance;
    public static String        Pref_Graphs_grid_vertical_distance;
+   public static String        Pref_Graphs_Group_Graphs;
    public static String        Pref_Graphs_Group_Grid;
    public static String        Pref_Graphs_Group_mouse_mode;
    public static String        Pref_Graphs_Group_units_for_xaxis;
@@ -2328,7 +2326,7 @@ public class Messages extends NLS {
 
    public static String Slideout_StatisticOptions_Label_Title;
 
-   public static String Slideout_TourBlogOptions_Title;
+   public static String Slideout_TourBlogOptions_Label_Title;
 
    public static String Slideout_TourBookOptions_Checkbox_ShowTotalRow;
    public static String Slideout_TourBookOptions_Checkbox_ShowTotalRow_Tooltip;
@@ -2343,6 +2341,8 @@ public class Messages extends NLS {
    public static String Slideout_TourChartGraphBackground_Label_BackgroundStyle;
    public static String Slideout_TourChartGraphBackground_Label_Title;
 
+   public static String Slideout_TourChartOptions_Check_InvertPaceGraph;
+   public static String Slideout_TourChartOptions_Check_InvertPaceGraph_Tooltip;
    public static String Slideout_TourChartOptions_Label_PulseGraph;
    public static String Slideout_TourChartOptions_Label_Title;
 
@@ -2635,7 +2635,6 @@ public class Messages extends NLS {
    public static String Tour_Database_Update_ModifyColumn;
    public static String Tour_Database_Update_Subtask;
    public static String Tour_Database_Update_TourWeek;
-   public static String Tour_Database_Update_TourWeek_Info;
    public static String Tour_Database_UpdateDone;
    public static String Tour_Database_UpdateInfo;
 
@@ -3067,7 +3066,6 @@ public class Messages extends NLS {
 
    public static String TourChart_PulseGraph_DeviceBpm_2nd_RRIntervals;
    public static String TourChart_PulseGraph_DeviceBpm_Only;
-   public static String TourChart_PulseGraph_NotAvailable;
    public static String TourChart_PulseGraph_RRIntervals_2nd_DeviceBpm;
    public static String TourChart_PulseGraph_RRIntervals_Only;
 
