@@ -152,7 +152,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    /**
     * The number of tiles wide at each zoom level
     */
-   private int[]       _mapWidthInTilesAtZoom;
+   private long[]      _mapWidthInTilesAtZoom;
 
    /**
     * An array of coordinates in <em>pixels</em> that indicates the center in the world map for the
@@ -736,7 +736,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * @param zoom
     * @return
     */
-   private int getMapSizeInTiles(int zoom) {
+   private long getMapSizeInTiles(int zoom) {
 
       // ensure array bounds, this is Math.min() inline
       final int maxBounds = _mapWidthInTilesAtZoom.length - 1;
@@ -752,9 +752,9 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     */
    public Dimension getMapTileSize(final int zoom) {
 
-      final int mapTileSize = getMapSizeInTiles(zoom);
+      final long mapTileSize = getMapSizeInTiles(zoom);
 
-      return new Dimension(mapTileSize, mapTileSize);
+      return new Dimension((int) mapTileSize, (int) mapTileSize);
    }
 
    /**
@@ -838,22 +838,31 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * @param zoom
     * @return
     */
-   public Tile getTile(int tilePositionX, final int tilePositionY, final int zoom) {
+   public Tile getTile(long tilePositionX, final int tilePositionY, final int zoom) {
 
       /*
        * create tile key, wrap the tiles horizontally --> mod the x with the max width and use that
        */
-      final int numTilesWidth = getMapSizeInTiles(zoom);
+      final long numTilesWidth = getMapSizeInTiles(zoom);
 
       if (tilePositionX < 0) {
+         try {
          tilePositionX = numTilesWidth - (Math.abs(tilePositionX) % numTilesWidth);
+         } catch (final Exception e) {
+            tilePositionX = -1;
+         }
       }
-      tilePositionX = tilePositionX % numTilesWidth;
+         try {
+            tilePositionX = tilePositionX % numTilesWidth;
+         } catch (final Exception e) {
+            tilePositionX = -1;
+         }
+
 
       final String tileKey = Tile.getTileKey(//
             this,
             zoom,
-            tilePositionX,
+            (int) tilePositionX,
             tilePositionY,
             null,
             getCustomTileKey(),
@@ -926,7 +935,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
          // tile is not being loaded, create a new tile
 
-         tile = new Tile(this, zoom, tilePositionX, tilePositionY, null);
+         tile = new Tile(this, zoom, (int) tilePositionX, tilePositionY, null);
          tile.setBoundingBoxEPSG4326();
          doPostCreation(tile);
 
@@ -950,7 +959,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
          // an image is not available, start loading it
 
-         if (isTileValid(tilePositionX, tilePositionY, zoom)) {
+         if (isTileValid((int) tilePositionX, tilePositionY, zoom)) {
 
             // set state if an offline image for the current tile is available
             if (_isOfflineImageUsed) {
@@ -1099,7 +1108,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       _tileSize = tileSize;
 
       // map width (in pixel) is one tile at zoomlevel 0
-      int devMapSize = tileSize;
+      long devMapSize = tileSize;
 
       final int mapArrayLength = maxZoom + 1;
 
@@ -1107,7 +1116,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       _longitudeRadianWidthInPixels = new double[mapArrayLength];
 
       _mapCenterInPixelsAtZoom = new Point2D.Double[mapArrayLength];
-      _mapWidthInTilesAtZoom = new int[mapArrayLength];
+      _mapWidthInTilesAtZoom = new long[mapArrayLength];
 
       // get map values for each zoom level
       for (int z = 0; z <= maxZoom; ++z) {
@@ -1118,7 +1127,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
          // how wide is each radian of longitude in pixels
          _longitudeRadianWidthInPixels[z] = devMapSize / (2.0 * Math.PI);
 
-         final int devMapSize2 = devMapSize / 2;
+         final long devMapSize2 = devMapSize / 2;
 
          _mapCenterInPixelsAtZoom[z] = new Point2D.Double(devMapSize2, devMapSize2);
          _mapWidthInTilesAtZoom[z] = devMapSize / tileSize;
