@@ -152,7 +152,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    /**
     * The number of tiles wide at each zoom level
     */
-   private long[]      _mapWidthInTilesAtZoom;
+   private int[]       _mapWidthInTilesAtZoom;
 
    /**
     * An array of coordinates in <em>pixels</em> that indicates the center in the world map for the
@@ -736,7 +736,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * @param zoom
     * @return
     */
-   private long getMapSizeInTiles(int zoom) {
+   private int getMapSizeInTiles(int zoom) {
 
       // ensure array bounds, this is Math.min() inline
       final int maxBounds = _mapWidthInTilesAtZoom.length - 1;
@@ -752,9 +752,9 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     */
    public Dimension getMapTileSize(final int zoom) {
 
-      final long mapTileSize = getMapSizeInTiles(zoom);
+      final int mapTileSize = getMapSizeInTiles(zoom);
 
-      return new Dimension((int) mapTileSize, (int) mapTileSize);
+      return new Dimension(mapTileSize, mapTileSize);
    }
 
    /**
@@ -838,12 +838,12 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * @param zoom
     * @return
     */
-   public Tile getTile(long tilePositionX, final int tilePositionY, final int zoom) {
+   public Tile getTile(int tilePositionX, final int tilePositionY, final int zoom) {
 
       /*
        * create tile key, wrap the tiles horizontally --> mod the x with the max width and use that
        */
-      final long numTilesWidth = getMapSizeInTiles(zoom);
+      final int numTilesWidth = getMapSizeInTiles(zoom);
 
       if (tilePositionX < 0) {
          try {
@@ -862,7 +862,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       final String tileKey = Tile.getTileKey(//
             this,
             zoom,
-            (int) tilePositionX,
+            tilePositionX,
             tilePositionY,
             null,
             getCustomTileKey(),
@@ -935,7 +935,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
          // tile is not being loaded, create a new tile
 
-         tile = new Tile(this, zoom, (int) tilePositionX, tilePositionY, null);
+         tile = new Tile(this, zoom, tilePositionX, tilePositionY, null);
          tile.setBoundingBoxEPSG4326();
          doPostCreation(tile);
 
@@ -959,7 +959,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
          // an image is not available, start loading it
 
-         if (isTileValid((int) tilePositionX, tilePositionY, zoom)) {
+         if (isTileValid(tilePositionX, tilePositionY, zoom)) {
 
             // set state if an offline image for the current tile is available
             if (_isOfflineImageUsed) {
@@ -1116,7 +1116,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       _longitudeRadianWidthInPixels = new double[mapArrayLength];
 
       _mapCenterInPixelsAtZoom = new Point2D.Double[mapArrayLength];
-      _mapWidthInTilesAtZoom = new long[mapArrayLength];
+      _mapWidthInTilesAtZoom = new int[mapArrayLength];
 
       // get map values for each zoom level
       for (int z = 0; z <= maxZoom; ++z) {
@@ -1130,7 +1130,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
          final long devMapSize2 = devMapSize / 2;
 
          _mapCenterInPixelsAtZoom[z] = new Point2D.Double(devMapSize2, devMapSize2);
-         _mapWidthInTilesAtZoom[z] = devMapSize / tileSize;
+         _mapWidthInTilesAtZoom[z] = (int) (devMapSize / tileSize);
 
          devMapSize *= 2;
       }
