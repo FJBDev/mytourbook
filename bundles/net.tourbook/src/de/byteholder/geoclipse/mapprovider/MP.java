@@ -846,17 +846,17 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       final int numTilesWidth = getMapSizeInTiles(zoom);
 
       if (tilePositionX < 0) {
-         try {
+//         try {
          tilePositionX = numTilesWidth - (Math.abs(tilePositionX) % numTilesWidth);
-         } catch (final Exception e) {
-            tilePositionX = -1;
-         }
+//         } catch (final Exception e) {
+//            tilePositionX = -1;
+//         }
       }
-         try {
+//         try {
             tilePositionX = tilePositionX % numTilesWidth;
-         } catch (final Exception e) {
-            tilePositionX = -1;
-         }
+//         } catch (final Exception e) {
+//            tilePositionX = -1;
+//         }
 
 
       final String tileKey = Tile.getTileKey(//
