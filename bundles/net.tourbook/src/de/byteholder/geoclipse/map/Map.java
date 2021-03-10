@@ -172,7 +172,6 @@ public class Map extends Canvas {
    /**
     * Max zoomlevels which the maps supports
     */
-   //TODO FB
    public static final int              MAP_MAX_ZOOM_LEVEL                    = 21;
 
    /**
