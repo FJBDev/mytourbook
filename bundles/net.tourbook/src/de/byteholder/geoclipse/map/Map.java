@@ -182,7 +182,7 @@ public class Map extends Canvas {
 
    public static final int              UI_MAX_ZOOM_LEVEL                     = MAP_MAX_ZOOM_LEVEL + 1;
 
-   public static final int              EXPANDED_HOVER_SIZE                   = 20;
+   public static final int              EXPANDED_HOVER_SIZE                   = 25;
    public static final int              EXPANDED_HOVER_SIZE2                  = EXPANDED_HOVER_SIZE / 2;
 
    private static final String          DIRECTION_E                           = "E";                                                      //$NON-NLS-1$
