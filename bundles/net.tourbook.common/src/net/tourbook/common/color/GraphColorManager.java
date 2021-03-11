@@ -108,9 +108,8 @@ public class GraphColorManager {
    static final String                   TAG_IS_MAX_VALUE_OVERWRITE              = "isMaxOverwrite";             //$NON-NLS-1$
    static final String                   TAG_MAX_VALUE_OVERWRITE                 = "maxValueOverwrite";          //$NON-NLS-1$
 
-   public static String[][]              colorNames                              = new String[][]
+   public static String[][]              colorNames                              = new String[][] {
 
-   {
          { PREF_COLOR_BRIGHT, Messages.Graph_Pref_color_gradient_bright },
          { PREF_COLOR_DARK, Messages.Graph_Pref_color_gradient_dark },
          { PREF_COLOR_LINE, Messages.Graph_Pref_color_line },
@@ -130,91 +129,91 @@ public class GraphColorManager {
     */
    static {
 
-      MAP_COLOR_ALTITUDE = new Map2ColorProfile(//
-            //
+      MAP_COLOR_ALTITUDE = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 0xEC, 0x20, 0x20),
                   new ColorValue(50, 255, 85, 13),
                   new ColorValue(100, 255, 255, 0),
                   new ColorValue(150, 0, 170, 9),
                   new ColorValue(190, 23, 163, 255) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             38,
             MapColorProfile.BRIGHTNESS_LIGHTNING,
             39);
 
-      MAP_COLOR_GRADIENT = new Map2ColorProfile(//
-            //
+      MAP_COLOR_GRADIENT = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 0, 0, 255),
                   new ColorValue(50, 0, 255, 255),
                   new ColorValue(100, 0, 237, 0),
                   new ColorValue(150, 255, 255, 0),
                   new ColorValue(190, 255, 0, 0) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             23,
             MapColorProfile.BRIGHTNESS_DIMMING,
             10,
-            //
+
             // overwrite min/max values
             true,
             -10,
             true,
             10);
 
-      MAP_COLOR_PACE = new Map2ColorProfile(//
-            //
+      MAP_COLOR_PACE = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 255, 0, 0),
                   new ColorValue(50, 255, 255, 0),
                   new ColorValue(100, 0, 169, 0),
                   new ColorValue(150, 0, 255, 255),
                   new ColorValue(190, 0, 0, 255) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             17,
             MapColorProfile.BRIGHTNESS_DIMMING,
             8);
 
-      MAP_COLOR_PULSE = new Map2ColorProfile(//
-            //
+      MAP_COLOR_PULSE = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 0, 203, 0),
                   new ColorValue(50, 57, 255, 0),
                   new ColorValue(100, 255, 255, 0),
                   new ColorValue(150, 255, 0, 0),
                   new ColorValue(190, 255, 0, 247) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             11,
             MapColorProfile.BRIGHTNESS_DIMMING,
             10);
 
-      MAP_COLOR_SPEED = new Map2ColorProfile(//
-            //
+      MAP_COLOR_SPEED = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 0, 0, 255),
                   new ColorValue(50, 0, 255, 255),
                   new ColorValue(100, 0, 169, 0),
                   new ColorValue(150, 255, 255, 0),
                   new ColorValue(190, 255, 0, 0) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             17,
             MapColorProfile.BRIGHTNESS_DIMMING,
             8);
 
-      MAP_COLOR_RUN_DYN_STEP_LENGTH = new Map2ColorProfile(//
-            //
+      MAP_COLOR_RUN_DYN_STEP_LENGTH = new Map2ColorProfile(
+
             new ColorValue[] {
                   new ColorValue(10, 140, 0, 255),
                   new ColorValue(50, 215, 65, 0),
                   new ColorValue(100, 255, 77, 0),
                   new ColorValue(150, 255, 115, 55),
                   new ColorValue(190, 255, 236, 0) },
-            //
+
             MapColorProfile.BRIGHTNESS_DIMMING,
             20,
             MapColorProfile.BRIGHTNESS_LIGHTNING,
@@ -373,19 +372,25 @@ public class GraphColorManager {
       }
    }
 
+   /**
+    * Create graph default colors
+    * 
+    * @return
+    */
    private List<ColorDefinition> createDefaultColors() {
 
       final List<ColorDefinition> allColorDef = new ArrayList<>();
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_ALTITUDE, //
-            Messages.Graph_Label_Altitude,
-            new RGB(255, 255, 255),
-            new RGB(0, 255, 0),
-            new RGB(45, 188, 45),
-            new RGB(44, 134, 33),
-            MAP_COLOR_ALTITUDE));
+      allColorDef.add(new ColorDefinition(
+            PREF_GRAPH_ALTITUDE, //             colorDefinitionId
+            Messages.Graph_Label_Altitude, //   visibleName
+            new RGB(255, 255, 255), //          defaultGradientBright
+            new RGB(0, 255, 0), //              defaultGradientDark
+            new RGB(45, 188, 45), //            defaultLineColor
+            new RGB(44, 134, 33), //            defaultTextColor
+            MAP_COLOR_ALTITUDE)); //            defaultMapColorProfile
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_HEARTBEAT, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_HEARTBEAT,
             Messages.Graph_Label_Heartbeat,
             new RGB(255, 255, 255),
             new RGB(253, 0, 0),
@@ -393,7 +398,7 @@ public class GraphColorManager {
             new RGB(183, 0, 0),
             MAP_COLOR_PULSE));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_SPEED, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_SPEED,
             Messages.Graph_Label_Speed,
             new RGB(255, 255, 255),
             new RGB(0, 135, 211),
@@ -401,7 +406,7 @@ public class GraphColorManager {
             new RGB(0, 106, 167),
             MAP_COLOR_SPEED));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_PACE, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_PACE,
             Messages.Graph_Label_Pace,
             new RGB(255, 255, 255),
             new RGB(0x9C, 0x2F, 0xFF),
@@ -409,7 +414,7 @@ public class GraphColorManager {
             new RGB(88, 26, 142),
             MAP_COLOR_PACE));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_POWER, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_POWER,
             Messages.Graph_Label_Power,
             new RGB(255, 255, 255),
             new RGB(240, 0, 150),
@@ -417,7 +422,7 @@ public class GraphColorManager {
             new RGB(106, 0, 67),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TEMPTERATURE, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TEMPTERATURE,
             Messages.Graph_Label_Temperature,
             new RGB(255, 255, 255),
             new RGB(0, 217, 240),
@@ -425,7 +430,7 @@ public class GraphColorManager {
             new RGB(0, 134, 147),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_GRADIENT, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_GRADIENT,
             Messages.Graph_Label_Gradient,
             new RGB(255, 255, 255),
             new RGB(249, 231, 0),
@@ -433,7 +438,7 @@ public class GraphColorManager {
             new RGB(111, 98, 0),
             MAP_COLOR_GRADIENT));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_ALTIMETER, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_ALTIMETER,
             Messages.Graph_Label_Altimeter,
             new RGB(255, 255, 255),
             new RGB(255, 180, 0),
@@ -441,7 +446,7 @@ public class GraphColorManager {
             new RGB(144, 103, 0),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_CADENCE, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_CADENCE,
             Messages.Graph_Label_Cadence,
             new RGB(255, 255, 255),
             new RGB(228, 106, 16),
@@ -449,7 +454,7 @@ public class GraphColorManager {
             new RGB(139, 64, 10),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_GEAR, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_GEAR,
             Messages.Graph_Label_Gears,
             new RGB(0x5B, 0x5B, 0x5B),
             new RGB(0xFF, 0x00, 0x00),
@@ -553,7 +558,7 @@ public class GraphColorManager {
       /*
        * Athlete's data
        */
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_BODYWEIGHT, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_BODYWEIGHT,
             Messages.Graph_Label_Prefix_AthleteData + uiSpacing + Messages.Graph_Label_Athlete_Body_Weight,
             new RGB(255, 255, 255),
             new RGB(255, 170, 128),
@@ -561,7 +566,7 @@ public class GraphColorManager {
             new RGB(171, 100, 34),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_BODYFAT, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_BODYFAT,
             Messages.Graph_Label_Prefix_AthleteData + uiSpacing + Messages.Graph_Label_Athlete_Body_Fat,
             new RGB(255, 255, 255),
             new RGB(255, 135, 128),
@@ -573,7 +578,7 @@ public class GraphColorManager {
        * Other
        */
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TOUR_COMPARE, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TOUR_COMPARE,
             Messages.Graph_Label_Tour_Compare,
             new RGB(255, 255, 255),
             new RGB(255, 140, 26),
@@ -581,7 +586,7 @@ public class GraphColorManager {
             new RGB(139, 77, 15),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_HISTORY, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_HISTORY,
             Messages.Graph_Label_History,
             new RGB(255, 255, 255),
             new RGB(0xFF, 0x80, 0x33),
@@ -589,7 +594,7 @@ public class GraphColorManager {
             new RGB(0xFF, 0x80, 0x33),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TOUR, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TOUR,
             Messages.Graph_Label_Tour,
             new RGB(255, 255, 255),
             new RGB(0x0d, 0xaa, 0xff),
@@ -597,7 +602,7 @@ public class GraphColorManager {
             new RGB(0x0d, 0xaa, 0xff),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_DISTANCE, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_DISTANCE,
             Messages.Graph_Pref_color_statistic_distance,
             new RGB(255, 255, 255),
             new RGB(239, 167, 16),
@@ -605,7 +610,7 @@ public class GraphColorManager {
             new RGB(139, 98, 10),
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TIME, //
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TIME,
             Messages.Graph_Pref_color_statistic_time,
             new RGB(255, 255, 255),
             new RGB(187, 187, 140),
