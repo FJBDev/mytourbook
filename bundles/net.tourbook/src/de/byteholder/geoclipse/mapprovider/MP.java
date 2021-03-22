@@ -131,51 +131,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
    private static final ListenerList<IOfflineInfoListener> _offlineReloadEventListeners = new ListenerList<>(ListenerList.IDENTITY);
 
-   public static void addOfflineInfoListener(final IOfflineInfoListener listener) {
-      _offlineReloadEventListeners.add(listener);
-   }
-
-   public static void addTileListener(final ITileListener tileListener) {
-      _tileListeners.add(tileListener);
-   }
-
-   public static void fireTileEvent(final TileEventId tileEventId, final Tile tile) {
-      for (final Object listener : _tileListeners.getListeners()) {
-         final ITileListener tileListener = (ITileListener) listener;
-         tileListener.tileEvent(tileEventId, tile);
-      }
-   }
-
-   public static TileCache getErrorTiles() {
-      return _errorTiles;
-   }
-
-   public static TileCache getTileCache() {
-      return _tileCache;
-   }
-
-   public static ListenerList<ITileListener> getTileListeners() {
-      return _tileListeners;
-   }
-
-   public static LinkedBlockingDeque<Tile> getTileWaitingQueue() {
-      return _tileWaitingQueue;
-   }
-
-   public static void removeOfflineInfoListener(final IOfflineInfoListener listener) {
-      if (listener != null) {
-         _offlineReloadEventListeners.remove(listener);
-      }
-   }
-
-   public static void removeTileListener(final ITileListener tileListener) {
-      if (tileListener != null) {
-         _tileListeners.remove(tileListener);
-      }
-   }
-
    private int                                             _dimmingAlphaValue           = 0xFF;
-
    private RGB                                             _dimmingColor;
 
    private final Projection                                _projection;
@@ -189,7 +145,6 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
    // map min/max zoom level
    private int         _minZoomLevel       = 0;
-
    private int         _maxZoomLevel       = Map.UI_MAX_ZOOM_LEVEL - Map.UI_MIN_ZOOM_LEVEL;
 
    private int         _defaultZoomLevel   = 0;
@@ -197,7 +152,8 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    /**
     * The number of tiles wide at each zoom level
     */
-   private int[]     _mapWidthInTilesAtZoom;
+   private int[]       _mapWidthInTilesAtZoom;
+
    /**
     * An array of coordinates in <em>pixels</em> that indicates the center in the world map for the
     * given zoom level.
@@ -208,7 +164,8 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * An array of doubles that contain the number of pixels per degree of longitude at a give zoom
     * level.
     */
-   private double[]  _longitudeDegreeWidthInPixels;
+   private double[]    _longitudeDegreeWidthInPixels;
+
    /**
     * An array of doubles that contain the number of radians per degree of longitude at a given zoom
     * level (where longitudeRadianWidthInPixels[0] is the most zoomed out)
@@ -238,11 +195,6 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    private String      _imageFormat        = MapProviderManager.DEFAULT_IMAGE_FORMAT;
 
    private int         _favoriteZoom       = 0;
-
-   //
-   // Profile map provider values
-   //
-
    private GeoPosition _favoritePosition   = new GeoPosition(0.0, 0.0);
 
    private int         _lastUsedZoom       = 0;
@@ -257,6 +209,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     * map provider description
     */
    private String      _description        = UI.EMPTY_STRING;
+
    /**
     * OS folder to save offline images
     */
@@ -277,13 +230,16 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
     */
    private boolean     _isVisibleInUI;
 
+   //
+   // Profile map provider values
+   //
+
    /**
     * alpha values for the map provider, 100 is opaque, 0 is transparent
     */
    private int           _profileAlpha                    = 100;
 
    private boolean       _isProfileTransparentColors      = false;
-
    private int[]         _profileTransparentColor         = null;
 
    /**
@@ -292,7 +248,6 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    private boolean       _isProfileBlackTransparent;
 
    private boolean       _isProfileBrightnessForNextMp    = false;
-
    private int           _profileBrightnessValueForNextMp = 77;
 
    /**
@@ -336,6 +291,49 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
 
       initializeMapWithZoomAndSize(_maxZoomLevel, _tileSize);
 
+   }
+
+   public static void addOfflineInfoListener(final IOfflineInfoListener listener) {
+      _offlineReloadEventListeners.add(listener);
+   }
+
+   public static void addTileListener(final ITileListener tileListener) {
+      _tileListeners.add(tileListener);
+   }
+
+   public static void fireTileEvent(final TileEventId tileEventId, final Tile tile) {
+      for (final Object listener : _tileListeners.getListeners()) {
+         final ITileListener tileListener = (ITileListener) listener;
+         tileListener.tileEvent(tileEventId, tile);
+      }
+   }
+
+   public static TileCache getErrorTiles() {
+      return _errorTiles;
+   }
+
+   public static TileCache getTileCache() {
+      return _tileCache;
+   }
+
+   public static ListenerList<ITileListener> getTileListeners() {
+      return _tileListeners;
+   }
+
+   public static LinkedBlockingDeque<Tile> getTileWaitingQueue() {
+      return _tileWaitingQueue;
+   }
+
+   public static void removeOfflineInfoListener(final IOfflineInfoListener listener) {
+      if (listener != null) {
+         _offlineReloadEventListeners.remove(listener);
+      }
+   }
+
+   public static void removeTileListener(final ITileListener tileListener) {
+      if (tileListener != null) {
+         _tileListeners.remove(tileListener);
+      }
    }
 
    @Override
@@ -1534,3 +1532,4 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
    }
 
 }
+

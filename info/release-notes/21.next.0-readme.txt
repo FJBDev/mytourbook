@@ -21,7 +21,8 @@ New
 Improvements
 ============
 
-* 
+* 2D Map (Frederic):
+  - Extending the zoom levels capacity from 20 to 23
 
 
 Changes  
