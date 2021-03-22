@@ -851,7 +851,6 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
          tilePositionX = numTilesWidth - (Math.abs(tilePositionX) % numTilesWidth);
       }
       tilePositionX = tilePositionX % numTilesWidth;
-//         }
 
       final String tileKey = Tile.getTileKey(//
             this,
@@ -1102,7 +1101,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       _tileSize = tileSize;
 
       // map width (in pixel) is one tile at zoomlevel 0
-      long devMapSize = tileSize;
+      int devMapSize = tileSize;
 
       final int mapArrayLength = maxZoom + 1;
 
@@ -1113,18 +1112,18 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       _mapWidthInTilesAtZoom = new int[mapArrayLength];
 
       // get map values for each zoom level
-      for (int zoom = 0; zoom <= maxZoom; ++zoom) {
+      for (int z = 0; z <= maxZoom; ++z) {
 
          // how wide is each degree of longitude in pixels
-         _longitudeDegreeWidthInPixels[zoom] = (double) devMapSize / 360;
+         _longitudeDegreeWidthInPixels[z] = (double) devMapSize / 360;
 
          // how wide is each radian of longitude in pixels
-         _longitudeRadianWidthInPixels[zoom] = devMapSize / (2.0 * Math.PI);
+         _longitudeRadianWidthInPixels[z] = devMapSize / (2.0 * Math.PI);
 
-         final long devMapSize2 = devMapSize / 2;
+         final int devMapSize2 = devMapSize / 2;
 
-         _mapCenterInPixelsAtZoom[zoom] = new Point2D.Double(devMapSize2, devMapSize2);
-         _mapWidthInTilesAtZoom[zoom] = (int) (devMapSize / tileSize);
+         _mapCenterInPixelsAtZoom[z] = new Point2D.Double(devMapSize2, devMapSize2);
+         _mapWidthInTilesAtZoom[z] = devMapSize / tileSize;
 
          devMapSize *= 2;
       }
