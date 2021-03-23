@@ -40,6 +40,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -160,17 +161,24 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
 // SET_FORMATTING_OFF
 
-	private static final String	IMAGE_GRAPH_ALL							= net.tourbook.Messages.Image__options;
-	private static final String	GRAPH_LABEL_HEARTBEAT_UNIT				= net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
+	private class Map3ContextMenu extends SWTPopupOverAWT {
 
+      public Map3ContextMenu(final Display display, final Menu swtContextMenu) {
+         super(display, swtContextMenu);
+      }
+
+   }
+	private static final String	IMAGE_GRAPH_ALL							= net.tourbook.Messages.Image__options;
+
+	private static final String	GRAPH_LABEL_HEARTBEAT_UNIT				= net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
 	private static final String	SLIDER_TEXT_ALTITUDE						= "%.1f %s";									//$NON-NLS-1$
 	private static final String	SLIDER_TEXT_GRADIENT						= "%.1f %%";									//$NON-NLS-1$
 	private static final String	SLIDER_TEXT_PACE							= "%s %s";										//$NON-NLS-1$
 	private static final String	SLIDER_TEXT_PULSE							= "%.0f %s";									//$NON-NLS-1$
+
 	private static final String	SLIDER_TEXT_SPEED							= "%.1f %s";									//$NON-NLS-1$
 
 	public static final String		ID												= "net.tourbook.map3.view.Map3ViewId";			//$NON-NLS-1$
-
 	private static final String	STATE_IS_LEGEND_VISIBLE						= "STATE_IS_LEGEND_VISIBLE";					//$NON-NLS-1$
 	private static final String	STATE_IS_MARKER_VISIBLE						= "STATE_IS_MARKER_VISIBLE";					//$NON-NLS-1$
 	private static final String	STATE_IS_SYNC_MAP_VIEW_WITH_TOUR			= "STATE_IS_SYNC_MAP_VIEW_WITH_TOUR";			//$NON-NLS-1$
@@ -179,20 +187,64 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 	private static final String	STATE_IS_TOUR_VISIBLE						= "STATE_IS_TOUR_VISIBLE";						//$NON-NLS-1$
 	private static final String	STATE_IS_TRACK_SLIDER_VISIBLE				= "STATE_IS_TRACK_SLIDERVISIBLE";				//$NON-NLS-1$
 	private static final String	STATE_MAP3_VIEW								= "STATE_MAP3_VIEW";							//$NON-NLS-1$
+
 	private static final String	STATE_TOUR_COLOR_ID							= "STATE_TOUR_COLOR_ID";						//$NON-NLS-1$
 
 	private static final WorldWindowGLCanvas	_wwCanvas						= Map3Manager.getWWCanvas();
+	/**
+    * @param eyePosition
+    * @return Returns altitude offset depending on the configuration settings.
+    */
+   public static double getAltitudeOffset(final Position eyePosition) {
 
+      if (eyePosition == null) {
+         return 0;
+      }
+
+      final TourTrackConfig config = TourTrackConfigManager.getActiveConfig();
+
+      final boolean isAbsoluteAltitudeMode = config.altitudeMode == WorldWind.ABSOLUTE;
+      final boolean isAltitudeOffset = config.isAltitudeOffset;
+      final boolean isOffsetModeAbsolute =
+            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_ABSOLUTE;
+      final boolean isOffsetModeRelative =
+            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_RELATIVE;
+
+      final int relativeOffset = config.altitudeOffsetDistanceRelative;
+
+      double altitudeOffset = 0;
+
+      if (isAbsoluteAltitudeMode && isAltitudeOffset) {
+
+         if (isOffsetModeAbsolute) {
+
+            altitudeOffset = config.altitudeOffsetDistanceAbsolute;
+
+         } else if (isOffsetModeRelative && relativeOffset > 0) {
+
+            final double eyeElevation = eyePosition.getElevation();
+
+            altitudeOffset = eyeElevation / 100.0 * relativeOffset;
+         }
+
+         if (config.isAltitudeOffsetRandom) {
+
+            // this needs to be implemented, is not yet done
+         }
+      }
+
+      return altitudeOffset;
+   }
 	private final IPreferenceStore				_prefStore					= TourbookPlugin.getPrefStore();
-	private final IPreferenceStore				_prefStore_Common			= CommonActivator.getPrefStore();
-	private final IDialogSettings					_state						= TourbookPlugin.getState(getClass().getCanonicalName());
 
 // SET_FORMATTING_ON
 
+   private final IPreferenceStore            _prefStore_Common = CommonActivator.getPrefStore();
+   private final IDialogSettings             _state            = TourbookPlugin.getState(getClass().getCanonicalName());
    private ActionMap3Color                   _actionMap3Color;
    private ActionOpenPrefDialog              _actionMap3Colors;
    private ActionMapBookmarks                _actionMapBookmarks;
-//	private ActionOpenGLVersions					_actionOpenGLVersions;
+   //	private ActionOpenGLVersions					_actionOpenGLVersions;
    private ActionOpenMap3StatisticsView      _actionOpenMap3StatisticsView;
    private ActionSetTrackSliderPositionLeft  _actionSetTrackSliderLeft;
    private ActionSetTrackSliderPositionRight _actionSetTrackSliderRight;
@@ -248,90 +300,39 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    /**
     * Contains all tours which are displayed in the map.
     */
-   private ArrayList<TourData>            _allTours   = new ArrayList<>();
+   private ArrayList<TourData>            _allTours = new ArrayList<>();
+
    //
-   private int                            _allTourIdHash;
-   private int                            _allTourDataHash;
+   private int               _allTourIdHash;
+
+   private int               _allTourDataHash;
 
    /**
     * Color id for the currently displayed tour tracks.
     */
-   private MapGraphId                     _graphId;
-
-   private OpenDialogManager              _openDlgMgr = new OpenDialogManager();
-
+   private MapGraphId        _graphId;
+   private OpenDialogManager _openDlgMgr = new OpenDialogManager();
    /*
     * current position for the x-sliders (vertical slider)
     */
-   private int        _currentLeftSliderValueIndex;
-   private int        _currentRightSliderValueIndex;
-   private Position   _currentTrackInfoSliderPosition;
+   private int               _currentLeftSliderValueIndex;
+   private int               _currentRightSliderValueIndex;
+   private Position          _currentTrackInfoSliderPosition;
+
    //
    private ITrackPath _currentHoveredTrack;
    private Integer    _currentHoveredTrackPosition;
-
    /*
     * UI controls
     */
-   private Composite _parent;
-   private Composite _mapContainer;
-   private Frame     _awtFrame;
-   private Menu      _swtContextMenu;
+   private Composite  _parent;
+   private Composite  _mapContainer;
 
-   private class Map3ContextMenu extends SWTPopupOverAWT {
+   private Frame      _awtFrame;
 
-      public Map3ContextMenu(final Display display, final Menu swtContextMenu) {
-         super(display, swtContextMenu);
-      }
-
-   }
+   private Menu       _swtContextMenu;
 
    public Map3View() {}
-
-   /**
-    * @param eyePosition
-    * @return Returns altitude offset depending on the configuration settings.
-    */
-   public static double getAltitudeOffset(final Position eyePosition) {
-
-      if (eyePosition == null) {
-         return 0;
-      }
-
-      final TourTrackConfig config = TourTrackConfigManager.getActiveConfig();
-
-      final boolean isAbsoluteAltitudeMode = config.altitudeMode == WorldWind.ABSOLUTE;
-      final boolean isAltitudeOffset = config.isAltitudeOffset;
-      final boolean isOffsetModeAbsolute =
-            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_ABSOLUTE;
-      final boolean isOffsetModeRelative =
-            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_RELATIVE;
-
-      final int relativeOffset = config.altitudeOffsetDistanceRelative;
-
-      double altitudeOffset = 0;
-
-      if (isAbsoluteAltitudeMode && isAltitudeOffset) {
-
-         if (isOffsetModeAbsolute) {
-
-            altitudeOffset = config.altitudeOffsetDistanceAbsolute;
-
-         } else if (isOffsetModeRelative && relativeOffset > 0) {
-
-            final double eyeElevation = eyePosition.getElevation();
-
-            altitudeOffset = eyeElevation / 100.0 * relativeOffset;
-         }
-
-         if (config.isAltitudeOffsetRandom) {
-
-            // this needs to be implemented, is not yet done
-         }
-      }
-
-      return altitudeOffset;
-   }
 
    public void actionOpenTrackColorDialog() {
 
@@ -714,9 +715,9 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
                   final SelectionTourMarker selection = (SelectionTourMarker) eventData;
 
                   final TourData tourData = selection.getTourData();
-                  final ArrayList<TourMarker> tourMarker = selection.getSelectedTourMarker();
+                  final List<TourMarker> selectedTourMarkers = selection.getSelectedTourMarkers();
 
-                  syncMapWith_TourMarker(tourData, tourMarker);
+                  syncMapWith_TourMarker(tourData, selectedTourMarkers);
                }
 
             } else if ((eventId == TourEventId.TOUR_SELECTION) && eventData instanceof ISelection) {
@@ -1745,7 +1746,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
          final SelectionTourMarker markerSelection = (SelectionTourMarker) selection;
 
-         syncMapWith_TourMarker(markerSelection.getTourData(), markerSelection.getSelectedTourMarker());
+         syncMapWith_TourMarker(markerSelection.getTourData(), markerSelection.getSelectedTourMarkers());
 
       } else if (selection instanceof SelectionChartInfo) {
 
@@ -2462,7 +2463,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    /**
     * A tourmarker is selected, sync it with the map.
     */
-   private void syncMapWith_TourMarker(final TourData tourData, final ArrayList<TourMarker> allTourMarker) {
+   private void syncMapWith_TourMarker(final TourData tourData, final List<TourMarker> allTourMarker) {
 
       final TrackSliderLayer chartSliderLayer = getLayerTrackSlider();
       if (chartSliderLayer == null) {
@@ -2541,32 +2542,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       updateTrackSlider_10_Position(tourData, _currentLeftSliderValueIndex, _currentRightSliderValueIndex);
    }
 
-   private void updateTrackSlider_10_Position(final TourData tourData, final ArrayList<TourMarker> allTourMarker) {
-
-      final TrackSliderLayer trackSliderLayer = getLayerTrackSlider();
-      if (trackSliderLayer == null) {
-         return;
-      }
-
-      final int numberOfTourMarkers = allTourMarker.size();
-
-      int leftSliderValueIndex = 0;
-      int rightSliderValueIndex = 0;
-
-      if (numberOfTourMarkers == 1) {
-
-         leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
-         rightSliderValueIndex = _currentRightSliderValueIndex;
-
-      } else if (numberOfTourMarkers > 1) {
-
-         leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
-         rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getSerieIndex();
-      }
-
-      updateTrackSlider_10_Position(tourData, leftSliderValueIndex, rightSliderValueIndex);
-   }
-
    private void updateTrackSlider_10_Position(final TourData tourData, int leftPosIndex, int rightPosIndex) {
 
       final TrackSliderLayer trackSliderLayer = getLayerTrackSlider();
@@ -2601,6 +2576,32 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       trackSliderLayer.setSliderVisible(true);
 
       Map3Manager.redrawMap();
+   }
+
+   private void updateTrackSlider_10_Position(final TourData tourData, final List<TourMarker> allTourMarker) {
+
+      final TrackSliderLayer trackSliderLayer = getLayerTrackSlider();
+      if (trackSliderLayer == null) {
+         return;
+      }
+
+      final int numberOfTourMarkers = allTourMarker.size();
+
+      int leftSliderValueIndex = 0;
+      int rightSliderValueIndex = 0;
+
+      if (numberOfTourMarkers == 1) {
+
+         leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
+         rightSliderValueIndex = _currentRightSliderValueIndex;
+
+      } else if (numberOfTourMarkers > 1) {
+
+         leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
+         rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getSerieIndex();
+      }
+
+      updateTrackSlider_10_Position(tourData, leftSliderValueIndex, rightSliderValueIndex);
    }
 
    private void updateTrackSlider_20_Data(final TrackPointAnnotation slider,

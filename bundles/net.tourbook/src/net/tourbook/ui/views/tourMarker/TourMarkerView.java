@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package net.tourbook.ui.views.tourMarker;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.IntStream;
 
@@ -103,56 +104,6 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TourMarkerView extends ViewPart implements ITourProvider, ITourViewer {
 
-   public static final String       ID                              = "net.tourbook.views.TourMarkerView";       //$NON-NLS-1$
-
-   private final IPreferenceStore   _prefStore                      = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore   _prefStore_Common               = CommonActivator.getPrefStore();
-   private final IDialogSettings    _state                          = TourbookPlugin.getState("TourMarkerView"); //$NON-NLS-1$
-
-   private TourData                 _tourData;
-
-   private PostSelectionProvider    _postSelectionProvider;
-   private ISelectionListener       _postSelectionListener;
-   private IPropertyChangeListener  _prefChangeListener;
-   private IPropertyChangeListener  _prefChangeListener_Common;
-   private ITourEventListener       _tourEventListener;
-   private IPartListener2           _partListener;
-
-   private MenuManager              _viewerMenuManager;
-   private IContextMenuProvider     _tableViewerContextMenuProvider = new TableContextMenuProvider();
-
-   private ActionOpenMarkerDialog   _actionEditTourMarkers;
-   private ActionDeleteMarkerDialog _actionDeleteTourMarkers;
-   private ActionModifyColumns      _actionModifyColumns;
-
-   private PixelConverter           _pc;
-
-   private TableViewer              _markerViewer;
-   private ColumnManager            _columnManager;
-
-   private boolean                  _isInUpdate;
-   private boolean                  _isMultipleTours;
-
-   private ColumnDefinition         _colDefName;
-   private ColumnDefinition         _colDefVisibility;
-
-   private final NumberFormat       _nf3                            = NumberFormat.getNumberInstance();
-   {
-      _nf3.setMinimumFractionDigits(3);
-      _nf3.setMaximumFractionDigits(3);
-   }
-
-   /*
-    * UI controls
-    */
-   private PageBook  _pageBook;
-   private Composite _pageNoData;
-   private Composite _viewerContainer;
-
-   private Font      _boldFont;
-
-   private Menu      _tableContextMenu;
-
    class MarkerViewerContentProvider implements IStructuredContentProvider {
 
       @Override
@@ -236,6 +187,58 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
       }
 
    }
+
+   public static final String       ID                              = "net.tourbook.views.TourMarkerView";       //$NON-NLS-1$
+
+   private final IPreferenceStore   _prefStore                      = TourbookPlugin.getPrefStore();
+
+   private final IPreferenceStore   _prefStore_Common               = CommonActivator.getPrefStore();
+   private final IDialogSettings    _state                          = TourbookPlugin.getState("TourMarkerView"); //$NON-NLS-1$
+   private TourData                 _tourData;
+   private PostSelectionProvider    _postSelectionProvider;
+   private ISelectionListener       _postSelectionListener;
+   private IPropertyChangeListener  _prefChangeListener;
+
+   private IPropertyChangeListener  _prefChangeListener_Common;
+   private ITourEventListener       _tourEventListener;
+
+   private IPartListener2           _partListener;
+   private MenuManager              _viewerMenuManager;
+   private IContextMenuProvider     _tableViewerContextMenuProvider = new TableContextMenuProvider();
+
+   private ActionOpenMarkerDialog   _actionEditTourMarkers;
+
+   private ActionDeleteMarkerDialog _actionDeleteTourMarkers;
+   private ActionModifyColumns      _actionModifyColumns;
+
+   private PixelConverter           _pc;
+   private TableViewer              _markerViewer;
+
+   private ColumnManager            _columnManager;
+   private boolean                  _isInUpdate;
+
+   private boolean                  _isMultipleTours;
+   private ColumnDefinition         _colDefName;
+
+   private ColumnDefinition         _colDefVisibility;
+   private final NumberFormat       _nf3                            = NumberFormat.getNumberInstance();
+   {
+      _nf3.setMinimumFractionDigits(3);
+      _nf3.setMaximumFractionDigits(3);
+   }
+
+   /*
+    * UI controls
+    */
+   private PageBook  _pageBook;
+
+   private Composite _pageNoData;
+
+   private Composite _viewerContainer;
+
+   private Font      _boldFont;
+
+   private Menu      _tableContextMenu;
 
    public TourMarkerView() {
       super();
@@ -1299,7 +1302,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
          final SelectionTourMarker selection = (SelectionTourMarker) eventData;
 
          final TourData tourData = selection.getTourData();
-         final ArrayList<TourMarker> tourMarker = selection.getSelectedTourMarker();
+         final List<TourMarker> selectedTourMarkers = selection.getSelectedTourMarkers();
 
          if (tourData != _tourData) {
 
@@ -1311,7 +1314,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
          _isInUpdate = true;
          {
-            _markerViewer.setSelection(new StructuredSelection(tourMarker), true);
+            _markerViewer.setSelection(new StructuredSelection(selectedTourMarkers), true);
          }
          _isInUpdate = false;
       }
