@@ -194,209 +194,8 @@ public class Map2View extends ViewPart implements
 
 // SET_FORMATTING_OFF
 
-   private class ActionMap2_Graphs extends ActionToolbarSlideout {
-
-      public ActionMap2_Graphs() {
-
-         super(TourbookPlugin.getImageDescriptor(IMAGE_GRAPH),
-               TourbookPlugin.getImageDescriptor(IMAGE_GRAPH_DISABLED));
-
-         setId(GRAPH_CONTRIBUTION_ID_SLIDEOUT);
-      }
-
-      @Override
-      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
-
-         return new Slideout_Map2_TourColors(_parent, toolbar, Map2View.this, _state);
-      }
-
-      @Override
-      protected void onBeforeOpenSlideout() {
-         closeOpenedDialogs(this);
-      }
-   }
-
-   private class ActionMap2_Options extends ActionToolbarSlideout {
-
-      public ActionMap2_Options() {
-
-         super(TourbookPlugin.getImageDescriptor(IMAGE_MAP_OPTIONS),
-               TourbookPlugin.getImageDescriptor(IMAGE_MAP_OPTIONS_DISABLED));
-      }
-
-      @Override
-      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
-
-         return new Slideout_Map2_Options(_parent, toolbar, Map2View.this, _state);
-      }
-
-      @Override
-      protected void onBeforeOpenSlideout() {
-         closeOpenedDialogs(this);
-      }
-   }
-   private class ActionSearchTourByLocation extends Action {
-
-      public ActionSearchTourByLocation() {
-
-         setText(Messages.Map_Action_SearchTourByLocation);
-         setToolTipText(Messages.Map_Action_SearchTourByLocation_Tooltip);
-         setImageDescriptor(TourbookPlugin.getImageDescriptor(IMAGE_SEARCH_TOURS_BY_LOCATION));
-      }
-
-      @Override
-      public void runWithEvent(final Event event) {
-
-         _map.actionSearchTourByLocation(event);
-      }
-   }
-   private class ActionShowPhotos extends ActionToolbarSlideout {
-
-      public ActionShowPhotos() {
-
-         super(TourbookPlugin.getImageDescriptor(Messages.Image_Action_ShowPhotosInMap),
-               TourbookPlugin.getImageDescriptor(Messages.Image_Action_ShowPhotosInMap_Disabled));
-
-         isToggleAction = true;
-         notSelectedTooltip = Messages.Map_Action_ShowPhotos_Tooltip;
-      }
-
-      @Override
-      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
-         return new Slideout_Map2_PhotoOptions(_parent, toolbar, Map2View.this, _state);
-      }
-
-      @Override
-      protected void onBeforeOpenSlideout() {
-         closeOpenedDialogs(this);
-      }
-
-      @Override
-      protected void onSelect() {
-
-         super.onSelect();
-
-         actionShowPhotos(getSelection());
-      }
-   }
-   private class ActionShowTour extends ActionToolbarSlideout {
-
-      public ActionShowTour() {
-
-         super(TourbookPlugin.getImageDescriptor(Messages.Image__Tour),
-               TourbookPlugin.getImageDescriptor(Messages.Image__Tour_Disabled));
-
-         isToggleAction = true;
-         notSelectedTooltip = Messages.map_action_show_tour_in_map;
-      }
-
-      @Override
-      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
-         return new Slideout_Map2_TrackOptions(_parent, toolbar, Map2View.this, _state);
-      }
-
-      @Override
-      protected void onBeforeOpenSlideout() {
-         closeOpenedDialogs(this);
-      }
-
-      @Override
-      protected void onSelect() {
-
-         super.onSelect();
-
-         _isShowTour = getSelection();
-
-         paintTours_10_All();
-      }
-   }
-   private class ActionSyncMap extends ActionToolbarSlideout {
-
-      public ActionSyncMap() {
-
-         super(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncMap),
-               TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncMap_Disabled));
-
-         isToggleAction = true;
-         isShowSlideoutAlways = true;
-
-         /*
-          * Register other action images
-          */
-
-         // image 0: tour
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.image_action_synch_with_tour));
-
-         // image 1: value point
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncWith_ValuePoint));
-
-         // image 2: one slider
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.image_action_synch_with_slider));
-
-         // image 3: centered sliders
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncWith_Slider_Centered));
-
-         // image 4: other map
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(IMAGE_SYNC_MAP_WITH_OTHER_MAP));
-
-         // image 5: photo
-         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_Map_SyncPhotoWithMap));
-      }
-
-      @Override
-      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
-
-         return new Slideout_Map2_SyncMap(_parent, toolbar, Map2View.this);
-      }
-
-      @Override
-      protected void onBeforeOpenSlideout() {
-         closeOpenedDialogs(this);
-      }
-
-      @Override
-      protected void onSelect() {
-
-         super.onSelect();
-
-         syncMap_OnSelectSyncAction(getSelection());
-      }
-   }
-   private enum MapSyncMode {
-
-      /**
-       * Image: 0
-       */
-      IsSyncWith_Tour,
-
-      /**
-       * Image: 1
-       */
-      IsSyncWith_ValuePoint,
-
-      /**
-       * Image: 2
-       */
-      IsSyncWith_Slider_One,
-
-      /**
-       * Image: 3
-       */
-      IsSyncWith_Slider_Center,
-
-      /**
-       * Image: 4
-       */
-      IsSyncWith_OtherMap,
-
-      /**
-       * Image: 5
-       */
-      IsSyncWith_Photo,
-
-      IsSyncWith_NONE,
-   }
    public static final String    ID                                                    = "net.tourbook.map2.view.Map2ViewId";                   //$NON-NLS-1$
+
    private static final String   IMAGE_GRAPH                                           = net.tourbook.Messages.Image__Graph;
    private static final String   IMAGE_GRAPH_DISABLED                                  = net.tourbook.Messages.Image__Graph_Disabled;
    private static final String   IMAGE_GRAPH_ALTITUDE                                  = net.tourbook.Messages.Image__graph_altitude;
@@ -481,8 +280,7 @@ public class Map2View extends ViewPart implements
    static final boolean          STATE_IS_SHOW_SLIDER_PATH_DEFAULT                     = true;
    static final int              STATE_SLIDER_PATH_LINE_WIDTH_DEFAULT                  = 30;
    static final int              STATE_SLIDER_PATH_OPACITY_DEFAULT                     = 60;
-
-static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                    = 200;
+   static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                    = 200;
    static final RGB              STATE_SLIDER_PATH_COLOR_DEFAULT                       = new RGB(0xff, 0xff, 0x80);
    //
    private static final String   STATE_IS_PHOTO_FILTER_ACTIVE                          = "STATE_IS_PHOTO_FILTER_ACTIVE";                        //$NON-NLS-1$
@@ -503,8 +301,9 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
 
          MapGraphId.HrZone,
    };
-   // SET_FORMATTING_ON
-   //
+
+// SET_FORMATTING_ON
+//
    private final IPreferenceStore            _prefStore               = TourbookPlugin.getPrefStore();
    private final IPreferenceStore            _prefStore_Common        = CommonActivator.getPrefStore();
    private final IDialogSettings             _state                   = TourbookPlugin.getState(ID);
@@ -549,7 +348,6 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
    private boolean                           _isShowTour;
    private boolean                           _isShowPhoto;
    private boolean                           _isShowLegend;
-
    private boolean                           _isPositionCentered;
    private boolean                           _isInSelectBookmark;
    private boolean                           _isInZoom;
@@ -566,6 +364,7 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
     * Tool tips
     */
    private TourToolTip _tourToolTip;
+
    private String      _poiName;
    private GeoPosition _poiPosition;
    private int         _poiZoomLevel;
@@ -573,18 +372,17 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
    /*
     * Current position for the x-sliders and value point
     */
-   private int       _currentLeftSliderValueIndex;
-   private int       _currentRightSliderValueIndex;
-   private int       _currentSelectedSliderValueIndex;
-   private int       _currentValuePointIndex;
+   private int                               _currentLeftSliderValueIndex;
+   private int                               _currentRightSliderValueIndex;
+   private int                               _currentSelectedSliderValueIndex;
+   private int                               _currentValuePointIndex;
    //
-   private MapLegend _mapLegend;
+   private MapLegend                         _mapLegend;
    //
-   private long      _previousOverlayKey;
+   private long                              _previousOverlayKey;
    //
-   private int       _mapDimLevel = -1;
-   private RGB       _mapDimColor;
-
+   private int                               _mapDimLevel          = -1;
+   private RGB                               _mapDimColor;
    //
    private int                               _selectedProfileKey   = 0;
    //
@@ -596,6 +394,7 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
    private int                               _hash_AllPhotos;
    //
    private final AtomicInteger               _asyncCounter         = new AtomicInteger();
+
    /**
     * Is <code>true</code> when a link photo is displayed, otherwise a tour photo (photo which is
     * save in a tour) is displayed.
@@ -672,25 +471,226 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
    private ActionZoomOut                     _actionZoom_Out;
    private ActionZoomCentered                _actionZoom_Centered;
    private ActionZoomShowEntireMap           _actionZoom_ShowEntireMap;
-
    private ActionZoomShowEntireTour          _actionZoom_ShowEntireTour;
-
    //
-   private org.eclipse.swt.graphics.Point _geoFilter_Loaded_TopLeft_E2;
-
-   private org.eclipse.swt.graphics.Point _geoFilter_Loaded_BottomRight_E2;
-
-   private GeoFilter_LoaderData           _geoFilter_PreviousGeoLoaderItem;
-
-   private AtomicInteger                  _geoFilter_RunningId = new AtomicInteger();
-
+   private org.eclipse.swt.graphics.Point    _geoFilter_Loaded_TopLeft_E2;
+   private org.eclipse.swt.graphics.Point    _geoFilter_Loaded_BottomRight_E2;
+   private GeoFilter_LoaderData              _geoFilter_PreviousGeoLoaderItem;
+   private AtomicInteger                     _geoFilter_RunningId  = new AtomicInteger();
    //
    /*
     * UI controls
     */
    private Composite _parent;
-
    private Map       _map;
+
+   private class ActionMap2_Graphs extends ActionToolbarSlideout {
+
+      public ActionMap2_Graphs() {
+
+         super(TourbookPlugin.getImageDescriptor(IMAGE_GRAPH),
+               TourbookPlugin.getImageDescriptor(IMAGE_GRAPH_DISABLED));
+
+         setId(GRAPH_CONTRIBUTION_ID_SLIDEOUT);
+      }
+
+      @Override
+      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+
+         return new Slideout_Map2_TourColors(_parent, toolbar, Map2View.this, _state);
+      }
+
+      @Override
+      protected void onBeforeOpenSlideout() {
+         closeOpenedDialogs(this);
+      }
+   }
+
+   private class ActionMap2_Options extends ActionToolbarSlideout {
+
+      public ActionMap2_Options() {
+
+         super(TourbookPlugin.getImageDescriptor(IMAGE_MAP_OPTIONS),
+               TourbookPlugin.getImageDescriptor(IMAGE_MAP_OPTIONS_DISABLED));
+      }
+
+      @Override
+      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+
+         return new Slideout_Map2_Options(_parent, toolbar, Map2View.this, _state);
+      }
+
+      @Override
+      protected void onBeforeOpenSlideout() {
+         closeOpenedDialogs(this);
+      }
+   }
+
+   private class ActionSearchTourByLocation extends Action {
+
+      public ActionSearchTourByLocation() {
+
+         setText(Messages.Map_Action_SearchTourByLocation);
+         setToolTipText(Messages.Map_Action_SearchTourByLocation_Tooltip);
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(IMAGE_SEARCH_TOURS_BY_LOCATION));
+      }
+
+      @Override
+      public void runWithEvent(final Event event) {
+
+         _map.actionSearchTourByLocation(event);
+      }
+   }
+
+   private class ActionShowPhotos extends ActionToolbarSlideout {
+
+      public ActionShowPhotos() {
+
+         super(TourbookPlugin.getImageDescriptor(Messages.Image_Action_ShowPhotosInMap),
+               TourbookPlugin.getImageDescriptor(Messages.Image_Action_ShowPhotosInMap_Disabled));
+
+         isToggleAction = true;
+         notSelectedTooltip = Messages.Map_Action_ShowPhotos_Tooltip;
+      }
+
+      @Override
+      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+         return new Slideout_Map2_PhotoOptions(_parent, toolbar, Map2View.this, _state);
+      }
+
+      @Override
+      protected void onBeforeOpenSlideout() {
+         closeOpenedDialogs(this);
+      }
+
+      @Override
+      protected void onSelect() {
+
+         super.onSelect();
+
+         actionShowPhotos(getSelection());
+      }
+   }
+
+   private class ActionShowTour extends ActionToolbarSlideout {
+
+      public ActionShowTour() {
+
+         super(TourbookPlugin.getImageDescriptor(Messages.Image__Tour),
+               TourbookPlugin.getImageDescriptor(Messages.Image__Tour_Disabled));
+
+         isToggleAction = true;
+         notSelectedTooltip = Messages.map_action_show_tour_in_map;
+      }
+
+      @Override
+      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+         return new Slideout_Map2_TrackOptions(_parent, toolbar, Map2View.this, _state);
+      }
+
+      @Override
+      protected void onBeforeOpenSlideout() {
+         closeOpenedDialogs(this);
+      }
+
+      @Override
+      protected void onSelect() {
+
+         super.onSelect();
+
+         _isShowTour = getSelection();
+
+         paintTours_10_All();
+      }
+   }
+
+   private class ActionSyncMap extends ActionToolbarSlideout {
+
+      public ActionSyncMap() {
+
+         super(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncMap),
+               TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncMap_Disabled));
+
+         isToggleAction = true;
+         isShowSlideoutAlways = true;
+
+         /*
+          * Register other action images
+          */
+
+         // image 0: tour
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.image_action_synch_with_tour));
+
+         // image 1: value point
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncWith_ValuePoint));
+
+         // image 2: one slider
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.image_action_synch_with_slider));
+
+         // image 3: centered sliders
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_SyncWith_Slider_Centered));
+
+         // image 4: other map
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(IMAGE_SYNC_MAP_WITH_OTHER_MAP));
+
+         // image 5: photo
+         addOtherEnabledImage(TourbookPlugin.getImageDescriptor(Messages.Image_Action_Map_SyncPhotoWithMap));
+      }
+
+      @Override
+      protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+
+         return new Slideout_Map2_SyncMap(_parent, toolbar, Map2View.this);
+      }
+
+      @Override
+      protected void onBeforeOpenSlideout() {
+         closeOpenedDialogs(this);
+      }
+
+      @Override
+      protected void onSelect() {
+
+         super.onSelect();
+
+         syncMap_OnSelectSyncAction(getSelection());
+      }
+   }
+
+   private enum MapSyncMode {
+
+      /**
+       * Image: 0
+       */
+      IsSyncWith_Tour,
+
+      /**
+       * Image: 1
+       */
+      IsSyncWith_ValuePoint,
+
+      /**
+       * Image: 2
+       */
+      IsSyncWith_Slider_One,
+
+      /**
+       * Image: 3
+       */
+      IsSyncWith_Slider_Center,
+
+      /**
+       * Image: 4
+       */
+      IsSyncWith_OtherMap,
+
+      /**
+       * Image: 5
+       */
+      IsSyncWith_Photo,
+
+      IsSyncWith_NONE,
+   }
 
    public Map2View() {}
 
@@ -3026,6 +3026,8 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
          }
 
          keepMapPosition(tourData);
+         _map.paint();
+
       }
    }
 
@@ -3579,7 +3581,6 @@ static final int              STATE_SLIDER_PATH_SEGMENTS_DEFAULT                
       final int sliderIndex = Math.max(0, Math.min(valueIndex, latitudeSerie.length - 1));
 
       _map.setMapCenter(new GeoPosition(latitudeSerie[sliderIndex], longitudeSerie[sliderIndex]));
-
    }
 
    public void redrawMap() {

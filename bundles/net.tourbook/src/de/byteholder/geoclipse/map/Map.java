@@ -4081,7 +4081,7 @@ public class Map extends Canvas {
 //      }
 
       /*
-       * show info in the top/right corner that selection for the offline area is activ
+       * show info in the top/right corner that selection for the offline area is active
        */
       if (_offline_IsSelectingOfflineArea) {
          paint_OfflineArea_10_Info(gc);
@@ -5725,7 +5725,7 @@ public class Map extends Canvas {
 
       if (_mp == null) {
 
-         // this occured when restore state had a wrong map provider
+         // this occurred when restore state had a wrong map provider
 
          setMapProvider(MapProviderManager.getDefaultMapProvider());
 
