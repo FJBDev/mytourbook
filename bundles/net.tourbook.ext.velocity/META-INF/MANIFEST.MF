@@ -14,7 +14,7 @@ Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  commons-collections4-4.4.jar,
- commons-lang3-3.11.jar,
+ commons-lang3-3.12.0.jar,
  slf4j-api-1.7.30.jar,
  log4j-1.2.17.jar,
  slf4j-simple-1.7.30.jar,
