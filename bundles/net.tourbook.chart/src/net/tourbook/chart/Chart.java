@@ -207,7 +207,7 @@ public class Chart extends ViewForm {
       setContent(_chartComponents);
 
       // set the default background color
-      _backgroundColor = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+      _backgroundColor = getDisplay().getSystemColor(SWT.COLOR_WHITE);
    }
 
    public void addBarSelectionListener(final IBarSelectionListener listener) {

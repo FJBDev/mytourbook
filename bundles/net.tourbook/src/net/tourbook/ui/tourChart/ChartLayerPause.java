@@ -33,15 +33,6 @@ import org.eclipse.swt.widgets.Display;
 
 public class ChartLayerPause implements IChartLayer, IChartOverlay {
 
-   private int              LABEL_OFFSET;
-   private int              PAUSE_POINT_SIZE;
-
-   private TourChart        _tourChart;
-   private ChartPauseConfig _cpc;
-
-   private int              _devXPause;
-   private int              _devYPause;
-
    public class LoadImageCallback implements ILoadCallBack {
 
       @Override
@@ -68,6 +59,15 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          });
       }
    }
+   private int              LABEL_OFFSET;
+
+   private int              PAUSE_POINT_SIZE;
+   private TourChart        _tourChart;
+
+   private ChartPauseConfig _cpc;
+   private int              _devXPause;
+
+   private int              _devYPause;
 
    public ChartLayerPause(final TourChart tourChart) {
 
@@ -104,7 +104,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
 
       final Device display = gc.getDevice();
 
-      PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(2);
+      PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(200);
       LABEL_OFFSET = pc.convertVerticalDLUsToPixels(2);
 
       final int pausePointSize2 = PAUSE_POINT_SIZE / 2;
@@ -118,11 +118,12 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
       final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
 
       final float graphYBottom = drawingData.getGraphYBottom();
+      //TODO FB only draw above the y values ? basically only the sky ?
       final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
       final double scaleY = drawingData.getScaleY();
 
-      final Color colorDefault = new Color(display, new RGB(0x60, 0x60, 0x60));
+      final Color colorDefault = new Color(display, new RGB(0xff, 0x0, 0x0));
       final Color colorDevice = new Color(display, new RGB(0xff, 0x0, 0x80));
       final Color colorHidden = new Color(display, new RGB(0x24, 0x9C, 0xFF));
 
@@ -155,14 +156,16 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
           */
          gc.setBackground(colorDefault);
 
+         //todo fb
+         //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
          gc.fillRectangle(devXPauseTopLeft, devYPauseTopLeft, PAUSE_POINT_SIZE, PAUSE_POINT_SIZE);
-
+         gc.setAlpha(0x00);
          /*
           * Draw pause label
           */
 
-         gc.setForeground(colorDefault);
+         //gc.setForeground(colorDefault);
 
          final int labelWidth = labelExtend.x;
          final int labelHeight = labelExtend.y;
@@ -213,29 +216,29 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          /*
           * Ensure the value text do not overlap, if possible :-)
           */
-         final Rectangle textRect = new Rectangle(//
-               _devXPause,
-               _devYPause,
-               textWidth + borderWidth2,
-               textHeightWithBorder);
-
-         final Rectangle validRect = overlapChecker.getValidRect(
-               textRect,
-               true,
-               textHeightWithBorder,
-               pauseDurationText);
-
-         // don't draw over the graph borders
-         if (validRect != null && validRect.y > devYTop && validRect.y + textHeight < devYBottom) {
-
-            // keep current valid rectangle
-            overlapChecker.setupNext(validRect, true);
-
-            gc.setAlpha(0xff);
-
-            // draw label
-            gc.drawText(pauseDurationText, validRect.x, validRect.y, true);
-         }
+//         final Rectangle textRect = new Rectangle(//
+//               _devXPause,
+//               _devYPause,
+//               textWidth + borderWidth2,
+//               textHeightWithBorder);
+//
+//         final Rectangle validRect = overlapChecker.getValidRect(
+//               textRect,
+//               true,
+//               textHeightWithBorder,
+//               pauseDurationText);
+//
+//         // don't draw over the graph borders
+//         if (validRect != null && validRect.y > devYTop && validRect.y + textHeight < devYBottom) {
+//
+//            // keep current valid rectangle
+//            overlapChecker.setupNext(validRect, true);
+//
+//            gc.setAlpha(0x00);
+//
+//            // draw label
+//            gc.drawText(pauseDurationText, validRect.x, validRect.y, true);
+//         }
       }
 
       colorDefault.dispose();

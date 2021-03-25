@@ -1949,6 +1949,18 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       _layerPause.setChartPauseConfig(cpc);
 
+      if (_layerNightSections == null) {
+
+         // setup pause layer, a layer is created only once
+
+         _layerNightSections = new ChartLayerPause(this);
+
+         // set overlay painter
+         addChartOverlay(_layerNightSections);
+      }
+
+      _layerNightSections.setChartPauseConfig(cpc);
+
       // set data serie for the x-axis
       final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
             ? _tourData.getTimeSerieDouble()
@@ -5142,6 +5154,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       // show label layer only for ONE visible graph
       if (_layerPause != null && yData == yDataWithLabels) {
          customFgLayers.add(_layerPause);
+      }
+
+      if (_layerNightSections != null && yData == yDataWithLabels) {
+         customFgLayers.add(_layerNightSections);
       }
 
       /*
