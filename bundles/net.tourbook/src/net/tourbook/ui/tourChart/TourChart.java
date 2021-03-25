@@ -654,6 +654,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
    //TODO FB how to change the chart background from white to something else ?
    //https://github.com/patrovite/Course_Generator/commit/fb63f3da12957d4e974fa7f1161ed2cda2adedb6
+   //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
    //
    private Action_GraphBackground_Slideout                  _action_GraphBackground_Slideout;
    private ActionEditQuick                                  _actionEditQuick;
