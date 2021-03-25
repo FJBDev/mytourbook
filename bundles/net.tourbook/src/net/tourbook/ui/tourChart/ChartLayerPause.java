@@ -159,8 +159,8 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          //todo fb
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
-         gc.fillRectangle(devXPauseTopLeft, devYPauseTopLeft, PAUSE_POINT_SIZE, PAUSE_POINT_SIZE);
          gc.setAlpha(0x00);
+         gc.fillRectangle(devXPauseTopLeft, devYPauseTopLeft, PAUSE_POINT_SIZE, PAUSE_POINT_SIZE);
          /*
           * Draw pause label
           */
