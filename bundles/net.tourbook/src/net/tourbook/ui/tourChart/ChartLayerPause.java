@@ -86,7 +86,6 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
       PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(100);
 
       final int pausePointSize2 = PAUSE_POINT_SIZE / 2;
-
       final int devYTop = drawingData.getDevYTop();
       final int devYBottom = drawingData.getDevYBottom();
       final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
@@ -130,7 +129,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
          gc.setAlpha(0x40);
-         gc.fillRectangle(devXPauseTopLeft, devYGraph, PAUSE_POINT_SIZE, devYGraph);
+         gc.drawLine(100, devYGraph, 100, devYPauseTopLeft);
 
 
       }
