@@ -72,6 +72,16 @@ public class Chart extends ViewForm {
    private static final int                          KeyDown                          = 110;
    private static final int                          ChartResized                     = 999;
 
+   private static int removeBorder(final int style) {
+
+      if ((style & SWT.BORDER) != 0) {
+
+         // remove border from style
+         return (style & ~SWT.BORDER);
+      }
+
+      return style;
+   }
    private final ListenerList<IBarSelectionListener> _barSelectionListeners           = new ListenerList<>();
    private final ListenerList<IBarSelectionListener> _barDoubleClickListeners         = new ListenerList<>();
    private final ListenerList<IHoveredValueListener> _chartHoveredValueListener       = new ListenerList<>();
@@ -79,6 +89,7 @@ public class Chart extends ViewForm {
    private final ListenerList<IMouseListener>        _chartMouseListener              = new ListenerList<>();
    private final ListenerList<IMouseListener>        _chartMouseMoveListener          = new ListenerList<>();
    private final ListenerList<IChartOverlay>         _chartOverlayListener            = new ListenerList<>();
+
    private final ListenerList<ISliderMoveListener>   _sliderMoveListeners             = new ListenerList<>();
 
    private ChartComponents                           _chartComponents;
@@ -86,12 +97,12 @@ public class Chart extends ViewForm {
    private Chart                                     _synchedChart;
 
    private ChartDataModel                            _chartDataModel;
-
    private IToolBarManager                           _toolbarMgr;
    private IChartContextProvider                     _chartContextProvider;
-   private boolean                                   _isShowZoomActions               = false;
 
+   private boolean                                   _isShowZoomActions               = false;
    private boolean                                   _isShowMouseMode                 = false;
+
    private Color                                     _backgroundColor;
 
    /**
@@ -100,12 +111,12 @@ public class Chart extends ViewForm {
    IChartListener                                    _draggingListenerXMarker;
 
    private IHoveredValueTooltipListener              _hoveredValueTooltipListener;
-
    private HashMap<String, Action>                   _allChartActions;
    private boolean                                   _isFillToolbar                   = true;
-   private boolean                                   _isToolbarCreated;
 
+   private boolean                                   _isToolbarCreated;
    private int                                       _barSelectionSerieIndex;
+
    private int                                       _barSelectionValueIndex;
 
    int                                               _synchMode;
@@ -114,15 +125,15 @@ public class Chart extends ViewForm {
     * <code>true</code> to start the bar chart at the bottom of the chart
     */
    private boolean                                   _isDrawBarChartAtBottom          = true;
-
    /**
     * minimum width in pixel for one unit, this is only an approximate value because the pixel is
     * rounded up or down to fit a rounded unit
     */
    protected int                                     gridVerticalDistance             = 30;
-   protected int                                     gridHorizontalDistance           = 70;
 
+   protected int                                     gridHorizontalDistance           = 70;
    protected boolean                                 isShowHorizontalGridLines        = false;
+
    protected boolean                                 isShowVerticalGridLines          = false;
 
    /**
@@ -147,11 +158,11 @@ public class Chart extends ViewForm {
     * Antialiasing for the graph, can be {@link SWT#ON} or {@link SWT#OFF}.
     */
    public int                                        graphAntialiasing                = SWT.OFF;
-
    /*
     * Segment alternate color
     */
    protected boolean isShowSegmentAlternateColor = true;
+
    protected RGB     segmentAlternateColor       = new RGB(0xf5, 0xf5, 0xf5);
 
    /**
@@ -196,18 +207,7 @@ public class Chart extends ViewForm {
       setContent(_chartComponents);
 
       // set the default background color
-      _backgroundColor = getDisplay().getSystemColor(SWT.COLOR_WHITE);
-   }
-
-   private static int removeBorder(final int style) {
-
-      if ((style & SWT.BORDER) != 0) {
-
-         // remove border from style
-         return (style & ~SWT.BORDER);
-      }
-
-      return style;
+      _backgroundColor = getDisplay().getSystemColor(SWT.COLOR_BLACK);
    }
 
    public void addBarSelectionListener(final IBarSelectionListener listener) {
