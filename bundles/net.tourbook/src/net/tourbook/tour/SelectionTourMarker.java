@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.tourbook.tour;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -28,19 +28,19 @@ import org.eclipse.jface.viewers.ISelection;
 public class SelectionTourMarker implements ISelection {
 
    private TourData         _tourData;
-   private List<TourMarker> _selectedTourMarkers;
+   private ArrayList<TourMarker> _selectedTourMarkers;
 
    /**
     * @param tourData
     * @param selectedTourMarker
     */
-   public SelectionTourMarker(final TourData tourData, final List<TourMarker> selectedTourMarkers) {
+   public SelectionTourMarker(final TourData tourData, final ArrayList<TourMarker> selectedTourMarkers) {
 
       _tourData = tourData;
       _selectedTourMarkers = selectedTourMarkers;
    }
 
-   public List<TourMarker> getSelectedTourMarkers() {
+   public ArrayList<TourMarker> getSelectedTourMarkers() {
       return _selectedTourMarkers;
    }
 
