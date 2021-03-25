@@ -761,7 +761,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
    private ChartLayer2ndAltiSerie    _layer2ndAltiSerie;
 
-   private ChartLayerPause           _layerNightSections;
+   private ChartLayerNight           _layerNight;
 
    private ChartLayerPause           _layerPause;
 
@@ -1950,17 +1950,15 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       _layerPause.setChartPauseConfig(cpc);
 
-      if (_layerNightSections == null) {
+      if (_layerNight == null) {
 
-         // setup pause layer, a layer is created only once
+         // setup the night layer, a layer is created only once
 
-         _layerNightSections = new ChartLayerPause(this);
+         _layerNight = new ChartLayerNight(this);
 
          // set overlay painter
-         addChartOverlay(_layerNightSections);
+         addChartOverlay(_layerNight);
       }
-
-      _layerNightSections.setChartPauseConfig(cpc);
 
       // set data serie for the x-axis
       final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
@@ -5157,8 +5155,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          customFgLayers.add(_layerPause);
       }
 
-      if (_layerNightSections != null && yData == yDataWithLabels) {
-         customFgLayers.add(_layerNightSections);
+      if (_layerNight != null && yData == yDataWithLabels) {
+         customFgLayers.add(_layerNight);
       }
 
       /*
