@@ -119,6 +119,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
 
       final float graphYBottom = drawingData.getGraphYBottom();
       //TODO FB only draw above the y values ? basically only the sky ?
+      //what if a tour spans across more than 1 day?
       final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
       final double scaleY = drawingData.getScaleY();
