@@ -121,6 +121,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
     */
    @Override
    public void drawOverlay(final GC gc, final GraphDrawingData graphDrawingData) {
-      return;
+      //Nothing
    }
 }
