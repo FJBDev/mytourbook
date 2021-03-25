@@ -123,7 +123,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
       final double scaleX = drawingData.getScaleX();
       final double scaleY = drawingData.getScaleY();
 
-      final Color colorDefault = new Color(display, new RGB(0xff, 0x0, 0x0));
+      final Color colorDefault = new Color(display, new RGB(0x8c, 0x8c, 0x8c));
       final Color colorDevice = new Color(display, new RGB(0xff, 0x0, 0x80));
       final Color colorHidden = new Color(display, new RGB(0x24, 0x9C, 0xFF));
 
@@ -159,7 +159,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          //todo fb
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
-         gc.setAlpha(0x00);
+         gc.setAlpha(0x40);
          gc.fillRectangle(devXPauseTopLeft, devYPauseTopLeft, PAUSE_POINT_SIZE, PAUSE_POINT_SIZE);
          /*
           * Draw pause label
