@@ -44,6 +44,7 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.chart.ChartDataModel;
@@ -62,7 +63,6 @@ import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.OpenDialogManager;
-import net.tourbook.common.util.SWTPopupOverAWT;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -159,86 +159,33 @@ import org.oscim.core.MapPosition;
  */
 public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, IMapBookmarkListener, IMapSyncListener {
 
-// SET_FORMATTING_OFF
+   private static final String              GRAPH_LABEL_HEARTBEAT_UNIT             = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
 
-	private class Map3ContextMenu extends SWTPopupOverAWT {
+   private static final String              SLIDER_TEXT_ALTITUDE                   = "%.1f %s";                                              //$NON-NLS-1$
+   private static final String              SLIDER_TEXT_GRADIENT                   = "%.1f %%";                                              //$NON-NLS-1$
+   private static final String              SLIDER_TEXT_PACE                       = "%s %s";                                                //$NON-NLS-1$
+   private static final String              SLIDER_TEXT_PULSE                      = "%.0f %s";                                              //$NON-NLS-1$
+   private static final String              SLIDER_TEXT_SPEED                      = "%.1f %s";                                              //$NON-NLS-1$
 
-      public Map3ContextMenu(final Display display, final Menu swtContextMenu) {
-         super(display, swtContextMenu);
-      }
+   public static final String               ID                                     = "net.tourbook.map3.view.Map3ViewId";                    //$NON-NLS-1$
 
-   }
-	private static final String	IMAGE_GRAPH_ALL							= net.tourbook.Messages.Image__options;
+   private static final String              STATE_IS_LEGEND_VISIBLE                = "STATE_IS_LEGEND_VISIBLE";                              //$NON-NLS-1$
+   private static final String              STATE_IS_MARKER_VISIBLE                = "STATE_IS_MARKER_VISIBLE";                              //$NON-NLS-1$
+   private static final String              STATE_IS_SYNC_MAP_VIEW_WITH_TOUR       = "STATE_IS_SYNC_MAP_VIEW_WITH_TOUR";                     //$NON-NLS-1$
+   private static final String              STATE_IS_SYNC_MAP_POSITION_WITH_SLIDER = "STATE_IS_SYNC_MAP_POSITION_WITH_SLIDER";               //$NON-NLS-1$
+   private static final String              STATE_IS_SYNC_MAP3_WITH_OTHER_MAP      = "STATE_IS_SYNC_MAP3_WITH_OTHER_MAP";                    //$NON-NLS-1$
+   private static final String              STATE_IS_TOUR_VISIBLE                  = "STATE_IS_TOUR_VISIBLE";                                //$NON-NLS-1$
+   private static final String              STATE_IS_TRACK_SLIDER_VISIBLE          = "STATE_IS_TRACK_SLIDERVISIBLE";                         //$NON-NLS-1$
+   private static final String              STATE_MAP3_VIEW                        = "STATE_MAP3_VIEW";                                      //$NON-NLS-1$
+   private static final String              STATE_TOUR_COLOR_ID                    = "STATE_TOUR_COLOR_ID";                                  //$NON-NLS-1$
 
-	private static final String	GRAPH_LABEL_HEARTBEAT_UNIT				= net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
-	private static final String	SLIDER_TEXT_ALTITUDE						= "%.1f %s";									//$NON-NLS-1$
-	private static final String	SLIDER_TEXT_GRADIENT						= "%.1f %%";									//$NON-NLS-1$
-	private static final String	SLIDER_TEXT_PACE							= "%s %s";										//$NON-NLS-1$
-	private static final String	SLIDER_TEXT_PULSE							= "%.0f %s";									//$NON-NLS-1$
+   private static final WorldWindowGLCanvas _wwCanvas                              = Map3Manager.getWWCanvas();
 
-	private static final String	SLIDER_TEXT_SPEED							= "%.1f %s";									//$NON-NLS-1$
+   private final IPreferenceStore           _prefStore                             = TourbookPlugin.getPrefStore();
+   private final IPreferenceStore           _prefStore_Common                      = CommonActivator.getPrefStore();
+   private final IDialogSettings            _state                                 = TourbookPlugin.getState(getClass().getCanonicalName());
 
-	public static final String		ID												= "net.tourbook.map3.view.Map3ViewId";			//$NON-NLS-1$
-	private static final String	STATE_IS_LEGEND_VISIBLE						= "STATE_IS_LEGEND_VISIBLE";					//$NON-NLS-1$
-	private static final String	STATE_IS_MARKER_VISIBLE						= "STATE_IS_MARKER_VISIBLE";					//$NON-NLS-1$
-	private static final String	STATE_IS_SYNC_MAP_VIEW_WITH_TOUR			= "STATE_IS_SYNC_MAP_VIEW_WITH_TOUR";			//$NON-NLS-1$
-	private static final String	STATE_IS_SYNC_MAP_POSITION_WITH_SLIDER	= "STATE_IS_SYNC_MAP_POSITION_WITH_SLIDER";		//$NON-NLS-1$
-	private static final String 	STATE_IS_SYNC_MAP3_WITH_OTHER_MAP		= "STATE_IS_SYNC_MAP3_WITH_OTHER_MAP";			//$NON-NLS-1$
-	private static final String	STATE_IS_TOUR_VISIBLE						= "STATE_IS_TOUR_VISIBLE";						//$NON-NLS-1$
-	private static final String	STATE_IS_TRACK_SLIDER_VISIBLE				= "STATE_IS_TRACK_SLIDERVISIBLE";				//$NON-NLS-1$
-	private static final String	STATE_MAP3_VIEW								= "STATE_MAP3_VIEW";							//$NON-NLS-1$
-
-	private static final String	STATE_TOUR_COLOR_ID							= "STATE_TOUR_COLOR_ID";						//$NON-NLS-1$
-
-	private static final WorldWindowGLCanvas	_wwCanvas						= Map3Manager.getWWCanvas();
-	/**
-    * @param eyePosition
-    * @return Returns altitude offset depending on the configuration settings.
-    */
-   public static double getAltitudeOffset(final Position eyePosition) {
-
-      if (eyePosition == null) {
-         return 0;
-      }
-
-      final TourTrackConfig config = TourTrackConfigManager.getActiveConfig();
-
-      final boolean isAbsoluteAltitudeMode = config.altitudeMode == WorldWind.ABSOLUTE;
-      final boolean isAltitudeOffset = config.isAltitudeOffset;
-      final boolean isOffsetModeAbsolute =
-            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_ABSOLUTE;
-      final boolean isOffsetModeRelative =
-            config.altitudeOffsetMode == TourTrackConfigManager.ALTITUDE_OFFSET_MODE_RELATIVE;
-
-      final int relativeOffset = config.altitudeOffsetDistanceRelative;
-
-      double altitudeOffset = 0;
-
-      if (isAbsoluteAltitudeMode && isAltitudeOffset) {
-
-         if (isOffsetModeAbsolute) {
-
-            altitudeOffset = config.altitudeOffsetDistanceAbsolute;
-
-         } else if (isOffsetModeRelative && relativeOffset > 0) {
-
-            final double eyeElevation = eyePosition.getElevation();
-
-            altitudeOffset = eyeElevation / 100.0 * relativeOffset;
-         }
-
-         if (config.isAltitudeOffsetRandom) {
-
-            // this needs to be implemented, is not yet done
-         }
-      }
-
-      return altitudeOffset;
-   }
-	private final IPreferenceStore				_prefStore					= TourbookPlugin.getPrefStore();
-
-// SET_FORMATTING_ON
-
+   // SET_FORMATTING_ON
    private final IPreferenceStore            _prefStore_Common = CommonActivator.getPrefStore();
    private final IDialogSettings             _state            = TourbookPlugin.getState(getClass().getCanonicalName());
    private ActionMap3Color                   _actionMap3Color;
@@ -857,7 +804,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
       _actionMap3Color = new ActionMap3Color();
       _actionMap3Colors = new ActionOpenPrefDialog(Messages.Map3_Action_TrackColors, PrefPageMap3Color.ID, _graphId);
-      _actionMap3Colors.setImageDescriptor(TourbookPlugin.getImageDescriptor(IMAGE_GRAPH_ALL));
+      _actionMap3Colors.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Options));
 
       _actionMapBookmarks = new ActionMapBookmarks(_parent, this);
       _actionSetTrackSliderLeft = new ActionSetTrackSliderPositionLeft(this);

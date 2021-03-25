@@ -72,6 +72,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorCacheSWT;
@@ -155,46 +156,63 @@ import org.eclipse.swt.widgets.Listener;
 
 public class Map extends Canvas {
 
-   private static final String          IMAGE_POI_IN_MAP                      = de.byteholder.geoclipse.poi.Messages.Image_POI_InMap;
-   private static final String          IMAGE_SEARCH_TOURS_BY_LOCATION        = net.tourbook.Messages.Image__SearchToursByLocation;
-   private static final String          IMAGE_SEARCH_TOURS_BY_LOCATION_SCROLL = net.tourbook.Messages.Image__SearchToursByLocation_Scroll;
+   /**
+    * This observer is called in the {@link Tile} when a tile image is set into the tile
+    */
+   private final class TileLoadObserver implements Observer {
 
-   private static final String          TOUR_TOOLTIP_LABEL_DISTANCE           = net.tourbook.ui.Messages.Tour_Tooltip_Label_Distance;
-   private static final String          TOUR_TOOLTIP_LABEL_MOVING_TIME        = net.tourbook.ui.Messages.Tour_Tooltip_Label_MovingTime;
-   private static final String          TOUR_TOOLTIP_LABEL_RECORDED_TIME      = net.tourbook.ui.Messages.Tour_Tooltip_Label_RecordedTime;
+      @Override
+      public void update(final Observable observable, final Object arg) {
 
-   private static final IDialogSettings _geoFilterState                       = TourGeoFilter_Manager.getState();
+         if (observable instanceof Tile) {
+
+            final Tile tile = (Tile) observable;
+
+            if (tile.getZoom() == _mapZoomLevel) {
+
+               /*
+                * Because we are not in the UI thread, we have to queue the call for redraw and
+                * cannot do it directly.
+                */
+               paint();
+
+               tile.deleteObserver(this);
+            }
+         }
+      }
+   }
+
+   private static final String          TOUR_TOOLTIP_LABEL_DISTANCE      = net.tourbook.ui.Messages.Tour_Tooltip_Label_Distance;
+   private static final String          TOUR_TOOLTIP_LABEL_MOVING_TIME   = net.tourbook.ui.Messages.Tour_Tooltip_Label_MovingTime;
+
+   private static final String          TOUR_TOOLTIP_LABEL_RECORDED_TIME = net.tourbook.ui.Messages.Tour_Tooltip_Label_RecordedTime;
+   private static final IDialogSettings _geoFilterState                  = TourGeoFilter_Manager.getState();
+
    /**
     * Min zoomlevels which the maps supports
     */
-   public static final int              MAP_MIN_ZOOM_LEVEL                    = 0;
+   public static final int              MAP_MIN_ZOOM_LEVEL               = 0;
 
    /**
     * Max zoomlevels which the maps supports
     */
-   public static final int              MAP_MAX_ZOOM_LEVEL                    = 22;
+   public static final int              MAP_MAX_ZOOM_LEVEL               = 22;
 
    /**
     * these zoom levels are displayed in the UI therefore they start with 1 instead of 0
     */
-   public static final int              UI_MIN_ZOOM_LEVEL                     = MAP_MIN_ZOOM_LEVEL + 1;
+   public static final int              UI_MIN_ZOOM_LEVEL                = MAP_MIN_ZOOM_LEVEL + 1;
 
-   public static final int              UI_MAX_ZOOM_LEVEL                     = MAP_MAX_ZOOM_LEVEL + 1;
+   public static final int              UI_MAX_ZOOM_LEVEL                = MAP_MAX_ZOOM_LEVEL + 1;
+   public static final int              EXPANDED_HOVER_SIZE              = 20;
 
-   public static final int              EXPANDED_HOVER_SIZE                   = 20;
-   public static final int              EXPANDED_HOVER_SIZE2                  = EXPANDED_HOVER_SIZE / 2;
+   public static final int              EXPANDED_HOVER_SIZE2             = EXPANDED_HOVER_SIZE / 2;
+   private static final String          DIRECTION_E                      = "E";                                                     //$NON-NLS-1$
 
-   private static final String          DIRECTION_E                           = "E";                                                      //$NON-NLS-1$
-   private static final String          DIRECTION_N                           = "N";                                                      //$NON-NLS-1$
+   private static final String          DIRECTION_N                      = "N";                                                     //$NON-NLS-1$
+   private static final String          VALUE_FORMAT_2                   = "%s %s";                                                 //$NON-NLS-1$
 
-   private static final String          VALUE_FORMAT_2                        = "%s %s";                                                  //$NON-NLS-1$
-   private static final String          VALUE_FORMAT_3                        = "%s %s %s";                                               //$NON-NLS-1$
-
-   /*
-    * Wikipedia data
-    */
-//   private static final String WIKI_PARAMETER_DIM                     = "dim";                                                   //$NON-NLS-1$
-   private static final String WIKI_PARAMETER_TYPE = "type"; //$NON-NLS-1$
+   private static final String          VALUE_FORMAT_3                   = "%s %s %s";                                              //$NON-NLS-1$
 
 //   http://toolserver.org/~geohack/geohack.php?pagename=Sydney&language=de&params=33.85_S_151.2_E_region:AU-NSW_type:city(3641422)
 //   http://toolserver.org/~geohack/geohack.php?pagename=Palm_Island,_Queensland&params=18_44_S_146_35_E_scale:20000_type:city
@@ -207,22 +225,28 @@ public class Map extends Canvas {
 //   D_M_N_D_M_E
 //   D_M_S_N_D_M_S_E
 
+   /*
+    * Wikipedia data
+    */
+//   private static final String WIKI_PARAMETER_DIM                     = "dim";                                                   //$NON-NLS-1$
+   private static final String WIKI_PARAMETER_TYPE                        = "type";                            //$NON-NLS-1$
    private static final String PATTERN_SEPARATOR                          = "_";                               //$NON-NLS-1$
+
    private static final String PATTERN_END                                = "_?(.*)";                          //$NON-NLS-1$
-
    private static final String PATTERN_WIKI_URL                           = ".*pagename=([^&]*).*params=(.*)"; //$NON-NLS-1$
+
    private static final String PATTERN_WIKI_PARAMETER_KEY_VALUE_SEPARATOR = ":";                               //$NON-NLS-1$
-
    private static final String PATTERN_DOUBLE                             = "([-+]?[0-9]*\\.?[0-9]+)";         //$NON-NLS-1$
-   private static final String PATTERN_DOUBLE_SEP                         = PATTERN_DOUBLE + PATTERN_SEPARATOR;
 
+   private static final String PATTERN_DOUBLE_SEP                         = PATTERN_DOUBLE + PATTERN_SEPARATOR;
    private static final String PATTERN_DIRECTION_NS                       = "([NS])_";                         //$NON-NLS-1$
-   private static final String PATTERN_DIRECTION_WE                       = "([WE])";                          //$NON-NLS-1$
 
 //   private static final String      PATTERN_WIKI_POSITION_10               = "([-+]?[0-9]*\\.?[0-9]+)_([NS])_([-+]?[0-9]*\\.?[0-9]+)_([WE])_?(.*)";   //$NON-NLS-1$
 //   private static final String      PATTERN_WIKI_POSITION_20               = "([0-9]*)_([NS])_([0-9]*)_([WE])_?(.*)";                           //$NON-NLS-1$
 //   private static final String      PATTERN_WIKI_POSITION_21               = "([0-9]*)_([0-9]*)_([NS])_([0-9]*)_([0-9]*)_([WE])_?(.*)";            //$NON-NLS-1$
 //   private static final String      PATTERN_WIKI_POSITION_22               = "([0-9]*)_([0-9]*)_([0-9]*)_([NS])_([0-9]*)_([0-9]*)_([0-9]*)_([WE])_?(.*)";   //$NON-NLS-1$
+
+   private static final String        PATTERN_DIRECTION_WE                  = "([WE])";                                                   //$NON-NLS-1$
 
    private static final String        PATTERN_WIKI_POSITION_D_D             = PATTERN_DOUBLE + ";"                                        //$NON-NLS-1$
          + PATTERN_DOUBLE
@@ -251,26 +275,32 @@ public class Map extends Canvas {
          + PATTERN_DOUBLE_SEP
          + PATTERN_DIRECTION_WE
          + PATTERN_END;
-
    private static final Pattern       _patternWikiUrl                       = Pattern.compile(PATTERN_WIKI_URL);
    private static final Pattern       _patternWikiPosition_D_D              = Pattern.compile(PATTERN_WIKI_POSITION_D_D);
    private static final Pattern       _patternWikiPosition_D_N_D_E          = Pattern.compile(PATTERN_WIKI_POSITION_D_N_D_E);
    private static final Pattern       _patternWikiPosition_D_M_N_D_M_E      = Pattern.compile(PATTERN_WIKI_POSITION_D_M_N_D_M_E);
    private static final Pattern       _patternWikiPosition_D_M_S_N_D_M_S_E  = Pattern.compile(PATTERN_WIKI_POSITION_D_M_S_N_D_M_S_E);
    private static final Pattern       _patternWikiParamter                  = Pattern.compile(PATTERN_SEPARATOR);
+
    private static final Pattern       _patternWikiKeyValue                  = Pattern.compile(PATTERN_WIKI_PARAMETER_KEY_VALUE_SEPARATOR);
 
    private final static ColorCacheSWT _colorCache                           = new ColorCacheSWT();
 
    // [181,208,208] is the color of water in the standard OSM material
-   public static final RGB        OSM_BACKGROUND_RGB         = new RGB(181, 208, 208);
+   public static final RGB  OSM_BACKGROUND_RGB         = new RGB(181, 208, 208);
 
-   private static final RGB       MAP_DEFAULT_BACKGROUND_RGB = new RGB(0x40, 0x40, 0x40);
+   private static final RGB MAP_DEFAULT_BACKGROUND_RGB = new RGB(0x40, 0x40, 0x40);
 
-   private static RGB             MAP_TRANSPARENT_RGB;
+   private static RGB       MAP_TRANSPARENT_RGB;
 
-   private final IPreferenceStore _prefStore                 = TourbookPlugin.getPrefStore();
+   /**
+    * @return Returns rgb values for the color which is used as transparent color in the map.
+    */
+   public static RGB getTransparentRGB() {
+      return MAP_TRANSPARENT_RGB;
+   }
 
+   private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
    {
       MAP_TRANSPARENT_RGB = net.tourbook.common.UI.IS_OSX //
 //            ? new RGB(0x7e, 0x7f, 0x80)
@@ -280,10 +310,10 @@ public class Map extends Canvas {
 //
       ;
    }
-
    private Color                  SYS_COLOR_BLACK;
    private Color                  SYS_COLOR_DARK_GRAY;
    private Color                  SYS_COLOR_GRAY;
+
    private Color                  SYS_COLOR_WHITE;
    private Color                  SYS_COLOR_YELLOW;
 
@@ -292,8 +322,8 @@ public class Map extends Canvas {
     * and 20.
     */
    private int                    _mapZoomLevel;
-   private boolean                _isZoomWithMousePosition;
 
+   private boolean                _isZoomWithMousePosition;
    /**
     * This image contains the map which is painted in the map viewport
     */
@@ -301,14 +331,15 @@ public class Map extends Canvas {
 
    private Image                  _9PartImage;
    private GC                     _9PartGC;
-
    /**
     * Indicates whether or not to draw the borders between tiles. Defaults to false. not very nice
     * looking, very much a product of testing Consider whether this should really be a property or
     * not.
     */
    private boolean                _isShowDebug_TileInfo;
+
    private boolean                _isShowDebug_TileBorder;
+
    private boolean                _isShowDebug_GeoGrid;
 
    /**
@@ -330,13 +361,12 @@ public class Map extends Canvas {
     * include painting waypoints, day/night, etc. Also receives mouse events.
     */
    private final List<MapPainter> _overlays                = new ArrayList<>();
-
    private final TileLoadObserver _tileImageLoadObserver   = new TileLoadObserver();
-
    private final Cursor           _cursorCross;
    private final Cursor           _cursorDefault;
    private final Cursor           _cursorHand;
    private final Cursor           _cursorPan;
+
    private final Cursor           _cursorSearchTour;
    private final Cursor           _cursorSearchTour_Scroll;
 
@@ -345,22 +375,22 @@ public class Map extends Canvas {
 
    private boolean                _isLeftMouseButtonPressed;
    private boolean                _isMapPanned;
-
    private Point                  _mouseDownPosition;
    private int                    _mouseMove_DevPosition_X = Integer.MIN_VALUE;
    private int                    _mouseMove_DevPosition_Y = Integer.MIN_VALUE;
    private int                    _mouseMove_DevPosition_X_Last;
-   private int                    _mouseMove_DevPosition_Y_Last;
-   private GeoPosition            _mouseMove_GeoPosition;
 
+   private int                    _mouseMove_DevPosition_Y_Last;
+
+   private GeoPosition            _mouseMove_GeoPosition;
    private Thread                 _overlayThread;
 
    private long                   _nextOverlayRedrawTime;
    private final NumberFormat     _nf1;
-
    private final NumberFormat     _nf2;
    private final NumberFormat     _nf3;
    private final NumberFormat     _nfLatLon;
+
    {
       _nf1 = NumberFormat.getNumberInstance();
       _nf2 = NumberFormat.getNumberInstance();
@@ -377,6 +407,7 @@ public class Map extends Canvas {
       _nfLatLon.setMinimumFractionDigits(4);
       _nfLatLon.setMaximumFractionDigits(4);
    }
+
    private final TextWrapPainter                      _textWrapper              = new TextWrapPainter();
 
    /**
@@ -411,7 +442,6 @@ public class Map extends Canvas {
    private MapLegend                                  _mapLegend;
 
    private boolean                                    _isLegendVisible;
-
    /**
     * This is the most important point for the map because all operations depend on it.
     * <p>
@@ -426,7 +456,6 @@ public class Map extends Canvas {
     * <br>
     */
    private Point2D                                    _worldPixel_MapCenter     = null;
-
    /**
     * Viewport in the map where the {@link #_mapImage} is painted <br>
     * <br>
@@ -439,16 +468,17 @@ public class Map extends Canvas {
     * tried to document this behaviour.
     */
    private Rectangle                                  _worldPixel_TopLeft_Viewport;
+
    /**
     * Size in device pixel where the map is displayed
     */
    private Rectangle                                  _devMapViewport;
+
    /**
     * Size of the map in tiles at the current zoom level {@link #_mapZoomLevel} (num tiles tall by
     * num tiles wide)
     */
    private Dimension                                  _mapTileSize;
-
    /**
     * Size of a tile in pixel (tile is quadratic)
     */
@@ -458,92 +488,93 @@ public class Map extends Canvas {
     * Size of a geo grid of 0.01 degree in pixel, this depends on the zoom level
     */
    private double                                     _devGridPixelSize_X;
-   private double                                     _devGridPixelSize_Y;
 
+   private double                                     _devGridPixelSize_Y;
    /**
     * Contains the client area of the map without trimmings, this rectangle has the width and height
     * of the map image
     */
    private Rectangle                                  _clientArea;
-
    private final ListenerList<IMapGridListener>       _allMapGridListener       = new ListenerList<>(ListenerList.IDENTITY);
    private final ListenerList<IMapInfoListener>       _allMapInfoListener       = new ListenerList<>(ListenerList.IDENTITY);
    private final ListenerList<IMapPositionListener>   _allMapPositionListener   = new ListenerList<>(ListenerList.IDENTITY);
    private final ListenerList<ITourSelectionListener> _allTourSelectionListener = new ListenerList<>(ListenerList.IDENTITY);
    private final ListenerList<IPositionListener>      _mousePositionListeners   = new ListenerList<>(ListenerList.IDENTITY);
+
    private final ListenerList<IPOIListener>           _poiListeners             = new ListenerList<>(ListenerList.IDENTITY);
    private final ListenerList<IHoveredTourListener>   _hoveredTourListeners     = new ListenerList<>(ListenerList.IDENTITY);
 
    // measurement system
-   private float       _distanceUnitValue = 1;
-   private String      _distanceUnitLabel = UI.EMPTY_STRING;
+   private float                     _distanceUnitValue         = 1;
 
-   private boolean     _isScaleVisible;
+   private String                    _distanceUnitLabel         = UI.EMPTY_STRING;
+   private boolean                   _isScaleVisible;
 
-   private final Color _transparentColor;
-   private final Color _defaultBackgroundColor;
-
+   private final Color               _transparentColor;
+   private final Color               _defaultBackgroundColor;
    /*
     * POI image
     */
-   private boolean         _isPoiVisible;
-   private boolean         _isPoiPositionInViewport;
+   private boolean                   _isPoiVisible;
+   private boolean                   _isPoiPositionInViewport;
    //
-   private final Image     _poiImage;
-   private final Rectangle _poiImageBounds;
-   private final Point     _poiImageDevPosition = new Point(0, 0);
+   private final Image               _poiImage;
 
+   private final Rectangle           _poiImageBounds;
+   private final Point               _poiImageDevPosition       = new Point(0, 0);
    /*
     * POI tooltip
     */
-   private PoiToolTip       _poi_Tooltip;
-   private final int        _poi_Tooltip_OffsetY       = 5;
-   private TourToolTip      _tour_ToolTip;
+   private PoiToolTip                _poi_Tooltip;
 
-   private boolean          _isShowHoveredSelectedTour = Map2View.STATE_IS_SHOW_HOVERED_SELECTED_TOUR_DEFAULT;
-   private long             _hovered_SelectedTourId    = Long.MIN_VALUE;
+   private final int                 _poi_Tooltip_OffsetY       = 5;
+   private TourToolTip               _tour_ToolTip;
 
-   private ArrayList<Long>  _allHoveredTourIds         = new ArrayList<>();
-   private ArrayList<Point> _allDevHoveredPoints       = new ArrayList<>();
+   private boolean                   _isShowHoveredSelectedTour = Map2View.STATE_IS_SHOW_HOVERED_SELECTED_TOUR_DEFAULT;
+   private long                      _hovered_SelectedTourId    = Long.MIN_VALUE;
+
+   private ArrayList<Long>           _allHoveredTourIds         = new ArrayList<>();
+
+   private ArrayList<Point>          _allDevHoveredPoints       = new ArrayList<>();
 
    /**
     * when <code>true</code> the loading... image is not displayed
     */
-   private boolean          _isLiveView;
-
-   private long             _lastMapDrawTime;
-
+   private boolean                   _isLiveView;
+   private long                      _lastMapDrawTime;
    /*
     * All painted tiles in the map are within these 4 tile positions
     */
-   private int           _tilePos_MinX;
-   private int           _tilePos_MaxX;
-   private int           _tilePos_MinY;
-   private int           _tilePos_MaxY;
+   private int                       _tilePos_MinX;
+   private int                       _tilePos_MaxX;
+   private int                       _tilePos_MinY;
+   private int                       _tilePos_MaxY;
    //
-   private Tile[][]      _allPaintedTiles;
+   private Tile[][]                  _allPaintedTiles;
    //
-   private final Display _display;
-   private final Thread  _displayThread;
+   private final Display             _display;
+   private final Thread              _displayThread;
    //
-   private int           _jobCounterSplitImages = 0;
-   private Object        _splitJobFamily        = new Object();
-   private boolean       _isCancelSplitJobs;
+   private int                       _jobCounterSplitImages     = 0;
 
+   private Object                    _splitJobFamily            = new Object();
+   private boolean                   _isCancelSplitJobs;
    /*
     * Download offline images
     */
    private boolean                   _offline_IsSelectingOfflineArea;
+
    private boolean                   _offline_IsOfflineSelectionStarted;
    private boolean                   _offline_IsPaintOfflineArea;
-
    private Point                     _offline_DevMouse_Start;
    private Point                     _offline_DevMouse_End;
+
    private Point                     _offline_DevTileStart;
    private Point                     _offline_DevTileEnd;
-
    private Point                     _offline_WorldMouse_Start;
+
    private Point                     _offline_WorldMouse_End;
+
    private Point                     _offline_WorldMouse_Move;
 
    private IMapContextProvider       _mapContextProvider;
@@ -551,28 +582,27 @@ public class Map extends Canvas {
    /**
     * Is <code>true</code> when the map context menu can be displayed
     */
-   private boolean                   _isContextMenuEnabled   = true;
+   private boolean                   _isContextMenuEnabled      = true;
 
    private DropTarget                _dropTarget;
 
-   private boolean                   _isRedrawEnabled        = true;
+   private boolean                   _isRedrawEnabled           = true;
 
    private HoveredAreaContext        _hoveredAreaContext;
-
-   private int                       _overlayAlpha           = 0xff;
+   private int                       _overlayAlpha              = 0xff;
 
    private MapGridData               _grid_Data_Hovered;
+
    private MapGridData               _grid_Data_Selected;
-
    private boolean                   _grid_Label_IsHovered;
-
    private Rectangle                 _grid_Label_Outline;
    private GeoPosition               _grid_MapGeoCenter;
+
    private int                       _grid_MapZoomLevel;
-   private int[]                     _grid_AutoScrollCounter = new int[1];
+
+   private int[]                     _grid_AutoScrollCounter    = new int[1];
 
    private boolean                   _grid_IsGridAutoScroll;
-
    private ActionManageOfflineImages _actionManageOfflineImages;
 
    /**
@@ -581,42 +611,17 @@ public class Map extends Canvas {
     */
    private boolean                   _isTourPaintMethodEnhanced;
    private boolean                   _isShowTourPaintMethodEnhancedWarning;
-
    private boolean                   _isFastMapPainting;
+
    private boolean                   _isFastMapPainting_Active;
+
    private boolean                   _isInInverseKeyboardPanning;
 
    private int                       _fastMapPainting_skippedValues;
 
    private MapTourBreadcrumb         _tourBreadcrumb;
 
-   private Font                      _boldFont               = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
-
-   /**
-    * This observer is called in the {@link Tile} when a tile image is set into the tile
-    */
-   private final class TileLoadObserver implements Observer {
-
-      @Override
-      public void update(final Observable observable, final Object arg) {
-
-         if (observable instanceof Tile) {
-
-            final Tile tile = (Tile) observable;
-
-            if (tile.getZoom() == _mapZoomLevel) {
-
-               /*
-                * Because we are not in the UI thread, we have to queue the call for redraw and
-                * cannot do it directly.
-                */
-               paint();
-
-               tile.deleteObserver(this);
-            }
-         }
-      }
-   }
+   private Font                      _boldFont                  = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
 
    /**
     * Create a new Map
@@ -644,8 +649,8 @@ public class Map extends Canvas {
       _cursorHand = new Cursor(_display, SWT.CURSOR_HAND);
       _cursorPan = new Cursor(_display, SWT.CURSOR_SIZEALL);
 
-      _cursorSearchTour = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(IMAGE_SEARCH_TOURS_BY_LOCATION));
-      _cursorSearchTour_Scroll = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(IMAGE_SEARCH_TOURS_BY_LOCATION_SCROLL));
+      _cursorSearchTour = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation));
+      _cursorSearchTour_Scroll = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation_Scroll));
 
       _transparentColor = new Color(_display, MAP_TRANSPARENT_RGB);
       _defaultBackgroundColor = new Color(_display, MAP_DEFAULT_BACKGROUND_RGB);
@@ -656,19 +661,12 @@ public class Map extends Canvas {
       SYS_COLOR_WHITE = _display.getSystemColor(SWT.COLOR_WHITE);
       SYS_COLOR_YELLOW = _display.getSystemColor(SWT.COLOR_YELLOW);
 
-      _poiImage = TourbookPlugin.getImageDescriptor(IMAGE_POI_IN_MAP).createImage();
+      _poiImage = TourbookPlugin.getImageDescriptor(Images.POI_InMap).createImage();
       _poiImageBounds = _poiImage.getBounds();
 
       _tourBreadcrumb = new MapTourBreadcrumb();
 
       paint_Overlay_0_SetupThread();
-   }
-
-   /**
-    * @return Returns rgb values for the color which is used as transparent color in the map.
-    */
-   public static RGB getTransparentRGB() {
-      return MAP_TRANSPARENT_RGB;
    }
 
    public void actionManageOfflineImages(final Event event) {
