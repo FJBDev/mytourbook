@@ -33,6 +33,15 @@ import org.eclipse.swt.widgets.Display;
 
 public class ChartLayerPause implements IChartLayer, IChartOverlay {
 
+   private int              LABEL_OFFSET;
+   private int              PAUSE_POINT_SIZE;
+
+   private TourChart        _tourChart;
+   private ChartPauseConfig _cpc;
+
+   private int              _devXPause;
+   private int              _devYPause;
+
    public class LoadImageCallback implements ILoadCallBack {
 
       @Override
@@ -59,16 +68,6 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          });
       }
    }
-
-   private int              LABEL_OFFSET;
-
-   private int              PAUSE_POINT_SIZE;
-   private TourChart        _tourChart;
-
-   private ChartPauseConfig _cpc;
-   private int              _devXPause;
-
-   private int              _devYPause;
 
    public ChartLayerPause(final TourChart tourChart) {
 
