@@ -17,6 +17,7 @@ package net.tourbook.ui.tourChart;
 
 import gnu.trove.list.array.TIntArrayList;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.preferences.ICommonPreferences;
+import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.tooltip.ActionToolbarSlideout;
 import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.IPinned_Tooltip_Owner;
@@ -1890,6 +1892,19 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
    //
 
+   private ChartLabel createLayer_NightSection_ChartLabel(final double[] xAxisSerie,
+                                                          final int xAxisSerieIndex,
+                                                          final int xAxisEndSerieIndex) {
+
+      final ChartLabel chartLabel = new ChartLabel();
+
+      chartLabel.graphX = xAxisSerie[xAxisSerieIndex];
+      chartLabel.serieIndex = xAxisSerieIndex;
+      chartLabel.endSerieIndex = xAxisEndSerieIndex;
+
+      return chartLabel;
+   }
+
    //TODO FB
    //GRAPH_OPACITY_NIGHT_SECTIONS
    // Rename to GRAPH_TRANSPARENCY_NIGHT_SECTIONS
@@ -1978,43 +1993,68 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       } else {
 
-         final long[] pausedTime_Start = _tourData.getPausedTime_Start();
+         final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
+         final double[] latitudeSerie = _tourData.latitudeSerie;
+         final double[] longitudeSerie = _tourData.longitudeSerie;
 
-         if (pausedTime_Start == null) {
+         if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
             return;
          }
-
          final long[] pausedTime_End = _tourData.getPausedTime_End();
 
-         String pauseDurationText;
-         int serieIndex = 0;
-         final int[] timeSerie = _tourData.timeSerie;
-         final long tourStartTime = _tourData.getTourStartTimeMS();
-         for (int index = 0; index < pausedTime_Start.length; ++index) {
+         final String pauseDurationText;
+         final int serieIndex = 0;
+//         final int[] timeSerie = _tourData.timeSerie;
+         final ZonedDateTime sunsetTimes = TimeTools.determineSunsetTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
+         final ZonedDateTime sunriseTimes = TimeTools.determineSunRiseTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
+         boolean isNightTime = false;
+         boolean isDayTime = false;
+         int nightSerieIndex = 0;
+         for (final double element : timeSerie) {
 
-            final long pauseDuration = Math.round((pausedTime_End[index] - pausedTime_Start[index]) / 1000f);
-            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
+            final long timeofday = (long) (_tourData.getStartTimeOfDay() + element);
+            if (isNightTime) {
 
-            for (; serieIndex < timeSerie.length && serieIndex < xAxisSerie.length; ++serieIndex) {
-
-               final long currentTime = timeSerie[serieIndex] * 1000L + tourStartTime;
-
-               if (currentTime >= pausedTime_Start[index]) {
-                  break;
-               }
+               //We are now out of the night
+               final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                     xAxisSerie,
+                     nightSerieIndex,
+                     serieIndex);
+               cnc.chartLabels.add(chartLabel);
+               isDayTime = true;
+               isNightTime = false;
             }
 
-            if (serieIndex >= xAxisSerie.length) {
-               continue;
+            if ((timeofday >= sunsetTimes.toEpochSecond() ||
+                  timeofday <= sunriseTimes.toEpochSecond())
+                  && !isNightTime) {
+               isNightTime = true;
+
+               nightSerieIndex = serieIndex;
             }
 
-            final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
-                  pauseDurationText,
-                  xAxisSerie,
-                  serieIndex,
-                  0);
-
-            cnc.chartLabels.add(chartLabel);
+//            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
+//
+//            for (; serieIndex < timeSerie.length && serieIndex < xAxisSerie.length; ++serieIndex) {
+//
+//               final long currentTime = timeSerie[serieIndex] * 1000L + tourStartTime;
+//
+//               if (currentTime >= pausedTime_Start[index]) {
+//                  break;
+//               }
+//            }
+//
+//            if (serieIndex >= xAxisSerie.length) {
+//               continue;
+//            }
+//
+//            final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
+//                  pauseDurationText,
+//                  xAxisSerie,
+//                  serieIndex,
+//                  0);
+//
+//            cnc.chartLabels.add(chartLabel);
          }
       }
 

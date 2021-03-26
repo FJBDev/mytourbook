@@ -51,6 +51,10 @@ public class ChartLabel {
     * index in the data serie
     */
    public int              serieIndex;
+   /**
+    * last index in the data serie
+    */
+   public int              endSerieIndex;
 
    public String           markerLabel            = UI.EMPTY_STRING;
 

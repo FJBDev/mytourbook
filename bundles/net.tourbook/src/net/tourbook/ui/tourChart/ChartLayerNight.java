@@ -93,7 +93,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
          final float yValue = yValues[chartLabel.serieIndex];
 
-         final int devYGraph = (int) ((yValue - graphYBottom) * scaleY) - 0;
+         final int devYGraph = (int) (graphYBottom * scaleY) - 0;
 
          /*
           * Get pause point top/left position
@@ -110,7 +110,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
          gc.setAlpha(opacity);
-         gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYPauseTopLeft);
+         gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYGraph);
 //      }
       }
       colorDefault.dispose();
