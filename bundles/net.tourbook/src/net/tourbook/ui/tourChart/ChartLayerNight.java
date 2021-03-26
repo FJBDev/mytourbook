@@ -70,7 +70,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
 
       final float graphYBottom = drawingData.getGraphYBottom();
-      //TODO FB only draw above the y values ? basically only the sky ?
       //what if a tour spans across more than 1 day?
       final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
@@ -86,6 +85,12 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
        * For each pont at night, we draw a gray line from the top of the graph to the altitude line
        */
       for (final ChartLabel chartLabel : _cnc.chartLabels) {
+
+         //The current charlabel is the start or at least a point in which it's night.
+         //find the end of the night section (serieIndex)
+         // calculate the according graph coordinates
+         //display a box from this point to the end of this night section
+
          final float yValue = yValues[chartLabel.serieIndex];
 
          final int devYGraph = (int) ((yValue - graphYBottom) * scaleY) - 0;
@@ -105,7 +110,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
          gc.setAlpha(opacity);
-         System.out.println(opacity);
          gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYPauseTopLeft);
 //      }
       }
