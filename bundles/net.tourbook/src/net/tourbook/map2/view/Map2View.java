@@ -2957,8 +2957,8 @@ public class Map2View extends ViewPart implements
 
       updateUI_ShowTour(tourData);
 
-      final ArrayList<TourMarker> allTourMarkers = markerSelection.getSelectedTourMarkers();
-      final int numberOfTourMarkers = allTourMarkers.size();
+      final ArrayList<TourMarker> allTourMarker = markerSelection.getSelectedTourMarker();
+      final int numberOfTourMarkers = allTourMarker.size();
 
       int leftSliderValueIndex = 0;
       int rightSliderValueIndex = 0;
@@ -2967,26 +2967,26 @@ public class Map2View extends ViewPart implements
 
          if (numberOfTourMarkers == 1) {
 
-            leftSliderValueIndex = allTourMarkers.get(0).getMultiTourSerieIndex();
+            leftSliderValueIndex = allTourMarker.get(0).getMultiTourSerieIndex();
             rightSliderValueIndex = leftSliderValueIndex;
 
          } else if (numberOfTourMarkers > 1) {
 
-            leftSliderValueIndex = allTourMarkers.get(0).getMultiTourSerieIndex();
-            rightSliderValueIndex = allTourMarkers.get(numberOfTourMarkers - 1).getMultiTourSerieIndex();
+            leftSliderValueIndex = allTourMarker.get(0).getMultiTourSerieIndex();
+            rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getMultiTourSerieIndex();
          }
 
       } else {
 
          if (numberOfTourMarkers == 1) {
 
-            leftSliderValueIndex = allTourMarkers.get(0).getSerieIndex();
+            leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
             rightSliderValueIndex = leftSliderValueIndex;
 
          } else if (numberOfTourMarkers > 1) {
 
-            leftSliderValueIndex = allTourMarkers.get(0).getSerieIndex();
-            rightSliderValueIndex = allTourMarkers.get(numberOfTourMarkers - 1).getSerieIndex();
+            leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
+            rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getSerieIndex();
          }
       }
 
