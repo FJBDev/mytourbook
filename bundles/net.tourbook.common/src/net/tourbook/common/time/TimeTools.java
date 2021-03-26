@@ -41,6 +41,7 @@ import java.time.temporal.WeekFields;
 import java.time.zone.ZoneRules;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TimeZone;
 
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.Messages;
@@ -49,9 +50,12 @@ import net.tourbook.common.preferences.ICommonPreferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import org.shredzone.commons.suncalc.SunTimes;
 
 public class TimeTools {
 
@@ -316,6 +320,51 @@ public class TimeTools {
             - 1;
 
       return new TourDateTime(tourZonedDateTime, timeZoneOffsetLabel, weekDays_Short[weekDayIndex]);
+   }
+
+   public static DateTime determineSunRiseTimes(final DateTime StartTime,
+                                                final double latitude,
+                                                final double longitude,
+                                                final String timeZoneId) {
+      // Because giving a date with a specific hour could result into getting the
+      // sunrise of the previous day,
+      // we adjust the date to the beginning of the day
+      final DateTime beginningOfDay = new DateTime(StartTime.getYear(),
+            StartTime.getMonthOfYear(),
+            StartTime.getDayOfMonth(),
+            0,
+            0,
+            DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
+
+      final SunTimes times = SunTimes.compute().on(beginningOfDay.toDate()).at(latitude, longitude).execute();
+
+      final DateTime sunriseTime = new DateTime(times.getRise())
+            .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
+
+      return sunriseTime;
+   }
+
+   public static DateTime determineSunsetTimes(final DateTime StartTime,
+                                               final double latitude,
+                                               final double longitude,
+                                               final String timeZoneId) {
+      // Because giving a date with a specific hour could result into getting the
+      // sunrise of the previous day,
+      // we adjust the date to the beginning of the day
+      final DateTime beginningOfDay = new DateTime(StartTime.getYear(),
+            StartTime.getMonthOfYear(),
+            StartTime.getDayOfMonth(),
+            0,
+            0,
+            DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
+
+      final SunTimes times = SunTimes.compute().on(beginningOfDay.toDate()).at(latitude, longitude)
+            .execute();
+
+      final DateTime sunsetTime = new DateTime(times.getSet())
+            .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
+      return sunsetTime;
+
    }
 
    /**
