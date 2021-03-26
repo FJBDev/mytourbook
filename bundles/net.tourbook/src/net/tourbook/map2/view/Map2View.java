@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -285,7 +284,7 @@ public class Map2View extends ViewPart implements
    };
 
 // SET_FORMATTING_ON
-//
+   //
    private final IPreferenceStore            _prefStore               = TourbookPlugin.getPrefStore();
    private final IPreferenceStore            _prefStore_Common        = CommonActivator.getPrefStore();
    private final IDialogSettings             _state                   = TourbookPlugin.getState(ID);
@@ -2958,8 +2957,8 @@ public class Map2View extends ViewPart implements
 
       updateUI_ShowTour(tourData);
 
-      final List<TourMarker> allTourMarker = markerSelection.getSelectedTourMarkers();
-      final int numberOfTourMarkers = allTourMarker.size();
+      final ArrayList<TourMarker> allTourMarkers = markerSelection.getSelectedTourMarkers();
+      final int numberOfTourMarkers = allTourMarkers.size();
 
       int leftSliderValueIndex = 0;
       int rightSliderValueIndex = 0;
@@ -2968,26 +2967,26 @@ public class Map2View extends ViewPart implements
 
          if (numberOfTourMarkers == 1) {
 
-            leftSliderValueIndex = allTourMarker.get(0).getMultiTourSerieIndex();
+            leftSliderValueIndex = allTourMarkers.get(0).getMultiTourSerieIndex();
             rightSliderValueIndex = leftSliderValueIndex;
 
          } else if (numberOfTourMarkers > 1) {
 
-            leftSliderValueIndex = allTourMarker.get(0).getMultiTourSerieIndex();
-            rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getMultiTourSerieIndex();
+            leftSliderValueIndex = allTourMarkers.get(0).getMultiTourSerieIndex();
+            rightSliderValueIndex = allTourMarkers.get(numberOfTourMarkers - 1).getMultiTourSerieIndex();
          }
 
       } else {
 
          if (numberOfTourMarkers == 1) {
 
-            leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
+            leftSliderValueIndex = allTourMarkers.get(0).getSerieIndex();
             rightSliderValueIndex = leftSliderValueIndex;
 
          } else if (numberOfTourMarkers > 1) {
 
-            leftSliderValueIndex = allTourMarker.get(0).getSerieIndex();
-            rightSliderValueIndex = allTourMarker.get(numberOfTourMarkers - 1).getSerieIndex();
+            leftSliderValueIndex = allTourMarkers.get(0).getSerieIndex();
+            rightSliderValueIndex = allTourMarkers.get(numberOfTourMarkers - 1).getSerieIndex();
          }
       }
 
@@ -3008,8 +3007,6 @@ public class Map2View extends ViewPart implements
          }
 
          keepMapPosition(tourData);
-         _map.paint();
-
       }
    }
 
@@ -3563,6 +3560,7 @@ public class Map2View extends ViewPart implements
       final int sliderIndex = Math.max(0, Math.min(valueIndex, latitudeSerie.length - 1));
 
       _map.setMapCenter(new GeoPosition(latitudeSerie[sliderIndex], longitudeSerie[sliderIndex]));
+
    }
 
    public void redrawMap() {
