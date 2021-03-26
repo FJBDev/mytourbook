@@ -1889,8 +1889,130 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    //https://github.com/patrovite/Course_Generator/commit/fb63f3da12957d4e974fa7f1161ed2cda2adedb6
    //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
    //
-   private void createLayer_NightSections(final boolean b) {
-      // TODO Auto-generated method stub
+   private void createLayer_NightSections() {
+
+      // Night sections layer is visible
+
+      final ChartNightConfig cnc = new ChartNightConfig();
+
+      if (_layerNight == null) {
+
+         // setup the night sections layer, a layer is created only once
+
+         _layerNight = new ChartLayerNight(this);
+
+         // set overlay painter
+         addChartOverlay(_layerNight);
+      }
+
+      _layerNight.setChartNightConfig(cnc);
+
+      // set data serie for the x-axis
+      final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
+            ? _tourData.getTimeSerieDouble()
+            : _tourData.getDistanceSerieDouble();
+
+      if (_tourData.isMultipleTours()) {
+
+         final int numberOfTours = _tourData.multipleTourStartIndex.length;
+         final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
+         final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
+         final long[] multipleTourStartTime = _tourData.multipleTourStartTime;
+
+         if (multipleStartTimeIndex.length == 0) {
+            return;
+         }
+
+         int tourSerieIndex = 0;
+         int numberOfPauses = 0;
+         long tourStartTime = 0;
+         final List<List<Long>> allTourPauses = _tourData.multiTourPauses;
+         String pauseDurationText;
+         int currentTourPauseIndex = 0;
+         for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
+
+            tourStartTime = multipleTourStartTime[tourIndex];
+            numberOfPauses = multipleNumberOfPauses[tourIndex];
+            tourSerieIndex = multipleStartTimeIndex[tourIndex];
+
+            for (int relativeTourPauseIndex = 0; relativeTourPauseIndex < numberOfPauses;) {
+
+               final long pausedTime_Start = allTourPauses.get(currentTourPauseIndex).get(0);
+               final long pausedTime_End = allTourPauses.get(currentTourPauseIndex).get(1);
+
+               final long pauseDuration = Math.round((pausedTime_End - pausedTime_Start) / 1000f);
+               pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
+
+               long previousTourElapsedTime = 0;
+               if (tourIndex > 0) {
+                  previousTourElapsedTime = _tourData.timeSerie[multipleStartTimeIndex[tourIndex] - 1] * 1000L;
+               }
+
+               for (; tourSerieIndex < _tourData.timeSerie.length; ++tourSerieIndex) {
+
+                  final long currentTime = _tourData.timeSerie[tourSerieIndex] * 1000L + tourStartTime - previousTourElapsedTime;
+
+                  if (currentTime >= pausedTime_Start) {
+                     break;
+                  }
+               }
+
+               if (tourSerieIndex < xAxisSerie.length) {
+                  final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
+                        pauseDurationText,
+                        xAxisSerie,
+                        tourSerieIndex,
+                        0);
+
+                  cnc.chartLabels.add(chartLabel);
+               }
+
+               ++relativeTourPauseIndex;
+               ++currentTourPauseIndex;
+            }
+         }
+
+      } else {
+
+         final long[] pausedTime_Start = _tourData.getPausedTime_Start();
+
+         if (pausedTime_Start == null) {
+            return;
+         }
+
+         final long[] pausedTime_End = _tourData.getPausedTime_End();
+
+         String pauseDurationText;
+         int serieIndex = 0;
+         final int[] timeSerie = _tourData.timeSerie;
+         final long tourStartTime = _tourData.getTourStartTimeMS();
+         for (int index = 0; index < pausedTime_Start.length; ++index) {
+
+            final long pauseDuration = Math.round((pausedTime_End[index] - pausedTime_Start[index]) / 1000f);
+            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
+
+            for (; serieIndex < timeSerie.length && serieIndex < xAxisSerie.length; ++serieIndex) {
+
+               final long currentTime = timeSerie[serieIndex] * 1000L + tourStartTime;
+
+               if (currentTime >= pausedTime_Start[index]) {
+                  break;
+               }
+            }
+
+            if (serieIndex >= xAxisSerie.length) {
+               continue;
+            }
+
+            final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
+                  pauseDurationText,
+                  xAxisSerie,
+                  serieIndex,
+                  0);
+
+            cnc.chartLabels.add(chartLabel);
+         }
+      }
 
    }
 
@@ -1948,16 +2070,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       }
 
       _layerPause.setChartPauseConfig(cpc);
-
-      if (_layerNight == null) {
-
-         // setup the night layer, a layer is created only once
-
-         _layerNight = new ChartLayerNight(this);
-
-         // set overlay painter
-         addChartOverlay(_layerNight);
-      }
 
       // set data serie for the x-axis
       final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
@@ -5706,7 +5818,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       createLayer_TourSegmenter();
       createLayer_Marker(false);
       createLayer_Pauses(false);
-      createLayer_NightSections(false);
+      createLayer_NightSections();
       createLayer_2ndAlti();
       createLayer_Photo();
 

@@ -16,12 +16,15 @@
 
 package net.tourbook.ui.tourChart;
 
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.chart.GraphDrawingData;
 import net.tourbook.chart.IChartLayer;
 import net.tourbook.chart.IChartOverlay;
+import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
@@ -30,23 +33,21 @@ import org.eclipse.swt.graphics.Rectangle;
 
 public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
+   private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+   private int                           LABEL_OFFSET;
 
-   private int              LABEL_OFFSET;
+   private int                           PAUSE_POINT_SIZE;
+   private TourChart                     _tourChart;
 
-   private int              PAUSE_POINT_SIZE;
-   private TourChart        _tourChart;
+   private ChartNightConfig              _cnc;
+   private int                           _devXPause;
 
-   private ChartPauseConfig _cpc;
-   private int              _devXPause;
-
-   private int              _devYPause;
+   private int                           _devYPause;
 
    public ChartLayerNight(final TourChart tourChart) {
 
       _tourChart = tourChart;
    }
-
-
 
    /**
     * This paints the pause(s) for the current graph configuration.
@@ -54,6 +55,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    @Override
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
 
+      final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
       final Device display = gc.getDevice();
 
       PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(100);
@@ -83,7 +85,8 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       /*
        * For each pont at night, we draw a gray line from the top of the graph to the altitude line
        */
-      for (final float yValue : yValues) {
+      for (final ChartLabel chartLabel : _cnc.chartLabels) {
+         final float yValue = yValues[chartLabel.serieIndex];
 
          final int devYGraph = (int) ((yValue - graphYBottom) * scaleY) - 0;
 
@@ -101,12 +104,11 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          //todo fb
          //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
          // draw pause point
-         gc.setAlpha(0x40);
-         gc.drawLine(100, devYGraph, 100, devYPauseTopLeft);
-
-
+         gc.setAlpha(opacity);
+         System.out.println(opacity);
+         gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYPauseTopLeft);
+//      }
       }
-
       colorDefault.dispose();
       colorDevice.dispose();
       colorHidden.dispose();
@@ -122,5 +124,9 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    @Override
    public void drawOverlay(final GC gc, final GraphDrawingData graphDrawingData) {
       //Nothing
+   }
+
+   public void setChartNightConfig(final ChartNightConfig chartNightConfig) {
+      _cnc = chartNightConfig;
    }
 }
