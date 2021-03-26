@@ -1683,4 +1683,3 @@ public class DialogMarker extends TitleAreaDialog implements ITourMarkerSelectio
    }
 
 }
-

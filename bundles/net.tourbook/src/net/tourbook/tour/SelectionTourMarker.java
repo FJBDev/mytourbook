@@ -64,4 +64,3 @@ public class SelectionTourMarker implements ISelection {
 	}
 
 }
-
