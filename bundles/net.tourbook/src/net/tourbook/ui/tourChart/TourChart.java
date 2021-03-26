@@ -1889,6 +1889,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    //https://github.com/patrovite/Course_Generator/commit/fb63f3da12957d4e974fa7f1161ed2cda2adedb6
    //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
    //
+
+   //TODO FB
+   //GRAPH_OPACITY_NIGHT_SECTIONS
+   // Rename to GRAPH_TRANSPARENCY_NIGHT_SECTIONS
    private void createLayer_NightSections() {
 
       // Night sections layer is visible
