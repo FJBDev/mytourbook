@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1299,7 +1299,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
          final SelectionTourMarker selection = (SelectionTourMarker) eventData;
 
          final TourData tourData = selection.getTourData();
-         final ArrayList<TourMarker> selectedTourMarkers = selection.getSelectedTourMarkers();
+         final ArrayList<TourMarker> tourMarker = selection.getSelectedTourMarker();
 
          if (tourData != _tourData) {
 
@@ -1311,7 +1311,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
          _isInUpdate = true;
          {
-            _markerViewer.setSelection(new StructuredSelection(selectedTourMarkers), true);
+            _markerViewer.setSelection(new StructuredSelection(tourMarker), true);
          }
          _isInUpdate = false;
       }
