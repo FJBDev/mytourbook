@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 package net.tourbook.ui.tourChart;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -771,9 +770,9 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
          /*
           * set slider position
           */
-         final List<TourMarker> selectedTourMarkers = markerSelection.getSelectedTourMarkers();
-         final int numberOfTourMarkers = selectedTourMarkers.size();
-         final TourMarker firstTourMarker = selectedTourMarkers.get(0);
+         final ArrayList<TourMarker> tourMarker = markerSelection.getSelectedTourMarker();
+         final int numberOfTourMarkers = tourMarker.size();
+         final TourMarker firstTourMarker = tourMarker.get(0);
 
          int leftSliderValueIndex;
          if (tourData.isMultipleTours()) {
@@ -790,7 +789,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
          } else if (numberOfTourMarkers > 1) {
 
-            final TourMarker lastTourMarker = selectedTourMarkers.get(numberOfTourMarkers - 1);
+            final TourMarker lastTourMarker = tourMarker.get(numberOfTourMarkers - 1);
 
             if (tourData.isMultipleTours()) {
                rightSliderValueIndex = lastTourMarker.getMultiTourSerieIndex();

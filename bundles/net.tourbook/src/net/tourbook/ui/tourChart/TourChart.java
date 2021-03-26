@@ -591,82 +591,82 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
 //SET_FORMATTING_ON
 
-   private static final String GRAPH_CONTRIBUTION_ID_GRADIENT                       = "GRAPH_CONTRIBUTION_ID_GRADIENT";                      //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_GRADIENT                     = "GRAPH_CONTRIBUTION_ID_GRADIENT";                     //$NON-NLS-1$
 
-   private static final String GRAPH_CONTRIBUTION_ID_PACE                           = "GRAPH_CONTRIBUTION_ID_PACE";                          //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_POWER                          = "GRAPH_CONTRIBUTION_ID_POWER";                         //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_PULSE                          = "GRAPH_CONTRIBUTION_ID_PULSE";                         //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_SPEED                          = "GRAPH_CONTRIBUTION_ID_SPEED";                         //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_TEMPERATURE                    = "GRAPH_CONTRIBUTION_ID_TEMPERATURE";                   //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_TOUR_COMPARE                   = "GRAPH_CONTRIBUTION_ID_TOUR_COMPARE";                  //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME            = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME";           //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED   = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED";  //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH            = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH";           //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION   = "GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION";  //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO         = "GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO";        //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_SWIM_STROKES                   = "GRAPH_CONTRIBUTION_ID_SWIM_STROKES";                  //$NON-NLS-1$
-   private static final String GRAPH_CONTRIBUTION_ID_SWIM_SWOLF                     = "GRAPH_CONTRIBUTION_ID_SWIM_SWOLF";                    //$NON-NLS-1$
-   private static final String[]   _allGraphContribId = {
+   private static final String    GRAPH_CONTRIBUTION_ID_PACE                         = "GRAPH_CONTRIBUTION_ID_PACE";                         //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_POWER                        = "GRAPH_CONTRIBUTION_ID_POWER";                        //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_PULSE                        = "GRAPH_CONTRIBUTION_ID_PULSE";                        //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_SPEED                        = "GRAPH_CONTRIBUTION_ID_SPEED";                        //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_TEMPERATURE                  = "GRAPH_CONTRIBUTION_ID_TEMPERATURE";                  //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_TOUR_COMPARE                 = "GRAPH_CONTRIBUTION_ID_TOUR_COMPARE";                 //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME          = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME";          //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED"; //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH          = "GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH";          //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION = "GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION"; //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO       = "GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO";       //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_SWIM_STROKES                 = "GRAPH_CONTRIBUTION_ID_SWIM_STROKES";                 //$NON-NLS-1$
+   private static final String    GRAPH_CONTRIBUTION_ID_SWIM_SWOLF                   = "GRAPH_CONTRIBUTION_ID_SWIM_SWOLF";                   //$NON-NLS-1$
+   private static final String[]  _allGraphContribId                                 = {
 
-      GRAPH_CONTRIBUTION_ID_ALTIMETER,
-      GRAPH_CONTRIBUTION_ID_ALTITUDE,
-      GRAPH_CONTRIBUTION_ID_CADENCE,
-      GRAPH_CONTRIBUTION_ID_GEARS,
-      GRAPH_CONTRIBUTION_ID_GRADIENT,
-      GRAPH_CONTRIBUTION_ID_PACE,
-      GRAPH_CONTRIBUTION_ID_POWER,
-      GRAPH_CONTRIBUTION_ID_PULSE,
-      GRAPH_CONTRIBUTION_ID_SPEED,
-      GRAPH_CONTRIBUTION_ID_TEMPERATURE,
+         GRAPH_CONTRIBUTION_ID_ALTIMETER,
+         GRAPH_CONTRIBUTION_ID_ALTITUDE,
+         GRAPH_CONTRIBUTION_ID_CADENCE,
+         GRAPH_CONTRIBUTION_ID_GEARS,
+         GRAPH_CONTRIBUTION_ID_GRADIENT,
+         GRAPH_CONTRIBUTION_ID_PACE,
+         GRAPH_CONTRIBUTION_ID_POWER,
+         GRAPH_CONTRIBUTION_ID_PULSE,
+         GRAPH_CONTRIBUTION_ID_SPEED,
+         GRAPH_CONTRIBUTION_ID_TEMPERATURE,
 
-      GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME,
-      GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED,
-      GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH,
-      GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION,
-      GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO,
+         GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME,
+         GRAPH_CONTRIBUTION_ID_RUN_DYN_STANCE_TIME_BALANCED,
+         GRAPH_CONTRIBUTION_ID_RUN_DYN_STEP_LENGTH,
+         GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_OSCILLATION,
+         GRAPH_CONTRIBUTION_ID_RUN_DYN_VERTICAL_RATIO,
 
-      GRAPH_CONTRIBUTION_ID_SWIM_STROKES,
-      GRAPH_CONTRIBUTION_ID_SWIM_SWOLF
+         GRAPH_CONTRIBUTION_ID_SWIM_STROKES,
+         GRAPH_CONTRIBUTION_ID_SWIM_SWOLF
    };
-   public static final PulseGraph PULSE_GRAPH_DEFAULT = PulseGraph.DEVICE_BPM__2ND__RR_INTERVALS;
+   public static final PulseGraph PULSE_GRAPH_DEFAULT                                = PulseGraph.DEVICE_BPM__2ND__RR_INTERVALS;
    /**
     * 1e-5 is too small for the min value, it do not correct the graph.
     */
-   public static final double     MIN_ADJUSTMENT      = 1e-3;
-   public static final double     MAX_ADJUSTMENT      = 1e-5;
+   public static final double     MIN_ADJUSTMENT                                     = 1e-3;
+   public static final double     MAX_ADJUSTMENT                                     = 1e-5;
    //
    //
-   private final IDialogSettings                            _state;
-   private final IPreferenceStore                           _prefStore                   = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore                           _prefStore_Common            = CommonActivator.getPrefStore();
-   private final IDialogSettings                            _tourSegmenterState          = TourSegmenterView.getState();
+   private final IDialogSettings  _state;
+   private final IPreferenceStore _prefStore          = TourbookPlugin.getPrefStore();
+   private final IPreferenceStore _prefStore_Common   = CommonActivator.getPrefStore();
+   private final IDialogSettings  _tourSegmenterState = TourSegmenterView.getState();
    //
    /**
     * Part in which the tour chart is created, can be <code>null</code> when created in a dialog.
     */
-   private IWorkbenchPart                                   _part;
+   private IWorkbenchPart         _part;
    //
-   private TourData                                         _tourData;
+   private TourData               _tourData;
 
-   private TourChartConfiguration                           _tcc;
+   private TourChartConfiguration _tcc;
    //
-   private Map<String, Action>                              _allTourChartActions;
+   private Map<String, Action>    _allTourChartActions;
 
    //TODO FB how to change the chart background from white to something else ?
    //https://github.com/patrovite/Course_Generator/commit/fb63f3da12957d4e974fa7f1161ed2cda2adedb6
    //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
    //
-   private Action_GraphBackground_Slideout                  _action_GraphBackground_Slideout;
-   private ActionEditQuick                                  _actionEditQuick;
-   private ActionGeoCompare                                 _actionGeoCompare;
-   private ActionGraphMinMax                                _actionGraphMinMax;
-   private ActionOpenMarkerDialog                           _actionOpenMarkerDialog;
-   private Action_AllGraphs                                 _actionTourChartGraphs;
-   private Action_TourChart_Info                            _actionTourInfo;
-   private ActionTourChartMarker                            _actionTourMarker;
+   private Action_GraphBackground_Slideout _action_GraphBackground_Slideout;
+   private ActionEditQuick                 _actionEditQuick;
+   private ActionGeoCompare                _actionGeoCompare;
+   private ActionGraphMinMax               _actionGraphMinMax;
+   private ActionOpenMarkerDialog          _actionOpenMarkerDialog;
+   private Action_AllGraphs                _actionTourChartGraphs;
+   private Action_TourChart_Info           _actionTourInfo;
+   private ActionTourChartMarker           _actionTourMarker;
 
-   private Action_TourChart_Options                         _actionTourChartOptions;
-   private Action_TourChart_Smoothing                       _actionTourChartSmoothing;
+   private Action_TourChart_Options        _actionTourChartOptions;
+   private Action_TourChart_Smoothing      _actionTourChartSmoothing;
 
    //
    /**
@@ -677,10 +677,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    private IPropertyChangeListener                          _prefChangeListener;
 
    private IPropertyChangeListener                          _prefChangeListener_Common;
-   private final ListenerList<ITourMarkerModifyListener>    _tourMarkerModifyListener    = new ListenerList<>();
-   private final ListenerList<ITourMarkerSelectionListener> _tourMarkerSelectionListener = new ListenerList<>();
-   private final ListenerList<ITourModifyListener>          _tourModifyListener          = new ListenerList<>();
-   private final ListenerList<IXAxisSelectionListener>      _xAxisSelectionListener      = new ListenerList<>();
+   private final ListenerList<ITourMarkerModifyListener>    _tourMarkerModifyListener       = new ListenerList<>();
+   private final ListenerList<ITourMarkerSelectionListener> _tourMarkerSelectionListener    = new ListenerList<>();
+   private final ListenerList<ITourModifyListener>          _tourModifyListener             = new ListenerList<>();
+   private final ListenerList<IXAxisSelectionListener>      _xAxisSelectionListener         = new ListenerList<>();
    //
    private boolean                                          _is2ndAltiLayerVisible;
    private boolean                                          _isDisplayedInDialog;
@@ -694,65 +694,65 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
     */
    private TourMarker                                       _selectedTourMarker;
    //
-   private ImageDescriptor               _imagePhoto                     = TourbookPlugin.getImageDescriptor(Images.PhotoPhotos);
-   private ImageDescriptor               _imagePhotoTooltip              = TourbookPlugin.getImageDescriptor(Images.PhotoImage);
-   private IFillPainter                  _customBackgroundPainter;
-   private OpenDialogManager             _openDlgMgr                     = new OpenDialogManager();
-   private ChartPhotoToolTip             _photoTooltip;
-   private TourToolTip                   _tourInfoIconTooltip;
-   private TourInfoIconToolTipProvider   _tourInfoIconTooltipProvider;
-   private ChartMarkerToolTip            _tourMarkerTooltip;
-   private TourSegmenterTooltip          _tourSegmenterTooltip;
-   private ChartTitleToolTip             _tourTitleTooltip;
-   private ValuePoint_ToolTip_UI         _valuePointTooltip;
+   private ImageDescriptor                                  _imagePhoto                     = TourbookPlugin.getImageDescriptor(Images.PhotoPhotos);
+   private ImageDescriptor                                  _imagePhotoTooltip              = TourbookPlugin.getImageDescriptor(Images.PhotoImage);
+   private IFillPainter                                     _customBackgroundPainter;
+   private OpenDialogManager                                _openDlgMgr                     = new OpenDialogManager();
+   private ChartPhotoToolTip                                _photoTooltip;
+   private TourToolTip                                      _tourInfoIconTooltip;
+   private TourInfoIconToolTipProvider                      _tourInfoIconTooltipProvider;
+   private ChartMarkerToolTip                               _tourMarkerTooltip;
+   private TourSegmenterTooltip                             _tourSegmenterTooltip;
+   private ChartTitleToolTip                                _tourTitleTooltip;
+   private ValuePoint_ToolTip_UI                            _valuePointTooltip;
    //
-   private ControlListener               _ttControlListener              = new ControlListener();
-   private IKeyListener                  _chartKeyListener               = new ChartKeyListener();
-   private IMouseListener                _mouseMarkerListener            = new MouseMarkerListener();
-   private IMouseListener                _mousePhotoListener             = new MousePhotoListener();
-   private IMouseListener                _mouseSegmentLabel_Listener     = new MouseListener_SegmenterSegment();
-   private IMouseListener                _mouseSegmentLabel_MoveListener = new MouseListener_SegmenterSegment_Move();
-   private IMouseListener                _mouseSegmentTitle_Listener     = new MouseListener_SegmentTitle();
-   private IMouseListener                _mouseSegmentTitle_MoveListener = new MouseListener_SegmentTitle_Move();
+   private ControlListener                                  _ttControlListener              = new ControlListener();
+   private IKeyListener                                     _chartKeyListener               = new ChartKeyListener();
+   private IMouseListener                                   _mouseMarkerListener            = new MouseMarkerListener();
+   private IMouseListener                                   _mousePhotoListener             = new MousePhotoListener();
+   private IMouseListener                                   _mouseSegmentLabel_Listener     = new MouseListener_SegmenterSegment();
+   private IMouseListener                                   _mouseSegmentLabel_MoveListener = new MouseListener_SegmenterSegment_Move();
+   private IMouseListener                                   _mouseSegmentTitle_Listener     = new MouseListener_SegmentTitle();
+   private IMouseListener                                   _mouseSegmentTitle_MoveListener = new MouseListener_SegmentTitle_Move();
    //
-   private long                          _hoveredSegmentTitleEventTime;
+   private long                                             _hoveredSegmentTitleEventTime;
    //
-   private boolean                       _isSegmenterSegmentHovered;
-   private long                          _hoveredSegmenterSegmentEventTime;
-   private SegmenterSegment              _hoveredSegmenterSegment;
-   private SegmenterSegment              _selectedSegmenterSegment_1;
-   private SegmenterSegment              _selectedSegmenterSegment_2;
-   private boolean                       _isRecomputeLineSelection;
-   private TIntArrayList                 _selectedAltitudePoints;
-   private ArrayList<RGB>                _selectedAltitudeRGB;
-   private ArrayList<TIntArrayList>      _selectedOtherPoints;
-   private ArrayList<RGB>                _selectedPathsRGB;
+   private boolean                                          _isSegmenterSegmentHovered;
+   private long                                             _hoveredSegmenterSegmentEventTime;
+   private SegmenterSegment                                 _hoveredSegmenterSegment;
+   private SegmenterSegment                                 _selectedSegmenterSegment_1;
+   private SegmenterSegment                                 _selectedSegmenterSegment_2;
+   private boolean                                          _isRecomputeLineSelection;
+   private TIntArrayList                                    _selectedAltitudePoints;
+   private ArrayList<RGB>                                   _selectedAltitudeRGB;
+   private ArrayList<TIntArrayList>                         _selectedOtherPoints;
+   private ArrayList<RGB>                                   _selectedPathsRGB;
    //
-   private boolean                       _isToolbarPack                  = true;
-   private boolean                       _isSegmentTitleHovered;
-   private ChartTitleSegment             _chartTitleSegment;
-   private TourMarker                    _lastHoveredTourMarker;
+   private boolean                                          _isToolbarPack                  = true;
+   private boolean                                          _isSegmentTitleHovered;
+   private ChartTitleSegment                                _chartTitleSegment;
+   private TourMarker                                       _lastHoveredTourMarker;
    //
    /**
     * Hide tour segments when tour chart is displayed in dialogs.
     */
-   private boolean                       _canShowTourSegments;
+   private boolean                                          _canShowTourSegments;
 
-   private boolean                       _isTourSegmenterVisible;
+   private boolean                                          _isTourSegmenterVisible;
 
-   private boolean                       _isShowSegmenterTooltip;
+   private boolean                                          _isShowSegmenterTooltip;
 
-   private SelectedTourSegmenterSegments _segmenterSelection;
+   private SelectedTourSegmenterSegments                    _segmenterSelection;
 
-   private Font                          _segmenterValueFont;
+   private Font                                             _segmenterValueFont;
 
-   private int                           _oldTourSegmentsHash;
+   private int                                              _oldTourSegmentsHash;
 
    //
    /*
     * UI controls
     */
-   private Composite                 _parent;
+   private Composite _parent;
 
    //
    private I2ndAltiLayer             _layer2ndAlti;
@@ -772,9 +772,9 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    private ChartLayerSegmentValue    _layerTourSegmenterOther;
 
    //
-   private Color                     _photoOverlayBGColorLink;
+   private Color _photoOverlayBGColorLink;
 
-   private Color                     _photoOverlayBGColorTour;
+   private Color _photoOverlayBGColorTour;
 
    /**
     * @param parent

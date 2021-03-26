@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,7 +23,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
@@ -106,6 +105,107 @@ import org.eclipse.ui.part.ViewPart;
  * This view displays all available {@link TourMarker}.
  */
 public class TourMarkerAllView extends ViewPart implements ITourProvider, ITourViewer {
+
+   public static final String          ID                                = "net.tourbook.ui.views.TourMarkerAllView";   //$NON-NLS-1$
+   //
+   private static final String         COLUMN_ALTITUDE                   = "Altitude";                                  //$NON-NLS-1$
+   private static final String         COLUMN_DATE                       = "Date";                                      //$NON-NLS-1$
+   private static final String         COLUMN_DESCRIPTION                = "Description";                               //$NON-NLS-1$
+   private static final String         COLUMN_LATITUDE                   = "Latitude";                                  //$NON-NLS-1$
+   private static final String         COLUMN_LONGITUDE                  = "Longitude";                                 //$NON-NLS-1$
+   private static final String         COLUMN_MARKER_ID                  = "MarkerId";                                  //$NON-NLS-1$
+   private static final String         COLUMN_NAME                       = "Name";                                      //$NON-NLS-1$
+   private static final String         COLUMN_TOUR_ID                    = "TourId";                                    //$NON-NLS-1$
+   private static final String         COLUMN_TIME                       = "Time";                                      //$NON-NLS-1$
+   private static final String         COLUMN_URL_ADDRESS                = "UrlAddress";                                //$NON-NLS-1$
+   private static final String         COLUMN_URL_LABEL                  = "UrlLabel";                                  //$NON-NLS-1$
+   //
+   static final String                 STATE_GEO_FILTER_AREA             = "STATE_GEO_FILTER_AREA";                     //$NON-NLS-1$
+   private static final String         STATE_GPS_FILTER                  = "STATE_GPS_FILTER";                          //$NON-NLS-1$
+   static final String                 STATE_IS_LAT_LON_DIGITS_ENABLED   = "STATE_IS_LAT_LON_DIGITS_ENABLED";           //$NON-NLS-1$
+   static final String                 STATE_LAT_LON_DIGITS              = "STATE_LAT_LON_DIGITS";                      //$NON-NLS-1$
+   private static final String         STATE_SELECTED_MARKER_ITEM        = "STATE_SELECTED_MARKER_ITEM";                //$NON-NLS-1$
+   private static final String         STATE_SORT_COLUMN_DIRECTION       = "STATE_SORT_COLUMN_DIRECTION";               //$NON-NLS-1$
+   private static final String         STATE_SORT_COLUMN_ID              = "STATE_SORT_COLUMN_ID";                      //$NON-NLS-1$
+
+   static final double                 DEFAULT_GEO_FILTER_AREA           = 0.05;
+   static final boolean                DEFAULT_IS_LAT_LON_DIGITS_ENABLED = true;
+   static final int                    DEFAULT_LAT_LON_DIGITS            = 5;
+   //
+   private static int                  GPS_MARKER_FILTER_IS_DISABLED     = 0;
+   private static int                  GPS_MARKER_FILTER_WITH_GPS        = 1;
+   private static int                  GPS_MARKER_FILTER_WITHOUT_GPS     = 2;
+   //
+   private final IPreferenceStore      _prefStore                        = TourbookPlugin.getPrefStore();
+   private final IPreferenceStore      _prefStore_Common                 = CommonActivator.getPrefStore();
+   private final IDialogSettings       _state                            = TourbookPlugin.getState(ID);
+   //
+   private PostSelectionProvider       _postSelectionProvider;
+   //
+   private IPartListener2              _partListener;
+   private IPropertyChangeListener     _prefChangeListener;
+   private IPropertyChangeListener     _prefChangeListener_Common;
+   private ITourEventListener          _tourEventListener;
+   //
+   private MenuManager                 _viewerMenuManager;
+   private IContextMenuProvider        _tableViewerContextMenuProvider   = new TableContextMenuProvider();
+   //
+   private ActionEditTour              _actionEditTour;
+   private ActionModifyColumns         _actionModifyColumns;
+   private ActionOpenMarkerDialog      _actionOpenMarkerDialog;
+   private ActionOpenTour              _actionOpenTour;
+   private ActionEditQuick             _actionQuickEdit;
+   private ActionTourMarkerFilter      _actionTourMarkerFilter;
+   private ActionMarkerFilterWithGPS   _actionTourFilterWithGPS;
+   private ActionMarkerFilterWithNoGPS _actionTourFilterWithoutGPS;
+   //
+   private CheckboxTableViewer         _markerViewer;
+   private MarkerComparator            _markerComparator                 = new MarkerComparator();
+   private ColumnManager               _columnManager;
+   private SelectionAdapter            _columnSortListener;
+
+   private ArrayList<TourMarkerItem>   _allMarkerItems                   = new ArrayList<>();
+
+   private int                         _gpsMarkerFilter                  = GPS_MARKER_FILTER_IS_DISABLED;
+
+   /**
+    * Number of digits for the lat/lon columns.
+    */
+   private int                         _latLonDigits;
+   private boolean                     _isLatLonDigitsEnabled;
+
+   /**
+    * Is <code>true</code> when markers are filtered with the geo filter.
+    */
+   private boolean                     _isGeoFilterActive;
+   private double                      _geoFilterLat;
+   private double                      _geoFilterLon;
+   private double                      _geoFilterMaxDiff;
+
+   private boolean                     _isInUpdate;
+
+   private final DateFormat            _dateFormatter                    = DateFormat.getDateInstance(DateFormat.SHORT);
+   private final DateFormat            _timeFormatter                    = DateFormat.getTimeInstance(DateFormat.SHORT);
+   //
+   private final NumberFormat          _nf1                              = NumberFormat.getNumberInstance();
+   private final NumberFormat          _nf3                              = NumberFormat.getNumberInstance();
+   private final NumberFormat          _nfLatLon                         = NumberFormat.getNumberInstance();
+   {
+      _nf1.setMinimumFractionDigits(1);
+      _nf1.setMaximumFractionDigits(1);
+      _nf3.setMinimumFractionDigits(3);
+      _nf3.setMaximumFractionDigits(3);
+   }
+
+   /*
+    * UI controls
+    */
+   private PixelConverter _pc;
+   private Composite      _uiParent;
+   private Composite      _viewerContainer;
+   private TourMarkerItem _markerFilter;
+
+   private Menu           _tableContextMenu;
 
    private class MarkerComparator extends ViewerComparator {
 
@@ -387,112 +487,6 @@ public class TourMarkerAllView extends ViewPart implements ITourProvider, ITourV
          return "TourMarkerItem [_label=" + label + "]"; //$NON-NLS-1$ //$NON-NLS-2$
       }
    }
-
-   public static final String          ID                                = "net.tourbook.ui.views.TourMarkerAllView"; //$NON-NLS-1$
-   //
-   private static final String         COLUMN_ALTITUDE                   = "Altitude";                                //$NON-NLS-1$
-   private static final String         COLUMN_DATE                       = "Date";                                    //$NON-NLS-1$
-   private static final String         COLUMN_DESCRIPTION                = "Description";                             //$NON-NLS-1$
-   private static final String         COLUMN_LATITUDE                   = "Latitude";                                //$NON-NLS-1$
-   private static final String         COLUMN_LONGITUDE                  = "Longitude";                               //$NON-NLS-1$
-   private static final String         COLUMN_MARKER_ID                  = "MarkerId";                                //$NON-NLS-1$
-   private static final String         COLUMN_NAME                       = "Name";                                    //$NON-NLS-1$
-   private static final String         COLUMN_TOUR_ID                    = "TourId";                                  //$NON-NLS-1$
-   private static final String         COLUMN_TIME                       = "Time";                                    //$NON-NLS-1$
-   private static final String         COLUMN_URL_ADDRESS                = "UrlAddress";                              //$NON-NLS-1$
-   private static final String         COLUMN_URL_LABEL                  = "UrlLabel";                                //$NON-NLS-1$
-   //
-   static final String                 STATE_GEO_FILTER_AREA             = "STATE_GEO_FILTER_AREA";                   //$NON-NLS-1$
-   private static final String         STATE_GPS_FILTER                  = "STATE_GPS_FILTER";                        //$NON-NLS-1$
-
-   static final String                 STATE_IS_LAT_LON_DIGITS_ENABLED   = "STATE_IS_LAT_LON_DIGITS_ENABLED";         //$NON-NLS-1$
-   static final String                 STATE_LAT_LON_DIGITS              = "STATE_LAT_LON_DIGITS";                    //$NON-NLS-1$
-   private static final String         STATE_SELECTED_MARKER_ITEM        = "STATE_SELECTED_MARKER_ITEM";              //$NON-NLS-1$
-   private static final String         STATE_SORT_COLUMN_DIRECTION       = "STATE_SORT_COLUMN_DIRECTION";             //$NON-NLS-1$
-   private static final String         STATE_SORT_COLUMN_ID              = "STATE_SORT_COLUMN_ID";                    //$NON-NLS-1$
-   static final double                 DEFAULT_GEO_FILTER_AREA           = 0.05;
-   static final boolean                DEFAULT_IS_LAT_LON_DIGITS_ENABLED = true;
-   static final int                    DEFAULT_LAT_LON_DIGITS            = 5;
-   //
-   private static int                  GPS_MARKER_FILTER_IS_DISABLED     = 0;
-   private static int                  GPS_MARKER_FILTER_WITH_GPS        = 1;
-   private static int                  GPS_MARKER_FILTER_WITHOUT_GPS     = 2;
-   //
-   private final IPreferenceStore      _prefStore                        = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore      _prefStore_Common                 = CommonActivator.getPrefStore();
-   private final IDialogSettings       _state                            = TourbookPlugin.getState(ID);
-   //
-   private PostSelectionProvider       _postSelectionProvider;
-   //
-   private IPartListener2              _partListener;
-   private IPropertyChangeListener     _prefChangeListener;
-   private IPropertyChangeListener     _prefChangeListener_Common;
-   private ITourEventListener          _tourEventListener;
-   //
-   private MenuManager                 _viewerMenuManager;
-   private IContextMenuProvider        _tableViewerContextMenuProvider   = new TableContextMenuProvider();
-   //
-   private ActionEditTour              _actionEditTour;
-   private ActionModifyColumns         _actionModifyColumns;
-   private ActionOpenMarkerDialog      _actionOpenMarkerDialog;
-   private ActionOpenTour              _actionOpenTour;
-   private ActionEditQuick             _actionQuickEdit;
-   private ActionTourMarkerFilter      _actionTourMarkerFilter;
-   private ActionMarkerFilterWithGPS   _actionTourFilterWithGPS;
-
-   private ActionMarkerFilterWithNoGPS _actionTourFilterWithoutGPS;
-
-   //
-   private CheckboxTableViewer       _markerViewer;
-
-   private MarkerComparator          _markerComparator = new MarkerComparator();
-   private ColumnManager             _columnManager;
-
-   private SelectionAdapter          _columnSortListener;
-   private ArrayList<TourMarkerItem> _allMarkerItems   = new ArrayList<>();
-   private int                       _gpsMarkerFilter  = GPS_MARKER_FILTER_IS_DISABLED;
-   /**
-    * Number of digits for the lat/lon columns.
-    */
-   private int                       _latLonDigits;
-
-   private boolean                   _isLatLonDigitsEnabled;
-
-   /**
-    * Is <code>true</code> when markers are filtered with the geo filter.
-    */
-   private boolean                   _isGeoFilterActive;
-   private double                    _geoFilterLat;
-   private double                    _geoFilterLon;
-   private double                    _geoFilterMaxDiff;
-   private boolean                   _isInUpdate;
-   private final DateFormat          _dateFormatter    = DateFormat.getDateInstance(DateFormat.SHORT);
-
-   private final DateFormat          _timeFormatter    = DateFormat.getTimeInstance(DateFormat.SHORT);
-   //
-   private final NumberFormat        _nf1              = NumberFormat.getNumberInstance();
-   private final NumberFormat        _nf3              = NumberFormat.getNumberInstance();
-   private final NumberFormat        _nfLatLon         = NumberFormat.getNumberInstance();
-
-   {
-      _nf1.setMinimumFractionDigits(1);
-      _nf1.setMaximumFractionDigits(1);
-      _nf3.setMinimumFractionDigits(3);
-      _nf3.setMaximumFractionDigits(3);
-   }
-
-   /*
-    * UI controls
-    */
-   private PixelConverter _pc;
-
-   private Composite      _uiParent;
-
-   private Composite      _viewerContainer;
-
-   private TourMarkerItem _markerFilter;
-
-   private Menu           _tableContextMenu;
 
    public TourMarkerAllView() {
       super();
@@ -1535,7 +1529,7 @@ public class TourMarkerAllView extends ViewPart implements ITourProvider, ITourV
          // select the tour marker item in the view
 
          final SelectionTourMarker selection = (SelectionTourMarker) eventData;
-         final List<TourMarker> allTourMarker = selection.getSelectedTourMarkers();
+         final ArrayList<TourMarker> allTourMarker = selection.getSelectedTourMarker();
 
          final long selectedTourMarkerId = allTourMarker.get(0).getMarkerId();
 
