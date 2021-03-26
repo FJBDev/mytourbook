@@ -44,66 +44,54 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 public class Chart extends ViewForm {
 
-   private static final String ACTION_ID_MOUSE_MODE             = "ACTION_ID_MOUSE_MODE";             //$NON-NLS-1$
-   private static final String ACTION_ID_MOVE_LEFT_SLIDER_HERE  = "ACTION_ID_MOVE_LEFT_SLIDER_HERE";  //$NON-NLS-1$
-   private static final String ACTION_ID_MOVE_RIGHT_SLIDER_HERE = "ACTION_ID_MOVE_RIGHT_SLIDER_HERE"; //$NON-NLS-1$
-   private static final String ACTION_ID_MOVE_SLIDERS_TO_BORDER = "ACTION_ID_MOVE_SLIDERS_TO_BORDER"; //$NON-NLS-1$
-   private static final String ACTION_ID_ZOOM_FIT_GRAPH         = "ACTION_ID_ZOOM_FIT_GRAPH";         //$NON-NLS-1$
-   private static final String ACTION_ID_ZOOM_IN                = "ACTION_ID_ZOOM_IN";                //$NON-NLS-1$
-   private static final String ACTION_ID_ZOOM_IN_TO_SLIDER      = "ACTION_ID_ZOOM_IN_TO_SLIDER";      //$NON-NLS-1$
-   private static final String ACTION_ID_ZOOM_OUT               = "ACTION_ID_ZOOM_OUT";               //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOUSE_MODE             = "ACTION_ID_MOUSE_MODE";             //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_LEFT_SLIDER_HERE  = "ACTION_ID_MOVE_LEFT_SLIDER_HERE";  //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_RIGHT_SLIDER_HERE = "ACTION_ID_MOVE_RIGHT_SLIDER_HERE"; //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_SLIDERS_TO_BORDER = "ACTION_ID_MOVE_SLIDERS_TO_BORDER"; //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_FIT_GRAPH         = "ACTION_ID_ZOOM_FIT_GRAPH";         //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_IN                = "ACTION_ID_ZOOM_IN";                //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_IN_TO_SLIDER      = "ACTION_ID_ZOOM_IN_TO_SLIDER";      //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_OUT               = "ACTION_ID_ZOOM_OUT";               //$NON-NLS-1$
 
-   static final int            NO_BAR_SELECTION                 = -1;
+   static final int                                  NO_BAR_SELECTION                 = -1;
 
-   public static final String  CUSTOM_DATA_TOUR_ID              = "tourId";                           //$NON-NLS-1$
+   public static final String                        CUSTOM_DATA_TOUR_ID              = "tourId";                           //$NON-NLS-1$
 
-   public static final int     SYNCH_MODE_NO                    = 0;
-   public static final int     SYNCH_MODE_BY_SCALE              = 1;
-   public static final int     SYNCH_MODE_BY_SIZE               = 2;
+   public static final int                           SYNCH_MODE_NO                    = 0;
+   public static final int                           SYNCH_MODE_BY_SCALE              = 1;
+   public static final int                           SYNCH_MODE_BY_SIZE               = 2;
 
-   public static final String  MOUSE_MODE_SLIDER                = "slider";                           //$NON-NLS-1$
-   public static final String  MOUSE_MODE_ZOOM                  = "zoom";                             //$NON-NLS-1$
+   public static final String                        MOUSE_MODE_SLIDER                = "slider";                           //$NON-NLS-1$
+   public static final String                        MOUSE_MODE_ZOOM                  = "zoom";                             //$NON-NLS-1$
 
-   private static final int    MouseMove                        = 10;
-   private static final int    MouseDown                        = 20;
-   private static final int    MouseUp                          = 30;
-   private static final int    MouseDoubleClick                 = 40;
-   private static final int    MouseExit                        = 50;
-   private static final int    KeyDown                          = 110;
-   private static final int    ChartResized                     = 999;
+   private static final int                          MouseMove                        = 10;
+   private static final int                          MouseDown                        = 20;
+   private static final int                          MouseUp                          = 30;
+   private static final int                          MouseDoubleClick                 = 40;
+   private static final int                          MouseExit                        = 50;
+   private static final int                          KeyDown                          = 110;
+   private static final int                          ChartResized                     = 999;
 
-   private static int removeBorder(final int style) {
-
-      if ((style & SWT.BORDER) != 0) {
-
-         // remove border from style
-         return (style & ~SWT.BORDER);
-      }
-
-      return style;
-   }
-
-   private final ListenerList<IBarSelectionListener> _barSelectionListeners      = new ListenerList<>();
-   private final ListenerList<IBarSelectionListener> _barDoubleClickListeners    = new ListenerList<>();
-   private final ListenerList<IHoveredValueListener> _chartHoveredValueListener  = new ListenerList<>();
-   private final ListenerList<IKeyListener>          _chartKeyListener           = new ListenerList<>();
-   private final ListenerList<IMouseListener>        _chartMouseListener         = new ListenerList<>();
-   private final ListenerList<IMouseListener>        _chartMouseMoveListener     = new ListenerList<>();
-   private final ListenerList<IChartOverlay>         _chartOverlayListener       = new ListenerList<>();
-
-   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners        = new ListenerList<>();
+   private final ListenerList<IBarSelectionListener> _barSelectionListeners           = new ListenerList<>();
+   private final ListenerList<IBarSelectionListener> _barDoubleClickListeners         = new ListenerList<>();
+   private final ListenerList<IHoveredValueListener> _chartHoveredValueListener       = new ListenerList<>();
+   private final ListenerList<IKeyListener>          _chartKeyListener                = new ListenerList<>();
+   private final ListenerList<IMouseListener>        _chartMouseListener              = new ListenerList<>();
+   private final ListenerList<IMouseListener>        _chartMouseMoveListener          = new ListenerList<>();
+   private final ListenerList<IChartOverlay>         _chartOverlayListener            = new ListenerList<>();
+   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners             = new ListenerList<>();
 
    private ChartComponents                           _chartComponents;
 
    private Chart                                     _synchedChart;
 
    private ChartDataModel                            _chartDataModel;
+
    private IToolBarManager                           _toolbarMgr;
    private IChartContextProvider                     _chartContextProvider;
+   private boolean                                   _isShowZoomActions               = false;
 
-   private boolean                                   _isShowZoomActions          = false;
-   private boolean                                   _isShowMouseMode            = false;
-
+   private boolean                                   _isShowMouseMode                 = false;
    private Color                                     _backgroundColor;
 
    /**
@@ -112,12 +100,12 @@ public class Chart extends ViewForm {
    IChartListener                                    _draggingListenerXMarker;
 
    private IHoveredValueTooltipListener              _hoveredValueTooltipListener;
+
    private HashMap<String, Action>                   _allChartActions;
-   private boolean                                   _isFillToolbar              = true;
-
+   private boolean                                   _isFillToolbar                   = true;
    private boolean                                   _isToolbarCreated;
-   private int                                       _barSelectionSerieIndex;
 
+   private int                                       _barSelectionSerieIndex;
    private int                                       _barSelectionValueIndex;
 
    int                                               _synchMode;
@@ -125,27 +113,27 @@ public class Chart extends ViewForm {
    /**
     * <code>true</code> to start the bar chart at the bottom of the chart
     */
-   private boolean                                   _isDrawBarChartAtBottom     = true;
+   private boolean                                   _isDrawBarChartAtBottom          = true;
+
    /**
     * minimum width in pixel for one unit, this is only an approximate value because the pixel is
     * rounded up or down to fit a rounded unit
     */
-   protected int                                     gridVerticalDistance        = 30;
+   protected int                                     gridVerticalDistance             = 30;
+   protected int                                     gridHorizontalDistance           = 70;
 
-   protected int                                     gridHorizontalDistance      = 70;
-   protected boolean                                 isShowHorizontalGridLines   = false;
-
-   protected boolean                                 isShowVerticalGridLines     = false;
+   protected boolean                                 isShowHorizontalGridLines        = false;
+   protected boolean                                 isShowVerticalGridLines          = false;
 
    /**
     * Transparency of the graph lines
     */
-   protected int                                     graphTransparencyLine       = 0xFF;
+   protected int                                     graphTransparencyLine            = 0xFF;
 
    /**
     * Transparency of the graph fillings
     */
-   protected int                                     graphTransparencyFilling    = 0xE0;
+   protected int                                     graphTransparencyFilling         = 0xE0;
 
    /**
     * The graph transparency can be adjusted with this value. This value is multiplied with the
@@ -153,32 +141,32 @@ public class Chart extends ViewForm {
     * <p>
     * Opacity: 0.0 = transparent, 1.0 = opaque.
     */
-   double                                            graphTransparencyAdjustment = 1.0;
+   double                                            graphTransparencyAdjustment      = 1.0;
 
    /**
     * Antialiasing for the graph, can be {@link SWT#ON} or {@link SWT#OFF}.
     */
-   public int                                        graphAntialiasing           = SWT.OFF;
+   public int                                        graphAntialiasing                = SWT.OFF;
+
    /*
     * Segment alternate color
     */
-   protected boolean                                 isShowSegmentAlternateColor = true;
-
-   protected RGB                                     segmentAlternateColor       = new RGB(0xf5, 0xf5, 0xf5);
+   protected boolean isShowSegmentAlternateColor = true;
+   protected RGB     segmentAlternateColor       = new RGB(0xf5, 0xf5, 0xf5);
 
    /**
     * mouse behaviour:<br>
     * <br>
     * {@link #MOUSE_MODE_SLIDER} or {@link #MOUSE_MODE_ZOOM}
     */
-   private String                                    _mouseMode                  = MOUSE_MODE_SLIDER;
+   private String    _mouseMode                  = MOUSE_MODE_SLIDER;
 
-   private boolean                                   _isTopMenuPosition;
+   private boolean   _isTopMenuPosition;
 
    /**
     * Is <code>true</code> when running in UI update, then events are not fired.
     */
-   private boolean                                   _isInUpdateUI;
+   private boolean   _isInUpdateUI;
 
    /**
     * Chart widget
@@ -209,6 +197,17 @@ public class Chart extends ViewForm {
 
       // set the default background color
       _backgroundColor = getDisplay().getSystemColor(SWT.COLOR_WHITE);
+   }
+
+   private static int removeBorder(final int style) {
+
+      if ((style & SWT.BORDER) != 0) {
+
+         // remove border from style
+         return (style & ~SWT.BORDER);
+      }
+
+      return style;
    }
 
    public void addBarSelectionListener(final IBarSelectionListener listener) {
