@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2014 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,21 +27,21 @@ import org.eclipse.jface.viewers.ISelection;
  */
 public class SelectionTourMarker implements ISelection {
 
-   private TourData         _tourData;
-   private ArrayList<TourMarker> _selectedTourMarkers;
+   private TourData              _tourData;
+   private ArrayList<TourMarker> _selectedTourMarker;
 
    /**
     * @param tourData
     * @param selectedTourMarker
     */
-   public SelectionTourMarker(final TourData tourData, final ArrayList<TourMarker> selectedTourMarkers) {
+   public SelectionTourMarker(final TourData tourData, final ArrayList<TourMarker> selectedTourMarker) {
 
       _tourData = tourData;
-      _selectedTourMarkers = selectedTourMarkers;
+      _selectedTourMarker = selectedTourMarker;
    }
 
-   public ArrayList<TourMarker> getSelectedTourMarkers() {
-      return _selectedTourMarkers;
+   public ArrayList<TourMarker> getSelectedTourMarker() {
+      return _selectedTourMarker;
    }
 
    public TourData getTourData() {
@@ -57,7 +57,7 @@ public class SelectionTourMarker implements ISelection {
    public String toString() {
       return "SelectionTourMarker [" //$NON-NLS-1$
 //				+ ("_tourData=" + _tourData + ", ")
-            + ("_selectedTourMarkers=" + _selectedTourMarkers) //$NON-NLS-1$
+            + ("_selectedTourMarker=" + _selectedTourMarker) //$NON-NLS-1$
             +
             //
             "]"; //$NON-NLS-1$
