@@ -106,9 +106,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
           */
          gc.setBackground(colorDefault);
 
-         //todo fb
-         //draw the time between the dusk and night lighter gray and then darker gray. Do the same between night and dawn
-         // draw pause point
          gc.setAlpha(opacity);
          gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYGraph);
 //      }
