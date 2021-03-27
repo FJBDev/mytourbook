@@ -102,8 +102,6 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
    private Button    _chkShowValuePointTooltip;
    private Button    _chkSelectAllTimeSlices;
 
-   private Label     _labelNightOpacity;
-
    private Scale     _scaleNightOpacity;
 
    private Combo     _comboPulseValueGraph;
@@ -349,9 +347,9 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
             /*
              * label: Night Opacity
              */
-            _labelNightOpacity = new Label(group, SWT.NONE);
-            _labelNightOpacity.setText("&Night Opacity");
-            _labelNightOpacity.setToolTipText("Messages.Dialog_ExportImage_Label_ImageQuality_Tooltip");
+            final Label labelNightOpacity = new Label(group, SWT.NONE);
+            labelNightOpacity.setText("&Night Opacity");
+            labelNightOpacity.setToolTipText("Messages.Dialog_ExportImage_Label_ImageQuality_Tooltip");
 
             /*
              * Night Opacity Scale
@@ -363,6 +361,9 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
             _scaleNightOpacity.setPageIncrement(10);
             _scaleNightOpacity.setToolTipText("Messages.Slideout_TourChartOptions_Check_InvertPaceGraph_Tooltip");
             _scaleNightOpacity.addSelectionListener(_defaultSelectionListener);
+            GridDataFactory.fillDefaults()
+                  .grab(true, false)
+                  .applyTo(_scaleNightOpacity);
          }
       }
    }

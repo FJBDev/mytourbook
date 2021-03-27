@@ -25,10 +25,8 @@ import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class ChartLayerNight implements IChartLayer, IChartOverlay {
@@ -36,11 +34,10 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
    private int                           LABEL_OFFSET;
 
-   private int                           PAUSE_POINT_SIZE;
    private TourChart                     _tourChart;
 
    private ChartNightConfig              _cnc;
-   private int                           _devXPause;
+   private int                           _devXNightStart;
 
    private int                           _devYPause;
 
@@ -58,9 +55,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
       final Device display = gc.getDevice();
 
-      PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(100);
-
-      final int pausePointSize2 = PAUSE_POINT_SIZE / 2;
       final int devYTop = drawingData.getDevYTop();
       final int devYBottom = drawingData.getDevYBottom();
       final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
@@ -69,15 +63,12 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       final int devVisibleChartWidth = drawingData.getChartDrawingData().devVisibleChartWidth;
       final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
 
+      final float graphYTop = drawingData.getGraphYTop();
       final float graphYBottom = drawingData.getGraphYBottom();
       //what if a tour spans across more than 1 day?
       final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
       final double scaleY = drawingData.getScaleY();
-
-      final Color colorDefault = new Color(display, new RGB(0x8c, 0x8c, 0x8c));
-      final Color colorDevice = new Color(display, new RGB(0xff, 0x0, 0x80));
-      final Color colorHidden = new Color(display, new RGB(0x24, 0x9C, 0xFF));
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
 
@@ -86,6 +77,9 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
        */
       for (final ChartLabel chartLabel : _cnc.chartLabels) {
 
+         final double virtualXPos = chartLabel.graphX * scaleX;
+         _devXNightStart = (int) (virtualXPos - devVirtualGraphImageOffset);
+
          //The current charlabel is the start or at least a point in which it's night.
          //find the end of the night section (serieIndex)
          // calculate the according graph coordinates
@@ -93,26 +87,13 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
          final float yValue = yValues[chartLabel.serieIndex];
 
-         final int devYGraph = (int) (graphYBottom * scaleY) - 0;
-
-         /*
-          * Get pause point top/left position
-          */
-         final int devXPauseTopLeft = _devXPause - pausePointSize2;
-         final int devYPauseTopLeft = _devYPause - pausePointSize2;
-
-         /*
-          * Draw pause point
-          */
-         gc.setBackground(colorDefault);
+         final int devYGraphBottom = (int) (graphYBottom * scaleY);
+         final int devYGraphTop = (int) (graphYTop * scaleY);
 
          gc.setAlpha(opacity);
-         gc.fillRectangle(devXPauseTopLeft, devYGraph, 100, devYGraph);
-//      }
+         System.out.println(opacity);
+         gc.fillRectangle(_devXNightStart, devYGraphTop, 100, devYGraphTop - devYGraphBottom);
       }
-      colorDefault.dispose();
-      colorDevice.dispose();
-      colorHidden.dispose();
 
       gc.setClipping((Rectangle) null);
    }
@@ -131,3 +112,4 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       _cnc = chartNightConfig;
    }
 }
+
