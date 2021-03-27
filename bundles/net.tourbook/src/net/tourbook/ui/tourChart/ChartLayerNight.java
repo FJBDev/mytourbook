@@ -25,25 +25,23 @@ import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
-   private int                           LABEL_OFFSET;
 
-   private TourChart                     _tourChart;
+//   private TourChart                     _tourChart;
 
    private ChartNightConfig              _cnc;
    private int                           _devXNightStart;
 
-   private int                           _devYPause;
+//   private int                           _devYPause;
 
    public ChartLayerNight(final TourChart tourChart) {
 
-      _tourChart = tourChart;
+//      _tourChart = tourChart;
    }
 
    /**
@@ -53,22 +51,22 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
 
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
-      final Device display = gc.getDevice();
+//      final Device display = gc.getDevice();
 
       final int devYTop = drawingData.getDevYTop();
       final int devYBottom = drawingData.getDevYBottom();
       final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
       final int devGraphHeight = drawingData.devGraphHeight;
-      final long devVirtualGraphWidth = drawingData.devVirtualGraphWidth;
-      final int devVisibleChartWidth = drawingData.getChartDrawingData().devVisibleChartWidth;
-      final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
+//      final long devVirtualGraphWidth = drawingData.devVirtualGraphWidth;
+//      final int devVisibleChartWidth = drawingData.getChartDrawingData().devVisibleChartWidth;
+//      final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
 
-      final float graphYTop = drawingData.getGraphYTop();
-      final float graphYBottom = drawingData.getGraphYBottom();
+//      final float graphYTop = drawingData.getGraphYTop();
+//      final float graphYBottom = drawingData.getGraphYBottom();
       //what if a tour spans across more than 1 day?
-      final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
+//      final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
-      final double scaleY = drawingData.getScaleY();
+//      final double scaleY = drawingData.getScaleY();
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
 
@@ -85,14 +83,11 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          // calculate the according graph coordinates
          //display a box from this point to the end of this night section
 
-         final float yValue = yValues[chartLabel.serieIndex];
+         // final float yValue = yValues[chartLabel.serieIndex];
 
-         final int devYGraphBottom = (int) (graphYBottom * scaleY);
-         final int devYGraphTop = (int) (graphYTop * scaleY);
-
+         //TODO FB Why doesn't changing the opacity not work anymore !???!?!
          gc.setAlpha(opacity);
-         System.out.println(opacity);
-         gc.fillRectangle(_devXNightStart, devYGraphTop, 100, devYGraphTop - devYGraphBottom);
+         gc.fillRectangle(_devXNightStart, devYTop, 100, devYBottom - devYTop);
       }
 
       gc.setClipping((Rectangle) null);
