@@ -34,8 +34,9 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
 //   private TourChart                     _tourChart;
 
-   private ChartNightConfig              _cnc;
-   private int                           _devXNightStart;
+   private ChartNightConfig _cnc;
+   private int              _devXNightStart;
+   private int              _devXNightEnd;
 
 //   private int                           _devYPause;
 
@@ -107,4 +108,3 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       _cnc = chartNightConfig;
    }
 }
-
