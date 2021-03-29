@@ -26,6 +26,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -52,6 +53,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    @Override
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
 
+      final Device display = gc.getDevice();
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
 //      final Device display = gc.getDevice();
 
@@ -72,6 +74,8 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
 
+      gc.setBackground(new Color(display, 0xdc, 0xdc, 0xdc, opacity));
+      gc.setAlpha(opacity);
       /*
        * For each pont at night, we draw a gray line from the top of the graph to the altitude line
        */
@@ -88,9 +92,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          // final float yValue = yValues[chartLabel.serieIndex];
 
          //TODO FB Why doesn't changing the opacity not work anymore !???!?!
-         gc.setBackground(new Color(gc.getDevice(), 0xdc, 0xdc, 0xdc, opacity));
-         gc.setAlpha(opacity);
-         System.out.println(opacity);
          gc.fillRectangle(_devXNightStart, devYTop, 100, devYBottom - devYTop);
       }
 
