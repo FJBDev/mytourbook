@@ -74,7 +74,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
 
-      gc.setBackground(new Color(display, 0xdc, 0xdc, 0xdc, opacity));
+      gc.setBackground(new Color(display, 0x8c, 0x8c, 0x8c, opacity));
       gc.setAlpha(opacity);
       /*
        * For each pont at night, we draw a gray line from the top of the graph to the altitude line

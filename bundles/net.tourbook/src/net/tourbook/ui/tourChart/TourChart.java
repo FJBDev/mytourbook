@@ -2023,6 +2023,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                cnc.chartLabels.add(chartLabel);
                isDayTime = true;
                isNightTime = false;
+               break;
             }
 
             if ((timeofday >= sunsetTimes.toEpochSecond() ||
