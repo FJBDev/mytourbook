@@ -25,6 +25,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -87,7 +88,9 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
          // final float yValue = yValues[chartLabel.serieIndex];
 
          //TODO FB Why doesn't changing the opacity not work anymore !???!?!
+         gc.setBackground(new Color(gc.getDevice(), 0xdc, 0xdc, 0xdc, opacity));
          gc.setAlpha(opacity);
+         System.out.println(opacity);
          gc.fillRectangle(_devXNightStart, devYTop, 100, devYBottom - devYTop);
       }
 

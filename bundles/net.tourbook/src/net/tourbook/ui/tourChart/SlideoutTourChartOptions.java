@@ -356,9 +356,9 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
              */
             _scaleNightOpacity = new Scale(group, SWT.NONE);
             _scaleNightOpacity.setMinimum(0);
-            _scaleNightOpacity.setMaximum(255);
+            _scaleNightOpacity.setMaximum(35);
             _scaleNightOpacity.setIncrement(1);
-            _scaleNightOpacity.setPageIncrement(10);
+            _scaleNightOpacity.setPageIncrement(5);
             _scaleNightOpacity.setToolTipText("Messages.Slideout_TourChartOptions_Check_InvertPaceGraph_Tooltip");
             _scaleNightOpacity.addSelectionListener(_defaultSelectionListener);
             GridDataFactory.fillDefaults()
