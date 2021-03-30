@@ -1965,8 +1965,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
                         pauseDurationText,
                         xAxisSerie,
-                        tourSerieIndex,
-                        0);
+                        tourSerieIndex);
 
                   cnc.chartLabels.add(chartLabel);
                }
@@ -2050,13 +2049,11 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
     * @param pauseDuration
     * @param xAxisSerie
     * @param xAxisSerieIndex
-    * @param labelPosition
     * @return
     */
    private ChartLabel createLayer_Pause_ChartLabel(final String pauseDuration,
                                                    final double[] xAxisSerie,
-                                                   final int xAxisSerieIndex,
-                                                   final int labelPosition) {
+                                                   final int xAxisSerieIndex) {
 
       final ChartLabel chartLabel = new ChartLabel();
 
@@ -2155,8 +2152,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
                         pauseDurationText,
                         xAxisSerie,
-                        tourSerieIndex,
-                        0);
+                        tourSerieIndex);
 
                   cpc.chartLabels.add(chartLabel);
                }
@@ -2201,8 +2197,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
                   pauseDurationText,
                   xAxisSerie,
-                  serieIndex,
-                  0);
+                  serieIndex);
 
             cpc.chartLabels.add(chartLabel);
          }
