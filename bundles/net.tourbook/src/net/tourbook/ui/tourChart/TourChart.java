@@ -17,6 +17,8 @@ package net.tourbook.ui.tourChart;
 
 import gnu.trove.list.array.TIntArrayList;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1928,50 +1930,86 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          }
 
          int tourSerieIndex = 0;
-         int numberOfPauses = 0;
+         final int numberOfPauses = 0;
          long tourStartTime = 0;
          final List<List<Long>> allTourPauses = _tourData.multiTourPauses;
-         String pauseDurationText;
-         int currentTourPauseIndex = 0;
+         final String pauseDurationText;
+         final int currentTourPauseIndex = 0;
          for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
 
             tourStartTime = multipleTourStartTime[tourIndex];
-            numberOfPauses = multipleNumberOfPauses[tourIndex];
+            //TODO FB maybe we should have an array of multipleTourStartZonedDateTimes ?
+//            numberOfPauses = multipleNumberOfPauses[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
 
-            for (int relativeTourPauseIndex = 0; relativeTourPauseIndex < numberOfPauses;) {
+            final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
+            final double[] latitudeSerie = _tourData.latitudeSerie;
+            final double[] longitudeSerie = _tourData.longitudeSerie;
 
-               final long pausedTime_Start = allTourPauses.get(currentTourPauseIndex).get(0);
-               final long pausedTime_End = allTourPauses.get(currentTourPauseIndex).get(1);
+            if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
+               return;
+            }
 
-               final long pauseDuration = Math.round((pausedTime_End - pausedTime_Start) / 1000f);
-               pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
+            ZonedDateTime sunsetTimes = null;
+            ZonedDateTime sunriseTimes = null;
+            boolean isNightTime = false;
+            int nightStartSerieIndex = 0;
+            int currentDay = 0;
+            final ZoneId timeZoneIdWithDefault = _tourData.getTimeZoneIdWithDefault();
+            final ZonedDateTime toto = ZonedDateTime.ofInstant(//
+                  Instant.ofEpochMilli(tourStartTime),
+                  timeZoneIdWithDefault);
+            for (int index = tourSerieIndex; index < timeSerie.length; ++index) {
 
-               long previousTourElapsedTime = 0;
-               if (tourIndex > 0) {
-                  previousTourElapsedTime = _tourData.timeSerie[multipleStartTimeIndex[tourIndex] - 1] * 1000L;
+               final ZonedDateTime currentZonedDateTime = toto.plusSeconds((long) timeSerie[index]);
+
+               //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
+               if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+
+                  sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+                  sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+
+                  currentDay = currentZonedDateTime.getDayOfMonth();
                }
+               final long timeofday = currentZonedDateTime.toEpochSecond();
 
-               for (; tourSerieIndex < _tourData.timeSerie.length; ++tourSerieIndex) {
+               if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
 
-                  final long currentTime = _tourData.timeSerie[tourSerieIndex] * 1000L + tourStartTime - previousTourElapsedTime;
+                  //The current time slice is in the night
 
-                  if (currentTime >= pausedTime_Start) {
-                     break;
+                  if (!isNightTime) {
+
+                     isNightTime = true;
+                     nightStartSerieIndex = index;
+                  }
+                  if (index == timeSerie.length - 1) {
+
+                     //The last time slice is in the night
+
+                     final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                           xAxisSerie,
+                           nightStartSerieIndex,
+                           index);
+
+                     cnc.chartLabels.add(chartLabel);
+                  }
+               } else {
+
+                  //The current time slice is in daylight
+
+                  if (isNightTime) {
+
+                     //The previous time slice was in the night
+
+                     final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                           xAxisSerie,
+                           nightStartSerieIndex,
+                           index);
+
+                     cnc.chartLabels.add(chartLabel);
+                     isNightTime = false;
                   }
                }
-
-               if (tourSerieIndex < xAxisSerie.length) {
-                  final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
-                        pauseDurationText,
-                        xAxisSerie,
-                        tourSerieIndex);
-
-                  cnc.chartLabels.add(chartLabel);
-               }
-
-               ++relativeTourPauseIndex;
-               ++currentTourPauseIndex;
             }
          }
 
