@@ -26,7 +26,6 @@ import net.tourbook.preferences.ITourbookPreferences;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -46,20 +45,18 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    @Override
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
 
-      final Device display = gc.getDevice();
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
 
       final int devYTop = drawingData.getDevYTop();
-      final int devYBottom = drawingData.getDevYBottom();
-      final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
       final int devGraphHeight = drawingData.devGraphHeight;
-      final double scaleX = drawingData.getScaleX();
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
-
-      gc.setBackground(new Color(display, 0x8c, 0x8c, 0x8c, opacity));
+      gc.setBackground(new Color(gc.getDevice(), 0x8c, 0x8c, 0x8c, opacity));
       gc.setAlpha(opacity);
 
+      final double scaleX = drawingData.getScaleX();
+      final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
+      final int devYBottom = drawingData.getDevYBottom();
       for (final ChartLabel chartLabel : _cnc.chartLabels) {
 
          final double virtualXPos = chartLabel.graphX * scaleX;

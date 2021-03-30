@@ -1893,9 +1893,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       return chartLabel;
    }
 
-   //TODO FB
-   //GRAPH_OPACITY_NIGHT_SECTIONS
-   // Rename to GRAPH_TRANSPARENCY_NIGHT_SECTIONS
    private void createLayer_NightSections() {
 
       // Night sections layer is visible

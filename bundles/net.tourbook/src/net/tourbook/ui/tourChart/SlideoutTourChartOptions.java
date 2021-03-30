@@ -102,7 +102,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
    private Button    _chkShowValuePointTooltip;
    private Button    _chkSelectAllTimeSlices;
 
-   private Scale     _scaleNightOpacity;
+   private Scale     _scaleNightSectionsOpacity;
 
    private Combo     _comboPulseValueGraph;
 
@@ -345,25 +345,25 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
          }
          {
             /*
-             * label: Night Opacity
+             * label: Night Sections Opacity
              */
-            final Label labelNightOpacity = new Label(group, SWT.NONE);
-            labelNightOpacity.setText("&Night Opacity");
-            labelNightOpacity.setToolTipText("Messages.Dialog_ExportImage_Label_ImageQuality_Tooltip");
+            final Label labelNightSectionsOpacity = new Label(group, SWT.NONE);
+            labelNightSectionsOpacity.setText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity);
+            labelNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity_Tooltip);
 
             /*
-             * Night Opacity Scale
+             * Night Sections Opacity Scale
              */
-            _scaleNightOpacity = new Scale(group, SWT.NONE);
-            _scaleNightOpacity.setMinimum(0);
-            _scaleNightOpacity.setMaximum(255);
-            _scaleNightOpacity.setIncrement(1);
-            _scaleNightOpacity.setPageIncrement(10);
-            _scaleNightOpacity.setToolTipText("Messages.Slideout_TourChartOptions_Check_InvertPaceGraph_Tooltip");
-            _scaleNightOpacity.addSelectionListener(_defaultSelectionListener);
+            _scaleNightSectionsOpacity = new Scale(group, SWT.NONE);
+            _scaleNightSectionsOpacity.setMinimum(0);
+            _scaleNightSectionsOpacity.setMaximum(255);
+            _scaleNightSectionsOpacity.setIncrement(1);
+            _scaleNightSectionsOpacity.setPageIncrement(10);
+            _scaleNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity_Tooltip);
+            _scaleNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
             GridDataFactory.fillDefaults()
                   .grab(true, false)
-                  .applyTo(_scaleNightOpacity);
+                  .applyTo(_scaleNightSectionsOpacity);
          }
       }
    }
@@ -443,7 +443,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _chkShowStartTimeOnXAxis.setSelection(isTourStartTime);
       _chkShowValuePointTooltip.setSelection(isShowValuePointTooltip);
       _chkSelectAllTimeSlices.setSelection(isSelectInBetweenTimeSlices);
-      _scaleNightOpacity.setSelection(tourNightSectionsOpacity);
+      _scaleNightSectionsOpacity.setSelection(tourNightSectionsOpacity);
 
       setSelection_PulseGraph(TourChart.PULSE_GRAPH_DEFAULT, tcc.canShowPulseSerie, tcc.canShowPulseTimeSerie);
 
@@ -469,7 +469,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
 
       _chkInvertPaceGraph.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED));
 
-      _scaleNightOpacity.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS));
+      _scaleNightSectionsOpacity.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS));
 
       _chkShowBreaktimeValues.setSelection(tcc.isShowBreaktimeValues);
 
@@ -511,7 +511,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED, isShowPaceGraphInverted);
       _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SRTM_VISIBLE, isSrtmDataVisible);
       _prefStore.setValue(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME, isTourStartTime);
-      _prefStore.setValue(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, _scaleNightOpacity.getSelection());
+      _prefStore.setValue(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, _scaleNightSectionsOpacity.getSelection());
 
       _prefStore.setValue(ITourbookPreferences.GRAPH_PULSE_GRAPH_VALUES, pulseGraph.name());
 

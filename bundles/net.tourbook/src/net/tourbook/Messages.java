@@ -48,7 +48,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_AppDefault_Classic;
    public static String        Calendar_Profile_AppDefault_Compact;
    public static String        Calendar_Profile_AppDefault_Compact_II;
-   public static String        Calendar_Profile_AppDefault_Compact_III;
+   public static String        Calendar_Profile_AppDeSlideout_TourChartOptions_Check_InvertPaceGraph_Tooltipfault_Compact_III;
    public static String        Calendar_Profile_AppDefault_Default;
    public static String        Calendar_Profile_AppDefault_UserDefault;
    public static String        Calendar_Profile_AppDefault_Year;
@@ -2056,6 +2056,8 @@ public class Messages extends NLS {
 
    public static String Slideout_TourChartOptions_Check_InvertPaceGraph;
    public static String Slideout_TourChartOptions_Check_InvertPaceGraph_Tooltip;
+   public static String Slideout_TourChartOptions_Label_NightSectionsOpacity;
+   public static String Slideout_TourChartOptions_Label_NightSectionsOpacity_Tooltip;
    public static String Slideout_TourChartOptions_Label_PulseGraph;
    public static String Slideout_TourChartOptions_Label_Title;
 
