@@ -55,7 +55,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
       final Device display = gc.getDevice();
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
-//      final Device display = gc.getDevice();
 
       final int devYTop = drawingData.getDevYTop();
       final int devYBottom = drawingData.getDevYBottom();
@@ -76,23 +75,15 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
       gc.setBackground(new Color(display, 0x8c, 0x8c, 0x8c, opacity));
       gc.setAlpha(opacity);
-      /*
-       * For each pont at night, we draw a gray line from the top of the graph to the altitude line
-       */
+
       for (final ChartLabel chartLabel : _cnc.chartLabels) {
 
          final double virtualXPos = chartLabel.graphX * scaleX;
          _devXNightStart = (int) (virtualXPos - devVirtualGraphImageOffset);
+         final double virtualXPosEnd = chartLabel.graphXEnd * scaleX;
+         _devXNightEnd = (int) (virtualXPosEnd - devVirtualGraphImageOffset);
 
-         //The current charlabel is the start or at least a point in which it's night.
-         //find the end of the night section (serieIndex)
-         // calculate the according graph coordinates
-         //display a box from this point to the end of this night section
-
-         // final float yValue = yValues[chartLabel.serieIndex];
-
-         //TODO FB Why doesn't changing the opacity not work anymore !???!?!
-         gc.fillRectangle(_devXNightStart, devYTop, 100, devYBottom - devYTop);
+         gc.fillRectangle(_devXNightStart, devYTop, _devXNightEnd - _devXNightStart, devYBottom - devYTop);
       }
 
       gc.setClipping((Rectangle) null);

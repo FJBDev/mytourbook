@@ -1899,6 +1899,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       final ChartLabel chartLabel = new ChartLabel();
 
       chartLabel.graphX = xAxisSerie[xAxisSerieIndex];
+      chartLabel.graphXEnd = xAxisSerie[xAxisEndSerieIndex];
       chartLabel.serieIndex = xAxisSerieIndex;
       chartLabel.endSerieIndex = xAxisEndSerieIndex;
 
@@ -2005,34 +2006,40 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          final String pauseDurationText;
          final int serieIndex = 0;
 //         final int[] timeSerie = _tourData.timeSerie;
+         //TODO FB ca se passe ici
          final ZonedDateTime sunsetTimes = TimeTools.determineSunsetTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
          final ZonedDateTime sunriseTimes = TimeTools.determineSunRiseTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
          boolean isNightTime = false;
-         boolean isDayTime = false;
-         int nightSerieIndex = 0;
-         for (final double element : timeSerie) {
+         final boolean isDayTime = false;
+         int nightStartSerieIndex = 0;
+         for (int index = 0; index < timeSerie.length; ++index) {
 
-            final long timeofday = (long) (_tourData.getStartTimeOfDay() + element);
-            if (isNightTime) {
+            final long timeofday = _tourData.getTourStartTime().toEpochSecond() + (long) timeSerie[index];
 
-               //We are now out of the night
+            //The current time slice is in the night
+            if ((timeofday >= sunsetTimes.toEpochSecond() ||
+                  timeofday <= sunriseTimes.toEpochSecond())) {
+               if (!isNightTime) {
+
+               isNightTime = true;
+               nightStartSerieIndex = index;
+               }
+            }
+            else {
+               if (isNightTime) {
+
+               //The current time slice is in daylight
+
                final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
                      xAxisSerie,
-                     nightSerieIndex,
-                     serieIndex);
+                     nightStartSerieIndex,
+                     index);
                cnc.chartLabels.add(chartLabel);
-               isDayTime = true;
                isNightTime = false;
-               break;
             }
+         }
 
-            if ((timeofday >= sunsetTimes.toEpochSecond() ||
-                  timeofday <= sunriseTimes.toEpochSecond())
-                  && !isNightTime) {
-               isNightTime = true;
 
-               nightSerieIndex = serieIndex;
-            }
 
 //            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
 //

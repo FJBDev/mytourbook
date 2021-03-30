@@ -48,6 +48,11 @@ public class ChartLabel {
    public double           graphX;
 
    /**
+    * x-position in graph units
+    */
+   public double           graphXEnd;
+
+   /**
     * index in the data serie
     */
    public int              serieIndex;
