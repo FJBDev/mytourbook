@@ -1989,7 +1989,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          ZonedDateTime sunsetTimes = null;
          ZonedDateTime sunriseTimes = null;
          boolean isNightTime = false;
-         final boolean isDayTime = false;
          int nightStartSerieIndex = 0;
          int currentDay = 0;
          for (int index = 0; index < timeSerie.length; ++index) {
@@ -2006,12 +2005,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             }
             final long timeofday = currentZonedDateTime.toEpochSecond();
 
-            //TODO FB
-            //it seems that  for bighorn, because the time is past noon then the sunrise is the one for the next day.
-            //maybe we should generate the sunrise from the time of the tour at the beginning of the day?
-            final long epochSecond = sunsetTimes.toEpochSecond();
-            final long epochSecond2 = sunriseTimes.toEpochSecond();
-            if (timeofday >= epochSecond || timeofday <= epochSecond2) {
+            if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
 
                //The current time slice is in the night
 
