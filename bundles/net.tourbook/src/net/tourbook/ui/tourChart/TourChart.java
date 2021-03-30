@@ -1887,11 +1887,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       return chartLabel;
    }
 
-   //TODO FB how to change the chart background from white to something else ?
-   //https://github.com/patrovite/Course_Generator/commit/fb63f3da12957d4e974fa7f1161ed2cda2adedb6
-   //https://github.com/patrovite/Course_Generator/commit/1553c0d185cd9e2e15cd6654e12e4562eb886c1d
-   //
-
    private ChartLabel createLayer_NightSection_ChartLabel(final double[] xAxisSerie,
                                                           final int xAxisSerieIndex,
                                                           final int xAxisEndSerieIndex) {
@@ -1919,7 +1914,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
          // setup the night sections layer, a layer is created only once
 
-         _layerNight = new ChartLayerNight(this);
+         _layerNight = new ChartLayerNight();
 
          // set overlay painter
          addChartOverlay(_layerNight);
@@ -2031,25 +2026,22 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   timeofday <= sunriseTimes.toEpochSecond())) {
                if (!isNightTime) {
 
-               isNightTime = true;
-               nightStartSerieIndex = index;
+                  isNightTime = true;
+                  nightStartSerieIndex = index;
                }
-            }
-            else {
+            } else {
                if (isNightTime) {
 
-               //The current time slice is in daylight
+                  //The current time slice is in daylight
 
-               final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
-                     xAxisSerie,
-                     nightStartSerieIndex,
-                     index);
-               cnc.chartLabels.add(chartLabel);
-               isNightTime = false;
+                  final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                        xAxisSerie,
+                        nightStartSerieIndex,
+                        index);
+                  cnc.chartLabels.add(chartLabel);
+                  isNightTime = false;
+               }
             }
-         }
-
-
 
 //            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
 //
