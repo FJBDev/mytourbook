@@ -48,7 +48,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_AppDefault_Classic;
    public static String        Calendar_Profile_AppDefault_Compact;
    public static String        Calendar_Profile_AppDefault_Compact_II;
-   public static String        Calendar_Profile_AppDeSlideout_TourChartOptions_Check_InvertPaceGraph_Tooltipfault_Compact_III;
+   public static String        Calendar_Profile_AppDefault_Compact_III;
    public static String        Calendar_Profile_AppDefault_Default;
    public static String        Calendar_Profile_AppDefault_UserDefault;
    public static String        Calendar_Profile_AppDefault_Year;
