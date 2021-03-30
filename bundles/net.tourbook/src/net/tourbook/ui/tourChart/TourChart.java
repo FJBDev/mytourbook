@@ -109,7 +109,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -380,7 +379,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    private ChartLayer2ndAltiSerie    _layer2ndAltiSerie;
    private ChartLayerMarker          _layerMarker;
    private ChartLayerPause           _layerPause;
-   private ChartLayerNight           _layerNight;
+   private ChartLayerNight           _layerNightSections;
    private ChartLayerPhoto           _layerPhoto;
    private ChartLayerSegmentAltitude _layerTourSegmenterAltitude;
    private ChartLayerSegmentValue    _layerTourSegmenterOther;
@@ -1102,113 +1101,107 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
    private void addPrefListeners() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            if (_tcc == null) {
-               return;
+         if (_tcc == null) {
+            return;
+         }
+
+         setIsInUpdateUI(true);
+         try {
+
+            final String property = propertyChangeEvent.getProperty();
+
+            boolean isChartModified = false;
+            final boolean keepMinMax = true;
+
+            if (property.equals(ITourbookPreferences.GRAPH_MOVE_SLIDERS_WHEN_ZOOMED)
+                  || property.equals(ITourbookPreferences.GRAPH_ZOOM_AUTO_ZOOM_TO_SLIDER)) {
+
+               // zoom preferences has changed
+
+               _tcc.updateZoomOptions();
+
+               isChartModified = true;
+
+            } else if (property.equals(ITourbookPreferences.GRAPH_COLORS_HAS_CHANGED)) {
+
+               /*
+                * when the chart is computed, the modified colors are read from the preferences
+                */
+               isChartModified = true;
+
+               // dispose old colors
+               disposeColors();
+
+            } else if (property.equals(ITourbookPreferences.GRAPH_ANTIALIASING)
+                  || property.equals(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR)
+                  || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR)
+                  || property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE)
+                  || property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING)
+
+                  || property.equals(GRID_IS_SHOW_HORIZONTAL_GRIDLINES)
+                  || property.equals(GRID_IS_SHOW_VERTICAL_GRIDLINES)
+                  || property.equals(GRID_HORIZONTAL_DISTANCE)
+                  || property.equals(GRID_VERTICAL_DISTANCE)
+            //
+            ) {
+
+               setupChartConfig();
+
+               isChartModified = true;
+
+            } else if (property.equals(ITourbookPreferences.TOUR_SEGMENTER_CHART_VALUE_FONT)) {
+
+               setupSegmenterValueFont();
             }
 
-            setIsInUpdateUI(true);
-            try {
+            isChartModified |= setMinMaxDefaultValue(property, isChartModified);
 
-               final String property = event.getProperty();
-
-               boolean isChartModified = false;
-               final boolean keepMinMax = true;
-
-               if (property.equals(ITourbookPreferences.GRAPH_MOVE_SLIDERS_WHEN_ZOOMED)
-                     || property.equals(ITourbookPreferences.GRAPH_ZOOM_AUTO_ZOOM_TO_SLIDER)) {
-
-                  // zoom preferences has changed
-
-                  _tcc.updateZoomOptions();
-
-                  isChartModified = true;
-
-               } else if (property.equals(ITourbookPreferences.GRAPH_COLORS_HAS_CHANGED)) {
-
-                  /*
-                   * when the chart is computed, the modified colors are read from the preferences
-                   */
-                  isChartModified = true;
-
-                  // dispose old colors
-                  disposeColors();
-
-               } else if (property.equals(ITourbookPreferences.GRAPH_ANTIALIASING)
-                     || property.equals(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR)
-                     || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR)
-                     || property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE)
-                     || property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING)
-
-                     || property.equals(GRID_IS_SHOW_HORIZONTAL_GRIDLINES)
-                     || property.equals(GRID_IS_SHOW_VERTICAL_GRIDLINES)
-                     || property.equals(GRID_HORIZONTAL_DISTANCE)
-                     || property.equals(GRID_VERTICAL_DISTANCE)
-               //
-               ) {
-
-                  setupChartConfig();
-
-                  isChartModified = true;
-
-               } else if (property.equals(ITourbookPreferences.TOUR_SEGMENTER_CHART_VALUE_FONT)) {
-
-                  setupSegmenterValueFont();
-               }
-
-               isChartModified |= setMinMaxDefaultValue(property, isChartModified);
-
-               if (isChartModified) {
-                  updateTourChart(keepMinMax);
-               }
-
-            } finally {
-               setIsInUpdateUI(false);
+            if (isChartModified) {
+               updateTourChart(keepMinMax);
             }
+
+         } finally {
+            setIsInUpdateUI(false);
          }
       };
 
-      _prefChangeListener_Common = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener_Common = propertyChangeEvent -> {
 
-            if (_tcc == null) {
-               return;
+         if (_tcc == null) {
+            return;
+         }
+
+         setIsInUpdateUI(true);
+         try {
+
+            final String property = propertyChangeEvent.getProperty();
+
+            boolean isChartModified = false;
+            boolean keepMinMax = true;
+
+            if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+
+               // measurement system has changed
+
+               isChartModified = true;
+               keepMinMax = false;
+
+               _valuePointTooltip.reopen();
+
+               final ActionXAxisDistance tourAction = (ActionXAxisDistance) _allTourChartActions.get(ACTION_ID_X_AXIS_DISTANCE);
+               tourAction.setImages();
             }
 
-            setIsInUpdateUI(true);
-            try {
+            isChartModified |= setMinMaxDefaultValue(property, isChartModified);
 
-               final String property = event.getProperty();
-
-               boolean isChartModified = false;
-               boolean keepMinMax = true;
-
-               if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
-
-                  // measurement system has changed
-
-                  isChartModified = true;
-                  keepMinMax = false;
-
-                  _valuePointTooltip.reopen();
-
-                  final ActionXAxisDistance tourAction = (ActionXAxisDistance) _allTourChartActions.get(ACTION_ID_X_AXIS_DISTANCE);
-                  tourAction.setImages();
-               }
-
-               isChartModified |= setMinMaxDefaultValue(property, isChartModified);
-
-               if (isChartModified) {
-                  updateTourChart(keepMinMax);
-               }
-
-            } finally {
-               setIsInUpdateUI(false);
+            if (isChartModified) {
+               updateTourChart(keepMinMax);
             }
+
+         } finally {
+            setIsInUpdateUI(false);
          }
       };
 
@@ -1909,17 +1902,17 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       final ChartNightConfig cnc = new ChartNightConfig();
 
-      if (_layerNight == null) {
+      if (_layerNightSections == null) {
 
          // setup the night sections layer, a layer is created only once
 
-         _layerNight = new ChartLayerNight();
+         _layerNightSections = new ChartLayerNight();
 
          // set overlay painter
-         addChartOverlay(_layerNight);
+         addChartOverlay(_layerNightSections);
       }
 
-      _layerNight.setChartNightConfig(cnc);
+      _layerNightSections.setChartNightConfig(cnc);
 
       // set data serie for the x-axis
       final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
@@ -5303,8 +5296,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       /*
        * Night sections layer
        */
-      if (_layerNight != null && yData == yDataWithLabels) {
-         customFgLayers.add(_layerNight);
+      if (_layerNightSections != null && yData == yDataWithLabels) {
+         customFgLayers.add(_layerNightSections);
       }
 
       /*
