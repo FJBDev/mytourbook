@@ -1896,7 +1896,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       chartLabel.graphX = xAxisSerie[xAxisSerieIndex];
       chartLabel.graphXEnd = xAxisSerie[xAxisEndSerieIndex];
       chartLabel.serieIndex = xAxisSerieIndex;
-      chartLabel.endSerieIndex = xAxisEndSerieIndex;
 
       return chartLabel;
    }
@@ -1996,11 +1995,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
             return;
          }
-         final long[] pausedTime_End = _tourData.getPausedTime_End();
-
-         final String pauseDurationText;
-         final int serieIndex = 0;
-//         final int[] timeSerie = _tourData.timeSerie;
          //TODO FB ca se passe ici
 
          ZonedDateTime sunsetTimes = null;
@@ -2013,8 +2007,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             //TODO FB
 
             final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds((long) timeSerie[index]);
-            //si on a entame un nouveau jour, on doit regenerer les sunset et sunrisetimes
+
+            //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
             if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+
                currentDay = currentZonedDateTime.getDayOfMonth();
                sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
                sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
@@ -2022,14 +2018,22 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             final long timeofday = currentZonedDateTime.toEpochSecond();
 
             //The current time slice is in the night
-            if ((timeofday >= sunsetTimes.toEpochSecond() ||
-                  timeofday <= sunriseTimes.toEpochSecond())) {
+
+            //TODO FB
+            //it seems that  for bighorn, because the time is past noon then the sunrise is the one for the next day.
+            //maybe we should generate the sunrise from the time of the tour at the beginning of the day?
+            final long epochSecond = sunsetTimes.toEpochSecond();
+            final long epochSecond2 = sunriseTimes.toEpochSecond();
+            if ((timeofday >= epochSecond ||
+                  timeofday <= epochSecond2)) {
+
                if (!isNightTime) {
 
                   isNightTime = true;
                   nightStartSerieIndex = index;
                }
             } else {
+
                if (isNightTime) {
 
                   //The current time slice is in daylight
@@ -2042,32 +2046,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   isNightTime = false;
                }
             }
-
-//            pauseDurationText = UI.format_hh_mm_ss(pauseDuration);
-//
-//            for (; serieIndex < timeSerie.length && serieIndex < xAxisSerie.length; ++serieIndex) {
-//
-//               final long currentTime = timeSerie[serieIndex] * 1000L + tourStartTime;
-//
-//               if (currentTime >= pausedTime_Start[index]) {
-//                  break;
-//               }
-//            }
-//
-//            if (serieIndex >= xAxisSerie.length) {
-//               continue;
-//            }
-//
-//            final ChartLabel chartLabel = createLayer_Pause_ChartLabel(
-//                  pauseDurationText,
-//                  xAxisSerie,
-//                  serieIndex,
-//                  0);
-//
-//            cnc.chartLabels.add(chartLabel);
          }
       }
-
    }
 
    /**
