@@ -267,6 +267,20 @@ public class TimeTools {
       return dtYMDhms;
    }
 
+   private static SunTimes createSunTimes(final ZonedDateTime zonedDateTime, final double latitude, final double longitude) {
+
+      // Because giving a date with a specific hour could result into getting the
+      // sunset of the previous day,
+      // we adjust the date to the beginning of the day
+
+      final SunTimes times = SunTimes.compute()
+            .on(zonedDateTime.getYear(), zonedDateTime.getMonthValue(), zonedDateTime.getDayOfMonth())
+            .timezone(zonedDateTime.getZone())
+            .at(latitude, longitude)
+            .execute();
+      return times;
+   }
+
    /**
     * Creates a tour date time with the tour time zone.
     *
@@ -322,42 +336,19 @@ public class TimeTools {
    public static ZonedDateTime determineSunRiseTimes(final ZonedDateTime zonedDateTime,
                                                      final double latitude,
                                                      final double longitude) {
-      // Because giving a date with a specific hour could result into getting the
-      // sunrise of the previous day,
-      // we adjust the date to the beginning of the day
-//      final DateTime beginningOfDay = new DateTime(StartTime.getYear(),
-//            StartTime.getMonthOfYear(),
-//            StartTime.getDayOfMonth(),
-//            0,
-//            0,
-//            DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
 
-      final SunTimes times = SunTimes.compute().on(zonedDateTime).at(latitude, longitude).execute();
+      final SunTimes times = createSunTimes(zonedDateTime, latitude, longitude);
 
-      final ZonedDateTime sunriseTime = times.getRise();
-
-      return sunriseTime;
+      return times.getRise();
    }
 
    public static ZonedDateTime determineSunsetTimes(final ZonedDateTime zonedDateTime,
                                                     final double latitude,
                                                     final double longitude) {
-      // Because giving a date with a specific hour could result into getting the
-      // sunrise of the previous day,
-      // we adjust the date to the beginning of the day
-//      final DateTime beginningOfDay = new DateTime(StartTime.getYear(),
-//            StartTime.getMonthOfYear(),
-//            StartTime.getDayOfMonth(),
-//            0,
-//            0,
-//            DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZoneId)));
 
-      final SunTimes times = SunTimes.compute().on(zonedDateTime).at(latitude, longitude)
-            .execute();
+      final SunTimes times = createSunTimes(zonedDateTime, latitude, longitude);
 
-      final ZonedDateTime sunsetTime = times.getSet();
-      return sunsetTime;
-
+      return times.getSet();
    }
 
    /**
