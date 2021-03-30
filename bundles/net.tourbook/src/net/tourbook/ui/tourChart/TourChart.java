@@ -2007,12 +2007,15 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          final int serieIndex = 0;
 //         final int[] timeSerie = _tourData.timeSerie;
          //TODO FB ca se passe ici
+
          final ZonedDateTime sunsetTimes = TimeTools.determineSunsetTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
          final ZonedDateTime sunriseTimes = TimeTools.determineSunRiseTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
          boolean isNightTime = false;
          final boolean isDayTime = false;
          int nightStartSerieIndex = 0;
          for (int index = 0; index < timeSerie.length; ++index) {
+            //TODO FB 
+            //si on a entame un nouveau jour, on doit regenerer les sunset et sunrisetimes
 
             final long timeofday = _tourData.getTourStartTime().toEpochSecond() + (long) timeSerie[index];
 
