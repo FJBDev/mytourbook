@@ -2008,16 +2008,23 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 //         final int[] timeSerie = _tourData.timeSerie;
          //TODO FB ca se passe ici
 
-         final ZonedDateTime sunsetTimes = TimeTools.determineSunsetTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
-         final ZonedDateTime sunriseTimes = TimeTools.determineSunRiseTimes(_tourData.getTourStartTime(), latitudeSerie[0], longitudeSerie[0]);
+         ZonedDateTime sunsetTimes = null;
+         ZonedDateTime sunriseTimes = null;
          boolean isNightTime = false;
          final boolean isDayTime = false;
          int nightStartSerieIndex = 0;
+         int currentDay = 0;
          for (int index = 0; index < timeSerie.length; ++index) {
-            //TODO FB 
-            //si on a entame un nouveau jour, on doit regenerer les sunset et sunrisetimes
+            //TODO FB
 
-            final long timeofday = _tourData.getTourStartTime().toEpochSecond() + (long) timeSerie[index];
+            final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds((long) timeSerie[index]);
+            //si on a entame un nouveau jour, on doit regenerer les sunset et sunrisetimes
+            if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+               currentDay = currentZonedDateTime.getDayOfMonth();
+               sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+               sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+            }
+            final long timeofday = currentZonedDateTime.toEpochSecond();
 
             //The current time slice is in the night
             if ((timeofday >= sunsetTimes.toEpochSecond() ||
