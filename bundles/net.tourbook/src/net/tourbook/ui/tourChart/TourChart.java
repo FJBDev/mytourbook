@@ -1899,7 +1899,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       // Night sections layer is visible
 
-      final ChartNightConfig cnc = new ChartNightConfig();
+      final ChartNightConfig chartNightConfig = new ChartNightConfig();
 
       if (_layerNightSections == null) {
 
@@ -1911,7 +1911,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          addChartOverlay(_layerNightSections);
       }
 
-      _layerNightSections.setChartNightConfig(cnc);
+      _layerNightSections.setChartNightConfig(chartNightConfig);
 
       // set data serie for the x-axis
       final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
@@ -1994,7 +1994,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                            nightStartSerieIndex,
                            index);
 
-                     cnc.chartLabels.add(chartLabel);
+                     chartNightConfig.chartLabels.add(chartLabel);
                   }
                } else {
 
@@ -2009,7 +2009,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                            nightStartSerieIndex,
                            index);
 
-                     cnc.chartLabels.add(chartLabel);
+                     chartNightConfig.chartLabels.add(chartLabel);
                      isNightTime = false;
                   }
                }
@@ -2018,7 +2018,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       } else {
 
-         createLayer_NightSections2(xAxisSerie, cnc);
+         createLayer_NightSections2(xAxisSerie, chartNightConfig);
       }
    }
 
