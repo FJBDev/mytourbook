@@ -24,6 +24,9 @@ Improvements
 * 2D Map (Frederic):
   - Extending the zoom levels capacity from 20 to 23
 
+* Tour Chart (Frederic):
+  - Displaying the night sections with a grey color for better readability
+
 
 Changes  
 =======
