@@ -1930,38 +1930,39 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       if (_tourData.isMultipleTours()) {
 
-         final int numberOfTours = _tourData.multipleTourStartIndex.length;
          final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
-//         final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
-         final ZonedDateTime[] multipleTourZonedStartTime = _tourData.multipleTourZonedStartTime;
-
          if (multipleStartTimeIndex.length == 0) {
             return;
          }
 
+         final int numberOfTours = _tourData.multipleTourStartIndex.length;
+         final ZonedDateTime[] multipleTourZonedStartTime = _tourData.multipleTourZonedStartTime;
+
          int tourSerieIndex = 0;
-         long tourStartTime = 0;
+         int nextTourSerieIndex = 0;
+         ZonedDateTime tourStartTime = null;
          for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
 
-            tourStartTime = multipleTourZonedStartTime[tourIndex].toInstant().toEpochMilli();
-            //TODO FB maybe we should have an array of multipleTourStartZonedDateTimes ?
-            //            numberOfPauses = multipleNumberOfPauses[tourIndex];
+            tourStartTime = multipleTourZonedStartTime[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
+            nextTourSerieIndex = tourIndex < numberOfTours - 1
+                  ? multipleStartTimeIndex[tourIndex + 1]
+                  : timeSerie.length;
 
             ZonedDateTime sunsetTimes = null;
             ZonedDateTime sunriseTimes = null;
             boolean isNightTime = false;
             int nightStartSerieIndex = 0;
             int currentDay = 0;
-            for (int index = tourSerieIndex; index < timeSerie.length; ++index) {
+            for (int index = tourSerieIndex; index < nextTourSerieIndex; ++index) {
 
-               final ZonedDateTime currentZonedDateTime = multipleTourZonedStartTime[tourIndex].plusSeconds(timeSerie[index]);
+               final ZonedDateTime currentZonedDateTime = tourStartTime.plusSeconds(timeSerie[index]);
 
                //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
                if (currentZonedDateTime.getDayOfMonth() != currentDay) {
 
-                  sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
                   sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+                  sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
 
                   currentDay = currentZonedDateTime.getDayOfMonth();
                }
@@ -1976,7 +1977,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                      isNightTime = true;
                      nightStartSerieIndex = index;
                   }
-                  if (index == timeSerie.length - 1) {
+                  if (index == nextTourSerieIndex - 1) {
 
                      //The last time slice is in the night
 
@@ -2030,8 +2031,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
          if (currentDay == 0 || currentZonedDateTime.getDayOfMonth() != currentDay) {
 
-            sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
             sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+            sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
 
             currentDay = currentZonedDateTime.getDayOfMonth();
          }
