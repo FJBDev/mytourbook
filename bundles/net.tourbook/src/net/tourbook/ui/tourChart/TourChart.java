@@ -2023,7 +2023,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
    }
 
    private void createLayer_NightSections2(final double[] xAxisSerie, final ChartNightConfig chartNightConfig) {
-      final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
+
+      final int[] timeSerie = _tourData.timeSerie;
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
 
@@ -2038,7 +2039,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       int currentDay = 0;
       for (int index = 0; index < timeSerie.length; ++index) {
 
-         final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds((long) timeSerie[index]);
+         final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds(timeSerie[index]);
 
          //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
          if (currentZonedDateTime.getDayOfMonth() != currentDay) {
