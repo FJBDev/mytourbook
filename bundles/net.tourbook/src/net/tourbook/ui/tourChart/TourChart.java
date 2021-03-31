@@ -1954,9 +1954,15 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             boolean isNightTime = false;
             int nightStartSerieIndex = 0;
             int currentDay = 0;
+            long previousTourElapsedTime = 0;
+            if (tourIndex > 0) {
+               previousTourElapsedTime = timeSerie[tourSerieIndex - 1];
+            }
             for (int index = tourSerieIndex; index < nextTourSerieIndex; ++index) {
 
-               final ZonedDateTime currentZonedDateTime = tourStartTime.plusSeconds(timeSerie[index]);
+               final long currentTime = timeSerie[index] - previousTourElapsedTime;
+
+               final ZonedDateTime currentZonedDateTime = tourStartTime.plusSeconds(currentTime);
 
                //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
                if (currentZonedDateTime.getDayOfMonth() != currentDay) {
