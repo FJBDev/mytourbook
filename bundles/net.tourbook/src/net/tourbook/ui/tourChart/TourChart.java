@@ -1993,9 +1993,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          }
          final long currentTime = currentZonedDateTime.toEpochSecond();
 
-         if (currentTime >= sunsetTimes.toEpochSecond() || currentTime <= sunriseTimes.toEpochSecond()) {
-
-            //The current time slice is in the night
+         if (isTimeSliceAtNight(sunsetTimes, sunriseTimes, currentTime)) {
 
             if (!isNightTime) {
 
@@ -2004,31 +2002,27 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             }
             if (index == timeSerieLength - 1) {
 
-               //The last time slice is in the night
+               //The last time slice is in the night,
+               //we need to create the night section it before exiting the for loop
 
                create_NightSection_ChartLabel(
                      chartNightConfig,
                      xAxisSerie,
                      nightStartSerieIndex,
                      index);
-
             }
-         } else {
+         } else if (isNightTime) {
 
             //The current time slice is in daylight
+            //The previous time slice was in the night
 
-            if (isNightTime) {
+            create_NightSection_ChartLabel(
+                  chartNightConfig,
+                  xAxisSerie,
+                  nightStartSerieIndex,
+                  index);
 
-               //The previous time slice was in the night
-
-               create_NightSection_ChartLabel(
-                     chartNightConfig,
-                     xAxisSerie,
-                     nightStartSerieIndex,
-                     index);
-
-               isNightTime = false;
-            }
+            isNightTime = false;
          }
       }
    }
@@ -3303,6 +3297,13 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       }
 
       removeChartMouseListener(_mousePhotoListener);
+   }
+
+   private boolean isTimeSliceAtNight(final ZonedDateTime sunsetTimes,
+                                      final ZonedDateTime sunriseTimes,
+                                      final long time) {
+
+      return time >= sunsetTimes.toEpochSecond() || time <= sunriseTimes.toEpochSecond();
    }
 
    private void onChart_KeyDown(final ChartKeyEvent keyEvent) {
