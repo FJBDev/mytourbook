@@ -1236,6 +1236,19 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       _openDlgMgr.closeOpenedDialogs(openingDialog);
    }
 
+   private ChartLabel create_NightSection_ChartLabel(final double[] xAxisSerie,
+                                                     final int xAxisSerieIndex,
+                                                     final int xAxisEndSerieIndex) {
+
+      final ChartLabel chartLabel = new ChartLabel();
+
+      chartLabel.graphX = xAxisSerie[xAxisSerieIndex];
+      chartLabel.graphXEnd = xAxisSerie[xAxisEndSerieIndex];
+      chartLabel.serieIndex = xAxisSerieIndex;
+
+      return chartLabel;
+   }
+
    /**
     * Create all tour chart actions.
     */
@@ -1882,19 +1895,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       return chartLabel;
    }
 
-   private ChartLabel createLayer_NightSection_Chart(final double[] xAxisSerie,
-                                                          final int xAxisSerieIndex,
-                                                          final int xAxisEndSerieIndex) {
-
-      final ChartLabel chartLabel = new ChartLabel();
-
-      chartLabel.graphX = xAxisSerie[xAxisSerieIndex];
-      chartLabel.graphXEnd = xAxisSerie[xAxisEndSerieIndex];
-      chartLabel.serieIndex = xAxisSerieIndex;
-
-      return chartLabel;
-   }
-
    private void createLayer_NightSections() {
 
       // Night sections layer is visible
@@ -1925,7 +1925,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
          final int numberOfTours = _tourData.multipleTourStartIndex.length;
          final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
-         final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
+//         final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
          final long[] multipleTourStartTime = _tourData.multipleTourStartTime;
 
          if (multipleStartTimeIndex.length == 0) {
@@ -1933,11 +1933,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          }
 
          int tourSerieIndex = 0;
-         final int numberOfPauses = 0;
          long tourStartTime = 0;
-         final List<List<Long>> allTourPauses = _tourData.multiTourPauses;
-         final String pauseDurationText;
-         final int currentTourPauseIndex = 0;
          for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
 
             tourStartTime = multipleTourStartTime[tourIndex];
@@ -1989,7 +1985,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The last time slice is in the night
 
-                     final ChartLabel chartLabel = createLayer_NightSection_Chart(
+                     final ChartLabel chartLabel = create_NightSection_ChartLabel(
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
@@ -2004,7 +2000,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The previous time slice was in the night
 
-                     final ChartLabel chartLabel = createLayer_NightSection_Chart(
+                     final ChartLabel chartLabel = create_NightSection_ChartLabel(
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
@@ -2018,11 +2014,11 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       } else {
 
-         createLayer_NightSections2(xAxisSerie, chartNightConfig);
+         createLayer_NightSections_Chart(xAxisSerie, chartNightConfig);
       }
    }
 
-   private void createLayer_NightSections2(final double[] xAxisSerie, final ChartNightConfig chartNightConfig) {
+   private void createLayer_NightSections_Chart(final double[] xAxisSerie, final ChartNightConfig chartNightConfig) {
 
       final int[] timeSerie = _tourData.timeSerie;
       final double[] latitudeSerie = _tourData.latitudeSerie;
@@ -2042,7 +2038,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds(timeSerie[index]);
 
          //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
-         if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+         if (currentDay == 0 || currentZonedDateTime.getDayOfMonth() != currentDay) {
 
             sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
             sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
@@ -2064,7 +2060,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                //The last time slice is in the night
 
-               final ChartLabel chartLabel = createLayer_NightSection_Chart(
+               final ChartLabel chartLabel = create_NightSection_ChartLabel(
                      xAxisSerie,
                      nightStartSerieIndex,
                      index);
@@ -2079,7 +2075,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                //The previous time slice was in the night
 
-               final ChartLabel chartLabel = createLayer_NightSection_Chart(
+               final ChartLabel chartLabel = create_NightSection_ChartLabel(
                      xAxisSerie,
                      nightStartSerieIndex,
                      index);
