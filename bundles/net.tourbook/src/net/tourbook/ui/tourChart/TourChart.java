@@ -1236,9 +1236,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       _openDlgMgr.closeOpenedDialogs(openingDialog);
    }
 
-   private ChartLabel create_NightSection_ChartLabel(final double[] xAxisSerie,
-                                                     final int xAxisSerieIndex,
-                                                     final int xAxisEndSerieIndex) {
+   private void create_NightSection_ChartLabel(final ChartNightConfig chartNightConfig,
+                                               final double[] xAxisSerie,
+                                               final int xAxisSerieIndex,
+                                               final int xAxisEndSerieIndex) {
 
       final ChartLabel chartLabel = new ChartLabel();
 
@@ -1246,7 +1247,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       chartLabel.graphXEnd = xAxisSerie[xAxisEndSerieIndex];
       chartLabel.serieIndex = xAxisSerieIndex;
 
-      return chartLabel;
+      chartNightConfig.chartLabels.add(chartLabel);
    }
 
    /**
@@ -1512,13 +1513,13 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       final boolean isTimeSerie = timeSerie != null;
 
       final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
-      final long[] multipleStartTime = _tourData.multipleTourStartTime;
+      final ZonedDateTime[] multipleZonedStartTime = _tourData.multipleTourZonedStartTime;
 
       /*
        * Is is possible, that multiple tours contain manually created tours which do not have data
        * series !!!
        */
-      final boolean isMultipleTours = _tourData.isMultipleTours() && multipleStartTime.length > 1;
+      final boolean isMultipleTours = _tourData.isMultipleTours() && multipleZonedStartTime.length > 1;
 
       final long tourStart = _tourData.getTourStartTimeMS() / 1000;
       final int numberOfTimeSlices = isTimeSerie ? timeSerie.length : historySerie.length;
@@ -1568,7 +1569,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       // setup first multiple tour
       if (isMultipleTours) {
 
-         firstTourStartTime = multipleStartTime[0];
+         firstTourStartTime = multipleZonedStartTime[0].toInstant().toEpochMilli();
          // this is the first tour
 
          tourStartTime = firstTourStartTime;
@@ -1605,7 +1606,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   final int tourDuration = timeSerie[nextTourSerieIndex - 1];
                   tourElapsedTime = tourDuration;
 
-                  tourStartTime = multipleStartTime[nextTourIndex];
+                  tourStartTime = multipleZonedStartTime[nextTourIndex].toInstant().toEpochMilli();
 
                   if (nextTourIndex < multipleStartTimeIndex.length - 1) {
 
@@ -1921,12 +1922,20 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       //TODO FB For the bear or othe tours, what makes the hour go wrong ? bug to fix ?
       //whats the scenario ?
 
+      final int[] timeSerie = _tourData.timeSerie;
+      final double[] latitudeSerie = _tourData.latitudeSerie;
+      final double[] longitudeSerie = _tourData.longitudeSerie;
+
+      if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
+         return;
+      }
+
       if (_tourData.isMultipleTours()) {
 
          final int numberOfTours = _tourData.multipleTourStartIndex.length;
          final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
 //         final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
-         final long[] multipleTourStartTime = _tourData.multipleTourStartTime;
+         final ZonedDateTime[] multipleTourZonedStartTime = _tourData.multipleTourZonedStartTime;
 
          if (multipleStartTimeIndex.length == 0) {
             return;
@@ -1936,18 +1945,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          long tourStartTime = 0;
          for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
 
-            tourStartTime = multipleTourStartTime[tourIndex];
+            tourStartTime = multipleTourZonedStartTime[tourIndex].toInstant().toEpochMilli();
             //TODO FB maybe we should have an array of multipleTourStartZonedDateTimes ?
             //            numberOfPauses = multipleNumberOfPauses[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
-
-            final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
-            final double[] latitudeSerie = _tourData.latitudeSerie;
-            final double[] longitudeSerie = _tourData.longitudeSerie;
-
-            if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
-               return;
-            }
 
             ZonedDateTime sunsetTimes = null;
             ZonedDateTime sunriseTimes = null;
@@ -1960,7 +1961,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   timeZoneIdWithDefault);
             for (int index = tourSerieIndex; index < timeSerie.length; ++index) {
 
-               final ZonedDateTime currentZonedDateTime = toto.plusSeconds((long) timeSerie[index]);
+               final ZonedDateTime currentZonedDateTime = toto.plusSeconds(timeSerie[index]);
 
                //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
                if (currentZonedDateTime.getDayOfMonth() != currentDay) {
@@ -1985,12 +1986,11 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The last time slice is in the night
 
-                     final ChartLabel chartLabel = create_NightSection_ChartLabel(
+                     create_NightSection_ChartLabel(
+                           chartNightConfig,
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
-
-                     chartNightConfig.chartLabels.add(chartLabel);
                   }
                } else {
 
@@ -2000,12 +2000,12 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The previous time slice was in the night
 
-                     final ChartLabel chartLabel = create_NightSection_ChartLabel(
+                     create_NightSection_ChartLabel(
+                           chartNightConfig,
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
 
-                     chartNightConfig.chartLabels.add(chartLabel);
                      isNightTime = false;
                   }
                }
@@ -2024,16 +2024,12 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
 
-      if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
-         return;
-      }
-
       ZonedDateTime sunsetTimes = null;
       ZonedDateTime sunriseTimes = null;
       boolean isNightTime = false;
       int nightStartSerieIndex = 0;
       int currentDay = 0;
-      for (int index = 0; index < timeSerie.length; ++index) {
+      for (int index = 0; index < _tourData.timeSerie.length; ++index) {
 
          final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds(timeSerie[index]);
 
@@ -2045,9 +2041,9 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
             currentDay = currentZonedDateTime.getDayOfMonth();
          }
-         final long timeofday = currentZonedDateTime.toEpochSecond();
+         final long currentTime = currentZonedDateTime.toEpochSecond();
 
-         if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
+         if (currentTime >= sunsetTimes.toEpochSecond() || currentTime <= sunriseTimes.toEpochSecond()) {
 
             //The current time slice is in the night
 
@@ -2060,12 +2056,12 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                //The last time slice is in the night
 
-               final ChartLabel chartLabel = create_NightSection_ChartLabel(
+               create_NightSection_ChartLabel(
+                     chartNightConfig,
                      xAxisSerie,
                      nightStartSerieIndex,
                      index);
 
-               chartNightConfig.chartLabels.add(chartLabel);
             }
          } else {
 
@@ -2075,12 +2071,12 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                //The previous time slice was in the night
 
-               final ChartLabel chartLabel = create_NightSection_ChartLabel(
+               create_NightSection_ChartLabel(
+                     chartNightConfig,
                      xAxisSerie,
                      nightStartSerieIndex,
                      index);
 
-               chartNightConfig.chartLabels.add(chartLabel);
                isNightTime = false;
             }
          }
@@ -2150,7 +2146,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          final int numberOfTours = _tourData.multipleTourStartIndex.length;
          final int[] multipleStartTimeIndex = _tourData.multipleTourStartIndex;
          final int[] multipleNumberOfPauses = _tourData.multipleNumberOfPauses;
-         final long[] multipleTourStartTime = _tourData.multipleTourStartTime;
+         final ZonedDateTime[] multipleTourZonedStartTime = _tourData.multipleTourZonedStartTime;
 
          if (multipleStartTimeIndex.length == 0) {
             return;
@@ -2164,7 +2160,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
          int currentTourPauseIndex = 0;
          for (int tourIndex = 0; tourIndex < numberOfTours; ++tourIndex) {
 
-            tourStartTime = multipleTourStartTime[tourIndex];
+            tourStartTime = multipleTourZonedStartTime[tourIndex].toInstant().toEpochMilli();
             numberOfPauses = multipleNumberOfPauses[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
 
