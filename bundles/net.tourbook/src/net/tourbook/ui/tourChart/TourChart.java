@@ -1949,77 +1949,26 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   ? multipleStartTimeIndex[tourIndex + 1]
                   : timeSerie.length;
 
-            ZonedDateTime sunsetTimes = null;
-            ZonedDateTime sunriseTimes = null;
-            boolean isNightTime = false;
-            int nightStartSerieIndex = 0;
-            int currentDay = 0;
             long previousTourElapsedTime = 0;
             if (tourIndex > 0) {
                previousTourElapsedTime = timeSerie[tourSerieIndex - 1];
             }
-            for (int index = tourSerieIndex; index < nextTourSerieIndex; ++index) {
 
-               final long currentTime = timeSerie[index] - previousTourElapsedTime;
-
-               final ZonedDateTime currentZonedDateTime = tourStartTime.plusSeconds(currentTime);
-
-               //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
-               if (currentZonedDateTime.getDayOfMonth() != currentDay) {
-
-                  sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
-                  sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
-
-                  currentDay = currentZonedDateTime.getDayOfMonth();
-               }
-               final long timeofday = currentZonedDateTime.toEpochSecond();
-
-               if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
-
-                  //The current time slice is in the night
-
-                  if (!isNightTime) {
-
-                     isNightTime = true;
-                     nightStartSerieIndex = index;
-                  }
-                  if (index == nextTourSerieIndex - 1) {
-
-                     //The last time slice is in the night
-
-                     create_NightSection_ChartLabel(
-                           chartNightConfig,
-                           xAxisSerie,
-                           nightStartSerieIndex,
-                           index);
-                  }
-               } else {
-
-                  //The current time slice is in daylight
-
-                  if (isNightTime) {
-
-                     //The previous time slice was in the night
-
-                     create_NightSection_ChartLabel(
-                           chartNightConfig,
-                           xAxisSerie,
-                           nightStartSerieIndex,
-                           index);
-
-                     isNightTime = false;
-                  }
-               }
-            }
+            createLayer_NightSections_Chart(xAxisSerie, chartNightConfig, tourStartTime, tourSerieIndex, nextTourSerieIndex, previousTourElapsedTime);
          }
 
       } else {
 
-         createLayer_NightSections_Chart(xAxisSerie, chartNightConfig);
+         createLayer_NightSections_Chart(xAxisSerie, chartNightConfig, _tourData.getTourStartTime(), 0, timeSerie.length, 0);
       }
    }
 
-   private void createLayer_NightSections_Chart(final double[] xAxisSerie, final ChartNightConfig chartNightConfig) {
+   private void createLayer_NightSections_Chart(final double[] xAxisSerie,
+                                                final ChartNightConfig chartNightConfig,
+                                                final ZonedDateTime tourStartTime,
+                                                final int currentTourSerieIndex,
+                                                final int timeSerieLength,
+                                                final long timeOffset) {
 
       final int[] timeSerie = _tourData.timeSerie;
       final double[] latitudeSerie = _tourData.latitudeSerie;
@@ -2030,9 +1979,9 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       boolean isNightTime = false;
       int nightStartSerieIndex = 0;
       int currentDay = 0;
-      for (int index = 0; index < _tourData.timeSerie.length; ++index) {
+      for (int index = currentTourSerieIndex; index < timeSerieLength; ++index) {
 
-         final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds(timeSerie[index]);
+         final ZonedDateTime currentZonedDateTime = tourStartTime.plusSeconds(timeSerie[index] - timeOffset);
 
          //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
          if (currentDay == 0 || currentZonedDateTime.getDayOfMonth() != currentDay) {
@@ -2053,7 +2002,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                isNightTime = true;
                nightStartSerieIndex = index;
             }
-            if (index == timeSerie.length - 1) {
+            if (index == timeSerieLength - 1) {
 
                //The last time slice is in the night
 
