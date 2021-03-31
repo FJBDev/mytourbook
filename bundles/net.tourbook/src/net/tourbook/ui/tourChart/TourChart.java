@@ -17,8 +17,6 @@ package net.tourbook.ui.tourChart;
 
 import gnu.trove.list.array.TIntArrayList;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1955,13 +1953,9 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             boolean isNightTime = false;
             int nightStartSerieIndex = 0;
             int currentDay = 0;
-            final ZoneId timeZoneIdWithDefault = _tourData.getTimeZoneIdWithDefault();
-            final ZonedDateTime toto = ZonedDateTime.ofInstant(//
-                  Instant.ofEpochMilli(tourStartTime),
-                  timeZoneIdWithDefault);
             for (int index = tourSerieIndex; index < timeSerie.length; ++index) {
 
-               final ZonedDateTime currentZonedDateTime = toto.plusSeconds(timeSerie[index]);
+               final ZonedDateTime currentZonedDateTime = multipleTourZonedStartTime[tourIndex].plusSeconds(timeSerie[index]);
 
                //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
                if (currentZonedDateTime.getDayOfMonth() != currentDay) {
