@@ -1882,7 +1882,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       return chartLabel;
    }
 
-   private ChartLabel createLayer_NightSection_ChartLabel(final double[] xAxisSerie,
+   private ChartLabel createLayer_NightSection_Chart(final double[] xAxisSerie,
                                                           final int xAxisSerieIndex,
                                                           final int xAxisEndSerieIndex) {
 
@@ -1942,7 +1942,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
             tourStartTime = multipleTourStartTime[tourIndex];
             //TODO FB maybe we should have an array of multipleTourStartZonedDateTimes ?
-//            numberOfPauses = multipleNumberOfPauses[tourIndex];
+            //            numberOfPauses = multipleNumberOfPauses[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
 
             final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
@@ -1989,7 +1989,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The last time slice is in the night
 
-                     final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                     final ChartLabel chartLabel = createLayer_NightSection_Chart(
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
@@ -2004,7 +2004,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
                      //The previous time slice was in the night
 
-                     final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
+                     final ChartLabel chartLabel = createLayer_NightSection_Chart(
                            xAxisSerie,
                            nightStartSerieIndex,
                            index);
@@ -2018,69 +2018,73 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       } else {
 
-         final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
-         final double[] latitudeSerie = _tourData.latitudeSerie;
-         final double[] longitudeSerie = _tourData.longitudeSerie;
+         createLayer_NightSections2(xAxisSerie, cnc);
+      }
+   }
 
-         if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
-            return;
+   private void createLayer_NightSections2(final double[] xAxisSerie, final ChartNightConfig chartNightConfig) {
+      final double[] timeSerie = _tourData.getTimeSerieWithTimeZoneAdjusted();
+      final double[] latitudeSerie = _tourData.latitudeSerie;
+      final double[] longitudeSerie = _tourData.longitudeSerie;
+
+      if (timeSerie == null || latitudeSerie == null || longitudeSerie == null) {
+         return;
+      }
+
+      ZonedDateTime sunsetTimes = null;
+      ZonedDateTime sunriseTimes = null;
+      boolean isNightTime = false;
+      int nightStartSerieIndex = 0;
+      int currentDay = 0;
+      for (int index = 0; index < timeSerie.length; ++index) {
+
+         final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds((long) timeSerie[index]);
+
+         //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
+         if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+
+            sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+            sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+
+            currentDay = currentZonedDateTime.getDayOfMonth();
          }
+         final long timeofday = currentZonedDateTime.toEpochSecond();
 
-         ZonedDateTime sunsetTimes = null;
-         ZonedDateTime sunriseTimes = null;
-         boolean isNightTime = false;
-         int nightStartSerieIndex = 0;
-         int currentDay = 0;
-         for (int index = 0; index < timeSerie.length; ++index) {
+         if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
 
-            final ZonedDateTime currentZonedDateTime = _tourData.getTourStartTime().plusSeconds((long) timeSerie[index]);
+            //The current time slice is in the night
 
-            //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
-            if (currentZonedDateTime.getDayOfMonth() != currentDay) {
+            if (!isNightTime) {
 
-               sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
-               sunriseTimes = TimeTools.determineSunRiseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
-
-               currentDay = currentZonedDateTime.getDayOfMonth();
+               isNightTime = true;
+               nightStartSerieIndex = index;
             }
-            final long timeofday = currentZonedDateTime.toEpochSecond();
+            if (index == timeSerie.length - 1) {
 
-            if (timeofday >= sunsetTimes.toEpochSecond() || timeofday <= sunriseTimes.toEpochSecond()) {
+               //The last time slice is in the night
 
-               //The current time slice is in the night
+               final ChartLabel chartLabel = createLayer_NightSection_Chart(
+                     xAxisSerie,
+                     nightStartSerieIndex,
+                     index);
 
-               if (!isNightTime) {
+               chartNightConfig.chartLabels.add(chartLabel);
+            }
+         } else {
 
-                  isNightTime = true;
-                  nightStartSerieIndex = index;
-               }
-               if (index == timeSerie.length - 1) {
+            //The current time slice is in daylight
 
-                  //The last time slice is in the night
+            if (isNightTime) {
 
-                  final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
-                        xAxisSerie,
-                        nightStartSerieIndex,
-                        index);
+               //The previous time slice was in the night
 
-                  cnc.chartLabels.add(chartLabel);
-               }
-            } else {
+               final ChartLabel chartLabel = createLayer_NightSection_Chart(
+                     xAxisSerie,
+                     nightStartSerieIndex,
+                     index);
 
-               //The current time slice is in daylight
-
-               if (isNightTime) {
-
-                  //The previous time slice was in the night
-
-                  final ChartLabel chartLabel = createLayer_NightSection_ChartLabel(
-                        xAxisSerie,
-                        nightStartSerieIndex,
-                        index);
-
-                  cnc.chartLabels.add(chartLabel);
-                  isNightTime = false;
-               }
+               chartNightConfig.chartLabels.add(chartLabel);
+               isNightTime = false;
             }
          }
       }
