@@ -25,7 +25,7 @@ Improvements
   - Extending the zoom levels capacity from 20 to 23
 
 * Tour Chart (Frederic):
-  - Displaying the night sections with a grey color for better readability
+  - Displaying the night sections with a grey color for a more intuitive chart and better readability
 
 
 Changes  
