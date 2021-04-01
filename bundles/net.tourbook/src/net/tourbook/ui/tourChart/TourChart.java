@@ -61,7 +61,6 @@ import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.IPinned_Tooltip_Owner;
 import net.tourbook.common.tooltip.OpenDialogManager;
 import net.tourbook.common.tooltip.ToolbarSlideout;
-import net.tourbook.common.util.IToolTipHideListener;
 import net.tourbook.common.util.TourToolTip;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
@@ -823,14 +822,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       _tourInfoIconTooltip = new TourToolTip(getToolTipControl());
       _tourInfoIconTooltip.addToolTipProvider(_tourInfoIconTooltipProvider);
 
-      _tourInfoIconTooltip.addHideListener(new IToolTipHideListener() {
-         @Override
-         public void afterHideToolTip(final Event event) {
+      _tourInfoIconTooltip.addHideListener(event ->
+      // hide hovered image
+      getToolTipControl().afterHideToolTip());
 
-            // hide hovered image
-            getToolTipControl().afterHideToolTip();
-         }
-      });
       setTourInfoIconToolTipProvider(_tourInfoIconTooltipProvider);
 
       // Setup tooltips
@@ -1778,10 +1773,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       _layerMarker.setChartMarkerConfig(cmc);
       _tourMarkerTooltip.setChartMarkerConfig(cmc);
 
-      // set data serie for the x-axis
-      final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
-            ? _tourData.getTimeSerieDouble()
-            : _tourData.getDistanceSerieDouble();
+      // get the x-axis data serie
+      final double[] xAxisSerie = getXAxisDataSerie();
 
       if (_tourData.isMultipleTours()) {
 
@@ -1896,8 +1889,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
    private void createLayer_NightSections() {
 
-      // Night sections layer is visible
-
       final ChartNightConfig chartNightConfig = new ChartNightConfig();
 
       if (_layerNightSections == null) {
@@ -1912,10 +1903,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       _layerNightSections.setChartNightConfig(chartNightConfig);
 
-      // set data serie for the x-axis
-      final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
-            ? _tourData.getTimeSerieDouble()
-            : _tourData.getDistanceSerieDouble();
+      // get the x-axis data serie
+      final double[] xAxisSerie = getXAxisDataSerie();
 
       final int[] timeSerie = _tourData.timeSerie;
       final double[] latitudeSerie = _tourData.latitudeSerie;
@@ -1960,6 +1949,23 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       }
    }
 
+   /**
+    * Finds and creates the night sections for a given tour in the tour chart
+    *
+    * @param xAxisSerie
+    * @param chartNightConfig
+    * @param tourStartTime
+    *           The tour start time with a time zone
+    * @param currentTourSerieIndex
+    *           Used when dealing with multiple tours: Gives the given tour's index start in the
+    *           time serie
+    * @param timeSerieLength
+    *           The length of the given tour's time serie
+    * @param timeOffset
+    *           Used when dealing with multiple tours: Gives the previous tour elapsed time in order
+    *           to compute
+    *           each time slice time for the given tour
+    */
    private void createLayer_NightSections_Chart(final double[] xAxisSerie,
                                                 final ChartNightConfig chartNightConfig,
                                                 final ZonedDateTime tourStartTime,
@@ -2010,8 +2016,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             }
          } else if (isNightTime) {
 
-            //The current time slice is in daylight
-            //The previous time slice was in the night
+            //The current time slice is in daylight and
+            //the previous time slice was in the night
 
             create_NightSection_ChartLabel(
                   chartNightConfig,
@@ -2077,10 +2083,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       _layerPause.setChartPauseConfig(cpc);
 
-      // set data serie for the x-axis
-      final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
-            ? _tourData.getTimeSerieDouble()
-            : _tourData.getDistanceSerieDouble();
+      // get the x-axis data serie
+      final double[] xAxisSerie = getXAxisDataSerie();
 
       if (_tourData.isMultipleTours()) {
 
@@ -2105,7 +2109,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             numberOfPauses = multipleNumberOfPauses[tourIndex];
             tourSerieIndex = multipleStartTimeIndex[tourIndex];
 
-            for (int relativeTourPauseIndex = 0; relativeTourPauseIndex < numberOfPauses;) {
+            for (int relativeTourPauseIndex = 0; relativeTourPauseIndex < numberOfPauses; ++relativeTourPauseIndex) {
 
                final long pausedTime_Start = allTourPauses.get(currentTourPauseIndex).get(0);
                final long pausedTime_End = allTourPauses.get(currentTourPauseIndex).get(1);
@@ -2136,7 +2140,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
                   cpc.chartLabels.add(chartLabel);
                }
 
-               ++relativeTourPauseIndex;
                ++currentTourPauseIndex;
             }
          }
@@ -3227,6 +3230,14 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       }
 
       return _segmenterValueFont;
+   }
+
+   private double[] getXAxisDataSerie() {
+
+      final double[] xAxisSerie = _tcc.isShowTimeOnXAxis
+            ? _tourData.getTimeSerieDouble()
+            : _tourData.getDistanceSerieDouble();
+      return xAxisSerie;
    }
 
    private ChartDataYSerie getYData(final int yDataInfoId) {
