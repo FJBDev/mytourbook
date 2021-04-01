@@ -1917,9 +1917,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             ? _tourData.getTimeSerieDouble()
             : _tourData.getDistanceSerieDouble();
 
-      //TODO FB For the bear or othe tours, what makes the hour go wrong ? bug to fix ?
-      //whats the scenario ?
-
       final int[] timeSerie = _tourData.timeSerie;
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
