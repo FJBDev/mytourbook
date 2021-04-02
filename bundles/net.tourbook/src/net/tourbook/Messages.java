@@ -298,6 +298,8 @@ public class Messages extends NLS {
    public static String        Dialog_HRZone_Label_Header_ZoneShortcut;
    public static String        Dialog_HRZone_Label_Trash_Tooltip;
 
+   public static String        Dialog_DeleteTourValues_Action_OpenDialog;
+
    public static String        Dialog_DoubleClickAction_InvalidAction_Message;
    public static String        Dialog_DoubleClickAction_InvalidAction_Title;
    public static String        Dialog_DoubleClickAction_NoAction_Message;
@@ -2229,6 +2231,8 @@ public class Messages extends NLS {
 
    public static String Tour_Action_AdjustTemperature;
    public static String Tour_Action_AdjustTourValues;
+   public static String Tour_Action_DeleteTourValues;
+
    public static String Tour_Action_RetrieveWeatherData;
    public static String Tour_Action_auto_move_sliders_when_zoomed;
    public static String Tour_Action_auto_zoom_to_slider_position;

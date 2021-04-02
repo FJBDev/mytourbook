@@ -88,6 +88,7 @@ import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.views.NatTableViewer_TourInfo_ToolTip;
 import net.tourbook.ui.views.TreeViewerTourInfoToolTip;
 import net.tourbook.ui.views.geoCompare.GeoPartComparerItem;
+import net.tourbook.ui.views.rawData.ActionDeleteTourValues;
 import net.tourbook.ui.views.rawData.ActionMergeTour;
 import net.tourbook.ui.views.rawData.ActionReimportTours;
 import net.tourbook.ui.views.rawData.SubMenu_AdjustTourValues;
@@ -327,6 +328,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
    private ActionExport                    _actionExportTour;
    private ActionExportViewCSV             _actionExportViewCSV;
    private ActionDeleteTourMenu            _actionDeleteTour;
+   private ActionDeleteTourValues          _actionDeleteTourValues;
    private ActionEditTour                  _actionEditTour;
    private ActionJoinTours                 _actionJoinTours;
    private ActionLinkWithOtherViews        _actionLinkWithOtherViews;
@@ -1110,6 +1112,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _actionCollapseOthers = new ActionCollapseOthers(this);
       _actionDuplicateTour = new ActionDuplicateTour(this);
       _actionDeleteTour = new ActionDeleteTourMenu(this);
+      _actionDeleteTourValues = new ActionDeleteTourValues(this);
       _actionEditQuick = new ActionEditQuick(this);
       _actionEditTour = new ActionEditTour(this);
       _actionExpandSelection = new ActionExpandSelection(this);
@@ -1750,6 +1753,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _actionReimport_Tours.setEnabled(true);
 
       _actionDeleteTour.setEnabled(isTourSelected);
+      _actionDeleteTourValues.setEnabled(isTourSelected);
       _actionEditQuick.setEnabled(isOneTour);
       _actionEditTour.setEnabled(isOneTour);
       _actionExportTour.setEnabled(isTourSelected);
@@ -1852,9 +1856,12 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       menuMgr.add(new Separator());
       menuMgr.add(_subMenu_AdjustTourValues);
+      menuMgr.add(_actionDeleteTourValues);
       menuMgr.add(_actionReimport_Tours);
       menuMgr.add(_actionSetOtherPerson);
       menuMgr.add(_actionDeleteTour);
+      //TODO FB
+      //add confirmation when the whole DB is selected. Add that confirmation for the reimport (see email from Wolfgang)
 
       enableActions();
    }
