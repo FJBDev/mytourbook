@@ -40,6 +40,8 @@ public class ActionDeleteTourValues extends Action {
     * Do you mean I should set the altitudeSerie array to null to save space ?
     * This is already done in net.tourbook.data.TourData.cleanupDataSeries() when tours are imported
     * Wolfgang
+    * I think he means to call this method after removing tour values:
+    * TourData.cleanupDataSeries()
     */
    private final ITourViewer3 _tourViewer;
 

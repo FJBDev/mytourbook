@@ -99,7 +99,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
     * UI controls
     */
    private Composite _parent;
-   private Composite _dlgContainer;
 
    private Button    _btnDeselectAll;
 
@@ -108,11 +107,9 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private Button    _chkData_Elevation;
    private Button    _chkData_EntireTour;
    private Button    _chkData_Gear;
-   private Button    _chkData_ImportFileLocation;
    private Button    _chkData_PowerAndPulse;
    private Button    _chkData_PowerAndSpeed;
    private Button    _chkData_RunningDynamics;
-   private Button    _chkSkip_Tours_With_ImportFile_NotFound;
    private Button    _chkData_Swimming;
    private Button    _chkData_Temperature;
    private Button    _chkData_Training;
@@ -192,11 +189,11 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       initUI();
 
-      _dlgContainer = (Composite) super.createDialogArea(parent);
+      final Composite dlgContainer = (Composite) super.createDialogArea(parent);
 
-      createUI(_dlgContainer);
+      createUI(dlgContainer);
 
-      return _dlgContainer;
+      return dlgContainer;
    }
 
    private void createUI(final Composite parent) {
@@ -207,15 +204,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       {
          createUI_10_Tours(container);
          createUI_20_Data(container);
-
-         {
-            /*
-             * Checkbox: Skip tours for which the import file is not found
-             */
-            _chkSkip_Tours_With_ImportFile_NotFound = new Button(container, SWT.CHECK);
-            _chkSkip_Tours_With_ImportFile_NotFound.setText(Messages.Dialog_ReimportTours_Checkbox_SkipToursWithImportFileNotFound);
-            GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(_chkSkip_Tours_With_ImportFile_NotFound);
-         }
       }
    }
 
@@ -441,16 +429,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          }
          {
             /*
-             * Checkbox: Import file location
-             */
-            _chkData_ImportFileLocation = new Button(group, SWT.CHECK);
-            _chkData_ImportFileLocation.setText(Messages.Dialog_ReimportTours_Checkbox_ImportFileLocation);
-            _chkData_ImportFileLocation.setToolTipText(Messages.Dialog_ReimportTours_Checkbox_ImportFileLocation_Tooltip);
-            _chkData_ImportFileLocation.addSelectionListener(_defaultListener);
-            gridDataItem.applyTo(_chkData_ImportFileLocation);
-         }
-         {
-            /*
              * Button: Deselect all
              */
             _btnDeselectAll = new Button(group, SWT.PUSH);
@@ -489,7 +467,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             _chkData_Training,
 
             _chkData_TourMarkers,
-            _chkData_ImportFileLocation,
 
             _btnDeselectAll
       });
@@ -520,7 +497,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       final boolean isReimport_AllTours = _rdoReimport_Tours_All.getSelection();
       final boolean isReimport_BetweenDates = _rdoReimport_Tours_BetweenDates.getSelection();
-      final boolean skipToursWithFileNotFound = _chkSkip_Tours_With_ImportFile_NotFound.getSelection();
 
       if (isReimport_AllTours || isReimport_BetweenDates) {
 
@@ -542,11 +518,10 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
                final ReImportStatus reImportStatus = new ReImportStatus();
 
-               RawDataManager.getInstance().reimportTour(reImportPartIds,
-                     oldTourData,
-                     reimportedFile,
-                     skipToursWithFileNotFound,
-                     reImportStatus);
+//               RawDataManager.getInstance().reimportTour(reImportPartIds,
+//                     oldTourData,
+//                     reimportedFile,
+//                     reImportStatus);
 
                return true;
             }
@@ -602,7 +577,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          // re-import SELECTED tours
 
-         RawDataManager.getInstance().actionReimportSelectedTours(reImportPartIds, _tourViewer, skipToursWithFileNotFound);
+//         RawDataManager.getInstance().actionReimportSelectedTours(reImportPartIds, _tourViewer, skipToursWithFileNotFound);
       }
    }
 
@@ -623,7 +598,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             _chkData_Elevation.getSelection() ||
             _chkData_Cadence.getSelection() ||
             _chkData_Gear.getSelection() ||
-            _chkData_ImportFileLocation.getSelection() ||
             _chkData_PowerAndPulse.getSelection() ||
             _chkData_PowerAndSpeed.getSelection() ||
             _chkData_RunningDynamics.getSelection() ||
@@ -636,7 +610,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       final boolean isTimeSlice = !isReimport_EntireTour && !isReimport_AllTimeSlices;
 
       _chkData_AllTimeSlices.setEnabled(!isReimport_EntireTour);
-      _chkData_ImportFileLocation.setEnabled(!isReimport_EntireTour);
       _chkData_TourMarkers.setEnabled(!isReimport_EntireTour);
 
       _chkData_Elevation.setEnabled(isTimeSlice);
@@ -775,9 +748,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
                   if (_chkData_TourMarkers.getSelection()) {
                      reImportPartIds.add(ReImportParts.TOUR_MARKER);
                   }
-                  if (_chkData_ImportFileLocation.getSelection()) {
-                     reImportPartIds.add(ReImportParts.IMPORT_FILE_LOCATION);
-                  }
                }
 
                doReimport(reImportPartIds);
@@ -798,7 +768,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _chkData_EntireTour.setSelection(false);
       _chkData_Cadence.setSelection(false);
       _chkData_Gear.setSelection(false);
-      _chkData_ImportFileLocation.setSelection(false);
       _chkData_PowerAndPulse.setSelection(false);
       _chkData_PowerAndSpeed.setSelection(false);
       _chkData_RunningDynamics.setSelection(false);
@@ -828,7 +797,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _chkData_Elevation.setSelection(_state.getBoolean(STATE_IS_IMPORT_ELEVATION));
       _chkData_Cadence.setSelection(_state.getBoolean(STATE_IS_IMPORT_CADENCE));
       _chkData_Gear.setSelection(_state.getBoolean(STATE_IS_IMPORT_GEAR));
-      _chkData_ImportFileLocation.setSelection(_state.getBoolean(STATE_IS_IMPORT_FILE_LOCATION));
       _chkData_PowerAndPulse.setSelection(_state.getBoolean(STATE_IS_IMPORT_POWER_AND_PULSE));
       _chkData_PowerAndSpeed.setSelection(_state.getBoolean(STATE_IS_IMPORT_POWER_AND_SPEED));
       _chkData_RunningDynamics.setSelection(_state.getBoolean(STATE_IS_IMPORT_RUNNING_DYNAMICS));
@@ -837,9 +805,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _chkData_Training.setSelection(_state.getBoolean(STATE_IS_IMPORT_TRAINING));
       _chkData_TourMarkers.setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR_MARKERS));
       _chkData_TourTimerPauses.setSelection(_state.getBoolean(STATE_IS_IMPORT_TIMER_PAUSES));
-
-      // Skip tours for which the import file is not found
-      _chkSkip_Tours_With_ImportFile_NotFound.setSelection(_state.getBoolean(STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND));
 
       enableControls();
    }
@@ -859,7 +824,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_ELEVATION, _chkData_Elevation.getSelection());
       _state.put(STATE_IS_IMPORT_CADENCE, _chkData_Cadence.getSelection());
       _state.put(STATE_IS_IMPORT_GEAR, _chkData_Gear.getSelection());
-      _state.put(STATE_IS_IMPORT_FILE_LOCATION, _chkData_ImportFileLocation.getSelection());
       _state.put(STATE_IS_IMPORT_POWER_AND_PULSE, _chkData_PowerAndPulse.getSelection());
       _state.put(STATE_IS_IMPORT_POWER_AND_SPEED, _chkData_PowerAndSpeed.getSelection());
       _state.put(STATE_IS_IMPORT_RUNNING_DYNAMICS, _chkData_RunningDynamics.getSelection());
@@ -869,8 +833,5 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_ALL_TIME_SLICES, _chkData_AllTimeSlices.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR_MARKERS, _chkData_TourMarkers.getSelection());
       _state.put(STATE_IS_IMPORT_TIMER_PAUSES, _chkData_TourTimerPauses.getSelection());
-
-      // Skip tours for which the import file is not found
-      _state.put(STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND, _chkSkip_Tours_With_ImportFile_NotFound.getSelection());
    }
 }
