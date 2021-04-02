@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.swimming.SwimStroke;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -37,6 +36,7 @@ import net.tourbook.data.SwimData;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
+import net.tourbook.device.Activator;
 import net.tourbook.device.IPreferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -74,19 +74,19 @@ public class SuuntoJsonProcessor {
    private static final String TAG_TEMPERATURE = "Temperature";      //$NON-NLS-1$
 
    // Swimming
-   private static final String Swimming             = "Swimming";                                      //$NON-NLS-1$
-   private static final String Breaststroke         = "Breaststroke";                                  //$NON-NLS-1$
-   private static final String Freestyle            = "Freestyle";                                     //$NON-NLS-1$
-   private static final String Other                = "Other";                                         //$NON-NLS-1$
-   private static final String PoolLengthStyle      = "PrevPoolLengthStyle";                           //$NON-NLS-1$
-   private static final String TotalLengths         = "TotalLengths";                                  //$NON-NLS-1$
-   private static final String Stroke               = "Stroke";                                        //$NON-NLS-1$
-   private static final String Turn                 = "Turn";                                          //$NON-NLS-1$
+   private static final String Swimming             = "Swimming";                                 //$NON-NLS-1$
+   private static final String Breaststroke         = "Breaststroke";                             //$NON-NLS-1$
+   private static final String Freestyle            = "Freestyle";                                //$NON-NLS-1$
+   private static final String Other                = "Other";                                    //$NON-NLS-1$
+   private static final String PoolLengthStyle      = "PrevPoolLengthStyle";                      //$NON-NLS-1$
+   private static final String TotalLengths         = "TotalLengths";                             //$NON-NLS-1$
+   private static final String Stroke               = "Stroke";                                   //$NON-NLS-1$
+   private static final String Turn                 = "Turn";                                     //$NON-NLS-1$
    private static int          previousTotalLengths = 0;
 
    private List<TimeData>      _sampleList;
    private int                 _numLaps;
-   final IPreferenceStore      _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
+   private IPreferenceStore    _prefStore           = Activator.getDefault().getPreferenceStore();
 
    /**
     * Parses and stores all the R-R interval for a given data sample.
