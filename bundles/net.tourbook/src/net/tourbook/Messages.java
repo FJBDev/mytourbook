@@ -2231,7 +2231,6 @@ public class Messages extends NLS {
 
    public static String Tour_Action_AdjustTemperature;
    public static String Tour_Action_AdjustTourValues;
-   public static String Tour_Action_DeleteTourValues;
 
    public static String Tour_Action_RetrieveWeatherData;
    public static String Tour_Action_auto_move_sliders_when_zoomed;
