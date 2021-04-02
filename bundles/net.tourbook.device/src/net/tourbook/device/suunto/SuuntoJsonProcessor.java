@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2018, 2020 Frédéric Bard
+ * Copyright (C) 2018, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,7 +22,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +37,7 @@ import net.tourbook.data.SwimData;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
+import net.tourbook.device.IPreferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONArray;
@@ -123,15 +123,12 @@ public class SuuntoJsonProcessor {
    private void cleanUpActivity(final List<TimeData> activityData, final boolean isIndoorTour) {
 
       // Also, we first need to make sure that they truly are in chronological order.
-      Collections.sort(activityData, new Comparator<TimeData>() {
-         @Override
-         public int compare(final TimeData firstTimeData, final TimeData secondTimeData) {
-            // -1 - less than, 1 - greater than, 0 - equal.
+      Collections.sort(activityData, (firstTimeData, secondTimeData) -> {
+         // -1 - less than, 1 - greater than, 0 - equal.
 
-            final int isLessThanOrEqual = firstTimeData.absoluteTime < secondTimeData.absoluteTime ? -1 : 0;
+         final int isLessThanOrEqual = firstTimeData.absoluteTime < secondTimeData.absoluteTime ? -1 : 0;
 
-            return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : isLessThanOrEqual;
-         }
+         return firstTimeData.absoluteTime > secondTimeData.absoluteTime ? 1 : isLessThanOrEqual;
       });
 
       final Iterator<TimeData> sampleListIterator = activityData.iterator();
@@ -350,7 +347,7 @@ public class SuuntoJsonProcessor {
          wasDataPopulated |= TryAddCadenceData(currentSampleData, timeData);
 
          // Barometric Altitude
-         if (_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE) == 1 ||
+         if (_prefStore.getInt(IPreferences.SUUNTO9_ALTITUDE_DATA_SOURCE) == 1 ||
                isIndoorTour) {
             wasDataPopulated |= TryAddAltitudeData(currentSampleData, timeData);
          }
@@ -365,7 +362,7 @@ public class SuuntoJsonProcessor {
          wasDataPopulated |= wasPowerDataPopulated;
 
          // Distance
-         if (_prefStore.getInt(IPreferences.DISTANCE_DATA_SOURCE) == 1 ||
+         if (_prefStore.getInt(IPreferences.SUUNTO9_DISTANCE_DATA_SOURCE) == 1 ||
                isIndoorTour) {
             wasDataPopulated |= TryAddDistanceData(currentSampleData, timeData);
          }
@@ -520,7 +517,7 @@ public class SuuntoJsonProcessor {
          timeData.longitude = (longitude * 180) / Math.PI;
 
          // GPS altitude
-         if (_prefStore.getInt(IPreferences.ALTITUDE_DATA_SOURCE) == 0) {
+         if (_prefStore.getInt(IPreferences.SUUNTO9_ALTITUDE_DATA_SOURCE) == 0) {
             timeData.absoluteAltitude = altitude;
          }
 
