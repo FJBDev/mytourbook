@@ -40,7 +40,8 @@ Bugfix
 * Compress Database
   Fxed SQL exception when the tour database size is too large to fit into an integer value
 
-
+* Tour Chart Value Tooltip 
+  - Fixed a bug when importing tours (FIT, Suunto SML, Suunto XML, Garmin TCX) where in some cases, the tour start components were erroneous (the Time of Day value in the Value Point Tooltip was wrong). Now this data is adjusted with the tour's time zone.
 
 Translation    
 ===========
