@@ -4,7 +4,18 @@
 TODO's
 ======
 
-* Frederic : Remove the unused redirect_uri in the Dropbox app console once the new version is released
+* UI Theme:    Provide a UI to select the UI theme
+               https://www.eclipse.org/eclipse/news/4.18/platform.php#system-theme
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_classic
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_default
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_dark
+  
+
+* Website:     Save action must not be done manually, they are saved in e.g. net.tourbook/.settings/org.eclipse.jdt.ui.prefs with the "sp_cleanup" key prefix
+               Need to check how to apply it to all projects, must maybe be done with the already existing ant script
+
+* Frederic :   Remove the unused redirect_uri in the Dropbox app console once the new version is released
+
 
 Issues
 ======
@@ -33,7 +44,9 @@ Changes
 Bugfix
 ======
 
-* 
+* Compress Database
+  Fxed SQL exception when the tour database size is too large to fit into an integer value
+
 
 
 Translation    
