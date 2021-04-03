@@ -549,6 +549,11 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          default:
             break;
          }
+
+         //if something was done
+         oldTourData.cleanupDataSeries();
+
+         //TODO FB it doesnt seem to persist the changes. TO FIX
       }
       }
 
