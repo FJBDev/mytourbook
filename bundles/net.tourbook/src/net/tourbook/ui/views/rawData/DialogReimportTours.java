@@ -533,7 +533,6 @@ public class DialogReimportTours extends TitleAreaDialog {
 
                return;
             }
-
          }
 
          // re-import ALL tours or BETWEEN tours

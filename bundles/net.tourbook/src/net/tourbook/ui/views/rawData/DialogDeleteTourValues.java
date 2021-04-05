@@ -75,7 +75,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private static final String          STATE_IS_IMPORT_CADENCE                      = "STATE_IS_IMPORT_CADENCE";                      //$NON-NLS-1$
    private static final String          STATE_IS_IMPORT_ELEVATION                    = "STATE_IS_IMPORT_ELEVATION";                    //$NON-NLS-1$
    private static final String          STATE_IS_IMPORT_ENTIRE_TOUR                  = "STATE_IS_IMPORT_ENTIRE_TOUR";                  //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_FILE_LOCATION                = "STATE_IS_IMPORT_FILE_LOCATION";                //$NON-NLS-1$
    private static final String          STATE_IS_IMPORT_GEAR                         = "STATE_IS_IMPORT_GEAR";                         //$NON-NLS-1$
    private static final String          STATE_IS_IMPORT_POWER_AND_PULSE              = "STATE_IS_IMPORT_POWER_AND_PULSE";              //$NON-NLS-1$
    private static final String          STATE_IS_IMPORT_POWER_AND_SPEED              = "STATE_IS_IMPORT_POWER_AND_SPEED";              //$NON-NLS-1$
@@ -586,6 +585,26 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       final boolean isReimport_BetweenDates = _rdoReimport_Tours_BetweenDates.getSelection();
 
       if (isReimport_AllTours || isReimport_BetweenDates) {
+
+         //The user MUST always confirm when the tool is running for ALL tours
+         if (isReimport_AllTours) {
+
+            final MessageDialog dialog = new MessageDialog(
+                  Display.getDefault().getActiveShell(),
+                  Messages.Dialog_DatabaseAction_Confirmation_Title,
+                  null,
+                  Messages.Dialog_DatabaseAction_Confirmation_Message,
+                  MessageDialog.QUESTION,
+                  new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL },
+                  1);
+
+            final int choice = dialog.open();
+
+            if (choice == IDialogConstants.CANCEL_ID) {
+
+               return;
+            }
+         }
 
          // re-import ALL tours or BETWEEN tours
 
