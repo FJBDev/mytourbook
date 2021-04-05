@@ -18,7 +18,6 @@ package net.tourbook.ui.views.rawData;
 import de.byteholder.geoclipse.map.UI;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.List;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.ITourViewer3;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.database.IComputeTourValues;
@@ -61,6 +59,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
 public class DialogDeleteTourValues extends TitleAreaDialog {
+
+   //TODO FB delete values ? delete data ? Values because of Adjust TOur Values
 
    private static final String          STATE_DELETE_TOURVALUES_ALL                 = "STATE_DELETE_TOURVALUES_ALL";                  //$NON-NLS-1$
    private static final String          STATE_DELETE_TOURVALUES_SELECTED            = "STATE_DELETE_TOURVALUES_SELECTED";             //$NON-NLS-1$
@@ -119,9 +119,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private DateTime  _dtTourDate_From;
    private DateTime  _dtTourDate_Until;
 
-   /**
-    * @param parentShell
-    */
    public DialogDeleteTourValues(final Shell parentShell,
                                  final ITourViewer3 tourViewer) {
 
@@ -258,7 +255,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    }
 
    /**
-    * UI to select the data to re-import for the chosen tours
+    * UI to select the data to delete for the chosen tours
     *
     * @param parent
     */
@@ -282,8 +279,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
        * group: data
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ReimportTours_Group_Data);
-      group.setToolTipText(Messages.Dialog_ReimportTours_Group_Data_Tooltip);
+      group.setText(Messages.Dialog_DeleteTourValues_Group_Data);
+      group.setToolTipText(Messages.Dialog_DeleteTourValues_Group_Data_Tooltip);
       GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
@@ -495,7 +492,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             switch (reImportId) {
 
             case TOUR_MARKER:
-               oldTourData.setTourMarkers(null);
+               clonedTourData.setTourMarkers(null);
                break;
 
             //
@@ -551,9 +548,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
     *
     * @param reImportPartIds
     *           A list of data IDs to be re-imported
-    * @throws IOException
     */
-   private void doDeleteValues(final List<ReImportParts> reImportPartIds) throws IOException {
+   private void doDeleteValues(final List<ReImportParts> reImportPartIds) {
 
       /*
        * There maybe too much tour cleanup but it is very complex how all the caches/selection
@@ -788,57 +784,52 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _parent.getShell().setVisible(false);
 
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
-         try {
 
-            final List<ReImportParts> reImportPartIds = new ArrayList<>();
+         final List<ReImportParts> reImportPartIds = new ArrayList<>();
 
-            if (_chkData_AllTimeSlices.getSelection()) {
+         if (_chkData_AllTimeSlices.getSelection()) {
 
-               reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
+            reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
 
-            } else {
+         } else {
 
-               if (_chkData_Cadence.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
-               }
-               if (_chkData_Elevation.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
-               }
-               if (_chkData_Gear.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
-               }
-               if (_chkData_PowerAndPulse.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
-               }
-               if (_chkData_PowerAndSpeed.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
-               }
-               if (_chkData_RunningDynamics.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
-               }
-               if (_chkData_Swimming.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
-               }
-               if (_chkData_Temperature.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
-               }
-               if (_chkData_TourTimerPauses.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
-               }
-               if (_chkData_Training.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
-               }
+            if (_chkData_Cadence.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
             }
-
-            if (_chkData_TourMarkers.getSelection()) {
-               reImportPartIds.add(ReImportParts.TOUR_MARKER);
+            if (_chkData_Elevation.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
             }
-
-            doDeleteValues(reImportPartIds);
-
-         } catch (final IOException e) {
-            StatusUtil.log(e);
+            if (_chkData_Gear.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
+            }
+            if (_chkData_PowerAndPulse.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
+            }
+            if (_chkData_PowerAndSpeed.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
+            }
+            if (_chkData_RunningDynamics.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
+            }
+            if (_chkData_Swimming.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
+            }
+            if (_chkData_Temperature.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
+            }
+            if (_chkData_TourTimerPauses.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
+            }
+            if (_chkData_Training.getSelection()) {
+               reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
+            }
          }
+
+         if (_chkData_TourMarkers.getSelection()) {
+            reImportPartIds.add(ReImportParts.TOUR_MARKER);
+         }
+
+         doDeleteValues(reImportPartIds);
       });
 
       super.okPressed();
