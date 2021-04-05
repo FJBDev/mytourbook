@@ -488,7 +488,6 @@ public class Messages extends NLS {
    public static String        app_action_open_tour;
    public static String        app_action_quick_edit;
    public static String        app_action_read_edit_tooltip;
-   public static String        app_action_save;
    public static String        app_action_update;
 
    public static String        app_btn_browse;
