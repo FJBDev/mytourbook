@@ -57,38 +57,34 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 public class DialogDeleteTourValues extends TitleAreaDialog {
 
-   private static final String          STATE_REIMPORT_TOURS_ALL                     = "STATE_REIMPORT_TOURS_ALL";                     //$NON-NLS-1$
-   private static final String          STATE_REIMPORT_TOURS_SELECTED                = "STATE_REIMPORT_TOURS_SELECTED";                //$NON-NLS-1$
+   private static final String          STATE_DELETE_TOURVALUES_ALL                 = "STATE_DELETE_TOURVALUES_ALL";                  //$NON-NLS-1$
+   private static final String          STATE_DELETE_TOURVALUES_SELECTED            = "STATE_DELETE_TOURVALUES_SELECTED";             //$NON-NLS-1$
 
-   private static final String          STATE_REIMPORT_TOURS_BETWEEN_DATES           = "STATE_REIMPORT_TOURS_BETWEEN_DATES";           //$NON-NLS-1$
-   private static final String          STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM      = "STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM";      //$NON-NLS-1$
-   private static final String          STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL     = "STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL";     //$NON-NLS-1$
+   private static final String          STATE_DELETE_TOURVALUES_BETWEEN_DATES       = "STATE_DELETE_TOURVALUES_BETWEEN_DATES";        //$NON-NLS-1$
+   private static final String          STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM  = "STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM";   //$NON-NLS-1$
+   private static final String          STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL = "STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL";  //$NON-NLS-1$
 
-   private static final String          STATE_IS_IMPORT_ALL_TIME_SLICES              = "STATE_IS_IMPORT_ALL_TIME_SLICES";              //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_CADENCE                      = "STATE_IS_IMPORT_CADENCE";                      //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_ELEVATION                    = "STATE_IS_IMPORT_ELEVATION";                    //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_ENTIRE_TOUR                  = "STATE_IS_IMPORT_ENTIRE_TOUR";                  //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_GEAR                         = "STATE_IS_IMPORT_GEAR";                         //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_POWER_AND_PULSE              = "STATE_IS_IMPORT_POWER_AND_PULSE";              //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_POWER_AND_SPEED              = "STATE_IS_IMPORT_POWER_AND_SPEED";              //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_RUNNING_DYNAMICS             = "STATE_IS_IMPORT_RUNNING_DYNAMICS";             //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_SWIMMING                     = "STATE_IS_IMPORT_SWIMMING";                     //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_TEMPERATURE                  = "STATE_IS_IMPORT_TEMPERATURE";                  //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_TRAINING                     = "STATE_IS_IMPORT_TRAINING";                     //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_TOUR_MARKERS                 = "STATE_IS_IMPORT_TOUR_MARKERS";                 //$NON-NLS-1$
-   private static final String          STATE_IS_IMPORT_TIMER_PAUSES                 = "STATE_IS_IMPORT_TIMER_PAUSES";                 //$NON-NLS-1$
-   private static final String          STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND = "STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND"; //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_ALL_TIME_SLICES             = "STATE_IS_IMPORT_ALL_TIME_SLICES";              //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_CADENCE                     = "STATE_IS_DELETE_CADENCE";                      //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_ELEVATION                   = "STATE_IS_DELETE_ELEVATION";                    //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_GEAR                        = "STATE_IS_DELETE_GEAR";                         //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_POWER_AND_PULSE             = "STATE_IS_DELETE_POWER_AND_PULSE";              //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_POWER_AND_SPEED             = "STATE_IS_DELETE_POWER_AND_SPEED";              //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_RUNNING_DYNAMICS            = "STATE_IS_DELETE_RUNNING_DYNAMICS";             //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_SWIMMING                    = "STATE_IS_DELETE_SWIMMING";                     //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TEMPERATURE                 = "STATE_IS_DELETE_TEMPERATURE";                  //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TRAINING                    = "STATE_IS_DELETE_TRAINING";                     //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TOUR_MARKERS                = "STATE_IS_DELETE_TOUR_MARKERS";                 //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TIMER_PAUSES                = "STATE_IS_DELETE_TIMER_PAUSES";                 //$NON-NLS-1$
 
-   private static final int             VERTICAL_SECTION_MARGIN                      = 10;
+   private static final int             VERTICAL_SECTION_MARGIN                     = 10;
 
-   private static final IDialogSettings _state                                       = TourbookPlugin.getState("DialogReimportTours"); //$NON-NLS-1$
+   private static final IDialogSettings _state                                      = TourbookPlugin.getState("DialogReimportTours"); //$NON-NLS-1$
 
    private final ITourViewer3           _tourViewer;
 
@@ -116,9 +112,9 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private Button    _chkData_TourMarkers;
    private Button    _chkData_TourTimerPauses;
 
-   private Button    _rdoReimport_Tours_All;
-   private Button    _rdoReimport_Tours_BetweenDates;
-   private Button    _rdoReimport_Tours_Selected;
+   private Button    _rdoDeleteTourValues_Tours_All;
+   private Button    _rdoDeleteTourValues_Tours_BetweenDates;
+   private Button    _rdoDeleteTourValues_Tours_Selected;
 
    private DateTime  _dtTourDate_From;
    private DateTime  _dtTourDate_Until;
@@ -127,7 +123,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
     * @param parentShell
     */
    public DialogDeleteTourValues(final Shell parentShell,
-                              final ITourViewer3 tourViewer) {
+                                 final ITourViewer3 tourViewer) {
 
       super(parentShell);
 
@@ -149,16 +145,13 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       shell.setText(Messages.Dialog_ReimportTours_Dialog_Title);
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      shell.addListener(SWT.Resize, event -> {
 
-            // force shell default size
+         // force shell default size
 
-            final Point shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+         final Point shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
-            shell.setSize(shellDefaultSize);
-         }
+         shell.setSize(shellDefaultSize);
       });
    }
 
@@ -167,8 +160,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       super.create();
 
-      setTitle(Messages.Dialog_ReimportTours_Dialog_Title);
-      setMessage(Messages.Dialog_ReimportTours_Dialog_Message);
+      setTitle(Messages.Dialog_DeleteTourValues_Dialog_Title);
+      setMessage(Messages.Dialog_DeleteTourValues_Dialog_Message);
 
       restoreState();
    }
@@ -179,7 +172,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       super.createButtonsForButtonBar(parent);
 
       // set text for the OK button
-      getButton(IDialogConstants.OK_ID).setText(Messages.Dialog_ReimportTours_Button_ReImport);
+      getButton(IDialogConstants.OK_ID).setText(Messages.Dialog_DeleteTourValues_Button_Delete);
    }
 
    @Override
@@ -224,27 +217,27 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             /*
              * Re-import ALL tours in the database
              */
-            _rdoReimport_Tours_All = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_All.setText(Messages.Dialog_ReimportTours_Radio_AllTours);
-            _rdoReimport_Tours_All.addSelectionListener(_defaultListener);
-            GridDataFactory.fillDefaults().span(2, 1).indent(0, 3).applyTo(_rdoReimport_Tours_All);
+            _rdoDeleteTourValues_Tours_All = new Button(group, SWT.RADIO);
+            _rdoDeleteTourValues_Tours_All.setText(Messages.Dialog_ReimportTours_Radio_AllTours);
+            _rdoDeleteTourValues_Tours_All.addSelectionListener(_defaultListener);
+            GridDataFactory.fillDefaults().span(2, 1).indent(0, 3).applyTo(_rdoDeleteTourValues_Tours_All);
          }
          {
             /*
              * Re-import the SELECTED tours
              */
-            _rdoReimport_Tours_Selected = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_Selected.setText(Messages.Dialog_ReimportTours_Radio_SelectedTours);
-            _rdoReimport_Tours_Selected.addSelectionListener(_defaultListener);
-            GridDataFactory.fillDefaults().span(2, 1).applyTo(_rdoReimport_Tours_Selected);
+            _rdoDeleteTourValues_Tours_Selected = new Button(group, SWT.RADIO);
+            _rdoDeleteTourValues_Tours_Selected.setText(Messages.Dialog_ReimportTours_Radio_SelectedTours);
+            _rdoDeleteTourValues_Tours_Selected.addSelectionListener(_defaultListener);
+            GridDataFactory.fillDefaults().span(2, 1).applyTo(_rdoDeleteTourValues_Tours_Selected);
          }
          {
             /*
              * Re-import between dates
              */
-            _rdoReimport_Tours_BetweenDates = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_BetweenDates.setText(Messages.Dialog_ReimportTours_Radio_BetweenDates);
-            _rdoReimport_Tours_BetweenDates.addSelectionListener(_defaultListener);
+            _rdoDeleteTourValues_Tours_BetweenDates = new Button(group, SWT.RADIO);
+            _rdoDeleteTourValues_Tours_BetweenDates.setText(Messages.Dialog_ReimportTours_Radio_BetweenDates);
+            _rdoDeleteTourValues_Tours_BetweenDates.addSelectionListener(_defaultListener);
 
             final Composite container = new Composite(group, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
@@ -272,10 +265,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private void createUI_20_Data(final Composite parent) {
 
       final int verticalDistance = _pc.convertVerticalDLUsToPixels(4);
-
-      final GridDataFactory gridDataTour = GridDataFactory.fillDefaults()
-            .align(SWT.BEGINNING, SWT.CENTER)
-            .span(2, 1);
 
       final GridDataFactory gridDataTour_MoreVSpace = GridDataFactory.fillDefaults()
             .align(SWT.BEGINNING, SWT.CENTER)
@@ -475,7 +464,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          selectedItems = (((RawDataView) _tourViewer).getSelectedTourIDs()).toArray();
       }
 
-
       if (selectedItems == null || selectedItems.length == 0) {
 
          MessageDialog.openInformation(Display.getDefault().getActiveShell(),
@@ -502,58 +490,58 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             continue;
          }
 
-      for (final ReImportParts reImportId : reImportPartIds) {
+         for (final ReImportParts reImportId : reImportPartIds) {
 
-         switch (reImportId) {
+            switch (reImportId) {
 
-         case TOUR_MARKER:
-            oldTourData.setTourMarkers(null);
-            break;
+            case TOUR_MARKER:
+               oldTourData.setTourMarkers(null);
+               break;
 
-         //
+            //
 
-         case TIME_SLICES_CADENCE:
+            case TIME_SLICES_CADENCE:
 //            clonedTourData.setAvgCadence(oldTourData.getAvgCadence());
 //            clonedTourData.setCadenceMultiplier(oldTourData.getCadenceMultiplier());
-            break;
+               break;
 
-         case TIME_SLICES_ELEVATION:
-            oldTourData.altitudeSerie = null;
-            break;
+            case TIME_SLICES_ELEVATION:
+               oldTourData.altitudeSerie = null;
+               break;
 
-         case TIME_SLICES_GEAR:
+            case TIME_SLICES_GEAR:
 //            clonedTourData.setFrontShiftCount(oldTourData.getFrontShiftCount());
 //            clonedTourData.setRearShiftCount(oldTourData.getRearShiftCount());
-            break;
+               break;
 
-         case TIME_SLICES_POWER_AND_PULSE:
+            case TIME_SLICES_POWER_AND_PULSE:
 //            clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
 //            clonedTourData.setAvgPulse(oldTourData.getAvgPulse());
 //            clonedTourData.setCalories(oldTourData.getCalories());
-            break;
+               break;
 
-         case TIME_SLICES_POWER_AND_SPEED:
+            case TIME_SLICES_POWER_AND_SPEED:
 //            clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
 //            clonedTourData.setCalories(oldTourData.getCalories());
-            break;
+               break;
 
-         case TIME_SLICES_TEMPERATURE:
+            case TIME_SLICES_TEMPERATURE:
 //            clonedTourData.setAvgTemperature(oldTourData.getAvgTemperature());
-            break;
+               break;
 
-         case TIME_SLICES_TIMER_PAUSES:
+            case TIME_SLICES_TIMER_PAUSES:
 //            clonedTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
-            break;
+               break;
 
-         default:
-            break;
+            default:
+               break;
+            }
+
+            //if something was done
+            oldTourData.cleanupDataSeries();
+
+            //TODO FB it doesnt seem to persist the changes. TO FIX
          }
-
-         //if something was done
-         oldTourData.cleanupDataSeries();
-
-         //TODO FB it doesnt seem to persist the changes. TO FIX
-      }
       }
 
    }
@@ -581,8 +569,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       TourManager.getInstance().clearTourDataCache();
 
-      final boolean isReimport_AllTours = _rdoReimport_Tours_All.getSelection();
-      final boolean isReimport_BetweenDates = _rdoReimport_Tours_BetweenDates.getSelection();
+      final boolean isReimport_AllTours = _rdoDeleteTourValues_Tours_All.getSelection();
+      final boolean isReimport_BetweenDates = _rdoDeleteTourValues_Tours_BetweenDates.getSelection();
 
       if (isReimport_AllTours || isReimport_BetweenDates) {
 
@@ -693,10 +681,10 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       final boolean isValid = isDataValid();
 
       final boolean isReimport_AllTimeSlices = _chkData_AllTimeSlices.getSelection();
-      final boolean isToursBetweenDates = _rdoReimport_Tours_BetweenDates.getSelection();
+      final boolean isToursBetweenDates = _rdoDeleteTourValues_Tours_BetweenDates.getSelection();
 
-      final boolean isTourSelected = _rdoReimport_Tours_All.getSelection() ||
-            _rdoReimport_Tours_Selected.getSelection() ||
+      final boolean isTourSelected = _rdoDeleteTourValues_Tours_All.getSelection() ||
+            _rdoDeleteTourValues_Tours_Selected.getSelection() ||
             isToursBetweenDates;
 
       final boolean isDataSelected = _chkData_AllTimeSlices.getSelection() ||
@@ -804,47 +792,47 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
             final List<ReImportParts> reImportPartIds = new ArrayList<>();
 
-               if (_chkData_AllTimeSlices.getSelection()) {
+            if (_chkData_AllTimeSlices.getSelection()) {
 
-                  reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
+               reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
 
-               } else {
+            } else {
 
-                  if (_chkData_Cadence.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
-                  }
-                  if (_chkData_Elevation.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
-                  }
-                  if (_chkData_Gear.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
-                  }
-                  if (_chkData_PowerAndPulse.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
-                  }
-                  if (_chkData_PowerAndSpeed.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
-                  }
-                  if (_chkData_RunningDynamics.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
-                  }
-                  if (_chkData_Swimming.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
-                  }
-                  if (_chkData_Temperature.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
-                  }
-                  if (_chkData_TourTimerPauses.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
-                  }
-                  if (_chkData_Training.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
-                  }
+               if (_chkData_Cadence.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
                }
-
-               if (_chkData_TourMarkers.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TOUR_MARKER);
+               if (_chkData_Elevation.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
                }
+               if (_chkData_Gear.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
+               }
+               if (_chkData_PowerAndPulse.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
+               }
+               if (_chkData_PowerAndSpeed.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
+               }
+               if (_chkData_RunningDynamics.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
+               }
+               if (_chkData_Swimming.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
+               }
+               if (_chkData_Temperature.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
+               }
+               if (_chkData_TourTimerPauses.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
+               }
+               if (_chkData_Training.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
+               }
+            }
+
+            if (_chkData_TourMarkers.getSelection()) {
+               reImportPartIds.add(ReImportParts.TOUR_MARKER);
+            }
 
             doDeleteValues(reImportPartIds);
 
@@ -877,27 +865,26 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private void restoreState() {
 
       // Tours to re-import
-      _rdoReimport_Tours_All.setSelection(_state.getBoolean(STATE_REIMPORT_TOURS_ALL));
-      _rdoReimport_Tours_BetweenDates.setSelection(_state.getBoolean(STATE_REIMPORT_TOURS_BETWEEN_DATES));
-      _rdoReimport_Tours_Selected.setSelection(_state.getBoolean(STATE_REIMPORT_TOURS_SELECTED));
+      _rdoDeleteTourValues_Tours_All.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_ALL));
+      _rdoDeleteTourValues_Tours_BetweenDates.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_BETWEEN_DATES));
+      _rdoDeleteTourValues_Tours_Selected.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_SELECTED));
 
-      Util.getStateDate(_state, STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM, LocalDate.now(), _dtTourDate_From);
-      Util.getStateDate(_state, STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL, LocalDate.now(), _dtTourDate_Until);
+      Util.getStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM, LocalDate.now(), _dtTourDate_From);
+      Util.getStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL, LocalDate.now(), _dtTourDate_Until);
 
       // Data to re-import
-      final boolean isReimportEntireTour = _state.getBoolean(STATE_IS_IMPORT_ENTIRE_TOUR);
-      _chkData_AllTimeSlices.setSelection(_state.getBoolean(STATE_IS_IMPORT_ALL_TIME_SLICES));
-      _chkData_Elevation.setSelection(_state.getBoolean(STATE_IS_IMPORT_ELEVATION));
-      _chkData_Cadence.setSelection(_state.getBoolean(STATE_IS_IMPORT_CADENCE));
-      _chkData_Gear.setSelection(_state.getBoolean(STATE_IS_IMPORT_GEAR));
-      _chkData_PowerAndPulse.setSelection(_state.getBoolean(STATE_IS_IMPORT_POWER_AND_PULSE));
-      _chkData_PowerAndSpeed.setSelection(_state.getBoolean(STATE_IS_IMPORT_POWER_AND_SPEED));
-      _chkData_RunningDynamics.setSelection(_state.getBoolean(STATE_IS_IMPORT_RUNNING_DYNAMICS));
-      _chkData_Swimming.setSelection(_state.getBoolean(STATE_IS_IMPORT_SWIMMING));
-      _chkData_Temperature.setSelection(_state.getBoolean(STATE_IS_IMPORT_TEMPERATURE));
-      _chkData_Training.setSelection(_state.getBoolean(STATE_IS_IMPORT_TRAINING));
-      _chkData_TourMarkers.setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR_MARKERS));
-      _chkData_TourTimerPauses.setSelection(_state.getBoolean(STATE_IS_IMPORT_TIMER_PAUSES));
+      _chkData_AllTimeSlices.setSelection(_state.getBoolean(STATE_IS_DELETE_ALL_TIME_SLICES));
+      _chkData_Elevation.setSelection(_state.getBoolean(STATE_IS_DELETE_ELEVATION));
+      _chkData_Cadence.setSelection(_state.getBoolean(STATE_IS_DELETE_CADENCE));
+      _chkData_Gear.setSelection(_state.getBoolean(STATE_IS_DELETE_GEAR));
+      _chkData_PowerAndPulse.setSelection(_state.getBoolean(STATE_IS_DELETE_POWER_AND_PULSE));
+      _chkData_PowerAndSpeed.setSelection(_state.getBoolean(STATE_IS_DELETE_POWER_AND_SPEED));
+      _chkData_RunningDynamics.setSelection(_state.getBoolean(STATE_IS_DELETE_RUNNING_DYNAMICS));
+      _chkData_Swimming.setSelection(_state.getBoolean(STATE_IS_DELETE_SWIMMING));
+      _chkData_Temperature.setSelection(_state.getBoolean(STATE_IS_DELETE_TEMPERATURE));
+      _chkData_Training.setSelection(_state.getBoolean(STATE_IS_DELETE_TRAINING));
+      _chkData_TourMarkers.setSelection(_state.getBoolean(STATE_IS_DELETE_TOUR_MARKERS));
+      _chkData_TourTimerPauses.setSelection(_state.getBoolean(STATE_IS_DELETE_TIMER_PAUSES));
 
       enableControls();
    }
@@ -905,25 +892,25 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private void saveState() {
 
       // Tours to re-import
-      _state.put(STATE_REIMPORT_TOURS_ALL, _rdoReimport_Tours_All.getSelection());
-      _state.put(STATE_REIMPORT_TOURS_BETWEEN_DATES, _rdoReimport_Tours_BetweenDates.getSelection());
-      _state.put(STATE_REIMPORT_TOURS_SELECTED, _rdoReimport_Tours_Selected.getSelection());
+      _state.put(STATE_DELETE_TOURVALUES_ALL, _rdoDeleteTourValues_Tours_All.getSelection());
+      _state.put(STATE_DELETE_TOURVALUES_BETWEEN_DATES, _rdoDeleteTourValues_Tours_BetweenDates.getSelection());
+      _state.put(STATE_DELETE_TOURVALUES_SELECTED, _rdoDeleteTourValues_Tours_Selected.getSelection());
 
-      Util.setStateDate(_state, STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM, _dtTourDate_From);
-      Util.setStateDate(_state, STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL, _dtTourDate_Until);
+      Util.setStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM, _dtTourDate_From);
+      Util.setStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL, _dtTourDate_Until);
 
       // Data to import
-      _state.put(STATE_IS_IMPORT_ELEVATION, _chkData_Elevation.getSelection());
-      _state.put(STATE_IS_IMPORT_CADENCE, _chkData_Cadence.getSelection());
-      _state.put(STATE_IS_IMPORT_GEAR, _chkData_Gear.getSelection());
-      _state.put(STATE_IS_IMPORT_POWER_AND_PULSE, _chkData_PowerAndPulse.getSelection());
-      _state.put(STATE_IS_IMPORT_POWER_AND_SPEED, _chkData_PowerAndSpeed.getSelection());
-      _state.put(STATE_IS_IMPORT_RUNNING_DYNAMICS, _chkData_RunningDynamics.getSelection());
-      _state.put(STATE_IS_IMPORT_SWIMMING, _chkData_Swimming.getSelection());
-      _state.put(STATE_IS_IMPORT_TEMPERATURE, _chkData_Temperature.getSelection());
-      _state.put(STATE_IS_IMPORT_TRAINING, _chkData_Training.getSelection());
-      _state.put(STATE_IS_IMPORT_ALL_TIME_SLICES, _chkData_AllTimeSlices.getSelection());
-      _state.put(STATE_IS_IMPORT_TOUR_MARKERS, _chkData_TourMarkers.getSelection());
-      _state.put(STATE_IS_IMPORT_TIMER_PAUSES, _chkData_TourTimerPauses.getSelection());
+      _state.put(STATE_IS_DELETE_ELEVATION, _chkData_Elevation.getSelection());
+      _state.put(STATE_IS_DELETE_CADENCE, _chkData_Cadence.getSelection());
+      _state.put(STATE_IS_DELETE_GEAR, _chkData_Gear.getSelection());
+      _state.put(STATE_IS_DELETE_POWER_AND_PULSE, _chkData_PowerAndPulse.getSelection());
+      _state.put(STATE_IS_DELETE_POWER_AND_SPEED, _chkData_PowerAndSpeed.getSelection());
+      _state.put(STATE_IS_DELETE_RUNNING_DYNAMICS, _chkData_RunningDynamics.getSelection());
+      _state.put(STATE_IS_DELETE_SWIMMING, _chkData_Swimming.getSelection());
+      _state.put(STATE_IS_DELETE_TEMPERATURE, _chkData_Temperature.getSelection());
+      _state.put(STATE_IS_DELETE_TRAINING, _chkData_Training.getSelection());
+      _state.put(STATE_IS_DELETE_ALL_TIME_SLICES, _chkData_AllTimeSlices.getSelection());
+      _state.put(STATE_IS_DELETE_TOUR_MARKERS, _chkData_TourMarkers.getSelection());
+      _state.put(STATE_IS_DELETE_TIMER_PAUSES, _chkData_TourTimerPauses.getSelection());
    }
 }
