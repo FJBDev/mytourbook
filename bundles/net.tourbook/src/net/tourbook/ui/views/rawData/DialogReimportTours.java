@@ -515,6 +515,27 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       if (isReimport_AllTours || isReimport_BetweenDates) {
 
+         //The user MUST always confirm when the tool is running for ALL tours
+         if (isReimport_AllTours) {
+
+            final MessageDialog dialog = new MessageDialog(
+                  Display.getDefault().getActiveShell(),
+                  Messages.Dialog_DatabaseAction_Confirmation_Title,
+                  null,
+                  Messages.Dialog_DatabaseAction_Confirmation_Message,
+                  MessageDialog.QUESTION,
+                  new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL },
+                  1);
+
+            final int choice = dialog.open();
+
+            if (choice == IDialogConstants.CANCEL_ID) {
+
+               return;
+            }
+
+         }
+
          // re-import ALL tours or BETWEEN tours
 
          if (RawDataManager.getInstance().actionReimportTour_10_Confirm(reImportPartIds) == false) {
