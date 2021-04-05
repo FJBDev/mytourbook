@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,6 @@ package net.tourbook.ui.views.rawData;
 import de.byteholder.geoclipse.map.UI;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.List;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.ITourViewer3;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.database.IComputeTourValues;
@@ -55,9 +53,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 public class DialogReimportTours extends TitleAreaDialog {
@@ -99,7 +95,6 @@ public class DialogReimportTours extends TitleAreaDialog {
     * UI controls
     */
    private Composite _parent;
-   private Composite _dlgContainer;
 
    private Button    _btnDeselectAll;
 
@@ -152,16 +147,13 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       shell.setText(Messages.Dialog_ReimportTours_Dialog_Title);
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      shell.addListener(SWT.Resize, event -> {
 
-            // force shell default size
+         // force shell default size
 
-            final Point shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+         final Point shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
-            shell.setSize(shellDefaultSize);
-         }
+         shell.setSize(shellDefaultSize);
       });
    }
 
@@ -192,11 +184,11 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       initUI();
 
-      _dlgContainer = (Composite) super.createDialogArea(parent);
+      final Composite dlgContainer = (Composite) super.createDialogArea(parent);
 
-      createUI(_dlgContainer);
+      createUI(dlgContainer);
 
-      return _dlgContainer;
+      return dlgContainer;
    }
 
    private void createUI(final Composite parent) {
@@ -500,9 +492,8 @@ public class DialogReimportTours extends TitleAreaDialog {
     *
     * @param reImportPartIds
     *           A list of data IDs to be re-imported
-    * @throws IOException
     */
-   private void doReimport(final List<ReImportParts> reImportPartIds) throws IOException {
+   private void doReimport(final List<ReImportParts> reImportPartIds) {
 
       /*
        * There maybe too much tour cleanup but it is very complex how all the caches/selection
@@ -676,7 +667,6 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       // keep window size and position
       return _state;
-//      return null;
    }
 
    private void initUI() {
@@ -721,71 +711,63 @@ public class DialogReimportTours extends TitleAreaDialog {
       //We close the window so the user can see that import progress bar and log view
       _parent.getShell().setVisible(false);
 
-      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-         @Override
-         public void run() {
-            try {
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
 
-               final List<ReImportParts> reImportPartIds = new ArrayList<>();
+         final List<ReImportParts> reImportPartIds = new ArrayList<>();
 
-               if (_chkData_EntireTour.getSelection()) {
+         if (_chkData_EntireTour.getSelection()) {
 
-                  reImportPartIds.add(ReImportParts.ENTIRE_TOUR);
+            reImportPartIds.add(ReImportParts.ENTIRE_TOUR);
 
-               } else {
+         } else {
 
-                  if (_chkData_AllTimeSlices.getSelection()) {
+            if (_chkData_AllTimeSlices.getSelection()) {
 
-                     reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
+               reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
 
-                  } else {
+            } else {
 
-                     if (_chkData_Cadence.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
-                     }
-                     if (_chkData_Elevation.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
-                     }
-                     if (_chkData_Gear.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
-                     }
-                     if (_chkData_PowerAndPulse.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
-                     }
-                     if (_chkData_PowerAndSpeed.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
-                     }
-                     if (_chkData_RunningDynamics.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
-                     }
-                     if (_chkData_Swimming.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
-                     }
-                     if (_chkData_Temperature.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
-                     }
-                     if (_chkData_TourTimerPauses.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
-                     }
-                     if (_chkData_Training.getSelection()) {
-                        reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
-                     }
-                  }
-
-                  if (_chkData_TourMarkers.getSelection()) {
-                     reImportPartIds.add(ReImportParts.TOUR_MARKER);
-                  }
-                  if (_chkData_ImportFileLocation.getSelection()) {
-                     reImportPartIds.add(ReImportParts.IMPORT_FILE_LOCATION);
-                  }
+               if (_chkData_Cadence.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
                }
+               if (_chkData_Elevation.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
+               }
+               if (_chkData_Gear.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
+               }
+               if (_chkData_PowerAndPulse.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
+               }
+               if (_chkData_PowerAndSpeed.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
+               }
+               if (_chkData_RunningDynamics.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
+               }
+               if (_chkData_Swimming.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
+               }
+               if (_chkData_Temperature.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
+               }
+               if (_chkData_TourTimerPauses.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
+               }
+               if (_chkData_Training.getSelection()) {
+                  reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
+               }
+            }
 
-               doReimport(reImportPartIds);
-
-            } catch (final IOException e) {
-               StatusUtil.log(e);
+            if (_chkData_TourMarkers.getSelection()) {
+               reImportPartIds.add(ReImportParts.TOUR_MARKER);
+            }
+            if (_chkData_ImportFileLocation.getSelection()) {
+               reImportPartIds.add(ReImportParts.IMPORT_FILE_LOCATION);
             }
          }
+
+         doReimport(reImportPartIds);
       });
 
       super.okPressed();
