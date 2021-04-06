@@ -51,7 +51,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       final int devGraphHeight = drawingData.devGraphHeight;
 
       gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
-      gc.setBackground(new Color(gc.getDevice(), 0x8c, 0x8c, 0x8c, opacity));
+      gc.setBackground(new Color(0x8c, 0x8c, 0x8c, opacity));
       gc.setAlpha(opacity);
 
       final double scaleX = drawingData.getScaleX();

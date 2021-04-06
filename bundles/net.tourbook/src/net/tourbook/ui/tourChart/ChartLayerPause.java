@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,7 +24,6 @@ import net.tourbook.photo.ILoadCallBack;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
@@ -37,7 +36,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
    private int              PAUSE_POINT_SIZE;
 
    private TourChart        _tourChart;
-   private ChartPauseConfig _cpc;
+   private ChartPauseConfig _chartPauseConfig;
 
    private int              _devXPause;
    private int              _devYPause;
@@ -52,19 +51,15 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          }
 
          // run in UI thread
-         Display.getDefault().syncExec(new Runnable() {
+         Display.getDefault().syncExec(() -> {
 
-            @Override
-            public void run() {
-
-               // ensure chart is still displayed
-               if (_tourChart.getShell().isDisposed()) {
-                  return;
-               }
-
-               // paint image
-               _tourChart.redrawLayer();
+            // ensure chart is still displayed
+            if (_tourChart.getShell().isDisposed()) {
+               return;
             }
+
+            // paint image
+            _tourChart.redrawLayer();
          });
       }
    }
@@ -77,16 +72,10 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
    /**
     * Adjust label to the requested position
     *
-    * @param chartLabel
-    * @param devYTop
-    * @param devYBottom
     * @param labelWidth
     * @param labelHeight
     */
-   private void adjustLabelPosition(final ChartLabel chartLabel,
-                                    final int devYTop,
-                                    final int devYBottom,
-                                    final int labelWidth,
+   private void adjustLabelPosition(final int labelWidth,
                                     final int labelHeight) {
 
       final int pausePointSize2 = PAUSE_POINT_SIZE / 2 + 0;
@@ -102,38 +91,27 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
    @Override
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
 
-      final Device display = gc.getDevice();
-
-      PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(2);
-      LABEL_OFFSET = pc.convertVerticalDLUsToPixels(2);
-
-      final int pausePointSize2 = PAUSE_POINT_SIZE / 2;
-
       final int devYTop = drawingData.getDevYTop();
+      final int devGraphHeight = drawingData.devGraphHeight;
+      gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
+
       final int devYBottom = drawingData.getDevYBottom();
       final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
-      final int devGraphHeight = drawingData.devGraphHeight;
       final long devVirtualGraphWidth = drawingData.devVirtualGraphWidth;
       final int devVisibleChartWidth = drawingData.getChartDrawingData().devVisibleChartWidth;
       final boolean isGraphZoomed = devVirtualGraphWidth != devVisibleChartWidth;
-
+      LABEL_OFFSET = PAUSE_POINT_SIZE = pc.convertVerticalDLUsToPixels(2);
+      final int pausePointSize2 = PAUSE_POINT_SIZE / 2;
       final float graphYBottom = drawingData.getGraphYBottom();
       final float[] yValues = drawingData.getYData().getHighValuesFloat()[0];
       final double scaleX = drawingData.getScaleX();
       final double scaleY = drawingData.getScaleY();
-
-      final Color colorDefault = new Color(display, new RGB(0x60, 0x60, 0x60));
-      final Color colorDevice = new Color(display, new RGB(0xff, 0x0, 0x80));
-      final Color colorHidden = new Color(display, new RGB(0x24, 0x9C, 0xFF));
-
+      final Color colorDefault = new Color(new RGB(0x60, 0x60, 0x60));
       final ValueOverlapChecker overlapChecker = new ValueOverlapChecker(2);
-
-      gc.setClipping(0, devYTop, gc.getClipping().width, devGraphHeight);
-
       /*
        * Draw pause point and label
        */
-      for (final ChartLabel chartLabel : _cpc.chartLabels) {
+      for (final ChartLabel chartLabel : _chartPauseConfig.chartLabels) {
 
          final float yValue = yValues[chartLabel.serieIndex];
          final int devYGraph = (int) ((yValue - graphYBottom) * scaleY) - 0;
@@ -167,7 +145,7 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          final int labelWidth = labelExtend.x;
          final int labelHeight = labelExtend.y;
 
-         adjustLabelPosition(chartLabel, devYTop, devYBottom, labelWidth, labelHeight);
+         adjustLabelPosition(labelWidth, labelHeight);
 
          // add an additional offset which is defined for all pauses in the pause properties slideout
          _devXPause += chartLabel.labelXOffset;
@@ -238,10 +216,6 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
          }
       }
 
-      colorDefault.dispose();
-      colorDevice.dispose();
-      colorHidden.dispose();
-
       gc.setClipping((Rectangle) null);
    }
 
@@ -252,10 +226,10 @@ public class ChartLayerPause implements IChartLayer, IChartOverlay {
     */
    @Override
    public void drawOverlay(final GC gc, final GraphDrawingData graphDrawingData) {
-      return;
+      //Nothing to do
    }
 
    public void setChartPauseConfig(final ChartPauseConfig chartPauseConfig) {
-      _cpc = chartPauseConfig;
+      _chartPauseConfig = chartPauseConfig;
    }
 }
