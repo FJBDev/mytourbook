@@ -1026,51 +1026,51 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
 
-         final List<TourValueType> reImportPartIds = new ArrayList<>();
+         final List<TourValueType> tourValueTypes = new ArrayList<>();
 
          if (_chkData_AllTimeSlices.getSelection()) {
 
-            reImportPartIds.add(TourValueType.ALL_TIME_SLICES);
+            tourValueTypes.add(TourValueType.ALL_TIME_SLICES);
 
          } else {
 
             if (_chkData_Cadence.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_CADENCE);
+               tourValueTypes.add(TourValueType.TIME_SLICES_CADENCE);
             }
             if (_chkData_Elevation.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_ELEVATION);
+               tourValueTypes.add(TourValueType.TIME_SLICES_ELEVATION);
             }
             if (_chkData_Gear.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_GEAR);
+               tourValueTypes.add(TourValueType.TIME_SLICES_GEAR);
             }
             if (_chkData_PowerAndPulse.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_POWER_AND_PULSE);
+               tourValueTypes.add(TourValueType.TIME_SLICES_POWER_AND_PULSE);
             }
             if (_chkData_PowerAndSpeed.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_POWER_AND_SPEED);
+               tourValueTypes.add(TourValueType.TIME_SLICES_POWER_AND_SPEED);
             }
             if (_chkData_RunningDynamics.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_RUNNING_DYNAMICS);
+               tourValueTypes.add(TourValueType.TIME_SLICES_RUNNING_DYNAMICS);
             }
             if (_chkData_Swimming.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_SWIMMING);
+               tourValueTypes.add(TourValueType.TIME_SLICES_SWIMMING);
             }
             if (_chkData_Temperature.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_TEMPERATURE);
+               tourValueTypes.add(TourValueType.TIME_SLICES_TEMPERATURE);
             }
             if (_chkData_TourTimerPauses.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_TIMER_PAUSES);
+               tourValueTypes.add(TourValueType.TIME_SLICES_TIMER_PAUSES);
             }
             if (_chkData_Training.getSelection()) {
-               reImportPartIds.add(TourValueType.TIME_SLICES_TRAINING);
+               tourValueTypes.add(TourValueType.TIME_SLICES_TRAINING);
             }
          }
 
          if (_chkData_TourMarkers.getSelection()) {
-            reImportPartIds.add(TourValueType.TOUR_MARKER);
+            tourValueTypes.add(TourValueType.TOUR_MARKER);
          }
 
-         doDeleteValues(reImportPartIds);
+         doDeleteValues(tourValueTypes);
       });
 
       super.okPressed();

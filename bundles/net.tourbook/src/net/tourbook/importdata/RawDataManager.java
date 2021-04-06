@@ -587,7 +587,7 @@ public class RawDataManager {
    }
 
    /**
-    * @param reimportPartIds
+    * @param tourValueTypes
     *           A list of tour values to be re-imported
     * @param tourViewer
     *           Tour viewer containing the selected tours to be re-imported.
