@@ -30,7 +30,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.database.IComputeTourValues;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.RawDataManager;
-import net.tourbook.importdata.RawDataManager.ReImportParts;
+import net.tourbook.importdata.RawDataManager.TourValueType;
 import net.tourbook.importdata.ReImportStatus;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
@@ -490,10 +490,10 @@ public class DialogReimportTours extends TitleAreaDialog {
    /**
     * Start the re-import process
     *
-    * @param reImportPartIds
-    *           A list of data IDs to be re-imported
+    * @param tourValueTypes
+    *           A list of tour values to be re-imported
     */
-   private void doReimport(final List<ReImportParts> reImportPartIds) {
+   private void doReimport(final List<TourValueType> tourValueTypes) {
 
       /*
        * There maybe too much tour cleanup but it is very complex how all the caches/selection
@@ -537,7 +537,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
          // re-import ALL tours or BETWEEN tours
 
-         if (RawDataManager.getInstance().actionReimportTour_10_Confirm(reImportPartIds) == false) {
+         if (RawDataManager.getInstance().actionReimportTour_10_Confirm(tourValueTypes) == false) {
             return;
          }
 
@@ -553,7 +553,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
                final ReImportStatus reImportStatus = new ReImportStatus();
 
-               RawDataManager.getInstance().reimportTour(reImportPartIds,
+               RawDataManager.getInstance().reimportTour(tourValueTypes,
                      oldTourData,
                      reimportedFile,
                      skipToursWithFileNotFound,
@@ -613,7 +613,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
          // re-import SELECTED tours
 
-         RawDataManager.getInstance().actionReimportSelectedTours(reImportPartIds, _tourViewer, skipToursWithFileNotFound);
+         RawDataManager.getInstance().actionReimportSelectedTours(tourValueTypes, _tourViewer, skipToursWithFileNotFound);
       }
    }
 
@@ -733,57 +733,57 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
 
-         final List<ReImportParts> reImportPartIds = new ArrayList<>();
+         final List<TourValueType> reImportPartIds = new ArrayList<>();
 
          if (_chkData_EntireTour.getSelection()) {
 
-            reImportPartIds.add(ReImportParts.ENTIRE_TOUR);
+            reImportPartIds.add(TourValueType.ENTIRE_TOUR);
 
          } else {
 
             if (_chkData_AllTimeSlices.getSelection()) {
 
-               reImportPartIds.add(ReImportParts.ALL_TIME_SLICES);
+               reImportPartIds.add(TourValueType.ALL_TIME_SLICES);
 
             } else {
 
                if (_chkData_Cadence.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_CADENCE);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_CADENCE);
                }
                if (_chkData_Elevation.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_ELEVATION);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_ELEVATION);
                }
                if (_chkData_Gear.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_GEAR);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_GEAR);
                }
                if (_chkData_PowerAndPulse.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_PULSE);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_POWER_AND_PULSE);
                }
                if (_chkData_PowerAndSpeed.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_POWER_AND_SPEED);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_POWER_AND_SPEED);
                }
                if (_chkData_RunningDynamics.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_RUNNING_DYNAMICS);
                }
                if (_chkData_Swimming.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_SWIMMING);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_SWIMMING);
                }
                if (_chkData_Temperature.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TEMPERATURE);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_TEMPERATURE);
                }
                if (_chkData_TourTimerPauses.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TIMER_PAUSES);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_TIMER_PAUSES);
                }
                if (_chkData_Training.getSelection()) {
-                  reImportPartIds.add(ReImportParts.TIME_SLICES_TRAINING);
+                  reImportPartIds.add(TourValueType.TIME_SLICES_TRAINING);
                }
             }
 
             if (_chkData_TourMarkers.getSelection()) {
-               reImportPartIds.add(ReImportParts.TOUR_MARKER);
+               reImportPartIds.add(TourValueType.TOUR_MARKER);
             }
             if (_chkData_ImportFileLocation.getSelection()) {
-               reImportPartIds.add(ReImportParts.IMPORT_FILE_LOCATION);
+               reImportPartIds.add(TourValueType.IMPORT_FILE_LOCATION);
             }
          }
 
