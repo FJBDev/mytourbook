@@ -1629,17 +1629,14 @@ public class RawDataManager {
    private void deleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
                                          final TourData tourData,
                                          final ReImportStatus reImportStatus) {
-      final boolean isReImported = false;
 
-      boolean isTourReImported = false;
-
-      final Long oldTourId = tourData.getTourId();
+      final Long tourId = tourData.getTourId();
 
       /*
        * tour must be removed otherwise it would be recognized as a duplicate and therefore not
        * imported
        */
-      final TourData oldTourDataInImportView = _toursInImportView.remove(oldTourId);
+      final TourData oldTourDataInImportView = _toursInImportView.remove(tourId);
 
       /*
        * tour(s) could be re-imported from the file, check if it contains a valid tour
@@ -1647,14 +1644,13 @@ public class RawDataManager {
 
       // loop: For each tour value type, we save the associated data for future display
       //to compare with the new data
-      boolean wasDeletionPerformed = false;
       for (final TourValueType tourValueType : tourValueTypes) {
 
          switch (tourValueType) {
 
          case TOUR_MARKER:
+            //TODO FB
             tourData.setTourMarkers(null);
-            wasDeletionPerformed = true;
             break;
 
          //
@@ -1663,42 +1659,35 @@ public class RawDataManager {
             tourData.setCadenceSerie(null);
             tourData.setAvgCadence(0);
             tourData.setCadenceMultiplier(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_ELEVATION:
             tourData.altitudeSerie = null;
             tourData.setTourAltDown(0);
             tourData.setTourAltUp(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_GEAR:
             tourData.setFrontShiftCount(0);
             tourData.setRearShiftCount(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_POWER_AND_PULSE:
-            tourData.pulseSerie = null;
             tourData.setPowerSerie(null);
             tourData.setPower_Avg(0);
             tourData.setAvgPulse(0);
             tourData.setCalories(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_POWER_AND_SPEED:
             tourData.setPowerSerie(null);
             tourData.setPower_Avg(0);
             tourData.setCalories(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_TEMPERATURE:
             tourData.temperatureSerie = null;
             tourData.setAvgTemperature(0);
-            wasDeletionPerformed = true;
             break;
 
          case TIME_SLICES_TIMER_PAUSES:
@@ -1706,21 +1695,12 @@ public class RawDataManager {
             tourData.setPausedTime_End(null);
             tourData.setTourDeviceTime_Paused(0);
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
-            wasDeletionPerformed = true;
             break;
 
          default:
             break;
          }
       }
-
-      if (wasDeletionPerformed) {
-         tourData.cleanupDataSeries();
-      }
-
-//         TourData updatedTourData = actionReimportTour_40(tourValueTypes, reimportedFile, oldTourData);
-
-      isTourReImported = true;
 
       TourManager.saveModifiedTour(tourData, false);
 
@@ -1741,7 +1721,7 @@ public class RawDataManager {
          _toursInImportView.put(tourData.getTourId(), tourData);
       }
 
-      reImportStatus.isReImported = isTourReImported;
+      reImportStatus.isReImported = true;
    }
 
    public DeviceData getDeviceData() {
