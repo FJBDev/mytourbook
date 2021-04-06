@@ -1648,8 +1648,7 @@ public class RawDataManager {
          switch (tourValueType) {
 
          case TOUR_MARKER:
-            //TODO FB
-            tourData.setTourMarkers(null);
+            tourData.setTourMarkers(new HashSet<>());
             break;
 
          //
