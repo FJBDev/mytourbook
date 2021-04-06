@@ -18,7 +18,6 @@ package net.tourbook.ui.views.rawData;
 import de.byteholder.geoclipse.map.UI;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,22 +34,15 @@ import net.tourbook.importdata.RawDataManager.TourValueType;
 import net.tourbook.importdata.ReImportStatus;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.views.collateTours.CollatedToursView;
-import net.tourbook.ui.views.tourBook.TourBookView;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -599,190 +591,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       });
    }
 
-   private void deleteTourValues(final List<TourValueType> tourValueTypes) {
-      final long start = System.currentTimeMillis();
-      // get selected tour IDs
-
-      Object[] selectedItems = null;
-      if (_tourViewer instanceof TourBookView) {
-         selectedItems = (((TourBookView) _tourViewer).getSelectedTourIDs()).toArray();
-      } else if (_tourViewer instanceof CollatedToursView) {
-         selectedItems = (((CollatedToursView) _tourViewer).getSelectedTourIDs()).toArray();
-      } else if (_tourViewer instanceof RawDataView) {
-         selectedItems = (((RawDataView) _tourViewer).getSelectedTourIDs()).toArray();
-      }
-
-      if (selectedItems == null || selectedItems.length == 0) {
-
-         MessageDialog.openInformation(Display.getDefault().getActiveShell(),
-               Messages.Dialog_ReimportTours_Dialog_Title,
-               Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
-
-         return;
-      }
-
-      /*
-       * convert selection to array
-       */
-      final Long[] selectedTourIds = new Long[selectedItems.length];
-      for (int i = 0; i < selectedItems.length; i++) {
-         selectedTourIds[i] = (Long) selectedItems[i];
-      }
-
-      final IRunnableWithProgress importRunnable = new IRunnableWithProgress() {
-
-         Display display = Display.getDefault();
-
-         @Override
-         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-            final ReImportStatus reImportStatus = new ReImportStatus();
-            final boolean isUserAsked_ToCancelReImport[] = { false };
-
-            final File[] reimportedFile = new File[1];
-            int imported = 0;
-            final int importSize = selectedTourIds.length;
-
-            monitor.beginTask(Messages.Import_Data_Dialog_Reimport_Task, importSize);
-
-            // loop: all selected tours in the viewer
-            for (final Long tourId : selectedTourIds) {
-
-               if (monitor.isCanceled()) {
-                  // stop re-importing but process re-imported tours
-                  break;
-               }
-
-               monitor.worked(1);
-               monitor.subTask(NLS.bind(
-                     Messages.Import_Data_Dialog_Reimport_SubTask,
-                     new Object[] { ++imported, importSize }));
-
-               final TourData oldTourData = TourManager.getTour(tourId);
-
-               if (oldTourData == null) {
-                  continue;
-               }
-
-               //   reimportTour(tourValueTypes, oldTourData, reimportedFile, skipToursWithFileNotFound, reImportStatus);
-
-//               if (reImportStatus.isCanceled_ByUser_TheFileLocationDialog && isUserAsked_ToCancelReImport[0] == false
-//                     && skipToursWithFileNotFound == false) {
-//
-//                  // user has canceled the re-import -> ask if the whole re-import should be canceled
-//
-//                  final boolean isCancelReimport[] = { false };
-//
-//                  display.syncExec(() -> {
-//
-//                     if (MessageDialog.openQuestion(display.getActiveShell(),
-//                           Messages.Import_Data_Dialog_IsCancelReImport_Title,
-//                           Messages.Import_Data_Dialog_IsCancelReImport_Message)) {
-//
-//                        isCancelReimport[0] = true;
-//
-//                     } else {
-//
-//                        isUserAsked_ToCancelReImport[0] = true;
-//                     }
-//                  });
-//
-//                  if (isCancelReimport[0]) {
-//                     break;
-//                  }
-//               }
-            }
-
-//            if (reImportStatus.isReImported) {
-//
-//               updateTourData_InImportView_FromDb(monitor);
-//
-//               // reselect tours, run in UI thread
-//               display.asyncExec(() -> {
-//
-//                  _tourViewer.reloadViewer();
-//               });
-//            }
-         }
-      };
-
-      try {
-         new ProgressMonitorDialog(Display.getDefault().getActiveShell()).run(true, true, importRunnable);
-      } catch (final Exception e) {
-         TourLogManager.logEx(e);
-      } finally {
-
-         final double time = (System.currentTimeMillis() - start) / 1000.0;
-         TourLogManager.addLog(//
-               TourLogState.DEFAULT,
-               String.format(RawDataManager.LOG_REIMPORT_END, time));
-
-      }
-
-      // loop: all selected tours in the viewer
-      for (final Long tourId : selectedTourIds) {
-
-         final TourData oldTourData = TourManager.getTour(tourId);
-
-         if (oldTourData == null) {
-            continue;
-         }
-
-         for (final TourValueType tourValueType : tourValueTypes) {
-
-            switch (tourValueType) {
-
-            case TOUR_MARKER:
-//               clonedTourData.setTourMarkers(null);
-               break;
-
-            //
-
-            case TIME_SLICES_CADENCE:
-//            clonedTourData.setAvgCadence(oldTourData.getAvgCadence());
-//            clonedTourData.setCadenceMultiplier(oldTourData.getCadenceMultiplier());
-               break;
-
-            case TIME_SLICES_ELEVATION:
-               oldTourData.altitudeSerie = null;
-               break;
-
-            case TIME_SLICES_GEAR:
-//            clonedTourData.setFrontShiftCount(oldTourData.getFrontShiftCount());
-//            clonedTourData.setRearShiftCount(oldTourData.getRearShiftCount());
-               break;
-
-            case TIME_SLICES_POWER_AND_PULSE:
-//            clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
-//            clonedTourData.setAvgPulse(oldTourData.getAvgPulse());
-//            clonedTourData.setCalories(oldTourData.getCalories());
-               break;
-
-            case TIME_SLICES_POWER_AND_SPEED:
-//            clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
-//            clonedTourData.setCalories(oldTourData.getCalories());
-               break;
-
-            case TIME_SLICES_TEMPERATURE:
-//            clonedTourData.setAvgTemperature(oldTourData.getAvgTemperature());
-               break;
-
-            case TIME_SLICES_TIMER_PAUSES:
-//            clonedTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
-               break;
-
-            default:
-               break;
-            }
-
-            //if something was done
-            oldTourData.cleanupDataSeries();
-
-            //TODO FB it doesnt seem to persist the changes. TO FIX
-         }
-      }
-
-   }
 
    /**
     * Start the values deletion process
@@ -908,7 +716,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          // re-import SELECTED tours
 
-         deleteTourValues(tourValueTypes);
+         RawDataManager.getInstance().deleteTourValues(tourValueTypes, _tourViewer);
 //         RawDataManager.getInstance().actionReimportSelectedTours(reImportPartIds, _tourViewer, skipToursWithFileNotFound);
       }
    }

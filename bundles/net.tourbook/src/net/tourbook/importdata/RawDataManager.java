@@ -487,6 +487,113 @@ public class RawDataManager {
       _isReimportingActive = isReimportingActive;
    }
 
+   private boolean actionDeleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
+                                                  final TourData oldTourData) {
+      boolean isTourReImported = false;
+
+      final Long oldTourId = oldTourData.getTourId();
+
+      /*
+       * tour must be removed otherwise it would be recognized as a duplicate and therefore not
+       * imported
+       */
+      final TourData oldTourDataInImportView = _toursInImportView.remove(oldTourId);
+
+      /*
+       * tour(s) could be re-imported from the file, check if it contains a valid tour
+       */
+
+      // loop: For each tour value type, we save the associated data for future display
+      //to compare with the new data
+      for (final TourValueType tourValueType : tourValueTypes) {
+
+         switch (tourValueType) {
+
+         case TOUR_MARKER:
+//               oldTourData.setTourMarkers(new HashSet<>(oldTourData.getTourMarkers()));
+            break;
+
+         //
+
+         case TIME_SLICES_CADENCE:
+//               clonedTourData.setAvgCadence(oldTourData.getAvgCadence());
+//               clonedTourData.setCadenceMultiplier(oldTourData.getCadenceMultiplier());
+            break;
+
+         case TIME_SLICES_ELEVATION:
+            oldTourData.altitudeSerie = null;
+            oldTourData.setTourAltDown(0);
+            oldTourData.setTourAltUp(0);
+            break;
+
+         case TIME_SLICES_GEAR:
+//               clonedTourData.setFrontShiftCount(oldTourData.getFrontShiftCount());
+//               clonedTourData.setRearShiftCount(oldTourData.getRearShiftCount());
+            break;
+
+         case TIME_SLICES_POWER_AND_PULSE:
+//               clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
+//               clonedTourData.setAvgPulse(oldTourData.getAvgPulse());
+//               clonedTourData.setCalories(oldTourData.getCalories());
+            break;
+
+         case TIME_SLICES_POWER_AND_SPEED:
+//               clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
+//               clonedTourData.setCalories(oldTourData.getCalories());
+            break;
+
+         case TIME_SLICES_TEMPERATURE:
+//               clonedTourData.setAvgTemperature(oldTourData.getAvgTemperature());
+            break;
+
+         case TIME_SLICES_TIMER_PAUSES:
+//               clonedTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
+            break;
+
+         default:
+            break;
+         }
+      }
+
+//         TourData updatedTourData = actionReimportTour_40(tourValueTypes, reimportedFile, oldTourData);
+
+      isTourReImported = true;
+
+      // check if tour is saved
+      final TourPerson tourPerson = oldTourData.getTourPerson();
+      if (tourPerson != null) {
+
+         // re-save tour when the re-imported tour was already saved
+
+         oldTourData.setTourPerson(tourPerson);
+
+         /*
+          * Save tour but don't fire a change event because the tour editor would set the tour
+          * to dirty
+          */
+         final TourData savedTourData = TourManager.saveModifiedTour(oldTourData, false);
+      }
+
+      TourLogManager.addSubLog(TourLogState.IMPORT_OK,
+            NLS.bind(LOG_IMPORT_TOUR_IMPORTED,
+                  oldTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
+
+//            // Print the old vs new data comparison
+//            for (final TourValueType tourValueType : tourValueTypes) {
+//               displayReimportDataDifferences(tourValueType, clonedTourData, updatedTourData);
+//            }
+
+      // check if tour is displayed in the import view
+      if (oldTourDataInImportView != null) {
+
+         // replace tour data in the import view
+
+         _toursInImportView.put(oldTourData.getTourId(), oldTourData);
+      }
+
+      return isTourReImported;
+   }
+
    public void actionImportFromDevice() {
 
       final DataTransferWizardDialog dialog = new DataTransferWizardDialog(//
@@ -1500,6 +1607,161 @@ public class RawDataManager {
 
    public void clearInvalidFilesList() {
       _invalidFilesList.clear();
+   }
+
+   public void deleteTourValues(final List<TourValueType> tourValueTypes, final ITourViewer3 tourViewer) {
+
+      final long start = System.currentTimeMillis();
+
+      if (actionReimportTour_10_Confirm(tourValueTypes) == false) {
+         return;
+      }
+
+      // get selected tour IDs
+
+      Object[] selectedItems = null;
+      if (tourViewer instanceof TourBookView) {
+         selectedItems = (((TourBookView) tourViewer).getSelectedTourIDs()).toArray();
+      } else if (tourViewer instanceof CollatedToursView) {
+         selectedItems = (((CollatedToursView) tourViewer).getSelectedTourIDs()).toArray();
+      } else if (tourViewer instanceof RawDataView) {
+         selectedItems = (((RawDataView) tourViewer).getSelectedTourIDs()).toArray();
+      }
+
+      if (selectedItems == null || selectedItems.length == 0) {
+
+         MessageDialog.openInformation(Display.getDefault().getActiveShell(),
+               Messages.Dialog_ReimportTours_Dialog_Title,
+               Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
+
+         return;
+      }
+
+      /*
+       * convert selection to array
+       */
+      final Long[] selectedTourIds = new Long[selectedItems.length];
+      for (int i = 0; i < selectedItems.length; i++) {
+         selectedTourIds[i] = (Long) selectedItems[i];
+      }
+
+      setImportId();
+      setImportCanceled(false);
+
+      final IRunnableWithProgress importRunnable = new IRunnableWithProgress() {
+
+         Display display = Display.getDefault();
+
+         @Override
+         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+            final ReImportStatus reImportStatus = new ReImportStatus();
+            final boolean[] isUserAsked_ToCancelReImport = { false };
+
+            int imported = 0;
+            final int importSize = selectedTourIds.length;
+
+            monitor.beginTask(Messages.Import_Data_Dialog_Reimport_Task, importSize);
+
+            // loop: all selected tours in the viewer
+            for (final Long tourId : selectedTourIds) {
+
+               if (monitor.isCanceled()) {
+                  // stop re-importing but process re-imported tours
+                  break;
+               }
+
+               monitor.worked(1);
+               monitor.subTask(NLS.bind(
+                     Messages.Import_Data_Dialog_Reimport_SubTask,
+                     new Object[] { ++imported, importSize }));
+
+               final TourData oldTourData = TourManager.getTour(tourId);
+
+               if (oldTourData == null) {
+                  continue;
+               }
+
+               deleteTourValuesFromTour(tourValueTypes, oldTourData, reImportStatus);
+
+               if (reImportStatus.isCanceled_ByUser_TheFileLocationDialog && isUserAsked_ToCancelReImport[0] == false) {
+
+                  // user has canceled the re-import -> ask if the whole re-import should be canceled
+
+                  final boolean[] isCancelReimport = { false };
+
+                  display.syncExec(() -> {
+
+                     if (MessageDialog.openQuestion(display.getActiveShell(),
+                           Messages.Import_Data_Dialog_IsCancelReImport_Title,
+                           Messages.Import_Data_Dialog_IsCancelReImport_Message)) {
+
+                        isCancelReimport[0] = true;
+
+                     } else {
+
+                        isUserAsked_ToCancelReImport[0] = true;
+                     }
+                  });
+
+                  if (isCancelReimport[0]) {
+                     break;
+                  }
+               }
+            }
+
+            if (reImportStatus.isReImported) {
+
+               updateTourData_InImportView_FromDb(monitor);
+
+               // reselect tours, run in UI thread
+               display.asyncExec(() -> tourViewer.reloadViewer());
+            }
+         }
+      };
+
+      try {
+         new ProgressMonitorDialog(Display.getDefault().getActiveShell()).run(true, true, importRunnable);
+      } catch (final Exception e) {
+         TourLogManager.logEx(e);
+      } finally {
+
+         final double time = (System.currentTimeMillis() - start) / 1000.0;
+         TourLogManager.addLog(//
+               TourLogState.DEFAULT,
+               String.format(RawDataManager.LOG_REIMPORT_END, time));
+
+      }
+   }
+
+   private void deleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
+                                         final TourData tourData,
+                                         final ReImportStatus reImportStatus) {
+      boolean isReImported = false;
+
+      if (tourData.isManualTour()) {
+
+         /**
+          * Manually created tours cannot be re-imported, there is no import file path
+          * <p>
+          * It took a very long time (years) until this case was discovered
+          */
+
+         TourLogManager.addSubLog(TourLogState.INFO,
+               NLS.bind(
+                     LOG_REIMPORT_MANUAL_TOUR,
+                     tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
+
+         reImportStatus.isReImported = isReImported;
+
+         return;
+      }
+
+      if (actionDeleteTourValuesFromTour(tourValueTypes, tourData)) {
+         isReImported = true;
+      }
+
+      reImportStatus.isReImported = isReImported;
    }
 
    public DeviceData getDeviceData() {
