@@ -785,7 +785,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       // keep window size and position
       return _state;
-//      return null;
    }
 
    private void initUI() {
@@ -834,6 +833,10 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          final List<TourValueType> tourValueTypes = new ArrayList<>();
 
+         //TODO FB refactor this code as it is also used in the reimport dialog
+
+         //TODO FB tell W about the deletion of app_data_action as it was duplicated
+         //however, i didn't touch the other one as the translation is slighlty different "Vert:" prefix
          if (_chkData_AllTimeSlices.getSelection()) {
 
             tourValueTypes.add(TourValueType.ALL_TIME_SLICES);
