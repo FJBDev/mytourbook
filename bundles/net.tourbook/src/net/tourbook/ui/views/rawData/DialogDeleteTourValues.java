@@ -714,10 +714,9 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       } else {
 
-         // re-import SELECTED tours
+         // Delete values for the SELECTED tours
 
          RawDataManager.getInstance().deleteTourValues(tourValueTypes, _tourViewer);
-//         RawDataManager.getInstance().actionReimportSelectedTours(reImportPartIds, _tourViewer, skipToursWithFileNotFound);
       }
    }
 
