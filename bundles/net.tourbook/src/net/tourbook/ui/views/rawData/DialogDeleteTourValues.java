@@ -17,7 +17,6 @@ package net.tourbook.ui.views.rawData;
 
 import de.byteholder.geoclipse.map.UI;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -443,7 +442,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
              * Checkbox: Cadence
              */
             _chkData_Cadence = new Button(group, SWT.CHECK);
-            _chkData_Cadence.setText(Messages.Dialog_ReimportTours_Checkbox_CadenceValues);
+            //TODO FB also rename in ALL the translated files, ugh!
+            _chkData_Cadence.setText(Messages.Dialog_ModifyTours_Checkbox_CadenceValues);
             _chkData_Cadence.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_Cadence);
          }
@@ -452,7 +452,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
              * Checkbox: Running Dynamics
              */
             _chkData_RunningDynamics = new Button(group, SWT.CHECK);
-            _chkData_RunningDynamics.setText(Messages.Dialog_ReimportTours_Checkbox_RunningDynamicsValues);
+            _chkData_RunningDynamics.setText(Messages.Dialog_ModifyTours_Checkbox_RunningDynamicsValues);
             _chkData_RunningDynamics.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_RunningDynamics);
          }
@@ -649,7 +649,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          TourLogManager.showLogView();
 
-         final File[] reimportedFile = new File[1];
          final IComputeTourValues computeTourValueConfig = new IComputeTourValues() {
 
             @Override

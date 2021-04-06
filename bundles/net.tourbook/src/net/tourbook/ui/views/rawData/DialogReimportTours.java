@@ -327,7 +327,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Cadence
              */
             _chkData_Cadence = new Button(group, SWT.CHECK);
-            _chkData_Cadence.setText(Messages.Dialog_ReimportTours_Checkbox_CadenceValues);
+            _chkData_Cadence.setText(Messages.Dialog_ModifyTours_Checkbox_CadenceValues);
             _chkData_Cadence.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_Cadence);
          }
@@ -336,7 +336,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Running Dynamics
              */
             _chkData_RunningDynamics = new Button(group, SWT.CHECK);
-            _chkData_RunningDynamics.setText(Messages.Dialog_ReimportTours_Checkbox_RunningDynamicsValues);
+            _chkData_RunningDynamics.setText(Messages.Dialog_ModifyTours_Checkbox_RunningDynamicsValues);
             _chkData_RunningDynamics.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_RunningDynamics);
          }
