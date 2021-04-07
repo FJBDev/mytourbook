@@ -21,6 +21,7 @@ import java.util.Collections;
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.tooltip.ToolbarSlideout;
@@ -37,6 +38,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -45,7 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Scale;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
 
 /**
@@ -56,6 +59,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
    private final IPreferenceStore _prefStore           = TourbookPlugin.getPrefStore();
 
    private SelectionAdapter       _defaultSelectionListener;
+   private MouseWheelListener     _defaultMouseWheelListener;
 
    private ActionOpenPrefDialog   _actionPrefDialog;
    private Action                 _actionRestoreDefaults;
@@ -102,7 +106,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
    private Button    _chkShowValuePointTooltip;
    private Button    _chkSelectAllTimeSlices;
 
-   private Scale     _scaleNightSectionsOpacity;
+   private Button    _chkNightSectionsOpacity;
+   private Spinner   _spinnerNightSectionsOpacity;
 
    private Combo     _comboPulseValueGraph;
 
@@ -347,23 +352,20 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
             /*
              * label: Night Sections Opacity
              */
-            final Label labelNightSectionsOpacity = new Label(group, SWT.NONE);
-            labelNightSectionsOpacity.setText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity);
-            labelNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity_Tooltip);
+            _chkNightSectionsOpacity = new Button(group, SWT.CHECK);
+            _chkNightSectionsOpacity.setText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity);
+            _chkNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
+            _chkNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
 
             /*
              * Night Sections Opacity Scale
              */
-            _scaleNightSectionsOpacity = new Scale(group, SWT.NONE);
-            _scaleNightSectionsOpacity.setMinimum(0);
-            _scaleNightSectionsOpacity.setMaximum(255);
-            _scaleNightSectionsOpacity.setIncrement(1);
-            _scaleNightSectionsOpacity.setPageIncrement(10);
-            _scaleNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Label_NightSectionsOpacity_Tooltip);
-            _scaleNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
-            GridDataFactory.fillDefaults()
-                  .grab(true, false)
-                  .applyTo(_scaleNightSectionsOpacity);
+            _spinnerNightSectionsOpacity = new Spinner(group, SWT.BORDER);
+            _spinnerNightSectionsOpacity.setMinimum(0);
+            _spinnerNightSectionsOpacity.setMaximum(255);
+            _spinnerNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
+            _spinnerNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
+            _spinnerNightSectionsOpacity.addMouseWheelListener(_defaultMouseWheelListener);
          }
       }
    }
@@ -378,6 +380,14 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _defaultSelectionListener = new SelectionAdapter() {
          @Override
          public void widgetSelected(final SelectionEvent e) {
+            onChangeUI();
+         }
+      };
+
+      _defaultMouseWheelListener = new MouseWheelListener() {
+         @Override
+         public void mouseScrolled(final MouseEvent event) {
+            UI.adjustSpinnerValueOnMouseScroll(event);
             onChangeUI();
          }
       };
@@ -427,6 +437,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       final boolean isSrtmDataVisible = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME);
       final boolean isTourStartTime = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME);
       final int tourNightSectionsOpacity = _prefStore.getDefaultInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
+      final boolean isShowNightSections = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS);
 
       final X_AXIS_START_TIME xAxisStartTime = isTourStartTime
             ? X_AXIS_START_TIME.TOUR_START_TIME
@@ -443,7 +454,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _chkShowStartTimeOnXAxis.setSelection(isTourStartTime);
       _chkShowValuePointTooltip.setSelection(isShowValuePointTooltip);
       _chkSelectAllTimeSlices.setSelection(isSelectInBetweenTimeSlices);
-      _scaleNightSectionsOpacity.setSelection(tourNightSectionsOpacity);
+      _chkNightSectionsOpacity.setSelection(isShowNightSections);
+      _spinnerNightSectionsOpacity.setSelection(tourNightSectionsOpacity);
 
       setSelection_PulseGraph(TourChart.PULSE_GRAPH_DEFAULT, tcc.canShowPulseSerie, tcc.canShowPulseTimeSerie);
 
@@ -469,7 +481,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
 
       _chkInvertPaceGraph.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED));
 
-      _scaleNightSectionsOpacity.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS));
+      _chkNightSectionsOpacity.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS));
+      _spinnerNightSectionsOpacity.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS));
 
       _chkShowBreaktimeValues.setSelection(tcc.isShowBreaktimeValues);
 
@@ -511,7 +524,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED, isShowPaceGraphInverted);
       _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SRTM_VISIBLE, isSrtmDataVisible);
       _prefStore.setValue(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME, isTourStartTime);
-      _prefStore.setValue(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, _scaleNightSectionsOpacity.getSelection());
+      _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS, _chkNightSectionsOpacity.getSelection());
+      _prefStore.setValue(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, _spinnerNightSectionsOpacity.getSelection());
 
       _prefStore.setValue(ITourbookPreferences.GRAPH_PULSE_GRAPH_VALUES, pulseGraph.name());
 

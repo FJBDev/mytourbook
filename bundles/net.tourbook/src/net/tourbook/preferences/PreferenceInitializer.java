@@ -233,6 +233,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED, true);
 
       //
+      store.setDefault(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS, true);
       store.setDefault(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, 0x40); //64
 
       // graph grid
