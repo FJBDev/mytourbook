@@ -428,7 +428,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
 
    private void resetToDefaults() {
 
-      final TourChartConfiguration tcc = _tourChart.getTourChartConfig();
+      final TourChartConfiguration tourChartConfiguration = _tourChart.getTourChartConfig();
 
       final boolean isSelectInBetweenTimeSlices = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES);
       final boolean isShowBreaktimeValues = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_BREAKTIME_VALUES_VISIBLE);
@@ -443,10 +443,10 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
             ? X_AXIS_START_TIME.TOUR_START_TIME
             : X_AXIS_START_TIME.START_WITH_0;
 
-      tcc.isShowBreaktimeValues = isShowBreaktimeValues;
-      tcc.isSRTMDataVisible = isSrtmDataVisible;
-      tcc.xAxisTime = xAxisStartTime;
-      tcc.pulseGraph = TourChart.PULSE_GRAPH_DEFAULT;
+      tourChartConfiguration.isShowBreaktimeValues = isShowBreaktimeValues;
+      tourChartConfiguration.isSRTMDataVisible = isSrtmDataVisible;
+      tourChartConfiguration.xAxisTime = xAxisStartTime;
+      tourChartConfiguration.pulseGraph = TourChart.PULSE_GRAPH_DEFAULT;
 
       _chkInvertPaceGraph.setSelection(isShowPaceGraphInverted);
       _chkShowBreaktimeValues.setSelection(isShowBreaktimeValues);
@@ -457,7 +457,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       _chkNightSectionsOpacity.setSelection(isShowNightSections);
       _spinnerNightSectionsOpacity.setSelection(tourNightSectionsOpacity);
 
-      setSelection_PulseGraph(TourChart.PULSE_GRAPH_DEFAULT, tcc.canShowPulseSerie, tcc.canShowPulseTimeSerie);
+      setSelection_PulseGraph(TourChart.PULSE_GRAPH_DEFAULT, tourChartConfiguration.canShowPulseSerie, tourChartConfiguration.canShowPulseTimeSerie);
 
       // this is not set in saveState()
       _prefStore.setValue(ITourbookPreferences.VALUE_POINT_TOOL_TIP_IS_VISIBLE, isShowValuePointTooltip);
@@ -469,40 +469,42 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
 
    private void restoreState() {
 
-      final TourChartConfiguration tcc = _tourChart.getTourChartConfig();
+      final TourChartConfiguration tourChartConfiguration = _tourChart.getTourChartConfig();
 
-      if (tcc == null) {
+      if (tourChartConfiguration == null) {
          // this occur when tour chart is empty
          return;
       }
 
-      final boolean canShowTimeOnXAxis = tcc.isShowTimeOnXAxis;
-      final boolean canShowSRTMData = tcc.canShowSRTMData;
+      final boolean canShowTimeOnXAxis = tourChartConfiguration.isShowTimeOnXAxis;
+      final boolean canShowSRTMData = tourChartConfiguration.canShowSRTMData;
 
       _chkInvertPaceGraph.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED));
 
       _chkNightSectionsOpacity.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS));
       _spinnerNightSectionsOpacity.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS));
 
-      _chkShowBreaktimeValues.setSelection(tcc.isShowBreaktimeValues);
+      _chkShowBreaktimeValues.setSelection(tourChartConfiguration.isShowBreaktimeValues);
 
       _chkShowSrtmData.setEnabled(canShowSRTMData);
-      _chkShowSrtmData.setSelection(tcc.isSRTMDataVisible);
+      _chkShowSrtmData.setSelection(tourChartConfiguration.isSRTMDataVisible);
 
       _chkShowStartTimeOnXAxis.setEnabled(canShowTimeOnXAxis);
-      _chkShowStartTimeOnXAxis.setSelection(tcc.xAxisTime == X_AXIS_START_TIME.TOUR_START_TIME);
+      _chkShowStartTimeOnXAxis.setSelection(tourChartConfiguration.xAxisTime == X_AXIS_START_TIME.TOUR_START_TIME);
 
       _chkShowValuePointTooltip.setSelection(_prefStore.getBoolean(ITourbookPreferences.VALUE_POINT_TOOL_TIP_IS_VISIBLE));
       _chkSelectAllTimeSlices.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES));
 
-      setSelection_PulseGraph(tcc.pulseGraph, tcc.canShowPulseSerie, tcc.canShowPulseTimeSerie);
+      setSelection_PulseGraph(tourChartConfiguration.pulseGraph,
+            tourChartConfiguration.canShowPulseSerie,
+            tourChartConfiguration.canShowPulseTimeSerie);
 
       _gridUI.restoreState();
    }
 
    private void saveState() {
 
-      final TourChartConfiguration tcc = _tourChart.getTourChartConfig();
+      final TourChartConfiguration tourChartConfiguration = _tourChart.getTourChartConfig();
 
       final boolean isSelectInBetweenTimeSlices = _chkSelectAllTimeSlices.getSelection();
       final boolean isShowBreaktimeValues = _chkShowBreaktimeValues.getSelection();
@@ -536,10 +538,10 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       /*
        * Update chart config
        */
-      tcc.isShowBreaktimeValues = isShowBreaktimeValues;
-      tcc.isSRTMDataVisible = isSrtmDataVisible;
-      tcc.pulseGraph = pulseGraph;
-      tcc.xAxisTime = xAxisStartTime;
+      tourChartConfiguration.isShowBreaktimeValues = isShowBreaktimeValues;
+      tourChartConfiguration.isSRTMDataVisible = isSrtmDataVisible;
+      tourChartConfiguration.pulseGraph = pulseGraph;
+      tourChartConfiguration.xAxisTime = xAxisStartTime;
    }
 
    private void setSelection_PulseGraph(final PulseGraph pulseGraph,
