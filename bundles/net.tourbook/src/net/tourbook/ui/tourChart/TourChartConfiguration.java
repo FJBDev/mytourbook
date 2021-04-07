@@ -145,11 +145,6 @@ public class TourChartConfiguration {
    public boolean                 isShowTourMarker        = true;
 
    /**
-    * Is <code>true</code> when night sections are displayed.
-    */
-   public boolean                 isShowNightSections     = true;
-
-   /**
     * The opacity of the night sections
     */
    public int                     tourNightSectionsOpacity;
@@ -347,7 +342,6 @@ public class TourChartConfiguration {
       /*
        * Tour night sections
        */
-      isShowNightSections           = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS);
       tourNightSectionsOpacity      = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
 
       /*

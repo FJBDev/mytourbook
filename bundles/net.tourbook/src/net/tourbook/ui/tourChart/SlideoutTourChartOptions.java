@@ -38,7 +38,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -370,6 +369,13 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
       }
    }
 
+   private void enableControls() {
+
+      final boolean isShowNightSections = _chkNightSectionsOpacity.getSelection();
+
+      _spinnerNightSectionsOpacity.setEnabled(isShowNightSections);
+   }
+
    private PulseGraph getSelectedPulseGraph() {
 
       return _allPulseGraph_Value[_comboPulseValueGraph.getSelectionIndex()];
@@ -384,12 +390,9 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
          }
       };
 
-      _defaultMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            UI.adjustSpinnerValueOnMouseScroll(event);
-            onChangeUI();
-         }
+      _defaultMouseWheelListener = mouseEvent -> {
+         UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+         onChangeUI();
       };
 
       _defaultSelectionAdapter = new SelectionAdapter() {
@@ -421,6 +424,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
    private void onChangeUI() {
 
       saveState();
+
+      enableControls();
 
       // update chart with new settings
       _tourChart.updateTourChart();

@@ -1889,12 +1889,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
    private void createLayer_NightSections() {
 
-      if (!_tourChartConfiguration.isShowNightSections) {
-         // night sections layer is not displayed
-         hideNightSectionsLayer();
-         return;
-      }
-
       final ChartNightConfig chartNightConfig = new ChartNightConfig();
 
       if (_layerNightSections == null) {
@@ -1927,7 +1921,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
          final int numberOfTours = _tourData.multipleTourStartIndex.length;
          final ZonedDateTime[] multipleTourZonedStartTime = _tourData.multipleTourZonedStartTime;
-
          int tourSerieIndex = 0;
          int nextTourSerieIndex = 0;
          ZonedDateTime tourStartTime = null;
@@ -1946,7 +1939,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
             createLayer_NightSections_Chart(xAxisSerie, chartNightConfig, tourStartTime, tourSerieIndex, nextTourSerieIndex, previousTourElapsedTime);
          }
-
       } else {
 
          createLayer_NightSections_Chart(xAxisSerie, chartNightConfig, _tourData.getTourStartTime(), 0, timeSerie.length, 0);
@@ -2079,7 +2071,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
          // setup pause layer, a layer is created only once
 
-         _layerPause = new ChartLayerPause(this);
+         _layerPause = new ChartLayerPause();
 
          // set overlay painter
          addChartOverlay(_layerPause);
@@ -3284,19 +3276,6 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       _selectedTourMarker = null;
 
       _tourMarkerTooltip.hideNow();
-   }
-
-   /**
-    * Hides the night sections layer.
-    */
-   private void hideNightSectionsLayer() {
-
-      if (_layerNightSections != null) {
-
-         removeChartOverlay(_layerNightSections);
-
-         _layerNightSections = null;
-      }
    }
 
    /**

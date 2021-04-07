@@ -33,7 +33,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
 
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
-   private ChartNightConfig              _cnc;
+   private ChartNightConfig              _chartNightConfig;
 
    public ChartLayerNight() {
       //Nothing to do
@@ -44,6 +44,10 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
     */
    @Override
    public void draw(final GC gc, final GraphDrawingData drawingData, final Chart chart, final PixelConverter pc) {
+
+      if (!_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS)) {
+         return;
+      }
 
       final int opacity = _prefStore.getInt(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS);
 
@@ -57,7 +61,7 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
       final double scaleX = drawingData.getScaleX();
       final long devVirtualGraphImageOffset = chart.getXXDevViewPortLeftBorder();
       final int devYBottom = drawingData.getDevYBottom();
-      for (final ChartLabel chartLabel : _cnc.chartLabels) {
+      for (final ChartLabel chartLabel : _chartNightConfig.chartLabels) {
 
          final double virtualXPos = chartLabel.graphX * scaleX;
          final int devXNightSectionStart = (int) (virtualXPos - devVirtualGraphImageOffset);
@@ -81,6 +85,6 @@ public class ChartLayerNight implements IChartLayer, IChartOverlay {
    }
 
    public void setChartNightConfig(final ChartNightConfig chartNightConfig) {
-      _cnc = chartNightConfig;
+      _chartNightConfig = chartNightConfig;
    }
 }

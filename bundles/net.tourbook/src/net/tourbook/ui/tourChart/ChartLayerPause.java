@@ -20,7 +20,6 @@ import net.tourbook.chart.Chart;
 import net.tourbook.chart.GraphDrawingData;
 import net.tourbook.chart.IChartLayer;
 import net.tourbook.chart.IChartOverlay;
-import net.tourbook.photo.ILoadCallBack;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.graphics.Color;
@@ -28,45 +27,19 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
 
 public class ChartLayerPause implements IChartLayer, IChartOverlay {
 
    private int              LABEL_OFFSET;
    private int              PAUSE_POINT_SIZE;
 
-   private TourChart        _tourChart;
    private ChartPauseConfig _chartPauseConfig;
 
    private int              _devXPause;
    private int              _devYPause;
 
-   public class LoadImageCallback implements ILoadCallBack {
-
-      @Override
-      public void callBackImageIsLoaded(final boolean isImageLoaded) {
-
-         if (isImageLoaded == false) {
-            return;
-         }
-
-         // run in UI thread
-         Display.getDefault().syncExec(() -> {
-
-            // ensure chart is still displayed
-            if (_tourChart.getShell().isDisposed()) {
-               return;
-            }
-
-            // paint image
-            _tourChart.redrawLayer();
-         });
-      }
-   }
-
-   public ChartLayerPause(final TourChart tourChart) {
-
-      _tourChart = tourChart;
+   public ChartLayerPause() {
+      //Nothing to do
    }
 
    /**
