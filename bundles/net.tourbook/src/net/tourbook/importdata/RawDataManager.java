@@ -1621,7 +1621,6 @@ public class RawDataManager {
          TourLogManager.addLog(//
                TourLogState.DEFAULT,
                String.format(RawDataManager.LOG_REIMPORT_END, time));
-
       }
    }
 
@@ -1645,59 +1644,51 @@ public class RawDataManager {
       //to compare with the new data
       for (final TourValueType tourValueType : tourValueTypes) {
 
-         switch (tourValueType) {
-
-         case TOUR_MARKER:
+         if (tourValueType == TourValueType.ALL_TIME_SLICES) {
+            //TODO FB  I dont think that ALL_TIME_SLICES is correct. I would add TIME_SLICES_TIME and rmeove all time slices from the UI
+            //then put back to a switch case ?
+            for (int index = 0; index < tourData.timeSerie.length; ++index) {
+               tourData.timeSerie[index] = 0;
+            }
+            tourData.setTourDeviceTime_Elapsed(0);
+            tourData.setPausedTime_Start(null);
+            tourData.setPausedTime_End(null);
+            tourData.setTourDeviceTime_Paused(0);
+            tourData.setTourDeviceTime_Recorded(0);
+            tourData.setTourComputedTime_Moving(0);
+            tourData.clearComputedSeries();
+         }
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TOUR_MARKER) {
             tourData.setTourMarkers(new HashSet<>());
-            break;
-
-         //
-
-         case TIME_SLICES_CADENCE:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_CADENCE) {
             tourData.setCadenceSerie(null);
             tourData.setAvgCadence(0);
             tourData.setCadenceMultiplier(0);
-            break;
-
-         case TIME_SLICES_ELEVATION:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_ELEVATION) {
             tourData.altitudeSerie = null;
             tourData.setTourAltDown(0);
             tourData.setTourAltUp(0);
-            break;
-
-         case TIME_SLICES_GEAR:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_GEAR) {
             tourData.setFrontShiftCount(0);
             tourData.setRearShiftCount(0);
-            break;
-
-         case TIME_SLICES_POWER_AND_PULSE:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE) {
             tourData.setPowerSerie(null);
             tourData.setPower_Avg(0);
             tourData.setAvgPulse(0);
             tourData.setCalories(0);
-            break;
-
-         case TIME_SLICES_POWER_AND_SPEED:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
             tourData.setPowerSerie(null);
             tourData.setPower_Avg(0);
             tourData.setCalories(0);
-            break;
-
-         case TIME_SLICES_TEMPERATURE:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TEMPERATURE) {
             tourData.temperatureSerie = null;
             tourData.setAvgTemperature(0);
-            break;
-
-         case TIME_SLICES_TIMER_PAUSES:
+         } else if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TIMER_PAUSES) {
             tourData.setPausedTime_Start(null);
             tourData.setPausedTime_End(null);
             tourData.setTourDeviceTime_Paused(0);
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
-            break;
-
-         default:
-            break;
-         }
+         } else {}
       }
 
       TourManager.saveModifiedTour(tourData, false);

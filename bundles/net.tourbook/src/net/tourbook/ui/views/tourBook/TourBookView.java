@@ -1749,10 +1749,10 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       _subMenu_AdjustTourValues.setEnabled(isTourSelected || isAllToursSelected);
       _subMenu_AdjustTourValues.getActionRetrieveWeatherData().setEnabled(useWeatherRetrieval);
 
-      // re-import can be run on all/selected/between dates tours
+      // re-import and tour values deletion can be run on all/selected/between dates tours
       _actionReimport_Tours.setEnabled(true);
+      _actionDeleteTour.setEnabled(true);
 
-      _actionDeleteTour.setEnabled(isTourSelected);
       _actionDeleteTourValues.setEnabled(isTourSelected);
       _actionEditQuick.setEnabled(isOneTour);
       _actionEditTour.setEnabled(isOneTour);
