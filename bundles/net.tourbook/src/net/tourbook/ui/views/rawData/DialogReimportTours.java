@@ -229,7 +229,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Re-import ALL tours in the database
              */
             _rdoReimport_Tours_All = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_All.setText(Messages.Dialog_ReimportTours_Radio_AllTours);
+            _rdoReimport_Tours_All.setText(Messages.Dialog_ModifyTours_Radio_AllTours);
             _rdoReimport_Tours_All.addSelectionListener(_defaultListener);
             GridDataFactory.fillDefaults().span(2, 1).indent(0, 3).applyTo(_rdoReimport_Tours_All);
          }
@@ -238,7 +238,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Re-import the SELECTED tours
              */
             _rdoReimport_Tours_Selected = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_Selected.setText(Messages.Dialog_ReimportTours_Radio_SelectedTours);
+            _rdoReimport_Tours_Selected.setText(Messages.Dialog_ModifyTours_Radio_SelectedTours);
             _rdoReimport_Tours_Selected.addSelectionListener(_defaultListener);
             GridDataFactory.fillDefaults().span(2, 1).applyTo(_rdoReimport_Tours_Selected);
          }
@@ -247,7 +247,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Re-import between dates
              */
             _rdoReimport_Tours_BetweenDates = new Button(group, SWT.RADIO);
-            _rdoReimport_Tours_BetweenDates.setText(Messages.Dialog_ReimportTours_Radio_BetweenDates);
+            _rdoReimport_Tours_BetweenDates.setText(Messages.Dialog_ModifyTours_Radio_BetweenDates);
             _rdoReimport_Tours_BetweenDates.addSelectionListener(_defaultListener);
 
             final Composite container = new Composite(group, SWT.NONE);

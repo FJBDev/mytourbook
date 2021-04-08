@@ -399,9 +399,9 @@ public class Messages extends NLS {
    public static String        Dialog_ReimportTours_Group_Tours_Tooltip;
    public static String        Dialog_ReimportTours_Group_Data;
    public static String        Dialog_ReimportTours_Group_Data_Tooltip;
-   public static String        Dialog_ReimportTours_Radio_AllTours;
-   public static String        Dialog_ReimportTours_Radio_BetweenDates;
-   public static String        Dialog_ReimportTours_Radio_SelectedTours;
+   public static String        Dialog_ModifyTours_Radio_AllTours;
+   public static String        Dialog_ModifyTours_Radio_BetweenDates;
+   public static String        Dialog_ModifyTours_Radio_SelectedTours;
 
    public static String        Dialog_RetrieveWeather_Dialog_Title;
    public static String        Dialog_RetrieveWeather_Label_WeatherDataNotRetrieved;
