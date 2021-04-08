@@ -1638,9 +1638,10 @@ public class RawDataManager {
        */
       final TourData oldTourDataInImportView = _toursInImportView.remove(tourId);
 
-      /*
-       * tour(s) could be re-imported from the file, check if it contains a valid tour
-       */
+      TourData clonedTourData = null;
+      try {
+
+         clonedTourData = (TourData) tourData.clone();
 
       // loop: For each tour value type, we save the associated data for future display
       //to compare with the new data
@@ -1715,17 +1716,20 @@ public class RawDataManager {
             break;
          }
       }
-
+   } catch (final CloneNotSupportedException e) {
+      StatusUtil.log(e);
+   }
       TourManager.saveModifiedTour(tourData, false);
 
       TourLogManager.addSubLog(TourLogState.IMPORT_OK,
             NLS.bind(LOG_IMPORT_TOUR_IMPORTED,
                   tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
 
-//            // Print the old vs new data comparison
-//            for (final TourValueType tourValueType : tourValueTypes) {
-//               displayReimportDataDifferences(tourValueType, clonedTourData, updatedTourData);
-//            }
+      // Print the old vs new data comparison
+      //TODO FB it doesnt work!?
+      for (final TourValueType tourValueType : tourValueTypes) {
+         displayReimportDataDifferences(tourValueType, clonedTourData, tourData);
+      }
 
       // check if tour is displayed in the import view
       if (oldTourDataInImportView != null) {
