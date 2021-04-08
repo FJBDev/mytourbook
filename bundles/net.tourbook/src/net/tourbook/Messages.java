@@ -373,14 +373,14 @@ public class Messages extends NLS {
    public static String        Dialog_ModifyTours_Checkbox_CadenceValues;
    public static String        Dialog_ReimportTours_Checkbox_ElevationValues;
    public static String        Dialog_ReimportTours_Checkbox_EntireTour;
-   public static String        Dialog_ReimportTours_Checkbox_GearValues;
+   public static String        Dialog_ModifyTours_Checkbox_GearValues;
    public static String        Dialog_ReimportTours_Checkbox_ImportFileLocation;
    public static String        Dialog_ReimportTours_Checkbox_ImportFileLocation_Tooltip;
-   public static String        Dialog_ReimportTours_Checkbox_PowerAndPulseValues;
-   public static String        Dialog_ReimportTours_Checkbox_PowerAndSpeedValues;
+   public static String        Dialog_ModifyTours_Checkbox_PowerAndPulseValues;
+   public static String        Dialog_ModifyTours_Checkbox_PowerAndSpeedValues;
    public static String        Dialog_ModifyTours_Checkbox_RunningDynamicsValues;
    public static String        Dialog_ReimportTours_Checkbox_SkipToursWithImportFileNotFound;
-   public static String        Dialog_ReimportTours_Checkbox_SwimmingValues;
+   public static String        Dialog_ModifyTours_Checkbox_SwimmingValues;
    public static String        Dialog_ReimportTours_Checkbox_TemperatureValues;
    public static String        Dialog_ReimportTours_Checkbox_TimeSlices;
    public static String        Dialog_ReimportTours_Checkbox_TourMarkers;

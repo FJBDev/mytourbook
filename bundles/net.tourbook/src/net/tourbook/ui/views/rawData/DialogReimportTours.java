@@ -356,7 +356,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Swimming
              */
             _chkData_Swimming = new Button(group, SWT.CHECK);
-            _chkData_Swimming.setText(Messages.Dialog_ReimportTours_Checkbox_SwimmingValues);
+            _chkData_Swimming.setText(Messages.Dialog_ModifyTours_Checkbox_SwimmingValues);
             _chkData_Swimming.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_Swimming);
          }
@@ -367,7 +367,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Gear
              */
             _chkData_Gear = new Button(group, SWT.CHECK);
-            _chkData_Gear.setText(Messages.Dialog_ReimportTours_Checkbox_GearValues);
+            _chkData_Gear.setText(Messages.Dialog_ModifyTours_Checkbox_GearValues);
             _chkData_Gear.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_Gear);
          }
@@ -387,7 +387,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Power And Pulse
              */
             _chkData_PowerAndPulse = new Button(group, SWT.CHECK);
-            _chkData_PowerAndPulse.setText(Messages.Dialog_ReimportTours_Checkbox_PowerAndPulseValues);
+            _chkData_PowerAndPulse.setText(Messages.Dialog_ModifyTours_Checkbox_PowerAndPulseValues);
             _chkData_PowerAndPulse.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_PowerAndPulse);
          }
@@ -407,7 +407,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Power And Speed
              */
             _chkData_PowerAndSpeed = new Button(group, SWT.CHECK);
-            _chkData_PowerAndSpeed.setText(Messages.Dialog_ReimportTours_Checkbox_PowerAndSpeedValues);
+            _chkData_PowerAndSpeed.setText(Messages.Dialog_ModifyTours_Checkbox_PowerAndSpeedValues);
             _chkData_PowerAndSpeed.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_PowerAndSpeed);
          }
