@@ -308,7 +308,8 @@ public class Messages extends NLS {
    public static String        Dialog_DeleteTourValues_Dialog_Title;
    public static String        Dialog_DeleteTourValues_Group_Data;
    public static String        Dialog_DeleteTourValues_Group_Data_Tooltip;
-
+   public static String        Dialog_DeleteTourValues_Group_Tours;
+   public static String        Dialog_DeleteTourValues_Group_Tours_Tooltip;
 
    public static String        Dialog_DoubleClickAction_InvalidAction_Message;
    public static String        Dialog_DoubleClickAction_InvalidAction_Title;

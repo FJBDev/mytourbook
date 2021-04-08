@@ -202,8 +202,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private void createUI_10_Tours(final Composite parent) {
 
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ReimportTours_Group_Tours);
-      group.setToolTipText(Messages.Dialog_ReimportTours_Group_Tours_Tooltip);
+      group.setText(Messages.Dialog_DeleteTourValues_Group_Tours);
+      group.setToolTipText(Messages.Dialog_DeleteTourValues_Group_Tours_Tooltip);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().spacing(5, 7).numColumns(2).applyTo(group);
       {
