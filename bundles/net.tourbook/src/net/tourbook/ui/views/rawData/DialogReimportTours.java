@@ -720,7 +720,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       } else {
 
-         setErrorMessage(Messages.Dialog_ReimportTours_Error_2ndDateMustBeLarger);
+         setErrorMessage(Messages.Dialog_ModifyTours_Error_2ndDateMustBeLarger);
          return false;
       }
    }

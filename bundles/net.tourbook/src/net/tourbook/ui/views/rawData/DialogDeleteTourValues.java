@@ -30,7 +30,6 @@ import net.tourbook.database.IComputeTourValues;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.importdata.RawDataManager.TourValueType;
-import net.tourbook.importdata.ReImportStatus;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourManager;
@@ -491,11 +490,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             @Override
             public boolean computeTourValues(final TourData tourData) {
 
-               final ReImportStatus reImportStatus = new ReImportStatus();
-
-               RawDataManager.getInstance().deleteTourValuesFromTour(tourValueTypes,
-                     tourData,
-                     reImportStatus);
+               RawDataManager.getInstance().deleteTourValuesFromTour(tourValueTypes, tourData);
 
                return true;
             }
@@ -635,7 +630,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
       } else {
 
-         setErrorMessage(Messages.Dialog_ReimportTours_Error_2ndDateMustBeLarger);
+         setErrorMessage(Messages.Dialog_ModifyTours_Error_2ndDateMustBeLarger);
          return false;
       }
    }

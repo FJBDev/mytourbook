@@ -1575,7 +1575,7 @@ public class RawDataManager {
                   continue;
                }
 
-               deleteTourValuesFromTour(tourValueTypes, tourData, reImportStatus);
+               deleteTourValuesFromTour(tourValueTypes, tourData);
 
                if (reImportStatus.isCanceled_ByUser_TheFileLocationDialog && isUserAsked_ToCancelReImport[0] == false) {
 
@@ -1627,8 +1627,7 @@ public class RawDataManager {
    }
 
    public void deleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
-                                         final TourData tourData,
-                                         final ReImportStatus reImportStatus) {
+                                        final TourData tourData) {
 
       final Long tourId = tourData.getTourId();
 
@@ -1643,80 +1642,80 @@ public class RawDataManager {
 
          clonedTourData = (TourData) tourData.clone();
 
-      // loop: For each tour value type, we save the associated data for future display
-      //to compare with the new data
-      for (final TourValueType tourValueType : tourValueTypes) {
+         // loop: For each tour value type, we save the associated data for future display
+         //to compare with the new data
+         for (final TourValueType tourValueType : tourValueTypes) {
 
-         switch (tourValueType) {
+            switch (tourValueType) {
 
-         case TIME_SLICES_TIME:
-            for (int index = 0; index < tourData.timeSerie.length; ++index) {
-               tourData.timeSerie[index] = 0;
+            case TIME_SLICES_TIME:
+               for (int index = 0; index < tourData.timeSerie.length; ++index) {
+                  tourData.timeSerie[index] = 0;
+               }
+               tourData.setTourDeviceTime_Elapsed(0);
+               tourData.setPausedTime_Start(null);
+               tourData.setPausedTime_End(null);
+               tourData.setTourDeviceTime_Paused(0);
+               tourData.setTourDeviceTime_Recorded(0);
+               tourData.setTourComputedTime_Moving(0);
+               tourData.clearComputedSeries();
+               break;
+            case TOUR_MARKER:
+               tourData.setTourMarkers(new HashSet<>());
+               break;
+
+            case TIME_SLICES_CADENCE:
+               tourData.setCadenceSerie(null);
+               tourData.setAvgCadence(0);
+               tourData.setCadenceMultiplier(0);
+               break;
+
+            case TIME_SLICES_ELEVATION:
+               tourData.altitudeSerie = null;
+               tourData.setTourAltDown(0);
+               tourData.setTourAltUp(0);
+               break;
+
+            case TIME_SLICES_GEAR:
+               tourData.setFrontShiftCount(0);
+               tourData.setRearShiftCount(0);
+               break;
+
+            case TIME_SLICES_POWER_AND_PULSE:
+               tourData.setPowerSerie(null);
+               tourData.setPower_Avg(0);
+               tourData.setAvgPulse(0);
+               tourData.setCalories(0);
+               break;
+
+            case TIME_SLICES_POWER_AND_SPEED:
+               tourData.setPowerSerie(null);
+               tourData.setPower_Avg(0);
+               tourData.setCalories(0);
+               break;
+
+            case TIME_SLICES_TEMPERATURE:
+               tourData.temperatureSerie = null;
+               tourData.setAvgTemperature(0);
+               break;
+
+            case TIME_SLICES_TIMER_PAUSES:
+               tourData.setPausedTime_Start(null);
+               tourData.setPausedTime_End(null);
+               tourData.setTourDeviceTime_Paused(0);
+               tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
+               break;
+
+            case ALL_TIME_SLICES:
+            case ENTIRE_TOUR:
+            case IMPORT_FILE_LOCATION:
+            default:
+               break;
             }
-            tourData.setTourDeviceTime_Elapsed(0);
-            tourData.setPausedTime_Start(null);
-            tourData.setPausedTime_End(null);
-            tourData.setTourDeviceTime_Paused(0);
-            tourData.setTourDeviceTime_Recorded(0);
-            tourData.setTourComputedTime_Moving(0);
-            tourData.clearComputedSeries();
-            break;
-         case TOUR_MARKER:
-            tourData.setTourMarkers(new HashSet<>());
-            break;
-
-         case TIME_SLICES_CADENCE:
-            tourData.setCadenceSerie(null);
-            tourData.setAvgCadence(0);
-            tourData.setCadenceMultiplier(0);
-            break;
-
-         case TIME_SLICES_ELEVATION:
-            tourData.altitudeSerie = null;
-            tourData.setTourAltDown(0);
-            tourData.setTourAltUp(0);
-            break;
-
-         case TIME_SLICES_GEAR:
-            tourData.setFrontShiftCount(0);
-            tourData.setRearShiftCount(0);
-            break;
-
-         case TIME_SLICES_POWER_AND_PULSE:
-            tourData.setPowerSerie(null);
-            tourData.setPower_Avg(0);
-            tourData.setAvgPulse(0);
-            tourData.setCalories(0);
-            break;
-
-         case TIME_SLICES_POWER_AND_SPEED:
-            tourData.setPowerSerie(null);
-            tourData.setPower_Avg(0);
-            tourData.setCalories(0);
-            break;
-
-         case TIME_SLICES_TEMPERATURE:
-            tourData.temperatureSerie = null;
-            tourData.setAvgTemperature(0);
-            break;
-
-         case TIME_SLICES_TIMER_PAUSES:
-            tourData.setPausedTime_Start(null);
-            tourData.setPausedTime_End(null);
-            tourData.setTourDeviceTime_Paused(0);
-            tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
-            break;
-
-         case ALL_TIME_SLICES:
-         case ENTIRE_TOUR:
-         case IMPORT_FILE_LOCATION:
-         default:
-            break;
          }
+      } catch (final CloneNotSupportedException e) {
+         StatusUtil.log(e);
       }
-   } catch (final CloneNotSupportedException e) {
-      StatusUtil.log(e);
-   }
       TourManager.saveModifiedTour(tourData, false);
 
       TourLogManager.addSubLog(TourLogState.IMPORT_OK,
@@ -1736,8 +1735,6 @@ public class RawDataManager {
 
          _toursInImportView.put(tourData.getTourId(), tourData);
       }
-
-      reImportStatus.isReImported = true;
    }
 
    public DeviceData getDeviceData() {
