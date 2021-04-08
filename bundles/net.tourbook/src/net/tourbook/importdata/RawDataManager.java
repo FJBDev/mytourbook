@@ -1624,7 +1624,7 @@ public class RawDataManager {
       }
    }
 
-   private void deleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
+   public void deleteTourValuesFromTour(final List<TourValueType> tourValueTypes,
                                          final TourData tourData,
                                          final ReImportStatus reImportStatus) {
 

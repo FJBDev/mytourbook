@@ -124,151 +124,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _tourViewer = tourViewer;
    }
 
-//   private boolean actionReimportTour_30(final List<TourValueType> tourValueTypes,
-//                                         final File reimportedFile,
-//                                         final TourData oldTourData) {
-//
-//      final boolean isTourReImported = false;
-//
-//      final Long oldTourId = oldTourData.getTourId();
-//      final String reimportFileNamePath = reimportedFile.getAbsolutePath();
-//
-//      /*
-//       * tour must be removed otherwise it would be recognized as a duplicate and therefore not
-//       * imported
-//       */
-////      final TourData oldTourDataInImportView = _toursInImportView.remove(oldTourId);
-//
-//      if (importRawData(reimportedFile, null, false, null, false)) {
-//
-//         /*
-//          * tour(s) could be re-imported from the file, check if it contains a valid tour
-//          */
-//
-//         TourData clonedTourData = null;
-//
-//         try {
-//
-//            clonedTourData = (TourData) oldTourData.clone();
-//
-//            // loop: For each tour value type, we save the associated data for future display
-//            //to compare with the new data
-//            for (final TourValueType tourValueType : tourValueTypes) {
-//
-//               switch (tourValueType) {
-//
-//               case TOUR_MARKER:
-//                  clonedTourData.setTourMarkers(new HashSet<>(oldTourData.getTourMarkers()));
-//                  break;
-//
-//               //
-//
-//               case TIME_SLICES_CADENCE:
-//                  clonedTourData.setAvgCadence(oldTourData.getAvgCadence());
-//                  clonedTourData.setCadenceMultiplier(oldTourData.getCadenceMultiplier());
-//                  break;
-//
-//               case TIME_SLICES_ELEVATION:
-//                  clonedTourData.setTourAltDown(oldTourData.getTourAltDown());
-//                  clonedTourData.setTourAltUp(oldTourData.getTourAltUp());
-//                  break;
-//
-//               case TIME_SLICES_GEAR:
-//                  clonedTourData.setFrontShiftCount(oldTourData.getFrontShiftCount());
-//                  clonedTourData.setRearShiftCount(oldTourData.getRearShiftCount());
-//                  break;
-//
-//               case TIME_SLICES_POWER_AND_PULSE:
-//                  clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
-//                  clonedTourData.setAvgPulse(oldTourData.getAvgPulse());
-//                  clonedTourData.setCalories(oldTourData.getCalories());
-//                  break;
-//
-//               case TIME_SLICES_POWER_AND_SPEED:
-//                  clonedTourData.setPower_Avg(oldTourData.getPower_Avg());
-//                  clonedTourData.setCalories(oldTourData.getCalories());
-//                  break;
-//
-//               case TIME_SLICES_TEMPERATURE:
-//                  clonedTourData.setAvgTemperature(oldTourData.getAvgTemperature());
-//                  break;
-//
-//               case TIME_SLICES_TIMER_PAUSES:
-//                  clonedTourData.setTourDeviceTime_Paused(oldTourData.getTourDeviceTime_Paused());
-//                  break;
-//
-//               default:
-//                  break;
-//               }
-//            }
-//         } catch (final CloneNotSupportedException e) {
-//            StatusUtil.log(e);
-//         }
-//
-////         TourData updatedTourData = actionReimportTour_40(tourValueTypes, reimportedFile, oldTourData);
-//
-////         if (updatedTourData == null) {
-////
-////            // error is already logged
-////
-////         } else {
-////
-////            isTourReImported = true;
-////
-////            // set re-import file path as new location
-////            updatedTourData.setImportFilePath(reimportFileNamePath);
-////
-////            // check if tour is saved
-////            final TourPerson tourPerson = oldTourData.getTourPerson();
-////            if (tourPerson != null) {
-////
-////               // re-save tour when the re-imported tour was already saved
-////
-////               updatedTourData.setTourPerson(tourPerson);
-////
-////               /*
-////                * Save tour but don't fire a change event because the tour editor would set the tour
-////                * to dirty
-////                */
-////               final TourData savedTourData = TourManager.saveModifiedTour(updatedTourData, false);
-////
-////               updatedTourData = savedTourData;
-////            }
-//
-////            TourLogManager.addSubLog(TourLogState.IMPORT_OK,
-////                  NLS.bind("LOG_IMPORT_TOUR_IMPORTED",
-////                        updatedTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S),
-////                        reimportFileNamePath));
-//
-////            // Print the old vs new data comparison
-////            for (final TourValueType tourValueType : tourValueTypes) {
-////               displayReimportDataDifferences(tourValueType, clonedTourData, updatedTourData);
-////            }
-//
-//            // check if tour is displayed in the import view
-////            if (oldTourDataInImportView != null) {
-////
-////               // replace tour data in the import view
-////
-////               _toursInImportView.put(updatedTourData.getTourId(), updatedTourData);
-////            }
-////         }
-//
-//      } else {
-//
-//         TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, reimportFileNamePath);
-//
-////         if (oldTourDataInImportView != null) {
-////
-////            // re-attach removed tour
-////
-////            _toursInImportView.put(oldTourId, oldTourDataInImportView);
-////         }
-//      }
-//
-//      return isTourReImported;
-//   }
-
    @Override
    public boolean close() {
 
@@ -442,7 +297,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
              * Checkbox: Cadence
              */
             _chkData_Cadence = new Button(group, SWT.CHECK);
-            //TODO FB also rename in ALL the translated files, ugh!
             _chkData_Cadence.setText(Messages.Dialog_ModifyTours_Checkbox_CadenceValues);
             _chkData_Cadence.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_Cadence);
@@ -652,14 +506,13 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          final IComputeTourValues computeTourValueConfig = new IComputeTourValues() {
 
             @Override
-            public boolean computeTourValues(final TourData oldTourData) {
+            public boolean computeTourValues(final TourData tourData) {
 
                final ReImportStatus reImportStatus = new ReImportStatus();
 
-//               RawDataManager.getInstance().reimportTour(reImportPartIds,
-//                     oldTourData,
-//                     reimportedFile,
-//                     reImportStatus);
+               RawDataManager.getInstance().deleteTourValuesFromTour(tourValueTypes,
+                     tourData,
+                     reImportStatus);
 
                return true;
             }
