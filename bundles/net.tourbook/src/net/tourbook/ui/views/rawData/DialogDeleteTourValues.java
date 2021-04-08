@@ -62,7 +62,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private static final String          STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM  = "STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM";      //$NON-NLS-1$
    private static final String          STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL = "STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL";     //$NON-NLS-1$
 
-   private static final String          STATE_IS_DELETE_ALL_TIME_SLICES             = "STATE_IS_IMPORT_ALL_TIME_SLICES";                 //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_CADENCE                     = "STATE_IS_DELETE_CADENCE";                         //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_ELEVATION                   = "STATE_IS_DELETE_ELEVATION";                       //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_GEAR                        = "STATE_IS_DELETE_GEAR";                            //$NON-NLS-1$
@@ -71,9 +70,10 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private static final String          STATE_IS_DELETE_RUNNING_DYNAMICS            = "STATE_IS_DELETE_RUNNING_DYNAMICS";                //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_SWIMMING                    = "STATE_IS_DELETE_SWIMMING";                        //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_TEMPERATURE                 = "STATE_IS_DELETE_TEMPERATURE";                     //$NON-NLS-1$
-   private static final String          STATE_IS_DELETE_TRAINING                    = "STATE_IS_DELETE_TRAINING";                        //$NON-NLS-1$
-   private static final String          STATE_IS_DELETE_TOUR_MARKERS                = "STATE_IS_DELETE_TOUR_MARKERS";                    //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TIME                        = "STATE_IS_DELETE_TIME";                            //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_TIMER_PAUSES                = "STATE_IS_DELETE_TIMER_PAUSES";                    //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TOUR_MARKERS                = "STATE_IS_DELETE_TOUR_MARKERS";                    //$NON-NLS-1$
+   private static final String          STATE_IS_DELETE_TRAINING                    = "STATE_IS_DELETE_TRAINING";                        //$NON-NLS-1$
 
    private static final int             VERTICAL_SECTION_MARGIN                     = 10;
 
@@ -116,6 +116,12 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       super(parentShell);
 
       _tourViewer = tourViewer;
+   }
+
+   private void addTourValueTypeFromCheckbox(final Button checkButton, final TourValueType tourValueType, final List<TourValueType> tourValueTypes) {
+      if (checkButton.getSelection()) {
+         tourValueTypes.add(tourValueType);
+      }
    }
 
    @Override
@@ -203,7 +209,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       {
          {
             /*
-             * Re-import ALL tours in the database
+             * Modify ALL tours in the database
              */
             _rdoDeleteTourValues_Tours_All = new Button(group, SWT.RADIO);
             _rdoDeleteTourValues_Tours_All.setText(Messages.Dialog_ModifyTours_Radio_AllTours);
@@ -212,7 +218,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          }
          {
             /*
-             * Re-import the SELECTED tours
+             * Modify the SELECTED tours
              */
             _rdoDeleteTourValues_Tours_Selected = new Button(group, SWT.RADIO);
             _rdoDeleteTourValues_Tours_Selected.setText(Messages.Dialog_ModifyTours_Radio_SelectedTours);
@@ -221,7 +227,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
          }
          {
             /*
-             * Re-import between dates
+             * Modify between dates
              */
             _rdoDeleteTourValues_Tours_BetweenDates = new Button(group, SWT.RADIO);
             _rdoDeleteTourValues_Tours_BetweenDates.setText(Messages.Dialog_ModifyTours_Radio_BetweenDates);
@@ -475,7 +481,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             }
          }
 
-         // re-import ALL tours or BETWEEN tours
+         // Modify ALL tours or BETWEEN tours
 
          if (RawDataManager.getInstance().actionReimportTour_10_Confirm(tourValueTypes) == false) {
             return;
@@ -586,12 +592,12 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
 
       // prevent re-importing in the import view
-      RawDataManager.setIsReimportingActive(true);
+      RawDataManager.setIsDeleteValuesActive(true);
       {
          // fire unique event for all changes
          TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
       }
-      RawDataManager.setIsReimportingActive(false);
+      RawDataManager.setIsDeleteValuesActive(false);
    }
 
    @Override
@@ -638,7 +644,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      //We close the window so the user can see that import progress bar and log view
+      //We close the window so the user can see the progress bar and log view
       _parent.getShell().setVisible(false);
 
       BusyIndicator.showWhile(Display.getCurrent(), () -> {
@@ -647,42 +653,18 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          //TODO FB tell W about the deletion of app_data_action as it was duplicated
          //however, i didn't touch the other one as the translation is slighlty different "Vert:" prefix
-         if (_chkData_Time.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_TIME);
-         }
-         if (_chkData_Cadence.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_CADENCE);
-         }
-         if (_chkData_Elevation.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_ELEVATION);
-         }
-         if (_chkData_Gear.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_GEAR);
-         }
-         if (_chkData_PowerAndPulse.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_POWER_AND_PULSE);
-         }
-         if (_chkData_PowerAndSpeed.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_POWER_AND_SPEED);
-         }
-         if (_chkData_RunningDynamics.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_RUNNING_DYNAMICS);
-         }
-         if (_chkData_Swimming.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_SWIMMING);
-         }
-         if (_chkData_Temperature.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_TEMPERATURE);
-         }
-         if (_chkData_TourTimerPauses.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_TIMER_PAUSES);
-         }
-         if (_chkData_Training.getSelection()) {
-            tourValueTypes.add(TourValueType.TIME_SLICES_TRAINING);
-         }
-         if (_chkData_TourMarkers.getSelection()) {
-            tourValueTypes.add(TourValueType.TOUR_MARKER);
-         }
+         addTourValueTypeFromCheckbox(_chkData_Time, TourValueType.TIME_SLICES_TIME, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Cadence, TourValueType.TIME_SLICES_CADENCE, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Elevation, TourValueType.TIME_SLICES_ELEVATION, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Gear, TourValueType.TIME_SLICES_GEAR, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_PowerAndPulse, TourValueType.TIME_SLICES_POWER_AND_PULSE, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_PowerAndSpeed, TourValueType.TIME_SLICES_POWER_AND_SPEED, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_RunningDynamics, TourValueType.TIME_SLICES_RUNNING_DYNAMICS, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Swimming, TourValueType.TIME_SLICES_SWIMMING, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Temperature, TourValueType.TIME_SLICES_TEMPERATURE, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_TourTimerPauses, TourValueType.TIME_SLICES_TIMER_PAUSES, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_Training, TourValueType.TIME_SLICES_TRAINING, tourValueTypes);
+         addTourValueTypeFromCheckbox(_chkData_TourMarkers, TourValueType.TOUR_MARKER, tourValueTypes);
 
          doDeleteValues(tourValueTypes);
       });
@@ -710,7 +692,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
    private void restoreState() {
 
-      // Tours to re-import
+      // Tours to modify
       _rdoDeleteTourValues_Tours_All.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_ALL));
       _rdoDeleteTourValues_Tours_BetweenDates.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_BETWEEN_DATES));
       _rdoDeleteTourValues_Tours_Selected.setSelection(_state.getBoolean(STATE_DELETE_TOURVALUES_SELECTED));
@@ -718,8 +700,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       Util.getStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM, LocalDate.now(), _dtTourDate_From);
       Util.getStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL, LocalDate.now(), _dtTourDate_Until);
 
-      // Data to re-import
-      _chkData_Time.setSelection(_state.getBoolean(STATE_IS_DELETE_ALL_TIME_SLICES));
+      // Data to delete
+      _chkData_Time.setSelection(_state.getBoolean(STATE_IS_DELETE_TIME));
       _chkData_Elevation.setSelection(_state.getBoolean(STATE_IS_DELETE_ELEVATION));
       _chkData_Cadence.setSelection(_state.getBoolean(STATE_IS_DELETE_CADENCE));
       _chkData_Gear.setSelection(_state.getBoolean(STATE_IS_DELETE_GEAR));
@@ -737,7 +719,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
    private void saveState() {
 
-      // Tours to re-import
+      // Tours to modify
       _state.put(STATE_DELETE_TOURVALUES_ALL, _rdoDeleteTourValues_Tours_All.getSelection());
       _state.put(STATE_DELETE_TOURVALUES_BETWEEN_DATES, _rdoDeleteTourValues_Tours_BetweenDates.getSelection());
       _state.put(STATE_DELETE_TOURVALUES_SELECTED, _rdoDeleteTourValues_Tours_Selected.getSelection());
@@ -745,7 +727,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       Util.setStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_FROM, _dtTourDate_From);
       Util.setStateDate(_state, STATE_DELETE_TOURVALUES_BETWEEN_DATES_UNTIL, _dtTourDate_Until);
 
-      // Data to import
+      // Data to delete
       _state.put(STATE_IS_DELETE_ELEVATION, _chkData_Elevation.getSelection());
       _state.put(STATE_IS_DELETE_CADENCE, _chkData_Cadence.getSelection());
       _state.put(STATE_IS_DELETE_GEAR, _chkData_Gear.getSelection());
@@ -755,7 +737,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       _state.put(STATE_IS_DELETE_SWIMMING, _chkData_Swimming.getSelection());
       _state.put(STATE_IS_DELETE_TEMPERATURE, _chkData_Temperature.getSelection());
       _state.put(STATE_IS_DELETE_TRAINING, _chkData_Training.getSelection());
-      _state.put(STATE_IS_DELETE_ALL_TIME_SLICES, _chkData_Time.getSelection());
+      _state.put(STATE_IS_DELETE_TIME, _chkData_Time.getSelection());
       _state.put(STATE_IS_DELETE_TOUR_MARKERS, _chkData_TourMarkers.getSelection());
       _state.put(STATE_IS_DELETE_TIMER_PAUSES, _chkData_TourTimerPauses.getSelection());
    }

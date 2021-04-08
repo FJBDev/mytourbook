@@ -165,6 +165,11 @@ public class RawDataManager {
    private static boolean                  _isReimportingActive;
 
    /**
+    * Is <code>true</code> when deleting values from tour(s) is happening
+    */
+   private static boolean                  _isDeleteValuesActive;
+
+   /**
     * contains the device data imported from the device/file
     */
    private final DeviceData                _deviceData                         = new DeviceData();
@@ -406,6 +411,13 @@ public class RawDataManager {
       return _importState_IsAutoOpenImportLog;
    }
 
+   /**
+    * @return Returns <code>true</code> when currently deleting values from tour(s)
+    */
+   public static boolean isDeleteValuesActive() {
+      return _isDeleteValuesActive;
+   }
+
    public static boolean isIgnoreInvalidFile() {
       return _importState_IsIgnoreInvalidFile;
    }
@@ -482,6 +494,10 @@ public class RawDataManager {
       } catch (final IOException e) {
          e.printStackTrace();
       }
+   }
+
+   public static void setIsDeleteValuesActive(final boolean isDeleteValuesActive) {
+      _isDeleteValuesActive = isDeleteValuesActive;
    }
 
    public static void setIsReimportingActive(final boolean isReimportingActive) {
