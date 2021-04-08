@@ -1860,8 +1860,6 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
       menuMgr.add(_actionReimport_Tours);
       menuMgr.add(_actionSetOtherPerson);
       menuMgr.add(_actionDeleteTour);
-      //TODO FB
-      //add confirmation when the whole DB is selected. Add that confirmation for the reimport (see email from Wolfgang)
 
       enableActions();
    }

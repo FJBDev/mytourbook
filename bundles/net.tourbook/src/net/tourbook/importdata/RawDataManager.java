@@ -1527,7 +1527,7 @@ public class RawDataManager {
       if (selectedItems == null || selectedItems.length == 0) {
 
          MessageDialog.openInformation(Display.getDefault().getActiveShell(),
-               Messages.Dialog_ReimportTours_Dialog_Title,
+               Messages.Dialog_DeleteTourValues_Dialog_Title,
                Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
 
          return;
@@ -1650,8 +1650,6 @@ public class RawDataManager {
          switch (tourValueType) {
 
          case TIME_SLICES_TIME:
-            //TODO FB  I dont think that ALL_TIME_SLICES is correct. I would add TIME_SLICES_TIME and rmeove all time slices from the UI
-            //then put back to a switch case ?
             for (int index = 0; index < tourData.timeSerie.length; ++index) {
                tourData.timeSerie[index] = 0;
             }

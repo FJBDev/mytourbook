@@ -56,8 +56,6 @@ import org.eclipse.swt.widgets.Shell;
 
 public class DialogDeleteTourValues extends TitleAreaDialog {
 
-   //TODO FB delete values ? delete data ? Values because of Adjust TOur Values
-
    private static final String          STATE_DELETE_TOURVALUES_ALL                 = "STATE_DELETE_TOURVALUES_ALL";                     //$NON-NLS-1$
    private static final String          STATE_DELETE_TOURVALUES_SELECTED            = "STATE_DELETE_TOURVALUES_SELECTED";                //$NON-NLS-1$
 
