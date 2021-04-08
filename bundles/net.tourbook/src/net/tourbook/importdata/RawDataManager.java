@@ -705,7 +705,7 @@ public class RawDataManager {
                updateTourData_InImportView_FromDb(monitor);
 
                // reselect tours, run in UI thread
-               display.asyncExec(() -> tourViewer.reloadViewer());
+               display.asyncExec(tourViewer::reloadViewer);
             }
          }
       };
@@ -1608,7 +1608,7 @@ public class RawDataManager {
                updateTourData_InImportView_FromDb(monitor);
 
                // reselect tours, run in UI thread
-               display.asyncExec(() -> tourViewer.reloadViewer());
+               display.asyncExec(tourViewer::reloadViewer);
             }
          }
       };
