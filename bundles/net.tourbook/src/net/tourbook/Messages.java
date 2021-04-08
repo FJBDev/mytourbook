@@ -381,11 +381,11 @@ public class Messages extends NLS {
    public static String        Dialog_ModifyTours_Checkbox_RunningDynamicsValues;
    public static String        Dialog_ReimportTours_Checkbox_SkipToursWithImportFileNotFound;
    public static String        Dialog_ModifyTours_Checkbox_SwimmingValues;
-   public static String        Dialog_ReimportTours_Checkbox_TemperatureValues;
+   public static String        Dialog_ModifyTours_Checkbox_TemperatureValues;
    public static String        Dialog_ReimportTours_Checkbox_TimeSlices;
-   public static String        Dialog_ReimportTours_Checkbox_TourMarkers;
-   public static String        Dialog_ReimportTours_Checkbox_TourTimerPauses;
-   public static String        Dialog_ReimportTours_Checkbox_TrainingValues;
+   public static String        Dialog_ModifyTours_Checkbox_TourMarkers;
+   public static String        Dialog_ModifyTours_Checkbox_TourTimerPauses;
+   public static String        Dialog_ModifyTours_Checkbox_TrainingValues;
    public static String        Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message;
    public static String        Dialog_ReimportTours_Dialog_Message;
    public static String        Dialog_ReimportTours_Dialog_Title;

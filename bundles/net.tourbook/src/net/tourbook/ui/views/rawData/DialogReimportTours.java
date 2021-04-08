@@ -376,7 +376,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Temperature
              */
             _chkData_Temperature = new Button(group, SWT.CHECK);
-            _chkData_Temperature.setText(Messages.Dialog_ReimportTours_Checkbox_TemperatureValues);
+            _chkData_Temperature.setText(Messages.Dialog_ModifyTours_Checkbox_TemperatureValues);
             _chkData_Temperature.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_Temperature);
          }
@@ -396,7 +396,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Timer pauses
              */
             _chkData_TourTimerPauses = new Button(group, SWT.CHECK);
-            _chkData_TourTimerPauses.setText(Messages.Dialog_ReimportTours_Checkbox_TourTimerPauses);
+            _chkData_TourTimerPauses.setText(Messages.Dialog_ModifyTours_Checkbox_TourTimerPauses);
             _chkData_TourTimerPauses.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_TourTimerPauses);
          }
@@ -416,7 +416,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Training
              */
             _chkData_Training = new Button(group, SWT.CHECK);
-            _chkData_Training.setText(Messages.Dialog_ReimportTours_Checkbox_TrainingValues);
+            _chkData_Training.setText(Messages.Dialog_ModifyTours_Checkbox_TrainingValues);
             _chkData_Training.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_Training);
          }
@@ -427,7 +427,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Tour markers
              */
             _chkData_TourMarkers = new Button(group, SWT.CHECK);
-            _chkData_TourMarkers.setText(Messages.Dialog_ReimportTours_Checkbox_TourMarkers);
+            _chkData_TourMarkers.setText(Messages.Dialog_ModifyTours_Checkbox_TourMarkers);
             _chkData_TourMarkers.addSelectionListener(_defaultListener);
             gridDataTour_MoreVSpace.applyTo(_chkData_TourMarkers);
          }
