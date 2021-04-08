@@ -531,8 +531,8 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
             if (allTourIDs.isEmpty()) {
 
                MessageDialog.openInformation(getShell(),
-                     Messages.Dialog_ReimportTours_Dialog_Title,
-                     Messages.Dialog_ReimportTours_Dialog_ToursAreNotAvailable);
+                     Messages.Dialog_DeleteTourValues_Dialog_Title,
+                     Messages.Dialog_ModifyTours_Dialog_ToursAreNotAvailable);
 
                return;
             }

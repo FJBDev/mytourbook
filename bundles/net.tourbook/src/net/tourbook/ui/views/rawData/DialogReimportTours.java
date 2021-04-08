@@ -599,7 +599,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
                MessageDialog.openInformation(getShell(),
                      Messages.Dialog_ReimportTours_Dialog_Title,
-                     Messages.Dialog_ReimportTours_Dialog_ToursAreNotAvailable);
+                     Messages.Dialog_ModifyTours_Dialog_ToursAreNotAvailable);
 
                return;
             }
