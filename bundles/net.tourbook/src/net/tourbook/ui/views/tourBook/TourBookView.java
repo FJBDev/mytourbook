@@ -199,7 +199,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.ToolBar;
@@ -949,54 +948,51 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)) {
+         if (property.equals(ITourbookPreferences.APP_DATA_FILTER_IS_MODIFIED)) {
 
-               /*
-                * Flat view do not preserve column reordering when reloaded -> recreate it
-                */
-               if (_isLayoutNatTable) {
+            /*
+             * Flat view do not preserve column reordering when reloaded -> recreate it
+             */
+            if (_isLayoutNatTable) {
 
-                  // save column ordering
-                  saveState();
+               // save column ordering
+               saveState();
 
-                  recreateViewer_NatTable();
+               recreateViewer_NatTable();
 
-               } else {
+            } else {
 
-                  reloadViewer();
-               }
-
-            } else if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
-
-               _tourViewer_NatTable.refresh();
-
-               // update tourbook viewer
-               _tourViewer_Tree.refresh();
-
-               // redraw must be done to see modified tour type image colors
-               _tourViewer_Tree.getTree().redraw();
-
-            } else if (property.equals(ITourbookPreferences.VIEW_TOOLTIP_IS_MODIFIED)) {
-
-               _columnFactory.updateToolTipState();
-
-            } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
-
-               _tourViewer_Tree.getTree().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
-
-               _tourViewer_Tree.refresh();
-
-               /*
-                * the tree must be redrawn because the styled text does not show with the new color
-                */
-               _tourViewer_Tree.getTree().redraw();
+               reloadViewer();
             }
+
+         } else if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
+
+            _tourViewer_NatTable.refresh();
+
+            // update tourbook viewer
+            _tourViewer_Tree.refresh();
+
+            // redraw must be done to see modified tour type image colors
+            _tourViewer_Tree.getTree().redraw();
+
+         } else if (property.equals(ITourbookPreferences.VIEW_TOOLTIP_IS_MODIFIED)) {
+
+            _columnFactory.updateToolTipState();
+
+         } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
+
+            _tourViewer_Tree.getTree().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
+
+            _tourViewer_Tree.refresh();
+
+            /*
+             * the tree must be redrawn because the styled text does not show with the new color
+             */
+            _tourViewer_Tree.getTree().redraw();
          }
       };
 
@@ -1383,12 +1379,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
             _natTable_DataProvider,
             false); // Provides rows where any cell in the row is selected
 
-      selectionProvider.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(final SelectionChangedEvent event) {
-            onSelect_NatTableItem(event);
-         }
-      });
+      selectionProvider.addSelectionChangedListener(this::onSelect_NatTableItem);
 
       // prevent selecting all cells when column header is clicked on a column which cannot be sorted
       uiBindingRegistry.registerSingleClickBinding(MouseEventMatcher.columnHeaderLeftClick(SWT.NONE), null);
@@ -1450,13 +1441,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
       final Menu contextMenu = _viewerMenuManager_NatTable.createContextMenu(_tourViewer_NatTable);
 
-      _tourViewer_NatTable.addListener(SWT.MenuDetect, new Listener() {
-
-         @Override
-         public void handleEvent(final Event event) {
-            natTable_ContextMenu_OnMenuDetect(event);
-         }
-      });
+      _tourViewer_NatTable.addListener(SWT.MenuDetect, this::natTable_ContextMenu_OnMenuDetect);
 
       contextMenu.addMenuListener(new MenuAdapter() {
          @Override
@@ -1711,23 +1696,20 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
          // make var to a effectively final var, otherwise an exception occurs
          final TVITourBookTour finalFirstTour = firstTourItem;
 
-         CompletableFuture.supplyAsync(() -> {
+         CompletableFuture.supplyAsync(() -> TourManager.getInstance().getTourData(finalFirstTour.getTourId()))
+               .thenAccept(savedTour -> {
 
-            return TourManager.getInstance().getTourData(finalFirstTour.getTourId());
+                  if (savedTour != null) {
 
-         }).thenAccept(savedTour -> {
+                     final boolean isDeviceTour = savedTour.isManualTour() == false;
+                     final boolean canMergeTours = isOneTour && isDeviceTour && savedTour.getMergeSourceTourId() != null;
 
-            if (savedTour != null) {
-
-               final boolean isDeviceTour = savedTour.isManualTour() == false;
-               final boolean canMergeTours = isOneTour && isDeviceTour && savedTour.getMergeSourceTourId() != null;
-
-               _actionDuplicateTour.setEnabled(isOneTour && !isDeviceTour);
-               _actionMergeTour.setEnabled(canMergeTours);
-               _actionOpenAdjustAltitudeDialog.setEnabled(isOneTour && isDeviceTour);
-               _actionOpenMarkerDialog.setEnabled(isOneTour && isDeviceTour);
-            }
-         });
+                     _actionDuplicateTour.setEnabled(isOneTour && !isDeviceTour);
+                     _actionMergeTour.setEnabled(canMergeTours);
+                     _actionOpenAdjustAltitudeDialog.setEnabled(isOneTour && isDeviceTour);
+                     _actionOpenMarkerDialog.setEnabled(isOneTour && isDeviceTour);
+                  }
+               });
       }
 
       final boolean useWeatherRetrieval = _prefStore.getBoolean(ITourbookPreferences.WEATHER_USE_WEATHER_RETRIEVAL) &&
@@ -3105,7 +3087,7 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
 
                   /**
                    * <code>
-
+                  
                      Caused by: java.lang.NullPointerException
                      at org.eclipse.jface.viewers.AbstractTreeViewer.getSelection(AbstractTreeViewer.java:2956)
                      at org.eclipse.jface.viewers.StructuredViewer.handleSelect(StructuredViewer.java:1211)
@@ -3123,13 +3105,13 @@ public class TourBookView extends ViewPart implements ITourProvider2, ITourViewe
                      at org.eclipse.jface.viewers.AbstractTreeViewer.internalCollapseToLevel(AbstractTreeViewer.java:1586)
                      at org.eclipse.jface.viewers.AbstractTreeViewer.collapseToLevel(AbstractTreeViewer.java:751)
                      at org.eclipse.jface.viewers.AbstractTreeViewer.collapseAll(AbstractTreeViewer.java:733)
-
+                  
                      at net.tourbook.ui.views.tourBook.TourBookView$70.run(TourBookView.java:3406)
-
+                  
                      at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
                      at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
                      ... 22 more
-
+                  
                    * </code>
                    */
 
