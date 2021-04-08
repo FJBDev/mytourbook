@@ -347,7 +347,7 @@ public class DialogReimportTours extends TitleAreaDialog {
              * Checkbox: Elevation
              */
             _chkData_Elevation = new Button(group, SWT.CHECK);
-            _chkData_Elevation.setText(Messages.Dialog_ReimportTours_Checkbox_ElevationValues);
+            _chkData_Elevation.setText(Messages.Dialog_ModifyTours_Checkbox_ElevationValues);
             _chkData_Elevation.addSelectionListener(_defaultListener);
             gridDataItem_FirstColumn.applyTo(_chkData_Elevation);
          }
