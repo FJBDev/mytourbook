@@ -24,7 +24,8 @@ Issues
 New
 ===
 
-* 
+* Tour Book View (Frederic)
+ - Added the ability to delete values, for any given tour, such as elevation, time, gear, cadence...etc
 
 
 Improvements
