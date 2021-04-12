@@ -1677,6 +1677,7 @@ public class RawDataManager {
                tourData.clearComputedSeries();
                break;
             case TOUR_MARKER:
+               clonedTourData.setTourMarkers(new HashSet<>(tourData.getTourMarkers()));
                tourData.setTourMarkers(new HashSet<>());
                break;
 
