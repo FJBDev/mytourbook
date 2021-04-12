@@ -360,8 +360,10 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
              * Night Sections Opacity Scale
              */
             _spinnerNightSectionsOpacity = new Spinner(group, SWT.BORDER);
-            _spinnerNightSectionsOpacity.setMinimum(0);
-            _spinnerNightSectionsOpacity.setMaximum(255);
+            _spinnerNightSectionsOpacity.setMinimum(1);
+            _spinnerNightSectionsOpacity.setMaximum(100);
+            _spinnerNightSectionsOpacity.setIncrement(1);
+            _spinnerNightSectionsOpacity.setPageIncrement(10);
             _spinnerNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
             _spinnerNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
             _spinnerNightSectionsOpacity.addMouseWheelListener(_defaultMouseWheelListener);
