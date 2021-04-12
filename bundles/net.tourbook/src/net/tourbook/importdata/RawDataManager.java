@@ -1678,10 +1678,15 @@ public class RawDataManager {
                break;
             case TOUR_MARKER:
                clonedTourData.setTourMarkers(new HashSet<>(tourData.getTourMarkers()));
+
                tourData.setTourMarkers(new HashSet<>());
                break;
 
             case TIME_SLICES_CADENCE:
+               clonedTourData.setCadenceSerie(tourData.getCadenceSerie());
+               clonedTourData.setAvgCadence(tourData.getAvgCadence());
+               clonedTourData.setCadenceMultiplier(tourData.getCadenceMultiplier());
+
                tourData.setCadenceSerie(null);
                tourData.setAvgCadence(0);
                tourData.setCadenceMultiplier(0);
