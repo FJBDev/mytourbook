@@ -377,7 +377,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
          GridDataFactory.fillDefaults() //
                .align(SWT.BEGINNING, SWT.FILL)
                .applyTo(_spinnerGraphTransparencyLine);
-         _spinnerGraphTransparencyLine.setMinimum(1);
+         _spinnerGraphTransparencyLine.setMinimum(0);
          _spinnerGraphTransparencyLine.setMaximum(100);
          _spinnerGraphTransparencyLine.setIncrement(1);
          _spinnerGraphTransparencyLine.setPageIncrement(10);
@@ -402,7 +402,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
          GridDataFactory.fillDefaults() //
                .align(SWT.BEGINNING, SWT.FILL)
                .applyTo(_spinnerGraphTransparencyFilling);
-         _spinnerGraphTransparencyFilling.setMinimum(1);
+         _spinnerGraphTransparencyFilling.setMinimum(0);
          _spinnerGraphTransparencyFilling.setMaximum(100);
          _spinnerGraphTransparencyFilling.setIncrement(1);
          _spinnerGraphTransparencyFilling.setPageIncrement(10);

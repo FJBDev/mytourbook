@@ -281,7 +281,7 @@ public class Slideout_GraphBackground extends ToolbarSlideout {
          GridDataFactory.fillDefaults() //
                .align(SWT.BEGINNING, SWT.FILL)
                .applyTo(_spinnerGraphTransparencyFilling);
-         _spinnerGraphTransparencyFilling.setMinimum(1);
+         _spinnerGraphTransparencyFilling.setMinimum(0);
          _spinnerGraphTransparencyFilling.setMaximum(100);
          _spinnerGraphTransparencyFilling.setIncrement(1);
          _spinnerGraphTransparencyFilling.setPageIncrement(10);
