@@ -537,7 +537,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
          // re-import ALL tours or BETWEEN tours
 
-         if (RawDataManager.getInstance().actionReimportTour_10_Confirm(tourValueTypes) == false) {
+         if (RawDataManager.getInstance().actionModifyTourValues_10_Confirm(tourValueTypes, true) == false) {
             return;
          }
 

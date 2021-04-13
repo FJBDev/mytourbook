@@ -483,7 +483,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
 
          // Modify ALL tours or BETWEEN tours
 
-         if (RawDataManager.getInstance().actionReimportTour_10_Confirm(tourValueTypes) == false) {
+         if (RawDataManager.getInstance().actionModifyTourValues_10_Confirm(tourValueTypes, false) == false) {
             return;
          }
 

@@ -605,6 +605,117 @@ public class RawDataManager {
    }
 
    /**
+    * Asks the user if the modification (re-import or deletion) of all the chosen data is desired.
+    *
+    * @param tourValueTypes
+    *           A list of tour values to be modified (re-imported or deleted)
+    * @param isReimport
+    *           True if data needs to be reimported, false if the data needs to be deleted
+    * @return
+    */
+   //TODO FB
+   public boolean actionModifyTourValues_10_Confirm(final List<TourValueType> tourValueTypes, final boolean isReimport) {
+
+      final ArrayList<String> dataToModifyDetails = new ArrayList<>();
+
+      for (final TourValueType tourValueType : tourValueTypes) {
+
+         // Elevation
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_ELEVATION) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_AltitudeValues);
+         }
+
+         // Cadence
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_CADENCE) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_CadenceValues);
+         }
+
+         // Gear
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_GEAR) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_GearValues);
+         }
+
+         // Power
+         if (tourValueType == TourValueType.ALL_TIME_SLICES
+               || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE
+               || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_PowerValues);
+         }
+
+         // Pulse
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_PulseValues);
+         }
+
+         // Speed
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_SpeedValues);
+         }
+
+         // Running Dynamics
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_RUNNING_DYNAMICS) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_RunningDynamicsValues);
+         }
+
+         // Swimming
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_SWIMMING) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_SwimmingValues);
+         }
+
+         // Temperature
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TEMPERATURE) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_TemperatureValues);
+         }
+
+         // Training
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TRAINING) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_TrainingValues);
+         }
+
+         // Timer pauses
+         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TIMER_PAUSES) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_TourTimerPauses);
+         }
+
+         // Tour markers
+         if (tourValueType == TourValueType.TOUR_MARKER) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_TourMarkers);
+         }
+
+         // Import file location
+         if (tourValueType == TourValueType.IMPORT_FILE_LOCATION) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_ImportFileLocation);
+         }
+
+         // ALL
+         if (tourValueType == TourValueType.ALL_TIME_SLICES) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_TimeSlices);
+         }
+
+         // Entire Tour
+         if (tourValueType == TourValueType.ENTIRE_TOUR) {
+            dataToModifyDetails.add(Messages.Import_Data_Text_EntireTour);
+         }
+      }
+
+      if (actionReimportTour_12_Confirm_Dialog(
+            isReimport
+                  ? ITourbookPreferences.TOGGLE_STATE_REIMPORT_TOUR_VALUES
+                  : ITourbookPreferences.TOGGLE_STATE_DELETE_TOUR_VALUES,
+            NLS.bind(Messages.Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message, String.join(UI.NEW_LINE1, dataToModifyDetails)))) {
+
+         TourLogManager.addLog(
+               TourLogState.DEFAULT,
+               LOG_REIMPORT_COMBINED_VALUES.concat(String.join(UI.COMMA_SPACE, dataToModifyDetails)),
+               TourLogView.CSS_LOG_TITLE);
+
+         return true;
+      }
+
+      return false;
+   }
+
+   /**
     * @param tourValueTypes
     *           A list of tour values to be re-imported
     * @param tourViewer
@@ -618,7 +729,7 @@ public class RawDataManager {
 
       final long start = System.currentTimeMillis();
 
-      if (actionReimportTour_10_Confirm(tourValueTypes) == false) {
+      if (actionModifyTourValues_10_Confirm(tourValueTypes, true) == false) {
          return;
       }
 
@@ -739,113 +850,6 @@ public class RawDataManager {
                String.format(RawDataManager.LOG_REIMPORT_END, time));
 
       }
-   }
-
-   /**
-    * Asks the user if the re-import of all the chosen data is desired.
-    *
-    * @param tourValueTypes
-    *           A list of tour values to be re-imported
-    * @return
-    */
-   //TODO FB
-   public boolean actionReimportTour_10_Confirm(final List<TourValueType> tourValueTypes) {
-
-      final ArrayList<String> dataToReimportDetails = new ArrayList<>();
-
-      for (final TourValueType tourValueType : tourValueTypes) {
-
-         // Elevation
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_ELEVATION) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_AltitudeValues);
-         }
-
-         // Cadence
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_CADENCE) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_CadenceValues);
-         }
-
-         // Gear
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_GEAR) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_GearValues);
-         }
-
-         // Power
-         if (tourValueType == TourValueType.ALL_TIME_SLICES
-               || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE
-               || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_PowerValues);
-         }
-
-         // Pulse
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_PulseValues);
-         }
-
-         // Speed
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_SpeedValues);
-         }
-
-         // Running Dynamics
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_RUNNING_DYNAMICS) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_RunningDynamicsValues);
-         }
-
-         // Swimming
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_SWIMMING) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_SwimmingValues);
-         }
-
-         // Temperature
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TEMPERATURE) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_TemperatureValues);
-         }
-
-         // Training
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TRAINING) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_TrainingValues);
-         }
-
-         // Timer pauses
-         if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TIMER_PAUSES) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_TourTimerPauses);
-         }
-
-         // Tour markers
-         if (tourValueType == TourValueType.TOUR_MARKER) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_TourMarkers);
-         }
-
-         // Import file location
-         if (tourValueType == TourValueType.IMPORT_FILE_LOCATION) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_ImportFileLocation);
-         }
-
-         // ALL
-         if (tourValueType == TourValueType.ALL_TIME_SLICES) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_TimeSlices);
-         }
-
-         // Entire Tour
-         if (tourValueType == TourValueType.ENTIRE_TOUR) {
-            dataToReimportDetails.add(Messages.Import_Data_Text_EntireTour);
-         }
-      }
-
-      if (actionReimportTour_12_Confirm_Dialog(
-            ITourbookPreferences.TOGGLE_STATE_REIMPORT_TOUR_VALUES,
-            NLS.bind(Messages.Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message, String.join(UI.NEW_LINE1, dataToReimportDetails)))) {
-
-         TourLogManager.addLog(
-               TourLogState.DEFAULT,
-               LOG_REIMPORT_COMBINED_VALUES.concat(String.join(UI.COMMA_SPACE, dataToReimportDetails)),
-               TourLogView.CSS_LOG_TITLE);
-
-         return true;
-      }
-
-      return false;
    }
 
    private boolean actionReimportTour_12_Confirm_Dialog(final String toggleState, final String confirmMessage) {
@@ -1530,7 +1534,7 @@ public class RawDataManager {
       final long start = System.currentTimeMillis();
 
       //TODO FB
-      if (actionReimportTour_10_Confirm(tourValueTypes) == false) {
+      if (actionModifyTourValues_10_Confirm(tourValueTypes, false) == false) {
          return;
       }
 
