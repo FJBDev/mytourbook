@@ -393,7 +393,7 @@ public class Messages extends NLS {
    public static String        Dialog_ReimportTours_Dialog_Message;
    public static String        Dialog_ReimportTours_Dialog_Title;
    public static String        Dialog_ModifyTours_Dialog_ToursAreNotAvailable;
-   public static String        Dialog_ReimportTours_Dialog_ToursAreNotSelected;
+   public static String        Dialog_ModifyTours_Dialog_ToursAreNotSelected;
    public static String        Dialog_ModifyTours_Error_2ndDateMustBeLarger;
    public static String        Dialog_ReimportTours_Group_Tours;
    public static String        Dialog_ReimportTours_Group_Tours_Tooltip;
@@ -1153,7 +1153,7 @@ public class Messages extends NLS {
    public static String        Log_Import_Tour_End;
    public static String        Log_Import_Tour_Imported;
    public static String        Log_Import_Tours_Imported_From_File;
-   public static String        Log_Import_Tour_Old_Data_Vs_New_Data;
+   public static String        Log_ModifiedTour_Old_Data_Vs_New_Data;
 
    public static String        Log_Modify_Combined_Values;
    public static String        Log_Reimport_ManualTour;

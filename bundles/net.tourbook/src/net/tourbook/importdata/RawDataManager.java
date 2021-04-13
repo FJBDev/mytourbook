@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,15 +104,17 @@ public class RawDataManager {
    public static final String    LOG_IMPORT_DELETE_TOUR_FILE_END             = Messages.Log_Import_DeleteTourFiles_End;
    private static final String   LOG_IMPORT_TOUR                             = Messages.Log_Import_Tour;
    public static final String    LOG_IMPORT_TOUR_IMPORTED                    = Messages.Log_Import_Tour_Imported;
-   public static final String    LOG_IMPORT_TOUR_OLD_DATA_VS_NEW_DATA        = Messages.Log_Import_Tour_Old_Data_Vs_New_Data;
    private static final String   LOG_IMPORT_TOUR_END                         = Messages.Log_Import_Tour_End;
    public static final String    LOG_IMPORT_TOURS_IMPORTED_FROM_FILE         = Messages.Log_Import_Tours_Imported_From_File;
 
+   public static final String    LOG_DELETE_COMBINED_VALUES                  = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Delete_Text);
+
+   public static final String    LOG_MODIFIED_TOUR                    = Messages.Log_Import_Tour_Imported;
+   public static final String    LOG_MODIFIEDTOUR_OLD_DATA_VS_NEW_DATA       = Messages.Log_ModifiedTour_Old_Data_Vs_New_Data;
+
    public static final String    LOG_REIMPORT_PREVIOUS_FILES                 = Messages.Log_Reimport_PreviousFiles;
    public static final String    LOG_REIMPORT_END                            = Messages.Log_Reimport_PreviousFiles_End;
-
    public static final String    LOG_REIMPORT_COMBINED_VALUES                = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Reimport_Text);
-   public static final String    LOG_DELETE_COMBINED_VALUES                  = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Delete_Text);
    private static final String   LOG_REIMPORT_MANUAL_TOUR                    = Messages.Log_Reimport_ManualTour;
    private static final String   LOG_REIMPORT_TOUR_SKIPPED                   = Messages.Log_Reimport_Tour_Skipped;
 
@@ -355,14 +356,12 @@ public class RawDataManager {
          break;
       }
 
-      if (StringUtils.isNullOrEmpty(previousData) && StringUtils.isNullOrEmpty(newData)) {
+      if (StringUtils.isNullOrEmpty(previousData + newData)) {
          return;
       }
-      //TODO FB
+
       TourLogManager.addSubLog(TourLogState.INFO,
-            NLS.bind(LOG_IMPORT_TOUR_OLD_DATA_VS_NEW_DATA,
-                  previousData,
-                  newData));
+            NLS.bind(LOG_MODIFIEDTOUR_OLD_DATA_VS_NEW_DATA, previousData, newData));
    }
 
    public static boolean doesInvalidFileExist(final String fileName) {
@@ -745,20 +744,13 @@ public class RawDataManager {
 
       // get selected tour IDs
 
-      Object[] selectedItems = null;
-      if (tourViewer instanceof TourBookView) {
-         selectedItems = (((TourBookView) tourViewer).getSelectedTourIDs()).toArray();
-      } else if (tourViewer instanceof CollatedToursView) {
-         selectedItems = (((CollatedToursView) tourViewer).getSelectedTourIDs()).toArray();
-      } else if (tourViewer instanceof RawDataView) {
-         selectedItems = (((RawDataView) tourViewer).getSelectedTourIDs()).toArray();
-      }
+      final Object[] selectedItems = getTourViewerSelectedTourIds(tourViewer);
 
       if (selectedItems == null || selectedItems.length == 0) {
 
          MessageDialog.openInformation(Display.getDefault().getActiveShell(),
                Messages.Dialog_ReimportTours_Dialog_Title,
-               Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
+               Messages.Dialog_ModifyTours_Dialog_ToursAreNotSelected);
 
          return;
       }
@@ -1544,27 +1536,17 @@ public class RawDataManager {
       final long start = System.currentTimeMillis();
 
       //TODO FB
-      if (actionModifyTourValues_10_Confirm(tourValueTypes, false) == false) {
+      if (!actionModifyTourValues_10_Confirm(tourValueTypes, false)) {
          return;
       }
 
-      // get selected tour IDs
+      final Object[] selectedItems = getTourViewerSelectedTourIds(tourViewer);
 
-      Object[] selectedItems = null;
-      if (tourViewer instanceof TourBookView) {
-         selectedItems = (((TourBookView) tourViewer).getSelectedTourIDs()).toArray();
-      } else if (tourViewer instanceof CollatedToursView) {
-         selectedItems = (((CollatedToursView) tourViewer).getSelectedTourIDs()).toArray();
-      } else if (tourViewer instanceof RawDataView) {
-         selectedItems = (((RawDataView) tourViewer).getSelectedTourIDs()).toArray();
-      }
-
-      //TODO FB
       if (selectedItems == null || selectedItems.length == 0) {
 
          MessageDialog.openInformation(Display.getDefault().getActiveShell(),
                Messages.Dialog_DeleteTourValues_Dialog_Title,
-               Messages.Dialog_ReimportTours_Dialog_ToursAreNotSelected);
+               Messages.Dialog_ModifyTours_Dialog_ToursAreNotSelected);
 
          return;
       }
@@ -1590,22 +1572,18 @@ public class RawDataManager {
             int imported = 0;
             final int importSize = selectedTourIds.length;
 
+            //TODO FB
             monitor.beginTask(Messages.Import_Data_Dialog_Reimport_Task, importSize);
 
             // loop: all selected tours in the viewer
-            for (final Long tourId : selectedTourIds) {
-
-               if (monitor.isCanceled()) {
-                  // stop re-importing but process re-imported tours
-                  break;
-               }
+            for (int index = 0; index < selectedTourIds.length && !monitor.isCanceled(); ++index) {
 
                monitor.worked(1);
                monitor.subTask(NLS.bind(
                      Messages.Import_Data_Dialog_Reimport_SubTask,
                      new Object[] { ++imported, importSize }));
 
-               final TourData tourData = TourManager.getTour(tourId);
+               final TourData tourData = TourManager.getTour(selectedTourIds[index]);
 
                if (tourData == null) {
                   continue;
@@ -1713,17 +1691,27 @@ public class RawDataManager {
                break;
 
             case TIME_SLICES_ELEVATION:
+               clonedTourData.setTourAltDown(tourData.getTourAltDown());
+               clonedTourData.setTourAltUp(tourData.getTourAltUp());
+
                tourData.altitudeSerie = null;
                tourData.setTourAltDown(0);
                tourData.setTourAltUp(0);
                break;
 
             case TIME_SLICES_GEAR:
+               clonedTourData.setFrontShiftCount(tourData.getFrontShiftCount());
+               clonedTourData.setRearShiftCount(tourData.getRearShiftCount());
+
                tourData.setFrontShiftCount(0);
                tourData.setRearShiftCount(0);
                break;
 
             case TIME_SLICES_POWER_AND_PULSE:
+               clonedTourData.setPower_Avg(tourData.getPower_Avg());
+               clonedTourData.setAvgPulse(tourData.getAvgPulse());
+               clonedTourData.setCalories(tourData.getCalories());
+
                tourData.setPowerSerie(null);
                tourData.setPower_Avg(0);
                tourData.setAvgPulse(0);
@@ -1731,17 +1719,25 @@ public class RawDataManager {
                break;
 
             case TIME_SLICES_POWER_AND_SPEED:
+               clonedTourData.setPower_Avg(tourData.getPower_Avg());
+               clonedTourData.setCalories(tourData.getCalories());
+
                tourData.setPowerSerie(null);
                tourData.setPower_Avg(0);
                tourData.setCalories(0);
+               tourData.setSpeedSerie(null);
                break;
 
             case TIME_SLICES_TEMPERATURE:
+               clonedTourData.setAvgTemperature(tourData.getAvgTemperature());
+
                tourData.temperatureSerie = null;
                tourData.setAvgTemperature(0);
                break;
 
             case TIME_SLICES_TIMER_PAUSES:
+               clonedTourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Recorded());
+
                tourData.setPausedTime_Start(null);
                tourData.setPausedTime_End(null);
                tourData.setTourDeviceTime_Paused(0);
@@ -1792,20 +1788,17 @@ public class RawDataManager {
          _devicesBySortPriority = new ArrayList<>(DeviceManager.getDeviceList());
 
          // sort device list by sorting priority
-         Collections.sort(_devicesBySortPriority, new Comparator<TourbookDevice>() {
-            @Override
-            public int compare(final TourbookDevice o1, final TourbookDevice o2) {
+         Collections.sort(_devicesBySortPriority, (tourbookDevice1, tourbookDevice2) -> {
 
-               // 1. sort by priority
-               final int sortByPrio = o1.extensionSortPriority - o2.extensionSortPriority;
+            // 1. sort by priority
+            final int sortByPrio = tourbookDevice1.extensionSortPriority - tourbookDevice2.extensionSortPriority;
 
-               // 2. sort by name
-               if (sortByPrio == 0) {
-                  return o1.deviceId.compareTo(o2.deviceId);
-               }
-
-               return sortByPrio;
+            // 2. sort by name
+            if (sortByPrio == 0) {
+               return tourbookDevice1.deviceId.compareTo(tourbookDevice2.deviceId);
             }
+
+            return sortByPrio;
          });
 
          _devicesByExtension = new HashMap<>();
@@ -1858,6 +1851,19 @@ public class RawDataManager {
 
    public ArrayList<TourType> getTempTourTypes() {
       return _tempTourTypes;
+   }
+
+   private Object[] getTourViewerSelectedTourIds(final ITourViewer3 tourViewer) {
+
+      Object[] selectedItems = null;
+      if (tourViewer instanceof TourBookView) {
+         selectedItems = (((TourBookView) tourViewer).getSelectedTourIDs()).toArray();
+      } else if (tourViewer instanceof CollatedToursView) {
+         selectedItems = (((CollatedToursView) tourViewer).getSelectedTourIDs()).toArray();
+      } else if (tourViewer instanceof RawDataView) {
+         selectedItems = (((RawDataView) tourViewer).getSelectedTourIDs()).toArray();
+      }
+      return selectedItems;
    }
 
    /**
@@ -2428,30 +2434,26 @@ public class RawDataManager {
       }
 
       // resort files by extension priority
-      Collections.sort(importFilePaths, new Comparator<ImportFile>() {
+      Collections.sort(importFilePaths, (importFilePath1, importFilePath2) -> {
 
-         @Override
-         public int compare(final ImportFile path1, final ImportFile path2) {
+         final String file1Extension = importFilePath1.filePath.getFileExtension();
+         final String file2Extension = importFilePath2.filePath.getFileExtension();
 
-            final String file1Extension = path1.filePath.getFileExtension();
-            final String file2Extension = path2.filePath.getFileExtension();
+         if (file1Extension != null
+               && file1Extension.length() > 0
+               && file2Extension != null
+               && file2Extension.length() > 0) {
 
-            if (file1Extension != null
-                  && file1Extension.length() > 0
-                  && file2Extension != null
-                  && file2Extension.length() > 0) {
+            final TourbookDevice file1Device = _devicesByExtension.get(file1Extension.toLowerCase());
+            final TourbookDevice file2Device = _devicesByExtension.get(file2Extension.toLowerCase());
 
-               final TourbookDevice file1Device = _devicesByExtension.get(file1Extension.toLowerCase());
-               final TourbookDevice file2Device = _devicesByExtension.get(file2Extension.toLowerCase());
-
-               if (file1Device != null && file2Device != null) {
-                  return file1Device.extensionSortPriority - file2Device.extensionSortPriority;
-               }
+            if (file1Device != null && file2Device != null) {
+               return file1Device.extensionSortPriority - file2Device.extensionSortPriority;
             }
-
-            // sort invalid files to the end
-            return Integer.MAX_VALUE;
          }
+
+         // sort invalid files to the end
+         return Integer.MAX_VALUE;
       });
 
       setImportCanceled(false);
