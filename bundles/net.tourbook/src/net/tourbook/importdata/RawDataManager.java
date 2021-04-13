@@ -251,18 +251,19 @@ public class RawDataManager {
    private RawDataManager() {}
 
    /**
-    * Displays the differences of data before and after the tour re-import
+    * Displays the differences of data before and after the tour modifications (re-import or
+    * deletion)
     *
     * @param tourValueType
-    *           A tour value to be re-imported
+    *           A tour value that was modified (re-imported or deleted)
     * @param oldTourData
-    *           The Tour before the re-import
+    *           The Tour before the modifications (re-import or deletion)
     * @param newTourData
-    *           The Tour after the re-import
+    *           The Tour after the modifications (re-import or deletion)
     */
-   public static void displayReimportDataDifferences(final TourValueType tourValueType,
-                                                     final TourData oldTourData,
-                                                     final TourData newTourData) {
+   public static void displayTourModifiedDataDifferences(final TourValueType tourValueType,
+                                                         final TourData oldTourData,
+                                                         final TourData newTourData) {
       //Print the old vs new data comparison
       String previousData = UI.EMPTY_STRING;
       String newData = UI.EMPTY_STRING;
@@ -354,10 +355,10 @@ public class RawDataManager {
          break;
       }
 
-      if (StringUtils.isNullOrEmpty(previousData) &&
-            StringUtils.isNullOrEmpty(newData)) {
+      if (StringUtils.isNullOrEmpty(previousData) && StringUtils.isNullOrEmpty(newData)) {
          return;
       }
+      //TODO FB
       TourLogManager.addSubLog(TourLogState.INFO,
             NLS.bind(LOG_IMPORT_TOUR_OLD_DATA_VS_NEW_DATA,
                   previousData,
@@ -610,7 +611,7 @@ public class RawDataManager {
     * @param tourValueTypes
     *           A list of tour values to be modified (re-imported or deleted)
     * @param isReimport
-    *           True if data needs to be reimported, false if the data needs to be deleted
+    *           True if data needs to be re-imported, false if the data needs to be deleted
     * @return
     */
    //TODO FB
@@ -1157,7 +1158,7 @@ public class RawDataManager {
 
             // Print the old vs new data comparison
             for (final TourValueType tourValueType : tourValueTypes) {
-               displayReimportDataDifferences(tourValueType, clonedTourData, updatedTourData);
+               displayTourModifiedDataDifferences(tourValueType, clonedTourData, updatedTourData);
             }
 
             // check if tour is displayed in the import view
@@ -1757,7 +1758,7 @@ public class RawDataManager {
       // Print the old vs new data comparison
       //TODO FB it doesnt work!?
       for (final TourValueType tourValueType : tourValueTypes) {
-         displayReimportDataDifferences(tourValueType, clonedTourData, tourData);
+         displayTourModifiedDataDifferences(tourValueType, clonedTourData, tourData);
       }
 
       // check if tour is displayed in the import view
