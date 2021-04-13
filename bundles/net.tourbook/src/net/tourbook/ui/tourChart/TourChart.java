@@ -53,6 +53,7 @@ import net.tourbook.common.CommonActivator;
 import net.tourbook.common.PointLong;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
+import net.tourbook.common.color.ColorUtil;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
@@ -419,7 +420,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       @Override
       protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
 
-         return new Slideout_GraphBackground(_parent, toolbar, TourChart.this, _state);
+         return new Slideout_GraphBackground(_parent, toolbar, TourChart.this);
       }
 
       @Override
@@ -5038,8 +5039,8 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             _prefStore,
             ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR);
 
-      graphTransparencyLine = _prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE);
-      graphTransparencyFilling = _prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING);
+      graphTransparencyLine = ColorUtil.getTransparencyFromPercentage(_prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE));
+      graphTransparencyFilling = ColorUtil.getTransparencyFromPercentage(_prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING));
 
       isShowHorizontalGridLines = Util.getPrefixPrefBoolean(_prefStore,
             GRID_PREF_PREFIX,
