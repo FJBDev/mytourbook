@@ -100,7 +100,6 @@ public class Map3GradientColorManager {
    // opacity
    public static final int   OPACITY_MIN     = 0;
    public static final int   OPACITY_MAX     = 100;
-   public static final int   OPACITY_DIGITS  = 2;
    public static final float OPACITY_DEFAULT = 1.0f;
 
    /**
