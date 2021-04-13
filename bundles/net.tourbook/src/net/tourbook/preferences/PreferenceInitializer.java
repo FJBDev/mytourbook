@@ -234,7 +234,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
       //
       store.setDefault(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS, true);
-      store.setDefault(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, 0x40); //64
+      store.setDefault(ITourbookPreferences.GRAPH_OPACITY_NIGHT_SECTIONS, 50);
 
       // graph grid
       store.setDefault(ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE, 80);
