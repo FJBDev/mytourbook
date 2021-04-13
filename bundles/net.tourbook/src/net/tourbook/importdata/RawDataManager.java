@@ -680,7 +680,12 @@ public class RawDataManager {
 
          // Tour markers
          if (tourValueType == TourValueType.TOUR_MARKER) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_TourMarkers);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TourMarkers);
+         }
+
+         // Time data
+         if (tourValueType == TourValueType.TIME_SLICES_TIME) {
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TourMarkers);
          }
 
          // Import file location
@@ -705,9 +710,13 @@ public class RawDataManager {
                   : ITourbookPreferences.TOGGLE_STATE_DELETE_TOUR_VALUES,
             NLS.bind(Messages.Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message, String.join(UI.NEW_LINE1, dataToModifyDetails)))) {
 
+         String logMessage = isReimport ? LOG_REIMPORT_COMBINED_VALUES : LOG_DELETE_COMBINED_VALUES;
+
+         logMessage = logMessage.concat(String.join(UI.COMMA_SPACE, dataToModifyDetails));
+
          TourLogManager.addLog(
                TourLogState.DEFAULT,
-               LOG_REIMPORT_COMBINED_VALUES.concat(String.join(UI.COMMA_SPACE, dataToModifyDetails)),
+               logMessage,
                TourLogView.CSS_LOG_TITLE);
 
          return true;
@@ -1751,6 +1760,8 @@ public class RawDataManager {
       }
       TourManager.saveModifiedTour(tourData, false);
 
+      //TODO FB
+      //only display the tour time
       TourLogManager.addSubLog(TourLogState.IMPORT_OK,
             NLS.bind(LOG_IMPORT_TOUR_IMPORTED,
                   tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
