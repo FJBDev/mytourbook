@@ -1084,6 +1084,7 @@ public class Messages extends NLS {
    public static String        Import_Data_Dialog_IsCancelReImport_Message;
    public static String        Import_Data_Dialog_IsCancelReImport_Title;
    public static String        Import_Data_Log_ReimportIsInvalid_DifferentTourId_Message;
+   public static String        Import_Data_Log_ReimportIsInvalid_TourNotFoundInFile_Message;
    public static String        Import_Data_Log_ReimportIsInvalid_WrongSliceNumbers;
    public static String        Import_Data_Monitor_Backup;
    public static String        Import_Data_Monitor_Backup_SubTask;

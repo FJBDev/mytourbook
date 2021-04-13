@@ -1324,7 +1324,11 @@ public class RawDataManager {
       if (message == null) {
 
          // undefined error
-         TourLogManager.subLog_Error(reImportedFile.toString());
+         TourLogManager.subLog_Error(NLS.bind(
+               Messages.Import_Data_Log_ReimportIsInvalid_TourNotFoundInFile_Message,
+               new Object[] {
+                     oldTourDateTimeShort,
+                     reImportedFile.toString() }));
 
       } else {
          TourLogManager.subLog_Error(message);
