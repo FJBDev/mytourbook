@@ -112,7 +112,8 @@ public class RawDataManager {
    public static final String    LOG_REIMPORT_PREVIOUS_FILES                 = Messages.Log_Reimport_PreviousFiles;
    public static final String    LOG_REIMPORT_END                            = Messages.Log_Reimport_PreviousFiles_End;
 
-   public static final String    LOG_REIMPORT_COMBINED_VALUES                = Messages.Log_Reimport_Combined_Values;
+   public static final String    LOG_REIMPORT_COMBINED_VALUES                = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Reimport_Text);
+   public static final String    LOG_DELETE_COMBINED_VALUES                  = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Delete_Text);
    private static final String   LOG_REIMPORT_MANUAL_TOUR                    = Messages.Log_Reimport_ManualTour;
    private static final String   LOG_REIMPORT_TOUR_SKIPPED                   = Messages.Log_Reimport_Tour_Skipped;
 
@@ -747,6 +748,7 @@ public class RawDataManager {
     *           A list of tour values to be re-imported
     * @return
     */
+   //TODO FB
    public boolean actionReimportTour_10_Confirm(final List<TourValueType> tourValueTypes) {
 
       final ArrayList<String> dataToReimportDetails = new ArrayList<>();
@@ -837,7 +839,7 @@ public class RawDataManager {
 
          TourLogManager.addLog(
                TourLogState.DEFAULT,
-               NLS.bind(LOG_REIMPORT_COMBINED_VALUES, String.join(UI.COMMA_SPACE, dataToReimportDetails)),
+               LOG_REIMPORT_COMBINED_VALUES.concat(String.join(UI.COMMA_SPACE, dataToReimportDetails)),
                TourLogView.CSS_LOG_TITLE);
 
          return true;

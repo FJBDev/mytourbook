@@ -1130,6 +1130,8 @@ public class Messages extends NLS {
    public static String        Log_ComputeCadenceZonesTimes_010_Success;
    public static String        Log_ComputeCadenceZonesTimes_011_NoSuccess;
 
+   public static String        Log_Delete_Text;
+
    public static String        Log_EasyImport_000_ImportStart;
    public static String        Log_EasyImport_001_BackupTourFiles;
    public static String        Log_EasyImport_001_Copy;
@@ -1153,10 +1155,11 @@ public class Messages extends NLS {
    public static String        Log_Import_Tours_Imported_From_File;
    public static String        Log_Import_Tour_Old_Data_Vs_New_Data;
 
-   public static String        Log_Reimport_Combined_Values;
+   public static String        Log_Modify_Combined_Values;
    public static String        Log_Reimport_ManualTour;
    public static String        Log_Reimport_PreviousFiles;
    public static String        Log_Reimport_PreviousFiles_End;
+   public static String        Log_Reimport_Text;
    public static String        Log_Reimport_Tour_Skipped;
    public static String        Log_Reimport_Tour_Skipped_FileLocationDialog_Auto;
    public static String        Log_Reimport_Tour_Skipped_FileLocationDialog_ByUser;
