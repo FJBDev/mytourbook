@@ -100,7 +100,7 @@ public class Map3GradientColorManager {
    // opacity
    public static final int   OPACITY_MIN     = 0;
    public static final int   OPACITY_MAX     = 100;
-   public static final float OPACITY_DEFAULT = 1.0f;
+   public static final float OPACITY_DEFAULT = 100;
 
    /**
     * Define 3D map default colors.
@@ -1146,14 +1146,10 @@ public class Map3GradientColorManager {
     */
    public static void saveColors() {
 
-      BufferedWriter writer = null;
+      final IPath stateLocation = Platform.getStateLocation(CommonActivator.getDefault().getBundle());
+      final File file = stateLocation.append(MAP3_COLOR_FILE).toFile();
 
-      try {
-
-         final IPath stateLocation = Platform.getStateLocation(CommonActivator.getDefault().getBundle());
-         final File file = stateLocation.append(MAP3_COLOR_FILE).toFile();
-
-         writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), UI.UTF_8));
+      try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), UI.UTF_8))) {
 
          final XMLMemento xmlRoot = saveColors_0_getXMLRoot();
 
@@ -1163,15 +1159,6 @@ public class Map3GradientColorManager {
 
       } catch (final IOException e) {
          StatusUtil.log(e);
-      } finally {
-
-         if (writer != null) {
-            try {
-               writer.close();
-            } catch (final IOException e) {
-               StatusUtil.log(e);
-            }
-         }
       }
    }
 
