@@ -304,6 +304,7 @@ public class Messages extends NLS {
    public static String        Dialog_DeleteTourValues_Action_OpenDialog;
    public static String        Dialog_DeleteTourValues_Button_Delete;
    public static String        Dialog_DeleteTourValues_Checkbox_Time;
+   public static String        Dialog_DeleteTourValues_Dialog_ConfirmDeleteValues_Message;
    public static String        Dialog_DeleteTourValues_Dialog_Message;
    public static String        Dialog_DeleteTourValues_Dialog_Title;
    public static String        Dialog_DeleteTourValues_Group_Data;
@@ -775,6 +776,8 @@ public class Messages extends NLS {
 
    public static String        DeviceManager_Selection_device_is_not_selected;
 
+   public static String        Dialog_DeleteData_Title;
+
    public static String        Dialog_JoinTours_Checkbox_CreateTourMarker;
    public static String        Dialog_JoinTours_Checkbox_IncludeDescription;
    public static String        Dialog_JoinTours_Checkbox_IncludeMarkerWaypoints;
@@ -991,7 +994,7 @@ public class Messages extends NLS {
    public static String        import_data_action_save_tour_for_person;
    public static String        import_data_action_save_tour_with_person;
    public static String        import_data_action_save_tours_for_person;
-   public static String        import_data_dlg_reimport_title;
+   public static String        Dialog_ReimportData_Title;
    public static String        import_data_dlg_save_tour_msg;
    public static String        import_data_dlg_save_tour_title;
    public static String        import_data_importTours_subTask;

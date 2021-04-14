@@ -604,6 +604,32 @@ public class RawDataManager {
       runImport(osFiles, false, null);
    }
 
+   private boolean actionModifyTour_12_Confirm_Dialog(final String toggleState, final String dialogTitle, final String confirmMessage) {
+
+      if (_prefStore.getBoolean(toggleState)) {
+
+         return true;
+
+      } else {
+
+         final MessageDialogWithToggle dialog = MessageDialogWithToggle.openOkCancelConfirm(
+               Display.getCurrent().getActiveShell(),
+               dialogTitle,
+               confirmMessage,
+               Messages.App_ToggleState_DoNotShowAgain,
+               false, // toggle default state
+               null,
+               null);
+
+         if (dialog.getReturnCode() == Window.OK) {
+            _prefStore.setValue(toggleState, dialog.getToggleState());
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    /**
     * Asks the user if the modification (re-import or deletion) of all the chosen data is desired.
     *
@@ -702,11 +728,19 @@ public class RawDataManager {
          }
       }
 
-      if (actionReimportTour_12_Confirm_Dialog(
+      String confirmMessage = isReimport
+            ? Messages.Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message
+            : Messages.Dialog_DeleteTourValues_Dialog_ConfirmDeleteValues_Message;
+      confirmMessage = NLS.bind(confirmMessage, String.join(UI.NEW_LINE1, dataToModifyDetails));
+
+      if (actionModifyTour_12_Confirm_Dialog(
             isReimport
                   ? ITourbookPreferences.TOGGLE_STATE_REIMPORT_TOUR_VALUES
                   : ITourbookPreferences.TOGGLE_STATE_DELETE_TOUR_VALUES,
-            NLS.bind(Messages.Dialog_ReimportTours_Dialog_ConfirmReimportValues_Message, String.join(UI.NEW_LINE1, dataToModifyDetails)))) {
+            isReimport
+                  ? Messages.Dialog_ReimportData_Title
+                  : Messages.Dialog_DeleteData_Title,
+            confirmMessage)) {
 
          String logMessage = isReimport ? LOG_REIMPORT_COMBINED_VALUES : LOG_DELETE_COMBINED_VALUES;
 
@@ -853,32 +887,6 @@ public class RawDataManager {
       }
    }
 
-   private boolean actionReimportTour_12_Confirm_Dialog(final String toggleState, final String confirmMessage) {
-
-      if (_prefStore.getBoolean(toggleState)) {
-
-         return true;
-
-      } else {
-
-         final MessageDialogWithToggle dialog = MessageDialogWithToggle.openOkCancelConfirm(
-               Display.getCurrent().getActiveShell(),
-               Messages.import_data_dlg_reimport_title,
-               confirmMessage,
-               Messages.App_ToggleState_DoNotShowAgain,
-               false, // toggle default state
-               null,
-               null);
-
-         if (dialog.getReturnCode() == Window.OK) {
-            _prefStore.setValue(toggleState, dialog.getToggleState());
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    /**
     * @param tourData
     * @param skipToursWithFileNotFound
@@ -972,7 +980,7 @@ public class RawDataManager {
 
                   final boolean okPressed = MessageDialog.openQuestion(
                         activeShell,
-                        Messages.import_data_dlg_reimport_title,
+                        Messages.Dialog_ReimportData_Title,
                         NLS.bind(
                               Messages.Import_Data_Dialog_GetAlternativePath_Message,
                               savedImportFilePathName));
@@ -1534,7 +1542,6 @@ public class RawDataManager {
 
       final long start = System.currentTimeMillis();
 
-      //TODO FB
       if (!actionModifyTourValues_10_Confirm(tourValueTypes, false)) {
          return;
       }
