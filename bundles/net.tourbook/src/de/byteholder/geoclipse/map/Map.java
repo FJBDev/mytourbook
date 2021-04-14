@@ -733,12 +733,12 @@ public class Map extends Canvas {
 
       addFocusListener(new FocusListener() {
          @Override
-         public void focusGained(final FocusEvent focusEvent) {
+         public void focusGained(final FocusEvent e) {
             updatePoiVisibility();
          }
 
          @Override
-         public void focusLost(final FocusEvent focusEvent) {
+         public void focusLost(final FocusEvent e) {
 // this is critical because the tool tip get's hidden when there are actions available in the tool tip shell
 //            hidePoiToolTip();
          }
