@@ -1029,6 +1029,7 @@ public class Messages extends NLS {
    public static String        Import_Data_Dialog_DeleteTourFiles_Title;
    public static String        Import_Data_Dialog_GetAlternativePath_Message;
    public static String        Import_Data_Dialog_GetReimportedFilePath_Message;
+   public static String        Import_Data_Dialog_DeleteTourValues_Task;
    public static String        Import_Data_Dialog_Reimport_SubTask;
    public static String        Import_Data_Dialog_Reimport_Task;
    public static String        Import_Data_Dialog_Reimport_Title;

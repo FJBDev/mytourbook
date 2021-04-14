@@ -1572,8 +1572,7 @@ public class RawDataManager {
             int imported = 0;
             final int importSize = selectedTourIds.length;
 
-            //TODO FB
-            monitor.beginTask(Messages.Import_Data_Dialog_Reimport_Task, importSize);
+            monitor.beginTask(Messages.Import_Data_Dialog_DeleteTourValues_Task, importSize);
 
             // loop: all selected tours in the viewer
             for (int index = 0; index < selectedTourIds.length && !monitor.isCanceled(); ++index) {
