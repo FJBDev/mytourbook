@@ -613,7 +613,6 @@ public class RawDataManager {
     *           True if data needs to be re-imported, false if the data needs to be deleted
     * @return
     */
-   //TODO FB
    public boolean actionModifyTourValues_10_Confirm(final List<TourValueType> tourValueTypes, final boolean isReimport) {
 
       final ArrayList<String> dataToModifyDetails = new ArrayList<>();
@@ -674,7 +673,7 @@ public class RawDataManager {
 
          // Timer pauses
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TIMER_PAUSES) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_TourTimerPauses);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TourTimerPauses);
          }
 
          // Tour markers
@@ -684,7 +683,7 @@ public class RawDataManager {
 
          // Time data
          if (tourValueType == TourValueType.TIME_SLICES_TIME) {
-            dataToModifyDetails.add(Messages.Tour_Data_Text_TourMarkers);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_Time);
          }
 
          // Import file location

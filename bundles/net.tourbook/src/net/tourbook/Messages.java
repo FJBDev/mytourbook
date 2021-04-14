@@ -1019,8 +1019,9 @@ public class Messages extends NLS {
    public static String        Import_Data_Text_SpeedValues;
    public static String        Import_Data_Text_TemperatureValues;
    public static String        Import_Data_Text_TimeSlices;
+   public static String        Tour_Data_Text_Time;
    public static String        Tour_Data_Text_TourMarkers;
-   public static String        Import_Data_Text_TourTimerPauses;
+   public static String        Tour_Data_Text_TourTimerPauses;
    public static String        Import_Data_Text_TrainingValues;
    public static String        Import_Data_Text_EntireTour;
    public static String        Import_Data_Text_ImportFileLocation;
