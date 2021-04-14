@@ -109,7 +109,7 @@ public class RawDataManager {
 
    public static final String    LOG_DELETE_COMBINED_VALUES                  = NLS.bind(Messages.Log_Modify_Combined_Values, Messages.Log_Delete_Text);
 
-   public static final String    LOG_MODIFIED_TOUR                    = Messages.Log_Import_Tour_Imported;
+   public static final String    LOG_DELETED_END                             = Messages.Log_Deleted_End;
    public static final String    LOG_MODIFIEDTOUR_OLD_DATA_VS_NEW_DATA       = Messages.Log_ModifiedTour_Old_Data_Vs_New_Data;
 
    public static final String    LOG_REIMPORT_PREVIOUS_FILES                 = Messages.Log_Reimport_PreviousFiles;
@@ -1636,7 +1636,7 @@ public class RawDataManager {
          final double time = (System.currentTimeMillis() - start) / 1000.0;
          TourLogManager.addLog(//
                TourLogState.DEFAULT,
-               String.format(RawDataManager.LOG_REIMPORT_END, time));
+               String.format(RawDataManager.LOG_DELETED_END, time));
       }
    }
 
@@ -1714,6 +1714,7 @@ public class RawDataManager {
 
                tourData.setPowerSerie(null);
                tourData.setPower_Avg(0);
+               tourData.pulseSerie = null;
                tourData.setAvgPulse(0);
                tourData.setCalories(0);
                break;
@@ -1736,7 +1737,7 @@ public class RawDataManager {
                break;
 
             case TIME_SLICES_TIMER_PAUSES:
-               clonedTourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Recorded());
+               clonedTourData.setTourDeviceTime_Paused(tourData.getTourDeviceTime_Paused());
 
                tourData.setPausedTime_Start(null);
                tourData.setPausedTime_End(null);
@@ -1756,14 +1757,9 @@ public class RawDataManager {
       }
       TourManager.saveModifiedTour(tourData, false);
 
-      //TODO FB
-      //only display the tour time
       TourLogManager.addSubLog(TourLogState.IMPORT_OK,
-            NLS.bind(LOG_IMPORT_TOUR_IMPORTED,
-                  tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S)));
+            tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S));
 
-      // Print the old vs new data comparison
-      //TODO FB it doesnt work!?
       for (final TourValueType tourValueType : tourValueTypes) {
          displayTourModifiedDataDifferences(tourValueType, clonedTourData, tourData);
       }
