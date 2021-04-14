@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2013  Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2021  Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -28,108 +28,108 @@ import net.tourbook.map2.view.IDiscreteColorProvider;
 
 public class TourTrack {
 
-	private ITrackPath					_trackPath;
+   private ITrackPath                  _trackPath;
 
-	private TourData					_tourData;
+   private TourData                    _tourData;
 
-	private TourMap3Position[]			_trackPositions;
-	private ArrayList<TourMap3Position>	_trackPositionsList;
+   private TourMap3Position[]          _trackPositions;
+   private ArrayList<TourMap3Position> _trackPositionsList;
 
-	private IMapColorProvider			_colorProvider;
+   private IMapColorProvider           _colorProvider;
 
-	private boolean						_isHovered;
-	private boolean						_isSelected;
+   private boolean                     _isHovered;
+   private boolean                     _isSelected;
 
-	private int							_tourTrackHoverIndex;
+   private int                         _tourTrackHoverIndex;
 
-	public TourTrack(	final ITrackPath trackPath,
-						final TourData tourData,
-						final ArrayList<TourMap3Position> trackPositions,
-						final IMapColorProvider colorProvider) {
+   public TourTrack(final ITrackPath trackPath,
+                    final TourData tourData,
+                    final ArrayList<TourMap3Position> trackPositions,
+                    final IMapColorProvider colorProvider) {
 
-		_trackPath = trackPath;
+      _trackPath = trackPath;
 
-		_tourData = tourData;
+      _tourData = tourData;
 
-		_trackPositions = trackPositions.toArray(new TourMap3Position[trackPositions.size()]);
-		_trackPositionsList = trackPositions;
+      _trackPositions = trackPositions.toArray(new TourMap3Position[trackPositions.size()]);
+      _trackPositionsList = trackPositions;
 
-		_colorProvider = colorProvider;
-	}
+      _colorProvider = colorProvider;
+   }
 
-	Color getColor(final Position pos, final Integer ordinal) {
+   Color getColor(final Position pos, final Integer ordinal) {
 
-		final PositionColors positionColors = _trackPath.getPathPositionColors();
-		if (positionColors instanceof TourPositionColors) {
+      final PositionColors positionColors = _trackPath.getPathPositionColors();
+      if (positionColors instanceof TourPositionColors) {
 
-			final TourPositionColors tourPosColors = (TourPositionColors) positionColors;
-			final TourMap3Position trackPosition = _trackPositions[ordinal];
+         final TourPositionColors tourPosColors = (TourPositionColors) positionColors;
+         final TourMap3Position trackPosition = _trackPositions[ordinal];
 
-			if (_colorProvider instanceof IGradientColorProvider) {
+         if (_colorProvider instanceof IGradientColorProvider) {
 
-				return tourPosColors.getGradientColor(trackPosition.dataSerieValue, ordinal, _tourTrackHoverIndex);
+            return tourPosColors.getGradientColor(trackPosition.dataSerieValue, ordinal, _tourTrackHoverIndex);
 
-			} else if (_colorProvider instanceof IDiscreteColorProvider) {
+         } else if (_colorProvider instanceof IDiscreteColorProvider) {
 
-				return tourPosColors.getDiscreteColor(trackPosition.colorValue);
-			}
-		}
+            return tourPosColors.getDiscreteColor(trackPosition.colorValue);
+         }
+      }
 
-		/**
-		 * <code>null</code> is very important when <b>NO</b> position colors are set.
-		 */
+      /**
+       * <code>null</code> is very important when <b>NO</b> position colors are set.
+       */
 
-		return null;
-	}
+      return null;
+   }
 
-	public TourData getTourData() {
-		return _tourData;
-	}
+   public TourData getTourData() {
+      return _tourData;
+   }
 
-	public ArrayList<TourMap3Position> getTrackPositions() {
-		return _trackPositionsList;
-	}
+   public ArrayList<TourMap3Position> getTrackPositions() {
+      return _trackPositionsList;
+   }
 
-	boolean isHovered() {
-		return _isHovered;
-	}
+   boolean isHovered() {
+      return _isHovered;
+   }
 
-	boolean isSelected() {
-		return _isSelected;
-	}
+   boolean isSelected() {
+      return _isSelected;
+   }
 
-	void setHovered(final boolean isHovered, final Integer hoveredTrackIndex) {
+   void setHovered(final boolean isHovered, final Integer hoveredTrackIndex) {
 
-		_isHovered = isHovered;
+      _isHovered = isHovered;
 
-		if (hoveredTrackIndex == null) {
-			_tourTrackHoverIndex = -1;
-		} else {
-			_tourTrackHoverIndex = hoveredTrackIndex;
-		}
-	}
+      if (hoveredTrackIndex == null) {
+         _tourTrackHoverIndex = -1;
+      } else {
+         _tourTrackHoverIndex = hoveredTrackIndex;
+      }
+   }
 
-	void setSelected(final boolean isSelected) {
-		_isSelected = isSelected;
-	}
+   void setSelected(final boolean isSelected) {
+      _isSelected = isSelected;
+   }
 
-	@Override
-	public String toString() {
+   @Override
+   public String toString() {
 
-		return this.getClass().getSimpleName() + ("\t" + _tourData) // //$NON-NLS-1$
+      return this.getClass().getSimpleName() + ("\t" + _tourData) // //$NON-NLS-1$
 //				+ ("\tTrack positions: " + _trackPositions.length)
-				//
-		;
-	}
+      //
+      ;
+   }
 
-	void updateColors(final double trackOpacity) {
+   void updateColors(final int trackOpacity) {
 
-		final PositionColors positionColors = _trackPath.getPathPositionColors();
-		if (positionColors instanceof TourPositionColors) {
+      final PositionColors positionColors = _trackPath.getPathPositionColors();
+      if (positionColors instanceof TourPositionColors) {
 
-			final TourPositionColors tourPosColors = (TourPositionColors) positionColors;
-			tourPosColors.updateColors(trackOpacity);
-		}
-	}
+         final TourPositionColors tourPosColors = (TourPositionColors) positionColors;
+         tourPosColors.updateColors(trackOpacity);
+      }
+   }
 
 }
