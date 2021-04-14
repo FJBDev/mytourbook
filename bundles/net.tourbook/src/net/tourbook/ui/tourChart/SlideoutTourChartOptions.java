@@ -265,6 +265,27 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
          }
          {
             /*
+             * label: Night Sections Opacity
+             */
+            _chkShowNightSections = new Button(container, SWT.CHECK);
+            _chkShowNightSections.setText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity);
+            _chkShowNightSections.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
+            _chkShowNightSections.addSelectionListener(_defaultSelectionListener);
+
+            /*
+             * Night Sections Opacity Scale
+             */
+            _spinnerNightSectionsOpacity = new Spinner(container, SWT.BORDER);
+            _spinnerNightSectionsOpacity.setMinimum(0);
+            _spinnerNightSectionsOpacity.setMaximum(100);
+            _spinnerNightSectionsOpacity.setIncrement(1);
+            _spinnerNightSectionsOpacity.setPageIncrement(10);
+            _spinnerNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
+            _spinnerNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
+            _spinnerNightSectionsOpacity.addMouseWheelListener(_defaultMouseWheelListener);
+         }
+         {
+            /*
              * Show value point tooltip
              */
             _chkShowValuePointTooltip = new Button(container, SWT.CHECK);
@@ -346,27 +367,6 @@ public class SlideoutTourChartOptions extends ToolbarSlideout {
             GridDataFactory.fillDefaults()
                   .span(2, 1)
                   .applyTo(_chkInvertPaceGraph);
-         }
-         {
-            /*
-             * label: Night Sections Opacity
-             */
-            _chkShowNightSections = new Button(group, SWT.CHECK);
-            _chkShowNightSections.setText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity);
-            _chkShowNightSections.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
-            _chkShowNightSections.addSelectionListener(_defaultSelectionListener);
-
-            /*
-             * Night Sections Opacity Scale
-             */
-            _spinnerNightSectionsOpacity = new Spinner(group, SWT.BORDER);
-            _spinnerNightSectionsOpacity.setMinimum(0);
-            _spinnerNightSectionsOpacity.setMaximum(100);
-            _spinnerNightSectionsOpacity.setIncrement(1);
-            _spinnerNightSectionsOpacity.setPageIncrement(10);
-            _spinnerNightSectionsOpacity.setToolTipText(Messages.Slideout_TourChartOptions_Check_NightSectionsOpacity_Tooltip);
-            _spinnerNightSectionsOpacity.addSelectionListener(_defaultSelectionListener);
-            _spinnerNightSectionsOpacity.addMouseWheelListener(_defaultMouseWheelListener);
          }
       }
    }

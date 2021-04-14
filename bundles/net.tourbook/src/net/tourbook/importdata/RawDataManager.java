@@ -1572,8 +1572,7 @@ public class RawDataManager {
          @Override
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-            final ReImportStatus reImportStatus = new ReImportStatus();
-            final boolean[] isUserAsked_ToCancelReImport = { false };
+            final boolean[] isUserAsked_ToCancelDeletion = { false };
 
             int imported = 0;
             final int importSize = selectedTourIds.length;
@@ -1596,11 +1595,11 @@ public class RawDataManager {
 
                deleteTourValuesFromTour(tourValueTypes, tourData);
 
-               if (reImportStatus.isCanceled_ByUser_TheFileLocationDialog && isUserAsked_ToCancelReImport[0] == false) {
+               if (!isUserAsked_ToCancelDeletion[0]) {
 
-                  // user has canceled the re-import -> ask if the whole re-import should be canceled
+                  // user has canceled the deletion -> ask if the whole deletion should be canceled
 
-                  final boolean[] isCancelReimport = { false };
+                  final boolean[] isCancelDeletion = { false };
 
                   display.syncExec(() -> {
 
@@ -1608,27 +1607,24 @@ public class RawDataManager {
                            Messages.Import_Data_Dialog_IsCancelReImport_Title,
                            Messages.Import_Data_Dialog_IsCancelReImport_Message)) {
 
-                        isCancelReimport[0] = true;
+                        isCancelDeletion[0] = true;
 
                      } else {
 
-                        isUserAsked_ToCancelReImport[0] = true;
+                        isUserAsked_ToCancelDeletion[0] = true;
                      }
                   });
 
-                  if (isCancelReimport[0]) {
+                  if (isCancelDeletion[0]) {
                      break;
                   }
                }
             }
 
-            if (reImportStatus.isReImported) {
+            updateTourData_InImportView_FromDb(monitor);
 
-               updateTourData_InImportView_FromDb(monitor);
-
-               // reselect tours, run in UI thread
-               display.asyncExec(tourViewer::reloadViewer);
-            }
+            // reselect tours, run in UI thread
+            display.asyncExec(tourViewer::reloadViewer);
          }
       };
 
