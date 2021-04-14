@@ -75,8 +75,6 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
    private static final String          STATE_IS_DELETE_TOUR_MARKERS                = "STATE_IS_DELETE_TOUR_MARKERS";                    //$NON-NLS-1$
    private static final String          STATE_IS_DELETE_TRAINING                    = "STATE_IS_DELETE_TRAINING";                        //$NON-NLS-1$
 
-   private static final int             VERTICAL_SECTION_MARGIN                     = 10;
-
    private static final IDialogSettings _state                                      = TourbookPlugin.getState("DialogDeleteTourValues"); //$NON-NLS-1$
 
    private final ITourViewer3           _tourViewer;
@@ -270,7 +268,7 @@ public class DialogDeleteTourValues extends TitleAreaDialog {
       final Group group = new Group(parent, SWT.NONE);
       group.setText(Messages.Dialog_DeleteTourValues_Group_Data);
       group.setToolTipText(Messages.Dialog_DeleteTourValues_Group_Data_Tooltip);
-      GridDataFactory.fillDefaults().grab(true, false).indent(0, VERTICAL_SECTION_MARGIN).applyTo(group);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          // row 1
