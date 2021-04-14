@@ -621,54 +621,54 @@ public class RawDataManager {
 
          // Elevation
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_ELEVATION) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_AltitudeValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_AltitudeValues);
          }
 
          // Cadence
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_CADENCE) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_CadenceValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_CadenceValues);
          }
 
          // Gear
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_GEAR) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_GearValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_GearValues);
          }
 
          // Power
          if (tourValueType == TourValueType.ALL_TIME_SLICES
                || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE
                || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_PowerValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_PowerValues);
          }
 
          // Pulse
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_PULSE) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_PulseValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_PulseValues);
          }
 
          // Speed
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_POWER_AND_SPEED) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_SpeedValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_SpeedValues);
          }
 
          // Running Dynamics
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_RUNNING_DYNAMICS) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_RunningDynamicsValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_RunningDynamicsValues);
          }
 
          // Swimming
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_SWIMMING) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_SwimmingValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_SwimmingValues);
          }
 
          // Temperature
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TEMPERATURE) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_TemperatureValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TemperatureValues);
          }
 
          // Training
          if (tourValueType == TourValueType.ALL_TIME_SLICES || tourValueType == TourValueType.TIME_SLICES_TRAINING) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_TrainingValues);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TrainingValues);
          }
 
          // Timer pauses
@@ -688,17 +688,17 @@ public class RawDataManager {
 
          // Import file location
          if (tourValueType == TourValueType.IMPORT_FILE_LOCATION) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_ImportFileLocation);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_ImportFileLocation);
          }
 
          // ALL
          if (tourValueType == TourValueType.ALL_TIME_SLICES) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_TimeSlices);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_TimeSlices);
          }
 
          // Entire Tour
          if (tourValueType == TourValueType.ENTIRE_TOUR) {
-            dataToModifyDetails.add(Messages.Import_Data_Text_EntireTour);
+            dataToModifyDetails.add(Messages.Tour_Data_Text_EntireTour);
          }
       }
 
