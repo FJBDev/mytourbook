@@ -97,4 +97,3 @@ class TourPositionColors implements Path.PositionColors {
 	}
 
 }
-
