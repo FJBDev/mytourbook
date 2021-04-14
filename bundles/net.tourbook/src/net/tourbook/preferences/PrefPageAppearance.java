@@ -307,12 +307,13 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private void enableControls() {
 
       final boolean isTagAutoOpen = _chkAutoOpenTagging.getSelection();
+      final boolean isEnabled = true; // eclipse 3.7 supports this feature in OSX
 
-      _chkAutoOpenTagging.setEnabled(true);
-      _lblAutoOpenMS.setEnabled(isTagAutoOpen);
-      _lblAutoTagDelay.setEnabled(isTagAutoOpen);
-      _spinnerAutoOpenDelay.setEnabled(isTagAutoOpen);
-      _chkTaggingAnimation.setEnabled(isTagAutoOpen);
+      _chkAutoOpenTagging.setEnabled(isEnabled);
+      _lblAutoOpenMS.setEnabled(isEnabled && isTagAutoOpen);
+      _lblAutoTagDelay.setEnabled(isEnabled && isTagAutoOpen);
+      _spinnerAutoOpenDelay.setEnabled(isEnabled && isTagAutoOpen);
+      _chkTaggingAnimation.setEnabled(isEnabled && isTagAutoOpen);
    }
 
    @Override
