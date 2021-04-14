@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2014  Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2021  Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -19,30 +19,30 @@ import java.awt.Color;
 
 public class ColorCacheAWT {
 
-	/*
-	 * PERFORMANCE: it performs (#1'750'000) 340 ms to 380 ms without hash map.
-	 */
+   /*
+    * PERFORMANCE: it performs (#1'750'000) 340 ms to 380 ms without hash map.
+    */
 
 //	private TIntObjectHashMap<Color>	_colors			= new TIntObjectHashMap<Color>();
 
-	/**
-	 * Opacity for the whole track.
-	 */
-	private double						_trackOpacity	= 1.0;
+   /**
+    * Opacity for the whole track.
+    */
+   private int _trackOpacity = 100;
 
-	/**
-	 * Removes existing color values from the cache.
-	 */
-	public void clear() {
+   /**
+    * Removes existing color values from the cache.
+    */
+   public void clear() {
 //		_colors.clear();
-	}
+   }
 
-	/**
-	 * @param colorValue
-	 * @return Returns the color for the <code>colorValue</code> from the color cache, color is
-	 *         created when it is not available
-	 */
-	public Color getColorRGBA(final int colorValue) {
+   /**
+    * @param colorValue
+    * @return Returns the color for the <code>colorValue</code> from the color cache, color is
+    *         created when it is not available
+    */
+   public Color getColorRGBA(final int colorValue) {
 
 //		Color color = _colors.get(colorValue);
 //
@@ -50,28 +50,28 @@ public class ColorCacheAWT {
 //			return color;
 //		}
 
-		final int r = (colorValue & 0xFF) >>> 0;
-		final int g = (colorValue & 0xFF00) >>> 8;
-		final int b = (colorValue & 0xFF0000) >>> 16;
-		final int o = (colorValue & 0xFF000000) >>> 24;
+      final int r = (colorValue & 0xFF) >>> 0;
+      final int g = (colorValue & 0xFF00) >>> 8;
+      final int b = (colorValue & 0xFF0000) >>> 16;
+      final int o = (colorValue & 0xFF000000) >>> 24;
 
-		final int colorOpacity = (int) (o * _trackOpacity);
+      final int colorOpacity = o * _trackOpacity;
 
-		final Color color = new Color(r, g, b, colorOpacity);
+      final Color color = new Color(r, g, b, colorOpacity);
 
 //		_colors.put(colorValue, color);
 
-		return color;
-	}
+      return color;
+   }
 
-	/**
-	 * @param opacity
-	 *            Opacity 0.0 ... 1.0
-	 */
-	public void setTrackOpacity(final double opacity) {
+   /**
+    * @param opacity
+    *           Opacity 0 ... 100
+    */
+   public void setTrackOpacity(final int opacity) {
 
-		_trackOpacity = opacity;
+      _trackOpacity = opacity;
 
 //		_colors.clear();
-	}
+   }
 }
