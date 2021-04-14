@@ -697,11 +697,11 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
 
       _hoveredAttributes.setDrawOutline(true);
       _hoveredAttributes.setOutlineWidth(trackConfig.outlineWidth);
-      _hoveredAttributes.setOutlineOpacity(trackConfig.outlineOpacity_Hovered);
+      _hoveredAttributes.setOutlineOpacity((double) trackConfig.outlineOpacity_Hovered / 100);
       _hoveredAttributes.setOutlineMaterial(new Material(outlineColor));
 
       _hoveredAttributes.setDrawInterior(true);
-      _hoveredAttributes.setInteriorOpacity(trackConfig.interiorOpacity_Hovered);
+      _hoveredAttributes.setInteriorOpacity((double) trackConfig.interiorOpacity_Hovered / 100);
       _hoveredAttributes.setInteriorMaterial(new Material(interiorColor));
    }
 
@@ -747,11 +747,11 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
 
       _normalAttributes.setDrawOutline(true);
       _normalAttributes.setOutlineWidth(trackConfig.outlineWidth);
-      _normalAttributes.setOutlineOpacity(trackConfig.outlineOpacity);
+      _normalAttributes.setOutlineOpacity((double) trackConfig.outlineOpacity / 100);
       _normalAttributes.setOutlineMaterial(new Material(outlineColor));
 
       _normalAttributes.setDrawInterior(true);
-      _normalAttributes.setInteriorOpacity(trackConfig.interiorOpacity);
+      _normalAttributes.setInteriorOpacity((double) trackConfig.interiorOpacity / 100);
       _normalAttributes.setInteriorMaterial(new Material(interiorColor));
    }
 
@@ -772,11 +772,11 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
 
       _selecedAttributes.setDrawOutline(true);
       _selecedAttributes.setOutlineWidth(trackConfig.outlineWidth);
-      _selecedAttributes.setOutlineOpacity(trackConfig.outlineOpacity_Selected);
+      _selecedAttributes.setOutlineOpacity((double) trackConfig.outlineOpacity_Selected / 100);
       _selecedAttributes.setOutlineMaterial(new Material(outlineColor));
 
       _selecedAttributes.setDrawInterior(true);
-      _selecedAttributes.setInteriorOpacity(trackConfig.interiorOpacity_Selected);
+      _selecedAttributes.setInteriorOpacity((double) trackConfig.interiorOpacity_Selected / 100);
       _selecedAttributes.setInteriorMaterial(new Material(interiorColor));
    }
 

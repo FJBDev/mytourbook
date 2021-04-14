@@ -1253,7 +1253,7 @@ public class DialogTourTrackConfig extends AnimatedToolTipShell implements IColo
       _spinnerOutlineOpacity.setSelection((config.outlineOpacity));
       _spinnerOutlineOpacity_Hovered.setSelection((config.outlineOpacity_Hovered));
       _spinnerOutlineOpacity_HovSel.setSelection((config.outlineOpacity_HovSel));
-      _spinnerOutlineOpacity_Selected.setSelection((config.outlineOpacity_Selected));
+      _spinnerOutlineOpacity_Selected.setSelection(config.outlineOpacity_Selected * 100);
 
       // curtain color
       _chkShowInterior.setSelection(config.isShowInterior);
@@ -1268,7 +1268,7 @@ public class DialogTourTrackConfig extends AnimatedToolTipShell implements IColo
       _colorInteriorColor_HovSel.setColorValue(config.interiorColor_HovSel);
       _colorInteriorColor_Selected.setColorValue(config.interiorColor_Selected);
 
-      _spinnerInteriorOpacity.setSelection((int) (config.interiorOpacity));
+      _spinnerInteriorOpacity.setSelection((config.interiorOpacity));
       _spinnerInteriorOpacity_Hovered.setSelection((config.interiorOpacity_Hovered));
       _spinnerInteriorOpacity_HovSel.setSelection((config.interiorOpacity_HovSel));
       _spinnerInteriorOpacity_Selected.setSelection((config.interiorOpacity_Selected));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2014  Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,65 +13,88 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.map3.layer;
+package net.tourbook.map3.layer.tourtrack;
+
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.render.Path;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
-public class ColorCacheAWT {
+import net.tourbook.common.color.ColorProviderConfig;
+import net.tourbook.common.color.IGradientColorProvider;
+import net.tourbook.common.color.IMapColorProvider;
+import net.tourbook.common.color.MapGraphId;
+import net.tourbook.data.TourData;
+import net.tourbook.map.MapColorProvider;
+import net.tourbook.map.MapUtils;
+import net.tourbook.map3.layer.ColorCacheAWT;
 
-   /*
-    * PERFORMANCE: it performs (#1'750'000) 340 ms to 380 ms without hash map.
-    */
+class TourPositionColors implements Path.PositionColors {
 
-//	private TIntObjectHashMap<Color>	_colors			= new TIntObjectHashMap<Color>();
+	private final ColorCacheAWT	_awtColorCache	= new ColorCacheAWT();
 
-   /**
-    * Opacity for the whole track.
-    */
-   private int _trackOpacity = 100;
+	private IMapColorProvider	_colorProvider	= MapColorProvider.getActiveMap3ColorProvider(MapGraphId.Altitude);
 
-   /**
-    * Removes existing color values from the cache.
-    */
-   public void clear() {
-//		_colors.clear();
-   }
+	public Color getColor(final Position position, final int ordinal) {
 
-   /**
-    * @param colorValue
-    * @return Returns the color for the <code>colorValue</code> from the color cache, color is
-    *         created when it is not available
-    */
-   public Color getColorRGBA(final int colorValue) {
+		/**
+		 * This returns a dummy color, it is just a placeholder because a Path.PositionColors must
+		 * be set in the Path THAT a position color is used :-(
+		 */
 
-//		Color color = _colors.get(colorValue);
-//
-//		if (color != null) {
-//			return color;
-//		}
+		return Color.CYAN;
+	}
 
-      final int r = (colorValue & 0xFF) >>> 0;
-      final int g = (colorValue & 0xFF00) >>> 8;
-      final int b = (colorValue & 0xFF0000) >>> 16;
-      final int o = (colorValue & 0xFF000000) >>> 24;
+	public Color getDiscreteColor(final int colorValue) {
+		return _awtColorCache.getColorRGBA(colorValue);
+	}
 
-      final int colorOpacity = o * _trackOpacity;
+	public Color getGradientColor(final float graphValue, final Integer positionIndex, final int tourTrackPickIndex) {
 
-      final Color color = new Color(r, g, b, colorOpacity);
+		if (_colorProvider instanceof IGradientColorProvider) {
 
-//		_colors.put(colorValue, color);
+			final IGradientColorProvider gradientColorProvider = (IGradientColorProvider) _colorProvider;
 
-      return color;
-   }
+			final int rgbaValue = gradientColorProvider.getRGBValue(ColorProviderConfig.MAP3_TOUR, graphValue);
 
-   /**
-    * @param opacity
-    *           Opacity 0 ... 100
-    */
-   public void setTrackOpacity(final int opacity) {
+			return _awtColorCache.getColorRGBA(rgbaValue);
+		}
 
-      _trackOpacity = opacity;
+		// set ugly default value, this case should not happen
+		return Color.MAGENTA;
+	}
 
-//		_colors.clear();
-   }
+	public void setColorProvider(final IMapColorProvider legendProvider) {
+
+//		System.out.println((UI.timeStampNano() + " [" + getClass().getSimpleName() + "] ")
+//				+ ("\tsetColorProvider() " + legendProvider));
+//		// TODO remove SYSTEM.OUT.PRINTLN
+
+		_colorProvider = legendProvider;
+
+		_awtColorCache.clear();
+	}
+
+	/**
+	 * Update colors in the color provider.
+	 *
+	 * @param allTours
+	 */
+	public void updateColorProvider(final ArrayList<TourData> allTours) {
+
+		if (_colorProvider instanceof IGradientColorProvider) {
+
+			final IGradientColorProvider colorProvider = (IGradientColorProvider) _colorProvider;
+
+			MapUtils.configureColorProvider(allTours, colorProvider, ColorProviderConfig.MAP3_TOUR, 300);
+		}
+	}
+
+   void updateColors(final int trackOpacity) {
+
+		_awtColorCache.setTrackOpacity(trackOpacity);
+	}
+
 }
+

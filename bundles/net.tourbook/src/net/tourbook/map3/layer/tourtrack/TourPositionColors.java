@@ -36,7 +36,7 @@ class TourPositionColors implements Path.PositionColors {
 
 	private IMapColorProvider	_colorProvider	= MapColorProvider.getActiveMap3ColorProvider(MapGraphId.Altitude);
 
-	public Color getColor(final Position position, final int ordinal) {
+	@Override public Color getColor(final Position position, final int ordinal) {
 
 		/**
 		 * This returns a dummy color, it is just a placeholder because a Path.PositionColors must
@@ -91,7 +91,7 @@ class TourPositionColors implements Path.PositionColors {
 		}
 	}
 
-   void updateColors(final int trackOpacity) {
+   void updateColors(final double trackOpacity) {
 
 		_awtColorCache.setTrackOpacity(trackOpacity);
 	}

@@ -126,7 +126,7 @@ public class TourTrackConfig implements Cloneable {
    public RGB     interiorColor_Selected     = TourTrackConfigManager.RGB_SELECTED_DEFAULT;
    public RGB     interiorColor_HovSel       = TourTrackConfigManager.RGB_HOV_SEL_DEFAULT;
 
-   public double  interiorOpacity            = TourTrackConfigManager.INTERIOR_OPACITY_NORMAL_DEFAULT;
+   public int     interiorOpacity            = TourTrackConfigManager.INTERIOR_OPACITY_NORMAL_DEFAULT;
    public int     interiorOpacity_Hovered    = TourTrackConfigManager.INTERIOR_OPACITY_HOVERED_DEFAULT;
    public int     interiorOpacity_Selected   = TourTrackConfigManager.INTERIOR_OPACITY_SELECTED_DEFAULT;
    public int     interiorOpacity_HovSel     = TourTrackConfigManager.INTERIOR_OPACITY_HOV_SEL_DEFAULT;
