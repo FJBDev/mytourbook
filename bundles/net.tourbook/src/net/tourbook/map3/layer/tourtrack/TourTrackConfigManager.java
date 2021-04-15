@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -93,10 +93,10 @@ public class TourTrackConfigManager {
    public static final int   OUTLINE_COLOR_MODE_SELECTED_DEFAULT = TourTrackConfig.COLOR_MODE_SOLID_COLOR;
    public static final int   OUTLINE_COLOR_MODE_HOV_SEL_DEFAULT  = TourTrackConfig.COLOR_MODE_TRACK_VALUE;
 
-   public static final int   OUTLINE_OPACITY_NORMAL_DEFAULT      = 100;
-   public static final int   OUTLINE_OPACITY_HOVERED_DEFAULT     = 100;
-   public static final int   OUTLINE_OPACITY_SELECTED_DEFAULT    = 100;
-   public static final int   OUTLINE_OPACITY_HOV_SEL_DEFAULT     = 100;
+   public static final float OUTLINE_OPACITY_NORMAL_DEFAULT      = 1.0f;
+   public static final float OUTLINE_OPACITY_HOVERED_DEFAULT     = 1.0f;
+   public static final float OUTLINE_OPACITY_SELECTED_DEFAULT    = 1.0f;
+   public static final float OUTLINE_OPACITY_HOV_SEL_DEFAULT     = 1.0f;
 
    // interior
    public static final boolean IS_INTERIOR_VISIBLE_DEFAULT          = true;
@@ -107,10 +107,10 @@ public class TourTrackConfigManager {
    public static final int     INTERIOR_COLOR_MODE_SELECTED_DEFAULT = TourTrackConfig.COLOR_MODE_TRACK_VALUE;
    public static final int     INTERIOR_COLOR_MODE_HOV_SEL_DEFAULT  = TourTrackConfig.COLOR_MODE_TRACK_VALUE;
 
-   public static final int     INTERIOR_OPACITY_NORMAL_DEFAULT      = 0;
-   public static final int     INTERIOR_OPACITY_HOVERED_DEFAULT     = 20;
-   public static final int     INTERIOR_OPACITY_SELECTED_DEFAULT    = 20;
-   public static final int     INTERIOR_OPACITY_HOV_SEL_DEFAULT     = 20;
+   public static final float   INTERIOR_OPACITY_NORMAL_DEFAULT      = 0;
+   public static final float   INTERIOR_OPACITY_HOVERED_DEFAULT     = 0.2f;
+   public static final float   INTERIOR_OPACITY_SELECTED_DEFAULT    = 0.2f;
+   public static final float   INTERIOR_OPACITY_HOV_SEL_DEFAULT     = 0.2f;
 
    // track position
    public static final boolean IS_SHOW_TRACK_POSITION_DEFAULT       = true;
@@ -240,7 +240,7 @@ public class TourTrackConfigManager {
    /**
     * Contains all configurations which are loaded from a xml file.
     */
-   private static final ArrayList<TourTrackConfig> _allConfigs    = new ArrayList<>();
+   private static final ArrayList<TourTrackConfig> _allConfigs    = new ArrayList<TourTrackConfig>();
 
    private static TourTrackConfig                  _activeConfig;
    private static String                           _activeConfigIdFromXml;
@@ -362,10 +362,10 @@ public class TourTrackConfigManager {
             // <opacity>
             final IMemento xmlOpacity = xmlOutline.createChild(TAG_OPACITY);
             {
-               xmlOpacity.putInteger(ATTR_NORMAL, OUTLINE_OPACITY_NORMAL_DEFAULT);
-               xmlOpacity.putInteger(ATTR_HOVERED, OUTLINE_OPACITY_HOVERED_DEFAULT);
-               xmlOpacity.putInteger(ATTR_SELECTED, OUTLINE_OPACITY_SELECTED_DEFAULT);
-               xmlOpacity.putInteger(ATTR_HOV_AND_SEL, OUTLINE_OPACITY_HOV_SEL_DEFAULT);
+               xmlOpacity.putFloat(ATTR_NORMAL, OUTLINE_OPACITY_NORMAL_DEFAULT);
+               xmlOpacity.putFloat(ATTR_HOVERED, OUTLINE_OPACITY_HOVERED_DEFAULT);
+               xmlOpacity.putFloat(ATTR_SELECTED, OUTLINE_OPACITY_SELECTED_DEFAULT);
+               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, OUTLINE_OPACITY_HOV_SEL_DEFAULT);
             }
          }
 
@@ -396,10 +396,10 @@ public class TourTrackConfigManager {
             // <opacity>
             final IMemento xmlOpacity = xmlInterior.createChild(TAG_OPACITY);
             {
-               xmlOpacity.putInteger(ATTR_NORMAL, INTERIOR_OPACITY_NORMAL_DEFAULT);
-               xmlOpacity.putInteger(ATTR_HOVERED, INTERIOR_OPACITY_HOVERED_DEFAULT);
-               xmlOpacity.putInteger(ATTR_SELECTED, INTERIOR_OPACITY_SELECTED_DEFAULT);
-               xmlOpacity.putInteger(ATTR_HOV_AND_SEL, INTERIOR_OPACITY_HOV_SEL_DEFAULT);
+               xmlOpacity.putFloat(ATTR_NORMAL, INTERIOR_OPACITY_NORMAL_DEFAULT);
+               xmlOpacity.putFloat(ATTR_HOVERED, INTERIOR_OPACITY_HOVERED_DEFAULT);
+               xmlOpacity.putFloat(ATTR_SELECTED, INTERIOR_OPACITY_SELECTED_DEFAULT);
+               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, INTERIOR_OPACITY_HOV_SEL_DEFAULT);
             }
          }
 
@@ -442,7 +442,7 @@ public class TourTrackConfigManager {
          xmlConfig.putString(ATTR_CONFIG_NAME, config.name);
 
          xmlConfig.putBoolean(ATTR_IS_FOLLOW_TERRAIN, config.isFollowTerrain);
-         xmlConfig.putInteger(ATTR_TRACK_COLOR_OPACITY_DEFAULT, config.trackColorOpacity);
+         xmlConfig.putFloat(ATTR_TRACK_COLOR_OPACITY_DEFAULT, (float) config.trackColorOpacity);
 
          // <directionArrows>
          final IMemento xmlDirectionArrows = xmlConfig.createChild(TAG_DIRECTION_ARROWS);
@@ -478,10 +478,10 @@ public class TourTrackConfigManager {
             // <opacity>
             final IMemento xmlOpacity = xmlOutline.createChild(TAG_OPACITY);
             {
-               xmlOpacity.putFloat(ATTR_NORMAL, config.outlineOpacity);
-               xmlOpacity.putFloat(ATTR_HOVERED, config.outlineOpacity_Hovered);
-               xmlOpacity.putFloat(ATTR_SELECTED, config.outlineOpacity_Selected);
-               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, config.outlineOpacity_HovSel);
+               xmlOpacity.putFloat(ATTR_NORMAL, (float) config.outlineOpacity);
+               xmlOpacity.putFloat(ATTR_HOVERED, (float) config.outlineOpacity_Hovered);
+               xmlOpacity.putFloat(ATTR_SELECTED, (float) config.outlineOpacity_Selected);
+               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, (float) config.outlineOpacity_HovSel);
             }
          }
 
@@ -513,9 +513,9 @@ public class TourTrackConfigManager {
             final IMemento xmlOpacity = xmlInterior.createChild(TAG_OPACITY);
             {
                xmlOpacity.putFloat(ATTR_NORMAL, (float) config.interiorOpacity);
-               xmlOpacity.putFloat(ATTR_HOVERED, config.interiorOpacity_Hovered);
-               xmlOpacity.putFloat(ATTR_SELECTED, config.interiorOpacity_Selected);
-               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, config.interiorOpacity_HovSel);
+               xmlOpacity.putFloat(ATTR_HOVERED, (float) config.interiorOpacity_Hovered);
+               xmlOpacity.putFloat(ATTR_SELECTED, (float) config.interiorOpacity_Selected);
+               xmlOpacity.putFloat(ATTR_HOV_AND_SEL, (float) config.interiorOpacity_HovSel);
             }
          }
 
@@ -623,7 +623,7 @@ public class TourTrackConfigManager {
 
    /**
     * Overwrite default values according to the default id {@link TourTrackConfig#defaultId}.
-    *
+    * 
     * @param config
     */
    private static void overwriteConfig_DefaultValues(final TourTrackConfig config) {
@@ -693,7 +693,7 @@ public class TourTrackConfigManager {
 
    private static void overwriteConfigValues_Bright(final TourTrackConfig config) {
 
-      config.trackColorOpacity = 50;
+      config.trackColorOpacity = 0.5f;
 
       config.outlineColorMode = TourTrackConfig.COLOR_MODE_SOLID_COLOR;
       config.outlineColor = RGB_BLACK;
@@ -704,7 +704,7 @@ public class TourTrackConfigManager {
 
    private static void overwriteConfigValues_Dark(final TourTrackConfig config) {
 
-      config.trackColorOpacity = 50;
+      config.trackColorOpacity = 0.5f;
 
       config.outlineColorMode = TourTrackConfig.COLOR_MODE_SOLID_COLOR;
       config.outlineColor = RGB_WHITE;
@@ -715,7 +715,7 @@ public class TourTrackConfigManager {
 
    /**
     * Parse configuration xml.
-    *
+    * 
     * @param allConfigurations
     * @param xmlRoot
     * @param parseRootXml
@@ -808,7 +808,7 @@ public class TourTrackConfigManager {
             ATTR_IS_FOLLOW_TERRAIN,
             CONFIG_IS_FOLLOW_TERRAIN_DEFAULT);
 
-      config.trackColorOpacity = Util.getXmlInteger(
+      config.trackColorOpacity = Util.getXmlFloatInt(
             xmlConfig,
             ATTR_TRACK_COLOR_OPACITY_DEFAULT,
             Map3GradientColorManager.OPACITY_DEFAULT,
@@ -911,25 +911,25 @@ public class TourTrackConfigManager {
 
    private static void parse_330__Opacity(final XMLMemento xmlOpacity, final TourTrackConfig trackConfig) {
 
-      trackConfig.outlineOpacity = Util.getXmlInteger(xmlOpacity, //
+      trackConfig.outlineOpacity = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_NORMAL,
             OUTLINE_OPACITY_NORMAL_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      trackConfig.outlineOpacity_Hovered = Util.getXmlInteger(xmlOpacity, //
+      trackConfig.outlineOpacity_Hovered = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_HOVERED,
             OUTLINE_OPACITY_HOVERED_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      trackConfig.outlineOpacity_Selected = Util.getXmlInteger(xmlOpacity, //
+      trackConfig.outlineOpacity_Selected = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_SELECTED,
             OUTLINE_OPACITY_SELECTED_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      trackConfig.outlineOpacity_HovSel = Util.getXmlInteger(xmlOpacity, //
+      trackConfig.outlineOpacity_HovSel = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_HOV_AND_SEL,
             OUTLINE_OPACITY_HOV_SEL_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
@@ -1015,25 +1015,25 @@ public class TourTrackConfigManager {
 
    private static void parse_430__Opacity(final XMLMemento xmlOpacity, final TourTrackConfig config) {
 
-      config.interiorOpacity = Util.getXmlInteger(xmlOpacity, //
+      config.interiorOpacity = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_NORMAL,
             INTERIOR_OPACITY_NORMAL_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      config.interiorOpacity_Hovered = Util.getXmlInteger(xmlOpacity, //
+      config.interiorOpacity_Hovered = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_HOVERED,
             INTERIOR_OPACITY_HOVERED_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      config.interiorOpacity_Selected = Util.getXmlInteger(xmlOpacity, //
+      config.interiorOpacity_Selected = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_SELECTED,
             INTERIOR_OPACITY_SELECTED_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
             Map3GradientColorManager.OPACITY_MAX);
 
-      config.interiorOpacity_HovSel = Util.getXmlInteger(xmlOpacity, //
+      config.interiorOpacity_HovSel = Util.getXmlFloatInt(xmlOpacity, //
             ATTR_HOV_AND_SEL,
             INTERIOR_OPACITY_HOV_SEL_DEFAULT,
             Map3GradientColorManager.OPACITY_MIN,
@@ -1118,7 +1118,7 @@ public class TourTrackConfigManager {
 
    /**
     * Read/create tour track configuration a xml file
-    *
+    * 
     * @return
     */
    private static void readConfigFromXml() {
@@ -1233,7 +1233,7 @@ public class TourTrackConfigManager {
       final XMLMemento xmlRoot = resetConfig(_activeConfig.defaultId);
 
       // parse xml
-      final ArrayList<TourTrackConfig> newConfigs = new ArrayList<>();
+      final ArrayList<TourTrackConfig> newConfigs = new ArrayList<TourTrackConfig>();
       parse_000_All(newConfigs, xmlRoot, false);
 
       final TourTrackConfig newConfig = newConfigs.get(0);
