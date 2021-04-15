@@ -1315,7 +1315,7 @@ public class DialogTourTrackConfig extends AnimatedToolTipShell implements IColo
 		// track
 		config.directionArrowSize = _spinnerDirectionArrowSize.getSelection();
 		config.directionArrowDistance = _spinnerDirectionArrowDistance.getSelection();
-		config.trackColorOpacity = _spinnerTrackColorOpacity.getSelection();
+		config.trackColorOpacity = _spinnerTrackColorOpacity.getSelection()/100.0;
 
 		// line
 		config.outlineWidth = _spinnerOutlineWidth.getSelection();
@@ -1328,10 +1328,10 @@ public class DialogTourTrackConfig extends AnimatedToolTipShell implements IColo
 		config.outlineColor_HovSel = _colorOutlineColor_HovSel.getColorValue();
 		config.outlineColor_Selected = _colorOutlineColor_Selected.getColorValue();
 
-		config.outlineOpacity = _spinnerOutlineOpacity.getSelection();
-		config.outlineOpacity_Hovered = _spinnerOutlineOpacity_Hovered.getSelection();
-		config.outlineOpacity_HovSel = _spinnerOutlineOpacity_HovSel.getSelection();
-		config.outlineOpacity_Selected = _spinnerOutlineOpacity_Selected.getSelection();
+		config.outlineOpacity = _spinnerOutlineOpacity.getSelection()/100.0;
+		config.outlineOpacity_Hovered = _spinnerOutlineOpacity_Hovered.getSelection()/100.0;
+		config.outlineOpacity_HovSel = _spinnerOutlineOpacity_HovSel.getSelection()/100.0;
+		config.outlineOpacity_Selected = _spinnerOutlineOpacity_Selected.getSelection()/100.0;
 
 		// interior
 		config.isShowInterior = _chkShowInterior.getSelection();
@@ -1344,10 +1344,10 @@ public class DialogTourTrackConfig extends AnimatedToolTipShell implements IColo
 		config.interiorColor_HovSel = _colorInteriorColor_HovSel.getColorValue();
 		config.interiorColor_Selected = _colorInteriorColor_Selected.getColorValue();
 
-		config.interiorOpacity = _spinnerInteriorOpacity.getSelection();
-		config.interiorOpacity_Hovered = _spinnerInteriorOpacity_Hovered.getSelection();
-		config.interiorOpacity_HovSel = _spinnerInteriorOpacity_HovSel.getSelection();
-		config.interiorOpacity_Selected = _spinnerInteriorOpacity_Selected.getSelection();
+		config.interiorOpacity = _spinnerInteriorOpacity.getSelection()/100.0;
+		config.interiorOpacity_Hovered = _spinnerInteriorOpacity_Hovered.getSelection()/100.0;
+		config.interiorOpacity_HovSel = _spinnerInteriorOpacity_HovSel.getSelection()/100.0;
+		config.interiorOpacity_Selected = _spinnerInteriorOpacity_Selected.getSelection()/100.0;
 
 		// verticals
 		config.isDrawVerticals = _chkDrawVerticals.getSelection();
