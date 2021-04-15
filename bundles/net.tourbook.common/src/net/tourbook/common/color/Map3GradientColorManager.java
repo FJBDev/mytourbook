@@ -98,9 +98,10 @@ public class Map3GradientColorManager {
    private static final RGB    DEFAULT_RGB                     = new RGB(0xFF, 0x8B, 0x8B);
 
    // opacity
-   public static final int   OPACITY_MIN     = 0;
-   public static final int   OPACITY_MAX     = 100;
-   public static final float OPACITY_DEFAULT = 1.0f;
+   public static final int    OPACITY_MIN           = 0;
+   public static final int    OPACITY_MAX           = 100;
+   public static final double OPACITY_DIGITS_FACTOR = 100.0;
+   public static final float  OPACITY_DEFAULT       = 1.0f;
 
    /**
     * Define 3D map default colors.
