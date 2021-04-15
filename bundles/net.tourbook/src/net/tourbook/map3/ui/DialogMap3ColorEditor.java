@@ -1388,9 +1388,8 @@ public class DialogMap3ColorEditor extends TitleAreaDialog implements IProfileCo
 
             // update opacity
             final Spinner spinnerOpacity = _spinnerOpacity[vertexIndex];
-            final double opacity = vertex.getOpacity()
-                  // must be rounded otherwise it can be wrong
-                  + 0.0001;
+            // must be rounded otherwise it can be wrong
+            final double opacity = vertex.getOpacity() + 0.0001;
             spinnerOpacity.setSelection((int) opacity);
 
             // update value
