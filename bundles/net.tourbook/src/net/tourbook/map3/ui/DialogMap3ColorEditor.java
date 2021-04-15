@@ -1322,13 +1322,11 @@ public class DialogMap3ColorEditor extends TitleAreaDialog implements IProfileCo
          final Integer sortId = (Integer) spinnerVertexValue.getData(DATA_KEY_SORT_ID);
 
          final RGB rgb = _lblVertexColor[vertexIndex].getBackground().getRGB();
-         //TODO FB
-         final float opacity = spinnerOpacity.getSelection() / 2;
 
          final RGBVertex rgbVertex = new RGBVertex(sortId);
          rgbVertex.setValue(value);
          rgbVertex.setRGB(rgb);
-         rgbVertex.setOpacity(opacity);
+         rgbVertex.setOpacity(spinnerOpacity.getSelection());
 
          newRgbVertices.add(rgbVertex);
       }
@@ -1390,7 +1388,7 @@ public class DialogMap3ColorEditor extends TitleAreaDialog implements IProfileCo
 
             // update opacity
             final Spinner spinnerOpacity = _spinnerOpacity[vertexIndex];
-            final double opacity = vertex.getOpacity() * 2 //TODO FB
+            final double opacity = vertex.getOpacity()
                   // must be rounded otherwise it can be wrong
                   + 0.0001;
             spinnerOpacity.setSelection((int) opacity);
