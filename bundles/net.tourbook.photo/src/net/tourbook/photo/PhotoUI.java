@@ -17,7 +17,6 @@ package net.tourbook.photo;
 
 import net.tourbook.common.UI;
 import net.tourbook.photo.internal.Activator;
-import net.tourbook.photo.internal.Messages;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -63,28 +62,6 @@ public class PhotoUI {
       PHOTO_FOLDER_STYLER = StyledString.createColorRegistryStyler(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOLDER, null);
       PHOTO_FILE_STYLER = StyledString.createColorRegistryStyler(IPhotoPreferences.PHOTO_VIEWER_COLOR_FILE, null);
 
-      final ImageRegistry imageRegistry = UI.IMAGE_REGISTRY;
-
-// SET_FORMATTING_OFF
-
-      imageRegistry.put(INVALID_PHOTO_IMAGE,                      Activator.getImageDescriptor(Messages.Image__PhotoInvalidPhotoImage));
-      imageRegistry.put(INVALID_PHOTO_IMAGE_HOVERED,              Activator.getImageDescriptor(Messages.Image__PhotoInvalidPhotoImageHovered));
-
-      imageRegistry.put(PHOTO_ANNOTATION_GPS_EXIF,                Activator.getImageDescriptor(Messages.Image__PhotoAnnotationExifGPS));
-      imageRegistry.put(PHOTO_ANNOTATION_GPS_TOUR,                Activator.getImageDescriptor(Messages.Image__PhotoAnnotationTourGPS));
-
-      imageRegistry.put(PHOTO_ANNOTATION_SAVED_IN_TOUR,           Activator.getImageDescriptor(Messages.Image__PhotoAnnotationSavedInTour));
-      imageRegistry.put(PHOTO_ANNOTATION_SAVED_IN_TOUR_HOVERED,   Activator.getImageDescriptor(Messages.Image__PhotoAnnotationSavedInTourHovered));
-
-      imageRegistry.put(PHOTO_RATING_STAR,                        Activator.getImageDescriptor(Messages.Image__PhotoRatingStar));
-      imageRegistry.put(PHOTO_RATING_STAR_AND_HOVERED,            Activator.getImageDescriptor(Messages.Image__PhotoRatingStarAndHovered));
-      imageRegistry.put(PHOTO_RATING_STAR_DISABLED,               Activator.getImageDescriptor(Messages.Image__PhotoRatingStarDisabled));
-      imageRegistry.put(PHOTO_RATING_STAR_DELETE,                 Activator.getImageDescriptor(Messages.Image__PhotoRatingStarDelete));
-      imageRegistry.put(PHOTO_RATING_STAR_HOVERED,                Activator.getImageDescriptor(Messages.Image__PhotoRatingStarHovered));
-      imageRegistry.put(PHOTO_RATING_STAR_NOT_HOVERED,            Activator.getImageDescriptor(Messages.Image__PhotoRatingStarNotHovered));
-      imageRegistry.put(PHOTO_RATING_STAR_NOT_HOVERED_BUT_SET,    Activator.getImageDescriptor(Messages.Image__PhotoRatingStarNotHoveredButSet));
-
-// SET_FORMATTING_ON
    }
 
    /**
@@ -217,23 +194,53 @@ public class PhotoUI {
 
       final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND));
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND));
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND));
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_BACKGROUND, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_BACKGROUND,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_BACKGROUND));
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOLDER, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOLDER,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_FOLDER));
 
-      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FILE, //
+      colorRegistry.put(IPhotoPreferences.PHOTO_VIEWER_COLOR_FILE,
             PreferenceConverter.getColor(prefStore, IPhotoPreferences.PHOTO_VIEWER_COLOR_FILE));
+   }
+
+   public static void setupThemedImages() {
+      
+      // finally these images does not need to be themed, but keep it here for possible changes
+
+      final ImageRegistry imgReg = UI.IMAGE_REGISTRY;
+
+// SET_FORMATTING_OFF
+
+      imgReg.put(INVALID_PHOTO_IMAGE,                      Activator.getImageDescriptor(PhotoImages.PhotoInvalid_PhotoImage));
+      imgReg.put(INVALID_PHOTO_IMAGE_HOVERED,              Activator.getImageDescriptor(PhotoImages.PhotoInvalid_PhotoImage_Hovered));
+
+      imgReg.put(PHOTO_ANNOTATION_GPS_EXIF,                Activator.getImageDescriptor(PhotoImages.PhotoAnnotation_ExifGPS));
+      imgReg.put(PHOTO_ANNOTATION_GPS_TOUR,                Activator.getImageDescriptor(PhotoImages.PhotoAnnotation_TourGPS));
+
+      imgReg.put(PHOTO_ANNOTATION_SAVED_IN_TOUR,           Activator.getImageDescriptor(PhotoImages.PhotoAnnotation_SavedInTour));
+      imgReg.put(PHOTO_ANNOTATION_SAVED_IN_TOUR_HOVERED,   Activator.getImageDescriptor(PhotoImages.PhotoAnnotation_SavedInTour_Hovered));
+
+      // rating stars have no theming
+      imgReg.put(PHOTO_RATING_STAR,                        Activator.getImageDescriptor(PhotoImages.PhotoRatingStar));
+      imgReg.put(PHOTO_RATING_STAR_AND_HOVERED,            Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_AndHovered));
+      imgReg.put(PHOTO_RATING_STAR_DISABLED,               Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_Disabled));
+      imgReg.put(PHOTO_RATING_STAR_DELETE,                 Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_Delete));
+      imgReg.put(PHOTO_RATING_STAR_HOVERED,                Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_Hovered));
+      imgReg.put(PHOTO_RATING_STAR_NOT_HOVERED,            Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_NotHovered));
+      imgReg.put(PHOTO_RATING_STAR_NOT_HOVERED_BUT_SET,    Activator.getImageDescriptor(PhotoImages.PhotoRatingStar_NotHovered_ButSet));
+
+// SET_FORMATTING_ON
+
    }
 
 }

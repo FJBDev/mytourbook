@@ -15,7 +15,8 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
-import net.tourbook.application.TourbookPlugin;
+import net.tourbook.device.Activator;
+import net.tourbook.device.IPreferences;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -31,16 +32,16 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String[]  AltitudeData = new String[] {
+   private static final String[] AltitudeData = new String[] {
          Messages.pref_altitude_gps,
          Messages.pref_altitude_barometer
    };
-   private static final String[]  DistanceData = new String[] {
+   private static final String[] DistanceData = new String[] {
          Messages.pref_distance_gps,
          Messages.pref_distance_providedvalues
    };
 
-   private final IPreferenceStore _prefStore   = TourbookPlugin.getDefault().getPreferenceStore();
+   private IPreferenceStore      _prefStore   = Activator.getDefault().getPreferenceStore();
 
    /*
     * UI controls
@@ -100,8 +101,8 @@ public class PrefPageSuunto9 extends FieldEditorPreferencePage implements IWorkb
    @Override
    protected void performDefaults() {
 
-      _comboAltitudeDataSource.select(1);
-      _comboDistanceDataSource.select(0);
+      _comboAltitudeDataSource.select(_prefStore.getDefaultInt(IPreferences.SUUNTO9_ALTITUDE_DATA_SOURCE));
+      _comboDistanceDataSource.select(_prefStore.getDefaultInt(IPreferences.SUUNTO9_DISTANCE_DATA_SOURCE));
    }
 
    @Override

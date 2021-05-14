@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.swimming.SwimStroke;
 import net.tourbook.common.util.StatusUtil;
@@ -38,6 +37,7 @@ import net.tourbook.data.SwimData;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
+import net.tourbook.device.Activator;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONArray;
@@ -86,7 +86,7 @@ public class SuuntoJsonProcessor {
 
    private List<TimeData>      _sampleList;
    private int                 _numLaps;
-   final IPreferenceStore      _prefStore           = TourbookPlugin.getDefault().getPreferenceStore();
+   private IPreferenceStore    _prefStore           = Activator.getDefault().getPreferenceStore();
 
    /**
     * Parses and stores all the R-R interval for a given data sample.

@@ -1,29 +1,32 @@
-21.next.0                                                 ?. Month 2021
+21.next.0                                                 Day.Month 2021
 
 
 TODO's
 ======
 
-* Website: Document externalize strings with multiple messages files https://github.com/wolfgang-ch/mytourbook/pull/282#discussion_r553942399
+* Tour Chart   - Select color for 2nd graph line instead of compliment color
+               - Set default graphs in the graph slideout, sorting still needs the pref page
+ 
+* Tour Search  - Test Edge browser if the tour selection in the result list is working with the mouse
+               - Implement workaround: Select tour with an action in the context menu
+               
+* Compare Tours by Elevation
+               - Make it concurrent, with many tours it gets really slow which was not a problem in the beginning of MT               
 
-* Website: Describe sleak
+* UI Theme     Provide a UI to select the UI theme
+               https://www.eclipse.org/eclipse/news/4.18/platform.php#system-theme
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_classic
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_default
+               -cssTheme org.eclipse.e4.ui.css.theme.e4_dark
+  
+* Website      - Save action must not be done manually, they are saved in e.g. net.tourbook/.settings/org.eclipse.jdt.ui.prefs with the "sp_cleanup" key prefix
+                 Need to check how to apply it to all projects, must maybe be done with the already existing ant script
 
+               - Style rule for actions, use "Title Case" https://en.wikipedia.org/wiki/Title_case
+                 mainly e.g. 'at', 'of', ... should be lowercase otherwise it looks ugly
 
-* Website: Set next version experimental because of the many database modifications
-
-* Website: Document cloud connections
-
-  @wolfgang-ch In the Strava guidelines, I read this : https://developers.strava.com/guidelines/
-  "All apps must display the “Powered by Strava” logo or “Compatible with Strava” logo on all websites, apps and any distributable media such as images, videos or prints. No variations or modifications are acceptable."
-
-  I am thinking you could display the logo "Compatible With Strava" on the website in the next release and that would comply with their requirements ?
-
-* Website - Map2: Map providers list in https://osmlab.github.io/editor-layer-index/
-
-* Website - Tour Search: Show tip how to select a tour in the search result https://sourceforge.net/p/mytourbook/discussion/622811/thread/2471c3da16/?limit=100#cce3
-
-* Frederic : Remove the unused redirect_uri in the Dropbox app console once the new version is released
-
+* Tour modification (Frederic) 
+	         - Use multi-threading (ThreadPoolExecutor)
 
 Issues
 ======
@@ -34,91 +37,73 @@ Issues
 New
 ===
 
-* Suunto App Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/299
-  - Ability to download tours (FIT format)
-  - Ability to upload tours as routes to be used for navigation
+* Tour Book View (Frederic)
+ - Added the ability to delete values, for any given tour, such as elevation, time, gear, cadence...etc
 
-* Strava Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/273
-  - Ability to upload tours to a Strava account.
-
-* 2D Map (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/289
- - Added the possibility to configure a "User-Agent" for a custom map provider
- - Added the possibility to export the current map view to an image file (jpeg, png or bmp) or to the clipboard
-
-* Compress Database
-  This tool can compress the internal sql database. After updating MyTourbook to 21.2, the latitude/longitude values are saved with half of the previous size. This reduced the diskspace by e.g. 110 MByte when the database was compressed after the migration.
+* Tour values deletion/re-import (Frederic)
+ - Added a confirmation dialog that will always be displayed to the user when re-importing or deleting tour values for the whole database
+ - Locking by default the UI controls to modify tour values on more than 1 tour at a time
+ - Separated calories in its own category
 
 
 Improvements
 ============
 
-* Fit Import
-  - Import R-R intervals
+* Tour Chart 
+  - Displaying the night sections with a grey color for a more intuitive chart and better readability (Frederic)
+  - More options to show R-R values together with other pules graphs (R-R average, device value)
 
-* TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
-  - Added the speed and power values in the TCX exports
+* 2D Map (Frederic)
+  - Extending the zoom levels capacity from 20 to 23
 
-* Tour Chart
-  - Show heartbeat values
-    - Beat values from device
-    - R-R intervals
+* 2.5D Map (Thomas):
+  - Upgrading VTM lib to 0.15
+  - Size of photothumbnails can be changed via slideout
 
-  - Marker Tooltip (Frederic)
-    - Ability to show/hide the following data: Elevation, Distance, Duration, Elevation Gain Difference, Distance Difference, Duration Difference
-    
-* Tour Blog
-  - Set content font size
-
-* Tour Database
-  - Overhauled the database startup to have different design version and data version checking
+* 3D Map & Tour Chart Preferences (Frederic)
+ - "Squeezed" several transparency values to be in between 0 and 100 instead of 0 & 255 or 0.0 and 1.0
 
 
 Changes  
 =======
 
-* Dropbox Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/277
-  - Switched to the new PKCE OAuth2 flow (The Implicit grant flow previously used is now considered deprecated by Dropbox: "[Legacy. We recommend the PKCE flow.]")
-  - Because Dropbox doesn't support Web Views, the authorization is now done in the user's default browser. See the PR link for the details about the new authorization steps
+* SRTM Download
+  - The download of SRTM data files is still free but it requires that a user is authenticated. Username and password can be entered in the SRTM data preferences page which also contains information how to request a SRTM server account 
 
-* 2D Map
-  - Reordered context menu actions a little bit
-
-* Latitude/longitude values are saved in E6 format
-  This reduces the precision in the worst case (at the equator) to 0.11132m which is less than the accuracy of the GPS system
-  https://stackoverflow.com/questions/6059691/android-google-map-accuracy-issue
+* Fitlog/FitlogEx import (Frederic)
+  - When re-importing tours, the complete list of tour types and tags are not re-imported anymore
     
 
 Bugfix
 ======
 
-* A few measurement system values were wrong
+* Tour Chart
+  - R-R values were not visible within tour breaks
 
-* Fit Import (Frederic)
-  - When importing a file without pauses, the recorded time could sometimes be different by 1 or 2 seconds compared to the elapsed time.
+* Tour Chart Value Tooltip 
+  - Fixed a bug when importing tours (FIT, Suunto SML, Suunto XML, Garmin TCX) where in some cases, the tour start components were erroneous (the Time of Day value in the Value Point Tooltip was wrong). Now this data is adjusted with the tour's time zone.
 
-* TCX Import (Frederic)
-  - The pause import for some TCX formats could lead to multiple erroneous pauses
+* Tour Import View (Frederic)
+  - The kcal column was displaying values in calories units instead of kcalories
 
-* Pause Re-Import (Frederic)
-  - In some scenarii, the pause re-import could be imcomplete if the tour originally contained pauses and the new file doesn't contain any
+* Chart Tooltip (Frederic)
+  - Displaying the hour from 0 when a new day starts
 
-* TCX Export (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/287
-  - Fixed the TCX Course Export format as it was not properly formatted before and was preventing from importing TCX Courses in Garmin Connect
+* Chart Create Tourmarker (Thomas)
+  - Same wording as on other places. "create marker" -> "create tour marker"
 
-* Dialog Adjust Elevation
-  - Show dialog tour chart with a better default size when opened the first time 
-  
-* Tour Database Update
-  Fixed 3 different issues when updating tour database from the very first public version 3.
-  Depending on the version being updated, these issues occurred or not
-    - Column renaming could fail
-    - Serie data could be dropped
-    - Entity manager was running in update 3->4, moved it into the 3->4 post update  
+* Compress Database
+  - Fixed SQL exception when the tour database size is too large to fit into an integer value
 
-* Suunto SML & XML formats (Frederic)
-  - Markers are now imported
-  - Fixed possible NPE
+* Fitlog/FitlogEx import (Frederic)
+  - Fixed an issue where in some cases the imported tour time zone could be wrong
 
+* FIT File: Pause Re-Import (Frederic)
+  - In some scenarii, the pause import could be erroneous and lead to negative paused time values
+
+* Tour Type Preference page (Frederic)
+  - Fixed a bug in the tour type viewer when selecting several tour types and only the first one was deleted.
+  - Disabling the "Rename" button when more than 1 tour type is selected
 
 Translation    
 ===========
@@ -133,5 +118,5 @@ Translation
 System   
 ======
 
-* Eclipse 2020-12 (maybe)
-* FIT SDK 21.47
+* Eclipse 2021-?
+* FIT SDK 21.53

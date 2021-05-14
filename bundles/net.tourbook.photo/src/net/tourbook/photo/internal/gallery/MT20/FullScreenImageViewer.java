@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.util.Util;
 import net.tourbook.photo.IPhotoPreferences;
+import net.tourbook.photo.PhotoImages;
 import net.tourbook.photo.PhotoSelection;
 import net.tourbook.photo.internal.Activator;
 import net.tourbook.photo.internal.Messages;
@@ -186,17 +187,9 @@ public class FullScreenImageViewer {
       final boolean isShowHQImage = _actionShowHQImage.isChecked();
 
       // set state into pref store
-      _prefStore.setValue(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW,
-            isShowPreview);
-
-      _prefStore.setValue(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE,
-            isShowLoadingMessage);
-
-      _prefStore.setValue(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE,
-            isShowHQImage);
+      _prefStore.setValue(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW, isShowPreview);
+      _prefStore.setValue(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE, isShowLoadingMessage);
+      _prefStore.setValue(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE, isShowHQImage);
 
       setPrefSettings(isShowPreview, isShowLoadingMessage, isShowHQImage);
 
@@ -294,9 +287,7 @@ public class FullScreenImageViewer {
 
       _shell.setLayout(new FillLayout());
 
-      _shellImage = new Image[] { Activator
-            .getImageDescriptor(Messages.Image__PhotoFullsizeShellImage128)
-            .createImage() };
+      _shellImage = new Image[] { Activator.getImageDescriptor(PhotoImages.PhotoFullsize_ShellImage128).createImage() };
       _shell.setImages(_shellImage);
       {
          createUI_10_Canvas(_shell);
@@ -600,14 +591,9 @@ public class FullScreenImageViewer {
          _zoomState = defaultZoom;
       }
 
-      _actionShowThumbPreview.setChecked(_prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW));
-
-      _actionShowHQImage.setChecked(_prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE));
-
-      _actionShowLoadingMessage.setChecked(_prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE));
+      _actionShowThumbPreview.setChecked(_prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW));
+      _actionShowHQImage.setChecked(_prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE));
+      _actionShowLoadingMessage.setChecked(_prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE));
    }
 
    void saveState() {
@@ -653,12 +639,8 @@ public class FullScreenImageViewer {
    public void setPrefSettings(final boolean isUpdateUI) {
 
       final boolean isShowPreview = _prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW);
-
-      final boolean isShowLoadingMessage = _prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE);
-
-      final boolean isShowHQImage = _prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE);
+      final boolean isShowLoadingMessage = _prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE);
+      final boolean isShowHQImage = _prefStore.getBoolean(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE);
 
       _actionShowThumbPreview.setChecked(isShowPreview);
       _actionShowHQImage.setChecked(isShowHQImage);
@@ -776,7 +758,7 @@ public class FullScreenImageViewer {
        * canvas, therefore when doing a redraw() the whole canvas is first painted with the
        * background color
        */
-      final Rectangle clippingArea = _itemRenderer.drawFullSizeSetContext(//
+      final Rectangle clippingArea = _itemRenderer.drawFullSizeSetContext(
             _shell,
             _displayedGalleryItem,
             _monitorWidth,

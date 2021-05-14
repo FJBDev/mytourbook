@@ -215,7 +215,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
        * group: Image format
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ExportImage_Group_Format);
+      group.setText(Messages.Dialog_ExportImage_Group_Image);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -398,6 +398,10 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private void doExport() {
 
+      // disable buttons
+      getButton(IDialogConstants.OK_ID).setEnabled(false);
+      getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
+
       final String exportFileName = _txtFilePath.getText();
 
       _exportState_FileCollisionBehavior = new FileCollisionBehavior();
@@ -452,7 +456,13 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private String getFileExtension() {
 
-      return _comboImageFormat.getSelectionIndex() == 0 ? "jpg" : _comboImageFormat.getText().toLowerCase();
+      return _comboImageFormat.getSelectionIndex() == 0
+
+            // JPEG format
+            ? "jpg"//$NON-NLS-1$
+
+            // other formats
+            : _comboImageFormat.getText().toLowerCase();
    }
 
    private int getSwtImageType() {
@@ -481,6 +491,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       BusyIndicator.showWhile(Display.getCurrent(), this::doExport);
 
       if (_exportState_FileCollisionBehavior.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {
+         getButton(IDialogConstants.OK_ID).setEnabled(true);
+         getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
          return;
       }
 

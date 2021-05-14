@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Random;
 
+import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.measurement_system.MeasurementSystem;
 import net.tourbook.common.measurement_system.MeasurementSystem_Manager;
 import net.tourbook.common.measurement_system.Unit_Distance;
@@ -104,6 +105,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.UIElement;
 import org.epics.css.dal.Timestamp;
 import org.epics.css.dal.Timestamp.Format;
 import org.joda.time.format.PeriodFormatter;
@@ -111,108 +113,110 @@ import org.joda.time.format.PeriodFormatterBuilder;
 
 public class UI {
 
-   public static final int          SHELL_MARGIN                  = 5;
+   public static final int          SHELL_MARGIN                       = 5;
 
-   public static final char         SPACE                         = ' ';
-   public static final char         NEW_LINE                      = '\n';
-   public static final char         TAB                           = '\t';
+   public static final char         SPACE                              = ' ';
+   public static final char         NEW_LINE                           = '\n';
+   public static final char         TAB                                = '\t';
 
-   public static final char         SYMBOL_BRACKET_LEFT           = '(';
-   public static final char         SYMBOL_BRACKET_RIGHT          = ')';
+   public static final char         SYMBOL_BRACKET_LEFT                = '(';
+   public static final char         SYMBOL_BRACKET_RIGHT               = ')';
 
-   public static final String       COMMA_SPACE                   = ", ";       //$NON-NLS-1$
-   public static final String       DASH                          = "-";        //$NON-NLS-1$
-   public static final String       DASH_WITH_SPACE               = " - ";      //$NON-NLS-1$
-   public static final String       DASH_WITH_DOUBLE_SPACE        = "   -   ";  //$NON-NLS-1$
-   public static final String       DIMENSION                     = " x ";      //$NON-NLS-1$
-   public static final String       EMPTY_STRING                  = "";         //$NON-NLS-1$
-   public static final String       NEW_LINE_TEXT_WIDGET          = "\r\n";     //$NON-NLS-1$
-   public static final String       NEW_LINE1                     = "\n";       //$NON-NLS-1$
-   public static final String       NEW_LINE2                     = "\n\n";     //$NON-NLS-1$
-   public static final String       NEW_LINE3                     = "\n\n\n";   //$NON-NLS-1$
-   public static final String       SLASH_WITH_SPACE              = " / ";      //$NON-NLS-1$
-   public static final String       SPACE1                        = " ";        //$NON-NLS-1$
-   public static final String       SPACE2                        = "  ";       //$NON-NLS-1$
-   public static final String       SPACE3                        = "   ";      //$NON-NLS-1$
-   public static final String       SPACE4                        = "    ";     //$NON-NLS-1$
-   public static final String       ZERO                          = "0";        //$NON-NLS-1$
+   public static final String       COMMA_SPACE                        = ", ";       //$NON-NLS-1$
+   public static final String       DASH                               = "-";        //$NON-NLS-1$
+   public static final String       DASH_WITH_SPACE                    = " - ";      //$NON-NLS-1$
+   public static final String       DASH_WITH_DOUBLE_SPACE             = "   -   ";  //$NON-NLS-1$
+   public static final String       DIMENSION                          = " x ";      //$NON-NLS-1$
+   public static final String       EMPTY_STRING                       = "";         //$NON-NLS-1$
+   public static final String       NEW_LINE_TEXT_WIDGET               = "\r\n";     //$NON-NLS-1$
+   public static final String       NEW_LINE1                          = "\n";       //$NON-NLS-1$
+   public static final String       NEW_LINE2                          = "\n\n";     //$NON-NLS-1$
+   public static final String       NEW_LINE3                          = "\n\n\n";   //$NON-NLS-1$
+   public static final String       SLASH_WITH_SPACE                   = " / ";      //$NON-NLS-1$
+   public static final String       SPACE1                             = " ";        //$NON-NLS-1$
+   public static final String       SPACE2                             = "  ";       //$NON-NLS-1$
+   public static final String       SPACE3                             = "   ";      //$NON-NLS-1$
+   public static final String       SPACE4                             = "    ";     //$NON-NLS-1$
+   public static final String       ZERO                               = "0";        //$NON-NLS-1$
 
-   private static final String      JS_APOSTROPHE                 = "'";        //$NON-NLS-1$
-   private static final String      JS_APOSTROPHE_REPLACEMENT     = "\\'";      //$NON-NLS-1$
-   private static final String      JS_QUOTA_MARK                 = "\"";       //$NON-NLS-1$
-   private static final String      JS_QUOTA_MARK_REPLACEMENT     = "\\\"";     //$NON-NLS-1$
-   private static final String      JS_BACKSLASH_REPLACEMENT      = "\\\\";     //$NON-NLS-1$
-   private static final String      HTML_NEW_LINE                 = "\\n";      //$NON-NLS-1$
+   private static final String      JS_APOSTROPHE                      = "'";        //$NON-NLS-1$
+   private static final String      JS_APOSTROPHE_REPLACEMENT          = "\\'";      //$NON-NLS-1$
+   private static final String      JS_QUOTA_MARK                      = "\"";       //$NON-NLS-1$
+   private static final String      JS_QUOTA_MARK_REPLACEMENT          = "\\\"";     //$NON-NLS-1$
+   private static final String      JS_BACKSLASH_REPLACEMENT           = "\\\\";     //$NON-NLS-1$
+   private static final String      HTML_NEW_LINE                      = "\\n";      //$NON-NLS-1$
 
-   public static final String       SYMBOL_ARROW_UP               = "\u2191";   //$NON-NLS-1$
-   public static final String       SYMBOL_ARROW_DOWN             = "\u2193";   //$NON-NLS-1$
-   public static final String       SYMBOL_ARROW_RIGHT            = "\u2192";   //$NON-NLS-1$
-   public static final String       SYMBOL_ARROW_LEFT_RIGHT       = "\u2194";   //$NON-NLS-1$
-   public static final String       SYMBOL_ARROW_UP_DOWN          = "\u2195";   //$NON-NLS-1$
-   public static final String       SYMBOL_AVERAGE                = "\u00f8";   //$NON-NLS-1$
-   public static final String       SYMBOL_AVERAGE_WITH_SPACE     = "\u00f8 ";  //$NON-NLS-1$
-   public static final String       SYMBOL_BOX                    = "\u25a0";   //$NON-NLS-1$
-   public static final String       SYMBOL_BULLET                 = "\u2022";   //$NON-NLS-1$
-   public static final String       SYMBOL_DASH                   = "\u2212";   //$NON-NLS-1$
-   public static final String       SYMBOL_DEGREE                 = "\u00B0";   //$NON-NLS-1$
-   public static final String       SYMBOL_DBL_ANGLE_QMARK_LEFT   = "\u00AB";   //$NON-NLS-1$
-   public static final String       SYMBOL_DBL_ANGLE_QMARK_RIGHT  = "\u00BB";   //$NON-NLS-1$
-   public static final String       SYMBOL_DIFFERENCE             = "\u0394";   //$NON-NLS-1$
-   public static final String       SYMBOL_DIFFERENCE_WITH_SPACE  = "\u0394 ";  //$NON-NLS-1$
-   public static final String       SYMBOL_DOUBLE_HORIZONTAL      = "\u2550";   //$NON-NLS-1$
-   public static final String       SYMBOL_ELLIPSIS               = "\u2026";   //$NON-NLS-1$
-   public static final String       SYMBOL_FIGURE_DASH            = "\u2012";   //$NON-NLS-1$
-   public static final String       SYMBOL_FOOT_NOTE              = "\u20F0";   //$NON-NLS-1$
-   public static final String       SYMBOL_FULL_BLOCK             = "\u2588";   //$NON-NLS-1$
-   public static final String       SYMBOL_IDENTICAL_TO           = "\u2261";   //$NON-NLS-1$
-   public static final String       SYMBOL_INFINITY_MAX           = "\u221E";   //$NON-NLS-1$
-   public static final String       SYMBOL_INFINITY_MIN           = "-\u221E";  //$NON-NLS-1$
-   public static final String       SYMBOL_MIN                    = "\u1D5B";   //$NON-NLS-1$
-   public static final String       SYMBOL_MAX                    = "^";        //$NON-NLS-1$
-   public static final String       SYMBOL_PLUS_MINUS             = "\u00B1";   //$NON-NLS-1$
-   public static final String       SYMBOL_SUM_WITH_SPACE         = "\u2211 ";  //$NON-NLS-1$
-   public static final String       SYMBOL_SUN                    = "\u263C";   //$NON-NLS-1$
-   public static final String       SYMBOL_TAU                    = "\u03c4";   //$NON-NLS-1$
-   public static final String       SYMBOL_TILDE                  = "\u007e";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_UP                    = "\u2191";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_DOWN                  = "\u2193";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_RIGHT                 = "\u2192";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_LEFT_RIGHT            = "\u2194";   //$NON-NLS-1$
+   public static final String       SYMBOL_ARROW_UP_DOWN               = "\u2195";   //$NON-NLS-1$
+   public static final String       SYMBOL_AVERAGE                     = "\u00f8";   //$NON-NLS-1$
+   public static final String       SYMBOL_AVERAGE_WITH_SPACE          = "\u00f8 ";  //$NON-NLS-1$
+   public static final String       SYMBOL_BOX                         = "\u25a0";   //$NON-NLS-1$
+   public static final String       SYMBOL_BULLET                      = "\u2022";   //$NON-NLS-1$
+   public static final String       SYMBOL_DASH                        = "\u2212";   //$NON-NLS-1$
+   public static final String       SYMBOL_DEGREE                      = "\u00B0";   //$NON-NLS-1$
+   public static final String       SYMBOL_DBL_ANGLE_QMARK_LEFT        = "\u00AB";   //$NON-NLS-1$
+   public static final String       SYMBOL_DBL_ANGLE_QMARK_RIGHT       = "\u00BB";   //$NON-NLS-1$
+   public static final String       SYMBOL_DIFFERENCE                  = "\u0394";   //$NON-NLS-1$
+   public static final String       SYMBOL_DIFFERENCE_WITH_SPACE       = "\u0394 ";  //$NON-NLS-1$
+   public static final String       SYMBOL_DOUBLE_HORIZONTAL           = "\u2550";   //$NON-NLS-1$
+   public static final String       SYMBOL_ELLIPSIS                    = "\u2026";   //$NON-NLS-1$
+   public static final String       SYMBOL_FIGURE_DASH                 = "\u2012";   //$NON-NLS-1$
+   public static final String       SYMBOL_FOOT_NOTE                   = "\u20F0";   //$NON-NLS-1$
+   public static final String       SYMBOL_FULL_BLOCK                  = "\u2588";   //$NON-NLS-1$
+   public static final String       SYMBOL_HOURGLASS_WITH_FLOWING_SAND = "\u231B";   //$NON-NLS-1$
+   public static final String       SYMBOL_IDENTICAL_TO                = "\u2261";   //$NON-NLS-1$
+   public static final String       SYMBOL_INFINITY_MAX                = "\u221E";   //$NON-NLS-1$
+   public static final String       SYMBOL_INFINITY_MIN                = "-\u221E";  //$NON-NLS-1$
+   public static final String       SYMBOL_MIN                         = "\u1D5B";   //$NON-NLS-1$
+   public static final String       SYMBOL_MAX                         = "^";        //$NON-NLS-1$
+   public static final String       SYMBOL_PLUS_MINUS                  = "\u00B1";   //$NON-NLS-1$
+   public static final String       SYMBOL_SUM_WITH_SPACE              = "\u2211 ";  //$NON-NLS-1$
+   public static final String       SYMBOL_SUN                         = "\u263C";   //$NON-NLS-1$
+   public static final String       SYMBOL_TAU                         = "\u03c4";   //$NON-NLS-1$
+   public static final String       SYMBOL_TILDE                       = "\u007e";   //$NON-NLS-1$
+   public static final String       SYMBOL_WHITE_HEAVY_CHECK_MARK      = "\u2705";   //$NON-NLS-1$
 
-   public static final CharSequence SYMBOL_BACKSLASH              = "\\";       //$NON-NLS-1$
-   public static final String       SYMBOL_COLON                  = ":";        //$NON-NLS-1$
-   public static final String       SYMBOL_COMMA                  = ",";        //$NON-NLS-1$
-   public static final String       SYMBOL_DOT                    = ".";        //$NON-NLS-1$
-   public static final String       SYMBOL_DOUBLE_VERTICAL        = "||";       //$NON-NLS-1$   // this looks ugly "\u2551";
-   public static final String       SYMBOL_EQUAL                  = "=";        //$NON-NLS-1$
-   public static final String       SYMBOL_EXCLAMATION_POINT      = "!";        //$NON-NLS-1$
-   public static final String       SYMBOL_GREATER_THAN           = ">";        //$NON-NLS-1$
-   public static final String       SYMBOL_LESS_THAN              = "<";        //$NON-NLS-1$
-   public static final String       SYMBOL_MIDDLE_DOT             = "·";        //$NON-NLS-1$
-   public static final String       SYMBOL_MNEMONIC               = "&";        //$NON-NLS-1$
-   public static final String       SYMBOL_NUMBER_SIGN            = "#";        //$NON-NLS-1$
-   public static final String       SYMBOL_PERCENTAGE             = "%";        //$NON-NLS-1$
-   public static final String       SYMBOL_PLUS                   = "+";        //$NON-NLS-1$
-   public static final String       SYMBOL_QUESTION_MARK          = "?";        //$NON-NLS-1$
-   public static final char         SYMBOL_SEMICOLON              = ';';
-   public static final String       SYMBOL_STAR                   = "*";        //$NON-NLS-1$
-   public static final String       SYMBOL_TEMPERATURE_CELCIUS    = "\u00b0C";  //$NON-NLS-1$
-   public static final String       SYMBOL_TEMPERATURE_FAHRENHEIT = "\u00b0F";  //$NON-NLS-1$
-   public static final String       SYMBOL_UNDERSCORE             = "_";        //$NON-NLS-1$
-   public static final String       SYMBOL_WIND_WITH_SPACE        = "W ";       //$NON-NLS-1$
+   public static final CharSequence SYMBOL_BACKSLASH                   = "\\";       //$NON-NLS-1$
+   public static final String       SYMBOL_COLON                       = ":";        //$NON-NLS-1$
+   public static final String       SYMBOL_COMMA                       = ",";        //$NON-NLS-1$
+   public static final String       SYMBOL_DOT                         = ".";        //$NON-NLS-1$
+   public static final String       SYMBOL_DOUBLE_VERTICAL             = "||";       //$NON-NLS-1$   // this looks ugly "\u2551";
+   public static final String       SYMBOL_EQUAL                       = "=";        //$NON-NLS-1$
+   public static final String       SYMBOL_EXCLAMATION_POINT           = "!";        //$NON-NLS-1$
+   public static final String       SYMBOL_GREATER_THAN                = ">";        //$NON-NLS-1$
+   public static final String       SYMBOL_LESS_THAN                   = "<";        //$NON-NLS-1$
+   public static final String       SYMBOL_MIDDLE_DOT                  = "·";        //$NON-NLS-1$
+   public static final String       SYMBOL_MNEMONIC                    = "&";        //$NON-NLS-1$
+   public static final String       SYMBOL_NUMBER_SIGN                 = "#";        //$NON-NLS-1$
+   public static final String       SYMBOL_PERCENTAGE                  = "%";        //$NON-NLS-1$
+   public static final String       SYMBOL_PLUS                        = "+";        //$NON-NLS-1$
+   public static final String       SYMBOL_QUESTION_MARK               = "?";        //$NON-NLS-1$
+   public static final char         SYMBOL_SEMICOLON                   = ';';
+   public static final String       SYMBOL_STAR                        = "*";        //$NON-NLS-1$
+   public static final String       SYMBOL_TEMPERATURE_CELCIUS         = "\u00b0C";  //$NON-NLS-1$
+   public static final String       SYMBOL_TEMPERATURE_FAHRENHEIT      = "\u00b0F";  //$NON-NLS-1$
+   public static final String       SYMBOL_UNDERSCORE                  = "_";        //$NON-NLS-1$
+   public static final String       SYMBOL_WIND_WITH_SPACE             = "W ";       //$NON-NLS-1$
 
-   public static final CharSequence SYMBOL_HTML_BACKSLASH         = "&#92;";    //$NON-NLS-1$
+   public static final CharSequence SYMBOL_HTML_BACKSLASH              = "&#92;";    //$NON-NLS-1$
 
-   public static final String       LINK_TAG_END                  = "</a>";     //$NON-NLS-1$
-   public static final String       LINK_TAG_START                = "<a>";      //$NON-NLS-1$
+   public static final String       LINK_TAG_END                       = "</a>";     //$NON-NLS-1$
+   public static final String       LINK_TAG_START                     = "<a>";      //$NON-NLS-1$
 
-   public static final int          FORM_FIRST_COLUMN_INDENT      = 16;
+   public static final int          FORM_FIRST_COLUMN_INDENT           = 16;
 
    /**
     * The ellipsis is the string that is used to represent shortened text.
     *
     * @since 3.0
     */
-   public static final String       ELLIPSIS                      = "...";      //$NON-NLS-1$
-   public static final String       ELLIPSIS_WITH_SPACE           = " ... ";    //$NON-NLS-1$
+   public static final String       ELLIPSIS                           = "...";      //$NON-NLS-1$
+   public static final String       ELLIPSIS_WITH_SPACE                = " ... ";    //$NON-NLS-1$
 
-   private static final char[]      INVALID_FILENAME_CHARS        = new char[] {
+   private static final char[]      INVALID_FILENAME_CHARS             = new char[] {
          '\\',
          '/',
          ':',
@@ -222,7 +226,7 @@ public class UI {
          '<',
          '>',
          '|', };
-   private static final char[]      INVALID_FILEPATH_CHARS        = new char[] {
+   private static final char[]      INVALID_FILEPATH_CHARS             = new char[] {
          '*',
          '?',
          '"',
@@ -510,6 +514,7 @@ public class UI {
    private static Formatter            _formatter                 = new Formatter(_formatterSB);
 
    private static FontMetrics          _fontMetrics;
+   private static boolean              _isDarkThemeSelected;
 
 // SET_FORMATTING_OFF
 
@@ -610,23 +615,18 @@ public class UI {
 
 // SET_FORMATTING_OFF
 
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER,                  CommonActivator.getImageDescriptor(Messages.Image_Action_PhotoFilter));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_NO_PHOTOS,        CommonActivator.getImageDescriptor(Messages.Image_Action_PhotoFilterNoPhotos));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_WITH_PHOTOS,      CommonActivator.getImageDescriptor(Messages.Image_Action_PhotoFilterWithPhotos));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_DISABLED,         CommonActivator.getImageDescriptor(Messages.Image_Action_PhotoFilter_Disabled));
-
-      IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,                    CommonActivator.getImageDescriptor(Messages.Image__CustomizeProfilesColumns));
-      IMAGE_REGISTRY.put(IMAGE_EMPTY_16,                             CommonActivator.getImageDescriptor(Messages.Image___Empty16));
+      IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,                    CommonActivator.getImageDescriptor(CommonImages.CustomizeProfilesColumns));
+      IMAGE_REGISTRY.put(IMAGE_EMPTY_16,                             CommonActivator.getImageDescriptor(CommonImages.App_EmptyIcon_Placeholder));
 
       // weather images
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_CLEAR,                  CommonActivator.getImageDescriptor(Messages.Image__weather_sunny));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_PART_CLOUDS,            CommonActivator.getImageDescriptor(Messages.Image__weather_cloudy));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_OVERCAST,               CommonActivator.getImageDescriptor(Messages.Image__weather_clouds));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_LIGHTNING,              CommonActivator.getImageDescriptor(Messages.Image__weather_lightning));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_RAIN,                   CommonActivator.getImageDescriptor(Messages.Image__weather_rain));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SNOW,                   CommonActivator.getImageDescriptor(Messages.Image__weather_snow));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SCATTERED_SHOWERS,      CommonActivator.getImageDescriptor(Messages.Image__Weather_ScatteredShowers));
-      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SEVERE_WEATHER_ALERT,   CommonActivator.getImageDescriptor(Messages.Image__Weather_Severe));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_CLEAR,                  CommonActivator.getImageDescriptor(CommonImages.Weather_Sunny));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_PART_CLOUDS,            CommonActivator.getImageDescriptor(CommonImages.Weather_Cloudy));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_OVERCAST,               CommonActivator.getImageDescriptor(CommonImages.Weather_Clouds));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_LIGHTNING,              CommonActivator.getImageDescriptor(CommonImages.Weather_Lightning));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_RAIN,                   CommonActivator.getImageDescriptor(CommonImages.Weather_Rain));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SNOW,                   CommonActivator.getImageDescriptor(CommonImages.Weather_Snow));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SCATTERED_SHOWERS,      CommonActivator.getImageDescriptor(CommonImages.Weather_ScatteredShowers));
+      IMAGE_REGISTRY.put(IWeather.WEATHER_ID_SEVERE_WEATHER_ALERT,   CommonActivator.getImageDescriptor(CommonImages.Weather_Severe));
 
 // SET_FORMATTING_ON
 
@@ -1603,6 +1603,13 @@ public class UI {
       return isCtrlKey;
    }
 
+   /**
+    * @return <code>true</code> when a dark theme is selected in the UI
+    */
+   public static boolean isDarkTheme() {
+      return _isDarkThemeSelected;
+   }
+
    public static boolean isLinuxAsyncEvent(final Widget widget) {
 
       if (IS_LINUX) {
@@ -1970,31 +1977,6 @@ public class UI {
       return new String(scrambledText);
    }
 
-   public static void setBackgroundColorForAllChildren(final Control parent, final Color bgColor) {
-
-      parent.setBackground(bgColor);
-
-      if (parent instanceof Composite) {
-
-         final Control[] children = ((Composite) parent).getChildren();
-
-         for (final Control child : children) {
-
-            if (child != null
-                  && child.isDisposed() == false //
-
-                  // exclude controls which look ugly
-                  && !child.getClass().equals(Combo.class)
-                  && !child.getClass().equals(Spinner.class)
-            //
-            ) {
-
-               setBackgroundColorForAllChildren(child, bgColor);
-            }
-         }
-      }
-   }
-
    /**
     * Set the layout data of the button to a GridData with appropriate heights and widths.
     *
@@ -2254,6 +2236,34 @@ public class UI {
       field.getTextControl(parent).setLayoutData(gd);
 
       return gd;
+   }
+
+   public static void setIsDarkTheme(final boolean isDarkThemeSelected) {
+      _isDarkThemeSelected = isDarkThemeSelected;
+   }
+
+   /**
+    * Set the themed image descriptor for a {@link UIElement} with images from the
+    * {@link TourbookPlugin} plugin
+    *
+    * @param uiElement
+    * @param imageName
+    */
+   public static void setThemedIcon(final UIElement uiElement, final String imageName) {
+
+      uiElement.setIcon(CommonActivator.getImageDescriptor(ThemeUtil.getThemedImageName(imageName)));
+   }
+
+   public static void setupThemedImages() {
+
+// SET_FORMATTING_OFF
+
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER,               CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_DISABLED,      CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_Disabled));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_NO_PHOTOS,     CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_NoPhotos));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_WITH_PHOTOS,   CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_WithPhotos));
+
+// SET_FORMATTING_ON
    }
 
    private static boolean setupUI_FontMetrics() {

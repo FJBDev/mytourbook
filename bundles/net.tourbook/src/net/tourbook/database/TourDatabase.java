@@ -108,7 +108,7 @@ public class TourDatabase {
     */
    private static final int TOURBOOK_DB_VERSION = 43;
 
-//   private static final int TOURBOOK_DB_VERSION = 43; // 21.3?
+//   private static final int TOURBOOK_DB_VERSION = 43; // 21.3
 //   private static final int TOURBOOK_DB_VERSION = 42; // 20.11.1
 //   private static final int TOURBOOK_DB_VERSION = 41; // 20.8
 //   private static final int TOURBOOK_DB_VERSION = 40; // 19.10
@@ -7995,7 +7995,7 @@ public class TourDatabase {
    /**
     * @param conn
     * @param splashManager
-    * @return Data update version when the data update is sucessfully run
+    * @return Data update version when the data update is successfully run
     * @throws MyTourbookException
     * @throws SQLException
     * @throws Exception
@@ -8042,14 +8042,15 @@ public class TourDatabase {
 
                final String percentValue = String.format(NUMBER_FORMAT_1F, (float) tourIndex / numAllTourIds * 100.0);
 
-               // Update 43: Converting lat/lon -> E6 - {0} of {1}  -  {2} %
+               // Data update 43: Converting lat/lon \u2192 E6 - {0} of {1} - {2} % - {3} \u0394
                splashManager.setMessage(NLS.bind(
                      Messages.Tour_Database_PostUpdate_043_LatLonE6,
                      new Object[] {
-                           numTourDiff,
                            sumUpdatedTours,
                            numAllTourIds,
-                           percentValue }));
+                           percentValue,
+                           numTourDiff,
+                     }));
             }
 
             tourIndex++;

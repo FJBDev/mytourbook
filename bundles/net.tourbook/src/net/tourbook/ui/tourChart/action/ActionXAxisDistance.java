@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,9 +15,11 @@
  *******************************************************************************/
 package net.tourbook.ui.tourChart.action;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.ui.tourChart.TourChart;
 
 import org.eclipse.jface.action.Action;
@@ -46,26 +48,26 @@ public class ActionXAxisDistance extends Action {
 
    public void setImages() {
 
-      String imagePath;
-      String disabledImagePath;
+      String imageName;
+      String disabledImageName;
 
       if (UI.UNIT_IS_DISTANCE_MILE) {
 
-         imagePath = Messages.Image__show_distance_on_x_axis_imperial;
-         disabledImagePath = Messages.Image__show_distance_on_x_axis_imperial_disabled;
+         imageName = Images.XAxis_ShowDistance_Imperial;
+         disabledImageName = Images.XAxis_ShowDistance_Imperial_Disabled;
 
       } else if (UI.UNIT_IS_DISTANCE_NAUTICAL_MILE) {
 
-         imagePath = Messages.Image__show_distance_on_x_axis_NauticMile;
-         disabledImagePath = Messages.Image__show_distance_on_x_axis_NauticMile_disabled;
+         imageName = Images.XAxis_ShowDistance_NauticMile;
+         disabledImageName = Images.XAxis_ShowDistance_NauticMile_Disabled;
 
       } else {
 
-         imagePath = Messages.Image__show_distance_on_x_axis;
-         disabledImagePath = Messages.Image__show_distance_on_x_axis_disabled;
+         imageName = Images.XAxis_ShowDistance;
+         disabledImageName = Images.XAxis_ShowDistance_Disabled;
       }
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(imagePath));
-      setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(disabledImagePath));
+      setImageDescriptor(TourbookPlugin.getImageDescriptor(ThemeUtil.getThemedImageName(imageName)));
+      setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(disabledImageName));
    }
 }

@@ -15,9 +15,11 @@
  *******************************************************************************/
 package net.tourbook.ui.tourChart.action;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.ui.tourChart.SlideoutTourChartMarker;
 import net.tourbook.ui.tourChart.TourChart;
@@ -39,10 +41,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 public class ActionTourChartMarker extends ContributionItem implements IOpeningDialog {
 
-   private static final String     IMAGE_EDIT_TOUR_MARKER          = Messages.Image__edit_tour_marker;
-   private static final String     IMAGE_EDIT_TOUR_MARKER_DISABLED = Messages.Image__edit_tour_marker_disabled;
-
-   private final String            _dialogId                       = getClass().getCanonicalName();
+   private final String            _dialogId = getClass().getCanonicalName();
 
    private TourChart               _tourChart;
 
@@ -64,8 +63,8 @@ public class ActionTourChartMarker extends ContributionItem implements IOpeningD
       _tourChart = tourChart;
       _parent = parent;
 
-      _imageEnabled = TourbookPlugin.getImageDescriptor(IMAGE_EDIT_TOUR_MARKER).createImage();
-      _imageDisabled = TourbookPlugin.getImageDescriptor(IMAGE_EDIT_TOUR_MARKER_DISABLED).createImage();
+      _imageEnabled = TourbookPlugin.getImageDescriptor(ThemeUtil.getThemedImageName(Images.TourMarker)).createImage();
+      _imageDisabled = TourbookPlugin.getImageDescriptor(Images.TourMarker_Disabled).createImage();
    }
 
    @Override
