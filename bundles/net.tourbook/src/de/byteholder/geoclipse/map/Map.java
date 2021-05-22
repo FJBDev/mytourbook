@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+ *******************************************************************************/
 /*
  * 2007-04-29
  * - completely removed DesignTime; this can be re-added later if needed
@@ -61,10 +76,11 @@ import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorCacheSWT;
+import net.tourbook.common.color.ColorUtil;
+import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.formatter.FormatManager;
 import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.util.HoveredAreaContext;
-import net.tourbook.common.util.IToolTipHideListener;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.ITourToolTipProvider;
 import net.tourbook.common.util.StatusUtil;
@@ -89,8 +105,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -105,23 +119,17 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.dnd.URLTransfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -137,7 +145,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
 public class Map extends Canvas {
 
@@ -154,7 +161,7 @@ public class Map extends Canvas {
    /**
     * Max zoomlevels which the maps supports
     */
-   public static final int              MAP_MAX_ZOOM_LEVEL               = 19;
+   public static final int              MAP_MAX_ZOOM_LEVEL               = 22;
 
    /**
     * these zoom levels are displayed in the UI therefore they start with 1 instead of 0
@@ -242,7 +249,7 @@ public class Map extends Canvas {
    private static final Pattern       _patternWikiParamter                  = Pattern.compile(PATTERN_SEPARATOR);
    private static final Pattern       _patternWikiKeyValue                  = Pattern.compile(PATTERN_WIKI_PARAMETER_KEY_VALUE_SEPARATOR);
 
-   private final static ColorCacheSWT _colorCache                           = new ColorCacheSWT();
+   private static final ColorCacheSWT _colorCache                           = new ColorCacheSWT();
 
    // [181,208,208] is the color of water in the standard OSM material
    public static final RGB        OSM_BACKGROUND_RGB         = new RGB(181, 208, 208);
@@ -463,7 +470,7 @@ public class Map extends Canvas {
    private boolean     _isScaleVisible;
 
    private final Color _transparentColor;
-   private final Color _defaultBackgroundColor;
+   private Color       _defaultBackgroundColor;
 
    /*
     * POI image
@@ -629,8 +636,7 @@ public class Map extends Canvas {
       _cursorSearchTour = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation));
       _cursorSearchTour_Scroll = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation_Scroll));
 
-      _transparentColor = new Color(_display, MAP_TRANSPARENT_RGB);
-      _defaultBackgroundColor = new Color(_display, MAP_DEFAULT_BACKGROUND_RGB);
+      _transparentColor = new Color(MAP_TRANSPARENT_RGB);
 
       SYS_COLOR_BLACK = _display.getSystemColor(SWT.COLOR_BLACK);
       SYS_COLOR_DARK_GRAY = _display.getSystemColor(SWT.COLOR_DARK_GRAY);
@@ -644,6 +650,15 @@ public class Map extends Canvas {
       _tourBreadcrumb = new MapTourBreadcrumb();
 
       paint_Overlay_0_SetupThread();
+
+      parent.getDisplay().asyncExec(() -> {
+
+         // must be run async because dark theme colors could not yet be initialized
+
+         _defaultBackgroundColor = UI.IS_DARK_THEME
+               ? ThemeUtil.getDarkestBackgroundColor()
+               : new Color(MAP_DEFAULT_BACKGROUND_RGB);
+      });
    }
 
    /**
@@ -721,19 +736,9 @@ public class Map extends Canvas {
 
    private void addAllListener() {
 
-      addPaintListener(new PaintListener() {
-         @Override
-         public void paintControl(final PaintEvent e) {
-            onPaint(e);
-         }
-      });
+      addPaintListener(this::onPaint);
 
-      addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose(e);
-         }
-      });
+      addDisposeListener(this::onDispose);
 
       addFocusListener(new FocusListener() {
          @Override
@@ -780,33 +785,13 @@ public class Map extends Canvas {
          public void mouseHover(final MouseEvent e) {}
       });
 
-      addMouseMoveListener(new MouseMoveListener() {
-         @Override
-         public void mouseMove(final MouseEvent event) {
-            onMouse_Move(event);
-         }
-      });
+      addMouseMoveListener(this::onMouse_Move);
 
-      addListener(SWT.MouseVerticalWheel, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onMouse_Wheel(event);
-         }
-      });
+      addListener(SWT.MouseVerticalWheel, this::onMouse_Wheel);
 
-      addListener(SWT.MouseHorizontalWheel, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onMouse_Wheel(event);
-         }
-      });
+      addListener(SWT.MouseHorizontalWheel, this::onMouse_Wheel);
 
-      addListener(SWT.KeyDown, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onKey_Down(event);
-         }
-      });
+      addListener(SWT.KeyDown, this::onKey_Down);
 
       addControlListener(new ControlAdapter() {
          @Override
@@ -815,13 +800,8 @@ public class Map extends Canvas {
          }
       });
 
-      addTraverseListener(new TraverseListener() {
-         @Override
-         public void keyTraversed(final TraverseEvent e) {
-            // enable traverse keys
-            e.doit = true;
-         }
-      });
+      // enable traverse keys
+      addTraverseListener(traverseEvent -> traverseEvent.doit = true);
    }
 
    /**
@@ -830,7 +810,7 @@ public class Map extends Canvas {
    private void addDropTarget() {
 
       _dropTarget = new DropTarget(this, DND.DROP_MOVE | DND.DROP_COPY);
-      _dropTarget.setTransfer(new Transfer[] { URLTransfer.getInstance(), TextTransfer.getInstance() });
+      _dropTarget.setTransfer(URLTransfer.getInstance(), TextTransfer.getInstance());
 
       _dropTarget.addDropListener(new DropTargetAdapter() {
          @Override
@@ -863,12 +843,7 @@ public class Map extends Canvas {
             /*
              * run async to free the mouse cursor from the drop operation
              */
-            _display.asyncExec(new Runnable() {
-               @Override
-               public void run() {
-                  onDropRunnable(event);
-               }
-            });
+            _display.asyncExec(() -> onDropRunnable(event));
          }
       });
    }
@@ -1049,17 +1024,14 @@ public class Map extends Canvas {
 
       menuMgr.setRemoveAllWhenShown(true);
 
-      menuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      menuMgr.addMenuListener(menuManager -> {
 
-            if ((_mp == null) || _isContextMenuEnabled == false) {
-               return;
-            }
+         if ((_mp == null) || _isContextMenuEnabled == false) {
+            return;
+         }
 
-            if (_mapContextProvider != null) {
-               _mapContextProvider.fillContextMenu(menuMgr, _actionManageOfflineImages);
-            }
+         if (_mapContextProvider != null) {
+            _mapContextProvider.fillContextMenu(menuManager, _actionManageOfflineImages);
          }
       });
 
@@ -1085,7 +1057,24 @@ public class Map extends Canvas {
       final int width = Math.max(1, clientArea.width);
       final int height = Math.max(1, clientArea.height);
 
-      return new Image(display, width, height);
+      final Image mapImage = new Image(display, width, height);
+
+      if (UI.isDarkTheme()) {
+
+         /*
+          * It looks ugly when in the dark theme the default map background is white which occure
+          * before the map tile images are painted
+          */
+
+         final GC gc = new GC(mapImage);
+         {
+            gc.setBackground(ThemeUtil.getDarkestBackgroundColor());
+            gc.fillRectangle(clientArea);
+         }
+         gc.dispose();
+      }
+
+      return mapImage;
    }
 
    public void deleteFailedImageFiles() {
@@ -1490,7 +1479,7 @@ public class Map extends Canvas {
 
       if (geo_Start == null) {
 
-         // this can occure when hovering but not yet selected
+         // this can occur when hovering but not yet selected
 
          geo_Start = geo_End;
       }
@@ -2204,7 +2193,7 @@ public class Map extends Canvas {
 
       if (_worldPixel_TopLeft_Viewport == null) {
 
-         // this occured when comparing tours
+         // this occurred when comparing tours
 
          return false;
       }
@@ -2266,7 +2255,7 @@ public class Map extends Canvas {
 
       if (hoveredTile == null) {
 
-         // this can occure when map is zoomed
+         // this can occur when map is zoomed
          return false;
       }
 
@@ -2326,7 +2315,7 @@ public class Map extends Canvas {
                }
             }
 
-            // this must be checked again otherwise the last tour id occures multiple times
+            // this must be checked again otherwise the last tour id occurs multiple times
             if (hoverTourIdIndex >= numPainted_HoveredTourId) {
                break;
             }
@@ -2491,9 +2480,6 @@ public class Map extends Canvas {
       disposeResource(_cursorPan);
       disposeResource(_cursorSearchTour);
       disposeResource(_cursorSearchTour_Scroll);
-
-      disposeResource(_defaultBackgroundColor);
-      disposeResource(_transparentColor);
 
       // dispose resources in the overlay plugins
       for (final MapPainter overlay : _overlays) {
@@ -3210,17 +3196,13 @@ public class Map extends Canvas {
 
          // update display even when this is not the last created runnable
 
-         _display.syncExec(new Runnable() {
+         _display.syncExec(() -> {
 
-            @Override
-            public void run() {
-
-               if (isDisposed()) {
-                  return;
-               }
-
-               paint_10_PaintMapImage();
+            if (isDisposed()) {
+               return;
             }
+
+            paint_10_PaintMapImage();
          });
 
       } else {
@@ -3481,7 +3463,7 @@ public class Map extends Canvas {
       int numX = (int) (vpWidth / geoGridPixelSizeXAdjusted);
       int numY = (int) (vpHeight / geoGridPixelSizeYAdjusted);
 
-      // this can occure by high zoom level
+      // this can occur by high zoom level
       if (numX < 1) {
          numX = 1;
       }
@@ -3555,7 +3537,7 @@ public class Map extends Canvas {
       gc.setLineWidth(2);
 
       /*
-       * show info in the top/left corner that selection for the offline area is activ
+       * show info in the top/left corner that selection for the offline area is active
        */
       paint_GridBox_70_Info_MouseGeoPos(gc, mapGridData);
 
@@ -3618,7 +3600,7 @@ public class Map extends Canvas {
       gc.setLineStyle(SWT.LINE_SOLID);
       gc.setForeground(SYS_COLOR_WHITE);
 
-      gc.setBackground(_display.getSystemColor(SWT.COLOR_DARK_YELLOW));
+      gc.setBackground(SYS_COLOR_YELLOW);
       gc.setAlpha(0x30);
       gc.fillRectangle(dev_X1 + 1, dev_Y1 + 1, dev_Width - 2, dev_Height - 2);
       gc.setAlpha(0xff);
@@ -3811,7 +3793,7 @@ public class Map extends Canvas {
 
       if (tourData == null) {
 
-         // this occured, it can be that previously a history/multiple tour was displayed
+         // this occurred, it can be that previously a history/multiple tour was displayed
          return;
       }
 
@@ -3911,7 +3893,7 @@ public class Map extends Canvas {
 
          if (tourData == null) {
 
-            // this occured, it can be that previously a history/multiple tour was displayed
+            // this occurred, it can be that previously a history/multiple tour was displayed
 
          } else {
             paint_HoveredTour_52_TourDetail(gc, devXMouse, devYMouse, tourData);
@@ -4063,7 +4045,7 @@ public class Map extends Canvas {
 //      }
 
       /*
-       * show info in the top/right corner that selection for the offline area is activ
+       * show info in the top/right corner that selection for the offline area is active
        */
       if (_offline_IsSelectingOfflineArea) {
          paint_OfflineArea_10_Info(gc);
@@ -4292,68 +4274,65 @@ public class Map extends Canvas {
 
    private void paint_Overlay_20_Tiles() {
 
-      BusyIndicator.showWhile(_display, new Runnable() {
-         @Override
-         public void run() {
+      BusyIndicator.showWhile(_display, () -> {
 
-            Tile tile;
+         Tile tile;
 
-            checkImageTemplate9Parts();
+         checkImageTemplate9Parts();
 
-            final long startTime = System.currentTimeMillis();
+         final long startTime = System.currentTimeMillis();
 
-            while ((tile = _tileOverlayPaintQueue.poll()) != null) {
+         while ((tile = _tileOverlayPaintQueue.poll()) != null) {
 
-               // skip tiles from another zoom level
-               if (tile.getZoom() == _mapZoomLevel) {
+            // skip tiles from another zoom level
+            if (tile.getZoom() == _mapZoomLevel) {
 
-                  // set state that this tile is checked
-                  tile.setOverlayTourStatus(OverlayTourState.TILE_IS_CHECKED);
+               // set state that this tile is checked
+               tile.setOverlayTourStatus(OverlayTourState.TILE_IS_CHECKED);
 
-                  // cleanup previous positions
-                  tile.allPainted_HoverRectangle.clear();
-                  tile.allPainted_HoverTourID.clear();
+               // cleanup previous positions
+               tile.allPainted_HoverRectangle.clear();
+               tile.allPainted_HoverTourID.clear();
 
-                  /*
-                   * check if a tour, marker or photo is within the current tile
-                   */
-                  boolean isPaintingNeeded = false;
+               /*
+                * check if a tour, marker or photo is within the current tile
+                */
+               boolean isPaintingNeeded = false;
 
-                  for (final MapPainter overlayPainter : _overlays) {
+               for (final MapPainter overlayPainter : _overlays) {
 
-                     isPaintingNeeded = overlayPainter.isPaintingNeeded(Map.this, tile);
+                  isPaintingNeeded = overlayPainter.isPaintingNeeded(Map.this, tile);
 
-                     if (isPaintingNeeded) {
-                        break;
-                     }
-                  }
-
-                  if (isPaintingNeeded == false) {
-
-                     // set tile state
-                     tile.setOverlayImageState(OverlayImageState.NO_IMAGE);
-
-                     continue;
-                  }
-
-                  // paint overlay
-                  if (isPaintTile_With_BasicMethod()) {
-                     paint_Overlay_22_PaintTileBasic(tile);
-                  } else {
-                     paint_Overlay_30_PaintTileEnhanced(tile);
-                  }
-
-                  // allow to display painted overlays
-                  final long paintTime = System.currentTimeMillis();
-                  if (paintTime > startTime + 100) {
+                  if (isPaintingNeeded) {
                      break;
                   }
-
-               } else {
-
-                  // tile has a different zoom level, ignore this tile
-                  tile.setOverlayTourStatus(OverlayTourState.TILE_IS_NOT_CHECKED);
                }
+
+               if (isPaintingNeeded == false) {
+
+                  // set tile state
+                  tile.setOverlayImageState(OverlayImageState.NO_IMAGE);
+
+                  continue;
+               }
+
+               // paint overlay
+               if (isPaintTile_With_BasicMethod()) {
+                  paint_Overlay_22_PaintTileBasic(tile);
+               } else {
+                  paint_Overlay_30_PaintTileEnhanced(tile);
+               }
+
+               // allow to display painted overlays
+               final long paintTime = System.currentTimeMillis();
+               if (paintTime > startTime + 100) {
+                  break;
+               }
+
+            } else {
+
+               // tile has a different zoom level, ignore this tile
+               tile.setOverlayTourStatus(OverlayTourState.TILE_IS_NOT_CHECKED);
             }
          }
       });
@@ -5707,7 +5686,7 @@ public class Map extends Canvas {
 
       if (_mp == null) {
 
-         // this occured when restore state had a wrong map provider
+         // this occurred when restore state had a wrong map provider
 
          setMapProvider(MapProviderManager.getDefaultMapProvider());
 
@@ -5724,12 +5703,9 @@ public class Map extends Canvas {
 
          // current thread is not the display thread
 
-         _display.syncExec(new Runnable() {
-            @Override
-            public void run() {
-               if (!isDisposed()) {
-                  setMapCenterInWorldPixel(newMapCenter);
-               }
+         _display.syncExec(() -> {
+            if (!isDisposed()) {
+               setMapCenterInWorldPixel(newMapCenter);
             }
          });
       }
@@ -5825,7 +5801,7 @@ public class Map extends Canvas {
 
          // check zoom level
          if (zoom - 1 < minZoomLevel) {
-            // this should not occure -> a tour should not be larger than the earth
+            // this should not occur -> a tour should not be larger than the earth
             break;
          }
 
@@ -6143,15 +6119,12 @@ public class Map extends Canvas {
 
       _tour_ToolTip = tourToolTip;
 
-      tourToolTip.addHideListener(new IToolTipHideListener() {
-         @Override
-         public void afterHideToolTip(final Event event) {
+      tourToolTip.addHideListener(event -> {
 
-            // hide hovered area
-            _hoveredAreaContext = null;
+         // hide hovered area
+         _hoveredAreaContext = null;
 
-            redraw();
-         }
+         redraw();
       });
    }
 
@@ -6309,7 +6282,7 @@ public class Map extends Canvas {
 
          if (mapGridData == null) {
 
-            // This can occure when geofilter is loaded from xml file and not created in the map
+            // This can occur when geofilter is loaded from xml file and not created in the map
 
             // create map grid box from tour geo filter
             mapGridData = new MapGridData();
@@ -6396,7 +6369,7 @@ public class Map extends Canvas {
       _overlayAlpha = _prefStore.getBoolean(ITourbookPreferences.MAP2_LAYOUT_IS_TOUR_TRACK_OPACITY)
 
             // convert % to 0xff
-            ? 0xff * _prefStore.getInt(ITourbookPreferences.MAP2_LAYOUT_TOUR_TRACK_OPACITY) / 100
+            ? ColorUtil.getTransparencyFromPercentage(_prefStore.getInt(ITourbookPreferences.MAP2_LAYOUT_TOUR_TRACK_OPACITY))
 
             // no opacity
             : 0xff;

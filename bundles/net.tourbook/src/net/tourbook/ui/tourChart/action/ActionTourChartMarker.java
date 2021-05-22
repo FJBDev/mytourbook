@@ -62,7 +62,7 @@ public class ActionTourChartMarker extends ContributionItem implements IOpeningD
       _tourChart = tourChart;
       _parent = parent;
 
-      _imageEnabled = TourbookPlugin.getImageDescriptor(Images.TourMarker).createImage();
+      _imageEnabled = TourbookPlugin.getThemedImageDescriptor(Images.TourMarker).createImage();
       _imageDisabled = TourbookPlugin.getImageDescriptor(Images.TourMarker_Disabled).createImage();
    }
 

@@ -23,6 +23,17 @@ import org.eclipse.swt.graphics.RGB;
 public class ColorUtil {
 
    /**
+    * Converts SWT color into AWT color
+    *
+    * @param swtColor
+    * @return
+    */
+   public static Color convertSWTColor_into_AWTColor(final org.eclipse.swt.graphics.Color swtColor) {
+
+      return new Color(swtColor.getRed(), swtColor.getGreen(), swtColor.getBlue());
+   }
+
+   /**
     * @param color
     * @param alpha
     *           0xff is opaque, 0 is transparent
@@ -135,5 +146,20 @@ public class ColorUtil {
    public static RGB getContrastRGB(final RGB rgb) {
 
       return getContrastRGB(rgb.red, rgb.green, rgb.blue);
+   }
+
+   /**
+    * Converts a percentage value to a transparency value: 0 to 255
+    *
+    * @param percentageValue
+    * @return
+    */
+   public static int getTransparencyFromPercentage(final int percentageValue) {
+
+      final int opacity = 0xff * percentageValue / 100;
+
+      //This occurred where 303 was returned. Not sure how it is possible and how
+      //to reproduce it but to avoid this, we bound the returned value
+      return Math.min(255, opacity);
    }
 }

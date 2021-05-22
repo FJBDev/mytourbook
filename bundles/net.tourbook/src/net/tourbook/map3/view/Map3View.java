@@ -43,13 +43,13 @@ import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
-import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.color.ColorProviderConfig;
@@ -854,7 +854,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
       _actionMap3Color = new ActionMap3Color();
       _actionMap3Colors = new ActionOpenPrefDialog(Messages.Map3_Action_TrackColors, PrefPageMap3Color.ID, _graphId);
-      _actionMap3Colors.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Options));
+      _actionMap3Colors.setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Options));
 
       _actionMapBookmarks = new ActionMapBookmarks(_parent, this);
       _actionSetTrackSliderLeft = new ActionSetTrackSliderPositionLeft(this);
@@ -1105,15 +1105,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
             Map3Manager.getLayer_TourLegend().resizeLegendImage();
          }
       });
-
-//		_mapContainer.addControlListener(new ControlAdapter() {
-//
-//			@Override
-//			public void controlResized(final ControlEvent e) {
-//				Map3Manager.getTourLegendLayer().resizeLegendImage();
-//			}
-//
-//		});
 
       parent.layout();
    }
@@ -1625,9 +1616,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
          return;
       }
 
-//		System.out.println(UI.timeStampNano() + " [" + getClass().getSimpleName() + "] \tonAWTMouseClick");
-//		// TODO remove SYSTEM.OUT.PRINTLN
-
       final boolean isRightClick = SwingUtilities.isRightMouseButton(mouseEvent);
       if (isRightClick) {
 
@@ -2077,14 +2065,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    }
 
    public void setTourInfo(final ITrackPath hoveredTrackPath, final Integer hoveredPositionIndex) {
-
-//		System.out.println((UI.timeStampNano() + " [" + getClass().getSimpleName() + "]")
-//				+ ("\thoveredPositionIndex: " + hoveredPositionIndex)
-//				+ ("\t_currentHoveredTrackPosition: " + _currentHoveredTrackPosition)
-//				+ ("\thoveredTrackPath: " + hoveredTrackPath)
-//		//
-//				);
-//		// TODO remove SYSTEM.OUT.PRINTLN
 
       if (hoveredTrackPath == null) {
 

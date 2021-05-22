@@ -49,8 +49,8 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
 
    private HashMap<String, String>           _childrenActivitiesToProcess = new HashMap<>();
 
-   private HashMap<Long, TourData>           _newlyImportedTours          = new HashMap<>();
-   private HashMap<Long, TourData>           _alreadyImportedTours        = new HashMap<>();
+   private Map<Long, TourData>               _newlyImportedTours          = new HashMap<>();
+   private Map<Long, TourData>               _alreadyImportedTours        = new HashMap<>();
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -260,8 +260,9 @@ public class Suunto9DeviceDataReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       _newlyImportedTours = newlyImportedTours;
       _alreadyImportedTours = alreadyImportedTours;

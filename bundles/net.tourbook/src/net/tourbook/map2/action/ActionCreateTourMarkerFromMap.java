@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019, 2020 Frédéric Bard
+ * Copyright (C) 2019, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -44,7 +44,7 @@ public class ActionCreateTourMarkerFromMap extends Action {
 
       _mapView = mapView;
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourMarker_New));
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourMarker_New));
    }
 
    @Override

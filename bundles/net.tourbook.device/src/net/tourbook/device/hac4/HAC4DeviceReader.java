@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Formatter;
-import java.util.HashMap;
+import java.util.Map;
 
 import net.tourbook.data.DataUtil;
 import net.tourbook.data.TimeData;
@@ -60,10 +60,9 @@ public class HAC4DeviceReader extends TourbookDevice {
       public short minute;
    }
 
-   /**
-    * constructor is used when the plugin is loaded
-    */
-   public HAC4DeviceReader() {}
+   public HAC4DeviceReader() {
+      // plugin constructor
+   }
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -172,8 +171,9 @@ public class HAC4DeviceReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       final byte[] buffer = new byte[5];
       String recordType = UI.EMPTY_STRING;
@@ -491,7 +491,6 @@ public class HAC4DeviceReader extends TourbookDevice {
                tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
                tourData.computeTourMovingTime();
                tourData.computeComputedValues();
-               tourData.computeTrainingStressData();
             }
 
             // tourData.dumpTourTotal();

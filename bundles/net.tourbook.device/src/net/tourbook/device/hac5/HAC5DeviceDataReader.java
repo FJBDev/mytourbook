@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.Map;
 
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TimeData;
@@ -63,8 +63,9 @@ public class HAC5DeviceDataReader extends TourbookDevice {
       public int minute;
    }
 
-   // plugin constructor
-   public HAC5DeviceDataReader() {}
+   public HAC5DeviceDataReader() {
+      // plugin constructor
+   }
 
    /**
     * Adjust the offset for the DD record so it's within the tour data area
@@ -188,8 +189,9 @@ public class HAC5DeviceDataReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       boolean returnValue = false;
 
@@ -490,7 +492,6 @@ public class HAC5DeviceDataReader extends TourbookDevice {
                tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
                tourData.computeTourMovingTime();
                tourData.computeComputedValues();
-               tourData.computeTrainingStressData();
             }
 
             // dump DD block
@@ -695,5 +696,4 @@ public class HAC5DeviceDataReader extends TourbookDevice {
 
       return isValid;
    }
-
 }

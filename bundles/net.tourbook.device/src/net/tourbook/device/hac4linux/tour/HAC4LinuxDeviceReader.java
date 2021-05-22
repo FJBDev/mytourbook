@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import net.tourbook.data.TimeData;
@@ -59,7 +59,9 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
    /**
     * The box standard constructor
     */
-   public HAC4LinuxDeviceReader() {}
+   public HAC4LinuxDeviceReader() {
+      // plugin constructor
+   }
 
    /*
     * (non-Javadoc)
@@ -278,8 +280,9 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       BufferedReader fileHac4LinuxData = null;
 
@@ -618,7 +621,6 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
             tourData.computeComputedValues();
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
             tourData.computeTourMovingTime();
-            tourData.computeTrainingStressData();
 
             tourData.completeTourMarkerWithRelativeTime();
          }
@@ -645,17 +647,50 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
     * currently read.
     */
    private void switchSection(final String line) {
-      if (line.equals("[FILE]")) {m_section = Section.SECTION_FILE;return;} //$NON-NLS-1$
-      if (line.equals("[INFORMATION]")) {m_section = Section.SECTION_INFO;return;} //$NON-NLS-1$
-      if (line.equals("[NOTES]")) {m_section = Section.SECTION_NOTES;return;} //$NON-NLS-1$
-      if (line.equals("[FRIENDS]")) {m_section = Section.SECTION_FRIENDS;return;} //$NON-NLS-1$
-      if (line.equals("[PERSON]")) {m_section = Section.SECTION_PERSON;return;} //$NON-NLS-1$
-      if (line.equals("[STATISTICS]")) {m_section = Section.SECTION_STATISTICS;return;} //$NON-NLS-1$
-      if (line.equals("[SETTINGS]")) {m_section = Section.SECTION_SETTINGS;return;} //$NON-NLS-1$
-      if (line.equals("[POLAR-EXTENSION]")) {m_section = Section.SECTION_POLAREXTS;return;} //$NON-NLS-1$
-      if (line.equals("[COACH-PARAMETER]")) {m_section = Section.SECTION_COACH;return;} //$NON-NLS-1$
-      if (line.equals("[TOUR-DATA]")) {m_section = Section.SECTION_TOURDATA;return;} //$NON-NLS-1$
-      if (line.equals("[MARKING-DATA]")) {m_section = Section.SECTION_MARKS;return;} //$NON-NLS-1$
+      if (line.equals("[FILE]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_FILE;
+         return;
+      }
+      if (line.equals("[INFORMATION]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_INFO;
+         return;
+      }
+      if (line.equals("[NOTES]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_NOTES;
+         return;
+      }
+      if (line.equals("[FRIENDS]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_FRIENDS;
+         return;
+      }
+      if (line.equals("[PERSON]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_PERSON;
+         return;
+      }
+      if (line.equals("[STATISTICS]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_STATISTICS;
+         return;
+      }
+      if (line.equals("[SETTINGS]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_SETTINGS;
+         return;
+      }
+      if (line.equals("[POLAR-EXTENSION]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_POLAREXTS;
+         return;
+      }
+      if (line.equals("[COACH-PARAMETER]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_COACH;
+         return;
+      }
+      if (line.equals("[TOUR-DATA]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_TOURDATA;
+         return;
+      }
+      if (line.equals("[MARKING-DATA]")) { //$NON-NLS-1$
+         m_section = Section.SECTION_MARKS;
+         return;
+      }
 
       m_section = Section.SECTION_NONE;
    }
@@ -700,5 +735,4 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
 
       return isValid;
    }
-
 }

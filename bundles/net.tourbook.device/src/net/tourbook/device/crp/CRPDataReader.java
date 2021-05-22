@@ -19,7 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.tourbook.data.TimeData;
@@ -34,7 +34,9 @@ import net.tourbook.ui.tourChart.ChartLabel;
 public class CRPDataReader extends TourbookDevice {
 
    // plugin constructor
-   public CRPDataReader() {}
+   public CRPDataReader() {
+      // plugin constructor
+   }
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -96,8 +98,9 @@ public class CRPDataReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       boolean returnValue = false;
 
@@ -133,7 +136,7 @@ public class CRPDataReader extends TourbookDevice {
             if (line.equals("***")) { //$NON-NLS-1$
                break;
             }
-            trackPoints.add(new String(line.toString()));
+            trackPoints.add(line.toString());
          }
 
          // skip line
@@ -380,7 +383,6 @@ public class CRPDataReader extends TourbookDevice {
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
             tourData.computeTourMovingTime();
             tourData.computeComputedValues();
-            tourData.computeTrainingStressData();
 
             tourData.setTourAltUp(tourAltUp);
             tourData.setTourAltDown(tourAltDown);
@@ -424,5 +426,4 @@ public class CRPDataReader extends TourbookDevice {
 
       return true;
    }
-
 }

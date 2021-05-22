@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
@@ -44,10 +44,9 @@ public class TurDeviceReader extends TourbookDevice {
 
    private final int MAX_INT = 0x10000;
 
-   /**
-    * Plugin constructor
-    */
-   public TurDeviceReader() {}
+   public TurDeviceReader() {
+      // plugin constructor
+   }
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -140,8 +139,9 @@ public class TurDeviceReader extends TourbookDevice {
    @Override
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+                                    final Map<Long, TourData> alreadyImportedTours,
+                                    final Map<Long, TourData> newlyImportedTours,
+                                    final boolean isReimport) {
 
       final TurDeviceData turDeviceData = new TurDeviceData();
 
@@ -337,7 +337,6 @@ public class TurDeviceReader extends TourbookDevice {
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
             tourData.computeComputedValues();
             tourData.computeTourMovingTime();
-            tourData.computeTrainingStressData();
 
             processDeviceData_10_CreateMarker(tourData, fileTurData);
             tourData.completeTourMarkerWithRelativeTime();
@@ -434,5 +433,4 @@ public class TurDeviceReader extends TourbookDevice {
 
       return isValid;
    }
-
 }

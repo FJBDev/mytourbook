@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
@@ -147,7 +148,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
          super(null, AS_PUSH_BUTTON);
 
          setToolTipText(Messages.Pref_TrainingStress_Govss_AddTourTypes);
-         setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__App_Add));
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Add));
 
          setMenuCreator(this);
       }
@@ -222,7 +223,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
          super(null, AS_PUSH_BUTTON);
 
          setToolTipText(Messages.Pref_TrainingStress_Govss_RemoveTourType);
-         setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__App_Trash));
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Trash));
       }
 
       @Override

@@ -141,9 +141,9 @@ public abstract class TourbookStatistic {
                || property.equals(gridVDistance)
                || property.equals(gridIsHGridline)
                || property.equals(gridIsVGridline)
-
                || property.equals(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR)
                || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR)
+               || property.equals(ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR_DARK)
          //
          ) {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 package net.tourbook.common;
 
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.nio.charset.Charset;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -104,6 +105,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.UIElement;
 import org.epics.css.dal.Timestamp;
 import org.epics.css.dal.Timestamp.Format;
 import org.joda.time.format.PeriodFormatter;
@@ -233,10 +235,20 @@ public class UI {
          '|', };
 
 // SET_FORMATTING_OFF
+
    public static final boolean   IS_LINUX    = "gtk".equals(SWT.getPlatform());                                                                  //$NON-NLS-1$
    public static final boolean   IS_OSX      = "carbon".equals(SWT.getPlatform())   || "cocoa".equals(SWT.getPlatform());                        //$NON-NLS-1$ //$NON-NLS-2$
    public static final boolean   IS_WIN      = "win32".equals(SWT.getPlatform())    || "wpf".equals(SWT.getPlatform());                           //$NON-NLS-1$ //$NON-NLS-2$
+
 // SET_FORMATTING_ON
+
+   /**
+    * Is <code>true</code> when the dark theme in the UI is selected
+    */
+   public static boolean IS_DARK_THEME;
+
+   // this is the old field before using IS_DARK_THEME
+   private static boolean      _isDarkThemeSelected;
 
    /**
     * On Linux an async selection event is fired since e4
@@ -571,6 +583,8 @@ public class UI {
    public static final Font    AWT_FONT_ARIAL_BOLD_12    = Font.decode("Arial-bold-12");  //$NON-NLS-1$
    public static final Font    AWT_FONT_ARIAL_BOLD_24    = Font.decode("Arial-bold-24");  //$NON-NLS-1$
 
+   public static Font          AWT_DIALOG_FONT;
+
 // SET_FORMATTING_OFF
 
    private static final Random   RANDOM_GENERATOR                       = new Random();
@@ -607,15 +621,11 @@ public class UI {
       updateUnits();
 
       setupUI_FontMetrics();
+      setupUI_AWTFonts();
 
       IMAGE_REGISTRY = CommonActivator.getDefault().getImageRegistry();
 
 // SET_FORMATTING_OFF
-
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER,                  CommonActivator.getImageDescriptor(CommonImages.PhotoFilter));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_NO_PHOTOS,        CommonActivator.getImageDescriptor(CommonImages.PhotoFilter_NoPhotos));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_WITH_PHOTOS,      CommonActivator.getImageDescriptor(CommonImages.PhotoFilter_WithPhotos));
-      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_DISABLED,         CommonActivator.getImageDescriptor(CommonImages.PhotoFilter_Disabled));
 
       IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,                    CommonActivator.getImageDescriptor(CommonImages.CustomizeProfilesColumns));
       IMAGE_REGISTRY.put(IMAGE_EMPTY_16,                             CommonActivator.getImageDescriptor(CommonImages.App_EmptyIcon_Placeholder));
@@ -1605,6 +1615,13 @@ public class UI {
       return isCtrlKey;
    }
 
+   /**
+    * @return <code>true</code> when a dark theme is selected in the UI
+    */
+   public static boolean isDarkTheme() {
+      return _isDarkThemeSelected;
+   }
+
    public static boolean isLinuxAsyncEvent(final Widget widget) {
 
       if (IS_LINUX) {
@@ -1972,31 +1989,6 @@ public class UI {
       return new String(scrambledText);
    }
 
-   public static void setBackgroundColorForAllChildren(final Control parent, final Color bgColor) {
-
-      parent.setBackground(bgColor);
-
-      if (parent instanceof Composite) {
-
-         final Control[] children = ((Composite) parent).getChildren();
-
-         for (final Control child : children) {
-
-            if (child != null
-                  && child.isDisposed() == false //
-
-                  // exclude controls which look ugly
-                  && !child.getClass().equals(Combo.class)
-                  && !child.getClass().equals(Spinner.class)
-            //
-            ) {
-
-               setBackgroundColorForAllChildren(child, bgColor);
-            }
-         }
-      }
-   }
-
    /**
     * Set the layout data of the button to a GridData with appropriate heights and widths.
     *
@@ -2256,6 +2248,59 @@ public class UI {
       field.getTextControl(parent).setLayoutData(gd);
 
       return gd;
+   }
+
+   public static void setIsDarkTheme(final boolean isDarkThemeSelected) {
+
+      _isDarkThemeSelected = isDarkThemeSelected;
+
+      IS_DARK_THEME = isDarkThemeSelected;
+   }
+
+   /**
+    * Set the themed image descriptor for a {@link UIElement} with images from the
+    * {@link TourbookPlugin} plugin
+    *
+    * @param uiElement
+    * @param imageName
+    */
+   public static void setThemedIcon(final UIElement uiElement, final String imageName) {
+
+      uiElement.setIcon(CommonActivator.getThemedImageDescriptor(imageName));
+   }
+
+   public static void setupThemedImages() {
+
+// SET_FORMATTING_OFF
+
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER,               CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_DISABLED,      CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_Disabled));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_NO_PHOTOS,     CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_NoPhotos));
+      IMAGE_REGISTRY.put(IMAGE_ACTION_PHOTO_FILTER_WITH_PHOTOS,   CommonActivator.getThemedImageDescriptor(CommonImages.PhotoFilter_WithPhotos));
+
+// SET_FORMATTING_ON
+   }
+
+   private static void setupUI_AWTFonts() {
+
+      if (IS_WIN) {
+
+         final Font winFont = (Font) Toolkit.getDefaultToolkit().getDesktopProperty("win.messagebox.font");
+
+         if (winFont != null) {
+            AWT_DIALOG_FONT = winFont;
+         }
+
+      } else if (IS_OSX) {
+
+      } else if (IS_LINUX) {
+
+      }
+
+      if (AWT_DIALOG_FONT == null) {
+
+         AWT_DIALOG_FONT = AWT_FONT_ARIAL_12;
+      }
    }
 
    private static boolean setupUI_FontMetrics() {

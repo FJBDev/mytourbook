@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2011  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -38,7 +38,7 @@ public class ActionCreateTourMarker extends Action {
    public ActionCreateTourMarker(final TourDataEditorView tourDataEditorView) {
 
       super(Messages.tourCatalog_view_action_create_marker);
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourMarker_New));
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourMarker_New));
 
       _tourDataEditor = tourDataEditorView;
    }

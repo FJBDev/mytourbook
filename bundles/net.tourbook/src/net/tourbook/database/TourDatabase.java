@@ -8022,7 +8022,7 @@ public class TourDatabase {
    /**
     * @param conn
     * @param splashManager
-    * @return Data update version when the data update is sucessfully run
+    * @return Data update version when the data update is successfully run
     * @throws MyTourbookException
     * @throws SQLException
     * @throws Exception

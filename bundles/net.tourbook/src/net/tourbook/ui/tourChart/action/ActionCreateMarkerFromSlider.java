@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2014 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,7 +47,7 @@ public class ActionCreateMarkerFromSlider extends Action {
 
       super(text);
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourMarker_New));
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourMarker_New));
       setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourMarker_New_Disabled));
 
       _chartContextProvider = chartContextProvider;
