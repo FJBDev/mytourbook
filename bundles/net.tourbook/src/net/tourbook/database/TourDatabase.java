@@ -326,55 +326,6 @@ public class TourDatabase {
 
       _dbUpdateExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Util.NUMBER_OF_PROCESSORS, threadFactory);
    }
-   public static final float  DEFAULT_FLOAT  = -1E+35f;
-   // This is Float.MIN_VALUE
-   public static final double DEFAULT_DOUBLE = -1E+300;
-   static {
-
-//      !ENTRY net.tourbook.common 4 0 2014-07-30 11:05:18.419
-//      !MESSAGE ALTER TABLE TOURMARKER   ADD COLUMN   latitude DOUBLE DEFAULT 4.9E-324
-//
-//      !ENTRY net.tourbook.common 4 0 2014-07-30 11:05:18.440
-//      !MESSAGE SQLException
-//
-//      SQLState: 22003
-//      Severity: 30000
-//      Message: The resulting value is outside the range for the data type DOUBLE.
-//
-////////////////////////////////////////////////////////////////////////////////////////
-
-//      SQL_INT_MIN_VALUE = Integer.toString(Integer.MIN_VALUE);
-      SQL_LONG_MIN_VALUE = Long.toString(Long.MIN_VALUE);
-
-      SQL_FLOAT_MIN_VALUE = Float.toString(DEFAULT_FLOAT);
-      SQL_DOUBLE_MIN_VALUE = Double.toString(DEFAULT_DOUBLE);
-   }
-
-   static {
-
-      // set storage location for the database
-      System.setProperty("derby.system.home", _databasePath); //$NON-NLS-1$
-
-// set derby debug properties, is helpful when debugging
-//      System.setProperty("derby.language.logStatementText", "true");
-//      System.setProperty("derby.language.logQueryPlan", "true");
-
-      final ThreadFactory threadFactory = new ThreadFactory() {
-
-         @Override
-         public Thread newThread(final Runnable r) {
-
-            final Thread thread = new Thread(r, "Saving database entities");//$NON-NLS-1$
-
-            thread.setPriority(Thread.MIN_PRIORITY);
-            thread.setDaemon(true);
-
-            return thread;
-         }
-      };
-
-      _dbUpdateExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Util.NUMBER_OF_PROCESSORS, threadFactory);
-   }
    private static final Object DB_LOCK = new Object();
 
 //   Derby Limitations
@@ -389,7 +340,9 @@ public class TourDatabase {
 //   Smallest positive  REAL          1.175E-37
 //   Largest negative   REAL         -1.175E-37
 
-
+   public static final float   DEFAULT_FLOAT  = -1E+35f;
+   // This is Float.MIN_VALUE
+   public static final double  DEFAULT_DOUBLE = -1E+300;
 
    private static final String SQL_LONG_MIN_VALUE;
    //   private static final String   SQL_INT_MIN_VALUE;
@@ -8422,6 +8375,9 @@ public class TourDatabase {
       }
       stmt.close();
 
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
    }
 
    private void updateMonitor(final SplashManager splashManager, final int newDbVersion) {
