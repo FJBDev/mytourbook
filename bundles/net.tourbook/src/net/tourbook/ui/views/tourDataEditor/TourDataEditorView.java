@@ -375,8 +375,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private ModifyListener                     _modifyListener_Temperature;
    private MouseWheelListener                 _mouseWheelListener;
    private MouseWheelListener                 _mouseWheelListener_Temperature;
-   private SelectionAdapter                   _selectionListener;
-   private SelectionAdapter                   _selectionListener_Temperature;
+   private SelectionListener                  _selectionListener;
+   private SelectionListener                  _selectionListener_Temperature;
    private SelectionListener                  _columnSortListener;
    private SelectionAdapter                   _tourTimeListener;
    private ModifyListener                     _verifyFloatValue;
@@ -2850,31 +2850,27 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          setTourDirty();
       };
 
-      _selectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      _selectionListener = SelectionListener.widgetSelectedAdapter(
+            selectionEvent -> {
+               if (_isSetField || _isSavingInProgress) {
+                  return;
+               }
 
-            if (_isSetField || _isSavingInProgress) {
-               return;
-            }
+               updateModel_FromUI();
+               setTourDirty();
+            });
 
-            updateModel_FromUI();
-            setTourDirty();
-         }
-      };
+      _selectionListener_Temperature = SelectionListener.widgetSelectedAdapter(
+            selectionEvent -> {
 
-      _selectionListener_Temperature = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-
-            if (UI.isLinuxAsyncEvent(e.widget) || _isSetField || _isSavingInProgress) {
+               if (UI.isLinuxAsyncEvent(selectionEvent.widget) || _isSetField || _isSavingInProgress) {
                return;
             }
 
             _isTemperatureManuallyModified = true;
             setTourDirty();
          }
-      };
+      );
 
       /*
        * listener for elapsed/moving/paused time
@@ -3996,18 +3992,15 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _linkGovss = new Link(container, SWT.NONE);
             _linkGovss.setText(Messages.tour_editor_label_trainingstress_govss);
             _linkGovss.setToolTipText(Messages.tour_editor_label_trainingstress_govss_tooltip);
-            _linkGovss.addSelectionListener(new SelectionAdapter() {
+            _linkGovss.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+                  selectionEvent -> {
 
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  //Compute the GOVSS value
-
-                  if (_isSetField || _isSavingInProgress) {
-                     return;
-                  }
-                  onSelect_Govss_Text();
-               }
-            });
+                     //Compute the GOVSS value
+                     if (_isSetField || _isSavingInProgress) {
+                        return;
+                     }
+                     onSelect_Govss_Text();
+                  }));
             _tk.adapt(_linkGovss, true, true);
             _firstColumnControls.add(_linkGovss);
 
@@ -4034,18 +4027,15 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _linkSwimScore = new Link(container, SWT.NONE);
             _linkSwimScore.setText(Messages.tour_editor_label_trainingstress_swimscore);
             _linkSwimScore.setToolTipText(Messages.tour_editor_label_trainingstress_swimscore_tooltip);
-            _linkSwimScore.addSelectionListener(new SelectionAdapter() {
+            _linkSwimScore.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+                  selectionEvent -> {
+                     //Compute the SwimScore value
 
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  //Compute the SwimScore value
-
-                  if (_isSetField || _isSavingInProgress) {
-                     return;
-                  }
-                  //TODO Fb onSelect_Govss_Text();
-               }
-            });
+                     if (_isSetField || _isSavingInProgress) {
+                        return;
+                     }
+                     //TODO Fb onSelect_Govss_Text();
+                  }));
             _tk.adapt(_linkSwimScore, true, true);
             _secondColumnControls.add(_linkSwimScore);
 
