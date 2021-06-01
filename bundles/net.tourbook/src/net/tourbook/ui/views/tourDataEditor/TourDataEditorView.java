@@ -618,6 +618,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Label              _lblStartTime;
    private Label              _lblTags;
    private Label              _lblTimeZone;
+   private Label              _lblTrainingStress_DeviceScore;
    private Label              _lblWeather_PrecipitationUnit;
    private Label              _lblWeather_PressureUnit;
    private Label              _lblWeather_TemperatureUnit_Avg;
@@ -658,6 +659,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Text               _txtDescription;
    private Text               _txtDistance;
    private Text               _txtWeather;
+   private Text               _txtTrainingStress_DeviceScore;
    //
    private TimeDuration       _deviceTime_Elapsed;                  // Total time of the activity
    private TimeDuration       _deviceTime_Recorded;                 // Time recorded by the device = Total time - paused times
@@ -3916,10 +3918,32 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       {
          {
             /*
+             * Device Score
+             */
+
+            /*
+             * label
+             */
+            _lblTrainingStress_DeviceScore = new Label(container, SWT.NONE);
+            _lblTrainingStress_DeviceScore.setToolTipText("Device Score");
+            _lblTrainingStress_DeviceScore.setToolTipText("Device Score Tooltip");
+            _tk.adapt(_lblTrainingStress_DeviceScore, true, true);
+            _firstColumnControls.add(_lblTrainingStress_DeviceScore);
+
+            // text
+            _txtTrainingStress_DeviceScore = new Text(container, SWT.NONE);
+            _txtTrainingStress_DeviceScore.setEditable(false);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_txtTrainingStress_DeviceScore);
+         }
+         {
+            /*
              * BikeScore
              */
 
-            // label
+            // link
             _linkBikeScore = new Link(container, SWT.NONE);
             _linkBikeScore.setText(Messages.tour_editor_label_trainingstress_bikescore);
             _linkBikeScore.setToolTipText(Messages.tour_editor_label_trainingstress_bikescore_tooltip);
@@ -3936,7 +3960,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                }
             });
             _tk.adapt(_linkBikeScore, true, true);
-            _firstColumnControls.add(_linkBikeScore);
+            _secondColumnControls.add(_linkBikeScore);
 
             // spinner
             _spinTrainingStress_BikeScore = new Spinner(container, SWT.BORDER);
@@ -3950,43 +3974,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             _spinTrainingStress_BikeScore.addMouseWheelListener(_mouseWheelListener);
             _spinTrainingStress_BikeScore.addSelectionListener(_selectionListener);
-         }
-         {
-            /*
-             * SwimScore
-             */
-
-            // label
-            _linkSwimScore = new Link(container, SWT.NONE);
-            _linkSwimScore.setText(Messages.tour_editor_label_trainingstress_swimscore);
-            _linkSwimScore.setToolTipText(Messages.tour_editor_label_trainingstress_swimscore_tooltip);
-            _linkSwimScore.addSelectionListener(new SelectionAdapter() {
-
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  //Compute the SwimScore value
-
-                  if (_isSetField || _isSavingInProgress) {
-                     return;
-                  }
-                  //TODO Fb onSelect_Govss_Text();
-               }
-            });
-            _tk.adapt(_linkSwimScore, true, true);
-            _secondColumnControls.add(_linkSwimScore);
-
-            // spinner
-            _spinTrainingStress_SwimScore = new Spinner(container, SWT.BORDER);
-            GridDataFactory.fillDefaults()
-                  .align(SWT.BEGINNING, SWT.CENTER)
-                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_spinTrainingStress_SwimScore);
-
-            _spinTrainingStress_SwimScore.setMinimum(0);
-            _spinTrainingStress_SwimScore.setMaximum(5_000);
-
-            _spinTrainingStress_SwimScore.addMouseWheelListener(_mouseWheelListener);
-            _spinTrainingStress_SwimScore.addSelectionListener(_selectionListener);
          }
       }
    }
@@ -4037,6 +4024,43 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _spinTrainingStress_Govss.addMouseWheelListener(_mouseWheelListener);
             _spinTrainingStress_Govss.addSelectionListener(_selectionListener);
 
+         }
+         {
+            /*
+             * SwimScore
+             */
+
+            // label
+            _linkSwimScore = new Link(container, SWT.NONE);
+            _linkSwimScore.setText(Messages.tour_editor_label_trainingstress_swimscore);
+            _linkSwimScore.setToolTipText(Messages.tour_editor_label_trainingstress_swimscore_tooltip);
+            _linkSwimScore.addSelectionListener(new SelectionAdapter() {
+
+               @Override
+               public void widgetSelected(final SelectionEvent e) {
+                  //Compute the SwimScore value
+
+                  if (_isSetField || _isSavingInProgress) {
+                     return;
+                  }
+                  //TODO Fb onSelect_Govss_Text();
+               }
+            });
+            _tk.adapt(_linkSwimScore, true, true);
+            _secondColumnControls.add(_linkSwimScore);
+
+            // spinner
+            _spinTrainingStress_SwimScore = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_spinTrainingStress_SwimScore);
+
+            _spinTrainingStress_SwimScore.setMinimum(0);
+            _spinTrainingStress_SwimScore.setMaximum(5_000);
+
+            _spinTrainingStress_SwimScore.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_SwimScore.addSelectionListener(_selectionListener);
          }
       }
    }
@@ -7301,22 +7325,19 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    private void onSelect_Govss_Text() {
-      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-         @Override
-         public void run() {
-            final boolean isGovssComputed = _tourData.computeGovss();
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+         final boolean isGovssComputed = _tourData.computeGovss();
 
-            if (isGovssComputed) {
-               setTourDirty();
-               updateUI_FromModel(_tourData, false, true);
-            } else {
-               MessageDialog.openInformation(
-                     Display.getCurrent().getActiveShell(),
-                     Messages.Dialog_ComputeGovss_Dialog_Title,
-                     Messages.Dialog_ComputeGovss_Label_GovssNotComputed);
-            }
-
+         if (isGovssComputed) {
+            setTourDirty();
+            updateUI_FromModel(_tourData, false, true);
+         } else {
+            MessageDialog.openInformation(
+                  Display.getCurrent().getActiveShell(),
+                  Messages.Dialog_ComputeGovss_Dialog_Title,
+                  Messages.Dialog_ComputeGovss_Label_GovssNotComputed);
          }
+
       });
    }
 
@@ -8944,6 +8965,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * Training Stress
        */
+      _txtTrainingStress_DeviceScore.setText(String.valueOf(_tourData.getPower_TrainingStressScore()));
       _spinTrainingStress_Govss.setSelection(_tourData.getGovss());
       _spinTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
       _spinTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
