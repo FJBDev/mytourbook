@@ -774,9 +774,6 @@ public class Messages extends NLS {
    public static String        compute_tourValueSpeed_label_description_Hints;
    public static String        compute_tourValueSpeed_label_speedTimeSlice;
 
-   public static String        Database_Confirm_update;
-   public static String        Database_Confirm_update_title;
-
    public static String        Database_Monitor_CreateDatabase;
    public static String        Database_Monitor_db_service_task;
    public static String        Database_Monitor_persistent_service_task;
@@ -1280,8 +1277,6 @@ public class Messages extends NLS {
    public static String        Map25_Provider_MyTileServer_Description;
    public static String        Map25_Provider_MyTileServer_Name;
    public static String        Map25_Provider_OpenAndoMap_Description;
-   public static String        Map25_Provider_OpenScienceMap_Description;
-   public static String        Map25_Provider_OpenScienceMap_Name;
 
    public static String        merge_tour_dlg_invalid_serie_data_message;
    public static String        merge_tour_dlg_invalid_tour_data_message;
@@ -1363,7 +1358,6 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Message;
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Title;
    public static String        Pref_Appearance_Dialog_RestartAfterThemeChange_Message;
-   public static String        Pref_Appearance_Dialog_RestartAfterThemeChange_Title;
    public static String        Pref_Appearance_Group_PaceAndSpeedDisplay;
    public static String        Pref_Appearance_Group_Tagging;
    public static String        Pref_Appearance_Group_Theme;
@@ -1977,9 +1971,11 @@ public class Messages extends NLS {
    public static String Slideout_Map25TrackOptions_Label_ConfigName_Tooltip;
    public static String Slideout_Map25TrackOptions_Label_Name;
    public static String Slideout_Map25TrackOptions_Label_OutlineColor;
+   public static String Slideout_Map25TrackOptions_Label_OutlineColor_Tooltip;
    public static String Slideout_Map25TrackOptions_Label_OutlineWidth;
    public static String Slideout_Map25TrackOptions_Label_OutlineWidth_Tooltip;
    public static String Slideout_Map25TrackOptions_Label_DirectionArrows;
+   public static String Slideout_Map25TrackOptions_Label_DirectionArrows_Tooltip;
 
    public static String Slideout_Map25MapOptions_Checkbox_Layer_3DBuilding;
    public static String Slideout_Map25MapOptions_Checkbox_Layer_Cartography;
@@ -2070,6 +2066,7 @@ public class Messages extends NLS {
    public static String Slideout_Map_Options_Label_SliderLocation_Color_Tooltip;
    public static String Slideout_Map_Options_Label_SliderLocation_Size;
    public static String Slideout_Map_Options_Label_SliderPath_Color;
+   public static String Slideout_Map_Options_Label_SliderPath_Color_Tooltip;
    public static String Slideout_Map_Options_Label_SliderPath_Width;
    public static String Slideout_Map_Options_Label_Title;
 
@@ -2420,8 +2417,12 @@ public class Messages extends NLS {
    public static String Tour_Data_Text_EntireTour;
    public static String Tour_Data_Text_ImportFileLocation;
 
+   public static String Tour_Database_Action_CloseApp;
+   public static String Tour_Database_Action_UpdateDatabase;
    public static String Tour_Database_CannotConnectToDerbyServer_Message;
    public static String Tour_Database_CannotConnectToDerbyServer_Title;
+   public static String Tour_Database_Dialog_ConfirmUpdate_Message;
+   public static String Tour_Database_Dialog_ConfirmUpdate_Title;
    public static String Tour_Database_Dialog_ValidateFields_Message;
    public static String Tour_Database_Dialog_ValidateFields_Title;
    public static String Tour_Database_load_all_tours;
@@ -2548,6 +2549,9 @@ public class Messages extends NLS {
    public static String Tour_Info_Label_AllFields_Tooltip;
 
    public static String Tour_Log_Action_Clear_Tooltip;
+
+   public static String TourManager_Dialog_OutOfSyncError_Message;
+   public static String TourManager_Dialog_OutOfSyncError_Title;
 
    public static String Tour_Marker_Column_Description_ShortCut;
    public static String Tour_Marker_Column_Description_Tooltip;

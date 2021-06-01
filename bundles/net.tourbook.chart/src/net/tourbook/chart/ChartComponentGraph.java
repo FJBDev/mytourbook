@@ -310,9 +310,6 @@ public class ChartComponentGraph extends Canvas {
    private Cursor                     _cursorXSliderLeft;
    private Cursor                     _cursorXSliderRight;
 
-   private Color                      _gridColor;
-   private Color                      _gridColorMajor;
-
    /**
     * Contains a {@link ChartTitleSegment} when a tour title area is hovered, otherwise
     * <code>null</code> .
@@ -396,7 +393,7 @@ public class ChartComponentGraph extends Canvas {
    private Color                      _backgroundColor;
 
    /**
-    * Default background color
+    * Default foreground color
     */
    private Color                      _foregroundColor;
 
@@ -503,9 +500,6 @@ public class ChartComponentGraph extends Canvas {
       _cursorXSliderRight              = createCursorFromImage(ChartImages.Cursor_X_Slider_Right);
 
 // SET_FORMATTING_ON
-
-      _gridColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
-      _gridColorMajor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
 
       _chartComponents = (ChartComponents) parent;
 
@@ -2112,8 +2106,7 @@ public class ChartComponentGraph extends Canvas {
       final String unitLabel = graphDrawingData.getXData().getUnitLabel();
       final int devUnitLabelWidth = gcChart.textExtent(unitLabel).x;
 
-      gcChart.setForeground(_foregroundColor);
-      gcGraph.setForeground(_gridColor);
+      gcChart.setForeground(Chart.FOREGROUND_COLOR_UNITS);
 
       final int xUnitSize = xUnits.size();
       int devNextXUnitTick = Integer.MIN_VALUE;
@@ -2310,7 +2303,6 @@ public class ChartComponentGraph extends Canvas {
             if (xUnit.isMajorValue) {
 
                gcGraph.setLineStyle(SWT.LINE_SOLID);
-               gcGraph.setForeground(_gridColorMajor);
 
             } else {
 
@@ -2322,8 +2314,9 @@ public class ChartComponentGraph extends Canvas {
 //               gcGraph.setLineWidth(0);
 
                gcGraph.setLineDash(DOT_DASHES);
-               gcGraph.setForeground(_gridColor);
             }
+
+            gcGraph.setForeground(Chart.FOREGROUND_COLOR_GRID);
             gcGraph.drawLine(devXUnitTick, 0, devXUnitTick, graphDrawingData.devGraphHeight);
 
          }
@@ -2342,7 +2335,9 @@ public class ChartComponentGraph extends Canvas {
    private void drawAsync_220_HGrid(final GC gcGraph, final GraphDrawingData drawingData) {
 
       if (_chart.isShowHorizontalGridLines == false) {
+
          // h-grid is not visible
+
          return;
       }
 
@@ -2385,11 +2380,11 @@ public class ChartComponentGraph extends Canvas {
 
             if (yUnit.isMajorValue) {
                gcGraph.setLineStyle(SWT.LINE_SOLID);
-               gcGraph.setForeground(_gridColorMajor);
             } else {
                gcGraph.setLineDash(DOT_DASHES);
-               gcGraph.setForeground(_gridColor);
             }
+
+            gcGraph.setForeground(Chart.FOREGROUND_COLOR_GRID);
             gcGraph.drawLine(0, devY, devVisibleChartWidth, devY);
          }
 
@@ -2507,7 +2502,7 @@ public class ChartComponentGraph extends Canvas {
 
       final int devYTop = drawingData.getDevYTop() - labelHeight;
 
-      final Color colorText = new Color(yData.getDefaultRGB());
+      final Color colorText = new Color(yData.getRgbText()[0]);
       gcGraph.setForeground(colorText);
       gcGraph.drawString(graphTitle, 0, devYTop, true);
    }
@@ -3844,8 +3839,8 @@ public class ChartComponentGraph extends Canvas {
       final int barHeight2 = barHeight / 2;
 
       // get the colors
-      final RGB[] rgbDark = yData.getRgbDark();
-      final RGB[] rgbBright = yData.getRgbBright();
+      final RGB[] rgbDark = yData.getRgbText();
+      final RGB[] rgbBright = yData.getRgbLine();
 
       final Color colorBgDark = new Color(rgbDark[0]);
       final Color colorBgBright = new Color(rgbBright[0]);
@@ -5612,9 +5607,6 @@ public class ChartComponentGraph extends Canvas {
 
       final int devSliderLinePos = (int) (slider.getXXDevSliderLinePos() - _xxDevViewPortLeftBorder);
 
-//      final int grayColorIndex = 60;
-//      final Color colorTxt = new Color(grayColorIndex, grayColorIndex, grayColorIndex);
-
       int graphNo = 0;
 
       final ArrayList<ChartXSliderLabel> labelList = slider.getLabelList();
@@ -5791,9 +5783,6 @@ public class ChartComponentGraph extends Canvas {
             final ChartDataYSerie yData = ySlider.getYData();
 
             final Color colorLine = new Color(yData.getRgbLine()[0]);
-            final Color colorBright = new Color(yData.getRgbBright()[0]);
-            final Color colorDark = new Color(yData.getRgbDark()[0]);
-            final Color colorText = new Color(yData.getRgbText()[0]);
 
             final GraphDrawingData drawingData = ySlider.getDrawingData();
             final int devYBottom = drawingData.getDevYBottom();
@@ -5843,19 +5832,15 @@ public class ChartComponentGraph extends Canvas {
             final int labelY = devYLabelPos - labelHeight;
 
             // draw label background
-            gcGraph.setForeground(colorBright);
-            gcGraph.setBackground(colorDark);
-//            gcGraph.setAlpha(0xb0);
-            gcGraph.fillGradientRectangle(labelX, labelY, labelWidth, labelHeight, true);
+            gcGraph.setBackground(_backgroundColor);
+            gcGraph.fillRectangle(labelX, labelY, labelWidth, labelHeight);
 
             // draw label border
-//            gcGraph.setAlpha(0xa0);
             gcGraph.setForeground(colorLine);
             gcGraph.drawRectangle(labelX, labelY, labelWidth, labelHeight);
-//            gcGraph.setAlpha(0xff);
 
             // draw label text
-            gcGraph.setForeground(colorText);
+            gcGraph.setForeground(_foregroundColor);
             gcGraph.drawString(label, labelX + 3, labelY - 0, true);
 
             // draw slider line
@@ -8994,13 +8979,11 @@ public class ChartComponentGraph extends Canvas {
 
    private void setupColors() {
 
-      final boolean isDarkTheme = UI.isDarkTheme();
-
-      _foregroundColor = isDarkTheme
+      _foregroundColor = UI.IS_DARK_THEME
             ? ThemeUtil.getDarkestForegroundColor()
             : _chart.getForeground();
 
-      _backgroundColor = isDarkTheme
+      _backgroundColor = UI.IS_DARK_THEME
             ? ThemeUtil.getDarkestBackgroundColor()
             : _chart.getBackgroundColor();
    }
