@@ -17,7 +17,10 @@
 
       <relativePath>../../MT/mytourbook/pom.xml</relativePath>
    </parent>
-
+<properties>
+  <sonar.organization>fjbdev</sonar.organization>
+  <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+</properties>
    <modules>
 
       <module>net.tourbook</module>
