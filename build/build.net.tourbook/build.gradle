@@ -30,7 +30,7 @@ gradle.taskGraph.afterTask { Task task ->
    println ''
 }
 
-defaultTasks 'mt_0_Build'
+defaultTasks 'mt_0_Build', 'sonarqube'
 
 task mt_0_Build          
 mt_0_Build.dependsOn( 
