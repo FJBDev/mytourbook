@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/bundles/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/bundles/pom2.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build and analyze
         env:
