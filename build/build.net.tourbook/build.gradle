@@ -16,13 +16,6 @@ def _pathProductArchive          = _dirProductArchive.absolutePath
 def _dirWinInnoSetup             = file('../../INSTALL-UPDATES/installer-net.tourbook/win-Inno.Setup')
 def _pathInnoSetupCompilerApp    = file('c:/Program Files (x86)/Inno Setup 6/iscc.exe').absolutePath
 
-task sonarqube {
-  properties {
-    property "sonar.projectKey", "FJBDev_mytourbook"
-    property "sonar.organization", "fjbdev"
-    property "sonar.host.url", "https://sonarcloud.io"
-  }
-}
 gradle.taskGraph.beforeTask { Task task ->
 
     // show a task indicator
@@ -51,6 +44,13 @@ mt_0_Build.dependsOn(
    'mt_70_CopyReleaseNotes',
 )
 
+task sonarqube {
+  properties {
+    property "sonar.projectKey", "FJBDev_mytourbook"
+    property "sonar.organization", "fjbdev"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
+}
 
 /*
 * 1. Copy all MT files into a temp folder, it is using task/target 'create-build-files' from the Ant script
