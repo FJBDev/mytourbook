@@ -16,15 +16,13 @@
    <properties>
       <tycho.version>1.4.0</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
-  <sonar.organization>fjbdev</sonar.organization>
-  <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 </properties>
    <modules>
       <!-- artifact.bundles -->
-      <!--<module>../../mytourbook-BUILD-autocreated/core</module>-->
+     <module>../../mytourbook-BUILD-autocreated/core</module>
       
       <!-- artifact.mytourbook.plugins.i18 -->
-      <!--<module>../../mytourbook-BUILD-autocreated/translation</module>-->
+      <module>../../mytourbook-BUILD-autocreated/translation</module>
    </modules>
    
 
