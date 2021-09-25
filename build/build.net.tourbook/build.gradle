@@ -44,7 +44,7 @@ mt_0_Build.dependsOn(
    'mt_70_CopyReleaseNotes',
 )
 
-task sonarqube {
+sonarqube {
   properties {
     property "sonar.projectKey", "FJBDev_mytourbook"
     property "sonar.organization", "fjbdev"
