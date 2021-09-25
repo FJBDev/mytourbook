@@ -1,3 +1,5 @@
 
 include ':mytourbook'
 project(':mytourbook').projectDir	= new File('../..')
+
+rootProject.name = "MyTourbook"
