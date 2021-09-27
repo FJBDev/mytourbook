@@ -48,7 +48,6 @@ sonarqube {
     property "sonar.host.url", "https://sonarcloud.io"
     property "sonar.sources", "../../bundles"
     property "sonar.java.binaries", "D:\\a\\mytourbook-BUILD-autocreated\\core"
-    property "sonar.exclusions", "**/*.java"
   }
 }
 
