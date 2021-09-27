@@ -35,5 +35,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./build/build.net.tourbook/gradlew build sonarqube --info --settings-file=./build/build.net.tourbook/settings.gradle --warning-mode all 
+        run: ./build/build.net.tourbook/gradlew sonarqube --info --settings-file=./build/build.net.tourbook/settings.gradle --warning-mode all 
      
