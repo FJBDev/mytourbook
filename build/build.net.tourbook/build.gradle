@@ -49,6 +49,7 @@ sonarqube {
     property "sonar.sources", "."
     property "sonar.exclusions", "**/MTMath.java"
     property "sonar.java.binaries", "D:\\a\\mytourbook-BUILD-autocreated\\core"
+    property "SONAR_SCANNER_OPTS", "-Xmx2048m"
   }
 }
 
