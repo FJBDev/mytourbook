@@ -32,6 +32,8 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
       - name: Make gradlew executable
         run: chmod +x ./build/build.net.tourbook/gradlew
+      - name: Increase Java Heap size
+        run: set SONAR_SCANNER_OPTS=-Xmx2048m
       - name: Build and analyze              
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
