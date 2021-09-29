@@ -173,7 +173,7 @@ public class WEB {
    public static final String CSS_TAG__BODY_SCROLLBAR                     = "$BODY_SCROLLBAR$";                     //$NON-NLS-1$
    public static final String CSS_CONTENT__BODY_SCROLLBAR__DARK           = UI.EMPTY_STRING
 
-         + "   scrollbar-face-color:         #4d4d4d;" + NL
+         + "   scrollbar-face-color:         #4d4d4d;" + NL                                                         //$NON-NLS-1$
          + "   scrollbar-shadow-color:       #4d4d4d;" + NL                                                         //$NON-NLS-1$
          + "   scrollbar-track-color:        #292929;" + NL                                                         //$NON-NLS-1$
          + "   scrollbar-highlight-color:    #8f8;" + NL                                                            //$NON-NLS-1$
@@ -181,6 +181,17 @@ public class WEB {
          + "   scrollbar-3dlight-color:      #000;" + NL                                                            //$NON-NLS-1$
          + "   scrollbar-darkshadow-color:   #000;" + NL                                                            //$NON-NLS-1$
    ;
+
+   /**
+    * Converts <code><br></code> into Java newline.
+    *
+    * @param text
+    * @return
+    */
+   public static String convertHTML_Into_JavaLineBreaks(final String text) {
+
+      return text.replaceAll(HTML_ELEMENT_BR, UI.NEW_LINE1);
+   }
 
    /**
     * Converts Java newline into HTML newline.
@@ -211,10 +222,10 @@ public class WEB {
 
       final String darkThemeScrollbar = UI.EMPTY_STRING
 
-            + "body" + NL
-            + "{" + NL //                                //$NON-NLS-1$
+            + "body" + NL //                          //$NON-NLS-1$
+            + "{" + NL //                             //$NON-NLS-1$
             + CSS_CONTENT__BODY_SCROLLBAR__DARK
-            + "}" + NL //                               //$NON-NLS-1$
+            + "}" + NL //                             //$NON-NLS-1$
       ;
 
       return UI.IS_DARK_THEME

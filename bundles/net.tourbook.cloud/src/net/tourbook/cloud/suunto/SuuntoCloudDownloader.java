@@ -55,7 +55,6 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -160,12 +159,12 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             monitor.subTask(Messages.Dialog_ValidatingSuuntoTokens_SubTask);
 
             if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
-               TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
+               TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS);
                return;
             }
 
             if (StringUtils.isNullOrEmpty(getDownloadFolder())) {
-               TourLogManager.logError(Messages.Log_DownloadWorkoutsFromSuunto_004_NoSpecifiedFolder);
+               TourLogManager.log_ERROR(Messages.Log_DownloadWorkoutsFromSuunto_004_NoSpecifiedFolder);
                return;
             }
 
@@ -178,7 +177,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             //Get the list of workouts
             final Workouts workouts = retrieveWorkoutsList();
             if (workouts.payload.size() == 0) {
-               TourLogManager.logInfo(Messages.Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound);
+               TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound);
                return;
             }
 
@@ -191,7 +190,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
             final int numNewWorkouts = newWorkouts.size();
             if (numNewWorkouts == 0) {
-               TourLogManager.logInfo(Messages.Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist);
+               TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist);
                return;
             }
 
@@ -216,11 +215,11 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          final long start = System.currentTimeMillis();
 
          TourLogManager.showLogView();
-         TourLogManager.logTitle(Messages.Log_DownloadWorkoutsFromSuunto_001_Start);
+         TourLogManager.log_TITLE(Messages.Log_DownloadWorkoutsFromSuunto_001_Start);
 
          new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
 
-         TourLogManager.logTitle(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
 
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
@@ -262,12 +261,12 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          isTourDownloaded = true;
 
-         TourLogManager.addLog(TourLogState.IMPORT_OK,
+         TourLogManager.log_OK(
                NLS.bind(Messages.Log_DownloadWorkoutsFromSuunto_005_DownloadStatus,
                      workoutDownload.getWorkoutKey(),
                      workoutDownload.getAbsoluteFilePath()));
       } else {
-         TourLogManager.logError(workoutDownload.getError());
+         TourLogManager.log_ERROR(workoutDownload.getError());
       }
 
       return isTourDownloaded;
