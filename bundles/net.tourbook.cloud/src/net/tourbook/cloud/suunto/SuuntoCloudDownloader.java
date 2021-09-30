@@ -121,6 +121,9 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    @Override
    public void downloadTours() {
 
+      //TODO FB
+      //WHen renewing the strava token, get the athlete's name in case it has changed
+
       final TourPerson activePerson = TourbookPlugin.getActivePerson();
       if (activePerson == null) {
 
