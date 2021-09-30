@@ -46,6 +46,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
       store.setDefault(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
       store.setDefault(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
+      store.setDefault(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, true);
 
       //This is the date (01/26/2021) that Suunto forced the users to switch to Suunto App.
       store.setDefault(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, 1611619200000L);

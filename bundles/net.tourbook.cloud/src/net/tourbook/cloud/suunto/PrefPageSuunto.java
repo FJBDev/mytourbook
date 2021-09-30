@@ -36,10 +36,13 @@ import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.data.TourPerson;
+import net.tourbook.database.PersonManager;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -48,6 +51,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -86,6 +90,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private final IDialogSettings   _state                           = TourbookPlugin.getState(DialogEasyImportConfig.ID);
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
+   private SelectionListener       _defaultSelectionListener;
    /*
     * UI controls
     */
@@ -101,9 +106,13 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Button                  _btnSelectFolder;
    private Button                  _chkUseDateFilter;
    private DateTime                _dtFilterSince;
+   private Button                  _chkUseSingleAccountForAllPeople;
+   private Combo                   _comboPeopleList;
 
    @Override
    protected void createFieldEditors() {
+
+      initUI();
 
       createUI();
 
@@ -156,6 +165,25 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().applyTo(container);
       {
+         /*
+          * Checkbox: Use a unique account for all people
+          */
+         _chkUseSingleAccountForAllPeople = new Button(container, SWT.CHECK);
+         GridDataFactory.fillDefaults()//
+               .grab(true, false)
+               .indent(convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN), 0)
+               .applyTo(_chkUseSingleAccountForAllPeople);
+         _chkUseSingleAccountForAllPeople.setText("Use a unique account for all people");
+         _chkUseSingleAccountForAllPeople.setToolTipText("Use a unique account for all people");
+         _chkUseSingleAccountForAllPeople.addSelectionListener(_defaultSelectionListener);
+
+         /*
+          * Drop down menu to select a user, if the checkbox above is checked, then we select
+          * "all people" in the drop down
+          */
+         _comboPeopleList = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
+         //_comboPeopleList.setVisibleItemCount(2);
+
          /*
           * Authorize button
           */
@@ -292,8 +320,12 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    }
 
    @Override
-   public void init(final IWorkbench workbench) {
-      //Not needed
+   public void init(final IWorkbench workbench) {}
+
+   private void initUI() {
+
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onClickUseSingleAccountForAllPeople());
+
    }
 
    @Override
@@ -341,6 +373,21 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
    }
 
+   private void onClickUseSingleAccountForAllPeople() {
+
+      if (_chkUseSingleAccountForAllPeople.getSelection()) {
+
+         _comboPeopleList.setEnabled(false);
+         _comboPeopleList.select(0);
+
+      } else {
+
+         _comboPeopleList.setEnabled(true);
+      }
+
+      //TODO FB load the account info for the given user
+   }
+
    private void onSelectBrowseDirectory() {
 
       final DirectoryDialog dialog = new DirectoryDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
@@ -371,6 +418,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    @Override
    protected void performDefaults() {
 
+      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
+
       _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_ACCESSTOKEN));
       _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_REFRESHTOKEN));
@@ -393,6 +442,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       if (isOK) {
          _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
+
          if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
             _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, UI.EMPTY_STRING);
             _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
@@ -421,12 +471,16 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
          _prefStore.setValue(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, _chkUseDateFilter.getSelection());
          _prefStore.setValue(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, getFilterSinceDate());
+
+         _prefStore.setValue(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, _chkUseSingleAccountForAllPeople.getSelection());
       }
 
       return isOK;
    }
 
    private void restoreState() {
+
+      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
 
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
       _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
@@ -438,6 +492,28 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       setFilterSinceDate(_prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
+
+      final TourPerson activePerson = TourbookPlugin.getActivePerson();
+      int peopleIndex = 0;
+      final ArrayList<TourPerson> tourPeople = PersonManager.getTourPeople();
+      _comboPeopleList.add(net.tourbook.Messages.App_People_item_all);
+      for (int i = 0; i < tourPeople.size(); i++) {
+
+         final TourPerson tourPerson = tourPeople.get(i);
+         if (activePerson != null && activePerson == tourPerson) {
+            peopleIndex = i;
+         }
+
+         _comboPeopleList.add(tourPerson.getName());
+      }
+
+      if (activePerson == null) {
+
+         _comboPeopleList.select(0);
+
+      }
+
+      _comboPeopleList.select(peopleIndex);
    }
 
    private void setFilterSinceDate(final long filterSinceDate) {
