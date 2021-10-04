@@ -34,6 +34,7 @@ import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.data.TourPerson;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONObject;
@@ -83,7 +84,7 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       return null;
    }
 
-   public static boolean getValidTokens() {
+   public static boolean getValidTokens(final TourPerson activePerson) {
 
       if (!OAuth2Utils.isAccessTokenExpired(
             _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(

@@ -161,7 +161,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
             monitor.subTask(Messages.Dialog_ValidatingSuuntoTokens_SubTask);
 
-            if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
+            if (!SuuntoTokensRetrievalHandler.getValidTokens(activePerson)) {
                TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS);
                return;
             }
