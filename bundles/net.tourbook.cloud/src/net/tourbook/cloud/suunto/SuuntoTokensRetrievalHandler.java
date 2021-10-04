@@ -25,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
@@ -84,7 +85,9 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       return null;
    }
 
-   public static boolean getValidTokens(final TourPerson activePerson) {
+   public static boolean getValidTokens() {
+
+      final TourPerson activePerson = TourbookPlugin.getActivePerson();
 
       if (!OAuth2Utils.isAccessTokenExpired(
             _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
