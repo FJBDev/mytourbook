@@ -91,6 +91,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    private SelectionListener       _defaultSelectionListener;
+   private List<Long>              _personIds;
+
    /*
     * UI controls
     */
@@ -122,28 +124,29 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _prefChangeListener = event -> {
 
-         if (event.getProperty().equals(Preferences.SUUNTO_ACCESSTOKEN)) {
-
-            Display.getDefault().syncExec(() -> {
-
-               if (!event.getOldValue().equals(event.getNewValue())) {
-
-                  _labelAccessToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
-                  _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
-                        _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
-                        _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
-                  _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
-
-                  _group.redraw();
-
-                  enableControls();
-               }
-
-               if (_server != null) {
-                  _server.stopCallBackServer();
-               }
-            });
+         if (!event.getProperty().equals(Preferences.getSuuntoAccessToken_Active_Person_String())) {
+            return;
          }
+
+         Display.getDefault().syncExec(() -> {
+
+            if (!event.getOldValue().equals(event.getNewValue())) {
+
+               _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String()));
+               _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
+                     _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
+                     _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
+               _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
+
+               _group.redraw();
+
+               enableControls();
+            }
+
+            if (_server != null) {
+               _server.stopCallBackServer();
+            }
+         });
       };
    }
 
@@ -183,6 +186,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
           */
          _comboPeopleList = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
          //_comboPeopleList.setVisibleItemCount(2);
+         _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectPerson()));
 
          /*
           * Authorize button
@@ -290,6 +294,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    private void enableControls() {
 
+      final boolean isUseSingleAccountForAllPeople = _chkUseSingleAccountForAllPeople.getSelection();
+      _comboPeopleList.setEnabled(!isUseSingleAccountForAllPeople);
+
       final boolean isAuthorized = StringUtils.hasContent(_labelAccessToken_Value.getText()) && StringUtils.hasContent(_labelRefreshToken_Value
             .getText());
 
@@ -326,6 +333,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onClickUseSingleAccountForAllPeople());
 
+      _personIds = new ArrayList<>();
    }
 
    @Override
@@ -386,6 +394,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
 
       //TODO FB load the account info for the given user
+      final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(String.valueOf(_personIds.get(
+            selectedPersonIndex)))));
+
    }
 
    private void onSelectBrowseDirectory() {
@@ -401,6 +413,18 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          setErrorMessage(null);
          _comboDownloadFolderPath.setText(selectedDirectoryName);
       }
+   }
+
+   private void onSelectPerson() {
+
+      //TODO FB load the account info for the given user
+      int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+
+      final String personId = selectedPersonIndex == 0 ? null :    String.valueOf(_personIds.get(
+            --selectedPersonIndex));
+
+      final var toto = _prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(personId));
+      _labelAccessToken_Value.setText(toto);
    }
 
    @Override
@@ -419,8 +443,9 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    protected void performDefaults() {
 
       _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
+      _comboPeopleList.select(_prefStore.getDefaultInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
 
-      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_ACCESSTOKEN));
+      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.getSuuntoAccessToken_Active_Person_String()));
       _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
       _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_REFRESHTOKEN));
 
@@ -440,7 +465,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, _labelAccessToken_Value.getText());
+         _prefStore.setValue(Preferences.getSuuntoAccessToken_Active_Person_String(), _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
 
          if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
@@ -473,6 +498,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, getFilterSinceDate());
 
          _prefStore.setValue(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, _chkUseSingleAccountForAllPeople.getSelection());
+
+         final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+         _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_INDEX, selectedPersonIndex);
+         _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_ID, _personIds.get(selectedPersonIndex));
       }
 
       return isOK;
@@ -481,8 +510,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private void restoreState() {
 
       _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
+      _comboPeopleList.select(_prefStore.getInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
 
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN));
+      final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(selectedPersonId)));
       _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
             _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
             _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
@@ -505,6 +536,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          }
 
          _comboPeopleList.add(tourPerson.getName());
+         _personIds.add(tourPerson.getPersonId());
       }
 
       if (activePerson == null) {

@@ -145,7 +145,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
    }
 
    private String getAccessToken() {
-      return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
+      return _prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String());
    }
 
    private String getRefreshToken() {

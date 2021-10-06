@@ -17,6 +17,7 @@ package net.tourbook.cloud;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourPerson;
 
 public final class Preferences {
@@ -41,15 +42,16 @@ public final class Preferences {
    /*
     * Suunto preferences
     */
-   public static final String SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE = "SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE";                   //$NON-NLS-1$
-   public static final String SUUNTO_ACCESSTOKEN                       = "SUUNTO_ACCESSTOKEN";                                         //$NON-NLS-1$
-   public static final String SUUNTO_ACCESSTOKEN_ACTIVE_PERSON         = getActivePersonId() + SUUNTO_ACCESSTOKEN;
-   public static final String SUUNTO_REFRESHTOKEN                      = getActivePersonId() + "SUUNTO_REFRESHTOKEN";                  //$NON-NLS-1$
-   public static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN            = getActivePersonId() + "SUUNTO_ACCESSTOKEN_EXPIRES_IN";        //$NON-NLS-1$
-   public static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME        = getActivePersonId() + "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME";    //$NON-NLS-1$
-   public static final String SUUNTO_WORKOUT_DOWNLOAD_FOLDER           = getActivePersonId() + "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
-   public static final String SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE     = getActivePersonId() + "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
-   public static final String SUUNTO_WORKOUT_FILTER_SINCE_DATE         = getActivePersonId() + "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
+   public static final String  SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE = "SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE";                   //$NON-NLS-1$
+   public static final String  SUUNTO_SELECTED_PERSON_INDEX             = "SUUNTO_SELECTED_PERSON_INDEX";                               //$NON-NLS-1$
+   public static final String  SUUNTO_SELECTED_PERSON_ID                = "SUUNTO_SELECTED_PERSON_ID";                                  //$NON-NLS-1$
+   private static final String SUUNTO_ACCESSTOKEN                       = "SUUNTO_ACCESSTOKEN";                                         //$NON-NLS-1$
+   public static final String  SUUNTO_REFRESHTOKEN                      = getActivePersonId() + "SUUNTO_REFRESHTOKEN";                  //$NON-NLS-1$
+   public static final String  SUUNTO_ACCESSTOKEN_EXPIRES_IN            = getActivePersonId() + "SUUNTO_ACCESSTOKEN_EXPIRES_IN";        //$NON-NLS-1$
+   public static final String  SUUNTO_ACCESSTOKEN_ISSUE_DATETIME        = getActivePersonId() + "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME";    //$NON-NLS-1$
+   public static final String  SUUNTO_WORKOUT_DOWNLOAD_FOLDER           = getActivePersonId() + "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
+   public static final String  SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE     = getActivePersonId() + "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
+   public static final String  SUUNTO_WORKOUT_FILTER_SINCE_DATE         = getActivePersonId() + "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
 
    private static String getActivePersonId() {
 
@@ -57,9 +59,27 @@ public final class Preferences {
 
       String activePersonId = null;
       if (activePerson != null) {
-         activePersonId = String.valueOf(activePerson.getPersonId()) + UI.DASH;
+         activePersonId = String.valueOf(activePerson.getPersonId());
       }
 
       return activePersonId;
+   }
+
+   public static String getPersonSuuntoAccessTokenString(final String personId) {
+
+      final StringBuilder personSuuntoAccessToken = new StringBuilder();
+      if (StringUtils.hasContent(personId)) {
+
+         personSuuntoAccessToken.append(personId + UI.DASH);
+      }
+
+      return personSuuntoAccessToken.append(SUUNTO_ACCESSTOKEN).toString();
+   }
+
+   public static String getSuuntoAccessToken_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPersonSuuntoAccessTokenString(personId);
    }
 }

@@ -25,7 +25,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
@@ -35,7 +34,6 @@ import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
-import net.tourbook.data.TourPerson;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONObject;
@@ -87,8 +85,6 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
    public static boolean getValidTokens() {
 
-      final TourPerson activePerson = TourbookPlugin.getActivePerson();
-
       if (!OAuth2Utils.isAccessTokenExpired(
             _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
                   Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000)) {
@@ -99,10 +95,11 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       boolean isTokenValid = false;
       if (newTokens != null) {
+
          _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, newTokens.getExpires_in());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, newTokens.getRefresh_token());
          _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, newTokens.getAccess_token());
+         _prefStore.setValue(Preferences.getSuuntoAccessToken_Active_Person_String(), newTokens.getAccess_token());
          isTokenValid = true;
       }
 
@@ -124,8 +121,8 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       if (!(tokens instanceof SuuntoTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
 
-         final String currentAccessToken = _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
-         _prefStore.firePropertyChangeEvent(Preferences.SUUNTO_ACCESSTOKEN,
+         final String currentAccessToken = _prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String());
+         _prefStore.firePropertyChangeEvent(Preferences.getSuuntoAccessToken_Active_Person_String(),
                currentAccessToken,
                currentAccessToken);
          return;
@@ -138,6 +135,6 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
 
       //Setting it last so that we trigger the preference change when everything is ready
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, suuntoTokens.getAccess_token());
+      _prefStore.setValue(Preferences.getSuuntoAccessToken_Active_Person_String(), suuntoTokens.getAccess_token());
    }
 }

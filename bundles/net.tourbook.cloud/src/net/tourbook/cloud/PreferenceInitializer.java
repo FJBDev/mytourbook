@@ -17,6 +17,7 @@ package net.tourbook.cloud;
 
 import java.util.ArrayList;
 
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.data.TourPerson;
 import net.tourbook.database.PersonManager;
@@ -42,13 +43,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.STRAVA_ATHLETEID, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_ATHLETEFULLNAME, UI.EMPTY_STRING);
 
-      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.getSuuntoAccessToken_Active_Person_String(), UI.EMPTY_STRING);
       store.setDefault(Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
       store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
       store.setDefault(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
       store.setDefault(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
       store.setDefault(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, true);
+      store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_INDEX, 0);
+      store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_ID, UI.EMPTY_STRING);
 
       //This is the date (01/26/2021) that Suunto forced the users to switch to Suunto App.
       store.setDefault(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, 1611619200000L);
@@ -58,12 +61,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
    private void initializeDefaultSuuntoPreferences(final IPreferenceStore store) {
 
+      final TourPerson activePerson = TourbookPlugin.getActivePerson();
       final ArrayList<TourPerson> tourPeopleList = PersonManager.getTourPeople();
 
       for (final TourPerson tourPerson : tourPeopleList) {
 
-         final long personId = tourPerson.getPersonId();
-         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN, UI.EMPTY_STRING);
+         final String personId = String.valueOf(tourPerson.getPersonId());
+         store.setDefault(Preferences.getPersonSuuntoAccessTokenString(personId), UI.EMPTY_STRING);
          store.setDefault(personId + Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
          store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
          store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);

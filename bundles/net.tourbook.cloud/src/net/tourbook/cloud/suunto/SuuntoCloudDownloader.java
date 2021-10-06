@@ -239,7 +239,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    }
 
    private String getAccessToken() {
-      return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
+      return _prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String());
    }
 
    private String getDownloadFolder() {
