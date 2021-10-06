@@ -41,12 +41,13 @@ public final class Preferences {
    /*
     * Suunto preferences
     */
-   public static final String SUUNTO_ACCESSTOKEN                       = getActivePersonId() + "SUUNTO_ACCESSTOKEN";                   //$NON-NLS-1$
+   public static final String SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE = "SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE";                   //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN                       = "SUUNTO_ACCESSTOKEN";                                         //$NON-NLS-1$
+   public static final String SUUNTO_ACCESSTOKEN_ACTIVE_PERSON         = getActivePersonId() + SUUNTO_ACCESSTOKEN;
    public static final String SUUNTO_REFRESHTOKEN                      = getActivePersonId() + "SUUNTO_REFRESHTOKEN";                  //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN            = getActivePersonId() + "SUUNTO_ACCESSTOKEN_EXPIRES_IN";        //$NON-NLS-1$
    public static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME        = getActivePersonId() + "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME";    //$NON-NLS-1$
    public static final String SUUNTO_WORKOUT_DOWNLOAD_FOLDER           = getActivePersonId() + "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
-   public static final String SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE = "SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE";                   //$NON-NLS-1$
    public static final String SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE     = getActivePersonId() + "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
    public static final String SUUNTO_WORKOUT_FILTER_SINCE_DATE         = getActivePersonId() + "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
 
