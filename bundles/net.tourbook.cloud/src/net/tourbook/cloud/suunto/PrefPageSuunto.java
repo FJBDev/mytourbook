@@ -96,20 +96,20 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    /*
     * UI controls
     */
-   private Group                   _group;
-   private Label                   _labelAccessToken;
-   private Label                   _labelAccessToken_Value;
-   private Label                   _labelExpiresAt;
-   private Label                   _labelExpiresAt_Value;
-   private Label                   _labelRefreshToken;
-   private Label                   _labelRefreshToken_Value;
-   private Label                   _labelDownloadFolder;
-   private Combo                   _comboDownloadFolderPath;
-   private Button                  _btnSelectFolder;
-   private Button                  _chkUseDateFilter;
-   private DateTime                _dtFilterSince;
-   private Button                  _chkUseSingleAccountForAllPeople;
-   private Combo                   _comboPeopleList;
+   private Group    _group;
+   private Label    _labelAccessToken;
+   private Label    _labelAccessToken_Value;
+   private Label    _labelExpiresAt;
+   private Label    _labelExpiresAt_Value;
+   private Label    _labelRefreshToken;
+   private Label    _labelRefreshToken_Value;
+   private Label    _labelDownloadFolder;
+   private Combo    _comboDownloadFolderPath;
+   private Button   _btnSelectFolder;
+   private Button   _chkUseDateFilter;
+   private DateTime _dtFilterSince;
+   private Button   _chkUseSingleAccountForAllPeople;
+   private Combo    _comboPeopleList;
 
    @Override
    protected void createFieldEditors() {
@@ -332,8 +332,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private void initUI() {
 
       _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onClickUseSingleAccountForAllPeople());
-
-      _personIds = new ArrayList<>();
    }
 
    @Override
@@ -418,13 +416,12 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private void onSelectPerson() {
 
       //TODO FB load the account info for the given user
-      int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+      final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
 
-      final String personId = selectedPersonIndex == 0 ? null :    String.valueOf(_personIds.get(
-            --selectedPersonIndex));
+      final String personId = String.valueOf(_personIds.get(
+            selectedPersonIndex));
 
-      final var toto = _prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(personId));
-      _labelAccessToken_Value.setText(toto);
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(personId)));
    }
 
    @Override
@@ -465,7 +462,14 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(Preferences.getSuuntoAccessToken_Active_Person_String(), _labelAccessToken_Value.getText());
+         int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+
+         final String personId = String.valueOf(_personIds.get(
+               selectedPersonIndex));
+
+         final var toto = Preferences.getPersonSuuntoAccessTokenString(personId);
+
+         _prefStore.setValue(Preferences.getPersonSuuntoAccessTokenString(personId), _labelAccessToken_Value.getText());
          _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
 
          if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
@@ -499,7 +503,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
          _prefStore.setValue(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, _chkUseSingleAccountForAllPeople.getSelection());
 
-         final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+         selectedPersonIndex = _comboPeopleList.getSelectionIndex();
          _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_INDEX, selectedPersonIndex);
          _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_ID, _personIds.get(selectedPersonIndex));
       }
@@ -510,7 +514,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private void restoreState() {
 
       _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
-      _comboPeopleList.select(_prefStore.getInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
 
       final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(selectedPersonId)));
@@ -524,28 +527,19 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
       setFilterSinceDate(_prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
 
-      final TourPerson activePerson = TourbookPlugin.getActivePerson();
-      int peopleIndex = 0;
       final ArrayList<TourPerson> tourPeople = PersonManager.getTourPeople();
       _comboPeopleList.add(net.tourbook.Messages.App_People_item_all);
-      for (int i = 0; i < tourPeople.size(); i++) {
 
-         final TourPerson tourPerson = tourPeople.get(i);
-         if (activePerson != null && activePerson == tourPerson) {
-            peopleIndex = i;
-         }
+      _personIds = new ArrayList<>();
+      //Adding the "All People" Id -> null
+      _personIds.add(null);
+      for (final TourPerson tourPerson : tourPeople) {
 
          _comboPeopleList.add(tourPerson.getName());
          _personIds.add(tourPerson.getPersonId());
       }
 
-      if (activePerson == null) {
-
-         _comboPeopleList.select(0);
-
-      }
-
-      _comboPeopleList.select(peopleIndex);
+      _comboPeopleList.select(_prefStore.getInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
    }
 
    private void setFilterSinceDate(final long filterSinceDate) {
