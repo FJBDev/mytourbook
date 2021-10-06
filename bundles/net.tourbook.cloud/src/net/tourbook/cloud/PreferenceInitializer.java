@@ -15,14 +15,16 @@
  *******************************************************************************/
 package net.tourbook.cloud;
 
+import java.util.ArrayList;
+
 import net.tourbook.common.UI;
+import net.tourbook.data.TourPerson;
+import net.tourbook.database.PersonManager;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
-
-   public PreferenceInitializer() {}
 
    @Override
    public void initializeDefaultPreferences() {
@@ -51,5 +53,22 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       //This is the date (01/26/2021) that Suunto forced the users to switch to Suunto App.
       store.setDefault(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, 1611619200000L);
 
+      initializeDefaultSuuntoPreferences(store);
+   }
+
+   private void initializeDefaultSuuntoPreferences(final IPreferenceStore store) {
+
+      final ArrayList<TourPerson> tourPeopleList = PersonManager.getTourPeople();
+
+      for (final TourPerson tourPerson : tourPeopleList) {
+
+         final long personId = tourPerson.getPersonId();
+         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN, UI.EMPTY_STRING);
+         store.setDefault(personId + Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
+         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
+         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
+         store.setDefault(personId + Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
+         store.setDefault(personId + Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
+      }
    }
 }
