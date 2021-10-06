@@ -46,12 +46,12 @@ public final class Preferences {
    public static final String  SUUNTO_SELECTED_PERSON_INDEX             = "SUUNTO_SELECTED_PERSON_INDEX";                               //$NON-NLS-1$
    public static final String  SUUNTO_SELECTED_PERSON_ID                = "SUUNTO_SELECTED_PERSON_ID";                                  //$NON-NLS-1$
    private static final String SUUNTO_ACCESSTOKEN                       = "SUUNTO_ACCESSTOKEN";                                         //$NON-NLS-1$
-   public static final String  SUUNTO_REFRESHTOKEN                      = getActivePersonId() + "SUUNTO_REFRESHTOKEN";                  //$NON-NLS-1$
-   public static final String  SUUNTO_ACCESSTOKEN_EXPIRES_IN            = getActivePersonId() + "SUUNTO_ACCESSTOKEN_EXPIRES_IN";        //$NON-NLS-1$
-   public static final String  SUUNTO_ACCESSTOKEN_ISSUE_DATETIME        = getActivePersonId() + "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME";    //$NON-NLS-1$
-   public static final String  SUUNTO_WORKOUT_DOWNLOAD_FOLDER           = getActivePersonId() + "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
-   public static final String  SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE     = getActivePersonId() + "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
-   public static final String  SUUNTO_WORKOUT_FILTER_SINCE_DATE         = getActivePersonId() + "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
+   private static final String SUUNTO_REFRESHTOKEN                      = getActivePersonId() + "SUUNTO_REFRESHTOKEN";                  //$NON-NLS-1$
+   private static final String SUUNTO_ACCESSTOKEN_EXPIRES_IN            = getActivePersonId() + "SUUNTO_ACCESSTOKEN_EXPIRES_IN";        //$NON-NLS-1$
+   private static final String SUUNTO_ACCESSTOKEN_ISSUE_DATETIME        = getActivePersonId() + "SUUNTO_ACCESSTOKEN_ISSUE_DATETIME";    //$NON-NLS-1$
+   private static final String SUUNTO_WORKOUT_DOWNLOAD_FOLDER           = getActivePersonId() + "SUUNTO_DOWNLOAD_FOLDER";               //$NON-NLS-1$
+   private static final String SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE     = getActivePersonId() + "SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
+   private static final String SUUNTO_WORKOUT_FILTER_SINCE_DATE         = getActivePersonId() + "SUUNTO_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
 
    private static String getActivePersonId() {
 
@@ -65,7 +65,42 @@ public final class Preferences {
       return activePersonId;
    }
 
-   public static String getPersonSuuntoAccessTokenString(final String personId) {
+   public static String getPerson_SuuntoAccessToken_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_ACCESSTOKEN);
+   }
+
+   public static String getPerson_SuuntoAccessTokenExpiresIn_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_ACCESSTOKEN_EXPIRES_IN);
+   }
+
+   public static String getPerson_SuuntoAccessTokenIssueDateTime_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_ACCESSTOKEN_ISSUE_DATETIME);
+   }
+
+   public static String getPerson_SuuntoRefreshToken_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_REFRESHTOKEN);
+   }
+
+   public static String getPerson_SuuntoUseWorkoutFilterSinceDate_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE);
+   }
+
+   public static String getPerson_SuuntoWorkoutDownloadFolder_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_WORKOUT_DOWNLOAD_FOLDER);
+   }
+
+   public static String getPerson_SuuntoWorkoutFilterSinceDate_String(final String personId) {
+
+      return getPersonPreferenceString(personId, SUUNTO_WORKOUT_FILTER_SINCE_DATE);
+   }
+
+   private static String getPersonPreferenceString(final String personId, final String preferenceString) {
 
       final StringBuilder personSuuntoAccessToken = new StringBuilder();
       if (StringUtils.hasContent(personId)) {
@@ -73,13 +108,48 @@ public final class Preferences {
          personSuuntoAccessToken.append(personId + UI.DASH);
       }
 
-      return personSuuntoAccessToken.append(SUUNTO_ACCESSTOKEN).toString();
+      return personSuuntoAccessToken.append(preferenceString).toString();
    }
 
    public static String getSuuntoAccessToken_Active_Person_String() {
 
       final String personId = getActivePersonId();
 
-      return getPersonSuuntoAccessTokenString(personId);
+      return getPerson_SuuntoAccessToken_String(personId);
+   }
+
+   public static String getSuuntoAccessTokenExpiresIn_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPerson_SuuntoAccessTokenExpiresIn_String(personId);
+   }
+
+   public static String getSuuntoAccessTokenIssueDateTime_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPerson_SuuntoAccessTokenIssueDateTime_String(personId);
+   }
+
+   public static String getSuuntoRefreshToken_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPerson_SuuntoRefreshToken_String(personId);
+   }
+
+   public static String getSuuntoWorkoutDownloadFolder_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPerson_SuuntoWorkoutDownloadFolder_String(personId);
+   }
+
+   public static String getSuuntoWorkoutFilterSinceDate_Active_Person_String() {
+
+      final String personId = getActivePersonId();
+
+      return getPerson_SuuntoUseWorkoutFilterSinceDate_String(personId);
    }
 }

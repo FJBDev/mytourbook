@@ -132,11 +132,13 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
             if (!event.getOldValue().equals(event.getNewValue())) {
 
+               final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
+
                _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String()));
                _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
-                     _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
-                     _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
-               _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
+                     _prefStore.getLong(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(selectedPersonId)),
+                     _prefStore.getInt(Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(selectedPersonId)) * 1000));
+               _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoRefreshToken_String(selectedPersonId)));
 
                _group.redraw();
 
@@ -326,6 +328,17 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             ZoneId.of("Etc/GMT")).toEpochSecond() * 1000; //$NON-NLS-1$
    }
 
+   private String getSelectedPersonId() {
+
+      final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+
+      final String personId = String.valueOf(_personIds.get(
+            selectedPersonIndex));
+
+      final var toto = Preferences.getPerson_SuuntoAccessToken_String(personId);
+      return personId;
+   }
+
    @Override
    public void init(final IWorkbench workbench) {}
 
@@ -393,7 +406,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       //TODO FB load the account info for the given user
       final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(String.valueOf(_personIds.get(
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(String.valueOf(_personIds.get(
             selectedPersonIndex)))));
 
    }
@@ -421,7 +434,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       final String personId = String.valueOf(_personIds.get(
             selectedPersonIndex));
 
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(personId)));
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(personId)));
    }
 
    @Override
@@ -442,14 +455,16 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
       _comboPeopleList.select(_prefStore.getDefaultInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
 
-      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.getSuuntoAccessToken_Active_Person_String()));
+      final String selectedPersonId = _prefStore.getDefaultString(Preferences.SUUNTO_SELECTED_PERSON_ID);
+
+      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.getPerson_SuuntoAccessToken_String(selectedPersonId)));
       _labelExpiresAt_Value.setText(UI.EMPTY_STRING);
-      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.SUUNTO_REFRESHTOKEN));
+      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.getPerson_SuuntoRefreshToken_String(selectedPersonId)));
 
-      _comboDownloadFolderPath.setText(_prefStore.getDefaultString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
+      _comboDownloadFolderPath.setText(_prefStore.getDefaultString(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(selectedPersonId)));
 
-      _chkUseDateFilter.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
-      setFilterSinceDate(_prefStore.getDefaultLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
+      _chkUseDateFilter.setSelection(_prefStore.getDefaultBoolean(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(selectedPersonId)));
+      setFilterSinceDate(_prefStore.getDefaultLong(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(selectedPersonId)));
 
       enableControls();
 
@@ -462,19 +477,15 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
 
-         final String personId = String.valueOf(_personIds.get(
-               selectedPersonIndex));
+         final String personId = getSelectedPersonId();
 
-         final var toto = Preferences.getPersonSuuntoAccessTokenString(personId);
-
-         _prefStore.setValue(Preferences.getPersonSuuntoAccessTokenString(personId), _labelAccessToken_Value.getText());
-         _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, _labelRefreshToken_Value.getText());
+         _prefStore.setValue(Preferences.getPerson_SuuntoAccessToken_String(personId), _labelAccessToken_Value.getText());
+         _prefStore.setValue(Preferences.getPerson_SuuntoRefreshToken_String(personId), _labelRefreshToken_Value.getText());
 
          if (StringUtils.isNullOrEmpty(_labelExpiresAt_Value.getText())) {
-            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, UI.EMPTY_STRING);
-            _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, UI.EMPTY_STRING);
+            _prefStore.setValue(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(personId), UI.EMPTY_STRING);
+            _prefStore.setValue(Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(personId), UI.EMPTY_STRING);
          }
 
          if (_server != null) {
@@ -482,7 +493,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          }
 
          final String downloadFolder = _comboDownloadFolderPath.getText();
-         _prefStore.setValue(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, downloadFolder);
+         _prefStore.setValue(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(personId), downloadFolder);
          if (StringUtils.hasContent(downloadFolder)) {
 
             final String[] currentDeviceFolderHistoryItems = _state.getArray(
@@ -498,14 +509,14 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
             }
          }
 
-         _prefStore.setValue(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, _chkUseDateFilter.getSelection());
-         _prefStore.setValue(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, getFilterSinceDate());
+         _prefStore.setValue(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(personId), _chkUseDateFilter.getSelection());
+         _prefStore.setValue(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(personId), getFilterSinceDate());
 
          _prefStore.setValue(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, _chkUseSingleAccountForAllPeople.getSelection());
 
-         selectedPersonIndex = _comboPeopleList.getSelectionIndex();
+         final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
          _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_INDEX, selectedPersonIndex);
-         _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_ID, _personIds.get(selectedPersonIndex));
+         _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_ID, personId);
       }
 
       return isOK;
@@ -516,16 +527,16 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
 
       final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPersonSuuntoAccessTokenString(selectedPersonId)));
+      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(selectedPersonId)));
       _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
-            _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME),
-            _prefStore.getInt(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000));
-      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
+            _prefStore.getLong(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(selectedPersonId)),
+            _prefStore.getInt(Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(selectedPersonId)) * 1000));
+      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoRefreshToken_String(selectedPersonId)));
 
-      _comboDownloadFolderPath.setText(_prefStore.getString(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER));
+      _comboDownloadFolderPath.setText(_prefStore.getString(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(selectedPersonId)));
 
-      _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE));
-      setFilterSinceDate(_prefStore.getLong(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE));
+      _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(selectedPersonId)));
+      setFilterSinceDate(_prefStore.getLong(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(selectedPersonId)));
 
       final ArrayList<TourPerson> tourPeople = PersonManager.getTourPeople();
       _comboPeopleList.add(net.tourbook.Messages.App_People_item_all);

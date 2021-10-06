@@ -17,7 +17,6 @@ package net.tourbook.cloud;
 
 import java.util.ArrayList;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.data.TourPerson;
 import net.tourbook.database.PersonManager;
@@ -43,36 +42,35 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.STRAVA_ATHLETEID, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_ATHLETEFULLNAME, UI.EMPTY_STRING);
 
-      store.setDefault(Preferences.getSuuntoAccessToken_Active_Person_String(), UI.EMPTY_STRING);
-      store.setDefault(Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
-      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
-      store.setDefault(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
-      store.setDefault(Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
-      store.setDefault(Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
+      initializeDefaultSuuntoPreferences(store);
       store.setDefault(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, true);
       store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_INDEX, 0);
       store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_ID, UI.EMPTY_STRING);
-
-      //This is the date (01/26/2021) that Suunto forced the users to switch to Suunto App.
-      store.setDefault(Preferences.SUUNTO_WORKOUT_FILTER_SINCE_DATE, 1611619200000L);
-
-      initializeDefaultSuuntoPreferences(store);
    }
 
    private void initializeDefaultSuuntoPreferences(final IPreferenceStore store) {
 
-      final TourPerson activePerson = TourbookPlugin.getActivePerson();
       final ArrayList<TourPerson> tourPeopleList = PersonManager.getTourPeople();
+      final ArrayList<String> tourPersonIds = new ArrayList<>();
 
+      // This empty string represents "All people"
+      tourPersonIds.add("");
       for (final TourPerson tourPerson : tourPeopleList) {
 
          final String personId = String.valueOf(tourPerson.getPersonId());
-         store.setDefault(Preferences.getPersonSuuntoAccessTokenString(personId), UI.EMPTY_STRING);
-         store.setDefault(personId + Preferences.SUUNTO_REFRESHTOKEN, UI.EMPTY_STRING);
-         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, 0);
-         store.setDefault(personId + Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, 0);
-         store.setDefault(personId + Preferences.SUUNTO_WORKOUT_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
-         store.setDefault(personId + Preferences.SUUNTO_USE_WORKOUT_FILTER_SINCE_DATE, false);
+         tourPersonIds.add(personId);
+      }
+
+      for (final String tourPersonId : tourPersonIds) {
+
+         store.setDefault(Preferences.getPerson_SuuntoAccessToken_String(tourPersonId), UI.EMPTY_STRING);
+         store.setDefault(Preferences.getPerson_SuuntoRefreshToken_String(tourPersonId), UI.EMPTY_STRING);
+         store.setDefault(Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(tourPersonId), 0);
+         store.setDefault(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(tourPersonId), 0);
+         store.setDefault(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(tourPersonId), UI.EMPTY_STRING);
+         store.setDefault(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(tourPersonId), false);
+         //This is the date (01/26/2021) that Suunto forced the users to switch to Suunto App.
+         store.setDefault(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(tourPersonId), 1611619200000L);
       }
    }
 }
