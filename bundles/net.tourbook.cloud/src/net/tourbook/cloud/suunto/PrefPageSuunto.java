@@ -172,8 +172,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(labelPerson);
 
          /*
-          * Drop down menu to select a user, if the checkbox above is checked, then we select
-          * "all people" in the drop down
+          * Drop down menu to select a user
           */
          _comboPeopleList = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
          _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
