@@ -42,7 +42,6 @@ import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -51,7 +50,6 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -90,7 +88,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private final IDialogSettings   _state                           = TourbookPlugin.getState(DialogEasyImportConfig.ID);
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
-   private SelectionListener       _defaultSelectionListener;
    private List<Long>              _personIds;
 
    /*
@@ -108,13 +105,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    private Button   _btnSelectFolder;
    private Button   _chkUseDateFilter;
    private DateTime _dtFilterSince;
-   private Button   _chkUseSingleAccountForAllPeople;
    private Combo    _comboPeopleList;
 
    @Override
    protected void createFieldEditors() {
-
-      initUI();
 
       createUI();
 
@@ -168,27 +162,14 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(container);
       {
-         /*
-          * Checkbox: Use a unique account for all people
-          */
-         _chkUseSingleAccountForAllPeople = new Button(container, SWT.CHECK);
-         GridDataFactory.fillDefaults()//
-               .grab(true, false)
-               .indent(convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN), 0)
-               .applyTo(_chkUseSingleAccountForAllPeople);
-         _chkUseSingleAccountForAllPeople.setText("Use a unique account for all people");
-         _chkUseSingleAccountForAllPeople.setToolTipText("Use a unique account for all people");
-         _chkUseSingleAccountForAllPeople.addSelectionListener(_defaultSelectionListener);
-
          /*
           * Drop down menu to select a user, if the checkbox above is checked, then we select
           * "all people" in the drop down
           */
          _comboPeopleList = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
-         //_comboPeopleList.setVisibleItemCount(2);
-         _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectPerson()));
+         _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> restoreAccountInformation()));
 
          /*
           * Authorize button
@@ -296,9 +277,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    private void enableControls() {
 
-      final boolean isUseSingleAccountForAllPeople = _chkUseSingleAccountForAllPeople.getSelection();
-      _comboPeopleList.setEnabled(!isUseSingleAccountForAllPeople);
-
       final boolean isAuthorized = StringUtils.hasContent(_labelAccessToken_Value.getText()) && StringUtils.hasContent(_labelRefreshToken_Value
             .getText());
 
@@ -335,17 +313,11 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       final String personId = String.valueOf(_personIds.get(
             selectedPersonIndex));
 
-      final var toto = Preferences.getPerson_SuuntoAccessToken_String(personId);
       return personId;
    }
 
    @Override
    public void init(final IWorkbench workbench) {}
-
-   private void initUI() {
-
-      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onClickUseSingleAccountForAllPeople());
-   }
 
    @Override
    public boolean okToLeave() {
@@ -392,19 +364,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       }
    }
 
-   private void onClickUseSingleAccountForAllPeople() {
-
-      if (_chkUseSingleAccountForAllPeople.getSelection()) {
-
-         _comboPeopleList.setEnabled(false);
-         _comboPeopleList.select(0);
-
-      } else {
-
-         _comboPeopleList.setEnabled(true);
-      }
-   }
-
    private void onSelectBrowseDirectory() {
 
       final DirectoryDialog dialog = new DirectoryDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
@@ -418,11 +377,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          setErrorMessage(null);
          _comboDownloadFolderPath.setText(selectedDirectoryName);
       }
-   }
-
-   private void onSelectPerson() {
-
-      restoreAccountInformation();
    }
 
    @Override
@@ -440,7 +394,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    @Override
    protected void performDefaults() {
 
-      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getDefaultBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
       _comboPeopleList.select(_prefStore.getDefaultInt(Preferences.SUUNTO_SELECTED_PERSON_INDEX));
 
       final String selectedPersonId = _prefStore.getDefaultString(Preferences.SUUNTO_SELECTED_PERSON_ID);
@@ -500,8 +453,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(personId), _chkUseDateFilter.getSelection());
          _prefStore.setValue(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(personId), getFilterSinceDate());
 
-         _prefStore.setValue(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, _chkUseSingleAccountForAllPeople.getSelection());
-
          final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
          _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_INDEX, selectedPersonIndex);
          _prefStore.setValue(Preferences.SUUNTO_SELECTED_PERSON_ID, personId);
@@ -526,8 +477,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
    }
 
    private void restoreState() {
-
-      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
 
       restoreAccountInformation();
 

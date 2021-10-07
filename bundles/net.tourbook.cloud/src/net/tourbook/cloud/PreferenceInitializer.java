@@ -16,6 +16,7 @@
 package net.tourbook.cloud;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.common.UI;
 import net.tourbook.data.TourPerson;
@@ -43,23 +44,18 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.STRAVA_ATHLETEFULLNAME, UI.EMPTY_STRING);
 
       initializeDefaultSuuntoPreferences(store);
-      store.setDefault(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE, true);
       store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_INDEX, 0);
       store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_ID, UI.EMPTY_STRING);
    }
 
    private void initializeDefaultSuuntoPreferences(final IPreferenceStore store) {
 
-      final ArrayList<TourPerson> tourPeopleList = PersonManager.getTourPeople();
-      final ArrayList<String> tourPersonIds = new ArrayList<>();
+      final List<TourPerson> tourPeopleList = PersonManager.getTourPeople();
+      final List<String> tourPersonIds = new ArrayList<>();
 
       // This empty string represents "All people"
       tourPersonIds.add("");
-      for (final TourPerson tourPerson : tourPeopleList) {
-
-         final String personId = String.valueOf(tourPerson.getPersonId());
-         tourPersonIds.add(personId);
-      }
+      tourPeopleList.forEach(tourPerson -> tourPersonIds.add(String.valueOf(tourPerson.getPersonId())));
 
       for (final String tourPersonId : tourPersonIds) {
 
