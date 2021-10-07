@@ -313,7 +313,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
 
-      final String personId = String.valueOf(_personIds.get(
+      final String personId = selectedPersonIndex == 0 ? UI.EMPTY_STRING : String.valueOf(_personIds.get(
             selectedPersonIndex));
 
       return personId;
