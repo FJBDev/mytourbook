@@ -149,6 +149,6 @@ public final class Preferences {
 
       final String personId = getActivePersonId();
 
-      return getPerson_SuuntoUseWorkoutFilterSinceDate_String(personId);
+      return getPerson_SuuntoWorkoutFilterSinceDate_String(personId);
    }
 }

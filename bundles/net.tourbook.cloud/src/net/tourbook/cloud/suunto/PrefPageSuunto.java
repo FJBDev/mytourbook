@@ -169,7 +169,10 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
           * "all people" in the drop down
           */
          _comboPeopleList = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
-         _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> restoreAccountInformation()));
+         _comboPeopleList.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            final String personId = getSelectedPersonId();
+            restoreAccountInformation(personId);
+         }));
 
          /*
           * Authorize button
@@ -461,9 +464,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       return isOK;
    }
 
-   private void restoreAccountInformation() {
+   private void restoreAccountInformation(final String selectedPersonId) {
 
-      final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(selectedPersonId)));
       _labelExpiresAt_Value.setText(OAuth2Utils.computeAccessTokenExpirationDate(
             _prefStore.getLong(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(selectedPersonId)),
@@ -478,7 +480,8 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    private void restoreState() {
 
-      restoreAccountInformation();
+      final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
+      restoreAccountInformation(selectedPersonId);
 
       final ArrayList<TourPerson> tourPeople = PersonManager.getTourPeople();
       _comboPeopleList.add(net.tourbook.Messages.App_People_item_all);

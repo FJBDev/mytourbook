@@ -137,6 +137,18 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
                "Downloading tours",
                "This person doesn't have valid tokens " + personName +
                      ". The corresponding pref string is " + Preferences.getSuuntoAccessTokenIssueDateTime_Active_Person_String());
+      } else {
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               "Downloading tours",
+               "This person has valid tokens " + personName +
+                     ". The corresponding pref string is " + Preferences.getSuuntoAccessToken_Active_Person_String() + "\n" +
+                     Preferences.getSuuntoAccessTokenExpiresIn_Active_Person_String() + "\n" +
+                     Preferences.getSuuntoAccessTokenIssueDateTime_Active_Person_String() + "\n" +
+                     Preferences.getSuuntoRefreshToken_Active_Person_String() + "\n" +
+                     Preferences.getSuuntoWorkoutDownloadFolder_Active_Person_String() + "\n" +
+                     Preferences.getSuuntoWorkoutFilterSinceDate_Active_Person_String());
+
       }
 
       _numberOfAvailableTours = new int[1];
