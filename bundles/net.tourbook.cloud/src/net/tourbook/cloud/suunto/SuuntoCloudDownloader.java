@@ -39,7 +39,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
@@ -51,7 +50,6 @@ import net.tourbook.common.UI;
 import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
-import net.tourbook.data.TourPerson;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
@@ -64,7 +62,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
@@ -124,30 +121,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       //TODO FB
       //WHen renewing the strava token, get the athlete's name in case it has changed
 
-      final TourPerson activePerson = TourbookPlugin.getActivePerson();
-      if (activePerson == null) {
 
-         MessageDialog.openInformation(
-               Display.getCurrent().getActiveShell(),
-               "Messages.tour_editor_dlg_create_tour_title",
-               "Messages.tour_editor_dlg_create_tour_message");
-         return;
-      }
-
-      System.out.println("People name:" + activePerson.getFirstName());
-
-      if (!isReady()) {
-
-         final int returnResult = PreferencesUtil.createPreferenceDialogOn(
-               Display.getCurrent().getActiveShell(),
-               PrefPageSuunto.ID,
-               null,
-               null).open();
-
-         if (returnResult != 0) {// The OK button was not clicked or if the configuration is still not ready
-            return;
-         }
-      }
 
       _numberOfAvailableTours = new int[1];
       final int[] numberOfDownloadedTours = new int[1];

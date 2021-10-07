@@ -403,12 +403,6 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
          _comboPeopleList.setEnabled(true);
       }
-
-      //TODO FB load the account info for the given user
-      final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(String.valueOf(_personIds.get(
-            selectedPersonIndex)))));
-
    }
 
    private void onSelectBrowseDirectory() {
@@ -428,13 +422,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
    private void onSelectPerson() {
 
-      //TODO FB load the account info for the given user
-      final int selectedPersonIndex = _comboPeopleList.getSelectionIndex();
-
-      final String personId = String.valueOf(_personIds.get(
-            selectedPersonIndex));
-
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(personId)));
+      restoreAccountInformation();
    }
 
    @Override
@@ -522,9 +510,7 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
       return isOK;
    }
 
-   private void restoreState() {
-
-      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
+   private void restoreAccountInformation() {
 
       final String selectedPersonId = _prefStore.getString(Preferences.SUUNTO_SELECTED_PERSON_ID);
       _labelAccessToken_Value.setText(_prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(selectedPersonId)));
@@ -537,6 +523,13 @@ public class PrefPageSuunto extends FieldEditorPreferencePage implements IWorkbe
 
       _chkUseDateFilter.setSelection(_prefStore.getBoolean(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(selectedPersonId)));
       setFilterSinceDate(_prefStore.getLong(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(selectedPersonId)));
+   }
+
+   private void restoreState() {
+
+      _chkUseSingleAccountForAllPeople.setSelection(_prefStore.getBoolean(Preferences.SUUNTO_USE_SINGLE_ACCOUNT_FOR_ALL_PEOPLE));
+
+      restoreAccountInformation();
 
       final ArrayList<TourPerson> tourPeople = PersonManager.getTourPeople();
       _comboPeopleList.add(net.tourbook.Messages.App_People_item_all);
