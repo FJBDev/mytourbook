@@ -48,7 +48,7 @@ sonarqube {
     property "sonar.host.url", "https://sonarcloud.io"
     property "sonar.sources", "."
     property "sonar.exclusions", "build/**/*,bundles/net.tourbook.chart/src/net/tourbook/chart/ChartComponentGraph.java,bundles/net.tourbook.ext.jars/**/*"
-    property "sonar.java.binaries", "D:\\a\\mytourbook-BUILD-autocreated\\core"
+    property "sonar.java.binaries", "."
   }
 }
 
