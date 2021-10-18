@@ -1273,65 +1273,7 @@ public class RawDataManager {
 
          reImportStatus.isCanceled_ByUser_TheFileLocationDialog = true;
 
-<<<<<<< HEAD
-         if (reImportPartIds.get(0) == ReImportParts.ENTIRE_TOUR) {
-
-            // replace complete tour
-
-            TourManager.getInstance().removeTourFromCache(oldTourData.getTourId());
-
-            newTourData = reimportedTourData;
-
-            // keep body weight from old tour
-            newTourData.setBodyWeight(oldTourData.getBodyWeight());
-
-         } else {
-
-            if (reImportPartIds.contains(ReImportParts.ALL_TIME_SLICES)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_CADENCE)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_ELEVATION)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_GEAR)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_POWER_AND_PULSE)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_POWER_AND_SPEED)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_RUNNING_DYNAMICS)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_SWIMMING)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_TEMPERATURE)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_TIMER_PAUSES)
-                  || reImportPartIds.contains(ReImportParts.TIME_SLICES_TRAINING)) {
-
-               // replace part of the tour
-
-               actionReimportTour_50_ReplacesValues(reImportPartIds, oldTourData, reimportedTourData);
-            }
-
-            if (reImportPartIds.contains(ReImportParts.TOUR_MARKER)) {
-
-               oldTourData.setTourMarkers(reimportedTourData.getTourMarkers());
-            }
-
-            newTourData = oldTourData;
-         }
-
-         if (newTourData != null) {
-
-            /*
-             * Compute computed values
-             */
-            newTourData.clearComputedSeries();
-
-            newTourData.computeAltitudeUpDown();
-            newTourData.computeTourMovingTime();
-            newTourData.computeComputedValues();
-            newTourData.computeTrainingStressData();
-
-            // maintain list, that another call of this method do not find this tour again
-            _newlyImportedTours.remove(oldTourData.getTourId());
-
-            return newTourData;
-         }
-=======
          return true;
->>>>>>> refs/remotes/origin/main
       }
 
       return false;
