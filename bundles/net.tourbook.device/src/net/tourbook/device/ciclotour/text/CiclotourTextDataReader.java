@@ -13,12 +13,33 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
+package net.tourbook.device.ciclotour.text;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.text.DateFormat;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
+import net.tourbook.data.TimeData;
+import net.tourbook.data.TourData;
+import net.tourbook.importdata.DeviceData;
+import net.tourbook.importdata.ImportState_File;
+import net.tourbook.importdata.ImportState_Process;
+import net.tourbook.importdata.SerialParameters;
+import net.tourbook.importdata.TourbookDevice;
 
 public class CiclotourTextDataReader extends TourbookDevice {
 
-   private static final String FILE_HEADER_EN = "Time:	Distance:	Alt.:	Speed:	HR:	Temperature:	Gradient:	Cadence:"; //$NON-NLS-1$
-   private static final String FILE_HEADER_DE = "Zeit:	Strecke:	H�he:	Geschw:	Puls:	Temperatur:	Prozent:	Cadence:";          //$NON-NLS-1$
+   private static final String FILE_HEADER_EN = "Time:   Distance:   Alt.: Speed:   HR:   Temperature:   Gradient:   Cadence:"; //$NON-NLS-1$
+   private static final String FILE_HEADER_DE = "Zeit:   Strecke: H�he: Geschw:  Puls: Temperatur: Prozent: Cadence:";          //$NON-NLS-1$
 
    public CiclotourTextDataReader() {
       // plugin constructor
@@ -299,4 +320,3 @@ public class CiclotourTextDataReader extends TourbookDevice {
    }
 
 }
->>>>>>> refs/remotes/origin/main
