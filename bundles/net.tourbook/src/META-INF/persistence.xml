@@ -8,6 +8,7 @@
   
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
      
+     //TODO FB remove?
 		<class>net.tourbook.data.PerformanceModelingData</class>
 		<class>net.tourbook.data.TourBike</class>
 		<class>net.tourbook.data.TourCompared</class>

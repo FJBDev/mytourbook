@@ -45,8 +45,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, 0);
       store.setDefault(Preferences.STRAVA_ATHLETEID, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_ATHLETEFULLNAME, UI.EMPTY_STRING);
-<<<<<<< HEAD
-=======
 
       initializeDefaultSuuntoPreferences(store);
       store.setDefault(Preferences.SUUNTO_SELECTED_PERSON_INDEX, 0);
@@ -72,6 +70,5 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
          store.setDefault(Preferences.getPerson_SuuntoUseWorkoutFilterSinceDate_String(tourPersonId), false);
          store.setDefault(Preferences.getPerson_SuuntoWorkoutFilterSinceDate_String(tourPersonId), SUUNTO_FILTER_SINCE_DATE);
       }
->>>>>>> refs/remotes/origin/main
    }
 }
