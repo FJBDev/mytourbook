@@ -5595,7 +5595,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          return null;
       }
 
-      final float[] segmenterAltitudeSerie = getAltitudeSmoothedSerie();
+      final float[] segmenterAltitudeSerie = getAltitudeSmoothedSerie(false);
 
       final boolean isAltitudeSerie = (segmenterAltitudeSerie != null) && (segmenterAltitudeSerie.length > 0);
       final boolean isCadenceSerie = (cadenceSerie != null) && (cadenceSerie.length > 0);
@@ -7167,11 +7167,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    /**
+    * @param isForceSmoothing
     * @return Returns smoothed altitude values (according to the measurement system) when they are
     *         set to be smoothed otherwise it returns normal altitude values or <code>null</code>
     *         when altitude is not available.
     */
-   public float[] getAltitudeSmoothedSerie() {
+   public float[] getAltitudeSmoothedSerie(final boolean isForceSmoothing) {
 
       if (altitudeSerie == null) {
          return null;
