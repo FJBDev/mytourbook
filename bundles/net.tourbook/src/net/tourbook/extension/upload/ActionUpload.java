@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,6 @@ import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.TourbookFileSystem;
 import net.tourbook.data.TourData;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
@@ -44,12 +43,12 @@ import org.eclipse.swt.widgets.Menu;
  */
 public class ActionUpload extends Action implements IMenuCreator {
 
-   private static List<TourbookCloudUploader> _tourbookCloudUploaders = new ArrayList<>();
+   private List<TourbookCloudUploader> _tourbookCloudUploaders = new ArrayList<>();
 
-   private static List<ActionUploadTour>      _uploadTourActions      = new ArrayList<>();
-   private Menu                               _menu;
+   private List<ActionUploadTour>      _uploadTourActions      = new ArrayList<>();
+   private Menu                        _menu;
 
-   private final ITourProvider                _tourProvider;
+   private final ITourProvider         _tourProvider;
 
    private class ActionUploadTour extends Action {
 
@@ -93,9 +92,9 @@ public class ActionUpload extends Action implements IMenuCreator {
     * @param tourProvider
     * @param isAddMode
     * @param isSaveTour
-    *           when <code>true</code> the tour will be saved and a {@link TourManager#TOUR_CHANGED}
-    *           event is fired, otherwise the {@link TourData} from the tour provider is only
-    *           updated
+    *           when <code>true</code> the tour will be saved and a
+    *           {@link TourManager#TOUR_CHANGED} event is fired, otherwise the
+    *           {@link TourData} from the tour provider is only updated
     */
    public ActionUpload(final ITourProvider tourProvider) {
 
@@ -110,30 +109,69 @@ public class ActionUpload extends Action implements IMenuCreator {
       createActions();
    }
 
+   private void addActionToMenu(final Action action) {
+      final ActionContributionItem item = new ActionContributionItem(action);
+      item.fill(_menu, -1);
+   }
+
+   private void createActions() {
+
+      if (_uploadTourActions.size() > 0) {
+         return;
+      }
+
+      _tourbookCloudUploaders.forEach(
+            tourbookCloudUploader -> _uploadTourActions.add(
+                  new ActionUploadTour(tourbookCloudUploader)));
+   }
+
+   @Override
+   public void dispose() {
+
+      if (_menu == null) {
+         return;
+      }
+
+      _menu.dispose();
+      _menu = null;
+   }
+
    /**
     * read extension points {@link TourbookPlugin#EXT_POINT_EXPORT_TOUR}
     */
-   private static List<TourbookCloudUploader> getCloudUploaders() {
+   private List<TourbookCloudUploader> getCloudUploaders() {
 
       if (_tourbookCloudUploaders.isEmpty()) {
          _tourbookCloudUploaders = readCloudUploaderExtensions("cloudUploader"); //$NON-NLS-1$
       }
 
-      for (final ActionUploadTour actionUploadTour : _uploadTourActions) {
-         actionUploadTour.setEnabled(actionUploadTour.isVendorReady());
-      }
-
       return _tourbookCloudUploaders;
    }
 
+   @Override
+   public Menu getMenu(final Control parent) {
+      return null;
+   }
+
+   @Override
+   public Menu getMenu(final Menu parent) {
+
+      dispose();
+      _menu = new Menu(parent);
+
+      _uploadTourActions.forEach(this::addActionToMenu);
+
+      return _menu;
+   }
+
    /**
-    * Read and collects all the extensions that implement {@link TourbookFileSystem}.
+    * Read and collects all the extensions that implement {@link TourbookCloudUploader}.
     *
     * @param extensionPointName
     *           The extension point name
-    * @return The list of {@link TourbookFileSystem}.
+    * @return The list of {@link TourbookCloudUploader}.
     */
-   private static List<TourbookCloudUploader> readCloudUploaderExtensions(final String extensionPointName) {
+   private List<TourbookCloudUploader> readCloudUploaderExtensions(final String extensionPointName) {
 
       final List<TourbookCloudUploader> cloudUploadersList = new ArrayList<>();
 
@@ -149,21 +187,22 @@ public class ActionUpload extends Action implements IMenuCreator {
 
          for (final IConfigurationElement configElement : extension.getConfigurationElements()) {
 
-            if (configElement.getName().equalsIgnoreCase("cloudUploader")) { //$NON-NLS-1$
+            if (!configElement.getName().equalsIgnoreCase(extensionPointName)) {
+               continue;
+            }
 
-               Object object;
-               try {
+            Object object;
+            try {
 
-                  object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
+               object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 
-                  if (object instanceof TourbookCloudUploader) {
-                     final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
-                     cloudUploadersList.add(cloudUploader);
-                  }
-
-               } catch (final CoreException e) {
-                  e.printStackTrace();
+               if (object instanceof TourbookCloudUploader) {
+                  final TourbookCloudUploader cloudUploader = (TourbookCloudUploader) object;
+                  cloudUploadersList.add(cloudUploader);
                }
+
+            } catch (final CoreException e) {
+               e.printStackTrace();
             }
          }
       }
@@ -171,57 +210,12 @@ public class ActionUpload extends Action implements IMenuCreator {
       return cloudUploadersList;
    }
 
-   private void addActionToMenu(final Action action) {
-      final ActionContributionItem item = new ActionContributionItem(action);
-      item.fill(_menu, -1);
-   }
-
-   private void createActions() {
-
-      if (!_uploadTourActions.isEmpty()) {
-         return;
-      }
-
-      for (final TourbookCloudUploader tourbookCloudUploader : _tourbookCloudUploaders) {
-
-         _uploadTourActions.add(new ActionUploadTour(tourbookCloudUploader));
-      }
-   }
-
    @Override
-   public void dispose() {
-      if (_menu == null) {
-         return;
-      }
+   public void setEnabled(final boolean enabled) {
 
-      _menu.dispose();
-      _menu = null;
-   }
+      _uploadTourActions.forEach(actionUploadTour -> actionUploadTour.setEnabled(
+            enabled && actionUploadTour.isVendorReady()));
 
-   @Override
-   public Menu getMenu(final Control parent) {
-      return null;
-   }
-
-   @Override
-   public Menu getMenu(final Menu parent) {
-
-      dispose();
-      _menu = new Menu(parent);
-
-      for (final ActionUploadTour action : _uploadTourActions) {
-         addActionToMenu(action);
-      }
-
-      return _menu;
-   }
-
-   public boolean hasUploaders() {
-      return getCloudUploaders().size() > 0;
-   }
-
-   public void setNumberOfTours(final int numTours) {
-
-      setText(Messages.action_export_tour + String.format(" (%d)", numTours)); //$NON-NLS-1$
+      super.setEnabled(enabled);
    }
 }

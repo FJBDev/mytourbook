@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,6 +14,8 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.export;
+
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,12 +59,8 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -71,11 +69,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -170,13 +166,11 @@ public class DialogExportTour extends TitleAreaDialog {
 
    private Point                     _shellDefaultSize;
 
-   private float                     _exportState_CamouflageSpeed;
    private FileCollisionBehavior     _exportState_FileCollisionBehaviour;
    private boolean                   _exportState_isAbsoluteDistance;
    private boolean                   _exportState_IsCamouflageSpeed;
    private boolean                   _exportState_IsDescription;
    private boolean                   _exportState_IsMergeTours;
-   private boolean                   _exportState_IsOverwriteFiles;
    private boolean                   _exportState_IsRange;
 
    private boolean                   _exportState_GPX_IsExportAllTourData;
@@ -195,7 +189,6 @@ public class DialogExportTour extends TitleAreaDialog {
    /*
     * UI controls
     */
-   private Button    _btnSelectDirectory;
    private Button    _btnSelectFile;
 
    private Button    _chkCamouflageSpeed;
@@ -225,7 +218,7 @@ public class DialogExportTour extends TitleAreaDialog {
    private Composite _dlgContainer;
    private Composite _inputContainer;
 
-   private Label     _lblCoumouflageSpeedUnit;
+   private Label     _lblCamouflageSpeedUnit;
    private Label     _lblTcxActivityType;
    private Label     _lblTcxCourseName;
    private Label     _lblTcxNameFrom;
@@ -330,31 +323,28 @@ public class DialogExportTour extends TitleAreaDialog {
 
       shell.setText(Messages.dialog_export_shell_text);
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      shell.addListener(SWT.Resize, event -> {
 
-            // allow resizing the width but not the height
+         // allow resizing the width but not the height
 
-            if (_shellDefaultSize == null) {
-               _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            }
+         if (_shellDefaultSize == null) {
+            _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+         }
 
-            final Point shellSize = shell.getSize();
+         final Point shellSize = shell.getSize();
 
-            /*
-             * this is not working, the shell is flickering when the shell size is below min size
-             * and I found no way to prevent a resize :-(
-             */
+         /*
+          * this is not working, the shell is flickering when the shell size is below min size
+          * and I found no way to prevent a resize :-(
+          */
 //				if (shellSize.x < _shellDefaultSize.x) {
 //					event.doit = false;
 //				}
 
-            shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
-            shellSize.y = _shellDefaultSize.y;
+         shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
+         shellSize.y = _shellDefaultSize.y;
 
-            shell.setSize(shellSize);
-         }
+         shell.setSize(shellSize);
       });
    }
 
@@ -506,14 +496,8 @@ public class DialogExportTour extends TitleAreaDialog {
             _chkGPX_SurfingWaves = new Button(parent, SWT.CHECK);
             _chkGPX_SurfingWaves.setText(Messages.Dialog_Export_Checkbox_SurfingWaves);
             _chkGPX_SurfingWaves.setToolTipText(Messages.Dialog_Export_Checkbox_SurfingWaves_Tooltip);
-            _chkGPX_SurfingWaves.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-
-                  // setup filename
-                  enableFields();
-               }
-            });
+            // setup filename
+            _chkGPX_SurfingWaves.addSelectionListener(widgetSelectedAdapter(selectionEvent -> enableFields()));
          }
 
       } else if (_isSetup_TCX) {
@@ -593,12 +577,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
       _chkExportTourRange.setText(tourRangeUI != null ? tourRangeUI : Messages.dialog_export_chk_tourRangeDisabled);
 
-      _chkExportTourRange.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableFields();
-         }
-      });
+      _chkExportTourRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> enableFields()));
    }
 
    private void createUI_50_Option_How(final Composite parent) {
@@ -612,13 +591,10 @@ public class DialogExportTour extends TitleAreaDialog {
          GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(_chkMergeAllTours);
          _chkMergeAllTours.setText(Messages.dialog_export_chk_mergeAllTours);
          _chkMergeAllTours.setToolTipText(Messages.dialog_export_chk_mergeAllTours_tooltip);
-         _chkMergeAllTours.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               enableFields();
-               setFileName();
-            }
-         });
+         _chkMergeAllTours.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            enableFields();
+            setFileName();
+         }));
       }
 
       createUI_60_Option_Speed(parent);
@@ -646,18 +622,14 @@ public class DialogExportTour extends TitleAreaDialog {
          GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(_chkCamouflageSpeed);
          _chkCamouflageSpeed.setText(Messages.dialog_export_chk_camouflageSpeed);
          _chkCamouflageSpeed.setToolTipText(Messages.dialog_export_chk_camouflageSpeed_tooltip);
-         _chkCamouflageSpeed.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
+         _chkCamouflageSpeed.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            validateFields();
+            enableFields();
 
-               validateFields();
-               enableFields();
-
-               if (_chkCamouflageSpeed.getSelection()) {
-                  _spinnerCamouflageSpeed.setFocus();
-               }
+            if (_chkCamouflageSpeed.getSelection()) {
+               _spinnerCamouflageSpeed.setFocus();
             }
-         });
+         }));
 
          // text: speed
          _spinnerCamouflageSpeed = new Spinner(container, SWT.BORDER);
@@ -668,21 +640,16 @@ public class DialogExportTour extends TitleAreaDialog {
          _spinnerCamouflageSpeed.setPageIncrement(10);
          _spinnerCamouflageSpeed.setMinimum(1);
          _spinnerCamouflageSpeed.setMaximum(1000);
-         _spinnerCamouflageSpeed.addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseScrolled(final MouseEvent event) {
-               Util.adjustSpinnerValueOnMouseScroll(event);
-            }
-         });
+         _spinnerCamouflageSpeed.addMouseWheelListener(Util::adjustSpinnerValueOnMouseScroll);
 
          // label: unit
-         _lblCoumouflageSpeedUnit = new Label(container, SWT.NONE);
-         _lblCoumouflageSpeedUnit.setText(UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_LABEL_SPEED);
+         _lblCamouflageSpeedUnit = new Label(container, SWT.NONE);
+         _lblCamouflageSpeedUnit.setText(UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_LABEL_SPEED);
          GridDataFactory
                .fillDefaults()
                .grab(true, false)
                .align(SWT.BEGINNING, SWT.CENTER)
-               .applyTo(_lblCoumouflageSpeedUnit);
+               .applyTo(_lblCamouflageSpeedUnit);
       }
    }
 
@@ -724,29 +691,21 @@ public class DialogExportTour extends TitleAreaDialog {
 
    private void createUI_80_Option_TCX_ActivitiesCourses(final Composite parent) {
 
-      final SelectionAdapter defaultSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableFields();
-            setFileName();
-         }
-      };
+      final SelectionListener defaultSelectionListener = widgetSelectedAdapter(
+            selectionEvent -> {
+               enableFields();
+               setFileName();
+            });
 
-      final SelectionAdapter nameSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            updateUI_CourseName();
-            enableFields();
-            setFileName();
-         }
-      };
+      final SelectionListener nameSelectionListener = widgetSelectedAdapter(
+            selectionEvent -> {
 
-      final ModifyListener nameModifyListener = new ModifyListener() {
-         @Override
-         public void modifyText(final ModifyEvent e) {
-            validateFields();
-         }
-      };
+               updateUI_CourseName();
+               enableFields();
+               setFileName();
+            });
+
+      final ModifyListener nameModifyListener = modifyEvent -> validateFields();
 
       // container
       final Composite container = new Composite(parent, SWT.NONE);
@@ -850,12 +809,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
       Label label;
 
-      final ModifyListener filePathModifyListener = new ModifyListener() {
-         @Override
-         public void modifyText(final ModifyEvent e) {
-            validateFields();
-         }
-      };
+      final ModifyListener filePathModifyListener = modifyEvent -> validateFields();
 
       /*
        * group: filename
@@ -878,27 +832,19 @@ public class DialogExportTour extends TitleAreaDialog {
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboFile);
          ((GridData) _comboFile.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
          _comboFile.setVisibleItemCount(20);
-         _comboFile.addVerifyListener(net.tourbook.common.UI.verifyFilenameInput());
+         _comboFile.addVerifyListener(UI.verifyFilenameInput());
          _comboFile.addModifyListener(filePathModifyListener);
-         _comboFile.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               validateFields();
-            }
-         });
+         _comboFile.addSelectionListener(widgetSelectedAdapter(selectionEvent -> validateFields()));
 
          /*
           * button: browse
           */
          _btnSelectFile = new Button(group, SWT.PUSH);
          _btnSelectFile.setText(Messages.app_btn_browse);
-         _btnSelectFile.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectBrowseFile();
-               validateFields();
-            }
-         });
+         _btnSelectFile.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            onSelectBrowseFile();
+            validateFields();
+         }));
          setButtonLayoutData(_btnSelectFile);
 
          // -----------------------------------------------------------------------------
@@ -917,26 +863,18 @@ public class DialogExportTour extends TitleAreaDialog {
          ((GridData) _comboPath.getLayoutData()).widthHint = SIZING_TEXT_FIELD_WIDTH;
          _comboPath.setVisibleItemCount(20);
          _comboPath.addModifyListener(filePathModifyListener);
-         _comboPath.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               validateFields();
-            }
-         });
+         _comboPath.addSelectionListener(widgetSelectedAdapter(selectionEvent -> validateFields()));
 
          /*
           * button: browse
           */
-         _btnSelectDirectory = new Button(group, SWT.PUSH);
-         _btnSelectDirectory.setText(Messages.app_btn_browse);
-         _btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectBrowseDirectory();
-               validateFields();
-            }
-         });
-         setButtonLayoutData(_btnSelectDirectory);
+         final Button btnSelectDirectory = new Button(group, SWT.PUSH);
+         btnSelectDirectory.setText(Messages.app_btn_browse);
+         btnSelectDirectory.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            onSelectBrowseDirectory();
+            validateFields();
+         }));
+         setButtonLayoutData(btnSelectDirectory);
 
          // -----------------------------------------------------------------------------
 
@@ -978,10 +916,10 @@ public class DialogExportTour extends TitleAreaDialog {
       getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
 
       _exportState_IsCamouflageSpeed = _chkCamouflageSpeed.getSelection();
-      _exportState_IsOverwriteFiles = _chkOverwriteFiles.getSelection();
+      final boolean exportState_IsOverwriteFiles = _chkOverwriteFiles.getSelection();
 
-      _exportState_CamouflageSpeed = _spinnerCamouflageSpeed.getSelection();
-      _exportState_CamouflageSpeed *= UI.UNIT_VALUE_DISTANCE / 3.6f;
+      int exportState_CamouflageSpeed = _spinnerCamouflageSpeed.getSelection();
+      exportState_CamouflageSpeed *= UI.UNIT_VALUE_DISTANCE / 3.6f;
       _exportState_FileCollisionBehaviour = new FileCollisionBehavior();
 
       if (_isSetup_TourRange) {
@@ -1018,7 +956,7 @@ public class DialogExportTour extends TitleAreaDialog {
       boolean isOverwrite = true;
       final File exportFile = new File(exportFileName);
       if (exportFile.exists()) {
-         if (_exportState_IsOverwriteFiles) {
+         if (exportState_IsOverwriteFiles) {
             // overwrite is enabled in the UI
          } else {
             isOverwrite = net.tourbook.ui.UI.confirmOverwrite(_exportState_FileCollisionBehaviour, exportFile);
@@ -1029,10 +967,12 @@ public class DialogExportTour extends TitleAreaDialog {
          return;
       }
 
+      net.tourbook.ui.UI.disableAllControls(_inputContainer);
+
       _tourExporter = new TourExporter(
             _formatTemplate,
             _exportState_IsCamouflageSpeed,
-            _exportState_CamouflageSpeed,
+            exportState_CamouflageSpeed,
             _exportState_IsRange,
             _tourStartIndex,
             _tourEndIndex,
@@ -1090,6 +1030,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
          } catch (final InvocationTargetException | InterruptedException e) {
             StatusUtil.showStatus(e);
+            Thread.currentThread().interrupt();
          }
       }
    }
@@ -1217,7 +1158,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
          final String notes = tourData.getTourDescription();
 
-         if ((notes != null) && (notes.length() > 0)) {
+         if (notes != null && notes.length() > 0) {
 
             final String lapNotes = tourLap.getNotes();
 
@@ -1232,6 +1173,7 @@ public class DialogExportTour extends TitleAreaDialog {
    }
 
    private void enableExportButton(final boolean isEnabled) {
+
       final Button okButton = getButton(IDialogConstants.OK_ID);
       if (okButton != null) {
          okButton.setEnabled(isEnabled);
@@ -1282,7 +1224,7 @@ public class DialogExportTour extends TitleAreaDialog {
       _btnSelectFile.setEnabled(isSingleTour || isMergeIntoOneTour);
 
       _spinnerCamouflageSpeed.setEnabled(isCamouflageSpeed);
-      _lblCoumouflageSpeedUnit.setEnabled(isCamouflageSpeed);
+      _lblCamouflageSpeedUnit.setEnabled(isCamouflageSpeed);
 
       setFileName();
    }
@@ -1317,15 +1259,13 @@ public class DialogExportTour extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      net.tourbook.ui.UI.disableAllControls(_inputContainer);
+      BusyIndicator.showWhile(Display.getCurrent(), this::doExport);
 
-      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-         @Override
-         public void run() {
-            doExport();
-         }
-      });
-
+      if (_exportState_FileCollisionBehaviour.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {
+         getButton(IDialogConstants.OK_ID).setEnabled(true);
+         getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
+         return;
+      }
       super.okPressed();
    }
 
@@ -1648,7 +1588,7 @@ public class DialogExportTour extends TitleAreaDialog {
 
          final File newFile = new File(filePath.toOSString());
 
-         if ((fileName.length() == 0) || newFile.isDirectory()) {
+         if (fileName.length() == 0 || newFile.isDirectory()) {
 
             // invalid filename
 
@@ -1681,7 +1621,6 @@ public class DialogExportTour extends TitleAreaDialog {
             } catch (final IOException ioe) {
                setError(Messages.dialog_export_msg_fileNameIsInvalid);
             }
-
          }
       }
 

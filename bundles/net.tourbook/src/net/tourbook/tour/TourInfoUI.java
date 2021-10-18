@@ -23,6 +23,7 @@ import java.util.Set;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.formatter.FormatManager;
@@ -70,12 +71,12 @@ import org.joda.time.PeriodType;
 
 public class TourInfoUI {
 
-   private static final String           IMAGE_APP_CLOSE          = net.tourbook.common.Messages.Image__App_Close;
    private static final String           APP_ACTION_CLOSE_TOOLTIP = net.tourbook.common.Messages.App_Action_Close_Tooltip;
 
    private static final int              SHELL_MARGIN             = 5;
    private static final int              MAX_DATA_WIDTH           = 300;
 
+   private static final String           BATTERY_FORMAT           = "... %d %%";                                                                //$NON-NLS-1$
    private static final String           REAR_SHIFT_FORMAT        = "/  ";                                                                      //$NON-NLS-1$
 
    private static final IPreferenceStore _prefStoreCommon         = CommonActivator.getPrefStore();
@@ -116,6 +117,7 @@ public class TourInfoUI {
       _nf3.setMaximumFractionDigits(3);
    }
 
+   private boolean _hasBattery;
    private boolean _hasDescription;
    private boolean _hasGears;
    private boolean _hasRunDyn;
@@ -184,6 +186,8 @@ public class TourInfoUI {
    private Label     _lblAltitudeUpUnit;
    private Label     _lblAltitudeDown;
    private Label     _lblAltitudeDownUnit;
+   private Label     _lblAvgElevationChange;
+   private Label     _lblAvgElevationChangeUnit;
    private Label     _lblAvgSpeed;
    private Label     _lblAvgSpeedUnit;
    private Label     _lblAvgPace;
@@ -194,7 +198,14 @@ public class TourInfoUI {
    private Label     _lblAvgCadenceUnit;
    private Label     _lblAvg_Power;
    private Label     _lblAvg_PowerUnit;
+<<<<<<< HEAD
    private Label     _lblBikeScore;
+=======
+   private Label     _lblBattery;
+   private Label     _lblBattery_Spacer;
+   private Label     _lblBattery_Start;
+   private Label     _lblBattery_End;
+>>>>>>> refs/remotes/origin/main
    private Label     _lblBodyWeight;
    private Label     _lblBreakTime;
    private Label     _lblBreakTime_Unit;
@@ -283,7 +294,7 @@ public class TourInfoUI {
          super(null, IAction.AS_PUSH_BUTTON);
 
          setToolTipText(APP_ACTION_CLOSE_TOOLTIP);
-         setImageDescriptor(CommonActivator.getImageDescriptor(IMAGE_APP_CLOSE));
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Close));
       }
 
       @Override
@@ -335,6 +346,7 @@ public class TourInfoUI {
 
       _hasRunDyn = _tourData.isRunDynAvailable();
 
+      _hasBattery = tourData.getBattery_Percentage_Start() != -1;
       _hasDescription = tourDescription != null && tourDescription.length() > 0;
       _hasGears = _tourData.getFrontShiftCount() > 0 || _tourData.getRearShiftCount() > 0;
       _hasTags = tourTags != null && tourTags.size() > 0;
@@ -434,11 +446,11 @@ public class TourInfoUI {
             if (_uiTourTypeName != null) {
 
                _lblTourType_Image = new CLabel(container, SWT.NONE);
+               _lblTourType_Image.setForeground(_fgColor);
+               _lblTourType_Image.setBackground(_bgColor);
                GridDataFactory.swtDefaults()
                      .align(SWT.BEGINNING, SWT.BEGINNING)
                      .applyTo(_lblTourType_Image);
-               _lblTourType_Image.setForeground(_fgColor);
-               _lblTourType_Image.setBackground(_bgColor);
             }
          }
          {
@@ -446,13 +458,13 @@ public class TourInfoUI {
              * Title
              */
             _lblTitle = new Label(container, SWT.LEAD | SWT.WRAP);
+            _lblTitle.setForeground(_fgColor);
+            _lblTitle.setBackground(_bgColor);
             GridDataFactory.fillDefaults()
                   .hint(MAX_DATA_WIDTH, SWT.DEFAULT)
                   .grab(true, false)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(_lblTitle);
-            _lblTitle.setForeground(_fgColor);
-            _lblTitle.setBackground(_bgColor);
             MTFont.setBannerFont(_lblTitle);
          }
          {
@@ -484,9 +496,9 @@ public class TourInfoUI {
           * Create toolbar
           */
          final ToolBar toolbar = new ToolBar(container, SWT.FLAT);
-         GridDataFactory.fillDefaults().applyTo(toolbar);
          toolbar.setForeground(_fgColor);
          toolbar.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().applyTo(toolbar);
 
          final ToolBarManager tbm = new ToolBarManager(toolbar);
 
@@ -524,9 +536,9 @@ public class TourInfoUI {
    private void createUI_30_Column_1(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
       {
@@ -537,7 +549,7 @@ public class TourInfoUI {
 
          // gear data
          _lblGear_Spacer = createUI_Spacer(container);
-         createUI_46_Gears(container);
+         createUI_38_Gears(container);
       }
    }
 
@@ -545,7 +557,7 @@ public class TourInfoUI {
 
       {
          /*
-          * elapsed time
+          * Elapsed time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_ElapsedTime);
 
@@ -558,7 +570,7 @@ public class TourInfoUI {
 
       {
          /*
-          * recorded time
+          * Recorded time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_RecordedTime);
 
@@ -568,7 +580,7 @@ public class TourInfoUI {
 
       {
          /*
-          * paused time
+          * Paused time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_PausedTime);
 
@@ -578,7 +590,7 @@ public class TourInfoUI {
 
       {
          /*
-          * moving time
+          * Moving time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_MovingTime);
 
@@ -588,7 +600,7 @@ public class TourInfoUI {
 
       {
          /*
-          * break time
+          * Break time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_BreakTime);
 
@@ -656,6 +668,14 @@ public class TourInfoUI {
 
       _lblAltitudeDown = createUI_LabelValue(container, SWT.TRAIL);
       _lblAltitudeDownUnit = createUI_LabelValue(container, SWT.LEAD);
+
+      /*
+       * Average elevation change
+       */
+      createUI_Label(container, Messages.Tour_Tooltip_Label_AvgElevationChange);
+
+      _lblAvgElevationChange = createUI_LabelValue(container, SWT.TRAIL);
+      _lblAvgElevationChangeUnit = createUI_LabelValue(container, SWT.LEAD);
 
       createUI_Spacer(container);
    }
@@ -728,12 +748,23 @@ public class TourInfoUI {
       }
    }
 
+   private void createUI_38_Gears(final Composite parent) {
+
+      /*
+       * Front/rear gear shifts
+       */
+      _lblGear = createUI_Label(parent, Messages.Tour_Tooltip_Label_GearShifts);
+
+      _lblGear_FrontShifts = createUI_LabelValue(parent, SWT.TRAIL);
+      _lblGear_RearShifts = createUI_LabelValue(parent, SWT.LEAD);
+   }
+
    private void createUI_40_Column_2(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
@@ -744,6 +775,9 @@ public class TourInfoUI {
 
          createUI_Spacer(container);
          createUI_44_Weather(container);
+
+         _lblBattery_Spacer = createUI_Spacer(container);
+         createUI_45_Battery(container);
       }
    }
 
@@ -828,22 +862,22 @@ public class TourInfoUI {
    private void createUI_44_Weather(final Composite parent) {
 
       /*
-       * clouds
+       * Clouds
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Clouds);
 
-      // icon: clouds
+      // Icon: clouds
       _lblClouds = new CLabel(parent, SWT.TRAIL);
-      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblClouds);
       _lblClouds.setForeground(_fgColor);
       _lblClouds.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblClouds);
 
       // text: clouds
       _lblCloudsUnit = createUI_LabelValue(parent, SWT.LEAD);
       GridDataFactory.swtDefaults().applyTo(_lblCloudsUnit);
 
       /*
-       * temperature
+       * Temperature
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Temperature);
 
@@ -852,7 +886,7 @@ public class TourInfoUI {
       createUI_Label(parent, UI.UNIT_LABEL_TEMPERATURE);
 
       /*
-       * wind speed
+       * Wind speed
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_WindSpeed);
 
@@ -860,7 +894,7 @@ public class TourInfoUI {
       _lblWindSpeedUnit = createUI_LabelValue(parent, SWT.LEAD);
 
       /*
-       * wind direction
+       * Wind direction
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_WindDirection);
 
@@ -868,23 +902,25 @@ public class TourInfoUI {
       _lblWindDirectionUnit = createUI_LabelValue(parent, SWT.LEAD);
    }
 
-   private void createUI_46_Gears(final Composite parent) {
+   private void createUI_45_Battery(final Composite parent) {
 
-      /*
-       * Front/rear gear shifts
-       */
-      _lblGear = createUI_Label(parent, Messages.Tour_Tooltip_Label_GearShifts);
+      {
+         /*
+          * Battery 88...56 %
+          */
+         _lblBattery = createUI_Label(parent, Messages.Tour_Tooltip_Label_Battery);
 
-      _lblGear_FrontShifts = createUI_LabelValue(parent, SWT.TRAIL);
-      _lblGear_RearShifts = createUI_LabelValue(parent, SWT.LEAD);
+         _lblBattery_Start = createUI_LabelValue(parent, SWT.TRAIL);
+         _lblBattery_End = createUI_LabelValue(parent, SWT.LEAD);
+      }
    }
 
    private void createUI_50_Column_3(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
@@ -1173,9 +1209,9 @@ public class TourInfoUI {
       }
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults()
             .numColumns(2)
             .equalWidth(true)
@@ -1184,9 +1220,9 @@ public class TourInfoUI {
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
          final Composite containerCreated = new Composite(container, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerCreated);
          containerCreated.setForeground(_fgColor);
          containerCreated.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerCreated);
          GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerCreated);
          {
             /*
@@ -1199,9 +1235,9 @@ public class TourInfoUI {
          }
 
          final Composite containerModified = new Composite(container, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerModified);
          containerModified.setForeground(_fgColor);
          containerModified.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerModified);
          GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerModified);
          {
             /*
@@ -1237,9 +1273,9 @@ public class TourInfoUI {
    private Label createUI_LabelValue(final Composite parent, final int style) {
 
       final Label label = new Label(parent, style);
-      GridDataFactory.fillDefaults().applyTo(label);
       label.setForeground(_fgColor);
       label.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().applyTo(label);
 
       return label;
    }
@@ -1486,7 +1522,7 @@ public class TourInfoUI {
        * Tags
        */
       if (_hasTags) {
-         net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value);
+         net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value, true);
       }
       showHideControl(_lblTourTags, _hasTags);
       showHideControl(_lblTourTags_Value, _hasTags);
@@ -1642,6 +1678,10 @@ public class TourInfoUI {
       _lblAltitudeDown.setText(Integer.toString((int) (_tourData.getTourAltDown() / UI.UNIT_VALUE_ELEVATION)));
       _lblAltitudeDownUnit.setText(UI.UNIT_LABEL_ELEVATION);
 
+      final int averageElevationChange = Math.round(UI.convertAverageElevationChangeFromMetric(_tourData.getAvgAltitudeChange()));
+      _lblAvgElevationChange.setText(Integer.toString(averageElevationChange));
+      _lblAvgElevationChangeUnit.setText(UI.SPACE + UI.UNIT_LABEL_ELEVATION + "/" + UI.UNIT_LABEL_DISTANCE); //$NON-NLS-1$
+
       final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
       final long time = isPaceAndSpeedFromRecordedTime ? recordedTime : movingTime;
       final float avgSpeed = time == 0 ? 0 : 3.6f * distance / time;
@@ -1720,6 +1760,18 @@ public class TourInfoUI {
       showHideControl(_lblGear_FrontShifts, _hasGears);
       showHideControl(_lblGear_RearShifts, _hasGears);
       showHideControl(_lblGear_Spacer, _hasGears);
+
+      /*
+       * Battery
+       */
+      if (_hasBattery) {
+         _lblBattery_Start.setText(Short.toString(_tourData.getBattery_Percentage_Start()));
+         _lblBattery_End.setText(String.format(BATTERY_FORMAT, _tourData.getBattery_Percentage_End()));
+      }
+      showHideControl(_lblBattery, _hasBattery);
+      showHideControl(_lblBattery_Spacer, _hasBattery);
+      showHideControl(_lblBattery_Start, _hasBattery);
+      showHideControl(_lblBattery_End, _hasBattery);
 
       /*
        * Date/time

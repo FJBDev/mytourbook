@@ -1,42 +1,33 @@
-21.next.0                                                 ?. Month 2021
+21.next.0                                                 ?.Month 2021
 
 
 TODO's
 ======
 
-* Website: Document cloud connections
+https://adoptium.net/ Temurin
 
-  @wolfgang-ch In the Strava guidelines, I read this : https://developers.strava.com/guidelines/
-  "All apps must display the “Powered by Strava” logo or “Compatible with Strava” logo on all websites, apps and any distributable media such as images, videos or prints. No variations or modifications are acceptable."
 
-  I am thinking you could display the logo "Compatible With Strava" on the website in the next release and that would comply with their requirements ?
-
-* Frederic : Remove the unused redirect_uri in the Dropbox app console once the new version is released
-
+* Tour Chart      - Select color for 2nd graph line instead of compliment color
+                  - Set default graphs in the graph slideout, sorting still needs the pref page
 
 Issues
 ======
 
-*  java.lang.NullPointerException
-    at net.tourbook.tour.DialogAdjustAltitude.spline_CreateDefaultSplineData(DialogAdjustAltitude.java:2231)
-    at net.tourbook.tour.DialogAdjustAltitude.createDialogArea(DialogAdjustAltitude.java:823)
-    at org.eclipse.jface.dialogs.TitleAreaDialog.createContents(TitleAreaDialog.java:161)
-    at org.eclipse.jface.window.Window.create(Window.java:431)
-    at org.eclipse.jface.dialogs.Dialog.create(Dialog.java:1094)
-    at net.tourbook.tour.DialogAdjustAltitude.create(DialogAdjustAltitude.java:629)
-    at org.eclipse.jface.window.Window.open(Window.java:788)
-    at net.tourbook.tour.ActionOpenAdjustAltitudeDialog.doAction(ActionOpenAdjustAltitudeDialog.java:95)
-    at net.tourbook.tour.ActionOpenAdjustAltitudeDialog.run(ActionOpenAdjustAltitudeDialog.java:116)
-    at org.eclipse.jface.action.Action.runWithEvent(Action.java:474)
+*  
 
+
+Experimental
+============
+
+* 
 
   
 New
 ===
 
-* Strava Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/273
-  - Ability to upload tours to a Strava account.
-
+* Cloud: Suunto App Integration (Frederic)
+  - Support for multiple accounts
+  https://sourceforge.net/p/mytourbook/feature-requests/197/
 
 
 Improvements
@@ -56,7 +47,7 @@ Changes
 Bugfix
 ======
 
-* A few measurement system values were wrong
+* 
 
 
 Translation    
@@ -72,4 +63,5 @@ Translation
 System   
 ======
 
-* Eclipse 2020-12 (maybe)
+* Eclipse 2021-09
+* FIT SDK 21.60

@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.training;
 
+import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +33,10 @@ import net.tourbook.chart.ChartDataYSerie;
 import net.tourbook.chart.ChartType;
 import net.tourbook.chart.IBarSelectionListener;
 import net.tourbook.chart.MinMaxKeeper_YData;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.color.GraphColorManager;
+import net.tourbook.common.color.ThemeUtil;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.ActionToolbarSlideout;
 import net.tourbook.common.tooltip.ToolbarSlideout;
 import net.tourbook.common.util.Util;
@@ -62,6 +69,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -69,18 +77,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -126,8 +127,9 @@ public class TrainingView extends ViewPart {
 
 // SET_FORMATTING_ON
 
-   private final IPreferenceStore      _prefStore     = TourbookPlugin.getPrefStore();
-   private final IDialogSettings       _state         = TourbookPlugin.getState(ID);
+   private final IPreferenceStore      _prefStore        = TourbookPlugin.getPrefStore();
+   private final IPreferenceStore      _prefStore_Common = CommonActivator.getPrefStore();
+   private final IDialogSettings       _state            = TourbookPlugin.getState(ID);
 
    private IPartListener2              _partListener;
    private ISelectionListener          _postSelectionListener;
@@ -135,7 +137,7 @@ public class TrainingView extends ViewPart {
    private ITourEventListener          _tourEventListener;
 
    private ModifyListener              _defaultSpinnerModifyListener;
-   private SelectionAdapter            _defaultSpinnerSelectionListener;
+   private SelectionListener           _defaultSpinnerSelectionListener;
    private MouseWheelListener          _defaultSpinnerMouseWheelListener;
 
    private TourPerson                  _currentPerson;
@@ -153,14 +155,16 @@ public class TrainingView extends ViewPart {
 
    private double[]                    _xSeriePulse;
 
-   private ArrayList<TourPersonHRZone> _personHrZones = new ArrayList<>();
-   private final MinMaxKeeper_YData    _minMaxKeeper  = new MinMaxKeeper_YData();
+   private ArrayList<TourPersonHRZone> _personHrZones    = new ArrayList<>();
+   private final MinMaxKeeper_YData    _minMaxKeeper     = new MinMaxKeeper_YData();
 
-   private final NumberFormat          _nf1           = NumberFormat.getNumberInstance();
+   private final NumberFormat          _nf1              = NumberFormat.getNumberInstance();
    {
       _nf1.setMinimumFractionDigits(1);
       _nf1.setMaximumFractionDigits(1);
    }
+
+   private int _imageCounter = 0;
 
    /*
     * UI controls/resources
@@ -204,15 +208,10 @@ public class TrainingView extends ViewPart {
    private Label[]   _lblHRZoneColor;
    private Label[]   _lblHrZonePercent;
 
-   /*
-    * none UI
-    */
-   private int      _imageCounter = 0;
-
    /**
     * Percentage for current tour and for each HR zone
     */
-   private double[] _tourHrZonePercent;
+   private double[]  _tourHrZonePercent;
 
    private class ActionTrainingOptions extends ActionToolbarSlideout {
 
@@ -233,8 +232,8 @@ public class TrainingView extends ViewPart {
             _pageBook.getShell(),
             PrefPagePeople.ID,
             null,
-            new PrefPagePeopleData(PrefPagePeople.PREF_DATA_SELECT_HR_ZONES, person)//
-      )
+            new PrefPagePeopleData(PrefPagePeople.PREF_DATA_SELECT_HR_ZONES, person))
+
             .open();
    }
 
@@ -261,7 +260,12 @@ public class TrainingView extends ViewPart {
       getViewSite().getPage().addPartListener(_partListener = new IPartListener2() {
 
          @Override
-         public void partActivated(final IWorkbenchPartReference partRef) {}
+         public void partActivated(final IWorkbenchPartReference partRef) {
+
+            if (partRef.getPart(false) == TrainingView.this) {
+               fixThemedColors();
+            }
+         }
 
          @Override
          public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
@@ -270,7 +274,12 @@ public class TrainingView extends ViewPart {
          public void partClosed(final IWorkbenchPartReference partRef) {}
 
          @Override
-         public void partDeactivated(final IWorkbenchPartReference partRef) {}
+         public void partDeactivated(final IWorkbenchPartReference partRef) {
+
+            if (partRef.getPart(false) == TrainingView.this) {
+               fixThemedColors();
+            }
+         }
 
          @Override
          public void partHidden(final IWorkbenchPartReference partRef) {}
@@ -424,7 +433,7 @@ public class TrainingView extends ViewPart {
       initUI(parent);
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
             .spacing(0, 0)
             .applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
@@ -437,11 +446,11 @@ public class TrainingView extends ViewPart {
    private void createUI_10_Toolbar(final Composite parent) {
 
       _toolbar = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .grab(true, false)
             .align(SWT.BEGINNING, SWT.FILL)
             .applyTo(_toolbar);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
             .numColumns(6)
             .margins(3, 3)
             .applyTo(_toolbar);
@@ -451,7 +460,7 @@ public class TrainingView extends ViewPart {
           * label: hr min
           */
          _lblHrMin = new Label(_toolbar, SWT.NONE);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
 //               .indent(5, 0)
                .align(SWT.BEGINNING, SWT.CENTER)
                .applyTo(_lblHrMin);
@@ -472,7 +481,7 @@ public class TrainingView extends ViewPart {
           * label: hr max
           */
          _lblHrMax = new Label(_toolbar, SWT.NONE);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
                .align(SWT.BEGINNING, SWT.CENTER)
                .applyTo(_lblHrMax);
          _lblHrMax.setText(Messages.Training_View_Label_RightChartBorder);
@@ -492,7 +501,7 @@ public class TrainingView extends ViewPart {
           * toolbar actions
           */
          final ToolBar toolbar = new ToolBar(_toolbar, SWT.FLAT);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
                .align(SWT.BEGINNING, SWT.CENTER)
                .applyTo(toolbar);
          _headerToolbarManager = new ToolBarManager(toolbar);
@@ -500,7 +509,7 @@ public class TrainingView extends ViewPart {
 
 //      // label: horizontal separator
 //      final Label label = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
-//      GridDataFactory.fillDefaults()//
+//      GridDataFactory.fillDefaults()
 //            .grab(true, false)
 //            .hint(SWT.DEFAULT, 1)
 //            .applyTo(label);
@@ -554,10 +563,10 @@ public class TrainingView extends ViewPart {
    private Composite createUI_20_PageHrZones(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
 //            .grab(true, true)
             .applyTo(container);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
             .numColumns(3)
             .spacing(0, 0)
             .applyTo(container);
@@ -565,15 +574,64 @@ public class TrainingView extends ViewPart {
       container.setBackground(_tk.getColors().getBackground());
       {
          // feature request to show the zone image first https://sourceforge.net/p/mytourbook/feature-requests/132/
-         createUI_40_HrZoneImage(container);
-         createUI_30_HrZoneChart(container);
+         createUI_30_HrZoneImage(container);
+         createUI_40_HrZoneChart(container);
          createUI_50_HrZoneDataContainer(container);
       }
 
       return container;
    }
 
-   private void createUI_30_HrZoneChart(final Composite parent) {
+   private void createUI_30_HrZoneImage(final Composite parent) {
+
+      final Composite container = _tk.createComposite(parent);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.fillDefaults()
+            .numColumns(1)
+            .extendedMargins(5, 0, 5, 5)
+            .applyTo(container);
+      {
+         _canvasHrZoneImage = new Canvas(container, SWT.DOUBLE_BUFFERED);
+         GridDataFactory.fillDefaults()
+               .grab(false, true)
+
+               // force image width
+               .hint(20, SWT.DEFAULT)
+               .applyTo(_canvasHrZoneImage);
+
+         _canvasHrZoneImage.addPaintListener(paintEvent -> {
+
+            if (_hrZoneImage == null || _hrZoneImage.isDisposed()) {
+               return;
+            }
+
+            final GC gc = paintEvent.gc;
+
+            /*
+             * fill background because when the part is resized, a gray background would appear
+             */
+            gc.setBackground(_tk.getColors().getBackground());
+            gc.fillRectangle(paintEvent.x, paintEvent.y, paintEvent.width, paintEvent.height);
+
+            gc.drawImage(_hrZoneImage, 0, 0);
+         });
+
+         _canvasHrZoneImage.addControlListener(controlResizedAdapter(controlEvent -> {
+
+            updateUI_44_HrZoneImage();
+
+         }));
+
+         _canvasHrZoneImage.addDisposeListener(disposeEvent -> {
+
+            if (_hrZoneImage != null) {
+               _hrZoneImage.dispose();
+            }
+         });
+      }
+   }
+
+   private void createUI_40_HrZoneChart(final Composite parent) {
 
       /*
        * chart
@@ -592,7 +650,17 @@ public class TrainingView extends ViewPart {
       });
    }
 
-   private void createUI_32_HrZoneDataContainerContent() {
+   private void createUI_50_HrZoneDataContainer(final Composite parent) {
+
+      _hrZoneDataContainer = _tk.createComposite(parent);
+      GridDataFactory.fillDefaults()
+//            .grab(false, true)
+//            .minSize(SWT.DEFAULT, 1)
+            .applyTo(_hrZoneDataContainer);
+      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(_hrZoneDataContainer);
+   }
+
+   private void createUI_52_HrZoneData_ContainerContent() {
 
       // person and zones are already checked
 
@@ -609,23 +677,21 @@ public class TrainingView extends ViewPart {
       GridLayoutFactory.fillDefaults().applyTo(_hrZoneDataContainerContent);
 //      _hrZoneDataContainerContent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
       {
-         createUI_34_HrZoneDataContent(_hrZoneDataContainerContent);
+         createUI_54_HrZoneData_Content(_hrZoneDataContainerContent);
       }
 
       // layout is necessary, dependent which other view is previously opened
       _pageBook.layout(true, true);
    }
 
-   private Composite createUI_34_HrZoneDataContent(final Composite parent) {
+   private Composite createUI_54_HrZoneData_Content(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()//
-//            .grab(true, true)
-            .applyTo(container);
+      GridDataFactory.fillDefaults().applyTo(container);
       GridLayoutFactory.swtDefaults().numColumns(5).applyTo(container);
       {
-         createUI_36_HrZoneHeader(container);
-         createUI_38_HrZoneFields(container);
+         createUI_56_HrZoneHeader(container);
+         createUI_58_HrZoneFields(container);
       }
       _tk.adapt(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
@@ -633,32 +699,30 @@ public class TrainingView extends ViewPart {
       return container;
    }
 
-   private void createUI_36_HrZoneHeader(final Composite parent) {
+   private void createUI_56_HrZoneHeader(final Composite parent) {
 
       /*
        * label: zone name
        */
       Label label = _tk.createLabel(parent, Messages.Training_HRZone_Label_Header_Zone);
-      GridDataFactory.fillDefaults()//
-//            .span(2, 1)
+      label.setFont(_fontItalic);
+      GridDataFactory.fillDefaults()
             .align(SWT.CENTER, SWT.FILL)
             .applyTo(label);
-      label.setFont(_fontItalic);
 
       /*
        * label: hr zone %
        */
       label = _tk.createLabel(parent, UI.SYMBOL_PERCENTAGE);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .align(SWT.END, SWT.FILL)
-//            .align(SWT.CENTER, SWT.FILL)
             .applyTo(label);
 
       /*
        * label: h:mm
        */
       label = _tk.createLabel(parent, Messages.App_Label_H_MM);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .align(SWT.END, SWT.FILL)
             .applyTo(label);
 
@@ -666,9 +730,8 @@ public class TrainingView extends ViewPart {
        * label: bpm
        */
       label = _tk.createLabel(parent, net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .align(SWT.END, SWT.FILL)
-//            .align(SWT.CENTER, SWT.FILL)
             .applyTo(label);
       /*
        * color
@@ -676,7 +739,7 @@ public class TrainingView extends ViewPart {
       label = _tk.createLabel(parent, UI.EMPTY_STRING);
    }
 
-   private void createUI_38_HrZoneFields(final Composite parent) {
+   private void createUI_58_HrZoneFields(final Composite parent) {
 
       final int hrZoneSize = _personHrZones.size();
 
@@ -695,20 +758,18 @@ public class TrainingView extends ViewPart {
       _hrZoneColorsBright = new Color[hrZoneSize];
       _hrZoneColorsDark = new Color[hrZoneSize];
 
-      final Display display = parent.getDisplay();
-
       // the sequence of the zones are inverted
       for (int zoneIndex = hrZoneSize - 1; zoneIndex >= 0; zoneIndex--) {
 
          final TourPersonHRZone hrZone = _personHrZones.get(zoneIndex);
-         final Color hrZoneColor = _hrZoneColors[zoneIndex] = new Color(display, hrZone.getColor());
-         _hrZoneColorsBright[zoneIndex] = new Color(display, hrZone.getColorBright());
-         _hrZoneColorsDark[zoneIndex] = new Color(display, hrZone.getColorDark());
+         _hrZoneColors[zoneIndex] = new Color(hrZone.getColor());
+         _hrZoneColorsBright[zoneIndex] = new Color(hrZone.getColorBright());
+         _hrZoneColorsDark[zoneIndex] = new Color(hrZone.getColorDark());
 
          /*
           * label: hr zone name
           */
-         final Label lblHRZoneName = _lblHRZoneName[zoneIndex] = _tk.createLabel(//
+         final Label lblHRZoneName = _lblHRZoneName[zoneIndex] = _tk.createLabel(
                parent,
                hrZone.getNameShort(),
                SWT.LEAD);
@@ -717,11 +778,11 @@ public class TrainingView extends ViewPart {
          /*
           * label: hr zone %
           */
-         final Label lblHrZonePercent = _lblHrZonePercent[zoneIndex] = _tk.createLabel(//
+         final Label lblHrZonePercent = _lblHrZonePercent[zoneIndex] = _tk.createLabel(
                parent,
                null,
                SWT.TRAIL);
-         GridDataFactory.fillDefaults() //
+         GridDataFactory.fillDefaults()
                .hint(_pc.convertWidthInCharsToPixels(5), SWT.DEFAULT)
                .applyTo(lblHrZonePercent);
 
@@ -729,18 +790,18 @@ public class TrainingView extends ViewPart {
           * label: tour hr min/max h:mm
           */
          final Label lblTourMinMaxHours = _lblTourMinMaxHours[zoneIndex] = _tk.createLabel(parent, null, SWT.TRAIL);
-         GridDataFactory.fillDefaults() //
+         GridDataFactory.fillDefaults()
                .hint(_pc.convertWidthInCharsToPixels(6), SWT.DEFAULT)
                .applyTo(lblTourMinMaxHours);
 
          /*
           * label: tour hr min/max %
           */
-         final Label lblTourMinMaxBpm = _lblTourMinMaxValue[zoneIndex] = _tk.createLabel(//
+         final Label lblTourMinMaxBpm = _lblTourMinMaxValue[zoneIndex] = _tk.createLabel(
                parent,
                null,
                SWT.TRAIL);
-         GridDataFactory.fillDefaults() //
+         GridDataFactory.fillDefaults()
                .hint(_pc.convertWidthInCharsToPixels(9), SWT.DEFAULT)
                .applyTo(lblTourMinMaxBpm);
 
@@ -749,72 +810,9 @@ public class TrainingView extends ViewPart {
           */
          final Label label = _lblHRZoneColor[zoneIndex] = new Label(parent, SWT.NONE);
          GridDataFactory.fillDefaults().hint(16, 16).applyTo(label);
-         label.setBackground(hrZoneColor);
       }
-   }
 
-   private void createUI_40_HrZoneImage(final Composite parent) {
-
-      final Composite container = _tk.createComposite(parent);
-      GridDataFactory.fillDefaults().applyTo(container);
-      GridLayoutFactory.fillDefaults()//
-            .numColumns(1)
-            .extendedMargins(5, 0, 5, 5)
-            .applyTo(container);
-      {
-         _canvasHrZoneImage = new Canvas(container, SWT.DOUBLE_BUFFERED);
-         GridDataFactory.fillDefaults()//
-               .grab(false, true)
-               // force image width
-               .hint(20, SWT.DEFAULT)
-               .applyTo(_canvasHrZoneImage);
-
-         _canvasHrZoneImage.addPaintListener(new PaintListener() {
-            @Override
-            public void paintControl(final PaintEvent e) {
-
-               if (_hrZoneImage == null || _hrZoneImage.isDisposed()) {
-                  return;
-               }
-
-               final GC gc = e.gc;
-
-               /*
-                * fill background because when the part is resized, a gray background would appear
-                */
-               gc.setBackground(_tk.getColors().getBackground());
-               gc.fillRectangle(e.x, e.y, e.width, e.height);
-
-               gc.drawImage(_hrZoneImage, 0, 0);
-            }
-         });
-
-         _canvasHrZoneImage.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(final ControlEvent e) {
-               updateUI_44_HrZoneImage();
-            }
-         });
-
-         _canvasHrZoneImage.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(final DisposeEvent e) {
-               if (_hrZoneImage != null) {
-                  _hrZoneImage.dispose();
-               }
-            }
-         });
-      }
-   }
-
-   private void createUI_50_HrZoneDataContainer(final Composite parent) {
-
-      _hrZoneDataContainer = _tk.createComposite(parent);
-      GridDataFactory.fillDefaults()//
-//            .grab(false, true)
-//            .minSize(SWT.DEFAULT, 1)
-            .applyTo(_hrZoneDataContainer);
-      GridLayoutFactory.fillDefaults().numColumns(1).applyTo(_hrZoneDataContainer);
+      fixThemedColors();
    }
 
    @Override
@@ -844,16 +842,6 @@ public class TrainingView extends ViewPart {
 
       if (_hrZoneColors != null) {
 
-         for (final Color hrZoneColor : _hrZoneColors) {
-            hrZoneColor.dispose();
-         }
-
-         for (int zoneIndex = 0; zoneIndex < _hrZoneColors.length; zoneIndex++) {
-            _hrZoneColors[zoneIndex].dispose();
-            _hrZoneColorsBright[zoneIndex].dispose();
-            _hrZoneColorsDark[zoneIndex].dispose();
-         }
-
          _hrZoneColors = null;
          _hrZoneColorsBright = null;
          _hrZoneColorsDark = null;
@@ -864,8 +852,6 @@ public class TrainingView extends ViewPart {
 
       final boolean isHrZoneAvailable = TrainingManager.isRequiredHrZoneDataAvailable(_tourData);
       final boolean isCustomScaling = isHrZoneAvailable && _isShowAllValues == false;
-
-//      _comboTrainingChart.setEnabled(canShowHrZones);
 
       _spinnerHrLeft.setEnabled(isCustomScaling);
       _spinnerHrRight.setEnabled(isCustomScaling);
@@ -897,41 +883,60 @@ public class TrainingView extends ViewPart {
       _headerToolbarManager.update(true);
    }
 
+   private void fixThemedColors() {
+
+      // must be run async otherwise it is overwritten when using the dark theme
+      _pageBook.getDisplay().asyncExec(() -> {
+
+         if (_pageBook.isDisposed()) {
+            return;
+         }
+
+         for (int zoneIndex = 0; zoneIndex < _lblHRZoneColor.length; zoneIndex++) {
+
+            final Label label = _lblHRZoneColor[zoneIndex];
+            final Color zoneColor = _hrZoneColors[zoneIndex];
+
+            label.setBackground(zoneColor);
+         }
+      });
+   }
+
    private void initUI(final Composite parent) {
 
       _pc = new PixelConverter(parent);
       _tk = new FormToolkit(parent.getDisplay());
       _fontItalic = JFaceResources.getFontRegistry().getItalic(JFaceResources.DIALOG_FONT);
 
-      _defaultSpinnerModifyListener = new ModifyListener() {
-         @Override
-         public void modifyText(final ModifyEvent e) {
-            if (_isUpdateUI) {
-               return;
-            }
-            onModifyHrBorder();
+      parent.addControlListener(controlResizedAdapter(controlEvent -> fixThemedColors()));
+
+      _defaultSpinnerModifyListener = modifyEvent -> {
+
+         if (_isUpdateUI) {
+            return;
          }
+
+         onModifyHrBorder();
       };
 
-      _defaultSpinnerSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            if (_isUpdateUI) {
-               return;
-            }
-            onModifyHrBorder();
-         }
-      };
+      _defaultSpinnerSelectionListener = widgetSelectedAdapter(selectionEvent -> {
 
-      _defaultSpinnerMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            Util.adjustSpinnerValueOnMouseScroll(event);
-            if (_isUpdateUI) {
-               return;
-            }
-            onModifyHrBorder();
+         if (_isUpdateUI) {
+            return;
          }
+
+         onModifyHrBorder();
+      });
+
+      _defaultSpinnerMouseWheelListener = mouseEvent -> {
+
+         Util.adjustSpinnerValueOnMouseScroll(mouseEvent);
+
+         if (_isUpdateUI) {
+            return;
+         }
+
+         onModifyHrBorder();
       };
 
    }
@@ -1013,7 +1018,7 @@ public class TrainingView extends ViewPart {
          } else if (firstElement instanceof TVICompareResultComparedTour) {
 
             final TVICompareResultComparedTour compareResultItem = (TVICompareResultComparedTour) firstElement;
-            final TourData tourData = TourManager.getInstance().getTourData(compareResultItem.getComparedTourData().getTourId());
+            final TourData tourData = TourManager.getInstance().getTourData(compareResultItem.getTourId());
             updateUI_20(tourData);
          }
 
@@ -1069,6 +1074,7 @@ public class TrainingView extends ViewPart {
    @Override
    public void setFocus() {
 
+      fixThemedColors();
    }
 
    private void showTour() {
@@ -1080,6 +1086,7 @@ public class TrainingView extends ViewPart {
       }
 
       enableControls();
+
    }
 
    private void showTourFromTourProvider() {
@@ -1227,25 +1234,39 @@ public class TrainingView extends ViewPart {
 
    private void updateUI_40_HrZoneChart(final HrZoneContext zoneMinMaxBpm) {
 
-      final float[] pulseSerie = _tourData.getPulseSmoothedSerie();
+      final float[] pulseSerie = _tourData.getPulse_SmoothedSerie();
       final int[] timeSerie = _tourData.timeSerie;
       final boolean[] breakTimeSerie = _tourData.getBreakTimeSerie();
       final int timeSerieSize = timeSerie.length;
 
+<<<<<<< HEAD
       final List<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
       final int zoneSize = hrSortedZones.size();
+=======
+      final ArrayList<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
+      final int numZones = hrSortedZones.size();
+>>>>>>> refs/remotes/origin/main
 
-      final RGB[] rgbBright = new RGB[zoneSize];
-      final RGB[] rgbDark = new RGB[zoneSize];
-      final RGB[] rgbLine = new RGB[zoneSize];
+      final RGB[] allRgbBright = new RGB[numZones];
+      final RGB[] allRgbDark = new RGB[numZones];
+      final RGB[] allRgbLine = new RGB[numZones];
+
+      final String prefGraphName = ICommonPreferences.GRAPH_COLORS + GraphColorManager.PREF_GRAPH_TIME + UI.SYMBOL_DOT;
+
+      final String prefColorText = net.tourbook.common.UI.IS_DARK_THEME
+            ? GraphColorManager.PREF_COLOR_TEXT_DARK
+            : GraphColorManager.PREF_COLOR_TEXT_LIGHT;
+
+      // get colors from common pref store
+      final RGB rgbTextColor = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + prefColorText);
 
       int zoneIndex = 0;
 
       for (final TourPersonHRZone hrZone : hrSortedZones) {
 
-         rgbDark[zoneIndex] = hrZone.getColor();
-         rgbBright[zoneIndex] = hrZone.getColorBright();
-         rgbLine[zoneIndex] = hrZone.getColorDark();
+         allRgbDark[zoneIndex] = hrZone.getColor();
+         allRgbBright[zoneIndex] = hrZone.getColorBright();
+         allRgbLine[zoneIndex] = hrZone.getColorDark();
 
          zoneIndex++;
       }
@@ -1291,7 +1312,7 @@ public class TrainingView extends ViewPart {
          _xSeriePulse[pulseIndex] = pulseIndex;
 
          // set color index for each pulse value
-         for (zoneIndex = 0; zoneIndex < zoneSize; zoneIndex++) {
+         for (zoneIndex = 0; zoneIndex < numZones; zoneIndex++) {
 
             final float minValue = zoneMinBpm[zoneIndex];
             final float maxValue = zoneMaxBpm[zoneIndex];
@@ -1372,10 +1393,11 @@ public class TrainingView extends ViewPart {
       yData.setYTitle(Messages.App_Label_H_MM);
 
       yData.setColorIndex(new int[][] { colorIndex });
-      yData.setRgbLine(rgbLine);
-      yData.setRgbBright(rgbBright);
-      yData.setRgbDark(rgbDark);
-      yData.setDefaultRGB(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB());
+      yData.setRgbBar_Gradient_Bright(allRgbBright);
+      yData.setRgbBar_Gradient_Dark(allRgbDark);
+      yData.setRgbBar_Line(allRgbLine);
+
+      yData.setRgbGraph_Text(rgbTextColor);
 
       chartDataModel.addYData(yData);
 
@@ -1395,7 +1417,7 @@ public class TrainingView extends ViewPart {
 
       // create hr zones when not yet done or disposed
       if (_hrZoneDataContainerContent == null || _hrZoneDataContainerContent.isDisposed()) {
-         createUI_32_HrZoneDataContainerContent();
+         createUI_52_HrZoneData_ContainerContent();
       }
 
       final int personZoneSize = _personHrZones.size();
@@ -1535,25 +1557,31 @@ public class TrainingView extends ViewPart {
 
                if (isHrZoneDataAvailable) {
 
+                  // there seems to be always a gap at the top of the zone image -> fill this gap
+                  gc.setBackground(ThemeUtil.getDefaultBackgroundColor_Table());
+                  gc.fillRectangle(image.getBounds());
+
                   for (int zoneIndex = 0; zoneIndex < hrZoneSize; zoneIndex++) {
 
                      final double hrZonePercent = _tourHrZonePercent[zoneIndex];
 
-                     final int devWidth = devImageWidth - 1;
+                     final int devWidth = devImageWidth - 0;
                      final int devHeight = (int) (hrZonePercent / 100.0 * devImageHeight - 0);
                      final int devY = devYPos - devHeight;
 
                      gc.setForeground(_hrZoneColorsBright[zoneIndex]);
                      gc.setBackground(_hrZoneColors[zoneIndex]);
-                     gc.fillGradientRectangle(0, devY, devWidth, devHeight - 1, false);
+                     gc.fillGradientRectangle(0, devY, devWidth, devHeight - 0, false);
 
-                     gc.setForeground(_hrZoneColorsDark[zoneIndex]);
-                     gc.drawRectangle(0, devY, devWidth - 1, devHeight - 1);
+// disabled drawing of a border
+//                     gc.setForeground(_hrZoneColorsDark[zoneIndex]);
+//                     gc.drawRectangle(0, devY, devWidth - 1, devHeight - 1);
 
                      devYPos -= devHeight;
                   }
 
                } else {
+
                   gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
                   gc.fillRectangle(image.getBounds());
                }

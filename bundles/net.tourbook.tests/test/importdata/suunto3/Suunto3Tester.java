@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,10 @@ import java.util.HashMap;
 import net.tourbook.data.TourData;
 import net.tourbook.device.suunto.Suunto3_DeviceDataReader;
 import net.tourbook.importdata.DeviceData;
+import net.tourbook.importdata.ImportState_File;
+import net.tourbook.importdata.ImportState_Process;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -44,15 +47,50 @@ class Suunto3Tester {
       deviceDataReader = new Suunto3_DeviceDataReader();
    }
 
+   @AfterEach
+   void tearDown() {
+      newlyImportedTours.clear();
+      alreadyImportedTours.clear();
+   }
+
+   /**
+    * Forest Park, OR with laps
+    */
+   @Test
+   void testImportForestParkLaps() {
+
+      final String filePath = IMPORT_FILE_PATH + "597F0A5112001700-2016-08-27T15_45_41-0"; //$NON-NLS-1$
+
+      final String testFilePath = Paths.get(filePath + ".sml").toAbsolutePath().toString(); //$NON-NLS-1$
+
+      deviceDataReader.processDeviceData(testFilePath,
+            deviceData,
+            alreadyImportedTours,
+            newlyImportedTours,
+            new ImportState_File(),
+            new ImportState_Process());
+
+      final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
+
+      Comparison.compareTourDataAgainstControl(tour, filePath);
+   }
+
    /**
     * Timothy Lake, OR
     */
    @Test
    void testImportTimothyLake() {
+
       final String filePath = IMPORT_FILE_PATH + "F783095113000500-2015-05-31T09_51_13-0"; //$NON-NLS-1$
 
       final String testFilePath = Paths.get(filePath + ".sml").toAbsolutePath().toString(); //$NON-NLS-1$
-      deviceDataReader.processDeviceData(testFilePath, deviceData, alreadyImportedTours, newlyImportedTours);
+
+      deviceDataReader.processDeviceData(testFilePath,
+            deviceData,
+            alreadyImportedTours,
+            newlyImportedTours,
+            new ImportState_File(),
+            new ImportState_Process());
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 

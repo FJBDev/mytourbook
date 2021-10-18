@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Connectivity to cloud applications
 Bundle-SymbolicName: net.tourbook.cloud;singleton:=true
-Bundle-Version: 20.12.1.qualifier
+Bundle-Version: 21.9.0.qualifier
 Bundle-Activator: net.tourbook.cloud.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -13,7 +13,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .,
- dropbox-core-sdk-3.1.5.jar,
+ dropbox-core-sdk-4.0.0.jar,
  java7-fs-dropbox-0.0.3.jar,
  java7-fs-base-0.0.3.jar,
  httpcore-4.4.14.jar,
@@ -22,9 +22,12 @@ Import-Package: com.fasterxml.jackson.core,
  net.tourbook,
  net.tourbook.application,
  net.tourbook.data,
+ net.tourbook.database,
  net.tourbook.export,
  net.tourbook.ext.velocity,
+ net.tourbook.extension.download,
  net.tourbook.extension.upload,
+ net.tourbook.importdata,
  net.tourbook.tour,
  net.tourbook.web,
  org.apache.commons.io,

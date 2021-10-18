@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,25 +15,43 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
+<<<<<<< HEAD
+=======
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.net.URISyntaxException;
+
+>>>>>>> refs/remotes/origin/main
 import net.tourbook.cloud.Activator;
+<<<<<<< HEAD
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2BrowserDialog;
 import net.tourbook.cloud.oauth2.OAuth2Client;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
+=======
+import net.tourbook.cloud.CloudImages;
+import net.tourbook.cloud.Messages;
+import net.tourbook.cloud.Preferences;
+import net.tourbook.cloud.oauth2.LocalHostServer;
+import net.tourbook.cloud.oauth2.OAuth2Constants;
+>>>>>>> refs/remotes/origin/main
 import net.tourbook.common.UI;
+<<<<<<< HEAD
+=======
+import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StatusUtil;
+>>>>>>> refs/remotes/origin/main
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.common.util.Util;
 import net.tourbook.web.WEB;
 
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.window.Window;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -46,12 +64,27 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String ID         = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
+   //SET_FORMATTING_OFF
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_ACCESSTOKEN  = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_AccessToken;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_GROUP_CLOUDACCOUNT = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Group_CloudAccount;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_EXPIRESAT    = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_ExpiresAt;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_REFRESHTOKEN = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_RefreshToken;
+   private static final String PREFPAGE_CLOUDCONNECTIVITY_LABEL_WEBPAGE      = net.tourbook.cloud.Messages.PrefPage_CloudConnectivity_Label_WebPage;
+   //SET_FORMATTING_ON
 
-   private IPreferenceStore   _prefStore = Activator.getDefault().getPreferenceStore();
+   public static final String      ID                  = "net.tourbook.cloud.PrefPageStrava";                                         //$NON-NLS-1$
+   public static final int         CALLBACK_PORT       = 4918;
 
-   private String             _athleteId;
-   private long               _accessTokenExpiresAt;
+   public static final String      ClientId            = "55536";                                                                     //$NON-NLS-1$
+
+   private IPreferenceStore        _prefStore          = Activator.getDefault().getPreferenceStore();
+   private IPropertyChangeListener _prefChangeListener;
+   private LocalHostServer         _server;
+
+   private String                  _athleteId;
+   private long                    _accessTokenExpiresAt;
+
+   private Image                   _imageStravaConnect = Activator.getImageDescriptor(CloudImages.Cloud_Strava_Connect).createImage();
 
    /*
     * UI controls
@@ -86,6 +119,33 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       createUI();
 
       restoreState();
+
+      _prefChangeListener = event -> {
+
+         if (event.getProperty().equals(Preferences.STRAVA_ACCESSTOKEN)) {
+
+            Display.getDefault().syncExec(() -> {
+
+               if (!event.getOldValue().equals(event.getNewValue())) {
+
+                  _labelAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
+                  _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
+                  _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+                  _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
+
+                  _labelAthleteName_Value.setText(_prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME));
+                  _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
+                  _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
+
+                  updateTokensInformationGroup();
+               }
+
+               if (_server != null) {
+                  _server.stopCallBackServer();
+               }
+            });
+         }
+      };
    }
 
    private void createUI() {
@@ -112,15 +172,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          // No variations or modifications are acceptable."
 
          final Button buttonConnect = new Button(container, SWT.NONE);
-         final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
-         buttonConnect.setImage(imageConnect);
-         buttonConnect.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onClickAuthorize();
-            }
-         });
+         buttonConnect.setImage(_imageStravaConnect);
+         buttonConnect.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onClickAuthorize()));
          GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, true).applyTo(buttonConnect);
       }
    }
@@ -129,12 +182,24 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
-      group.setText(Messages.PrefPage_Account_Information_Group);
+      group.setText(PREFPAGE_CLOUDCONNECTIVITY_GROUP_CLOUDACCOUNT);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          {
+            final Label labelWebPage = new Label(group, SWT.NONE);
+            labelWebPage.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_WEBPAGE);
+            GridDataFactory.fillDefaults().applyTo(labelWebPage);
+
+            final Link linkWebPage = new Link(group, SWT.NONE);
+            linkWebPage.setText(UI.LINK_TAG_START + Messages.PrefPage_AccountInformation_Link_Strava_WebPage + UI.LINK_TAG_END);
+            linkWebPage.setEnabled(true);
+            linkWebPage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> WEB.openUrl(
+                  Messages.PrefPage_AccountInformation_Link_Strava_WebPage)));
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
+         }
+         {
             _labelAthleteName = new Label(group, SWT.NONE);
-            _labelAthleteName.setText(Messages.PrefPage_Account_Information_AthleteName_Label);
+            _labelAthleteName.setText(Messages.PrefPage_AccountInformation_Label_AthleteName);
             GridDataFactory.fillDefaults().applyTo(_labelAthleteName);
 
             _labelAthleteName_Value = new Label(group, SWT.NONE);
@@ -142,22 +207,18 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelAthleteWebPage = new Label(group, SWT.NONE);
-            _labelAthleteWebPage.setText(Messages.PrefPage_Account_Information_AthleteWebPage_Label);
+            _labelAthleteWebPage.setText(Messages.PrefPage_AccountInformation_Label_AthleteWebPage);
             GridDataFactory.fillDefaults().applyTo(_labelAthleteWebPage);
 
             _linkAthleteWebPage = new Link(group, SWT.NONE);
             _linkAthleteWebPage.setEnabled(true);
-            _linkAthleteWebPage.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  WEB.openUrl(constructAthleteWebPageLink(_athleteId));
-               }
-            });
+            _linkAthleteWebPage.addSelectionListener(widgetSelectedAdapter(
+                  selectionEvent -> WEB.openUrl(constructAthleteWebPageLink(_athleteId))));
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_linkAthleteWebPage);
          }
          {
             _labelAccessToken = new Label(group, SWT.NONE);
-            _labelAccessToken.setText(Messages.PrefPage_Account_Information_AccessToken_Label);
+            _labelAccessToken.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_ACCESSTOKEN);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _labelAccessToken_Value = new Label(group, SWT.NONE);
@@ -165,7 +226,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelRefreshToken = new Label(group, SWT.NONE);
-            _labelRefreshToken.setText(Messages.PrefPage_Account_Information_RefreshToken_Label);
+            _labelRefreshToken.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_REFRESHTOKEN);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _labelRefreshToken_Value = new Label(group, SWT.NONE);
@@ -173,7 +234,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          }
          {
             _labelExpiresAt = new Label(group, SWT.NONE);
-            _labelExpiresAt.setText(Messages.PrefPage_Account_Information_ExpiresAt_Label);
+            _labelExpiresAt.setText(PREFPAGE_CLOUDCONNECTIVITY_LABEL_EXPIRESAT);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
             _labelExpiresAt_Value = new Label(group, SWT.NONE);
@@ -183,7 +244,32 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    }
 
    @Override
-   public void init(final IWorkbench workbench) {}
+   public void dispose() {
+
+      Util.disposeResource(_imageStravaConnect);
+
+      super.dispose();
+   }
+
+   private String getLocalExpireAtDateTime() {
+      return (_accessTokenExpiresAt == 0) ? UI.EMPTY_STRING : TimeTools.getUTCISODateTime(
+            _accessTokenExpiresAt);
+   }
+
+   @Override
+   public void init(final IWorkbench workbench) {
+      //Not needed
+   }
+
+   @Override
+   public boolean okToLeave() {
+
+      if (_server != null) {
+         _server.stopCallBackServer();
+      }
+
+      return super.okToLeave();
+   }
 
    /**
     * When the user clicks on the "Authorize" button, a browser is opened
@@ -192,18 +278,31 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
     */
    private void onClickAuthorize() {
 
-      final OAuth2Client client = new OAuth2Client();
+      if (_server != null) {
+         _server.stopCallBackServer();
+      }
 
-      client.setAuthorizeUrl(StravaUploader.HerokuAppUrl + "/authorize"); //$NON-NLS-1$
-      client.setRedirectUri("http://localhost:5000"); //$NON-NLS-1$
+      final StravaTokensRetrievalHandler tokensRetrievalHandler = new StravaTokensRetrievalHandler();
+      _server = new LocalHostServer(CALLBACK_PORT, "Strava", _prefChangeListener); //$NON-NLS-1$
 
-      final OAuth2BrowserDialog oAuth2Browser = new OAuth2BrowserDialog(client, "Strava"); //$NON-NLS-1$
-      if (oAuth2Browser.open() != Window.OK) {
+      final boolean isServerCreated = _server.createCallBackServer(tokensRetrievalHandler);
+
+      if (!isServerCreated) {
          return;
       }
 
-      final String authorizationCode = oAuth2Browser.getAuthorizationCode();
+      final URIBuilder authorizeUrlBuilder = new URIBuilder();
+      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
+      authorizeUrlBuilder.setHost("www.strava.com"); //$NON-NLS-1$
+      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
+      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
+      authorizeUrlBuilder.addParameter("scope", "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$
+      try {
+         final String authorizeUrl = authorizeUrlBuilder.build().toString();
 
+<<<<<<< HEAD
       String dialogMessage;
       if (StringUtils.isNullOrEmpty(authorizationCode)) {
          dialogMessage = NLS.bind(
@@ -211,31 +310,31 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                oAuth2Browser.getResponse());
       } else {
          final StravaTokens newTokens = StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
+=======
+         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
+      } catch (final URISyntaxException e) {
+         StatusUtil.log(e);
+      }
+   }
+>>>>>>> refs/remotes/origin/main
 
-         if (newTokens != null) {
+   @Override
+   public boolean performCancel() {
 
+<<<<<<< HEAD
             _labelAccessToken_Value.setText(newTokens.getAccess_token());
             _labelRefreshToken_Value.setText(newTokens.getRefresh_token());
             _accessTokenExpiresAt = newTokens.getExpires_at();
             _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
+=======
+      final boolean isCancel = super.performCancel();
+>>>>>>> refs/remotes/origin/main
 
-            final Athlete athlete = newTokens.getAthlete();
-            if (athlete != null) {
-               _labelAthleteName_Value.setText(athlete.getFirstName() + UI.SPACE1 + athlete.getLastName());
-               _athleteId = athlete.getId();
-               _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
-            }
-         }
-
-         dialogMessage = Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieved;
+      if (isCancel && _server != null) {
+         _server.stopCallBackServer();
       }
 
-      MessageDialog.openInformation(
-            Display.getCurrent().getActiveShell(),
-            Messages.Pref_CloudConnectivity_Strava_AccessToken_Retrieval_Title,
-            dialogMessage);
-
-      UpdateButtonConnectState();
+      return isCancel;
    }
 
    @Override
@@ -247,9 +346,13 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _athleteId = _prefStore.getDefaultString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getDefaultLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+<<<<<<< HEAD
       _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
+=======
+      _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
+>>>>>>> refs/remotes/origin/main
 
-      UpdateButtonConnectState();
+      updateTokensInformationGroup();
 
       super.performDefaults();
    }
@@ -265,6 +368,13 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.STRAVA_ATHLETEFULLNAME, _labelAthleteName_Value.getText());
          _prefStore.setValue(Preferences.STRAVA_ATHLETEID, _athleteId);
          _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
+<<<<<<< HEAD
+=======
+
+         if (_server != null) {
+            _server.stopCallBackServer();
+         }
+>>>>>>> refs/remotes/origin/main
       }
 
       return isOK;
@@ -278,12 +388,16 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
+<<<<<<< HEAD
       _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
+=======
+      _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
+>>>>>>> refs/remotes/origin/main
 
-      UpdateButtonConnectState();
+      updateTokensInformationGroup();
    }
 
-   private void UpdateButtonConnectState() {
+   private void updateTokensInformationGroup() {
 
       final boolean isAuthorized = StringUtils.hasContent(_labelAccessToken_Value.getText()) && StringUtils.hasContent(_labelRefreshToken_Value
             .getText());

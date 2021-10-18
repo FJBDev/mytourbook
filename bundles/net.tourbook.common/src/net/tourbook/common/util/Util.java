@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -80,7 +80,7 @@ import org.xml.sax.Attributes;
 
 public class Util {
 
-// public static final String UNIQUE_ID_SUFFIX_CICLO_TOUR          = "83582";           //$NON-NLS-1$
+   // public static final String UNIQUE_ID_SUFFIX_CICLO_TOUR          = "83582";           //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_GARMIN_FIT          = "12653"; //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_GARMIN_TCX          = "42984"; //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_GPX                 = "31683"; //$NON-NLS-1$
@@ -107,17 +107,24 @@ public class Util {
    /*
     * default xml attributes
     */
-   public static final String ATTR_ROOT_DATETIME          = "Created";          //$NON-NLS-1$
-   public static final String ATTR_ROOT_VERSION_MAJOR     = "VersionMajor";     //$NON-NLS-1$
-   public static final String ATTR_ROOT_VERSION_MINOR     = "VersionMinor";     //$NON-NLS-1$
-   public static final String ATTR_ROOT_VERSION_MICRO     = "VersionMicro";     //$NON-NLS-1$
-   public static final String ATTR_ROOT_VERSION_QUALIFIER = "VersionQualifier"; //$NON-NLS-1$
+   public static final String ATTR_ROOT_DATETIME          = "Created";                                 //$NON-NLS-1$
+   public static final String ATTR_ROOT_VERSION_MAJOR     = "VersionMajor";                            //$NON-NLS-1$
+   public static final String ATTR_ROOT_VERSION_MINOR     = "VersionMinor";                            //$NON-NLS-1$
+   public static final String ATTR_ROOT_VERSION_MICRO     = "VersionMicro";                            //$NON-NLS-1$
+   public static final String ATTR_ROOT_VERSION_QUALIFIER = "VersionQualifier";                        //$NON-NLS-1$
 
-   public static final String ATTR_COLOR_RED              = "red";              //$NON-NLS-1$
-   public static final String ATTR_COLOR_GREEN            = "green";            //$NON-NLS-1$
-   public static final String ATTR_COLOR_BLUE             = "blue";             //$NON-NLS-1$
+   public static final String ATTR_COLOR_RED              = "red";                                     //$NON-NLS-1$
+   public static final String ATTR_COLOR_GREEN            = "green";                                   //$NON-NLS-1$
+   public static final String ATTR_COLOR_BLUE             = "blue";                                    //$NON-NLS-1$
 
-   public static final String CSV_FILE_EXTENSION          = "csv";              //$NON-NLS-1$
+   public static final String CSV_FILE_EXTENSION          = "csv";                                     //$NON-NLS-1$
+
+   private static final char  NL                          = UI.NEW_LINE;
+
+   /**
+    * Number of processors available to the Java virtual machine.
+    */
+   public static final int    NUMBER_OF_PROCESSORS        = Runtime.getRuntime().availableProcessors();
 
    public static int adjustScaleValueOnMouseScroll(final MouseEvent event) {
 
@@ -314,6 +321,22 @@ public class Util {
       return buf.toString();
    }
 
+   /**
+    * Concatenate two int arrays into one
+    *
+    * @param firstValues
+    * @param secondValues
+    * @return
+    */
+   public static int[] concatInt(final int[] firstValues, final int[] secondValues) {
+
+      final int[] concatenatedValues = Arrays.copyOf(firstValues, firstValues.length + secondValues.length);
+
+      System.arraycopy(secondValues, 0, concatenatedValues, firstValues.length, secondValues.length);
+
+      return concatenatedValues;
+   }
+
    public static float[][] convertDoubleToFloat(final double[][] doubleSeries) {
 
       final float[][] floatSeries = new float[doubleSeries.length][];
@@ -427,6 +450,25 @@ public class Util {
       }
 
       return sb.toString();
+   }
+
+   public static float[] convertShortToFloat(final short[] values) {
+
+      if (values == null) {
+         return null;
+      }
+
+      if (values.length == 0) {
+         return new float[0];
+      }
+
+      final float[] floatValues = new float[values.length];
+
+      for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
+         floatValues[valueIndex] = values[valueIndex];
+      }
+
+      return floatValues;
    }
 
    /**
@@ -549,7 +591,7 @@ public class Util {
       try {
 
          if (tempFile.delete() == false) {
-            StatusUtil.log(String.format("Temp file cannot be deleted: %s", tempFile.getAbsolutePath())); //$NON-NLS-1$
+            StatusUtil.logError(String.format("Temp file cannot be deleted: %s", tempFile.getAbsolutePath())); //$NON-NLS-1$
          }
 
       } catch (final SecurityException e) {
@@ -911,12 +953,13 @@ public class Util {
 
    public static String getSQLExceptionText(final SQLException e) {
 
-      final String text = UI.EMPTY_STRING//
+      final String text = UI.EMPTY_STRING
 
-            + ("SQLException" + UI.NEW_LINE2) //$NON-NLS-1$
-            + ("SQLState: " + (e).getSQLState() + UI.NEW_LINE) //$NON-NLS-1$
-            + ("ErrorCode: " + (e).getErrorCode() + UI.NEW_LINE) //$NON-NLS-1$
-            + ("Message: " + (e).getMessage() + UI.NEW_LINE); //$NON-NLS-1$
+            + "SQLException" + NL //$NON-NLS-1$
+            + NL
+            + "SQLState: " + e.getSQLState() + NL //$NON-NLS-1$
+            + "ErrorCode: " + e.getErrorCode() + NL //$NON-NLS-1$
+            + "Message: " + e.getMessage() + NL; //$NON-NLS-1$
 
       return text;
    }
@@ -1784,21 +1827,13 @@ public class Util {
       return file.isDirectory();
    }
 
-   public static void logSimpleMessage(final Class<?> clazz,
-                                       final String message) {
-
-      System.out.println(String.format("%s [%s] %s", //$NON-NLS-1$
-            UI.timeStampNano(),
-            clazz.getSimpleName(),
-            message));
-   }
-
    public static void logSystemProperty_IsEnabled(final Class<?> clazz, final String propertyName, final String propertyDescription) {
 
-      System.out.println(UI.timeStampNano()
-            + " [" + clazz.getSimpleName() + "]" //$NON-NLS-1$ //$NON-NLS-2$
-            + " - System property \"" + propertyName + "\" is enabled -> " //$NON-NLS-1$ //$NON-NLS-2$
-            + propertyDescription);
+      StatusUtil.logInfo(String.format("%s [System Property - %s] - \"%s\" is enabled -> %s", //$NON-NLS-1$
+            UI.timeStampNano(),
+            clazz.getSimpleName(),
+            propertyName,
+            propertyDescription));
    }
 
    public static void logSystemProperty_Value(final Class<?> clazz,
@@ -1806,10 +1841,12 @@ public class Util {
                                               final String propertyValue,
                                               final String propertyDescription) {
 
-      System.out.println(UI.timeStampNano()
-            + " [" + clazz.getSimpleName() + "]" //$NON-NLS-1$ //$NON-NLS-2$
-            + " - System property \"" + propertyName + "=" + propertyValue + "\" -> " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + propertyDescription);
+      StatusUtil.logInfo(String.format("%s [System Property - %s] - \"%s=%s\" -> %s", //$NON-NLS-1$
+            UI.timeStampNano(),
+            clazz.getSimpleName(),
+            propertyName,
+            propertyValue,
+            propertyDescription));
    }
 
    /**
@@ -2003,7 +2040,7 @@ public class Util {
          try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, UI.UTF_8))) {
 
             while ((line = reader.readLine()) != null) {
-               sb.append(line).append(UI.NEW_LINE);
+               sb.append(line).append(NL);
             }
          } finally {
             inputStream.close();
@@ -2576,60 +2613,57 @@ public class Util {
     */
    public static IViewPart showView(final String viewId, final boolean isActivateView) {
 
-      final IViewPart returnValue[] = { null };
+      final IViewPart[] returnValue = { null };
 
       /*
        * Ensure this is running in the UI thread otherwise workbench window is null.
        */
 
-      Display.getDefault().syncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getDefault().syncExec(() -> {
 
-            try {
+         try {
 
-               final IWorkbench wb = PlatformUI.getWorkbench();
-               if (wb == null) {
-                  return;
-               }
-
-               final IWorkbenchWindow wbWin = wb.getActiveWorkbenchWindow();
-               if (wbWin == null) {
-                  return;
-               }
-
-               IWorkbenchPage page = wbWin.getActivePage();
-               if (page == null) {
-
-                  // this case can happen when all perspectives are closed, try to open default perspective
-
-                  final String defaultPerspectiveID = wb.getPerspectiveRegistry().getDefaultPerspective();
-                  if (defaultPerspectiveID == null) {
-                     return;
-                  }
-
-                  try {
-                     page = wb.showPerspective(defaultPerspectiveID, wbWin);
-                  } catch (final WorkbenchException e) {
-                     // ignore
-                  }
-
-                  if (page == null) {
-                     return;
-                  }
-               }
-
-               final int activationMode = isActivateView
-                     ? IWorkbenchPage.VIEW_ACTIVATE
-                     : IWorkbenchPage.VIEW_VISIBLE;
-
-               returnValue[0] = page.showView(viewId, null, activationMode);
-
+            final IWorkbench wb = PlatformUI.getWorkbench();
+            if (wb == null) {
                return;
-
-            } catch (final PartInitException e) {
-               StatusUtil.showStatus(e);
             }
+
+            final IWorkbenchWindow wbWin = wb.getActiveWorkbenchWindow();
+            if (wbWin == null) {
+               return;
+            }
+
+            IWorkbenchPage page = wbWin.getActivePage();
+            if (page == null) {
+
+               // this case can happen when all perspectives are closed, try to open default perspective
+
+               final String defaultPerspectiveID = wb.getPerspectiveRegistry().getDefaultPerspective();
+               if (defaultPerspectiveID == null) {
+                  return;
+               }
+
+               try {
+                  page = wb.showPerspective(defaultPerspectiveID, wbWin);
+               } catch (final WorkbenchException e1) {
+                  // ignore
+               }
+
+               if (page == null) {
+                  return;
+               }
+            }
+
+            final int activationMode = isActivateView
+                  ? IWorkbenchPage.VIEW_ACTIVATE
+                  : IWorkbenchPage.VIEW_VISIBLE;
+
+            returnValue[0] = page.showView(viewId, null, activationMode);
+
+            return;
+
+         } catch (final PartInitException e2) {
+            StatusUtil.showStatus(e2);
          }
       });
 

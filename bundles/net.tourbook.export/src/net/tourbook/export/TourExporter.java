@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -112,6 +112,9 @@ public class TourExporter {
    }
 
    private String       _activityType;
+   /**
+    * The speed is in meters/second
+    */
    private float        _camouflageSpeed;
    private String       _courseName;
    private final String _formatTemplate;
@@ -479,7 +482,7 @@ public class TourExporter {
       /*
        * Calories
        */
-      lap.setCalories(_tourData.getCalories());
+      lap.setCalories(_tourData.getCalories() / 1000);
 
       /*
        * Description
@@ -505,8 +508,7 @@ public class TourExporter {
 
       final int[] timeSerie = _tourData.timeSerie;
 
-      // check if all dataseries are available
-      if ((timeSerie == null) /* || (latitudeSerie == null) || (longitudeSerie == null) */) {
+      if (timeSerie == null) {
          return null;
       }
 
@@ -518,6 +520,8 @@ public class TourExporter {
       final double[] longitudeSerie = _tourData.longitudeSerie;
       final float[] pulseSerie = _tourData.pulseSerie;
       final float[] temperatureSerie = _tourData.temperatureSerie;
+      final float[] powerSerie = _tourData.getPowerSerie();
+      final float[] speedSerie = _tourData.getSpeedSerieMetric();
 
       final boolean isAltitude = (altitudeSerie != null) && (altitudeSerie.length > 0);
       final boolean isCadence = (cadenceSerie != null) && (cadenceSerie.length > 0);
@@ -525,6 +529,8 @@ public class TourExporter {
       final boolean isGear = (gearSerie != null) && (gearSerie.length > 0);
       final boolean isPulse = (pulseSerie != null) && (pulseSerie.length > 0);
       final boolean isTemperature = (temperatureSerie != null) && (temperatureSerie.length > 0);
+      final boolean isPower = (powerSerie != null) && (powerSerie.length > 0);
+      final boolean isSpeed = (speedSerie != null) && (speedSerie.length > 0);
 
       int prevTime = -1;
       ZonedDateTime lastTrackDateTime = null;
@@ -699,6 +705,15 @@ public class TourExporter {
             tpExt.setGear(gearSerie[serieIndex]);
          }
 
+         if (isPower) {
+            tpExt.setPower((short) Math.round(powerSerie[serieIndex]));
+         }
+
+         if (isSpeed) {
+            final double speedValue = Math.round(speedSerie[serieIndex] * 10.0) / 10.0;
+            tpExt.setSpeed(speedValue);
+         }
+
          // ignore trackpoints which have the same time
          if (relativeTime != prevTime) {
 
@@ -849,15 +864,13 @@ public class TourExporter {
 
          wayPoint.setUrlAddress(twp.getUrlAddress());
          wayPoint.setUrlText(twp.getUrlText());
-//
-//       // <sym>...</sym>
-//       wayPoint.setSymbolName(twp.getSymbol());
 
          exportedWayPoints.add(wayPoint);
       }
    }
 
    public boolean export(final String exportFileName) {
+
       final ArrayList<GarminTrack> tracks = new ArrayList<>();
       final ArrayList<TourWayPoint> wayPoints = new ArrayList<>();
       final ArrayList<TourMarker> tourMarkers = new ArrayList<>();
@@ -926,6 +939,7 @@ public class TourExporter {
    }
 
    public TourExporter useTourData(final TourData tourData) {
+
       _tourData = tourData;
 
       return this;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -43,6 +43,7 @@ import net.tourbook.database.FIELD_VALIDATION;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.ui.tourChart.ChartLabel;
+import net.tourbook.ui.tourChart.ChartLabelMarker;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.graphics.Rectangle;
@@ -581,7 +582,7 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
     */
    public boolean isDeviceMarker() {
 
-      return type == ChartLabel.MARKER_TYPE_DEVICE;
+      return type == ChartLabelMarker.MARKER_TYPE_DEVICE;
    }
 
    /**
@@ -917,8 +918,11 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
     */
    public void updateDatabase_019_to_020() {
 
-      distance20 = distance;
-      distance = 0;
+      if (distance > 0) {
+
+         distance20 = distance;
+         distance = 0;
+      }
    }
 
 }

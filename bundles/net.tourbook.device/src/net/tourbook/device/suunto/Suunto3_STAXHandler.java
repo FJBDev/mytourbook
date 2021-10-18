@@ -71,9 +71,11 @@ public class Suunto3_STAXHandler {
    private static final String TAG_DEVLOG_SAMPLES = "Samples";   //$NON-NLS-1$
 
    // header tags
-   private static final String TAG_HEADER_ENERGY               = "Energy";             //$NON-NLS-1$
-   private static final String TAG_HEADER_DATETIME             = "DateTime";           //$NON-NLS-1$
-   private static final String TAG_HEADER_PEAK_TRAINING_EFFECT = "PeakTrainingEffect"; //$NON-NLS-1$
+   private static final String TAG_HEADER_BATTERY_CHARGE          = "BatteryCharge";        //$NON-NLS-1$
+   private static final String TAG_HEADER_BATTERY_CHARGE_AT_START = "BatteryChargeAtStart"; //$NON-NLS-1$
+   private static final String TAG_HEADER_ENERGY                  = "Energy";               //$NON-NLS-1$
+   private static final String TAG_HEADER_DATETIME                = "DateTime";             //$NON-NLS-1$
+   private static final String TAG_HEADER_PEAK_TRAINING_EFFECT    = "PeakTrainingEffect";   //$NON-NLS-1$
 
    // device tags
    private static final String TAG_DEVICE_SW   = "SW";   //$NON-NLS-1$
@@ -141,6 +143,9 @@ public class Suunto3_STAXHandler {
    private float               _tourPerformanceLevel;
 
    private int                 _tourCalories;
+
+   private short               _tourBatteryPercentageStart;
+   private short               _tourBatteryPercentageEnd;
 
    /**
     * This time is used when a time is not available.
@@ -267,12 +272,16 @@ public class Suunto3_STAXHandler {
       /*
        * set tour start date/time
        */
-      tourData.setTourStartTime(TimeTools.getZonedDateTime(_sampleList.get(0).absoluteTime));
+      final ZonedDateTime zonedStartTime = TimeTools.getZonedDateTime(_sampleList.get(0).absoluteTime);
+      tourData.setTourStartTime(zonedStartTime);
 
       tourData.setDeviceTimeInterval((short) -1);
       tourData.setImportFilePath(_importFilePath);
 
       tourData.setCalories(_tourCalories);
+
+      tourData.setBattery_Percentage_Start(_tourBatteryPercentageStart);
+      tourData.setBattery_Percentage_End(_tourBatteryPercentageEnd);
 
       tourData.setTraining_TrainingEffect_Aerob(_tourPeakTrainingEffect);
       tourData.setTraining_TrainingPerformance(_tourPerformanceLevel);
@@ -288,6 +297,17 @@ public class Suunto3_STAXHandler {
       // after all data are added, the tour id can be created
       final String uniqueId = _device.createUniqueId(tourData, Util.UNIQUE_ID_SUFFIX_SUUNTO3);
       final Long tourId = tourData.createTourId(uniqueId);
+
+      /*
+       * The tour start time timezone is set from lat/lon in createTimeSeries()
+       */
+      final ZonedDateTime tourStartTime_FromLatLon = tourData.getTourStartTime();
+
+      if (zonedStartTime.equals(tourStartTime_FromLatLon) == false) {
+
+         // time zone is different -> fix tour start components with adjusted time zone
+         tourData.setTourStartTime_YYMMDD(tourStartTime_FromLatLon);
+      }
 
       // check if the tour is already imported
       if (_alreadyImportedTours.containsKey(tourId) == false) {
@@ -317,15 +337,12 @@ public class Suunto3_STAXHandler {
 
    private void openError(final Exception e) {
 
-      Display.getDefault().syncExec(new Runnable() {
-         @Override
-         public void run() {
-            final String message = e.getMessage();
-            MessageDialog.openError(Display.getCurrent().getActiveShell(),
-                  "Error", //$NON-NLS-1$
-                  message);
-            System.err.println(message + " in " + _importFilePath); //$NON-NLS-1$
-         }
+      Display.getDefault().syncExec(() -> {
+         final String message = e.getMessage();
+         MessageDialog.openError(Display.getCurrent().getActiveShell(),
+               "Error", //$NON-NLS-1$
+               message);
+         System.err.println(message + " in " + _importFilePath); //$NON-NLS-1$
       });
    }
 
@@ -393,6 +410,22 @@ public class Suunto3_STAXHandler {
             final String elementName = startElement.getName().getLocalPart();
 
             switch (elementName) {
+
+            case TAG_HEADER_BATTERY_CHARGE_AT_START:
+
+               data = ((Characters) eventReader.nextEvent()).getData();
+
+               _tourBatteryPercentageStart = (short) (Util.parseFloat(data) * 100);
+
+               break;
+
+            case TAG_HEADER_BATTERY_CHARGE:
+
+               data = ((Characters) eventReader.nextEvent()).getData();
+
+               _tourBatteryPercentageEnd = (short) (Util.parseFloat(data) * 100);
+
+               break;
 
             case TAG_HEADER_ENERGY:
 
@@ -574,11 +607,6 @@ public class Suunto3_STAXHandler {
                _sampleData.pulse = hr * 60.0f;
                break;
 
-            case TAG_SAMPLE_LAP:
-               // set a marker
-               _markerData.marker = 1;
-               break;
-
             case TAG_SAMPLE_LATITUDE:
                data = ((Characters) eventReader.nextEvent()).getData();
                _gpsData.latitude = Util.parseDouble(data) * RADIANT_TO_DEGREE;
@@ -666,6 +694,11 @@ public class Suunto3_STAXHandler {
             switch (elementName) {
             case TAG_SAMPLE_PAUSE:
                parseXML_37_Pause(eventReader);
+               break;
+
+            case TAG_SAMPLE_LAP:
+               // set a marker
+               _markerData.marker = 1;
                break;
 
             }

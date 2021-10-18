@@ -13,33 +13,16 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.device.ciclotour.text;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.text.DateFormat;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
-import net.tourbook.common.time.TimeTools;
-import net.tourbook.common.util.StatusUtil;
-import net.tourbook.data.TimeData;
-import net.tourbook.data.TourData;
-import net.tourbook.importdata.DeviceData;
-import net.tourbook.importdata.SerialParameters;
-import net.tourbook.importdata.TourbookDevice;
 
 public class CiclotourTextDataReader extends TourbookDevice {
 
    private static final String FILE_HEADER_EN = "Time:	Distance:	Alt.:	Speed:	HR:	Temperature:	Gradient:	Cadence:"; //$NON-NLS-1$
    private static final String FILE_HEADER_DE = "Zeit:	Strecke:	H�he:	Geschw:	Puls:	Temperatur:	Prozent:	Cadence:";          //$NON-NLS-1$
 
-   public CiclotourTextDataReader() {}
+   public CiclotourTextDataReader() {
+      // plugin constructor
+   }
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -137,14 +120,16 @@ public class CiclotourTextDataReader extends TourbookDevice {
    }
 
    @Override
-   public boolean processDeviceData(final String importFilePath,
-                                    final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+   public void processDeviceData(final String importFilePath,
+                                 final DeviceData deviceData,
+                                 final Map<Long, TourData> alreadyImportedTours,
+                                 final Map<Long, TourData> newlyImportedTours,
+                                 final ImportState_File importState_File,
+                                 final ImportState_Process importState_Process) {
 
       // immediately bail out if the file format is not correct.
       if (!validateRawData(importFilePath)) {
-         return false;
+         return;
       }
 
       final TourData tourData = new TourData();
@@ -266,7 +251,6 @@ public class CiclotourTextDataReader extends TourbookDevice {
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
             tourData.computeTourMovingTime();
             tourData.computeComputedValues();
-            tourData.computeTrainingStressData();
          }
 
       } catch (final Exception e) {
@@ -275,7 +259,7 @@ public class CiclotourTextDataReader extends TourbookDevice {
 
       }
 
-      return true;
+      importState_File.isFileImportedWithValidData = true;
    }
 
    /**
@@ -315,3 +299,4 @@ public class CiclotourTextDataReader extends TourbookDevice {
    }
 
 }
+>>>>>>> refs/remotes/origin/main

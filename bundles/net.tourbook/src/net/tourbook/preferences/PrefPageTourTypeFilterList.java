@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/origin/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -186,7 +190,10 @@ public class PrefPageTourTypeFilterList extends PreferencePage implements IWorkb
    private void createUI_10_FilterViewer(final Composite parent) {
 
       final TableLayoutComposite layouter = new TableLayoutComposite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).hint(200, SWT.DEFAULT).applyTo(layouter);
+      GridDataFactory.fillDefaults()
+            .grab(true, true)
+            .hint(200, 500)
+            .applyTo(layouter);
 
       final Table table = new Table(layouter, (SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION));
       table.setHeaderVisible(false);
@@ -406,7 +413,10 @@ public class PrefPageTourTypeFilterList extends PreferencePage implements IWorkb
    private void createUI_20_TourTypeViewer(final Composite parent) {
 
       final TableLayoutComposite layouter = new TableLayoutComposite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, true).hint(200, SWT.DEFAULT).applyTo(layouter);
+      GridDataFactory.fillDefaults()
+            .grab(true, true)
+            .hint(200, 500)
+            .applyTo(layouter);
 
       final Table table = new Table(
             layouter,
@@ -584,7 +594,6 @@ public class PrefPageTourTypeFilterList extends PreferencePage implements IWorkb
             _spinnerRecentTourTypes.addSelectionListener(_defaultSelectionAdapter);
             _spinnerRecentTourTypes.addMouseWheelListener(_defaultMouseWheelListener);
             GridDataFactory.fillDefaults()
-//                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .applyTo(_spinnerRecentTourTypes);
          }
