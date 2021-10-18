@@ -82,53 +82,28 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
    /*
     * Contains the tab folder index
     */
-<<<<<<< HEAD
    public static final int    TAB_FOLDER_SMOOTHING             = 0;
    public static final int    TAB_FOLDER_BREAK_TIME            = 1;
    public static final int    TAB_FOLDER_ELEVATION             = 2;
    public static final int    TAB_FOLDER_CADENCE_ZONES         = 4;
    public static final int    TAB_FOLDER_PREDICTED_PERFORMANCE = 5;
-=======
-   public static final int    TAB_FOLDER_SMOOTHING      = 0;
-   public static final int    TAB_FOLDER_BREAK_TIME     = 1;
-   public static final int    TAB_FOLDER_PACE_SPEED     = 2;
-   public static final int    TAB_FOLDER_ELEVATION_GAIN = 3;
-   public static final int    TAB_FOLDER_CADENCE_ZONES  = 4;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-   private static final float SPEED_DIGIT_VALUE                = 10.0f;
-=======
    private static final float SPEED_DIGIT_VALUE         = 10.0f;
->>>>>>> refs/remotes/origin/main
 
    /**
     * 100 km/h is very high but it supports air planes which are slow on the ground
     */
-<<<<<<< HEAD
-   public static final int    BREAK_MAX_SPEED_KM_H             = 1000;                            // 100.0 km/h
-=======
    public static final int    BREAK_MAX_SPEED_KM_H      = 1000;                            // 100.0 km/h
->>>>>>> refs/remotes/origin/main
 
    private int                DEFAULT_DESCRIPTION_WIDTH;
    private int                DEFAULT_V_DISTANCE_PARAGRAPH;
 
-<<<<<<< HEAD
-   private IPreferenceStore   _prefStore                       = TourbookPlugin.getPrefStore();
-=======
    private IPreferenceStore   _prefStore                = TourbookPlugin.getPrefStore();
->>>>>>> refs/remotes/origin/main
 
    private int                _initialUnitHashCode;
 
-<<<<<<< HEAD
-   private NumberFormat       _nf0                             = NumberFormat.getNumberInstance();
-   private NumberFormat       _nf1                             = NumberFormat.getNumberInstance();
-=======
    private NumberFormat       _nf0                      = NumberFormat.getNumberInstance();
    private NumberFormat       _nf1                      = NumberFormat.getNumberInstance();
->>>>>>> refs/remotes/origin/main
    {
       _nf0.setMinimumFractionDigits(0);
       _nf0.setMaximumFractionDigits(0);
@@ -253,16 +228,13 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
             tabItemCadenceZones.setControl(createUI_80_CadenceZones(_tabFolder));
             tabItemCadenceZones.setText(Messages.Compute_CadenceZonesTimes_Group);
 
-<<<<<<< HEAD
             // tab: Performance modeling chart options
             final TabItem tabPerformanceModelingChart = new TabItem(_tabFolder, SWT.NONE);
             tabPerformanceModelingChart.setControl(createUI_80_PerformanceModelingChart(_tabFolder));
             tabPerformanceModelingChart.setText(Messages.Compute_PerformanceModelingChart_Group);
-=======
             final CTabItem tabHrZone = new CTabItem(_tabFolder, SWT.NONE);
             tabHrZone.setControl(createUI_90_HrZone(_tabFolder));
             tabHrZone.setText(Messages.Compute_HrZone_Group);
->>>>>>> refs/remotes/origin/main
 
             /**
              * 4.8.2009 week no/year is currently disabled because a new field in the db is
@@ -1271,7 +1243,6 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       fireTourModifyEvent();
    }
 
-<<<<<<< HEAD
    private void onComputePerformanceModelingValues() {
 
       if (MessageDialog.openConfirm(

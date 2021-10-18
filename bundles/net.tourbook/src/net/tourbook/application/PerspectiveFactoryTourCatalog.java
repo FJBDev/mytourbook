@@ -24,16 +24,12 @@ import net.tourbook.ui.tourChart.TourChartView;
 import net.tourbook.ui.views.calendar.CalendarView;
 import net.tourbook.ui.views.collateTours.CollatedToursView;
 import net.tourbook.ui.views.geoCompare.GeoCompareView;
-import net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView;
 import net.tourbook.ui.views.tourBook.TourBookView;
 import net.tourbook.ui.views.tourCatalog.RefTour_YearStatistic_View;
 import net.tourbook.ui.views.tourCatalog.TourCatalogView;
 import net.tourbook.ui.views.tourCatalog.TourCatalogView_ComparedTour;
 import net.tourbook.ui.views.tourCatalog.TourCatalogView_ReferenceTour;
-<<<<<<< HEAD
-=======
 import net.tourbook.ui.views.tourCatalog.TourCompareResultView;
->>>>>>> refs/remotes/origin/main
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -42,20 +38,12 @@ import org.eclipse.ui.IPlaceholderFolderLayout;
 
 public class PerspectiveFactoryTourCatalog implements IPerspectiveFactory {
 
-<<<<<<< HEAD
-   static final String         PERSPECTIVE_ID                     = "net.tourbook.perspective.TourCatalog"; //$NON-NLS-1$
-=======
    public static final String  PERSPECTIVE_ID                     = "net.tourbook.perspective.TourCatalog"; //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
 
    private static final String FOLDER_ID_GEO_COMPARE_TOOL         = "folderGeoCompareTool";                 //$NON-NLS-1$
    private static final String FOLDER_ID_TOUR_CHART               = "folderTourChart";                      //$NON-NLS-1$
    private static final String FOLDER_ID_TOUR_CHART_COMPARED_TOUR = "folderTourChart_ComparedTour";         //$NON-NLS-1$
-<<<<<<< HEAD
-   private static final String FOLDER_ID_TOUR_CHART_REF_TOUR      = "folderTourChart_RefTour";              //$NON-NLS-1$
-=======
    private static final String FOLDER_ID_TOUR_CHART_REF_Tour      = "folderTourChart_RefTour";              //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
    private static final String FOLDER_ID_TOUR_DIRECTORIES         = "folderTourDirectories";                //$NON-NLS-1$
    private static final String FOLDER_ID_TOUR_MAPS                = "folderTourMaps";                       //$NON-NLS-1$
    private static final String FOLDER_ID_YEAR_STATISTICS          = "folderYearStatistics";                 //$NON-NLS-1$
@@ -64,62 +52,23 @@ public class PerspectiveFactoryTourCatalog implements IPerspectiveFactory {
    public void createInitialLayout(final IPageLayout layout) {
 
       layout.setEditorAreaVisible(false);
-<<<<<<< HEAD
-=======
 
       layout.addShowViewShortcut(TourCompareResultView.ID);
       layout.addShowViewShortcut(TourCatalogView.ID);
       layout.addShowViewShortcut(TourCatalogView_ComparedTour.ID);
       layout.addShowViewShortcut(TourCatalogView_ReferenceTour.ID);
       layout.addShowViewShortcut(RefTour_YearStatistic_View.ID);
->>>>>>> refs/remotes/origin/main
 
 // SET_FORMATTING_OFF
-<<<<<<< HEAD
 
-		//--------------------------------------------------------------------------------
-		// Left area
-		//--------------------------------------------------------------------------------
-=======
->>>>>>> refs/remotes/origin/main
-
-<<<<<<< HEAD
-		final IFolderLayout folderTourDirectory = layout.createFolder(FOLDER_ID_TOUR_DIRECTORIES,
-
-				IPageLayout.LEFT, 0.4f, IPageLayout.ID_EDITOR_AREA);
-=======
       //--------------------------------------------------------------------------------
       // Left area
       //--------------------------------------------------------------------------------
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-		folderTourDirectory.addView(TourCatalogView.ID);
-		folderTourDirectory.addPlaceholder(TourBookView.ID);
-		folderTourDirectory.addPlaceholder(CalendarView.ID);
-		folderTourDirectory.addPlaceholder(StatisticView.ID);
-		folderTourDirectory.addPlaceholder(PerformanceModelingChartView.ID);
-		folderTourDirectory.addPlaceholder(CollatedToursView.ID);
-		folderTourDirectory.addPlaceholder(PicDirView.ID);
-
-		//--------------------------------------------------------------------------------
-
-		final IFolderLayout folderYearStat = layout.createFolder(FOLDER_ID_YEAR_STATISTICS,
-
-				IPageLayout.BOTTOM, 0.7f, FOLDER_ID_TOUR_DIRECTORIES);
-
-		folderYearStat.addView(RefTour_YearStatistic_View.ID);
-=======
       final IFolderLayout folderTourDirectory = layout.createFolder(FOLDER_ID_TOUR_DIRECTORIES,
->>>>>>> refs/remotes/origin/main
 
             IPageLayout.LEFT, 0.4f, IPageLayout.ID_EDITOR_AREA);
 
-<<<<<<< HEAD
-		final IPlaceholderFolderLayout folderGeoCompareTool = layout.createPlaceholderFolder(FOLDER_ID_GEO_COMPARE_TOOL,
-
-				IPageLayout.BOTTOM, 0.5f, FOLDER_ID_TOUR_DIRECTORIES);
-=======
       folderTourDirectory.addView(TourCatalogView.ID);
       folderTourDirectory.addPlaceholder(TourCompareResultView.ID);
       folderTourDirectory.addPlaceholder(TourBookView.ID);
@@ -127,53 +76,13 @@ public class PerspectiveFactoryTourCatalog implements IPerspectiveFactory {
       folderTourDirectory.addPlaceholder(StatisticView.ID);
       folderTourDirectory.addPlaceholder(CollatedToursView.ID);
       folderTourDirectory.addPlaceholder(PicDirView.ID);
->>>>>>> refs/remotes/origin/main
 
       //--------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-		//--------------------------------------------------------------------------------
-		// Right area
-		//--------------------------------------------------------------------------------
-
-		final IFolderLayout refChartFolder = layout.createFolder(FOLDER_ID_TOUR_CHART_REF_TOUR,
-
-				IPageLayout.TOP, 0.5f, IPageLayout.ID_EDITOR_AREA);
-
-		refChartFolder.addView(TourCatalogView_ReferenceTour.ID);
-
-		//--------------------------------------------------------------------------------
-
-		final IFolderLayout folderComparedTourChart = layout.createFolder(FOLDER_ID_TOUR_CHART_COMPARED_TOUR,
-
-				IPageLayout.BOTTOM, 0.5f, FOLDER_ID_TOUR_CHART_REF_TOUR);
-=======
       final IFolderLayout folderYearStat = layout.createFolder(FOLDER_ID_YEAR_STATISTICS,
->>>>>>> refs/remotes/origin/main
 
             IPageLayout.BOTTOM, 0.7f, FOLDER_ID_TOUR_DIRECTORIES);
 
-<<<<<<< HEAD
-		//--------------------------------------------------------------------------------
-
-		final IFolderLayout folderMaps = layout.createFolder(FOLDER_ID_TOUR_MAPS,
-
-				IPageLayout.TOP, 0.5f, FOLDER_ID_TOUR_CHART_REF_TOUR);
-
-		folderMaps.addView(Map2View.ID);
-		folderMaps.addPlaceholder(Map25View.ID);
-		folderMaps.addPlaceholder(Map3View.ID);
-
-
-		//--------------------------------------------------------------------------------
-
-		final IFolderLayout folderTourChart = layout.createFolder(FOLDER_ID_TOUR_CHART,
-
-				IPageLayout.BOTTOM, 0.5f, FOLDER_ID_TOUR_CHART_COMPARED_TOUR);
-
-		folderTourChart.addView(TourChartView.ID);
-
-=======
       folderYearStat.addView(RefTour_YearStatistic_View.ID);
 
       //--------------------------------------------------------------------------------
@@ -220,7 +129,6 @@ public class PerspectiveFactoryTourCatalog implements IPerspectiveFactory {
             IPageLayout.BOTTOM, 0.5f, FOLDER_ID_TOUR_CHART_COMPARED_TOUR);
 
       folderTourChart.addView(TourChartView.ID);
->>>>>>> refs/remotes/origin/main
 
 // SET_FORMATTING_ON
    }

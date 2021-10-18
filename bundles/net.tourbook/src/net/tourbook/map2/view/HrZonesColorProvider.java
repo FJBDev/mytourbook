@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2014  Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.tourbook.map2.view;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import net.tourbook.common.color.MapGraphId;
 import net.tourbook.data.HrZoneContext;
@@ -30,19 +30,19 @@ import org.eclipse.swt.graphics.RGB;
  */
 public class HrZonesColorProvider implements IDiscreteColorProvider {
 
-   private MapGraphId             _graphId;
+   private MapGraphId                  _graphId;
 
    /**
     * {@link TourData} which are checked if they contain valid HR zone data
     */
-   private TourData               _checkedTourData;
+   private TourData                    _checkedTourData;
 
-   private boolean                _isValidHrZoneData;
+   private boolean                     _isValidHrZoneData;
 
-   private List<TourPersonHRZone> _personHrZones;
+   private ArrayList<TourPersonHRZone> _personHrZones;
 
-   private HrZoneContext          _hrZoneContext;
-   private float[]                _pulseData;
+   private HrZoneContext               _hrZoneContext;
+   private float[]                     _pulseData;
 
    public HrZonesColorProvider(final MapGraphId graphId) {
       _graphId = graphId;
