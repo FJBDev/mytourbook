@@ -15,32 +15,19 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
-<<<<<<< HEAD
-=======
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.net.URISyntaxException;
 
->>>>>>> refs/remotes/origin/main
 import net.tourbook.cloud.Activator;
-<<<<<<< HEAD
-import net.tourbook.cloud.Preferences;
-import net.tourbook.cloud.oauth2.OAuth2BrowserDialog;
-import net.tourbook.cloud.oauth2.OAuth2Client;
-import net.tourbook.cloud.oauth2.OAuth2Utils;
-=======
 import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
->>>>>>> refs/remotes/origin/main
 import net.tourbook.common.UI;
-<<<<<<< HEAD
-=======
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
->>>>>>> refs/remotes/origin/main
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.web.WEB;
@@ -302,33 +289,16 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       try {
          final String authorizeUrl = authorizeUrlBuilder.build().toString();
 
-<<<<<<< HEAD
-      String dialogMessage;
-      if (StringUtils.isNullOrEmpty(authorizationCode)) {
-         dialogMessage = NLS.bind(
-               Messages.Pref_CloudConnectivity_Strava_AccessToken_NotRetrieved,
-               oAuth2Browser.getResponse());
-      } else {
-         final StravaTokens newTokens = StravaUploader.getTokens(authorizationCode, false, UI.EMPTY_STRING);
-=======
          Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
       } catch (final URISyntaxException e) {
          StatusUtil.log(e);
       }
    }
->>>>>>> refs/remotes/origin/main
 
    @Override
    public boolean performCancel() {
 
-<<<<<<< HEAD
-            _labelAccessToken_Value.setText(newTokens.getAccess_token());
-            _labelRefreshToken_Value.setText(newTokens.getRefresh_token());
-            _accessTokenExpiresAt = newTokens.getExpires_at();
-            _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
-=======
       final boolean isCancel = super.performCancel();
->>>>>>> refs/remotes/origin/main
 
       if (isCancel && _server != null) {
          _server.stopCallBackServer();
@@ -346,11 +316,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _athleteId = _prefStore.getDefaultString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getDefaultLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
-<<<<<<< HEAD
-      _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
-=======
       _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
->>>>>>> refs/remotes/origin/main
 
       updateTokensInformationGroup();
 
@@ -368,13 +334,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          _prefStore.setValue(Preferences.STRAVA_ATHLETEFULLNAME, _labelAthleteName_Value.getText());
          _prefStore.setValue(Preferences.STRAVA_ATHLETEID, _athleteId);
          _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
-<<<<<<< HEAD
-=======
 
          if (_server != null) {
             _server.stopCallBackServer();
          }
->>>>>>> refs/remotes/origin/main
       }
 
       return isOK;
@@ -388,11 +351,7 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
-<<<<<<< HEAD
-      _labelExpiresAt_Value.setText(OAuth2Utils.constructLocalExpireAtDateTime(_accessTokenExpiresAt));
-=======
       _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
->>>>>>> refs/remotes/origin/main
 
       updateTokensInformationGroup();
    }
