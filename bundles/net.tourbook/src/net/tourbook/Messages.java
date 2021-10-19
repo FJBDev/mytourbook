@@ -28,6 +28,8 @@ public class Messages extends NLS {
 
    public static String        Action_Compute_ElevationGain;
 
+   public static String        action_export_tour;
+
    public static String        Action_Map_AddBookmark;
    public static String        Action_Map_RenameBookmark;
    public static String        Action_Map_UpdateBookmark;
@@ -41,6 +43,16 @@ public class Messages extends NLS {
    public static String        Action_PhotosAndTours_FilterPhotos_Tooltip;
    public static String        Action_PhotosAndTours_RemovePhoto;
    public static String        Action_PhotosAndTours_SaveAllPhotos;
+
+   public static String        Action_TagCategory_Edit;
+   public static String        Action_TagCategory_EditCategory;
+   public static String        Action_TagCategory_Edit_Tooltip;
+   public static String        action_tag_open_tagging_structure;
+   public static String        action_tag_remove;
+   public static String        action_tag_remove_all;
+   public static String        action_tagView_flat_hierarchical;
+   public static String        action_tagView_flat_layout;
+   public static String        action_tag_add;
 
    public static String        Action_ToolTip_Hide;
    public static String        Action_ToolTip_SetDefaults;
@@ -161,10 +173,6 @@ public class Messages extends NLS {
    public static String        Action_Tag_Save_Tooltip;
    public static String        Action_Tag_SetTags;
 
-   public static String        Action_TagCategory_Edit;
-   public static String        Action_TagCategory_Edit_Tooltip;
-   public static String        Action_TagCategory_EditCategory;
-
    public static String        Action_TourType_ModifyTourTypeFilter;
 
    public static String        Adjust_Altitude_CreateDummyAltitudeData_Message;
@@ -173,18 +181,11 @@ public class Messages extends NLS {
    public static String        Adjust_Altitude_Label_GeoPosition_Slices;
    public static String        Adjust_Altitude_Type_HorizontalGeoPosition;
 
-   public static String        action_export_tour;
    public static String        action_print_tour;
-   public static String        action_tag_add;
-   public static String        action_tag_open_tagging_structure;
-   public static String        action_tag_remove;
-   public static String        action_tag_remove_all;
    public static String        action_tag_set_all_confirm_message;
    public static String        action_tag_set_all_confirm_title;
    public static String        action_tag_set_all_tag_structures;
    public static String        action_tag_set_tag_expand_type;
-   public static String        action_tagView_flat_hierarchical;
-   public static String        action_tagView_flat_layout;
    public static String        action_tour_editor_delete_time_slices_keep_time;
    public static String        action_tour_editor_delete_time_slices_remove_time;
    public static String        action_tourbook_select_year_month_tours;
@@ -259,6 +260,7 @@ public class Messages extends NLS {
    public static String        App_Action_Delete;
    public static String        App_Action_Delete_WithConfirm;
    public static String        App_Action_DeleteProfile;
+   public static String        App_Action_DeleteProperty;
    public static String        App_Action_DeleteTourMarker;
    public static String        App_Action_DeselectAll;
    public static String        App_Action_Dialog_ActionIsInProgress_Message;
@@ -315,6 +317,7 @@ public class Messages extends NLS {
    public static String        App_Label_H_MM;
    public static String        App_Label_ISO8601;
    public static String        App_Label_max;
+   public static String        App_Label_NotAvailable;
    public static String        App_Label_NotAvailable_Shortcut;
 
    public static String        App_Link_RestoreDefaultValues;
@@ -978,6 +981,21 @@ public class Messages extends NLS {
    public static String        Graph_Label_Time_Moving;
    public static String        Graph_Label_Time_Paused;
    public static String        Graph_Label_Time_Recorded;
+
+   public static String        HRMaxFormula_Name_HRmax_191_5;
+   public static String        HRMaxFormula_Name_HRmax_205_8;
+   public static String        HRMaxFormula_Name_HRmax_206_9;
+   public static String        HRMaxFormula_Name_HRmax_220_age;
+   public static String        HRMaxFormula_Name_Manual;
+   public static String        HRMax_Label;
+
+   public static String        HRV_View_Action_ShowAllValues;
+   public static String        HRV_View_Action_SynchChartScale;
+   public static String        HRV_View_Label_InvalidData;
+   public static String        HRV_View_Label_LeftChartBorder;
+   public static String        HRV_View_Label_LeftChartBorder_Tooltip;
+   public static String        HRV_View_Label_RightChartBorder;
+   public static String        HRV_View_Label_RightChartBorder_Tooltip;
 
    public static String        HR_Zone_01_060_Moderate;
    public static String        HR_Zone_01_060_Moderate_Shortcut;
@@ -2481,6 +2499,8 @@ public class Messages extends NLS {
 
    public static String        Slideout_TourEditor_Label_LatLonDigits;
    public static String        Slideout_TourEditor_Label_LatLonDigits_Tooltip;
+   public static String        Slideout_TourEditor_Label_Title;
+
    public static String        Slideout_TourFilter_Action_ActivateAll;
    public static String        Slideout_TourFilter_Action_ActivateAll_Tooltip;
    public static String        Slideout_TourFilter_Action_AddProfile;
@@ -2565,6 +2585,7 @@ public class Messages extends NLS {
    public static String        Slideout_TourMarkerFilter_Label_GeoFilter_Tooltip;
    public static String        Slideout_TourMarkerFilter_Label_GeoFilterArea;
    public static String        Slideout_TourMarkerFilter_Label_GeoFilterNotAvailable;
+   public static String        Slideout_TourMarkerFilter_Label_Title;
 
    public static String        Slideout_TourTagFilter_Action_AddProfile_Tooltip;
    public static String        Slideout_TourTagFilter_Action_CheckAllTags_Tooltip;
@@ -2689,11 +2710,6 @@ public class Messages extends NLS {
    public static String        Tour_Action_RunDyn_VerticalOscillation_Tooltip;
    public static String        Tour_Action_RunDyn_VerticalRatio_Tooltip;
    public static String        Tour_Action_scroll_zoomed_chart;
-   public static String        Tour_Action_show_distance_on_x_axis;
-   public static String        Tour_Action_show_distance_on_x_axis_tooltip;
-   public static String        Tour_Action_show_start_time_on_x_axis;
-   public static String        Tour_Action_show_time_on_x_axis;
-   public static String        Tour_Action_show_time_on_x_axis_tooltip;
    public static String        Tour_Action_SetMinMaxTemperature;
    public static String        Tour_Action_SetMinMaxTemperature_Apply;
    public static String        Tour_Action_SetMinMaxTemperature_Message;
@@ -2703,6 +2719,14 @@ public class Messages extends NLS {
    public static String        Tour_Action_ShowBreaktimeValues;
    public static String        Tour_Action_ShowTourPauses;
    public static String        Tour_Action_ShowTourPauses_Tooltip;
+   public static String        Tour_Action_ShowValuePointValue;
+   public static String        Tour_Action_show_distance_on_x_axis;
+   public static String        Tour_Action_show_distance_on_x_axis_tooltip;
+   public static String        tour_action_show_srtm_data;
+   public static String        Tour_Action_show_start_time_on_x_axis;
+   public static String        Tour_Action_show_time_on_x_axis;
+   public static String        Tour_Action_show_time_on_x_axis_tooltip;
+
    public static String        Tour_Action_Swim_Strokes_Tooltip;
    public static String        Tour_Action_Swim_Swolf_Tooltip;
    public static String        Tour_Action_TourInfo_Tooltip;
@@ -2729,6 +2753,7 @@ public class Messages extends NLS {
    public static String        Tour_Book_Action_DeleteSelectedTours_Monitor;
    public static String        Tour_Book_Action_DeleteSelectedTours_MonitorSubtask;
    public static String        Tour_Book_Action_ExportViewCSV;
+   public static String        Tour_Book_Action_ExportViewCSV_Tooltip;
 
    public static String        Tour_Book_Action_ToggleViewLayout_Tooltip;
    public static String        Tour_Book_Combo_statistic_tooltip;
@@ -2750,8 +2775,6 @@ public class Messages extends NLS {
    public static String        tag_view_action_refresh_view_tooltip;
    public static String        tag_view_title_tag;
    public static String        tag_view_title_tag_category;
-
-   public static String        tour_action_show_srtm_data;
 
    public static String        tour_editor_label_trainingstress_govss;
    public static String        tour_editor_label_trainingstress_govss_tooltip;
