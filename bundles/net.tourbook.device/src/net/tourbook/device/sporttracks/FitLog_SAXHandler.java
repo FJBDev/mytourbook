@@ -740,6 +740,8 @@ public class FitLog_SAXHandler extends DefaultHandler {
          tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed() - tourData.getTourDeviceTime_Paused());
          tourData.computeAltitudeUpDown();
          tourData.computeComputedValues();
+         //todo fb do it for every importer ?
+         tourData.computeTrainingStressData();
 
 //         if (!_isReimport) {
 
