@@ -44,6 +44,8 @@ public class Messages extends NLS {
    public static String        Action_PhotosAndTours_RemovePhoto;
    public static String        Action_PhotosAndTours_SaveAllPhotos;
 
+   public static String        action_print_tour;
+
    public static String        Action_TagCategory_Edit;
    public static String        Action_TagCategory_EditCategory;
    public static String        Action_TagCategory_Edit_Tooltip;
@@ -53,9 +55,6 @@ public class Messages extends NLS {
    public static String        action_tagView_flat_hierarchical;
    public static String        action_tagView_flat_layout;
    public static String        action_tag_add;
-
-   public static String        Action_ToolTip_Hide;
-   public static String        Action_ToolTip_SetDefaults;
 
    public static String        App_Db_Compress_Button_CompressByCopying;
    public static String        App_Db_Compress_Button_CompressByCopying_Tooltip;
@@ -173,24 +172,28 @@ public class Messages extends NLS {
    public static String        Action_Tag_Save_Tooltip;
    public static String        Action_Tag_SetTags;
 
-   public static String        Action_TourType_ModifyTourTypeFilter;
-
    public static String        Adjust_Altitude_CreateDummyAltitudeData_Message;
    public static String        Adjust_Altitude_CreateDummyAltitudeData_Title;
    public static String        Adjust_Altitude_Group_GeoPosition;
    public static String        Adjust_Altitude_Label_GeoPosition_Slices;
    public static String        Adjust_Altitude_Type_HorizontalGeoPosition;
 
-   public static String        action_print_tour;
    public static String        action_tag_set_all_confirm_message;
    public static String        action_tag_set_all_confirm_title;
    public static String        action_tag_set_all_tag_structures;
    public static String        action_tag_set_tag_expand_type;
+   public static String        Action_ToolTip_Hide;
+   public static String        Action_ToolTip_SetDefaults;
+
+   public static String        action_tourbook_select_year_month_tours;
+
+   public static String        action_tourCatalog_open_compare_wizard;
+
+   public static String        Action_TourType_ModifyTourTypeFilter;
+   public static String        action_tourType_modify_tourTypes;
+
    public static String        action_tour_editor_delete_time_slices_keep_time;
    public static String        action_tour_editor_delete_time_slices_remove_time;
-   public static String        action_tourbook_select_year_month_tours;
-   public static String        action_tourCatalog_open_compare_wizard;
-   public static String        action_tourType_modify_tourTypes;
    public static String        App_Action_Upload_Tour;
 
    public static String        adjust_altitude_action_create_spline_point;
