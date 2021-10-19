@@ -241,6 +241,16 @@
          category-data  ="Battery"
          category-time  ="Day"
       />
+      
+      <!-- TRAINING STRESS -->
+
+      <statistic
+         name           ="%Pref_Day_Summary_TrainingStress_Device"
+         class          ="net.tourbook.statistics.graphs.StatisticDay_TrainingStress_Device"
+         id             ="net.tourbook.statistics.StatisticSummaryDayTrainingStressDevice"
+         category-data  ="TrainingStress"
+         category-time  ="Day"
+      />
             
    </extension>
 

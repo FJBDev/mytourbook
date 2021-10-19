@@ -295,6 +295,7 @@ public class PerformanceModelingChartView extends ViewPart {
    }
 
    private void addTrainingStressDataListener() {
+      //todo fb not needed anymore ?
       //TODO when the user is changed, unregister the previous user from the listener and register
       //final the new one
 
@@ -302,13 +303,7 @@ public class PerformanceModelingChartView extends ViewPart {
 
       if (_currentPerson != null && _currentPerson.getPerformanceModelingData() != null) {
          _currentPerson.getPerformanceModelingData()
-               .addTrainingStressDataListener(
-                     new ITrainingStressDataListener() {
-                        @Override
-                        public void trainingStressDataIsModified() {
-                           updateChart();
-                        }
-                     });
+               .addTrainingStressDataListener(this::updateChart);
       }
    }
 

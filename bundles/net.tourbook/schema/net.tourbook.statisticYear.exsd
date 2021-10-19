@@ -107,6 +107,7 @@
                   </enumeration>
                   <enumeration value="Training">
                   </enumeration>
+                  <enumeration value="TrainingStress"/>
                </restriction>
             </simpleType>
          </attribute>
