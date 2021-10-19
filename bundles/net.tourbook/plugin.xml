@@ -784,11 +784,11 @@
                mnemonic="%View_Name_Training_Mnemonic"/>
                
             <!-- Performance Chart -->
-            <command
-               commandId="net.tourbook.command.PerformanceModelingChartView"
-               icon="icons/performance-chart.png"
-               label="%Command_PerformanceModelingChart"
-               mnemonic="%Command_PerformanceModelingChart_Mnemonic"/>
+          <!--  <command-->
+           <!--    commandId="net.tourbook.command.PerformanceModelingChartView"-->
+          <!--     icon="icons/performance-chart.png"-->
+          <!--     label="%Command_PerformanceModelingChart"-->
+          <!--     mnemonic="%Command_PerformanceModelingChart_Mnemonic"/>-->
             
             <!-- Conconi Test -->
             <command
@@ -924,11 +924,11 @@
                mnemonic="%view_name_Statistics_Mnemonic"/>
                
             <!-- Performance Chart -->
-            <command 
-               commandId="net.tourbook.command.PerformanceModelingChartView"
-               icon="icons/performance-chart.png"
-               label="%view_name_PerformanceModelingChart"
-               mnemonic="%view_name_PerformanceModelingChart_Mnemonic"/>
+      <!--      <command -->
+       <!--        commandId="net.tourbook.command.PerformanceModelingChartView"-->
+       <!--        icon="icons/performance-chart.png"-->
+        <!--       label="%view_name_PerformanceModelingChart"-->
+        <!--       mnemonic="%view_name_PerformanceModelingChart_Mnemonic"/>-->
             
          </toolbar>
       </menuContribution>
@@ -1360,11 +1360,11 @@
          defaultHandler ="net.tourbook.ui.views.geoCompare.ActionHandler_OpenView_GeoParts"
       />
       
-       <command
-         id             ="net.tourbook.command.PerformanceModelingChartView"
-         name           ="%Command_PerformanceModelingChart"
-         defaultHandler ="net.tourbook.ui.views.performanceModelingChart.ActionHandlerOpenViewPerformanceModelingChart"
-      />
+    <!--   <command -->
+    <!--     id             ="net.tourbook.command.PerformanceModelingChartView"-->
+    <!--     name           ="%Command_PerformanceModelingChart"-->
+    <!--     defaultHandler ="net.tourbook.ui.views.performanceModelingChart.ActionHandlerOpenViewPerformanceModelingChart"-->
+  <!--    /> -->
       
       <command
          id             ="net.tourbook.command.tourChart.tool.graphAnalyzer"
@@ -1785,13 +1785,13 @@
             name        ="%View_Name_Training"
          />
          
-         <view
-            category    ="net.tourbook.category.Tools"
-            class       ="net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView"
-            icon        ="icons/performance-chart.png"
-            id          ="net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView"
-            name        ="%view_name_PerformanceModelingChart"
-         />
+        <!-- <view-->
+        <!--    category    ="net.tourbook.category.Tools" -->
+        <!--    class       ="net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView"-->
+        <!--    icon        ="icons/performance-chart.png"-->
+       <!--     id          ="net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView"-->
+       <!--     name        ="%view_name_PerformanceModelingChart"-->
+  <!--       />-->
 
       <!-- Compare tours -->
 
