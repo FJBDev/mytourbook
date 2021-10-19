@@ -173,7 +173,7 @@ public class TourDatabase {
    private static final String TABLE_DB_VERSION_DESIGN                    = "DBVERSION";                                             //$NON-NLS-1$
    private static final String TABLE_DB_VERSION_DATA                      = "DB_VERSION_DATA";                                       //$NON-NLS-1$
 
-   public static final String  TABLE_PERFORMANCE_MODELING_DATA            = "PERFORMANCEMODELINGDATA";                               //$NON-NLS-1$
+   //public static final String  TABLE_PERFORMANCE_MODELING_DATA            = "PERFORMANCEMODELINGDATA";                               //$NON-NLS-1$
 
    public static final String  TABLE_DEVICE_SENSOR                        = "DeviceSensor";                                          //$NON-NLS-1$
    public static final String  TABLE_DEVICE_SENSOR_VALUE                  = "DeviceSensorValue";                                     //$NON-NLS-1$
@@ -219,7 +219,7 @@ public class TourDatabase {
    public static final String  ENTITY_ID_DEVICE_SENSOR_VALUE      = "SensorValueId";                                        //$NON-NLS-1$
    public static final String  ENTITY_ID_HR_ZONE                  = "HrZoneID";                                             //$NON-NLS-1$
    public static final String  ENTITY_ID_MARKER                   = "MarkerID";                                             //$NON-NLS-1$
-   public static final String  ENTITY_ID_PERFORMANCE_MODELING_DATA = "PerformanceModelingDataId";                            //$NON-NLS-1$
+   //public static final String  ENTITY_ID_PERFORMANCE_MODELING_DATA = "PerformanceModelingDataId";                            //$NON-NLS-1$
    public static final String  ENTITY_ID_PERSON                   = "PersonID";                                             //$NON-NLS-1$
    public static final String  ENTITY_ID_PHOTO                    = "PhotoID";                                              //$NON-NLS-1$
    public static final String  ENTITY_ID_REF                      = "RefID";                                                //$NON-NLS-1$
@@ -237,7 +237,7 @@ public class TourDatabase {
    public static final String  KEY_TOUR                           = TABLE_TOUR_DATA + "_" + ENTITY_ID_TOUR;                 //$NON-NLS-1$
    private static final String KEY_TYPE                           = TABLE_TOUR_TYPE + "_" + ENTITY_ID_TYPE;                 //$NON-NLS-1$
 
-   private static final String                            FK_PERSON_PERFORMANCE_MODELING_DATA = "FK_PERSON_PERFORMANCE_MODELING_DATA";       //$NON-NLS-1$
+   //private static final String                            FK_PERSON_PERFORMANCE_MODELING_DATA = "FK_PERSON_PERFORMANCE_MODELING_DATA";       //$NON-NLS-1$
    /**
     * Renaming existing fields in the tour database causes lots of troubles and additional work to
     * fix and test it for ALL possible cases -> It is not a good idea to rename fields
@@ -3533,24 +3533,24 @@ public class TourDatabase {
     * @param stmt
     * @throws SQLException
     */
-   private void createTable_PerformanceModelingData(final Statement stmt) throws SQLException {
-
-      /*
-       * CREATE TABLE Performance Modeling Data
-       */
-      exec(stmt, "CREATE TABLE " + TABLE_PERFORMANCE_MODELING_DATA + "   (                             \n" //$NON-NLS-1$ //$NON-NLS-2$
-      //
-            + SQL.CreateField_EntityId(ENTITY_ID_PERFORMANCE_MODELING_DATA, true)
-            //
-            + "   bikeScoreEntries       BLOB,         \n" //$NON-NLS-1$
-            + "   govssEntries           BLOB,         \n" //$NON-NLS-1$
-            + "   swimScoreEntries       BLOB,         \n" //$NON-NLS-1$
-            + "   fitnessValuesSkiba     BLOB,         \n" //$NON-NLS-1$
-            + "   fatigueValuesSkiba     BLOB          \n" //$NON-NLS-1$
-
-            //
-            + ")"); //$NON-NLS-1$
-   }
+//   private void createTable_PerformanceModelingData(final Statement stmt) throws SQLException {
+//
+//      /*
+//       * CREATE TABLE Performance Modeling Data
+//       */
+//      exec(stmt, "CREATE TABLE " + TABLE_PERFORMANCE_MODELING_DATA + "   (                             \n" //$NON-NLS-1$ //$NON-NLS-2$
+//      //
+//            + SQL.CreateField_EntityId(ENTITY_ID_PERFORMANCE_MODELING_DATA, true)
+//            //
+//            + "   bikeScoreEntries       BLOB,         \n" //$NON-NLS-1$
+//            + "   govssEntries           BLOB,         \n" //$NON-NLS-1$
+//            + "   swimScoreEntries       BLOB,         \n" //$NON-NLS-1$
+//            + "   fitnessValuesSkiba     BLOB,         \n" //$NON-NLS-1$
+//            + "   fatigueValuesSkiba     BLOB          \n" //$NON-NLS-1$
+//
+//            //
+//            + ")"); //$NON-NLS-1$
+//   }
 
    /**
     * create table {@link #TABLE_TOUR_BIKE}
@@ -3951,11 +3951,7 @@ public class TourDatabase {
 
             // version 42 end
 
-            //version 43 start  -  21.XX
-            //
-            + " govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
-            + " bikeScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
-            + " swimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+
             //
             // version 43 end
             // version 45 start  -  after 21.6
@@ -3964,6 +3960,12 @@ public class TourDatabase {
             + " Battery_Percentage_End                SMALLINT DEFAULT 0,                " + NL //$NON-NLS-1$
 
             // version 45 end
+
+            //version XX start  -  21.XX
+            //
+            + " govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " bikeScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " swimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
 
             //            // version 35 start  -  18.?
             //
@@ -4135,7 +4137,7 @@ public class TourDatabase {
 
             // version 16 end ---------
 
-            // version 41 start
+            // version XX start
             //
             + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
             + "   govssTimeTrialDuration     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
@@ -4144,7 +4146,7 @@ public class TourDatabase {
             + "   govssAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
             + "   bikeScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_BIKESCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
             + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
-            + "   " + ENTITY_ID_PERFORMANCE_MODELING_DATA + "     BIGINT ,                              \n"//$NON-NLS-1$ //$NON-NLS-2$
+            //  + "   " + ENTITY_ID_PERFORMANCE_MODELING_DATA + "     BIGINT ,                              \n"//$NON-NLS-1$ //$NON-NLS-2$
             //
             // version 41 end ---------
 
@@ -4159,11 +4161,11 @@ public class TourDatabase {
             + ")"); //$NON-NLS-1$
 
       // Add Constraint
-      exec(stmt,
-            "ALTER TABLE " + TABLE_TOUR_PERSON + "                             \n" //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   ADD CONSTRAINT " + FK_PERSON_PERFORMANCE_MODELING_DATA + "                                     \n" //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   FOREIGN KEY (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")                                    \n" //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   REFERENCES " + TABLE_PERFORMANCE_MODELING_DATA + "(" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")       "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//      exec(stmt,
+//            "ALTER TABLE " + TABLE_TOUR_PERSON + "                             \n" //$NON-NLS-1$ //$NON-NLS-2$
+//                  + "   ADD CONSTRAINT " + FK_PERSON_PERFORMANCE_MODELING_DATA + "                                     \n" //$NON-NLS-1$ //$NON-NLS-2$
+//                  + "   FOREIGN KEY (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")                                    \n" //$NON-NLS-1$ //$NON-NLS-2$
+//                  + "   REFERENCES " + TABLE_PERFORMANCE_MODELING_DATA + "(" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")       "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
    }
 
    /**
@@ -5078,7 +5080,7 @@ public class TourDatabase {
 
             createTable_TourData(stmt);
 
-            createTable_PerformanceModelingData(stmt);
+            //  createTable_PerformanceModelingData(stmt);
             createTable_TourPerson(stmt);
             createTable_TourPersonHRZone(stmt);
             createTable_TourType(stmt);
@@ -5704,6 +5706,7 @@ public class TourDatabase {
          updateDb_039_To_040_DataUpdate(conn, splashManager);
          updateDb_041_To_042_DataUpdate(conn);
          updateDb_042_to_043_DataUpdate(conn, splashManager);
+         updateDb_0XX_to_0YY_DataUpdate(conn, splashManager);
 
       } catch (final SQLException e) {
 
@@ -8825,6 +8828,51 @@ public class TourDatabase {
       logDbUpdate_End(newDbVersion);
 
       return newDbVersion;
+   }
+
+   private void updateDb_0XX_to_0YY_DataUpdate(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final long startTime = System.currentTimeMillis();
+      final int newDbVersion = 99;
+
+      final int dbDataVersion = 42;
+
+      final Statement stmt = conn.createStatement();
+      if (getDbVersion(conn, TABLE_DB_VERSION_DATA) >= dbDataVersion) {
+         // data version is higher -> nothing to do
+         return;
+      }
+
+      final PreparedStatement stmtUpdate = null;
+
+                     // Add new columns
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "swimScore", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_BigInt(stmt, TABLE_TOUR_PERSON, "govssTimeTrialAverageSlope", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_VarCar(stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                     SQL.AddColumn_VarCar(stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                     SQL.AddColumn_VarCar(stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+
+                     // createTable_PerformanceModelingData(stmt);
+
+//                      String sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
+//                           + "   ADD " + ENTITY_ID_PERFORMANCE_MODELING_DATA  + "     BIGINT \n";//$NON-NLS-1$ //$NON-NLS-2$
+
+                     //exec(stmt, sql);
+
+//                      sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
+//                           + "   ADD CONSTRAINT " + FK_PERSON_PERFORMANCE_MODELING_DATA  + " FOREIGN KEY (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//                           + "   REFERENCES " + TABLE_PERFORMANCE_MODELING_DATA  + " (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                     // exec(stmt, sql);
+// SET_FORMATTING_ON
+      stmt.close();
+
+      //   logDb_UpdateEnd(newDbVersion);
    }
 
    private void updateMonitor(final SplashManager splashManager, final int newDbVersion) {
