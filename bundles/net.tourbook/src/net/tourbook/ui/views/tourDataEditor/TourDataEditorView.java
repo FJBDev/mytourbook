@@ -7323,22 +7323,19 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    private void onSelect_Govss_Text() {
-      BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-         @Override
-         public void run() {
-            final boolean isGovssComputed = _tourData.computeGovss();
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+         final boolean isGovssComputed = _tourData.computeGovss();
 
-            if (isGovssComputed) {
-               setTourDirty();
-               updateUI_FromModel(_tourData, false, true);
-            } else {
-               MessageDialog.openInformation(
-                     Display.getCurrent().getActiveShell(),
-                     Messages.Dialog_ComputeGovss_Dialog_Title,
-                     Messages.Dialog_ComputeGovss_Label_GovssNotComputed);
-            }
-
+         if (isGovssComputed) {
+            setTourDirty();
+            updateUI_FromModel(_tourData, false, true);
+         } else {
+            MessageDialog.openInformation(
+                  Display.getCurrent().getActiveShell(),
+                  Messages.Dialog_ComputeGovss_Dialog_Title,
+                  Messages.Dialog_ComputeGovss_Label_GovssNotComputed);
          }
+
       });
    }
 

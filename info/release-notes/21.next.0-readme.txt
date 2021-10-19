@@ -10,6 +10,13 @@ https://adoptium.net/ Temurin
 * Tour Chart      - Select color for 2nd graph line instead of compliment color
                   - Set default graphs in the graph slideout, sorting still needs the pref page
 
+* Website         - Save action must not be done manually, they are saved in e.g. net.tourbook/.settings/org.eclipse.jdt.ui.prefs with the "sp_cleanup" key prefix
+                    Need to check how to apply it to all projects, must maybe be done with the already existing ant script
+
+                  - Style rule for actions, use "Title Case" https://en.wikipedia.org/wiki/Title_case
+                    mainly e.g. 'at', 'of', ... should be lowercase otherwise it looks ugly
+                 
+
 Issues
 ======
 
@@ -39,9 +46,7 @@ Improvements
 Changes  
 =======
 
-* Dropbox Integration (Frederic) https://github.com/wolfgang-ch/mytourbook/pull/277
-  - Switched to the new PKCE OAuth2 flow (The Implicit grant flow previously used is now considered deprecated by Dropbox: "[Legacy. We recommend the PKCE flow.]")
-  - Because Dropbox doesn't support Web Views, the authorization is now done in the user's default browser. See the PR link for the details about the new authorization steps
+* 
 
 
 Bugfix
@@ -65,3 +70,4 @@ System
 
 * Eclipse 2021-09
 * FIT SDK 21.60
+

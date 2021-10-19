@@ -346,11 +346,11 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          new SurfingFilter(SurfingFilterType.NotSurfing, Messages.Tour_Segmenter_SurfingFilter_Paddling),
    };
    //
-   private static final boolean                _isOSX                    = UI.IS_OSX;
-   //
    private boolean                      CURRENT_UNIT_IS_DISTANCE_MILE;
    private boolean                      CURRENT_UNIT_IS_DISTANCE_NAUTICAL_MILE;
    private boolean                      CURRENT_UNIT_IS_LENGTH_YARD;
+   //
+   private final boolean                _isOSX                    = UI.IS_OSX;
    //
    private TableViewer                  _segmentViewer;
    private SegmenterComparator          _segmentComparator        = new SegmenterComparator();
@@ -1078,7 +1078,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
    private int checkSegmenterData(final TourData tourData) {
 
-      final float[] altitudeSerie = tourData.getAltitudeSmoothedSerie();
+      final float[] altitudeSerie = tourData.getAltitudeSmoothedSerie(false);
       final float[] powerSerie = tourData.getPowerSerie();
       final float[] metricDistanceSerie = tourData.getMetricDistanceSerie();
       final float[] pulseSerie = tourData.pulseSerie;
@@ -1317,10 +1317,10 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    private void createSegmentsBy_AltitudeWithDP() {
 
       final float[] distanceSerie = _tourData.getMetricDistanceSerie();
-      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie();
+      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie(false);
 
       // convert data series into dp points
-      final DPPoint[] graphPoints = new DPPoint[distanceSerie.length];
+      final DPPoint graphPoints[] = new DPPoint[distanceSerie.length];
       for (int serieIndex = 0; serieIndex < graphPoints.length; serieIndex++) {
          graphPoints[serieIndex] = new DPPoint(distanceSerie[serieIndex], altitudeSerie[serieIndex], serieIndex);
       }
@@ -1351,12 +1351,12 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    private int[] createSegmentsBy_AltitudeWithDPMerged(final int[] forcedIndices) {
 
       final float[] distanceSerie = _tourData.getMetricDistanceSerie();
-      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie();
+      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie(false);
 
       final int serieSize = distanceSerie.length;
 
       // convert data series into dp points
-      final DPPoint[] graphPoints = new DPPoint[serieSize];
+      final DPPoint graphPoints[] = new DPPoint[serieSize];
       for (int serieIndex = 0; serieIndex < graphPoints.length; serieIndex++) {
 
          graphPoints[serieIndex] = new DPPoint(
@@ -1659,7 +1659,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
       segmenterIndices.add(prevSerieIndex);
 
       final float[] distanceSerie = _tourData.getMetricDistanceSerie();
-      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie();
+      final float[] altitudeSerie = _tourData.getAltitudeSmoothedSerie(false);
 
       // ensure required data are available
       if (altitudeSerie != null //
@@ -1765,7 +1765,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
       }
 
       // convert data series into points
-      final DPPoint[] graphPoints = new DPPoint[timeSerie.length];
+      final DPPoint graphPoints[] = new DPPoint[timeSerie.length];
       for (int serieIndex = 0; serieIndex < graphPoints.length; serieIndex++) {
          graphPoints[serieIndex] = new DPPoint(timeSerie[serieIndex], powerSerie[serieIndex], serieIndex);
       }
@@ -1800,7 +1800,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
       }
 
       // convert data series into points
-      final DPPoint[] graphPoints = new DPPoint[timeSerie.length];
+      final DPPoint graphPoints[] = new DPPoint[timeSerie.length];
       for (int serieIndex = 0; serieIndex < graphPoints.length; serieIndex++) {
          graphPoints[serieIndex] = new DPPoint(timeSerie[serieIndex], pulseSerie[serieIndex], serieIndex);
       }
