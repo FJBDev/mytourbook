@@ -4134,6 +4134,12 @@ public class TourDatabase {
 
             // version 16 end ---------
 
+            // version 41 end ---------
+
+            //
+            + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
+
             // version XX start
             //
             + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
@@ -4145,13 +4151,6 @@ public class TourDatabase {
             + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
             //  + "   " + ENTITY_ID_PERFORMANCE_MODELING_DATA + "     BIGINT ,                              \n"//$NON-NLS-1$ //$NON-NLS-2$
             //
-            // version 41 end ---------
-
-            //
-            + "   " + KEY_BIKE + "       BIGINT                                                  \n" //$NON-NLS-1$ //$NON-NLS-2$
-            //
-            + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
-            + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
             + "   " + KEY_BIKE + "       BIGINT                                                    " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -8811,15 +8810,6 @@ public class TourDatabase {
 
       final Statement stmt = conn.createStatement();
       {
-         // double check if db already exists
-//         if (isTableAvailable(conn, TABLE_DEVICE_SENSOR) == false) {
-//            createTable_DeviceSensor(stmt);
-//         }
-//
-//         if (isTableAvailable(conn, TABLE_DEVICE_SENSOR_VALUE) == false) {
-//            createTable_DeviceSensorValues(stmt);
-//         }
-
          // add new fields
          SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
          SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
