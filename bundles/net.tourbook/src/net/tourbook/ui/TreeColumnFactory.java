@@ -1057,27 +1057,6 @@ public abstract class TreeColumnFactory {
          }
       };
 
-      POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES = new TreeColumnFactory() {
-
-         @Override
-         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
-                                                  final PixelConverter pixelConverter) {
-
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES", SWT.TRAIL); //$NON-NLS-1$
-
-            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Powertrain);
-
-            colDef.setColumnLabel(              Messages.ColumnFactory_Power_SlowVsFast_CadencePercentages_Label);
-            colDef.setColumnHeaderText(         Messages.ColumnFactory_Power_SlowVsFast_CadencePercentages_Header);
-            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Power_SlowVsFast_CadencePercentages_Tooltip);
-            colDef.setColumnUnit(               Messages.ColumnFactory_Power_SlowVsFast_CadencePercentages_Header);
-
-            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
-
-            return colDef;
-         }
-      };
-
       /*
        * Running Dynamics
        */

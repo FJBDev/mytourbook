@@ -3951,7 +3951,6 @@ public class TourDatabase {
 
             // version 42 end
 
-<<<<<<< HEAD
             //version 43 start  -  21.XX
             //
             + " govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
@@ -3959,14 +3958,12 @@ public class TourDatabase {
             + " swimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
             //
             // version 43 end
-=======
             // version 45 start  -  after 21.6
 
             + " Battery_Percentage_Start              SMALLINT DEFAULT 0,                " + NL //$NON-NLS-1$
             + " Battery_Percentage_End                SMALLINT DEFAULT 0,                " + NL //$NON-NLS-1$
 
             // version 45 end
->>>>>>> refs/remotes/origin/main
 
             //            // version 35 start  -  18.?
             //
@@ -4138,10 +4135,6 @@ public class TourDatabase {
 
             // version 16 end ---------
 
-<<<<<<< HEAD
-            + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
-            + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),  \n" //$NON-NLS-1$ //$NON-NLS-2$
-
             // version 41 start
             //
             + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
@@ -4158,13 +4151,11 @@ public class TourDatabase {
             //
             + "   " + KEY_BIKE + "       BIGINT                                                  \n" //$NON-NLS-1$ //$NON-NLS-2$
             //
-=======
             + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
             + "   " + KEY_BIKE + "       BIGINT                                                    " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
->>>>>>> refs/remotes/origin/main
             + ")"); //$NON-NLS-1$
 
       // Add Constraint
@@ -8396,20 +8387,8 @@ public class TourDatabase {
 
       final Statement stmt = conn.createStatement();
       {
-<<<<<<< HEAD
-         // check if db is updated to version 41
-         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "maxPace") == false) { //$NON-NLS-1$
-
-// SET_FORMATTING_OFF
-
-            // Add new columns
-            SQL.AddCol_Float(stmt, TABLE_TOUR_DATA, "maxPace",          DEFAULT_0);                            //$NON-NLS-1$
-// SET_FORMATTING_ON
-         }
-=======
          // Add new columns
          SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA, "maxPace", DEFAULT_0); //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
       }
       stmt.close();
 
@@ -8418,12 +8397,8 @@ public class TourDatabase {
       return newDbVersion;
    }
 
-<<<<<<< HEAD
-   private int updateDbDesign_041_to_042(final Connection conn, final SplashManager splashManager) throws SQLException {
-=======
    // 41 -> 42    20.11.1
    private int updateDb_041_To_042(final Connection conn, final SplashManager splashManager) throws SQLException {
->>>>>>> refs/remotes/origin/main
 
       final int newDbVersion = 42;
 
@@ -8453,51 +8428,51 @@ public class TourDatabase {
       return newDbVersion;
    }
 
-<<<<<<< HEAD
-   private void updateDbDesign_041_to_042_PostUpdate(final Connection conn, final SplashManager splashManager)
-         throws SQLException {
-
+   private void updateDb_041_To_042_DataUpdate(final Connection conn) throws SQLException {
       final long startTime = System.currentTimeMillis();
+      final int newDbVersion = 43;
 
-      final PreparedStatement stmtUpdate = conn.prepareStatement( //
-            //
-            "UPDATE " + TABLE_TOUR_DATA //    //$NON-NLS-1$
-            //
-                  + " SET" //                     //$NON-NLS-1$
-                  //
-                  + " tourDeviceTime_Recorded=tourDeviceTime_Elapsed"); //$NON-NLS-1$
+      final int dbDataVersion = 42;
 
-      stmtUpdate.executeUpdate();
-
-      final long timeDiff = System.currentTimeMillis() - startTime;
-
-      StatusUtil.logInfo(String.format(
-            "Database postupdate 41 -> 42 in %s mm:ss", //$NON-NLS-1$
-            net.tourbook.common.UI.formatHhMmSs(timeDiff / 1000)));
-   }
-
-//   private int updateDbDesign_034_to_035(final Connection conn, final IProgressMonitor monitor) throws SQLException {
-//
-//      final int newDbVersion = 35;
-//
-//      logDb_UpdateStart(newDbVersion);
-//      updateMonitor(monitor, newDbVersion);
-//
+//<<<<<<< HEAD
 //      final Statement stmt = conn.createStatement();
 //      {
-//         // double check if db is already updated
-//         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "LatitudeMinE6") == false) { //$NON-NLS-1$
+//         // check if db is updated to version 42
+//         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "govss") == false) { //$NON-NLS-1$
+//=======
+      if (getDbVersion(conn, TABLE_DB_VERSION_DATA) >= dbDataVersion) {
+         // data version is higher -> nothing to do
+         return;
+      }
+
+      PreparedStatement stmtUpdate = null;
+
+//<<<<<<< HEAD
+//                     // Add new columns
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "swimScore", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialAverageSlope", DEFAULT_0);//$NON-NLS-1$
+//                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+//                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+//                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
 //
-//            /*
-//             * Create geo bound fields/index
-//             */
-//            SQL.AddCol_Int(stmt, TABLE_TOUR_DATA, "LatitudeMinE6", DEFAULT_0); //$NON-NLS-1$
-//            SQL.AddCol_Int(stmt, TABLE_TOUR_DATA, "LatitudeMaxE6", DEFAULT_0); //$NON-NLS-1$
+//                     createTable_PerformanceModelingData(stmt);
 //
-//            SQL.AddCol_Int(stmt, TABLE_TOUR_DATA, "LongitudeMinE6", DEFAULT_0); //$NON-NLS-1$
-//            SQL.AddCol_Int(stmt, TABLE_TOUR_DATA, "LongitudeMaxE6", DEFAULT_0); //$NON-NLS-1$
+//                      String sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
+//                           + "   ADD " + ENTITY_ID_PERFORMANCE_MODELING_DATA  + "     BIGINT \n";//$NON-NLS-1$ //$NON-NLS-2$
 //
-//            createIndex_TourData_035(stmt);
+//                     exec(stmt, sql);
+//
+//                      sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
+//                           + "   ADD CONSTRAINT " + FK_PERSON_PERFORMANCE_MODELING_DATA  + " FOREIGN KEY (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//                           + "   REFERENCES " + TABLE_PERFORMANCE_MODELING_DATA  + " (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//
+//                     exec(stmt, sql);
+//// SET_FORMATTING_ON
 //         }
 //      }
 //      stmt.close();
@@ -8505,151 +8480,7 @@ public class TourDatabase {
 //      logDb_UpdateEnd(newDbVersion);
 //
 //      return newDbVersion;
-//   }
-
-//   /**
-//    * Set lat/lon min/max values
-//    *
-//    * @param conn
-//    * @param monitor
-//    * @throws SQLException
-//    */
-//   private void updateDbDesign_034_to_035_PostUpdate(final Connection conn, final IProgressMonitor monitor)
-//         throws SQLException {
-//
-//      final ArrayList<Long> allTours = getAllTourIds();
-//
-//      final int numTours = allTours.size();
-//      int tourIndex = 1;
-//
-//      final EntityManager em = TourDatabase.getInstance().getEntityManager();
-//
-//      final long startTime = System.currentTimeMillis();
-//
-//      try {
-//
-//         long lastUpdateTime = startTime;
-//
-//         // loop: all tours
-//         for (final Long tourId : allTours) {
-//
-//            if (monitor != null) {
-//
-//               final long currentTime = System.currentTimeMillis();
-//               final float timeDiff = currentTime - lastUpdateTime;
-//
-//               // reduce logging
-//               if (timeDiff > 200) {
-//
-//                  lastUpdateTime = currentTime;
-//
-//                  final String percent = String.format("%.1f", (float) tourIndex / numTours * 100.0);//$NON-NLS-1$
-//
-//                  monitor.subTask(
-//                        NLS.bind(//
-//                              Messages.Tour_Database_PostUpdate_035_SetGeoMinMax,
-//                              new Object[] { tourIndex, numTours, percent }));
-//               }
-//
-//               tourIndex++;
-//            }
-//
-//            final TourData tourData = em.find(TourData.class, tourId);
-//
-//            if (tourData != null) {
-//
-//               tourData.computeGeo_Bounds();
-//
-//               saveTour(tourData, false);
-//            }
-//         }
-//
-//         // update UI otherwise < 100% is displayed
-//         monitor.subTask(
-//               NLS.bind(//
-//                     Messages.Tour_Database_PostUpdate_035_SetGeoMinMax,
-//                     new Object[] { tourIndex - 1, numTours, 100 }));
-//
-//      } catch (final Exception e) {
-//         StatusUtil.log(e);
-//      } finally {
-//         em.close();
-//      }
-//
-//      final long timeDiff = System.currentTimeMillis() - startTime;
-//
-//      StatusUtil.logInfo(
-//            String.format(
-//                  "Database postupdate 34->35 in %s mm:ss", //$NON-NLS-1$
-//                  net.tourbook.common.UI.formatHhMmSs(timeDiff / 1000)));
-//   }
-
-   private int updateDbDesign_042_to_043(final Connection conn, final SplashManager splashManager) throws SQLException {
-=======
-   private void updateDb_041_To_042_DataUpdate(final Connection conn) throws SQLException {
->>>>>>> refs/remotes/origin/main
-
-      final int newDbVersion = 43;
-
-<<<<<<< HEAD
-      logDb_UpdateStart(newDbVersion);
-      updateMonitor(splashManager, newDbVersion);
-=======
-      final int dbDataVersion = 42;
->>>>>>> refs/remotes/origin/main
-
-<<<<<<< HEAD
-      final Statement stmt = conn.createStatement();
-      {
-         // check if db is updated to version 42
-         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "govss") == false) { //$NON-NLS-1$
-=======
-      if (getDbVersion(conn, TABLE_DB_VERSION_DATA) >= dbDataVersion) {
-         // data version is higher -> nothing to do
-         return;
-      }
->>>>>>> refs/remotes/origin/main
-
-<<<<<<< HEAD
-         // SET_FORMATTING_OFF
-=======
-      PreparedStatement stmtUpdate = null;
->>>>>>> refs/remotes/origin/main
-
-<<<<<<< HEAD
-                     // Add new columns
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_DATA, "swimScore", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialAverageSlope", DEFAULT_0);//$NON-NLS-1$
-                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
-                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
-                     SQL.AddCol_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
-
-                     createTable_PerformanceModelingData(stmt);
-
-                      String sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
-                           + "   ADD " + ENTITY_ID_PERFORMANCE_MODELING_DATA  + "     BIGINT \n";//$NON-NLS-1$ //$NON-NLS-2$
-
-                     exec(stmt, sql);
-
-                      sql = "ALTER TABLE " + TABLE_TOUR_PERSON //$NON-NLS-1$
-                           + "   ADD CONSTRAINT " + FK_PERSON_PERFORMANCE_MODELING_DATA  + " FOREIGN KEY (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                           + "   REFERENCES " + TABLE_PERFORMANCE_MODELING_DATA  + " (" + ENTITY_ID_PERFORMANCE_MODELING_DATA + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-                     exec(stmt, sql);
-// SET_FORMATTING_ON
-         }
-      }
-      stmt.close();
-
-      logDb_UpdateEnd(newDbVersion);
-
-      return newDbVersion;
-=======
+//=======
       try {
 
          stmtUpdate = conn.prepareStatement(UI.EMPTY_STRING
@@ -8666,7 +8497,6 @@ public class TourDatabase {
       }
 
       updateVersionNumber_20_AfterDataUpdate(conn, dbDataVersion, startTime);
->>>>>>> refs/remotes/origin/main
    }
 
    private int updateDb_042_To_043(final Connection conn, final SplashManager splashManager) throws SQLException {

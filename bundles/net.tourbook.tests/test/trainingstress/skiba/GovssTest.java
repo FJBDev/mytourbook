@@ -17,23 +17,19 @@ package trainingstress.skiba;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 
 import javax.xml.parsers.SAXParser;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
-import net.tourbook.device.garmin.GarminDeviceDataReader;
-import net.tourbook.device.gpx.GPX_SAX_Handler;
+import net.tourbook.device.garmin.GarminTCX_DeviceDataReader;
 import net.tourbook.importdata.DeviceData;
 import net.tourbook.trainingstress.Govss;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
 import utils.Comparison;
 import utils.Initializer;
@@ -45,7 +41,7 @@ class GovssTest {
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
    private static HashMap<Long, TourData> alreadyImportedTours;
-   private static GarminDeviceDataReader  deviceDataReader;
+   private static GarminTCX_DeviceDataReader deviceDataReader;
 
    public static final String             IMPORT_FILE_PATH = "/trainingstress/skiba/files/"; //$NON-NLS-1$
 
@@ -62,24 +58,26 @@ class GovssTest {
       deviceData = new DeviceData();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
-      deviceDataReader = new GarminDeviceDataReader();
+      deviceDataReader = new GarminTCX_DeviceDataReader();
    }
 
    private int ComputeGovssFromTour(final String fileName) {
-      final InputStream gpx = GovssTest.class.getResourceAsStream(IMPORT_FILE_PATH + fileName);
-
-      final GPX_SAX_Handler gpxSaxHandler = new GPX_SAX_Handler(
-            deviceDataReader,
-            IMPORT_FILE_PATH,
-            deviceData,
-            alreadyImportedTours,
-            newlyImportedTours);
-
-      try {
-         parser.parse(gpx, gpxSaxHandler);
-      } catch (SAXException | IOException e) {
-         e.printStackTrace();
-      }
+//      final InputStream gpx = GovssTest.class.getResourceAsStream(IMPORT_FILE_PATH + fileName);
+//
+//      final GPX_SAX_Handler gpxSaxHandler = new GPX_SAX_Handler(
+//            IMPORT_FILE_PATH,
+//            deviceDataReader,
+//            deviceData,
+//            alreadyImportedTours,
+//            newlyImportedTours,
+//            null,
+//            null);
+//
+//      try {
+//         parser.parse(gpx, gpxSaxHandler);
+//      } catch (SAXException | IOException e) {
+//         e.printStackTrace();
+//      }
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
