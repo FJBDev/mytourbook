@@ -27,6 +27,7 @@ public class ActionShowHidePerformanceValues extends Action {
 
    public ActionShowHidePerformanceValues(final PerformanceModelingChartView performanceModelingChartView) {
 
+      //TODO fb rmeove ?
       super(UI.EMPTY_STRING, AS_CHECK_BOX);
 
       setToolTipText(Messages.Training_View_Action_ShowAllPulseValues);

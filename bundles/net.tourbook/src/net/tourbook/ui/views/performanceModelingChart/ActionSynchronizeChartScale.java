@@ -27,6 +27,7 @@ public class ActionSynchronizeChartScale extends Action {
 
    public ActionSynchronizeChartScale(final PerformanceModelingChartView performanceModelingChartView) {
 
+      //todo fb remove ?
 		super(UI.EMPTY_STRING, AS_CHECK_BOX);
 
       _performanceModelingChartView = performanceModelingChartView;

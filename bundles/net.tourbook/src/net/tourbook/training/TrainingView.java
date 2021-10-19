@@ -21,7 +21,6 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -1196,7 +1195,7 @@ public class TrainingView extends ViewPart {
       /*
        * check HR zones
        */
-      final List<TourPersonHRZone> personHrZones = _currentPerson.getHrZonesSorted();
+      final ArrayList<TourPersonHRZone> personHrZones = _currentPerson.getHrZonesSorted();
       if (personHrZones.isEmpty()) {
 
          // hr zones are required
@@ -1239,7 +1238,7 @@ public class TrainingView extends ViewPart {
       final boolean[] breakTimeSerie = _tourData.getBreakTimeSerie();
       final int timeSerieSize = timeSerie.length;
 
-      final List<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
+      final ArrayList<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
       final int numZones = hrSortedZones.size();
 
       final RGB[] allRgbBright = new RGB[numZones];
@@ -1510,7 +1509,8 @@ public class TrainingView extends ViewPart {
          _lblTourMinMaxValue[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          _lblTourMinMaxHours[tourZoneIndex].setText(net.tourbook.common.UI
-               .format_hh_mm((long) (zoneTime + 30)));
+               .format_hh_mm((long) (zoneTime + 30))
+               .toString());
          _lblTourMinMaxHours[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          _lblHRZoneName[tourZoneIndex].setToolTipText(hrZoneTooltip);

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package net.tourbook.ui.tourChart;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import net.tourbook.chart.Chart;
@@ -48,7 +48,7 @@ public class GraphBackgroundPainter implements IFillPainter {
 
    private void createColors_HrZone(final GC gcGraph, final TourPerson tourPerson) {
 
-      final List<TourPersonHRZone> personHrZones = tourPerson.getHrZonesSorted();
+      final ArrayList<TourPersonHRZone> personHrZones = tourPerson.getHrZonesSorted();
 
       _hrZone_Colors = new Color[personHrZones.size()];
 
