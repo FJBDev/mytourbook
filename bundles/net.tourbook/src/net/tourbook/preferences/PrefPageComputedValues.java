@@ -53,6 +53,8 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -84,7 +86,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
     */
    public static final int    TAB_FOLDER_SMOOTHING             = 0;
    public static final int    TAB_FOLDER_BREAK_TIME            = 1;
-   public static final int    TAB_FOLDER_ELEVATION             = 2;
+   public static final int    TAB_FOLDER_PACE_SPEED            = 2;
+   public static final int    TAB_FOLDER_ELEVATION_GAIN        = 3;
    public static final int    TAB_FOLDER_CADENCE_ZONES         = 4;
    public static final int    TAB_FOLDER_PREDICTED_PERFORMANCE = 5;
 
@@ -229,9 +232,10 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
             tabItemCadenceZones.setText(Messages.Compute_CadenceZonesTimes_Group);
 
             // tab: Performance modeling chart options
-            final TabItem tabPerformanceModelingChart = new TabItem(_tabFolder, SWT.NONE);
+            final CTabItem tabPerformanceModelingChart = new CTabItem(_tabFolder, SWT.NONE);
             tabPerformanceModelingChart.setControl(createUI_80_PerformanceModelingChart(_tabFolder));
             tabPerformanceModelingChart.setText(Messages.Compute_PerformanceModelingChart_Group);
+
             final CTabItem tabHrZone = new CTabItem(_tabFolder, SWT.NONE);
             tabHrZone.setControl(createUI_90_HrZone(_tabFolder));
             tabHrZone.setText(Messages.Compute_HrZone_Group);
@@ -838,29 +842,6 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       return container;
    }
 
-   private Control createUI_90_HrZone(final Composite parent) {
-
-      final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.swtDefaults().extendedMargins(5, 5, 10, 5).numColumns(1).applyTo(container);
-      {
-         final PreferenceLinkArea prefLink = new PreferenceLinkArea(
-               container,
-               SWT.NONE,
-               PrefPagePeople.ID,
-               Messages.Compute_HrZone_Link,
-               (IWorkbenchPreferenceContainer) getContainer(),
-               new PrefPagePeopleData(PrefPagePeople.PREF_DATA_SELECT_HR_ZONES, null));
-
-         GridDataFactory.fillDefaults()
-               .grab(true, false)
-               .hint(DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
-               .applyTo(prefLink.getControl());
-      }
-
-      return container;
-   }
-
    /**
     * UI for the predicted performance chart options
     */
@@ -945,6 +926,29 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
 
       return container;
 
+   }
+
+   private Control createUI_90_HrZone(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.swtDefaults().extendedMargins(5, 5, 10, 5).numColumns(1).applyTo(container);
+      {
+         final PreferenceLinkArea prefLink = new PreferenceLinkArea(
+               container,
+               SWT.NONE,
+               PrefPagePeople.ID,
+               Messages.Compute_HrZone_Link,
+               (IWorkbenchPreferenceContainer) getContainer(),
+               new PrefPagePeopleData(PrefPagePeople.PREF_DATA_SELECT_HR_ZONES, null));
+
+         GridDataFactory.fillDefaults()
+               .grab(true, false)
+               .hint(DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
+               .applyTo(prefLink.getControl());
+      }
+
+      return container;
    }
 
    @Override
@@ -1316,10 +1320,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       TourManager.fireEvent(TourEventId.TOUR_CHART_PROPERTY_IS_MODIFIED);
    }
 
-   private void onModifyCadenceZonesDelimiter() {
-=======
    private void onModifyComputedValuePreference() {
->>>>>>> refs/remotes/origin/main
 
       saveState();
 
@@ -1506,18 +1507,16 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
          _spinnerCadenceDelimiter.setSelection(_prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER));
 
          /*
-<<<<<<< HEAD
           * Predicted performance
           */
          _spinnerFitnessDecayTime.setSelection(_prefStore.getInt(ITourbookPreferences.FITNESS_DECAY));
          _spinnerFatigueDecayTime.setSelection(_prefStore.getInt(ITourbookPreferences.FATIGUE_DECAY));
-=======
+         /*
           * Pace/Speed
           */
          final boolean prefIsRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
          _rdoDeviceTime_Recorded.setSelection(prefIsRecordedTime);
          _rdoComputedTime_Moving.setSelection(!prefIsRecordedTime);
->>>>>>> refs/remotes/origin/main
 
          updateUIShowSelectedBreakTimeMethod();
       }
@@ -1599,16 +1598,14 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       _prefStore.setValue(ITourbookPreferences.CADENCE_ZONES_DELIMITER, _spinnerCadenceDelimiter.getSelection());
 
       /*
-<<<<<<< HEAD
        * Predicted performance decay values
        */
       _prefStore.setValue(ITourbookPreferences.FITNESS_DECAY, _spinnerFitnessDecayTime.getSelection());
       _prefStore.setValue(ITourbookPreferences.FATIGUE_DECAY, _spinnerFatigueDecayTime.getSelection());
-=======
+      /*
        * Pace/Speed
        */
       _prefStore.setValue(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME, _rdoDeviceTime_Recorded.getSelection());
->>>>>>> refs/remotes/origin/main
    }
 
    private void saveUIState() {

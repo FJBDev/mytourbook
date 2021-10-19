@@ -67,7 +67,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
@@ -75,6 +74,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class PerformanceModelingChartView extends ViewPart {
 
+   //TODO FB  not needed if I use the statstics view
    public static final String  ID                                    = "net.tourbook.ui.views.performanceModelingChart.PerformanceModelingChartView"; //$NON-NLS-1$
 
    private static final String STATE_IS_SHOW_ALL_STRESS_SCORE_VALUES = "IsShowAllStressScoreValues";                                                  //$NON-NLS-1$
@@ -251,10 +251,10 @@ public class PerformanceModelingChartView extends ViewPart {
       final int[] colorIndex = new int[_numberOfDays];
 
       govssData.setColorIndex(new int[][] { colorIndex });
-      govssData.setRgbLine(rgbLine);
-      govssData.setRgbBright(rgbBright);
-      govssData.setRgbDark(rgbDark);
-      govssData.setDefaultRGB(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB());
+//      govssData.setRgbLine(rgbLine);
+//      govssData.setRgbBright(rgbBright);
+//      govssData.setRgbDark(rgbDark);
+//      govssData.setDefaultRGB(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB());
 
       return govssData;
 
@@ -685,10 +685,10 @@ public class PerformanceModelingChartView extends ViewPart {
       final int[] colorIndex = new int[_numberOfDays];
 
       govssData.setColorIndex(new int[][] { colorIndex });
-      govssData.setRgbLine(rgbLine2);
-      govssData.setRgbBright(rgbBright2);
-      govssData.setRgbDark(rgbDark2);
-      govssData.setDefaultRGB(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB());
+//      govssData.setRgbLine(rgbLine2);
+//      govssData.setRgbBright(rgbBright2);
+//      govssData.setRgbDark(rgbDark2);
+//      govssData.setDefaultRGB(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB());
 
       return govssData;
 
