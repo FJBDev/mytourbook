@@ -19,6 +19,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 
 public abstract class TrainingStress {
+   //todo fb take into account the devicetraining stress
 
    protected TourPerson _tourPerson;
    protected TourData   _tourData;

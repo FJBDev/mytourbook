@@ -190,6 +190,7 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
 
       final Float trainingStressScore = mesg.getTrainingStressScore();
       if (trainingStressScore != null) {
+         //todo fb not sure if it's a power score since it's set dor running activities in suunto fit files ? to check
          tourData.setPower_TrainingStressScore(trainingStressScore);
       }
 

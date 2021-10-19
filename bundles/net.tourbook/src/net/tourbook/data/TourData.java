@@ -573,6 +573,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /** Total work in Joule */
    private long                  power_TotalWork;
+   //todo fb put in the training stress section?
    private float                 power_TrainingStressScore;
    private float                 power_IntensityFactor;
 
@@ -685,6 +686,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private short                  isStrideSensorPresent            = 0;
 
    // ############################################# TRAINING STRESS DATA #############################################
+
+   /**
+    * GOVSS (Gravity Ordered Velocity Stress Score)
+    */
+   private int                deviceTrainingStress;
 
    /**
     * GOVSS (Gravity Ordered Velocity Stress Score)
