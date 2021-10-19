@@ -212,7 +212,7 @@ public class PerformanceModelingChartView extends ViewPart {
    private ChartDataYSerie addPerformanceValues() {
 
       final float[] predictedPerformanceValues = new float[_numberOfDays];
-      final Map<LocalDate, Integer> fitnessValuesSkiba = _currentPerson.getPerformanceModelingData().getFitnessValuesSkiba();
+      final Map<LocalDate, Integer> fitnessValuesSkiba = null;//new Map<LocalDate, Integer>();// _currentPerson.getPerformanceModelingData().getFitnessValuesSkiba();
       LocalDate currentDatetorneame = _oldestEntryDate;
       for (int index = 0; index < _numberOfDays; ++index) {
 

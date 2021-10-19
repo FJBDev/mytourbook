@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -34,10 +33,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -108,9 +105,9 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
     * tourPerson_personId
     * </pre>
     */
-   @OneToOne(targetEntity = PerformanceModelingData.class, cascade = CascadeType.ALL)
-   @JoinColumn(name = "PerformanceModelingDataId")
-   private PerformanceModelingData   performanceModelingData;
+//   @OneToOne(targetEntity = PerformanceModelingData.class, cascade = CascadeType.ALL)
+//   @JoinColumn(name = "PerformanceModelingDataId")
+//   private PerformanceModelingData   performanceModelingData;
 
    /**
     * Training Stress data
@@ -227,7 +224,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
       this.firstName = firstName;
       this.lastName = lastName;
-      this.performanceModelingData = new PerformanceModelingData();
+      //this.performanceModelingData = new PerformanceModelingData();
    }
 
    /**
@@ -293,15 +290,15 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
       _changeListener = listener;
    }
 
-   public void addOrUpdateGovssEntry(final long tourStartTime, final long tourId) {
-      if (performanceModelingData == null) {
-         performanceModelingData = new PerformanceModelingData();
-      }
-
-      performanceModelingData.setGovss(tourStartTime, tourId);
-      performanceModelingData.persist();
-      persist();
-   }
+//   public void addOrUpdateGovssEntry(final long tourStartTime, final long tourId) {
+//      if (performanceModelingData == null) {
+//         performanceModelingData = new PerformanceModelingData();
+//      }
+//
+//      performanceModelingData.setGovss(tourStartTime, tourId);
+//      performanceModelingData.persist();
+//      persist();
+//   }
 
    @Override
    public int compareTo(final Object o) {
@@ -325,14 +322,14 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
       return 0;
    }
 
-   public void computePerformanceModelingData() {
-      if (performanceModelingData == null) {
-         return;
-      }
-
-      performanceModelingData.computeFitnessValues();
-      performanceModelingData.computeFatigueValues();
-   }
+//   public void computePerformanceModelingData() {
+//      if (performanceModelingData == null) {
+//         return;
+//      }
+//
+//      performanceModelingData.computeFitnessValues();
+//      performanceModelingData.computeFatigueValues();
+//   }
 
    @Override
    public boolean equals(final Object obj) {
@@ -544,7 +541,8 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
    }
 
    public PerformanceModelingData getPerformanceModelingData() {
-      return performanceModelingData;
+      //todo fb
+      return null;
    }
 
    public long getPersonId() {
