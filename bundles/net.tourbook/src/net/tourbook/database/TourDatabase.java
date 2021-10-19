@@ -105,21 +105,13 @@ public class TourDatabase {
    /**
     * Version for the database which is required that the tourbook application works successfully
     */
-<<<<<<< HEAD
-   private static final int TOURBOOK_DB_VERSION = 43;
-=======
    private static final int TOURBOOK_DB_VERSION = 45;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-//   private static final int TOURBOOK_DB_VERSION = 42; // 20.11
-=======
 //   private static final int TOURBOOK_DB_VERSION = 45; // 21.???
 
 //   private static final int TOURBOOK_DB_VERSION = 44; // 21.6
 //   private static final int TOURBOOK_DB_VERSION = 43; // 21.3
 //   private static final int TOURBOOK_DB_VERSION = 42; // 20.11.1
->>>>>>> refs/remotes/origin/main
 //   private static final int TOURBOOK_DB_VERSION = 41; // 20.8
 //   private static final int TOURBOOK_DB_VERSION = 40; // 19.10
 //   private static final int TOURBOOK_DB_VERSION = 39; // 19.7
@@ -181,13 +173,10 @@ public class TourDatabase {
    private static final String TABLE_DB_VERSION_DESIGN                    = "DBVERSION";                                             //$NON-NLS-1$
    private static final String TABLE_DB_VERSION_DATA                      = "DB_VERSION_DATA";                                       //$NON-NLS-1$
 
-<<<<<<< HEAD
    public static final String  TABLE_PERFORMANCE_MODELING_DATA            = "PERFORMANCEMODELINGDATA";                               //$NON-NLS-1$
 
-=======
    public static final String  TABLE_DEVICE_SENSOR                        = "DeviceSensor";                                          //$NON-NLS-1$
    public static final String  TABLE_DEVICE_SENSOR_VALUE                  = "DeviceSensorValue";                                     //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
    public static final String  TABLE_TOUR_BIKE                            = "TOURBIKE";                                              //$NON-NLS-1$
    public static final String  TABLE_TOUR_COMPARED                        = "TOURCOMPARED";                                          //$NON-NLS-1$
    public static final String  TABLE_TOUR_DATA                            = "TOURDATA";                                              //$NON-NLS-1$
@@ -215,46 +204,22 @@ public class TourDatabase {
    private static final String JOINTABLE__TOURDATA__TOURWAYPOINT        = TABLE_TOUR_DATA + "_" + TABLE_TOUR_WAYPOINT;        //$NON-NLS-1$
    private static final String JOINTABLE__TOURPERSON__TOURPERSON_HRZONE = TABLE_TOUR_PERSON + "_" + TABLE_TOUR_PERSON_HRZONE; //$NON-NLS-1$
 
-<<<<<<< HEAD
-   // never used tables, is needed to drop them
-   private final static String                            TABLE_TOUR_CATEGORY                 = "TourCategory";                              //$NON-NLS-1$
-   private final static String                            TABLE_TOURCATEGORY__TOURDATA        = TABLE_TOUR_CATEGORY + "_" + TABLE_TOUR_DATA; //$NON-NLS-1$
-=======
    // never used tables, they are needed to drop them
    private static final String TABLE_TOUR_CATEGORY                = "TourCategory";                                         //$NON-NLS-1$
    private static final String TABLE_TOURCATEGORY__TOURDATA       = TABLE_TOUR_CATEGORY + "_" + TABLE_TOUR_DATA;            //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
 
    /**
     * Is <code>-1</code>, this is the id for a not saved entity
     */
-<<<<<<< HEAD
-   public static final int                                ENTITY_IS_NOT_SAVED                 = -1;
-=======
    public static final int     ENTITY_IS_NOT_SAVED                = -1;
->>>>>>> refs/remotes/origin/main
    //
-<<<<<<< HEAD
-   public static final String                             ENTITY_ID_BIKE                      = "BikeID";                                    //$NON-NLS-1$
-   public static final String                             ENTITY_ID_COMPARED                  = "ComparedID";                                //$NON-NLS-1$
-   public static final String                             ENTITY_ID_HR_ZONE                   = "HrZoneID";                                  //$NON-NLS-1$
-   public static final String                             ENTITY_ID_MARKER                    = "MarkerID";                                  //$NON-NLS-1$
-   public static final String                             ENTITY_ID_PERFORMANCE_MODELING_DATA = "PerformanceModelingDataId";                 //$NON-NLS-1$
-   public static final String                             ENTITY_ID_PERSON                    = "PersonID";                                  //$NON-NLS-1$
-   public static final String                             ENTITY_ID_PHOTO                     = "PhotoID";                                   //$NON-NLS-1$
-   public static final String                             ENTITY_ID_REF                       = "RefID";                                     //$NON-NLS-1$
-   public static final String                             ENTITY_ID_TAG                       = "TagID";                                     //$NON-NLS-1$
-   public static final String                             ENTITY_ID_TAG_CATEGORY              = "TagCategoryID";                             //$NON-NLS-1$
-   public static final String                             ENTITY_ID_TOUR                      = "TourID";                                    //$NON-NLS-1$
-   public static final String                             ENTITY_ID_TYPE                      = "TypeID";                                    //$NON-NLS-1$
-   public static final String                             ENTITY_ID_WAY_POINT                 = "WayPointID";                                //$NON-NLS-1$
-=======
    public static final String  ENTITY_ID_BIKE                     = "BikeID";                                               //$NON-NLS-1$
    public static final String  ENTITY_ID_COMPARED                 = "ComparedID";                                           //$NON-NLS-1$
    public static final String  ENTITY_ID_DEVICE_SENSOR            = "SensorId";                                             //$NON-NLS-1$
    public static final String  ENTITY_ID_DEVICE_SENSOR_VALUE      = "SensorValueId";                                        //$NON-NLS-1$
    public static final String  ENTITY_ID_HR_ZONE                  = "HrZoneID";                                             //$NON-NLS-1$
    public static final String  ENTITY_ID_MARKER                   = "MarkerID";                                             //$NON-NLS-1$
+   public static final String  ENTITY_ID_PERFORMANCE_MODELING_DATA = "PerformanceModelingDataId";                            //$NON-NLS-1$
    public static final String  ENTITY_ID_PERSON                   = "PersonID";                                             //$NON-NLS-1$
    public static final String  ENTITY_ID_PHOTO                    = "PhotoID";                                              //$NON-NLS-1$
    public static final String  ENTITY_ID_REF                      = "RefID";                                                //$NON-NLS-1$
@@ -263,17 +228,7 @@ public class TourDatabase {
    public static final String  ENTITY_ID_TOUR                     = "TourID";                                               //$NON-NLS-1$
    public static final String  ENTITY_ID_TYPE                     = "TypeID";                                               //$NON-NLS-1$
    public static final String  ENTITY_ID_WAY_POINT                = "WayPointID";                                           //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
    //
-<<<<<<< HEAD
-   private static final String                            KEY_BIKE                            = TABLE_TOUR_BIKE + "_" + ENTITY_ID_BIKE;      //$NON-NLS-1$
-   private static final String                            KEY_PERSON                          = TABLE_TOUR_PERSON + "_" + ENTITY_ID_PERSON;  //$NON-NLS-1$
-   public static final String                             KEY_TAG                             = TABLE_TOUR_TAG + "_" + ENTITY_ID_TAG;        //$NON-NLS-1$
-   private static final String                            KEY_TAG_CATEGORY                    = TABLE_TOUR_TAG_CATEGORY + "_"                //$NON-NLS-1$
-         + ENTITY_ID_TAG_CATEGORY;
-   public static final String                             KEY_TOUR                            = TABLE_TOUR_DATA + "_" + ENTITY_ID_TOUR;      //$NON-NLS-1$  private static final String                            KEY_TYPE                            = TABLE_TOUR_TYPE + "_" + ENTITY_ID_TYPE;
-   private static final String                            KEY_TYPE                            = TABLE_TOUR_TYPE + "_" + ENTITY_ID_TYPE;      //$NON-NLS-1$
-=======
    private static final String KEY_BIKE                           = TABLE_TOUR_BIKE + "_" + ENTITY_ID_BIKE;                 //$NON-NLS-1$
 //   private static final String KEY_DEVICE_SENSOR                  = TABLE_DEVICE_SENSOR + "_" + ENTITY_ID_DEVICE_SENSOR;    //$NON-NLS-1$
    private static final String KEY_PERSON                         = TABLE_TOUR_PERSON + "_" + ENTITY_ID_PERSON;             //$NON-NLS-1$
@@ -281,11 +236,8 @@ public class TourDatabase {
    private static final String KEY_TAG_CATEGORY                   = TABLE_TOUR_TAG_CATEGORY + "_" + ENTITY_ID_TAG_CATEGORY; //$NON-NLS-1$
    public static final String  KEY_TOUR                           = TABLE_TOUR_DATA + "_" + ENTITY_ID_TOUR;                 //$NON-NLS-1$
    private static final String KEY_TYPE                           = TABLE_TOUR_TYPE + "_" + ENTITY_ID_TYPE;                 //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
    private static final String                            FK_PERSON_PERFORMANCE_MODELING_DATA = "FK_PERSON_PERFORMANCE_MODELING_DATA";       //$NON-NLS-1$
-=======
    /**
     * Renaming existing fields in the tour database causes lots of troubles and additional work to
     * fix and test it for ALL possible cases -> It is not a good idea to rename fields
@@ -296,31 +248,12 @@ public class TourDatabase {
    private static final String RENAMED__TOUR_DRIVING_TIME__INTO   = "TourComputedTime_Moving";                              //$NON-NLS-1$
    private static final String RENAMED__TOUR_RECORDING_TIME__FROM = "tourRecordingTime";                                    //$NON-NLS-1$
    private static final String RENAMED__TOUR_RECORDING_TIME__INTO = "TourDeviceTime_Elapsed";                               //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-   private static final String                            DEFAULT_0                           = "0";                                         //$NON-NLS-1$
-   private static final String                            DEFAULT_1_0                         = "1.0";                                       //$NON-NLS-1$
-   private static final String                            DEFAULT_FALSE                       = "false";                                     //$NON-NLS-1$
-   private static final String                            DEFAULT_IGNORED                     = "-1";                                        //$NON-NLS-1$
-=======
    private static final String DEFAULT_0                          = "0";                                                    //$NON-NLS-1$
    private static final String DEFAULT_1_0                        = "1.0";                                                  //$NON-NLS-1$
    private static final String DEFAULT_FALSE                      = "false";                                                //$NON-NLS-1$
    private static final String DEFAULT_IGNORED                    = "-1";                                                   //$NON-NLS-1$
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-   private static final String                            PERSISTENCE_UNIT_NAME               = "tourdatabase";                              //$NON-NLS-1$
-
-   private static final String                            DERBY_DATABASE                      = "derby-database";                            //$NON-NLS-1$
-   private static final String                            DERBY_DB_TOURBOOK                   = "tourbook";                                  //$NON-NLS-1$
-   private static String                                  DERBY_DRIVER_CLASS;
-   private static String                                  DERBY_URL;
-   private static final String                            DERBY_URL_COMMAND_CREATE_TRUE       = ";create=true";                              //$NON-NLS-1$
-   private static final String                            DERBY_URL_COMMAND_SHUTDOWN_TRUE     = ";shutdown=true";                            //$NON-NLS-1$
-   private static final String                            DERBY_URL_COMMAND_UPGRADE_TRUE      = ";upgrade=true";                             //$NON-NLS-1$
-=======
    private static final String PERSISTENCE_UNIT_NAME              = "tourdatabase";                                         //$NON-NLS-1$
 
    private static final String DERBY_DATABASE                     = "derby-database";                                       //$NON-NLS-1$
@@ -331,7 +264,6 @@ public class TourDatabase {
    private static final String DERBY_URL_COMMAND_SHUTDOWN_TRUE    = ";shutdown=true";                                       //$NON-NLS-1$
    private static final String DERBY_URL_COMMAND_UPGRADE_TRUE     = ";upgrade=true";                                        //$NON-NLS-1$
    //
->>>>>>> refs/remotes/origin/main
    //
    private static volatile TourDatabase                   _instance;
 
@@ -367,11 +299,7 @@ public class TourDatabase {
    /**
     * Key is category ID or <code>-1</code> for the root.
     */
-<<<<<<< HEAD
-   private static HashMap<Long, TagCollection>            _tagCollections                     = new HashMap<>();
-=======
    private static HashMap<Long, TagCollection>            _tagCollections = new HashMap<>();
->>>>>>> refs/remotes/origin/main
 
    /*
     * Cached distinct fields
@@ -5719,22 +5647,10 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_041_To_042(conn, splashManager);
          }
 
-<<<<<<< HEAD
-         // 42 -> 43
-         if (currentDbVersion == 42) {
-            currentDbVersion = newVersion = updateDbDesign_042_to_043(conn, splashManager);
-         }
-
-         /*
-          * Update version number
-          */
-         updateDbDesign_VersionNumber(conn, newVersion);
-=======
          // 42 -> 43    21.3
          if (currentDbVersion == 42) {
             currentDbVersion = _dbDesignVersion_New = updateDb_042_To_043(conn, splashManager);
          }
->>>>>>> refs/remotes/origin/main
 
          // 43 -> 44    21.6
          if (currentDbVersion == 43) {
@@ -5745,51 +5661,9 @@ public class TourDatabase {
          if (currentDbVersion == 44) {
             currentDbVersion = _dbDesignVersion_New = updateDb_044_To_045(conn, splashManager);
          }
-<<<<<<< HEAD
-         if (isPostUpdate11) {
-            updateDbDesign_010_011_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate13) {
-            updateDbDesign_012_013_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate20) {
-            updateDbDesign_019_to_020_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate22) {
-            updateDbDesign_021_to_022_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate23) {
-            updateDbDesign_022_to_023_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate25) {
-            updateDbDesign_024_to_025_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate28) {
-            updateDbDesign_027_to_028_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate29) {
-            updateDbDesign_028_to_029_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate32) {
-            updateDbDesign_031_to_032_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate34) {
-            updateDbDesign_033_to_034_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate37) {
-            updateDbDesign_036_to_037_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate40) {
-            updateDbDesign_039_to_040_PostUpdate(conn, splashManager);
-         }
-         if (isPostUpdate42) {
-            updateDbDesign_041_to_042_PostUpdate(conn, splashManager);
-         }
-=======
 
          // update db design version number
          updateVersionNumber_10_AfterDesignUpdate(conn, _dbDesignVersion_New);
->>>>>>> refs/remotes/origin/main
 
       } catch (final SQLException e) {
 

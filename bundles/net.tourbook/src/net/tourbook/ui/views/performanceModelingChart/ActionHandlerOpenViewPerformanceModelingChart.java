@@ -22,6 +22,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 public class ActionHandlerOpenViewPerformanceModelingChart extends AbstractHandler {
+   //TODO fb remove ?
 
    @Override
    public Object execute(final ExecutionEvent event) throws ExecutionException {

@@ -1239,13 +1239,8 @@ public class TrainingView extends ViewPart {
       final boolean[] breakTimeSerie = _tourData.getBreakTimeSerie();
       final int timeSerieSize = timeSerie.length;
 
-<<<<<<< HEAD
       final List<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
-      final int zoneSize = hrSortedZones.size();
-=======
-      final ArrayList<TourPersonHRZone> hrSortedZones = _currentPerson.getHrZonesSorted();
       final int numZones = hrSortedZones.size();
->>>>>>> refs/remotes/origin/main
 
       final RGB[] allRgbBright = new RGB[numZones];
       final RGB[] allRgbDark = new RGB[numZones];

@@ -48,7 +48,6 @@ import net.tourbook.trainingstress.PrefPageBikeScore;
 import net.tourbook.trainingstress.PrefPageGovss;
 import net.tourbook.trainingstress.PrefPageSwimScore;
 import net.tourbook.trainingstress.PrefPageTrainingStressModel;
-import net.tourbook.trainingstress.PrefPageTrainingStressModel.IPersonModifiedListener;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -761,7 +760,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          tabItemDataTransfer.setControl(createUI_90_Tab_DataTransfer(_tabFolderPerson));
 
          // tab: training stress
-         final TabItem tabTrainingStress = new TabItem(_tabFolderPerson, SWT.NONE);
+         final CTabItem tabTrainingStress = new CTabItem(_tabFolderPerson, SWT.NONE);
          tabTrainingStress.setText(Messages.Pref_People_Tab_TrainingStress);
          tabTrainingStress.setControl(createUI_100_Tab_TrainingStress(_tabFolderPerson));
       }
@@ -1830,31 +1829,13 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       _trainingStressModels = new PrefPageTrainingStressModel[3];
       //TODO FB_prefPageBikeScore = new PrefPageBikeScore();
       _prefPageGovss = new PrefPageGovss();
-      _prefPageGovss.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageGovss.setPersonModifiedListener(this::onModifyPerson);
       _trainingStressModels[0] = _prefPageGovss;
       _prefPageBikeScore = new PrefPageBikeScore();
-      _prefPageBikeScore.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageBikeScore.setPersonModifiedListener(this::onModifyPerson);
       _trainingStressModels[1] = _prefPageBikeScore;
       _prefPageSwimScore = new PrefPageSwimScore();
-      _prefPageSwimScore.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageSwimScore.setPersonModifiedListener(this::onModifyPerson);
       _trainingStressModels[2] = _prefPageSwimScore;
    }
 

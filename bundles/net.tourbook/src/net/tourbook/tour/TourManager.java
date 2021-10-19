@@ -295,16 +295,6 @@ public class TourManager {
    private static long                    _allLoaded_TourData_Key;
    private static int                     _allLoaded_TourIds_Hash;
    //
-   private ComputeChartValue              _computeAvg_Altimeter;
-   private ComputeChartValue              _computeAvg_Altitude;
-   private ComputeChartValue              _computeAvg_Cadence;
-   private ComputeChartValue              _computeAvg_Gradient;
-   private ComputeChartValue              _computeAvg_Pace;
-   private ComputeChartValue              _computeAvg_Power;
-   private ComputeChartValue              _computeAvg_Pulse;
-   private ComputeChartValue              _computeAvg_Speed;
-   //
-<<<<<<< HEAD
    public static final String                            govss_StatementUpdate             = UI.EMPTY_STRING
 
          + "UPDATE " + TourDatabase.TABLE_TOUR_DATA                                                                                    //   //$NON-NLS-1$
@@ -315,21 +305,20 @@ public class TourManager {
 
          + " WHERE tourId=?";                                                                                                          //                        //$NON-NLS-1$
    //
-   private ComputeChartValue                             _computeAvg_Altimeter;
-   private ComputeChartValue                             _computeAvg_Altitude;
-   private ComputeChartValue                             _computeAvg_Cadence;
-   private ComputeChartValue                             _computeAvg_Gradient;
-   private ComputeChartValue                             _computeAvg_Pace;
-   private ComputeChartValue                             _computeAvg_Power;
-   private ComputeChartValue                             _computeAvg_Pulse;
-   private ComputeChartValue                             _computeAvg_Speed;
-=======
+   private ComputeChartValue              _computeAvg_Altimeter;
+   private ComputeChartValue              _computeAvg_Altitude;
+   private ComputeChartValue              _computeAvg_Cadence;
+   private ComputeChartValue              _computeAvg_Gradient;
+   private ComputeChartValue              _computeAvg_Pace;
+   private ComputeChartValue              _computeAvg_Power;
+   private ComputeChartValue              _computeAvg_Pulse;
+   private ComputeChartValue              _computeAvg_Speed;
+   //
    private ComputeChartValue              _computeAvg_RunDyn_StanceTime;
    private ComputeChartValue              _computeAvg_RunDyn_StanceTimeBalance;
    private ComputeChartValue              _computeAvg_RunDyn_StepLength;
    private ComputeChartValue              _computeAvg_RunDyn_VerticalOscillation;
    private ComputeChartValue              _computeAvg_RunDyn_VerticalRatio;
->>>>>>> refs/remotes/origin/main
    //
    private final TourDataCache            _tourDataCache;
 
@@ -722,10 +711,10 @@ public class TourManager {
          }
       }
 
-      TourLogManager.addSubLog(TourLogState.IMPORT_OK, NLS.bind(Messages.Log_ComputeGovss_010_Success, numComputedTour));
+      TourLogManager.addSubLog(TourLogState.OK, NLS.bind(Messages.Log_ComputeGovss_010_Success, numComputedTour));
 
       if (numNotComputedTour >= 0) {
-         TourLogManager.addSubLog(TourLogState.IMPORT_ERROR,
+         TourLogManager.addSubLog(TourLogState.ERROR,
                NLS.bind(Messages.Log_ComputeGovss_011_NoSuccess, numNotComputedTour));
       }
 
@@ -4151,78 +4140,6 @@ public class TourManager {
    }
 
    /**
-<<<<<<< HEAD
-    * Altitude
-    */
-   private ChartDataYSerie createModelData_Altitude(final TourData tourData,
-                                                    final ChartDataModel chartDataModel,
-                                                    final ChartType chartType,
-                                                    final boolean useGraphBgStyle,
-                                                    final TourChartConfiguration tcc) {
-      ChartDataYSerie yDataAltitude = null;
-
-      final float[] altitudeSerie = tourData.getAltitudeSmoothedSerie();
-      if (altitudeSerie != null) {
-
-         if (tourData.isSRTMAvailable()) {
-
-            tcc.canShowSRTMData = true;
-
-            if (tcc.isSRTMDataVisible) {
-
-               final float[] srtmDataSerie = tourData.getSRTMSerie();
-               if (srtmDataSerie != null) {
-
-                  // create altitude dataserie and adjust min/max values with with the srtm values
-                  yDataAltitude = createChartDataSerie(//
-                        new float[][] { altitudeSerie, srtmDataSerie },
-                        chartType);
-               }
-            }
-
-         } else {
-
-            // SRTM data are not available
-            tcc.canShowSRTMData = false;
-         }
-
-         if (yDataAltitude == null) {
-            yDataAltitude = createChartDataSerie(altitudeSerie, chartType);
-         }
-
-         yDataAltitude.setYTitle(GRAPH_LABEL_ALTITUDE);
-         yDataAltitude.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
-         yDataAltitude.setShowYSlider(true);
-         yDataAltitude.setDisplayedFractionalDigits(2);
-         yDataAltitude.setCustomData(ChartDataYSerie.YDATA_INFO, GRAPH_ALTITUDE);
-         yDataAltitude.setCustomData(CUSTOM_DATA_ANALYZER_INFO, new TourChartAnalyzerInfo(true));
-         yDataAltitude.setCustomData(CUSTOM_DATA_ANALYZER_INFO, new TourChartAnalyzerInfo(true, false, _computeAvg_Altitude, 0));
-
-         if (useGraphBgStyle) {
-            yDataAltitude.setGraphFillMethod(ChartDataYSerie.FILL_METHOD_CUSTOM);
-         } else {
-            yDataAltitude.setGraphFillMethod(ChartDataYSerie.FILL_METHOD_FILL_BOTTOM);
-         }
-
-         setGraphColor(yDataAltitude, GraphColorManager.PREF_GRAPH_ALTITUDE);
-         chartDataModel.addXyData(yDataAltitude);
-
-         // adjust pulse min/max values when it's defined in the pref store
-         setVisibleForcedValues(
-               yDataAltitude,
-               1,
-               0,
-               ITourbookPreferences.GRAPH_ALTITUDE_IS_MIN_ENABLED,
-               ITourbookPreferences.GRAPH_ALTITUDE_IS_MAX_ENABLED,
-               ITourbookPreferences.GRAPH_ALTITUDE_MIN_VALUE,
-               ITourbookPreferences.GRAPH_ALTITUDE_MAX_VALUE);
-      }
-      return yDataAltitude;
-   }
-
-   /**
-=======
->>>>>>> refs/remotes/origin/main
     * Cadence
     */
    private ChartDataYSerie createModelData_Cadence(final TourData tourData,

@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.trainingstress;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,10 +59,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -529,13 +528,7 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
                   .applyTo(_btnComputeValues);
             _btnComputeValues.setText(Messages.Compute_Govss_Button_ComputeAllTours);
             _btnComputeValues.setToolTipText(Messages.Compute_Govss_Button_ComputeAllTours_Tooltip);
-            _btnComputeValues.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onComputeGovssValues();
-               }
-
-            });
+            _btnComputeValues.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onComputeGovssValues()));
          }
 
          restoreState();
@@ -591,19 +584,11 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
       final int chars = UI.IS_OSX ? 10 : 5;
       _hintDefaultSpinnerWidth = UI.IS_LINUX ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(chars);
 
-      _defaultSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onComputeThresholdPower();
-         }
-      };
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onComputeThresholdPower());
 
-      _defaultMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            UI.adjustSpinnerValueOnMouseScroll(event);
-            onComputeThresholdPower();
-         }
+      _defaultMouseWheelListener = mouseEvent -> {
+         UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+         onComputeThresholdPower();
       };
 
    }

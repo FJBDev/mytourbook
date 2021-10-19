@@ -34,10 +34,6 @@ import net.tourbook.training.TrainingManager;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-<<<<<<< HEAD
-import org.eclipse.swt.graphics.Device;
-=======
->>>>>>> refs/remotes/origin/main
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -52,7 +48,7 @@ public class GraphBackgroundPainter implements IFillPainter {
 
    private void createColors_HrZone(final GC gcGraph, final TourPerson tourPerson) {
 
-      final ArrayList<TourPersonHRZone> personHrZones = tourPerson.getHrZonesSorted();
+      final List<TourPersonHRZone> personHrZones = tourPerson.getHrZonesSorted();
 
       _hrZone_Colors = new Color[personHrZones.size()];
 
@@ -74,10 +70,6 @@ public class GraphBackgroundPainter implements IFillPainter {
       }
    }
 
-      for (final Entry<SwimStroke, RGB> swimStrokeItem : SwimStrokeManager.getSwimStroke_RGB().entrySet()) {
-         _strokeStyle_Colors.put(swimStrokeItem.getKey().getValue(), new Color(display, swimStrokeItem.getValue()));
-      }
-   }
    @Override
    public void draw(final GC gcGraph,
                     final GraphDrawingData graphDrawingData,
@@ -86,6 +78,7 @@ public class GraphBackgroundPainter implements IFillPainter {
                     final int xPos_FirstIndex,
                     final int xPos_LastIndex,
                     final boolean isVariableXValues) {
+
       final ChartDataModel dataModel = chart.getChartDataModel();
 
       final TourData tourData = (TourData) dataModel.getCustomData(TourManager.CUSTOM_DATA_TOUR_DATA);
@@ -108,385 +101,152 @@ public class GraphBackgroundPainter implements IFillPainter {
             return;
          }
 
-<<<<<<< HEAD
-         if (tourData.pulseSerie == null) {
-            return;
-         }
-=======
          hrZoneContext = tourData.getHrZoneContext();
          if (hrZoneContext == null) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         createColors_HrZone(gcGraph, tourPerson);
-=======
             // this occure when a user do not have hr zones
             return;
          }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      } else if (useGraphBgStyle_SwimStyle) {
-=======
          if (tourData.pulseSerie == null) {
             return;
          }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         createColors_SwimStyle(gcGraph);
-      }
-=======
          createColors_HrZone(gcGraph, tourPerson);
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      boolean isGradient = false;
-      boolean isWhite = false;
-      boolean isBgColor = false;
-=======
       } else if (useGraphBgStyle_SwimStyle) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      switch (tcc.graphBackground_Style) {
-=======
          createColors_SwimStyle(gcGraph);
       }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      case GRAPH_COLOR_TOP:
-=======
       boolean isGradient = false;
       boolean isWhite = false;
       boolean isBgColor = false;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         isGradient = true;
-         isWhite = false;
-         isBgColor = true;
-         break;
-=======
       switch (tcc.graphBackground_Style) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      case NO_GRADIENT:
-=======
       case GRAPH_COLOR_TOP:
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         isGradient = false;
-=======
          isGradient = true;
->>>>>>> refs/remotes/origin/main
          isWhite = false;
          isBgColor = true;
          break;
 
-<<<<<<< HEAD
-      case WHITE_BOTTOM:
-=======
       case NO_GRADIENT:
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         isGradient = true;
-         isWhite = true;
-         isBgColor = false;
-=======
          isGradient = false;
          isWhite = false;
          isBgColor = true;
->>>>>>> refs/remotes/origin/main
          break;
 
-<<<<<<< HEAD
-      case WHITE_TOP:
-=======
       case WHITE_BOTTOM:
->>>>>>> refs/remotes/origin/main
 
          isGradient = true;
          isWhite = true;
-<<<<<<< HEAD
-         isBgColor = true;
-         break;
-      }
-=======
          isBgColor = false;
          break;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      if (isWhite) {
-         gcGraph.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-      }
-=======
       case WHITE_TOP:
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      final int devCanvasHeight = graphDrawingData.devGraphHeight;
-=======
          isGradient = true;
          isWhite = true;
          isBgColor = true;
          break;
       }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      final long devXPrev = devXPositions[valueIndexFirstPoint];
-      long devXStart = devXPositions[valueIndexFirstPoint];
-=======
       if (isWhite) {
          gcGraph.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
       }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      if (useGraphBgStyle_HrZone) {
-=======
       final int devCanvasHeight = graphDrawingData.devGraphHeight;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         final float[] pulseSerie = tourData.pulseSerie;
-=======
       final long devXPrev = devXPositions[xPos_FirstIndex];
       long devXStart = devXPositions[xPos_FirstIndex];
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         final HrZoneContext hrZoneContext = tourData.getHrZoneContext();
-         int prevZoneIndex = TrainingManager.getZoneIndex(hrZoneContext, pulseSerie[valueIndexFirstPoint]);
-=======
       if (useGraphBgStyle_HrZone) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         for (int valueIndex = valueIndexFirstPoint + 1; valueIndex <= valueIndexLastPoint; valueIndex++) {
-=======
          final float[] dataSerie = isVariableXValues
                ? dataModel.getVariableY_Values()
                : tourData.pulseSerie;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            final long devXCurrent = devXPositions[valueIndex];
-            final boolean isLastIndex = valueIndex == valueIndexLastPoint;
-=======
          if (dataSerie != null) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // ignore same position even when the HR zone has changed
-            if (devXCurrent == devXPrev && isLastIndex == false) {
-               continue;
-            }
-=======
             int prevZoneIndex = TrainingManager.getZoneIndex(hrZoneContext, dataSerie[xPos_FirstIndex]);
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // check if zone has changed
-            final int zoneIndex = TrainingManager.getZoneIndex(hrZoneContext, pulseSerie[valueIndex]);
-            if (zoneIndex == prevZoneIndex && isLastIndex == false) {
-               continue;
-            }
-=======
             for (int valueIndex = xPos_FirstIndex + 1; valueIndex <= xPos_LastIndex; valueIndex++) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            final int devWidth = (int) (devXCurrent - devXStart);
-            final Color color = _hrZone_Colors[prevZoneIndex];
-=======
                final long devXCurrent = devXPositions[valueIndex];
                final boolean isLastIndex = valueIndex == xPos_LastIndex;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            if (isBgColor) {
-               gcGraph.setBackground(color);
-            } else {
-               gcGraph.setForeground(color);
-            }
-=======
                // ignore same position even when the HR zone has changed
                if (devXCurrent == devXPrev && isLastIndex == false) {
                   continue;
                }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            if (isGradient) {
-               gcGraph.fillGradientRectangle((int) devXStart, 0, devWidth, devCanvasHeight, true);
-            } else {
-               gcGraph.fillRectangle((int) devXStart, 0, devWidth, devCanvasHeight);
-            }
-=======
                // check if zone has changed
                final int zoneIndex = TrainingManager.getZoneIndex(hrZoneContext, dataSerie[valueIndex]);
                if (zoneIndex == prevZoneIndex && isLastIndex == false) {
                   continue;
                }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // set start for the next HR zone
-            devXStart = devXCurrent;
-            prevZoneIndex = zoneIndex;
-         }
-=======
                final int devWidth = (int) (devXCurrent - devXStart);
                final Color color = _hrZone_Colors[prevZoneIndex];
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         // dispose colors
-         for (final Color color : _hrZone_Colors) {
-            color.dispose();
-         }
-=======
                if (isBgColor) {
                   gcGraph.setBackground(color);
                } else {
                   gcGraph.setForeground(color);
                }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-      } else if (useGraphBgStyle_SwimStyle) {
-=======
                if (isGradient) {
                   gcGraph.fillGradientRectangle((int) devXStart, 0, devWidth, devCanvasHeight, true);
                } else {
                   gcGraph.fillRectangle((int) devXStart, 0, devWidth, devCanvasHeight);
                }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         final float[] allStrokeStyles = tourData.getSwim_StrokeStyle();
-         short prevStrokeStyle = (short) allStrokeStyles[valueIndexFirstPoint];
-=======
                // set start for the next HR zone
                devXStart = devXCurrent;
                prevZoneIndex = zoneIndex;
             }
          }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         for (int valueIndex = valueIndexFirstPoint + 1; valueIndex <= valueIndexLastPoint; valueIndex++) {
-=======
       } else if (useGraphBgStyle_SwimStyle) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            final long devXCurrent = devXPositions[valueIndex];
-            final boolean isLastIndex = valueIndex == valueIndexLastPoint;
-=======
          final float[] allStrokeStyles = tourData.getSwim_StrokeStyle();
          short prevStrokeStyle = (short) allStrokeStyles[xPos_FirstIndex];
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // ignore same position
-            if (devXCurrent == devXPrev && isLastIndex == false) {
-               continue;
-            }
-=======
          for (int valueIndex = xPos_FirstIndex + 1; valueIndex <= xPos_LastIndex; valueIndex++) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // check if stroke style has changed
-            final short currentStrokeStyle = (short) allStrokeStyles[valueIndex];
-            if (currentStrokeStyle == prevStrokeStyle && isLastIndex == false) {
-               continue;
-            }
-=======
             final long devXCurrent = devXPositions[valueIndex];
             final boolean isLastIndex = valueIndex == xPos_LastIndex;
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            final int devWidth = (int) (devXCurrent - devXStart);
-            final Color color = _strokeStyle_Colors.get(prevStrokeStyle);
-=======
             // ignore same position
             if (devXCurrent == devXPrev && isLastIndex == false) {
                continue;
             }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            if (color != null) {
-=======
             // check if stroke style has changed
             final short currentStrokeStyle = (short) allStrokeStyles[valueIndex];
             if (currentStrokeStyle == prevStrokeStyle && isLastIndex == false) {
                continue;
             }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-               /*
-                * Color could be null when there is no stroke during the rest time -> nothing will
-                * be painted to make the heartrate more visible
-                */
-=======
             final int devWidth = (int) (devXCurrent - devXStart);
             final Color color = _strokeStyle_Colors.get(prevStrokeStyle);
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-               if (isBgColor) {
-                  gcGraph.setBackground(color);
-               } else {
-                  gcGraph.setForeground(color);
-               }
-=======
             if (color != null) {
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-               if (isGradient) {
-                  gcGraph.fillGradientRectangle((int) devXStart, 0, devWidth, devCanvasHeight, true);
-               } else {
-                  gcGraph.fillRectangle((int) devXStart, 0, devWidth, devCanvasHeight);
-               }
-            }
-=======
                /*
                 * Color could be null when there is no stroke during the rest time -> nothing will
                 * be painted to make the heartrate more visible
                 */
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-            // set start for the next HR zone
-            devXStart = devXCurrent;
-            prevStrokeStyle = currentStrokeStyle;
-         }
-=======
                if (isBgColor) {
                   gcGraph.setBackground(color);
                } else {
                   gcGraph.setForeground(color);
                }
->>>>>>> refs/remotes/origin/main
 
-<<<<<<< HEAD
-         // dispose colors
-         for (final Color color : _strokeStyle_Colors.values()) {
-            color.dispose();
-=======
                if (isGradient) {
                   gcGraph.fillGradientRectangle((int) devXStart, 0, devWidth, devCanvasHeight, true);
                } else {
@@ -497,7 +257,6 @@ public class GraphBackgroundPainter implements IFillPainter {
             // set start for the next HR zone
             devXStart = devXCurrent;
             prevStrokeStyle = currentStrokeStyle;
->>>>>>> refs/remotes/origin/main
          }
       }
    }

@@ -61,18 +61,18 @@ public class ActionComputeGovss extends Action {
          return;
       }
 
-      if (MessageDialog.openConfirm(
+      if (!MessageDialog.openConfirm(
             Display.getCurrent().getActiveShell(),
             Messages.Tour_Action_ComputeGovss_Title,
             NLS.bind(Messages.Tour_Action_ComputeGovss_Message,
-                  selectedTours.size())) == false) {
+                  selectedTours.size()))) {
          return;
       }
 
       final long start = System.currentTimeMillis();
 
       TourLogManager.showLogView();
-      TourLogManager.logTitle(NLS.bind(Messages.Log_ComputeGovss_001_Start, selectedTours.size()));
+      TourLogManager.log_TITLE(NLS.bind(Messages.Log_ComputeGovss_001_Start, selectedTours.size()));
 
       Connection sqlConnection = null;
       boolean isTaskDone = false;
@@ -86,7 +86,7 @@ public class ActionComputeGovss extends Action {
          SQL.showException(e);
       } finally {
 
-         TourLogManager.logTitle(String.format(Messages.Log_ComputeGovss_002_End, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.log_TITLE(String.format(Messages.Log_ComputeGovss_002_End, (System.currentTimeMillis() - start) / 1000.0));
 
          Util.closeSql(sqlConnection);
 
@@ -94,13 +94,10 @@ public class ActionComputeGovss extends Action {
 
             TourManager.getInstance().clearTourDataCache();
 
-            Display.getDefault().asyncExec(new Runnable() {
-               @Override
-               public void run() {
+            Display.getDefault().asyncExec(() -> {
 
-                  TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
-                  TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
-               }
+               TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
+               TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
             });
 
          }

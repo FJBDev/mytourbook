@@ -198,14 +198,11 @@ public class TourInfoUI {
    private Label     _lblAvgCadenceUnit;
    private Label     _lblAvg_Power;
    private Label     _lblAvg_PowerUnit;
-<<<<<<< HEAD
    private Label     _lblBikeScore;
-=======
    private Label     _lblBattery;
    private Label     _lblBattery_Spacer;
    private Label     _lblBattery_Start;
    private Label     _lblBattery_End;
->>>>>>> refs/remotes/origin/main
    private Label     _lblBodyWeight;
    private Label     _lblBreakTime;
    private Label     _lblBreakTime_Unit;
