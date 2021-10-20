@@ -251,6 +251,14 @@
          category-data  ="TrainingStress"
          category-time  ="Day"
       />
+      
+       <statistic
+         name           ="%Pref_Year_Summary_TrainingStress_Device"
+         class          ="net.tourbook.statistics.graphs.StatisticYear_TrainingStress_Device"
+         id             ="net.tourbook.statistics.StatisticSummaryYearTrainingStressDevice"
+         category-data  ="TrainingStress"
+         category-time  ="Year"
+      />
             
    </extension>
 
