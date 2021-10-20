@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - fb-sonarcloud
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
