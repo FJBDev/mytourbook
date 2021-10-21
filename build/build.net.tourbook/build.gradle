@@ -39,7 +39,10 @@ mt_0_Build.dependsOn(
    'mt_10_CreateBuildFiles',
    'mt_20_BuildProduct',
    'mt_30_CopyProduct',
-   'mt_40_ExtractWinFiles'
+   'mt_40_ExtractWinFiles',
+   'mt_50_CreateExeFiles',
+   'mt_60_CleanupWinFiles',
+   'mt_70_CopyReleaseNotes',
 )
 
 sonarqube {
@@ -142,6 +145,97 @@ task mt_40_ExtractWinFiles {
             from zipTree(winZipFile)
             into outputDir
          }
+      }
+   }
+}
+
+
+/*
+ Create win exe files
+*/
+task mt_50_CreateExeFiles {
+        
+   doLast {
+       
+      println 'Creating Windows setup files'
+      
+      def winInnoSetupDirName = _dirWinInnoSetup.absolutePath
+      
+      def win64SetupConfigFilename = file(winInnoSetupDirName + '/mytourbook-core-64-create-setup_exe.iss').absolutePath
+      
+      exec {
+      
+         println '\twin 64'
+      
+         commandLine 'cmd', '/c', '"'+_pathInnoSetupCompilerApp+'"'
+         args      win64SetupConfigFilename
+      }
+   }
+}
+
+/*
+ Cleanup win zip files
+*/
+task mt_60_CleanupWinFiles {
+        
+   doLast {
+       
+      println 'Deleting extracted files from ' + _dirProductArchive
+      
+      def hiddenDir = file(_pathProductArchive + '/hidden')
+      
+      file(_dirProductArchive).eachFileMatch(~/.*win.*.zip/) { winZipFile->
+         
+         def winZipFileName = winZipFile.name
+         def winZipName = winZipFileName.take(winZipFileName.lastIndexOf('.'))
+         
+         def outputDir = file(_pathProductArchive + '/' + winZipName)
+
+         println '\tdelete\t\t' + outputDir
+         
+         // delete extracted files
+         outputDir.deleteDir()
+         
+//         // move zip into hidden folder
+//         hiddenDir.mkdirs()
+//         def hiddenFile = file(hiddenDir.absolutePath + '/' + winZipFileName)
+//         println '\tmove into\t' + hiddenFile 
+//         
+//         // delete old file when available
+//         hiddenFile.delete()
+//         
+//         winZipFile.renameTo(hiddenFile)
+      }
+   }
+}
+
+
+/*
+* Copy realease notes into product archive folder
+*/
+task mt_70_CopyReleaseNotes {
+
+   doLast {
+
+      def releaseNotesFilename = _mtVersion + '-readme.txt'
+      
+      def fileReleaseNotesFrom = file(_dirProductReleaseNotes.absolutePath + '/' + releaseNotesFilename)
+
+      println '\tFrom ' + fileReleaseNotesFrom       
+      println '\tInto ' + _dirProductArchive
+
+      // copy into archive folder
+      if (fileReleaseNotesFrom.exists()) {
+      
+         println "\tFile ${releaseNotesFilename} copied"
+
+         copy {
+            from fileReleaseNotesFrom
+            into _dirProductArchive
+         }
+      } else {
+
+         println "\tFile \"${fileReleaseNotesFrom}\" is not available"
       }
    }
 }
