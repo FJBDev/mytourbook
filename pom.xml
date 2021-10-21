@@ -17,9 +17,11 @@
       <tycho.version>1.4.0</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
 </properties>
+
    <modules>
       <!-- artifact.bundles -->
       <module>../../mytourbook-BUILD-autocreated/core</module>
+	    
       <!-- artifact.mytourbook.plugins.i18 -->
       <module>../../mytourbook-BUILD-autocreated/translation</module>
    </modules>
