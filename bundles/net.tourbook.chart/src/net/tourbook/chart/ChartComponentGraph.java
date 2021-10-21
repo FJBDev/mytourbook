@@ -10020,4 +10020,3 @@ public class ChartComponentGraph extends Canvas {
    }
 
 }
-
