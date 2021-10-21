@@ -20,7 +20,6 @@
    <modules>
       <!-- artifact.bundles -->
       <module>../../mytourbook-BUILD-autocreated/core</module>
-
       <!-- artifact.mytourbook.plugins.i18 -->
       <module>../../mytourbook-BUILD-autocreated/translation</module>
    </modules>
