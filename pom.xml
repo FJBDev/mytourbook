@@ -203,11 +203,11 @@
 	<configuration>
 			<!--<testClass>net.tourbook.tests</testClass>-->
 	 <dependencies>
-               <dependency>
+		 <!-- <dependency>
                   <type>eclipse-feature</type>
                   <artifactId>net.tourbook.tests</artifactId>
-                  <version>1.0.0</version>
-               </dependency>
+		 <version>1.0.0</version>
+		 </dependency>-->
             </dependencies>
 		<useUIHarness>false</useUIHarness>
 		<providerHint>junit4</providerHint>
