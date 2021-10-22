@@ -33,7 +33,7 @@
 </dependencies>
 	
    <properties>
-      <tycho.version>2.5.0</tycho.version>
+      <tycho.version>2.0.0</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
    </properties>
 
@@ -222,7 +222,9 @@
 			</dependencies>
 			<application>org.eclipse.pde.junit.runtime.uitestapplication</application>
 			<useUIHarness>true</useUIHarness>
-			<providerHint>junit5</providerHint>
+                    <useUIThread>false</useUIThread>
+			<providerHint>junit4</providerHint>
+			<product>org.eclipse.platform.ide</product>
 		</configuration>
 	</plugin>
 
