@@ -13,6 +13,15 @@
                                              <version>21.9.0-SNAPSHOT</version>
    <packaging>pom</packaging>
    
+	   <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+</dependencies>
+	
    <properties>
       <tycho.version>1.4.0</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
@@ -187,6 +196,23 @@
                </environments>
             </configuration>
          </plugin>
+		 <plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-surefire-plugin</artifactId>
+	<version>${tycho.version}</version>
+	<configuration>
+			<!--<testClass>net.tourbook.tests</testClass>-->
+	 <dependencies>
+               <dependency>
+                  <type>eclipse-feature</type>
+                  <artifactId>net.tourbook.tests</artifactId>
+                  <version>1.0.0</version>
+               </dependency>
+            </dependencies>
+		<useUIHarness>false</useUIHarness>
+		<providerHint>junit4</providerHint>
+	</configuration>
+</plugin>
 
       </plugins>
    </build>
