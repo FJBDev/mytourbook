@@ -14,11 +14,6 @@
    <packaging>pom</packaging>
    
 	   <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
 			<dependency>
 					<groupId>org.eclipse.pde</groupId>
@@ -33,7 +28,7 @@
 </dependencies>
 	
    <properties>
-      <tycho.version>2.0.0</tycho.version>
+      <tycho.version>2.5.0</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
    </properties>
 
@@ -223,7 +218,6 @@
 			<application>org.eclipse.pde.junit.runtime.uitestapplication</application>
 			<useUIHarness>true</useUIHarness>
                     <useUIThread>false</useUIThread>
-			<providerHint>junit4</providerHint>
 			<product>org.eclipse.platform.ide</product>
 		</configuration>
 	</plugin>
