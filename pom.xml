@@ -200,6 +200,7 @@
 
                </environments>
             </configuration>
+    </plugin>
 	<plugin>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire-plugin</artifactId>
