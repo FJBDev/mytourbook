@@ -69,7 +69,7 @@ task mt_20_BuildProduct {
       mavenexec {
 
          workingDir  buildDir
-         goals       'verify'
+         goals       'clean verify -Dmaven.test.skip=false'
          
          // repos can be used offline when this option "offline true" is set, 
          // by default it is disabled 
@@ -237,7 +237,7 @@ task mt_80_RunTests {
       mavenexec {
 
          workingDir  testsDir
-         goals       'test'
+         goals       'clean verify'
       }
    }
 }

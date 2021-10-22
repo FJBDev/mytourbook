@@ -80,6 +80,10 @@
    		<param name="project-folder" value="${path-mt-all-projects}/net.tourbook.web"/>
    	</antcall>
 
+   	<antcall target="copy-into-project">
+   		<param name="project-folder" value="${path-mt-all-projects}/net.tourbook.tests"/>
+   	</antcall>
+
 
    </target>
 
