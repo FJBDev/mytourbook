@@ -20,6 +20,11 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+			<dependency>
+					<groupId>org.eclipse.pde</groupId>
+					<artifactId>org.eclipse.pde.junit.runtime</artifactId>
+					<version>3.6.0</version>
+				</dependency>
 </dependencies>
 	
    <properties>
@@ -195,24 +200,25 @@
 
                </environments>
             </configuration>
-         </plugin>
-		 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-surefire-plugin</artifactId>
-	<version>${tycho.version}</version>
-	<configuration>
+	<plugin>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-surefire-plugin</artifactId>
+		<version>${tycho.version}</version>
+		<configuration>
 			<!--<testClass>net.tourbook.tests</testClass>-->
-	 <dependencies>
-		 <!-- <dependency>
-                  <type>eclipse-feature</type>
-                  <artifactId>net.tourbook.tests</artifactId>
-		 <version>1.0.0</version>
-		 </dependency>-->
-            </dependencies>
-		<useUIHarness>false</useUIHarness>
-		<providerHint>junit4</providerHint>
-	</configuration>
-</plugin>
+			<dependencies>
+				<!-- <dependency>
+                <type>eclipse-feature</type>
+                <artifactId>net.tourbook.tests</artifactId>
+ <version>1.0.0</version>
+ </dependency>-->
+			
+			</dependencies>
+			<application>org.eclipse.pde.junit.runtime.uitestapplication</application>
+			<useUIHarness>true</useUIHarness>
+			<providerHint>junit5</providerHint>
+		</configuration>
+	</plugin>
 
       </plugins>
    </build>
