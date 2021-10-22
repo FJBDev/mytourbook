@@ -6,7 +6,8 @@ Bundle-Version: 21.9.0.qualifier
 Require-Bundle: org.junit.jupiter.api;resolution:=optional,
  net.tourbook,
  net.tourbook.ext.jars,
- net.tourbook.ext.ejb3
+ net.tourbook.ext.ejb3,
+ org.eclipse.pde.junit.runtime;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-11
