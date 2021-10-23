@@ -214,7 +214,7 @@
  </dependency>-->
 			
 			</dependencies>
-			<application>org.eclipse.pde.junit.runtime.uitestapplication</application>
+			<!--<application>org.eclipse.pde.junit.runtime.uitestapplication</application>-->
 			<useUIHarness>true</useUIHarness>
                     <useUIThread>false</useUIThread>
 			<product>org.eclipse.platform.ide</product>
