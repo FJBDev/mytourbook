@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard
+ * Copyright (C) 2020, 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,11 +33,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
+import utils.FilesUtils;
 import utils.Initializer;
 
 public class ExportTcxTests {
 
-	private static final String IMPORT_PATH = "src/test/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = FilesUtils.rootPath + "exportdata/garmin/tcx/files/"; //$NON-NLS-1$
    private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";       //$NON-NLS-1$
 
    private static TourData     _tour;
