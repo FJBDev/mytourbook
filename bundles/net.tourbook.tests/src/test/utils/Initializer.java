@@ -51,7 +51,7 @@ public class Initializer {
    private static HashMap<String, String> _vendorCredentials        = new HashMap<>();
 
    private static final String            VendorCredentialsFileName = "Credentials.json";  //$NON-NLS-1$
-   private static final String            UTIL_FILE_PATH            = "test/utils/files/"; //$NON-NLS-1$
+	private static final String UTIL_FILE_PATH = "src/test/utils/files/"; //$NON-NLS-1$
 
    static {
       deserializeVendorCredentials();
@@ -102,15 +102,15 @@ public class Initializer {
       final InputStream gpx = Initializer.class.getResourceAsStream(IMPORT_FILE_PATH);
 
       final GPX_SAX_Handler handler = new GPX_SAX_Handler(
-            
+
             IMPORT_FILE_PATH,
             deviceData,
             alreadyImportedTours,
             newlyImportedTours,
-            
+
             new ImportState_File(),
             new ImportState_Process(),
-            
+
             deviceDataReader);
 
       if (parser != null) {
