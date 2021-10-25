@@ -39,7 +39,7 @@ import utils.Initializer;
 public class GarminTcxTests {
 
 	private static SAXParser parser;
-	private static final String IMPORT_PATH = "importdata/garmin/tcx/files/"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = "/importdata/garmin/tcx/files/"; //$NON-NLS-1$
 
 	private static DeviceData deviceData;
 	private static HashMap<Long, TourData> newlyImportedTours;
