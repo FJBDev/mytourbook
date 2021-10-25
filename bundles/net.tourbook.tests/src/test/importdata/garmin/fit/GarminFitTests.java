@@ -32,7 +32,7 @@ import utils.Comparison;
 
 public class GarminFitTests {
 
-   private static final String            IMPORT_FILE_PATH = "test/importdata/garmin/fit/files/"; //$NON-NLS-1$
+	private static final String IMPORT_FILE_PATH = "src/test/importdata/garmin/fit/files/"; //$NON-NLS-1$
 
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;

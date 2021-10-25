@@ -61,7 +61,7 @@ class GPX_SAX_HandlerTest {
    /**
     * Resource path to GPX file, generally available from net.tourbook Plugin in test/net.tourbook
     */
-   public static final String                IMPORT_FILE_PATH = "/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
+	public static final String IMPORT_FILE_PATH = "src/test/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
 
    @BeforeAll
    static void initAll() {
