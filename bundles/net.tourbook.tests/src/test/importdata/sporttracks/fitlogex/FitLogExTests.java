@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
+import utils.FilesUtils;
 import utils.Initializer;
 
 class FitLogExTests {
@@ -92,7 +93,7 @@ class FitLogExTests {
 		// set relative path that it works with different OS
 		tour.setImportFilePath(importFilePath);
 
-		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, FilesUtils.rootPath + filePathWithoutExtension);
 	}
 
 	@Test
@@ -114,6 +115,6 @@ class FitLogExTests {
 		// set relative path that it works with different OS
 		tour.setImportFilePath(importFilePath);
 
-		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, FilesUtils.rootPath + filePathWithoutExtension);
 	}
 }

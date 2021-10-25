@@ -34,10 +34,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
+import utils.FilesUtils;
 
 class Suunto9Tests {
 
-	private static final String IMPORT_FILE_PATH = "src/test/importdata/suunto9/files/"; //$NON-NLS-1$
+	private static final String IMPORT_FILE_PATH = FilesUtils.rootPath + "importdata/suunto9/files/"; //$NON-NLS-1$
 
 	private static final String JSON_GZ = ".json.gz"; //$NON-NLS-1$
 

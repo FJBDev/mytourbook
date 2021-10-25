@@ -29,10 +29,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
+import utils.FilesUtils;
 
 class Suunto3Tests {
 
-	private static final String IMPORT_FILE_PATH = "src/test/importdata/suunto3/files/"; //$NON-NLS-1$
+	private static final String IMPORT_FILE_PATH = FilesUtils.rootPath + "importdata/suunto3/files/"; //$NON-NLS-1$
 
    private static DeviceData               deviceData;
    private static HashMap<Long, TourData>  newlyImportedTours;

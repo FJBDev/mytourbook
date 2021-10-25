@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import utils.Comparison;
+import utils.FilesUtils;
 import utils.Initializer;
 
 public class FitLogTests {
@@ -74,6 +75,6 @@ public class FitLogTests {
 
 		final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, FilesUtils.rootPath + filePathWithoutExtension);
 	}
 }
