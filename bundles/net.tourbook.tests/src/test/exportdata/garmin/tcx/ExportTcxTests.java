@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import utils.Comparison;
 import utils.Initializer;
 
-public class ExportTcxTester {
+public class ExportTcxTests {
 
-   private static final String IMPORT_PATH       = "test/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = "src/test/exportdata/garmin/tcx/files/"; //$NON-NLS-1$
    private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx";       //$NON-NLS-1$
 
    private static TourData     _tour;
