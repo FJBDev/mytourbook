@@ -39,11 +39,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
-import importdata.garmin.tcx.GarminTcxTester;
+import importdata.garmin.tcx.GarminTcxTests;
 import utils.Comparison;
 import utils.Initializer;
 
-public class CadenceTester {
+public class CadenceTests {
 
    private static SAXParser               parser;
    private static final String            GARMIN_IMPORT_PATH      = "/importdata/garmin/tcx/files/";  //$NON-NLS-1$
@@ -147,7 +147,7 @@ public class CadenceTester {
 
       final String filePathWithoutExtension = GARMIN_IMPORT_PATH + "2021-01-31"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTester.class.getResourceAsStream(importFilePath);
+      final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(importFilePath);
 
       final GarminTCX_SAXHandler handler = new GarminTCX_SAXHandler(
             garminDeviceDataReader,
@@ -180,7 +180,7 @@ public class CadenceTester {
 
       final String filePathWithoutExtension = GARMIN_IMPORT_PATH + "2021-01-31"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTester.class.getResourceAsStream(importFilePath);
+      final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(importFilePath);
 
       final GarminTCX_SAXHandler handler = new GarminTCX_SAXHandler(
             garminDeviceDataReader,

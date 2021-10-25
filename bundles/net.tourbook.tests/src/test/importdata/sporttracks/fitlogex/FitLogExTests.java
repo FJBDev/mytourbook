@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
 import utils.Comparison;
 import utils.Initializer;
 
-class FitLogExTester {
+class FitLogExTests {
 
    private static final String           IMPORT_PATH = "/importdata/sporttracks/fitlogex/files/"; //$NON-NLS-1$
 
@@ -79,9 +79,9 @@ class FitLogExTester {
 
       final String filePathWithoutExtension = IMPORT_PATH + "ParkCity"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".fitlogEx"; //$NON-NLS-1$
-      final InputStream fitLogExFile = FitLogExTester.class.getResourceAsStream(importFilePath);
+      final InputStream fitLogExFile = FitLogExTests.class.getResourceAsStream(importFilePath);
 
-      final URL importFile_BundleUrl = FitLogExTester.class.getResource(importFilePath);
+      final URL importFile_BundleUrl = FitLogExTests.class.getResource(importFilePath);
 
       final FitLog_SAXHandler handler = new FitLog_SAXHandler(
             NIO.getAbsolutePathFromBundleUrl(importFile_BundleUrl),
@@ -107,8 +107,8 @@ class FitLogExTester {
 
       final String filePathWithoutExtension = IMPORT_PATH + "TimothyLake"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".fitlogEx"; //$NON-NLS-1$
-      final InputStream fitLogExFile = FitLogExTester.class.getResourceAsStream(importFilePath);
-      final URL importFile_BundleUrl = FitLogExTester.class.getResource(importFilePath);
+      final InputStream fitLogExFile = FitLogExTests.class.getResourceAsStream(importFilePath);
+      final URL importFile_BundleUrl = FitLogExTests.class.getResource(importFilePath);
 
       final FitLog_SAXHandler handler = new FitLog_SAXHandler(
             NIO.getAbsolutePathFromBundleUrl(importFile_BundleUrl),

@@ -50,7 +50,7 @@ import utils.Initializer;
  *
  * @author Norbert Renner
  */
-class GPX_SAX_HandlerTest {
+class GPX_SAX_HandlerTests {
 
    private static SAXParser                  parser;
    private static DeviceData                 deviceData;
@@ -82,7 +82,7 @@ class GPX_SAX_HandlerTest {
    @Test
    void testParse() throws SAXException, IOException {
 
-      final InputStream gpx = GPX_SAX_HandlerTest.class.getResourceAsStream(IMPORT_FILE_PATH);
+      final InputStream gpx = GPX_SAX_HandlerTests.class.getResourceAsStream(IMPORT_FILE_PATH);
 
       final GPX_SAX_Handler handler = new GPX_SAX_Handler(
 

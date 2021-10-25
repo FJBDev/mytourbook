@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 import utils.Comparison;
 import utils.Initializer;
 
-public class GarminTcxTester {
+public class GarminTcxTests {
 
    private static SAXParser               parser;
    private static final String            IMPORT_PATH = "/importdata/garmin/tcx/files/"; //$NON-NLS-1$
@@ -72,7 +72,7 @@ public class GarminTcxTester {
       final String filePathWithoutExtension = IMPORT_PATH +
             "Move_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTester.class.getResourceAsStream(importFilePath);
+      final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(importFilePath);
 
       final GarminTCX_SAXHandler handler = new GarminTCX_SAXHandler(
             deviceDataReader,
@@ -97,7 +97,7 @@ public class GarminTcxTester {
 
       final String filePathWithoutExtension = IMPORT_PATH + "2021-01-31"; //$NON-NLS-1$
       final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTester.class.getResourceAsStream(importFilePath);
+      final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(importFilePath);
 
       final GarminTCX_SAXHandler handler = new GarminTCX_SAXHandler(
             deviceDataReader,

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import utils.Initializer;
 
-public class WWOTester {
+public class WWOTests {
 
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 

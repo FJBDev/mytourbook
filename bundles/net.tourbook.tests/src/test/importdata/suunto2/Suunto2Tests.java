@@ -13,73 +13,57 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package importdata.sporttracks.fitlog;
+package importdata.suunto2;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
-import javax.xml.parsers.SAXParser;
-
 import net.tourbook.data.TourData;
-import net.tourbook.device.sporttracks.FitLogDeviceDataReader;
-import net.tourbook.device.sporttracks.FitLog_SAXHandler;
+import net.tourbook.device.suunto.Suunto2_DeviceDataReader;
+import net.tourbook.importdata.DeviceData;
 import net.tourbook.importdata.ImportState_File;
 import net.tourbook.importdata.ImportState_Process;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
 import utils.Comparison;
-import utils.Initializer;
 
-public class FitLogTester {
+class Suunto2Tests {
 
-   private static final String            IMPORT_PATH = "/importdata/sporttracks/fitlog/files/"; //$NON-NLS-1$
+   private static final String            IMPORT_FILE_PATH = "test/importdata/suunto2/files/"; //$NON-NLS-1$
 
-   private static SAXParser               parser;
+   private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
    private static HashMap<Long, TourData> alreadyImportedTours;
-   private static FitLogDeviceDataReader  deviceDataReader;
+   private static Suunto2_DeviceDataReader deviceDataReader;
 
    @BeforeAll
    static void initAll() {
-
-      Initializer.initializeDatabase();
-      parser = Initializer.initializeParser();
+      deviceData = new DeviceData();
       newlyImportedTours = new HashMap<>();
       alreadyImportedTours = new HashMap<>();
-      deviceDataReader = new FitLogDeviceDataReader();
+      deviceDataReader = new Suunto2_DeviceDataReader();
    }
 
-   @AfterEach
-   void tearDown() {
-      newlyImportedTours.clear();
-      alreadyImportedTours.clear();
-   }
-
+   /**
+    * Forest park, Portland, OR
+    */
    @Test
-   void testImportTimothyLake() throws SAXException, IOException {
+   void testImportForestPark() {
+      final String filePath = IMPORT_FILE_PATH + "log-F783095113000500-2013-05-18T11_00_38-0"; //$NON-NLS-1$
 
-      final String filePathWithoutExtension = IMPORT_PATH + "TimothyLake"; //$NON-NLS-1$
-      final String importFilePath = filePathWithoutExtension + ".fitlog"; //$NON-NLS-1$
-      final InputStream fitLogFile = FitLogTester.class.getResourceAsStream(importFilePath);
+      final String testFilePath = Paths.get(filePath + ".xml").toAbsolutePath().toString(); //$NON-NLS-1$
 
-      final FitLog_SAXHandler handler = new FitLog_SAXHandler(
-            importFilePath,
+      deviceDataReader.processDeviceData(testFilePath,
+            deviceData,
             alreadyImportedTours,
             newlyImportedTours,
-            false,
             new ImportState_File(),
-            new ImportState_Process(),
-            deviceDataReader);
-
-      parser.parse(fitLogFile, handler);
+            new ImportState_Process());
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-      Comparison.compareTourDataAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
+      Comparison.compareTourDataAgainstControl(tour, filePath);
    }
 }
