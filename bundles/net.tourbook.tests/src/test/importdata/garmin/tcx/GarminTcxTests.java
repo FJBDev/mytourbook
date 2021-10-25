@@ -17,6 +17,7 @@ package importdata.garmin.tcx;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import javax.xml.parsers.SAXParser;
@@ -38,7 +39,7 @@ import utils.Initializer;
 public class GarminTcxTests {
 
    private static SAXParser               parser;
-   private static final String            IMPORT_PATH = "/importdata/garmin/tcx/files/"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = "src/test/importdata/garmin/tcx/files/"; //$NON-NLS-1$
 
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
@@ -69,14 +70,15 @@ public class GarminTcxTests {
    @Test
    void testTcxImportConeyLake() throws SAXException, IOException {
 
-      final String filePathWithoutExtension = IMPORT_PATH +
-            "Move_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
-      final String importFilePath = filePathWithoutExtension + ".tcx"; //$NON-NLS-1$
-      final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(importFilePath);
+		final String filePath = IMPORT_PATH + "Move_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
+
+		final String testFilePath = Paths.get(filePath + ".tcx").toAbsolutePath().toString(); //$NON-NLS-1$
+
+		final InputStream tcxFile = GarminTcxTests.class.getResourceAsStream(testFilePath);
 
       final GarminTCX_SAXHandler handler = new GarminTCX_SAXHandler(
             deviceDataReader,
-            importFilePath,
+				testFilePath,
             deviceData,
             alreadyImportedTours,
             newlyImportedTours,
@@ -86,7 +88,7 @@ public class GarminTcxTests {
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-      Comparison.compareTourDataAgainstControl(tour, "test" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "test" + filePath); //$NON-NLS-1$
    }
 
    /**

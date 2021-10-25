@@ -6,11 +6,10 @@ Bundle-Version: 21.9.0.qualifier
 Require-Bundle: org.junit.jupiter.api;resolution:=optional,
  net.tourbook,
  net.tourbook.ext.jars,
- net.tourbook.ext.ejb3,
- org.eclipse.pde.junit.runtime;bundle-version="3.6.0"
+ net.tourbook.ext.ejb3
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: MyTourbook
-Bundle-ClassPath: 
+Bundle-ClassPath: .,
  hibernate-entitymanager.jar,
  jsonassert-1.5.0.jar,
  xmlunit-core-2.8.2.jar
