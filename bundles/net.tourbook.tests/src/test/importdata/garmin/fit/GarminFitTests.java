@@ -15,7 +15,6 @@
  *******************************************************************************/
 package importdata.garmin.fit;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 import net.tourbook.data.TourData;
@@ -29,10 +28,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
+import utils.FilesUtils;
 
 public class GarminFitTests {
 
-	private static final String IMPORT_FILE_PATH = "src/test/importdata/garmin/fit/files/"; //$NON-NLS-1$
+	private static final String FILES_PATH = FilesUtils.rootPath + "importdata/garmin/fit/files/"; //$NON-NLS-1$
 
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
@@ -60,9 +60,9 @@ public class GarminFitTests {
    @Test
    void testFitImportConeyLake() {
 
-      final String filePath = IMPORT_FILE_PATH + "ConeyLakeMove_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
+		final String filePath = FILES_PATH + "ConeyLakeMove_2020_05_23_08_55_42_Trail+running"; //$NON-NLS-1$
+		final String testFilePath = FilesUtils.getAbsoluteFilePath(filePath + ".fit");//$NON-NLS-1$
 
-      final String testFilePath = Paths.get(filePath + ".fit").toAbsolutePath().toString(); //$NON-NLS-1$
       fitDataReader.processDeviceData(testFilePath,
             deviceData,
             alreadyImportedTours,
@@ -81,10 +81,10 @@ public class GarminFitTests {
    @Test
    void testFitImportNoPauses() {
 
-      final String filePath = IMPORT_FILE_PATH + "1-30-21 3-47 PM"; //$NON-NLS-1$
+		final String filePath = FILES_PATH + "1-30-21 3-47 PM"; //$NON-NLS-1$
+		final String testFilePath = FilesUtils.getAbsoluteFilePath(filePath + ".fit");//$NON-NLS-1$
 
-      final String testFilePath = Paths.get(filePath + ".fit").toAbsolutePath().toString(); //$NON-NLS-1$
-      fitDataReader.processDeviceData(testFilePath,
+		fitDataReader.processDeviceData(testFilePath,
             deviceData,
             alreadyImportedTours,
             newlyImportedTours,
