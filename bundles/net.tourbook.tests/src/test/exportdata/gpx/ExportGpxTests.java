@@ -13,18 +13,17 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package exportdata.garmin.tcx;
+package exportdata.gpx;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
-import net.tourbook.export.ExportTourTCX;
+import net.tourbook.export.ExportTourGPX;
 import net.tourbook.export.TourExporter;
 
 import org.junit.jupiter.api.AfterEach;
@@ -36,10 +35,10 @@ import utils.Comparison;
 import utils.FilesUtils;
 import utils.Initializer;
 
-public class ExportTcxTests {
+public class ExportGpxTests {
 
-	private static final String IMPORT_PATH = FilesUtils.rootPath + "exportdata/garmin/tcx/files/"; //$NON-NLS-1$
-	private static final String _testTourFilePath = IMPORT_PATH + "TCXExport.tcx"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = FilesUtils.rootPath + "exportdata/gpx/files/"; //$NON-NLS-1$
+	private static final String _testTourFilePath = IMPORT_PATH + "GPXExport.gpx"; //$NON-NLS-1$
 
 	private static TourData _tour;
 	private TourExporter _tourExporter;
@@ -69,7 +68,7 @@ public class ExportTcxTests {
 	@BeforeEach
 	void beforeEach() {
 
-		_tourExporter = new TourExporter(ExportTourTCX.TCX_2_0_TEMPLATE).useTourData(_tour);
+		_tourExporter = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE).useTourData(_tour);
 		_tourExporter.setActivityType(_tour.getTourType().getName());
 	}
 
@@ -77,55 +76,35 @@ public class ExportTcxTests {
 
 		_tourExporter.export(_testTourFilePath);
 
-		final List<String> nodesToFilter = Arrays.asList("Cadence", "Author", "Creator"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final List<String> attributesToFilter = new ArrayList<>();
+		final List<String> nodesToFilter = Arrays.asList("Cadence", "mt:tourType", "mt:tourDistance"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final List<String> attributesToFilter = Arrays.asList("creator"); //$NON-NLS-1$
 		Comparison.compareXmlAgainstControl(IMPORT_PATH + controlTourFileName, _testTourFilePath, nodesToFilter,
 				attributesToFilter);
 	}
 
 	@Test
-	void testTcxExportCamouflage15KmHBikingActivity() {
+	void testGpxExportAllOptions() {
 
-		final String controlTourFileName = "LongsPeak-CamouflageSpeed-15kmh-BikingActivity.tcx"; //$NON-NLS-1$
-
-		_tourExporter.setUseActivityType(true);
-		_tourExporter.setActivityType("Biking"); //$NON-NLS-1$
-		_tourExporter.setIsCamouflageSpeed(true);
-		_tourExporter.setCamouflageSpeed(15 / 3.6f);
-
-		executeTest(controlTourFileName);
-	}
-
-	@Test
-	void testTcxExportCourse() {
-
-		final String controlTourFileName = "LongsPeak-Course.tcx"; //$NON-NLS-1$
-
-		_tourExporter.setIsCourse(true);
-		_tourExporter.setCourseName("Longs Peak"); //$NON-NLS-1$
-
-		executeTest(controlTourFileName);
-	}
-
-	@Test
-	void testTcxExportDescriptionAndActivity() {
-
-		final String controlTourFileName = "LongsPeak-Description-RunningActivity.tcx"; //$NON-NLS-1$
+		final String controlTourFileName = "LongsPeak-AllOptions-RelativeDistance.gpx"; //$NON-NLS-1$
 
 		_tourExporter.setUseDescription(true);
-		_tourExporter.setUseActivityType(true);
 		_tourExporter.setIsExportAllTourData(true);
+		_tourExporter.setIsExportSurfingWaves(true);
+		_tourExporter.setIsExportWithBarometer(true);
+		_tourExporter.setIsCamouflageSpeed(true);
+		_tourExporter.setCamouflageSpeed(15 / 3.6f); // 15km/h
+		_tour.setBodyWeight(77.7f); // 77.7kg
+		_tour.setCalories(1282000); // 1282 kcal / 1282000 calories
 
 		executeTest(controlTourFileName);
 	}
 
 	@Test
-	void testTcxExportHikingActivity() {
+	void testGpxExportDescriptionAndActivity() {
 
-		final String controlTourFileName = "LongsPeak-HikingActivity.tcx"; //$NON-NLS-1$
+		final String controlTourFileName = "LongsPeak-AbsoluteDistance.gpx"; //$NON-NLS-1$
 
-		_tourExporter.setUseActivityType(true);
-		_tourExporter.setActivityType("Hiking"); //$NON-NLS-1$
+		_tourExporter.setUseAbsoluteDistance(true);
 
 		executeTest(controlTourFileName);
 	}

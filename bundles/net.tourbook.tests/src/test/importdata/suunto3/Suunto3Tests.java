@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
 
-class Suunto3Tester {
+class Suunto3Tests {
 
 	private static final String IMPORT_FILE_PATH = "src/test/importdata/suunto3/files/"; //$NON-NLS-1$
 
