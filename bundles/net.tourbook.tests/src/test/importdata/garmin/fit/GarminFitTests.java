@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
 
-public class GarminFitTester {
+public class GarminFitTests {
 
 	private static final String IMPORT_FILE_PATH = "src/test/importdata/garmin/fit/files/"; //$NON-NLS-1$
 

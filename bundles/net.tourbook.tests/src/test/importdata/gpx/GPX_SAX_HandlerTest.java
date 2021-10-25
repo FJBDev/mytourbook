@@ -18,8 +18,11 @@ package importdata.gpx;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -61,7 +64,7 @@ class GPX_SAX_HandlerTest {
    /**
     * Resource path to GPX file, generally available from net.tourbook Plugin in test/net.tourbook
     */
-   public static final String                IMPORT_FILE_PATH = "/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
+	public static final String IMPORT_FILE_PATH = "src/test/importdata/gpx/files/test.gpx"; //$NON-NLS-1$
 
    @BeforeAll
    static void initAll() {
@@ -82,7 +85,9 @@ class GPX_SAX_HandlerTest {
    @Test
    void testParse() throws SAXException, IOException {
 
-      final InputStream gpx = GPX_SAX_HandlerTest.class.getResourceAsStream(IMPORT_FILE_PATH);
+		final String testFilePath = Paths.get(IMPORT_FILE_PATH).toAbsolutePath().toString();
+		final File file = new File(testFilePath);
+		final InputStream in = new FileInputStream(file);
 
       final GPX_SAX_Handler handler = new GPX_SAX_Handler(
 
@@ -96,7 +101,7 @@ class GPX_SAX_HandlerTest {
 
             deviceDataReader);
 
-      parser.parse(gpx, handler);
+		parser.parse(in, handler);
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
