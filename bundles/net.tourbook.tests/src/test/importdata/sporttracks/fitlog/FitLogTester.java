@@ -37,7 +37,7 @@ import utils.Initializer;
 
 public class FitLogTester {
 
-   private static final String            IMPORT_PATH = "/importdata/sporttracks/fitlog/files/"; //$NON-NLS-1$
+	private static final String IMPORT_PATH = "/importdata/sporttracks/fitlog/files/"; //$NON-NLS-1$
 
    private static SAXParser               parser;
    private static HashMap<Long, TourData> newlyImportedTours;
@@ -80,6 +80,6 @@ public class FitLogTester {
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-      Comparison.compareTourDataAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
    }
 }

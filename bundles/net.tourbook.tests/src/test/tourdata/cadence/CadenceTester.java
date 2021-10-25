@@ -47,7 +47,7 @@ public class CadenceTester {
 
    private static SAXParser               parser;
    private static final String            GARMIN_IMPORT_PATH      = "/importdata/garmin/tcx/files/";  //$NON-NLS-1$
-   private static final String            SUUNTO_IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
+	private static final String SUUNTO_IMPORT_FILE_PATH = "src/test/importdata/suunto9/files/"; //$NON-NLS-1$
    private static final String            JSON_GZ                 = ".json.gz";                       //$NON-NLS-1$
 
    private static DeviceData              deviceData;

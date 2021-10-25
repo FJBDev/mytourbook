@@ -86,7 +86,7 @@ public class GarminTcxTester {
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-      Comparison.compareTourDataAgainstControl(tour, "test" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "src/test" + filePathWithoutExtension); //$NON-NLS-1$
    }
 
    /**
@@ -111,6 +111,6 @@ public class GarminTcxTester {
 
       final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
 
-      Comparison.compareTourDataAgainstControl(tour, "test" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "src/test" + filePathWithoutExtension); //$NON-NLS-1$
    }
 }

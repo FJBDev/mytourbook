@@ -99,7 +99,7 @@ class FitLogExTester {
       // set relative path that it works with different OS
       tour.setImportFilePath(importFilePath);
 
-      Comparison.compareTourDataAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
    }
 
    @Test
@@ -126,6 +126,6 @@ class FitLogExTester {
       // set relative path that it works with different OS
       tour.setImportFilePath(importFilePath);
 
-      Comparison.compareTourDataAgainstControl(tour, "test/" + filePathWithoutExtension); //$NON-NLS-1$
+		Comparison.compareTourDataAgainstControl(tour, "src/test/" + filePathWithoutExtension); //$NON-NLS-1$
    }
 }

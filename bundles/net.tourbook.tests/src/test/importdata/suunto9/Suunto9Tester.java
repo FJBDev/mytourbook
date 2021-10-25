@@ -37,7 +37,7 @@ import utils.Comparison;
 
 class Suunto9Tester {
 
-   private static final String            IMPORT_FILE_PATH = "test/importdata/suunto9/files/"; //$NON-NLS-1$
+	private static final String IMPORT_FILE_PATH = "src/test/importdata/suunto9/files/"; //$NON-NLS-1$
 
    private static final String            JSON_GZ          = ".json.gz";                       //$NON-NLS-1$
 

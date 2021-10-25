@@ -31,7 +31,7 @@ import utils.Comparison;
 
 class Suunto2Tester {
 
-   private static final String            IMPORT_FILE_PATH = "test/importdata/suunto2/files/"; //$NON-NLS-1$
+	private static final String IMPORT_FILE_PATH = "src/test/importdata/suunto2/files/"; //$NON-NLS-1$
 
    private static DeviceData              deviceData;
    private static HashMap<Long, TourData> newlyImportedTours;
