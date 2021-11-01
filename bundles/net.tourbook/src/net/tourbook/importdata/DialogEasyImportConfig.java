@@ -652,7 +652,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       _dialogEasyConfig.stateToolTipWidth                      = easyConfig.stateToolTipWidth;
       _dialogEasyConfig.tileSize                               = easyConfig.tileSize;
 
-// SET_FORMATTING_ON      
+// SET_FORMATTING_ON
 
       final ImportConfig activeImportConfig = easyConfig.getActiveImportConfig();
 
@@ -2368,6 +2368,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
             _spinnerIL_AvgTemperature.setMaximum(EasyConfig.TEMPERATURE_AVG_TEMPERATURE_MAX);
             _spinnerIL_AvgTemperature.addMouseWheelListener(_defaultModify_MouseWheelListener);
             _spinnerIL_AvgTemperature.addSelectionListener(_defaultModify_Listener);
+
             GridDataFactory.fillDefaults()
                   .align(SWT.END, SWT.FILL)
                   .applyTo(_spinnerIL_AvgTemperature);
