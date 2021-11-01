@@ -1,7 +1,11 @@
 name: Build
 on:
-  schedule:
-  - cron: "12 19 * * *"
+   push:
+    branches:
+      - main
+    paths:
+      - '**.java'
+      - '**.yml'
 jobs:
   build:
     name: Build
