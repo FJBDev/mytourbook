@@ -2371,7 +2371,6 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
             GridDataFactory.fillDefaults()
                   .align(SWT.END, SWT.FILL)
                   .applyTo(_spinnerIL_AvgTemperature);
-
             // label: �C / �F
             _lblIL_AvgTemperature_Unit = new Label(container, SWT.NONE);
             _lblIL_AvgTemperature_Unit.setText(UI.UNIT_LABEL_TEMPERATURE);
