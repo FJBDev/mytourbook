@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - fb-javaheap
     paths:
       - '**.java'
       - '**.yml'
