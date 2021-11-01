@@ -6,6 +6,7 @@ on:
     paths:
       - '**.java'
       - '**.yml'
+      
 jobs:
   build:
     name: Build
