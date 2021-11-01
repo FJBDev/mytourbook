@@ -99,6 +99,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
    private final IPreferenceStore   _prefStore                      = TourbookPlugin.getPrefStore();
    private final IPreferenceStore   _prefStore_Common               = CommonActivator.getPrefStore();
    private final IDialogSettings    _state                          = TourbookPlugin.getState("TourMarkerView"); //$NON-NLS-1$
+
    private TourData                 _tourData;
 
    private PostSelectionProvider    _postSelectionProvider;
