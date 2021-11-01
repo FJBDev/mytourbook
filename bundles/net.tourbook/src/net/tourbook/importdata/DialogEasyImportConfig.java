@@ -652,7 +652,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       _dialogEasyConfig.stateToolTipWidth                      = easyConfig.stateToolTipWidth;
       _dialogEasyConfig.tileSize                               = easyConfig.tileSize;
 
-   // SET_FORMATTING_ON
+// SET_FORMATTING_ON
 
       final ImportConfig activeImportConfig = easyConfig.getActiveImportConfig();
 
