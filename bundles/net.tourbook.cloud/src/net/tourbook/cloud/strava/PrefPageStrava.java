@@ -94,8 +94,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    private Label              _labelRefreshToken_Value;
    private Button             _chkSendDescription;
    private Button             _chkUseTourTypeMapping;
-   private Link               _linkAthleteWebPage;
 
+   private Link               _linkAthleteWebPage;
    private PreferenceLinkArea _linkTourTypeFilters;
 
    private String constructAthleteWebPageLink(final String athleteId) {
