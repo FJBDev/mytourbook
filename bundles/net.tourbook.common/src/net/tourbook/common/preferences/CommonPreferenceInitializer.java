@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 
 /**
- * Class used to initialize default preference values.
+ * Initialize default preference values.
  */
 public class CommonPreferenceInitializer extends AbstractPreferenceInitializer {
 
@@ -38,24 +38,36 @@ public class CommonPreferenceInitializer extends AbstractPreferenceInitializer {
       final IPreferenceStore store = CommonActivator.getPrefStore();
 
       /*
-       * graph color preferences
+       * Graph default colors
        */
-      for (final ColorDefinition colorDefinition : GraphColorManager.getInstance().getGraphColorDefinitions()) {
+      for (final ColorDefinition colorDefinition : GraphColorManager.getAllColorDefinitions()) {
 
          PreferenceConverter.setDefault(
                store,
-               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_BRIGHT),
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_GRADIENT_BRIGHT),
                colorDefinition.getGradientBright_Default());
-
          PreferenceConverter.setDefault(
                store,
-               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_DARK),
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_GRADIENT_DARK),
                colorDefinition.getGradientDark_Default());
 
          PreferenceConverter.setDefault(
                store,
-               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_LINE),
-               colorDefinition.getLineColor_Default());
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_LINE_LIGHT),
+               colorDefinition.getLineColor_Default_Light());
+         PreferenceConverter.setDefault(
+               store,
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_LINE_DARK),
+               colorDefinition.getLineColor_Default_Dark());
+
+         PreferenceConverter.setDefault(
+               store,
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_TEXT_LIGHT),
+               colorDefinition.getTextColor_Default_Light());
+         PreferenceConverter.setDefault(
+               store,
+               colorDefinition.getGraphPrefName(GraphColorManager.PREF_COLOR_TEXT_DARK),
+               colorDefinition.getTextColor_Default_Dark());
       }
 
 // SET_FORMATTING_OFF

@@ -19,27 +19,26 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 
-   private static final String BUNDLE_NAME = "net.tourbook.cloud.messages";       //$NON-NLS-1$
+   private static final String BUNDLE_NAME = "net.tourbook.cloud.messages";                        //$NON-NLS-1$
 
-   public static String        Html_CloseBrowser_Text;
+   public static String        Html_Text_CloseBrowser;
    public static String        Log_CloudAction_End;
    public static String        Log_CloudAction_InvalidTokens;
 
    public static String        PrefPage_CloudConnectivity_Label_AccessToken;
    public static String        PrefPage_CloudConnectivity_Button_Authorize;
    public static String        PrefPage_CloudConnectivity_Group_CloudAccount;
+   public static String        PrefPage_CloudConnectivity_Group_TourDownload;
+   public static String        PrefPage_CloudConnectivity_Group_TourUpload;
    public static String        PrefPage_CloudConnectivity_Label_ExpiresAt;
+   public static String        PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount;
+   public static String        PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount_Tooltip;
    public static String        PrefPage_CloudConnectivity_Label_RefreshToken;
    public static String        PrefPage_CloudConnectivity_UnavailablePort_Message;
    public static String        PrefPage_CloudConnectivity_UnavailablePort_Title;
    public static String        PrefPage_CloudConnectivity_Label_WebPage;
 
    //DROPBOX
-   public static String Image__Dropbox_File;
-   public static String Image__Dropbox_Folder;
-   public static String Image__Dropbox_Logo;
-   public static String Image__Dropbox_Parentfolder;
-
    public static String Dialog_DropboxBrowser_Button_ParentFolder_Tooltip;
    public static String Dialog_DropboxBrowser_Button_SelectFolder;
    public static String Dialog_DropboxBrowser_Text_AbsolutePath_Tooltip;
@@ -49,8 +48,6 @@ public class Messages extends NLS {
    public static String PrefPage_CloudConnectivity_Dropbox_WebPage_Link;
 
    //SUUNTO
-   public static String Image__SuuntoApp_Icon;
-
    public static String Dialog_DownloadWorkoutsFromSuunto_Message;
    public static String Dialog_DownloadWorkoutsFromSuunto_SubTask;
    public static String Dialog_DownloadWorkoutsFromSuunto_Task;
@@ -60,6 +57,7 @@ public class Messages extends NLS {
    public static String Dialog_UploadRoutesToSuunto_Task;
    public static String Dialog_UploadRoutesToSuunto_Title;
    public static String Dialog_ValidatingSuuntoTokens_SubTask;
+   public static String Import_Data_HTML_SuuntoWorkoutsDownloader_Tooltip;
    public static String Log_DownloadWorkoutsFromSuunto_001_Start;
    public static String Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound;
    public static String Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist;
@@ -76,25 +74,30 @@ public class Messages extends NLS {
    public static String PrefPage_SuuntoWorkouts_SinceDateFilter_Tooltip;
    public static String PrefPage_SuuntoWorkouts_Label_FolderPath;
    public static String PrefPage_SuuntoWorkouts_FolderPath_Tooltip;
-   public static String Suunto_WorkoutsDownloader_Tooltip;
    public static String VendorName_Suunto_Routes;
    public static String VendorName_Suunto;
 
    //STRAVA
-   public static String Image__Connect_With_Strava;
-
    public static String Dialog_UploadToursToStrava_Message;
    public static String Dialog_UploadToursToStrava_SubTask;
    public static String Dialog_UploadToursToStrava_Task;
    public static String Dialog_UploadToursToStrava_Title;
+   public static String Dialog_UseTourTypeMappingModified_Title;
+   public static String Dialog_UseTourTypeMappingActivated_Message;
+   public static String Dialog_UseTourTypeMappingDeactivated_Message;
    public static String Log_UploadToursToStrava_001_Start;
    public static String Log_UploadToursToStrava_002_NoTourTitle;
    public static String Log_UploadToursToStrava_003_ActivityLink;
    public static String Log_UploadToursToStrava_003_UploadStatus;
    public static String Log_UploadToursToStrava_004_UploadError;
+   public static String Log_UploadToursToStrava_005_TourTypeMappedMultipleTimes;
    public static String PrefPage_AccountInformation_Label_AthleteName;
    public static String PrefPage_AccountInformation_Label_AthleteWebPage;
    public static String PrefPage_AccountInformation_Link_Strava_WebPage;
+   public static String PrefPage_TourTypeFilter_Link_StravaTourTypes;
+   public static String PrefPage_UploadConfiguration_Button_SendDescription;
+   public static String PrefPage_UploadConfiguration_Button_UseTourTypeMapping;
+   public static String PrefPage_UploadConfiguration_Button_UseTourTypeMapping_Tooltip;
    public static String VendorName_Strava;
 
    static {

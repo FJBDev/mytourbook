@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,7 @@ package net.tourbook.common.tooltip;
 import java.util.ArrayList;
 
 import net.tourbook.common.CommonActivator;
-import net.tourbook.common.Messages;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
 
@@ -26,10 +26,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -80,8 +76,8 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
 
    public ActionToolbarSlideout() {
 
-      _imageEnabled = CommonActivator.getImageDescriptor(Messages.Image__TourOptions).createImage();
-      _imageDisabled = CommonActivator.getImageDescriptor(Messages.Image__TourOptions_Disabled).createImage();
+      _imageEnabled = CommonActivator.getThemedImageDescriptor(CommonImages.TourOptions).createImage();
+      _imageDisabled = CommonActivator.getImageDescriptor(CommonImages.TourOptions_Disabled).createImage();
    }
 
    public ActionToolbarSlideout(final ImageDescriptor actionImage, final ImageDescriptor actionImageDisabled) {
@@ -133,12 +129,7 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
 
       if ((_actionToolItem == null || _actionToolItem.isDisposed()) && toolbar != null) {
 
-         toolbar.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(final DisposeEvent e) {
-               onDispose_Toolbar();
-            }
-         });
+         toolbar.addDisposeListener(disposeEvent -> onDispose_Toolbar());
 
          _toolBar = toolbar;
 
@@ -157,15 +148,12 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
             }
          });
 
-         toolbar.addMouseMoveListener(new MouseMoveListener() {
-            @Override
-            public void mouseMove(final MouseEvent e) {
+         toolbar.addMouseMoveListener(mouseEvent -> {
 
-               final Point mousePosition = new Point(e.x, e.y);
-               final ToolItem hoveredItem = toolbar.getItem(mousePosition);
+            final Point mousePosition = new Point(mouseEvent.x, mouseEvent.y);
+            final ToolItem hoveredItem = toolbar.getItem(mousePosition);
 
-               onMouseMove(hoveredItem, e);
-            }
+            onMouseMove(hoveredItem);
          });
 
          _toolbarSlideout = createSlideout(toolbar);
@@ -228,7 +216,7 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
 //		}
    }
 
-   private void onMouseMove(final ToolItem hoveredItem, final MouseEvent mouseEvent) {
+   private void onMouseMove(final ToolItem hoveredItem) {
 
       // ignore other items in the toolbar
       if (hoveredItem != _actionToolItem) {

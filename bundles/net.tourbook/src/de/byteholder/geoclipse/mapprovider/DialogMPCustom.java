@@ -72,7 +72,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
 
    private static final int    MAX_RANDOM                             = 9999;
 
-   private static final int    UI_MAX_ZOOM_LEVEL                      = 20;
+   private static final int    UI_MAX_ZOOM_LEVEL                      = 23;
    private static final int    UI_MIN_ZOOM_LEVEL                      = 1;
    private static final int    MAP_MAX_ZOOM_LEVEL                     = UI_MAX_ZOOM_LEVEL
          - UI_MIN_ZOOM_LEVEL;
@@ -779,6 +779,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             label = new Label(container, SWT.NONE);
             GridDataFactory.fillDefaults().grab(false, true).align(SWT.FILL, SWT.CENTER).applyTo(label);
             label.setText(Messages.Dialog_CustomConfig_Label_UserAgent);
+            label.setToolTipText(Messages.Dialog_CustomConfig_Label_UserAgent_Tooltip);
 
             // label: image format value
             _txtUserAgent = new Text(container, SWT.BORDER);

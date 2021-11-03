@@ -39,7 +39,6 @@ import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
-import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.FilesUtils;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
@@ -50,7 +49,8 @@ import net.tourbook.export.TourExporter;
 import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
+import net.tourbook.tour.TourManager;
+import net.tourbook.ui.TourTypeFilter;
 
 import org.apache.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -130,7 +130,8 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       if (tourData.timeSerie == null || tourData.timeSerie.length == 0 || tourData.getTourDeviceTime_Elapsed() == 0) {
          _tourExporter.setIsCamouflageSpeed(true);
-         _tourExporter.setCamouflageSpeed(10);
+         // 0.5 m/s => 1.8 km/h
+         _tourExporter.setCamouflageSpeed(0.5f);
       } else {
          _tourExporter.setIsCamouflageSpeed(false);
       }
@@ -145,11 +146,16 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
    }
 
    private String getAccessToken() {
-      return _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
+      return _prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String());
    }
 
    private String getRefreshToken() {
-      return _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN);
+      return _prefStore.getString(Preferences.getSuuntoRefreshToken_Active_Person_String());
+   }
+
+   @Override
+   public List<TourTypeFilter> getTourTypeFilters() {
+      return new ArrayList<>();
    }
 
    @Override
@@ -163,14 +169,19 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       if (StringUtils.hasContent(routeUpload.getError())) {
 
-         TourLogManager.logError(NLS.bind(Messages.Log_UploadRoutesToSuunto_004_UploadError, routeUpload.getTourDate(), routeUpload.getError()));
+         TourLogManager.log_ERROR(NLS.bind(
+               Messages.Log_UploadRoutesToSuunto_004_UploadError,
+               routeUpload.getTourDate(),
+               routeUpload.getError()));
 
       } else {
 
          isRouteUploaded = true;
 
-         TourLogManager.addLog(TourLogState.IMPORT_OK,
-               NLS.bind(Messages.Log_UploadRoutesToSuunto_003_UploadStatus, routeUpload.getTourDate(), routeUpload.getId()));
+         TourLogManager.log_OK(NLS.bind(
+               Messages.Log_UploadRoutesToSuunto_003_UploadStatus,
+               routeUpload.getTourDate(),
+               routeUpload.getId()));
 
       }
 
@@ -215,11 +226,15 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
       return null;
    }
 
-   private int uploadRoutes(final Map<String, String> toursWithGpsSeries) {
+   private int uploadRoutes(final Map<String, String> toursWithGpsSeries, final IProgressMonitor monitor) {
 
       final List<CompletableFuture<RouteUpload>> activityUploads = new ArrayList<>();
 
       for (final Map.Entry<String, String> tourToUpload : toursWithGpsSeries.entrySet()) {
+
+         if (monitor.isCanceled()) {
+            return 0;
+         }
 
          final String tourStartTime = tourToUpload.getKey();
          final String tourGpx = tourToUpload.getValue();
@@ -229,7 +244,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
       final int[] numberOfUploadedTours = new int[1];
       activityUploads.stream().map(CompletableFuture::join).forEach(activityUpload -> {
-         if (logUploadResult(activityUpload)) {
+         if (monitor.isCanceled()) {
+            return;
+         } else if (logUploadResult(activityUpload)) {
             ++numberOfUploadedTours[0];
          }
       });
@@ -253,21 +270,21 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
             monitor.subTask(Messages.Dialog_ValidatingSuuntoTokens_SubTask);
 
             if (!SuuntoTokensRetrievalHandler.getValidTokens()) {
-               TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
+               TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS);
                return;
             }
 
             monitor.subTask(NLS.bind(Messages.Dialog_UploadRoutesToSuunto_SubTask, UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND, UI.EMPTY_STRING));
 
             final Map<String, String> toursWithGpsSeries = new HashMap<>();
-            for (int index = 0; index < numberOfTours; ++index) {
+            for (int index = 0; index < numberOfTours && !monitor.isCanceled(); ++index) {
 
                final TourData tourData = selectedTours.get(index);
-               final String tourStartTime = tourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S);
+               final String tourStartTime = TourManager.getTourDateTimeShort(tourData);
 
                if (tourData.latitudeSerie == null || tourData.latitudeSerie.length == 0) {
 
-                  TourLogManager.logError(NLS.bind(Messages.Log_UploadRoutesToSuunto_002_NoGpsCoordinate, tourStartTime));
+                  TourLogManager.log_ERROR(NLS.bind(Messages.Log_UploadRoutesToSuunto_002_NoGpsCoordinate, tourStartTime));
                   monitor.worked(2);
 
                } else {
@@ -283,9 +300,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
                   UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND));
 
             if (SuuntoTokensRetrievalHandler.getValidTokens()) {
-               numberOfUploadedTours[0] = uploadRoutes(toursWithGpsSeries);
+               numberOfUploadedTours[0] = uploadRoutes(toursWithGpsSeries, monitor);
             } else {
-               TourLogManager.logError(LOG_CLOUDACTION_INVALIDTOKENS);
+               TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS);
             }
 
             monitor.worked(toursWithGpsSeries.size());
@@ -300,11 +317,11 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          final long start = System.currentTimeMillis();
 
          TourLogManager.showLogView();
-         TourLogManager.logTitle(NLS.bind(Messages.Log_UploadRoutesToSuunto_001_Start, numberOfTours));
+         TourLogManager.log_TITLE(NLS.bind(Messages.Log_UploadRoutesToSuunto_001_Start, numberOfTours));
 
-         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, false, runnable);
+         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
 
-         TourLogManager.logTitle(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
 
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),

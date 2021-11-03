@@ -51,11 +51,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -143,23 +141,20 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       super.configureShell(shell);
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      shell.addListener(SWT.Resize, event -> {
 
-            // allow resizing the width but not the height
+         // allow resizing the width but not the height
 
-            if (_shellDefaultSize == null) {
-               _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            }
-
-            final Point shellSize = shell.getSize();
-
-            shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
-            shellSize.y = _shellDefaultSize.y;
-
-            shell.setSize(shellSize);
+         if (_shellDefaultSize == null) {
+            _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
          }
+
+         final Point shellSize = shell.getSize();
+
+         shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
+         shellSize.y = _shellDefaultSize.y;
+
+         shell.setSize(shellSize);
       });
    }
 
@@ -215,7 +210,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
        * group: Image format
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ExportImage_Group_Format);
+      group.setText(Messages.Dialog_ExportImage_Group_Image);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -398,6 +393,10 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private void doExport() {
 
+      // disable buttons
+      getButton(IDialogConstants.OK_ID).setEnabled(false);
+      getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
+
       final String exportFileName = _txtFilePath.getText();
 
       _exportState_FileCollisionBehavior = new FileCollisionBehavior();
@@ -452,7 +451,13 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private String getFileExtension() {
 
-      return _comboImageFormat.getSelectionIndex() == 0 ? "jpg" : _comboImageFormat.getText().toLowerCase();
+      return _comboImageFormat.getSelectionIndex() == 0
+
+            // JPEG format
+            ? "jpg"//$NON-NLS-1$
+
+            // other formats
+            : _comboImageFormat.getText().toLowerCase();
    }
 
    private int getSwtImageType() {
@@ -481,6 +486,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       BusyIndicator.showWhile(Display.getCurrent(), this::doExport);
 
       if (_exportState_FileCollisionBehavior.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {
+         getButton(IDialogConstants.OK_ID).setEnabled(true);
+         getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
          return;
       }
 
