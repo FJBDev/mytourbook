@@ -404,6 +404,81 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    }
 
    /**
+    * Predicted Performance
+    */
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Day.allTraining_Load_PredictedPerformance_Low,
+            _statisticData_Day.allTraining_Load_PredictedPerformance_High);
+
+      //TODO FB Attempting to display several lines in the same graph: Predicted performance, fatigue,fitness
+//      final float[][] lowValueSeries = new float[2][2];
+//      final float[][] highValueSeries = new float[2][2];
+//      lowValueSeries[0] = new float[2];
+//      lowValueSeries[0][0] = 150;
+//      lowValueSeries[0][1] = 75;
+//      lowValueSeries[1][0] = 250;
+//      lowValueSeries[1][1] = 95;
+//
+//      highValueSeries[0] = new float[2];
+//      highValueSeries[0][0] = 123;
+//      highValueSeries[0][1] = 24;
+//      highValueSeries[1][0] = 65;
+//      highValueSeries[1][1] = 7;
+//      final ChartDataYSerie yData = new ChartDataYSerie(
+//            ChartType.LINE,
+//            lowValueSeries,
+//            highValueSeries);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
+
+      chartDataModel.addYData(yData);
+
+//      final ChartDataYSerie yData2 = new ChartDataYSerie(
+//            ChartType.LINE,
+//            _statisticData_Day.allAthleteBodyWeight_Low,
+//            _statisticData_Day.allAthleteBodyWeight_High);
+//
+//      yData2.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+//      yData2.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+//      yData2.setShowYSlider(true);
+//
+//      StatisticServices.setDefaultColors(yData2, GraphColorManager.PREF_GRAPH_BODYFAT);
+//
+//      chartDataModel.addYData(yData2);
+   }
+
+   /**
+    * Training Stress
+    */
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.BAR,
+            _statisticData_Day.allTraining_Load_TrainingStress_Low,
+            _statisticData_Day.allTraining_Load_TrainingStress_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setAllValueColors(0);
+      yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+      yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
+      // StatisticServices.setTourTypeColorsIndex(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   /**
     * Altitude
     */
    void createYDataAltitude(final ChartDataModel chartModel) {
@@ -545,7 +620,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
    @Override
    public Long getSelectedTourId() {
-      return _selectedTourId;
+      return getSelectedTour();
    }
 
    @Override
@@ -629,7 +704,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       // find the tour which has the same tourId as the selected tour
       for (int tourIndex = 0; tourIndex < tourIds.length; tourIndex++) {
-         final boolean isTourSelected = tourIds[tourIndex] == tourId ? true : false;
+         final boolean isTourSelected = tourIds[tourIndex] == tourId;
          if (isTourSelected) {
             isSelected = true;
             _selectedTourId = tourId;

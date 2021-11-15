@@ -319,6 +319,7 @@ public class NmeaDataReader extends TourbookDevice {
          tourData.computeTourMovingTime();
          tourData.computeComputedValues();
          tourData.computeAltitudeUpDown();
+         tourData.computeTrainingStressData();
       }
 
       return true;

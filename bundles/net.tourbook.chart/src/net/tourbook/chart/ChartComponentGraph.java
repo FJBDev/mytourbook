@@ -6875,7 +6875,8 @@ public class ChartComponentGraph extends Canvas {
 
          final Rectangle[][] barFocusRectangles = drawingData.getBarFocusRectangles();
          if (barFocusRectangles == null) {
-            break;
+            //TODO FB to check with WOlfgang if it's ok. It works thought :-)
+            continue;
          }
 
          final int serieLength = barFocusRectangles.length;

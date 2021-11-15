@@ -340,6 +340,42 @@ public abstract class StatisticYear extends TourbookStatistic {
       chartDataModel.addYData(yData);
    }
 
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.predictedPerformance_Low,
+            _statisticData_Year.predictedPerformance_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.athleteBodyFat_Low,
+            _statisticData_Year.athleteBodyFat_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
    private double[] createYearData(final TourStatisticData_Year tourDataYear) {
 
       final int yearCounter = tourDataYear.elevationUp_High[0].length;

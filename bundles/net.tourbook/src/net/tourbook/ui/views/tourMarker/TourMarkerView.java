@@ -608,6 +608,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
       defineColumn_Motion_Distance();
       defineColumn_Motion_DistanceDelta();
       defineColumn_Motion_AvgPace();
+      defineColumn_Motion_Pace_Normalized();
       defineColumn_Motion_AvgSpeed();
 
       defineColumn_Altitude_ElevationGainDelta();
@@ -903,6 +904,38 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
                final double value = (markerDistance - prevDistance) / 1000 / UI.UNIT_VALUE_DISTANCE;
                colDef.printDetailValue(cell, value);
             }
+         }
+      });
+   }
+
+   /**
+    * Column: Normalized pace (min/km or min/mi)
+    */
+   private void defineColumn_Motion_Pace_Normalized() {
+      final ColumnDefinition colDef = TableColumnFactory.MOTION_NORMALIZED_PACE.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ViewerRow lastRow = cell.getViewerRow().getNeighbor(ViewerRow.ABOVE, false);
+            int previousMarkerIndex = 0;
+            if (null != lastRow) {
+               final Object element = lastRow.getElement();
+               if (element instanceof TourMarker) {
+                  previousMarkerIndex = ((TourMarker) element).getSerieIndex();
+               }
+            }
+
+            final int currentMarkerIndex = ((TourMarker) cell.getElement()).getSerieIndex();
+
+            final double normalizedPace = _tourData.computeNormalizedPace(previousMarkerIndex, currentMarkerIndex);
+
+            final String cellText = normalizedPace == 0.0
+                  ? UI.EMPTY_STRING
+                  : UI.format_mm_ss((long) normalizedPace);
+
+            cell.setText(cellText);
          }
       });
    }

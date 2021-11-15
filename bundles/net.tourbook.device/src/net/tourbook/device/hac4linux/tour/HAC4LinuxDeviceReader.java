@@ -752,5 +752,4 @@ public class HAC4LinuxDeviceReader extends TourbookDevice {
 
       return isValid;
    }
-
 }

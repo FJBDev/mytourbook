@@ -4103,7 +4103,14 @@ public class TourDatabase {
             + " bodyFat                               FLOAT,                             " + NL //$NON-NLS-1$
 
             // version 42 end
-
+            //            // version 35 start  -  18.?
+            //            //
+            //            + " LatitudeMinE6         INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
+            //            + " LatitudeMaxE6         INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
+            //            + " LongitudeMinE6        INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
+            //            + " LongitudeMaxE6        INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
+            //            //
+            //            // version 35 end ---------
             // version 45 start  -  21.9
 
             /*
@@ -4117,6 +4124,14 @@ public class TourDatabase {
 
             // version 46 start  -  after 21.9
             // version 46 end
+
+            //version 4X start  -  21.XX
+            //
+            + " govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " bikeScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " swimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            //
+            // version 4X end
 
             // version 5 start
             /**
@@ -4278,8 +4293,32 @@ public class TourDatabase {
 
             // version 16 end ---------
 
-            + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
-            + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            // version 41 start
+            //
+            + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialDuration     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialDistance     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialAverageSlope INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            + "   bikeScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_BIKESCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            //
+            // version 41 end ---------
+
+            //
+            + "   " + KEY_BIKE + "       BIGINT                                                  \n" //$NON-NLS-1$ //$NON-NLS-2$
+            //
+            // version 41 start
+            //
+            + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialDuration     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialDistance     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssTimeTrialAverageSlope INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
+            + "   govssAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            + "   bikeScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_BIKESCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
+            //
+            // version 41 end ---------
 
             + "   " + KEY_BIKE + "       BIGINT                                                    " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5775,6 +5814,11 @@ public class TourDatabase {
          // 45 -> 46    21.?
          if (currentDbVersion == 45) {
             currentDbVersion = _dbDesignVersion_New = updateDb_045_To_046(conn, splashManager);
+         }
+
+         // XX -> 99
+         if (currentDbVersion == 46) {
+            currentDbVersion = _dbDesignVersion_New = updateDbDesign_044_to_099(conn, splashManager);
          }
 
          // update db design version number
@@ -8868,7 +8912,6 @@ public class TourDatabase {
 
       return newDbVersion;
    }
-
    /**
     * DB version 44 -> 45 ... MT version 21.9
     *
@@ -8930,6 +8973,42 @@ public class TourDatabase {
 
          if (isTableAvailable(conn, TABLE_DEVICE_SENSOR_VALUE) == false) {
             createTable_DeviceSensorValues(stmt);
+         }
+      }
+      stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
+   }
+
+   private int updateDbDesign_044_to_099(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 99;
+//TODO FB change 99 to the appropriate DB version
+//      logDb_UpdateStart(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+      final Statement stmt = conn.createStatement();
+      {
+         // check if db is updated to version 42
+         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "govss") == false) { //$NON-NLS-1$
+
+         // SET_FORMATTING_OFF
+
+                     // Add new columns
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "swimScore", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialAverageSlope", DEFAULT_0);//$NON-NLS-1$
+                     SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                     SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                     SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+
+// SET_FORMATTING_ON
          }
       }
       stmt.close();

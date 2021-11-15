@@ -29,12 +29,14 @@ public class Messages extends NLS {
    public static String        LABEL_GRAPH_DISTANCE;
    public static String        LABEL_GRAPH_NUMBER_OF_TOURS;
    public static String        LABEL_GRAPH_PACE;
+   public static String        LABEL_GRAPH_PREDICTED_PERFORMANCE;
    public static String        LABEL_GRAPH_SPEED;
    public static String        LABEL_GRAPH_TIME;
    public static String        LABEL_GRAPH_TIME_UNIT;
    public static String        LABEL_GRAPH_TRAINING_EFFECT;
    public static String        LABEL_GRAPH_TRAINING_EFFECT_ANAEROBIC;
    public static String        LABEL_GRAPH_TRAINING_PERFORMANCE;
+   public static String        LABEL_GRAPH_TRAINING_STRESS;
 
    public static String        NUMBERS_UNIT;
 

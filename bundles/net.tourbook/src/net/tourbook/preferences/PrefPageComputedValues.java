@@ -86,6 +86,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
    public static final int    TAB_FOLDER_PACE_SPEED     = 2;
    public static final int    TAB_FOLDER_ELEVATION_GAIN = 3;
    public static final int    TAB_FOLDER_CADENCE_ZONES  = 4;
+   public static final int    TAB_FOLDER_PREDICTED_PERFORMANCE = 5;
 
    private static final float SPEED_DIGIT_VALUE         = 10.0f;
 
@@ -113,6 +114,7 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
    private boolean                  _isUpdateUI;
    private SelectionListener        _selectionListener;
    private MouseWheelListener       _spinnerMouseWheelListener;
+   private int                      _hintDefaultSpinnerWidth;
 
    /**
     * contains the controls which are displayed in the first column, these controls are used to get
@@ -151,6 +153,8 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
    private Spinner           _spinnerBreakMinSliceTimeAS;
    private Spinner           _spinnerCadenceDelimiter;
    private Spinner           _spinnerDPTolerance;
+   private Spinner           _spinnerFitnessDecayTime;
+   private Spinner           _spinnerFatigueDecayTime;
 
    private ScrolledComposite _smoothingScrolledContainer;
    private Composite         _smoothingScrolledContent;
@@ -223,6 +227,11 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
             final CTabItem tabItemCadenceZones = new CTabItem(_tabFolder, SWT.NONE);
             tabItemCadenceZones.setControl(createUI_80_CadenceZones(_tabFolder));
             tabItemCadenceZones.setText(Messages.Compute_CadenceZonesTimes_Group);
+
+            // tab: Performance modeling chart options
+            final CTabItem tabPerformanceModelingChart = new CTabItem(_tabFolder, SWT.NONE);
+            tabPerformanceModelingChart.setControl(createUI_80_PerformanceModelingChart(_tabFolder));
+            tabPerformanceModelingChart.setText(Messages.Compute_PerformanceModelingChart_Group);
 
             final CTabItem tabHrZone = new CTabItem(_tabFolder, SWT.NONE);
             tabHrZone.setControl(createUI_90_HrZone(_tabFolder));
@@ -830,6 +839,62 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
       return container;
    }
 
+   /**
+    * UI for the predicted performance chart options
+    */
+   private Control createUI_80_PerformanceModelingChart(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridLayoutFactory.swtDefaults().numColumns(3).extendedMargins(0, 0, 7, 0).applyTo(container);
+      {
+         /*
+          * Fitness decay value (days)
+          */
+         Label label = new Label(container, NONE);
+         label.setText(Messages.Compute_PerformanceModelingChart_Label_FitnessDecay);
+         label.setToolTipText(Messages.Compute_PerformanceModelingChart_Label_FitnessDecay_Tooltip);
+
+         // Fitness decay spinner
+         _spinnerFitnessDecayTime = new Spinner(container, SWT.BORDER);
+         GridDataFactory.fillDefaults()//
+               .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+               .align(SWT.BEGINNING, SWT.CENTER)
+               .applyTo(_spinnerFitnessDecayTime);
+         _spinnerFitnessDecayTime.setMinimum(0);
+         _spinnerFitnessDecayTime.setMaximum(365);
+         _spinnerFitnessDecayTime.addSelectionListener(_selectionListener);
+         _spinnerFitnessDecayTime.addMouseWheelListener(_spinnerMouseWheelListener);
+
+         // label: days
+         label = new Label(container, NONE);
+         label.setText(Messages.Compute_PerformanceModelingChart_Label_Days);
+
+         /*
+          * Fatigue decay value (days)
+          */
+         label = new Label(container, NONE);
+         label.setText(Messages.Compute_PerformanceModelingChart_Label_FatigueDecay);
+         label.setToolTipText(Messages.Compute_PerformanceModelingChart_Label_FatigueDecay_Tooltip);
+
+         // Fatigue decay spinner
+         _spinnerFatigueDecayTime = new Spinner(container, SWT.BORDER);
+         GridDataFactory.fillDefaults()//
+               .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+               .align(SWT.BEGINNING, SWT.CENTER)
+               .applyTo(_spinnerFatigueDecayTime);
+         _spinnerFatigueDecayTime.setMinimum(0);
+         _spinnerFatigueDecayTime.setMinimum(365);
+         _spinnerFatigueDecayTime.addSelectionListener(_selectionListener);
+         _spinnerFatigueDecayTime.addMouseWheelListener(_spinnerMouseWheelListener);
+
+         // label: days
+         label = new Label(container, SWT.NONE);
+         label.setText(Messages.Compute_PerformanceModelingChart_Label_Days);
+      }
+
+      return container;
+   }
+
    private Control createUI_90_HrZone(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
@@ -1257,6 +1322,12 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
          final int cadenceZonesDelimiterValue = _prefStore.getDefaultInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER);
          _spinnerCadenceDelimiter.setSelection(cadenceZonesDelimiterValue);
 
+      } else if (selectedTab == TAB_FOLDER_PREDICTED_PERFORMANCE) {
+
+         final int fitnessDecayValue = _prefStore.getDefaultInt(ITourbookPreferences.FITNESS_DECAY);
+         _spinnerFitnessDecayTime.setSelection(fitnessDecayValue);
+         final int fatigueDecayValue = _prefStore.getDefaultInt(ITourbookPreferences.FATIGUE_DECAY);
+         _spinnerFatigueDecayTime.setSelection(fatigueDecayValue);
       }
 
       super.performDefaults();
@@ -1329,6 +1400,11 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
           */
          _spinnerCadenceDelimiter.setSelection(_prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER));
 
+         /*
+          * Predicted performance
+ */
+         _spinnerFitnessDecayTime.setSelection(_prefStore.getInt(ITourbookPreferences.FITNESS_DECAY));
+         _spinnerFatigueDecayTime.setSelection(_prefStore.getInt(ITourbookPreferences.FATIGUE_DECAY));
          /*
           * Pace/Speed
           */
@@ -1415,6 +1491,11 @@ public class PrefPageComputedValues extends PreferencePage implements IWorkbench
        */
       _prefStore.setValue(ITourbookPreferences.CADENCE_ZONES_DELIMITER, _spinnerCadenceDelimiter.getSelection());
 
+      /*
+       * Predicted performance decay values
+       */
+      _prefStore.setValue(ITourbookPreferences.FITNESS_DECAY, _spinnerFitnessDecayTime.getSelection());
+      _prefStore.setValue(ITourbookPreferences.FATIGUE_DECAY, _spinnerFatigueDecayTime.getSelection());
       /*
        * Pace/Speed
        */

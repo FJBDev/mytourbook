@@ -318,5 +318,4 @@ public class CiclotourTextDataReader extends TourbookDevice {
 
       return false;
    }
-
 }

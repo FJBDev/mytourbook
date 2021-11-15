@@ -452,5 +452,4 @@ public class CRPDataReader extends TourbookDevice {
 
       return true;
    }
-
 }

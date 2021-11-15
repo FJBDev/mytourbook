@@ -697,5 +697,4 @@ public class HAC5DeviceDataReader extends TourbookDevice {
 
       return isValid;
    }
-
 }
