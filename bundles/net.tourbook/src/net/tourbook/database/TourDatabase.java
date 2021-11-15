@@ -4104,6 +4104,8 @@ public class TourDatabase {
 
             // version 42 end
 
+            // version 45 start  -  21.9
+
             /*
              * The first default values were 0 but only when a new tour db was created
              * and not when the tour db was updated !!!
@@ -4283,6 +4285,9 @@ public class TourDatabase {
             + "   HrMaxFormula           INTEGER DEFAULT 0,                                        " + NL //$NON-NLS-1$
 
             // version 16 end ---------
+
+            + "   rawDataPath            VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   deviceReaderId         VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
             //
             // version 41 start
