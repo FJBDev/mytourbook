@@ -15,10 +15,14 @@
  *******************************************************************************/
 package net.tourbook.tour;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.text.NumberFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 import net.tourbook.application.TourbookPlugin;
@@ -34,17 +38,24 @@ import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
+import net.tourbook.data.DeviceSensor;
+import net.tourbook.data.DeviceSensorValue;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageAppearanceDisplayFormat;
+import net.tourbook.statistic.StatisticView;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.Messages;
 import net.tourbook.ui.action.ActionTourToolTip_EditQuick;
 import net.tourbook.ui.action.ActionTourToolTip_EditTour;
 import net.tourbook.ui.action.Action_ToolTip_EditPreferences;
+import net.tourbook.ui.views.sensors.BatteryStatus;
+import net.tourbook.ui.views.sensors.SelectionRecordingDeviceBattery;
+import net.tourbook.ui.views.sensors.SelectionSensor;
+import net.tourbook.ui.views.sensors.SensorChartView;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -57,6 +68,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -64,8 +76,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.ui.IWorkbenchPart;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 
@@ -76,7 +90,8 @@ public class TourInfoUI {
    private static final int              SHELL_MARGIN             = 5;
    private static final int              MAX_DATA_WIDTH           = 300;
 
-   private static final String           REAR_SHIFT_FORMAT        = "/  ";                                                                      //$NON-NLS-1$
+   private static final String           BATTERY_FORMAT           = "... %d %%";                                                                //$NON-NLS-1$
+   private static final String           GEAR_SHIFT_FORMAT        = "%d / %d";                                                                  //$NON-NLS-1$
 
    private static final IPreferenceStore _prefStoreCommon         = CommonActivator.getPrefStore();
 
@@ -116,18 +131,24 @@ public class TourInfoUI {
       _nf3.setMaximumFractionDigits(3);
    }
 
-   private boolean _hasDescription;
-   private boolean _hasGears;
-   private boolean _hasRunDyn;
-   private boolean _hasTags;
-   private boolean _hasTourType;
-   private boolean _hasWeather;
+   private boolean        _hasRecordingDeviceBattery;
+   private boolean        _hasDescription;
+   private boolean        _hasGears;
+   private boolean        _hasRunDyn;
+   private boolean        _hasTags;
+   private boolean        _hasTourType;
+   private boolean        _hasWeather;
 
-   private int     _defaultTextWidth;
+   private int            _defaultTextWidth;
 
-   private int     _descriptionLineCount;
-   private int     _descriptionScroll_Lines = 15;
-   private int     _descriptionScroll_Height;
+   private int            _descriptionLineCount;
+   private int            _descriptionScroll_Lines = 15;
+   private int            _descriptionScroll_Height;
+
+   /**
+    * Part which fired an event
+    */
+   private IWorkbenchPart _part;
 
    /*
     * Actions
@@ -150,6 +171,8 @@ public class TourInfoUI {
     */
    private TourData                       _tourData;
 
+   private ArrayList<DeviceSensorValue>   _allSensorValuesWithData;
+
    private String                         _noTourTooltip    = Messages.Tour_Tooltip_Label_NoTour;
 
    /*
@@ -171,110 +194,122 @@ public class TourInfoUI {
    /*
     * UI controls
     */
-   private Composite _ttContainer;
-   private Composite _lowerPartContainer;
+   private Composite        _ttContainer;
+   private Composite        _lowerPartContainer;
 
-   private Text      _txtDescription;
-   private Text      _txtWeather;
+   private Text             _txtDescription;
+   private Text             _txtWeather;
 
-   private CLabel    _lblClouds;
-   private CLabel    _lblTourType_Image;
+   private CLabel           _lblClouds;
+   private CLabel           _lblTourType_Image;
 
-   private Label     _lblAltitudeUp;
-   private Label     _lblAltitudeUpUnit;
-   private Label     _lblAltitudeDown;
-   private Label     _lblAltitudeDownUnit;
-   private Label     _lblAvgSpeed;
-   private Label     _lblAvgSpeedUnit;
-   private Label     _lblAvgPace;
-   private Label     _lblAvgPaceUnit;
-   private Label     _lblAvgPulse;
-   private Label     _lblAvgPulseUnit;
-   private Label     _lblAvgCadence;
-   private Label     _lblAvgCadenceUnit;
-   private Label     _lblAvg_Power;
-   private Label     _lblAvg_PowerUnit;
-   private Label     _lblBikeScore;
-   private Label     _lblBodyWeight;
-   private Label     _lblBreakTime;
-   private Label     _lblBreakTime_Unit;
-   private Label     _lblCalories;
-   private Label     _lblCloudsUnit;
-   private Label     _lblDate;
-   private Label     _lblDateTimeCreatedValue;
-   private Label     _lblDateTimeModifiedValue;
-   private Label     _lblDateTimeModified;
-   private Label     _lblDescription;
-   private Label     _lblDistance;
-   private Label     _lblDistanceUnit;
-   private Label     _lblGear;
-   private Label     _lblGear_Spacer;
-   private Label     _lblGear_FrontShifts;
-   private Label     _lblGear_RearShifts;
-   private Label     _lblMaxAltitude;
-   private Label     _lblGovss;
-   private Label     _lblMaxAltitudeUnit;
-   private Label     _lblMaxPace;
-   private Label     _lblMaxPaceUnit;
-   private Label     _lblMaxPulse;
-   private Label     _lblMaxPulseUnit;
-   private Label     _lblMaxSpeed;
-   private Label     _lblMaxSpeedUnit;
-   private Label     _lblMovingTime;
-   private Label     _lblMovingTime_Unit;
-   private Label     _lblElapsedTime;
-   private Label     _lblElapsedTime_Unit;
-   private Label     _lblPausedTime;
-   private Label     _lblPausedTime_Unit;
-   private Label     _lblRecordedTime;
-   private Label     _lblRecordedTime_Unit;
-   private Label     _lblRestPulse;
-   private Label     _lblSwimScore;
-   private Label     _lblTemperature;
-   private Label     _lblTimeZone_Value;
-   private Label     _lblTimeZoneDifference;
-   private Label     _lblTimeZoneDifference_Value;
-   private Label     _lblTitle;
-   private Label     _lblTourTags;
-   private Label     _lblTourTags_Value;
-   private Label     _lblTourType;
-   private Label     _lblTourType_Value;
-   private Label     _lblWeather;
-   private Label     _lblWindSpeed;
-   private Label     _lblWindSpeedUnit;
-   private Label     _lblWindDirection;
-   private Label     _lblWindDirectionUnit;
+   private Label            _lblAltitudeUp;
+   private Label            _lblAltitudeUpUnit;
+   private Label            _lblAltitudeDown;
+   private Label            _lblAltitudeDownUnit;
+   private Label            _lblAvgElevationChange;
+   private Label            _lblAvgElevationChangeUnit;
+   private Label            _lblAvgSpeed;
+   private Label            _lblAvgSpeedUnit;
+   private Label            _lblAvgPace;
+   private Label            _lblAvgPaceUnit;
+   private Label            _lblAvgPulse;
+   private Label            _lblAvgPulseUnit;
+   private Label            _lblAvgCadence;
+   private Label            _lblAvgCadenceUnit;
+   private Label            _lblAvg_Power;
+   private Label            _lblAvg_PowerUnit;
+   private Label            _lblBattery_Spacer;
+   private Label            _lblBattery_Start;
+   private Label            _lblBattery_End;
+   private Label            _lblBikeScore;
+   private Label            _lblBodyWeight;
+   private Label            _lblBreakTime;
+   private Label            _lblBreakTime_Unit;
+   private Label            _lblCalories;
+   private Label            _lblCloudsUnit;
+   private Label            _lblDate;
+   private Label            _lblDateTimeCreatedValue;
+   private Label            _lblDateTimeModifiedValue;
+   private Label            _lblDateTimeModified;
+   private Label            _lblDescription;
+   private Label            _lblDistance;
+   private Label            _lblDistanceUnit;
+   private Label            _lblGear;
+   private Label            _lblGear_Spacer;
+   private Label            _lblGear_GearShifts;
+   private Label            _lblGear_GearShifts_Spacer;
+   private Label            _lblMaxAltitude;
+   private Label            _lblGovss;
+   private Label            _lblMaxAltitudeUnit;
+   private Label            _lblMaxPace;
+   private Label            _lblMaxPaceUnit;
+   private Label            _lblMaxPulse;
+   private Label            _lblMaxPulseUnit;
+   private Label            _lblMaxSpeed;
+   private Label            _lblMaxSpeedUnit;
+   private Label            _lblMovingTime;
+   private Label            _lblMovingTime_Unit;
+   private Label            _lblElapsedTime;
+   private Label            _lblElapsedTime_Unit;
+   private Label            _lblPausedTime;
+   private Label            _lblPausedTime_Unit;
+   private Label            _lblRecordedTime;
+   private Label            _lblRecordedTime_Unit;
+   private Label            _lblRestPulse;
+   private Label            _lblSwimScore;
+   private Label            _lblTemperature;
+   private Label            _lblTimeZone_Value;
+   private Label            _lblTimeZoneDifference;
+   private Label            _lblTimeZoneDifference_Value;
+   private Label            _lblTitle;
+   private Label            _lblTourTags;
+   private Label            _lblTourTags_Value;
+   private Label            _lblTourType;
+   private Label            _lblTourType_Value;
+   private Label            _lblWeather;
+   private Label            _lblWindSpeed;
+   private Label            _lblWindSpeedUnit;
+   private Label            _lblWindDirection;
+   private Label            _lblWindDirectionUnit;
 
-   private Label     _lblRunDyn_StanceTime_Min;
-   private Label     _lblRunDyn_StanceTime_Min_Unit;
-   private Label     _lblRunDyn_StanceTime_Max;
-   private Label     _lblRunDyn_StanceTime_Max_Unit;
-   private Label     _lblRunDyn_StanceTime_Avg;
-   private Label     _lblRunDyn_StanceTime_Avg_Unit;
-   private Label     _lblRunDyn_StanceTimeBalance_Min;
-   private Label     _lblRunDyn_StanceTimeBalance_Min_Unit;
-   private Label     _lblRunDyn_StanceTimeBalance_Max;
-   private Label     _lblRunDyn_StanceTimeBalance_Max_Unit;
-   private Label     _lblRunDyn_StanceTimeBalance_Avg;
-   private Label     _lblRunDyn_StanceTimeBalance_Avg_Unit;
-   private Label     _lblRunDyn_StepLength_Min;
-   private Label     _lblRunDyn_StepLength_Min_Unit;
-   private Label     _lblRunDyn_StepLength_Max;
-   private Label     _lblRunDyn_StepLength_Max_Unit;
-   private Label     _lblRunDyn_StepLength_Avg;
-   private Label     _lblRunDyn_StepLength_Avg_Unit;
-   private Label     _lblRunDyn_VerticalOscillation_Min;
-   private Label     _lblRunDyn_VerticalOscillation_Min_Unit;
-   private Label     _lblRunDyn_VerticalOscillation_Max;
-   private Label     _lblRunDyn_VerticalOscillation_Max_Unit;
-   private Label     _lblRunDyn_VerticalOscillation_Avg;
-   private Label     _lblRunDyn_VerticalOscillation_Avg_Unit;
-   private Label     _lblRunDyn_VerticalRatio_Min;
-   private Label     _lblRunDyn_VerticalRatio_Min_Unit;
-   private Label     _lblRunDyn_VerticalRatio_Max;
-   private Label     _lblRunDyn_VerticalRatio_Max_Unit;
-   private Label     _lblRunDyn_VerticalRatio_Avg;
-   private Label     _lblRunDyn_VerticalRatio_Avg_Unit;
+   private Label            _lblRunDyn_StanceTime_Min;
+   private Label            _lblRunDyn_StanceTime_Min_Unit;
+   private Label            _lblRunDyn_StanceTime_Max;
+   private Label            _lblRunDyn_StanceTime_Max_Unit;
+   private Label            _lblRunDyn_StanceTime_Avg;
+   private Label            _lblRunDyn_StanceTime_Avg_Unit;
+   private Label            _lblRunDyn_StanceTimeBalance_Min;
+   private Label            _lblRunDyn_StanceTimeBalance_Min_Unit;
+   private Label            _lblRunDyn_StanceTimeBalance_Max;
+   private Label            _lblRunDyn_StanceTimeBalance_Max_Unit;
+   private Label            _lblRunDyn_StanceTimeBalance_Avg;
+   private Label            _lblRunDyn_StanceTimeBalance_Avg_Unit;
+   private Label            _lblRunDyn_StepLength_Min;
+   private Label            _lblRunDyn_StepLength_Min_Unit;
+   private Label            _lblRunDyn_StepLength_Max;
+   private Label            _lblRunDyn_StepLength_Max_Unit;
+   private Label            _lblRunDyn_StepLength_Avg;
+   private Label            _lblRunDyn_StepLength_Avg_Unit;
+   private Label            _lblRunDyn_VerticalOscillation_Min;
+   private Label            _lblRunDyn_VerticalOscillation_Min_Unit;
+   private Label            _lblRunDyn_VerticalOscillation_Max;
+   private Label            _lblRunDyn_VerticalOscillation_Max_Unit;
+   private Label            _lblRunDyn_VerticalOscillation_Avg;
+   private Label            _lblRunDyn_VerticalOscillation_Avg_Unit;
+   private Label            _lblRunDyn_VerticalRatio_Min;
+   private Label            _lblRunDyn_VerticalRatio_Min_Unit;
+   private Label            _lblRunDyn_VerticalRatio_Max;
+   private Label            _lblRunDyn_VerticalRatio_Max_Unit;
+   private Label            _lblRunDyn_VerticalRatio_Avg;
+   private Label            _lblRunDyn_VerticalRatio_Avg_Unit;
+
+   private Link             _linkBattery;
+   private ArrayList<Link>  _allSensorValue_Link;
+
+   private ArrayList<Label> _allSensorValue_Level;
+   private ArrayList<Label> _allSensorValue_Status;
+   private ArrayList<Label> _allSensorValue_Voltage;
 
    private class ActionCloseTooltip extends Action {
 
@@ -333,10 +368,10 @@ public class TourInfoUI {
             ? null
             : TourDatabase.getTourTypeName(tourType.getTypeId());
 
-      _hasRunDyn = _tourData.isRunDynAvailable();
-
       _hasDescription = tourDescription != null && tourDescription.length() > 0;
       _hasGears = _tourData.getFrontShiftCount() > 0 || _tourData.getRearShiftCount() > 0;
+      _hasRecordingDeviceBattery = tourData.getBattery_Percentage_Start() != -1;
+      _hasRunDyn = _tourData.isRunDynAvailable();
       _hasTags = tourTags != null && tourTags.size() > 0;
       _hasTourType = tourType != null;
       _hasWeather = _tourData.getWeather().length() > 0;
@@ -410,7 +445,7 @@ public class TourInfoUI {
             }
 
             createUI_90_LowerPart(_ttContainer);
-            createUI_92_CreateModifyTime(_ttContainer);
+            createUI_99_CreateModifyTime(_ttContainer);
          }
       }
 
@@ -434,11 +469,11 @@ public class TourInfoUI {
             if (_uiTourTypeName != null) {
 
                _lblTourType_Image = new CLabel(container, SWT.NONE);
+               _lblTourType_Image.setForeground(_fgColor);
+               _lblTourType_Image.setBackground(_bgColor);
                GridDataFactory.swtDefaults()
                      .align(SWT.BEGINNING, SWT.BEGINNING)
                      .applyTo(_lblTourType_Image);
-               _lblTourType_Image.setForeground(_fgColor);
-               _lblTourType_Image.setBackground(_bgColor);
             }
          }
          {
@@ -446,13 +481,13 @@ public class TourInfoUI {
              * Title
              */
             _lblTitle = new Label(container, SWT.LEAD | SWT.WRAP);
+            _lblTitle.setForeground(_fgColor);
+            _lblTitle.setBackground(_bgColor);
             GridDataFactory.fillDefaults()
                   .hint(MAX_DATA_WIDTH, SWT.DEFAULT)
                   .grab(true, false)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(_lblTitle);
-            _lblTitle.setForeground(_fgColor);
-            _lblTitle.setBackground(_bgColor);
             MTFont.setBannerFont(_lblTitle);
          }
          {
@@ -484,9 +519,9 @@ public class TourInfoUI {
           * Create toolbar
           */
          final ToolBar toolbar = new ToolBar(container, SWT.FLAT);
-         GridDataFactory.fillDefaults().applyTo(toolbar);
          toolbar.setForeground(_fgColor);
          toolbar.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().applyTo(toolbar);
 
          final ToolBarManager tbm = new ToolBarManager(toolbar);
 
@@ -524,9 +559,9 @@ public class TourInfoUI {
    private void createUI_30_Column_1(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
       {
@@ -537,7 +572,7 @@ public class TourInfoUI {
 
          // gear data
          _lblGear_Spacer = createUI_Spacer(container);
-         createUI_46_Gears(container);
+         createUI_38_Gears(container);
       }
    }
 
@@ -545,7 +580,7 @@ public class TourInfoUI {
 
       {
          /*
-          * elapsed time
+          * Elapsed time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_ElapsedTime);
 
@@ -558,7 +593,7 @@ public class TourInfoUI {
 
       {
          /*
-          * recorded time
+          * Recorded time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_RecordedTime);
 
@@ -568,7 +603,7 @@ public class TourInfoUI {
 
       {
          /*
-          * paused time
+          * Paused time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_PausedTime);
 
@@ -578,7 +613,7 @@ public class TourInfoUI {
 
       {
          /*
-          * moving time
+          * Moving time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_MovingTime);
 
@@ -588,7 +623,7 @@ public class TourInfoUI {
 
       {
          /*
-          * break time
+          * Break time
           */
          createUI_Label(container, Messages.Tour_Tooltip_Label_BreakTime);
 
@@ -656,6 +691,14 @@ public class TourInfoUI {
 
       _lblAltitudeDown = createUI_LabelValue(container, SWT.TRAIL);
       _lblAltitudeDownUnit = createUI_LabelValue(container, SWT.LEAD);
+
+      /*
+       * Average elevation change
+       */
+      createUI_Label(container, Messages.Tour_Tooltip_Label_AvgElevationChange);
+
+      _lblAvgElevationChange = createUI_LabelValue(container, SWT.TRAIL);
+      _lblAvgElevationChangeUnit = createUI_LabelValue(container, SWT.LEAD);
 
       createUI_Spacer(container);
    }
@@ -728,12 +771,23 @@ public class TourInfoUI {
       }
    }
 
+   private void createUI_38_Gears(final Composite parent) {
+
+      /*
+       * Front/rear gear shifts
+       */
+      _lblGear = createUI_Label(parent, Messages.Tour_Tooltip_Label_GearShifts);
+
+      _lblGear_GearShifts = createUI_LabelValue(parent, SWT.TRAIL);
+      _lblGear_GearShifts_Spacer = createUI_LabelValue(parent, SWT.LEAD);
+   }
+
    private void createUI_40_Column_2(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
@@ -744,6 +798,9 @@ public class TourInfoUI {
 
          createUI_Spacer(container);
          createUI_44_Weather(container);
+
+         _lblBattery_Spacer = createUI_Spacer(container);
+         createUI_45_Battery(container);
       }
    }
 
@@ -828,22 +885,22 @@ public class TourInfoUI {
    private void createUI_44_Weather(final Composite parent) {
 
       /*
-       * clouds
+       * Clouds
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Clouds);
 
-      // icon: clouds
+      // Icon: clouds
       _lblClouds = new CLabel(parent, SWT.TRAIL);
-      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblClouds);
       _lblClouds.setForeground(_fgColor);
       _lblClouds.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblClouds);
 
       // text: clouds
       _lblCloudsUnit = createUI_LabelValue(parent, SWT.LEAD);
       GridDataFactory.swtDefaults().applyTo(_lblCloudsUnit);
 
       /*
-       * temperature
+       * Temperature
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Temperature);
 
@@ -852,7 +909,7 @@ public class TourInfoUI {
       createUI_Label(parent, UI.UNIT_LABEL_TEMPERATURE);
 
       /*
-       * wind speed
+       * Wind speed
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_WindSpeed);
 
@@ -860,7 +917,7 @@ public class TourInfoUI {
       _lblWindSpeedUnit = createUI_LabelValue(parent, SWT.LEAD);
 
       /*
-       * wind direction
+       * Wind direction
        */
       createUI_Label(parent, Messages.Tour_Tooltip_Label_WindDirection);
 
@@ -868,23 +925,30 @@ public class TourInfoUI {
       _lblWindDirectionUnit = createUI_LabelValue(parent, SWT.LEAD);
    }
 
-   private void createUI_46_Gears(final Composite parent) {
+   private void createUI_45_Battery(final Composite parent) {
 
-      /*
-       * Front/rear gear shifts
-       */
-      _lblGear = createUI_Label(parent, Messages.Tour_Tooltip_Label_GearShifts);
+      {
+         /*
+          * Device battery, e.g. 88...56 %
+          */
+         _linkBattery = createUI_Link(parent, Messages.Tour_Tooltip_Label_Battery);
+         _linkBattery.setToolTipText(Messages.Tour_Tooltip_Label_Battery_Tooltip);
+         _linkBattery.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelect_Battery()));
 
-      _lblGear_FrontShifts = createUI_LabelValue(parent, SWT.TRAIL);
-      _lblGear_RearShifts = createUI_LabelValue(parent, SWT.LEAD);
+         _lblBattery_Start = createUI_LabelValue(parent, SWT.TRAIL);
+         _lblBattery_Start.setToolTipText(Messages.Tour_Tooltip_Label_Battery_Tooltip);
+
+         _lblBattery_End = createUI_LabelValue(parent, SWT.LEAD);
+         _lblBattery_End.setToolTipText(Messages.Tour_Tooltip_Label_Battery_Tooltip);
+      }
    }
 
    private void createUI_50_Column_3(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(3).spacing(5, 0).applyTo(container);
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
@@ -1075,24 +1139,33 @@ public class TourInfoUI {
 
    private void createUI_90_LowerPart(final Composite parent) {
 
+      final int numColumns = 4;
+
       _lowerPartContainer = new Composite(parent, SWT.NONE);
       _lowerPartContainer.setForeground(_fgColor);
       _lowerPartContainer.setBackground(_bgColor);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(_lowerPartContainer);
-      GridLayoutFactory.fillDefaults().numColumns(2).spacing(5, 0).applyTo(_lowerPartContainer);
+      GridLayoutFactory.fillDefaults().numColumns(numColumns).spacing(16, 0).applyTo(_lowerPartContainer);
 //      _lowerPartContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
       {
+
+         createUI_92_SensorValues(_lowerPartContainer);
+
          {
             /*
              * Tour type
              */
             _lblTourType = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_TourType);
-            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(_lblTourType);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING)
+                  .indent(0, 5)
+                  .applyTo(_lblTourType);
 
             _lblTourType_Value = createUI_LabelValue(_lowerPartContainer, SWT.LEAD | SWT.WRAP);
             GridDataFactory.fillDefaults()
+                  .span(numColumns - 1, 1)
                   .grab(true, false)
                   .hint(MAX_DATA_WIDTH, SWT.DEFAULT)
+                  .indent(0, 5)
                   .applyTo(_lblTourType_Value);
          }
          {
@@ -1104,6 +1177,7 @@ public class TourInfoUI {
 
             _lblTourTags_Value = createUI_LabelValue(_lowerPartContainer, SWT.LEAD | SWT.WRAP);
             GridDataFactory.fillDefaults()
+                  .span(numColumns - 1, 1)
                   .grab(true, false)
                   .hint(MAX_DATA_WIDTH, SWT.DEFAULT)
                   .applyTo(_lblTourTags_Value);
@@ -1114,13 +1188,13 @@ public class TourInfoUI {
              */
             _lblWeather = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_Weather);
             GridDataFactory.fillDefaults()
-                  .span(2, 1)
+                  .span(numColumns, 1)
                   .indent(0, 5)
                   .applyTo(_lblWeather);
 
             _txtWeather = new Text(_lowerPartContainer, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
             GridDataFactory.fillDefaults()
-                  .span(2, 1)
+                  .span(numColumns, 1)
                   .grab(true, false)
                   .hint(_defaultTextWidth, SWT.DEFAULT)
                   .applyTo(_txtWeather);
@@ -1136,7 +1210,7 @@ public class TourInfoUI {
             // label
             _lblDescription = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_Description);
             GridDataFactory.fillDefaults()
-                  .span(2, 1)
+                  .span(numColumns, 1)
                   .indent(0, 5)
                   .applyTo(_lblDescription);
 
@@ -1150,7 +1224,7 @@ public class TourInfoUI {
 
             _txtDescription = new Text(_lowerPartContainer, style);
             GridDataFactory.fillDefaults()
-                  .span(2, 1)
+                  .span(numColumns, 1)
                   .grab(true, false)
                   .hint(_defaultTextWidth, SWT.DEFAULT)
                   .applyTo(_txtDescription);
@@ -1166,16 +1240,64 @@ public class TourInfoUI {
       }
    }
 
-   private void createUI_92_CreateModifyTime(final Composite parent) {
+   private void createUI_92_SensorValues(final Composite parent) {
+
+      /*
+       * Setup sensor value data BEFORE returning, otherwise old data could cause widget dispose
+       * exceptions because this instance is reused
+       */
+      _allSensorValuesWithData = new ArrayList<>();
+      _allSensorValue_Link = new ArrayList<>();
+
+      _allSensorValue_Level = new ArrayList<>();
+      _allSensorValue_Status = new ArrayList<>();
+      _allSensorValue_Voltage = new ArrayList<>();
+
+      final Set<DeviceSensorValue> allSensorValues = _tourData.getDeviceSensorValues();
+      if (allSensorValues.size() == 0) {
+         return;
+      }
+
+      // sort by sensor label
+      final ArrayList<DeviceSensorValue> allSortedSensorValues = new ArrayList<>(allSensorValues);
+      Collections.sort(allSortedSensorValues, (sensorValue1, sensorValue2) -> {
+
+         return sensorValue1.getDeviceSensor().getLabel().compareTo(
+               sensorValue2.getDeviceSensor().getLabel());
+      });
+
+      for (final DeviceSensorValue sensorValue : allSortedSensorValues) {
+
+         if (sensorValue.isDataAvailable() == false) {
+            continue;
+         }
+
+         final DeviceSensor sensor = sensorValue.getDeviceSensor();
+
+         _allSensorValuesWithData.add(sensorValue);
+
+         // sensor label/link
+         final Link link = createUI_Link(parent, sensor.getLabel());
+         link.setData(sensor);
+         link.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelect_Sensor(selectionEvent)));
+         _allSensorValue_Link.add(link);
+
+         _allSensorValue_Level.add(createUI_LabelValue(parent, SWT.LEAD));
+         _allSensorValue_Voltage.add(createUI_LabelValue(parent, SWT.LEAD));
+         _allSensorValue_Status.add(createUI_LabelValue(parent, SWT.LEAD));
+      }
+   }
+
+   private void createUI_99_CreateModifyTime(final Composite parent) {
 
       if (_uiDtCreated == null && _uiDtModified == null) {
          return;
       }
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       container.setForeground(_fgColor);
       container.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults()
             .numColumns(2)
             .equalWidth(true)
@@ -1184,9 +1306,9 @@ public class TourInfoUI {
 //      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
          final Composite containerCreated = new Composite(container, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerCreated);
          containerCreated.setForeground(_fgColor);
          containerCreated.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerCreated);
          GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerCreated);
          {
             /*
@@ -1199,9 +1321,9 @@ public class TourInfoUI {
          }
 
          final Composite containerModified = new Composite(container, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerModified);
          containerModified.setForeground(_fgColor);
          containerModified.setBackground(_bgColor);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(containerModified);
          GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerModified);
          {
             /*
@@ -1237,11 +1359,21 @@ public class TourInfoUI {
    private Label createUI_LabelValue(final Composite parent, final int style) {
 
       final Label label = new Label(parent, style);
-      GridDataFactory.fillDefaults().applyTo(label);
       label.setForeground(_fgColor);
       label.setBackground(_bgColor);
+      GridDataFactory.fillDefaults().applyTo(label);
 
       return label;
+   }
+
+   private Link createUI_Link(final Composite parent, final String linkText) {
+
+      final Link link = new Link(parent, SWT.NONE);
+      link.setText(UI.LINK_TAG_START + linkText + UI.LINK_TAG_END);
+      link.setForeground(_fgColor);
+      link.setBackground(_bgColor);
+
+      return link;
    }
 
    public Composite createUI_NoData(final Composite parent) {
@@ -1342,6 +1474,40 @@ public class TourInfoUI {
    }
 
    /**
+    * Show tour in battery SoC statistic
+    */
+   private void onSelect_Battery() {
+
+      Util.showView(StatisticView.ID, false);
+
+      TourManager.fireEventWithCustomData(
+
+            TourEventId.SELECTION_RECORDING_DEVICE_BATTERY,
+            new SelectionRecordingDeviceBattery(_tourData.getTourId(), _tourData.getStartYear()),
+            null);
+   }
+
+   /**
+    * Show sensor in the sensor chart, e.g. to visualize the voltage or level over time
+    *
+    * @param selectionEvent
+    */
+   private void onSelect_Sensor(final SelectionEvent selectionEvent) {
+
+      final Object linkData = selectionEvent.widget.getData();
+      if (linkData instanceof DeviceSensor) {
+
+         Util.showView(SensorChartView.ID, false);
+
+         TourManager.fireEventWithCustomData(
+
+               TourEventId.SELECTION_SENSOR,
+               new SelectionSensor((DeviceSensor) linkData, _tourData.getTourId()),
+               _part);
+      }
+   }
+
+   /**
     * Enable/disable tour edit actions, actions are disabled by default
     *
     * @param isEnabled
@@ -1367,6 +1533,10 @@ public class TourInfoUI {
     */
    public void setNoTourTooltip(final String noTourTooltip) {
       _noTourTooltip = noTourTooltip;
+   }
+
+   public void setPart(final IWorkbenchPart part) {
+      _part = part;
    }
 
    /**
@@ -1486,7 +1656,7 @@ public class TourInfoUI {
        * Tags
        */
       if (_hasTags) {
-         net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value);
+         net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value, true);
       }
       showHideControl(_lblTourTags, _hasTags);
       showHideControl(_lblTourTags_Value, _hasTags);
@@ -1642,6 +1812,10 @@ public class TourInfoUI {
       _lblAltitudeDown.setText(Integer.toString((int) (_tourData.getTourAltDown() / UI.UNIT_VALUE_ELEVATION)));
       _lblAltitudeDownUnit.setText(UI.UNIT_LABEL_ELEVATION);
 
+      final int averageElevationChange = Math.round(UI.convertAverageElevationChangeFromMetric(_tourData.getAvgAltitudeChange()));
+      _lblAvgElevationChange.setText(Integer.toString(averageElevationChange));
+      _lblAvgElevationChangeUnit.setText(UI.SPACE + UI.UNIT_LABEL_ELEVATION + "/" + UI.UNIT_LABEL_DISTANCE); //$NON-NLS-1$
+
       final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
       final long time = isPaceAndSpeedFromRecordedTime ? recordedTime : movingTime;
       final float avgSpeed = time == 0 ? 0 : 3.6f * distance / time;
@@ -1713,13 +1887,31 @@ public class TourInfoUI {
        * Gears
        */
       if (_hasGears) {
-         _lblGear_FrontShifts.setText(Integer.toString(_tourData.getFrontShiftCount()));
-         _lblGear_RearShifts.setText(REAR_SHIFT_FORMAT + Integer.toString(_tourData.getRearShiftCount()));
+
+         _lblGear_GearShifts.setText(String.format(GEAR_SHIFT_FORMAT,
+               _tourData.getFrontShiftCount(),
+               _tourData.getRearShiftCount()));
       }
-      showHideControl(_lblGear, _hasGears);
-      showHideControl(_lblGear_FrontShifts, _hasGears);
-      showHideControl(_lblGear_RearShifts, _hasGears);
+
       showHideControl(_lblGear_Spacer, _hasGears);
+
+      showHideControl(_lblGear, _hasGears);
+      showHideControl(_lblGear_GearShifts, _hasGears);
+      showHideControl(_lblGear_GearShifts_Spacer, _hasGears);
+
+      /*
+       * Battery
+       */
+      if (_hasRecordingDeviceBattery) {
+         _lblBattery_Start.setText(Short.toString(_tourData.getBattery_Percentage_Start()));
+         _lblBattery_End.setText(String.format(BATTERY_FORMAT, _tourData.getBattery_Percentage_End()));
+      }
+      showHideControl(_linkBattery, _hasRecordingDeviceBattery);
+      showHideControl(_lblBattery_Spacer, _hasRecordingDeviceBattery);
+      showHideControl(_lblBattery_Start, _hasRecordingDeviceBattery);
+      showHideControl(_lblBattery_End, _hasRecordingDeviceBattery);
+
+      updateUI_SensorValues();
 
       /*
        * Date/time
@@ -1808,4 +2000,82 @@ public class TourInfoUI {
 
       _ttContainer.layout(true, true);
    }
+
+   private void updateUI_SensorValues() {
+
+      if (_allSensorValuesWithData == null) {
+         return;
+      }
+
+      for (int sensorValueIndex = 0; sensorValueIndex < _allSensorValuesWithData.size(); sensorValueIndex++) {
+
+         final DeviceSensorValue sensorValue = _allSensorValuesWithData.get(sensorValueIndex);
+
+         final Label lblLevel = _allSensorValue_Level.get(sensorValueIndex);
+         final Label lblStatus = _allSensorValue_Status.get(sensorValueIndex);
+         final Label lblVoltage = _allSensorValue_Voltage.get(sensorValueIndex);
+
+         final float batteryLevel_Start = sensorValue.getBatteryLevel_Start();
+         final float batteryLevel_End = sensorValue.getBatteryLevel_End();
+         final float batteryStatus_Start = sensorValue.getBatteryStatus_Start();
+         final float batteryStatus_End = sensorValue.getBatteryStatus_End();
+         final float batteryVoltage_Start = sensorValue.getBatteryVoltage_Start();
+         final float batteryVoltage_End = sensorValue.getBatteryVoltage_End();
+
+         final boolean isBatteryLevel = batteryLevel_Start != -1 || batteryLevel_End != -1;
+         final boolean isBatteryStatus = batteryStatus_Start != -1 || batteryStatus_End != -1;
+         final boolean isBatteryVoltage = batteryVoltage_Start != -1 || batteryVoltage_End != -1;
+
+         if (isBatteryLevel) {
+
+            // 77 ... 51 %
+
+            String batteryLevel = batteryLevel_Start == batteryLevel_End
+
+                  // don't repeat the same level
+                  ? _nf0.format(batteryLevel_Start)
+
+                  : _nf0.format(batteryLevel_Start) + UI.ELLIPSIS_WITH_SPACE + _nf0.format(batteryLevel_End);
+
+            // add unit
+            batteryLevel += UI.SPACE + UI.SYMBOL_PERCENTAGE;
+
+            lblLevel.setText(batteryLevel);
+            lblLevel.setToolTipText(Messages.Tour_Tooltip_Label_BatteryLevel_Tooltip);
+         }
+
+         if (isBatteryStatus) {
+
+            final String statusStart_Name = BatteryStatus.getLabelFromValue((short) batteryStatus_Start);
+
+            final String batteryStatus = batteryStatus_Start == batteryStatus_End
+
+                  // don't repeat the same status
+                  ? statusStart_Name
+
+                  : statusStart_Name + UI.ELLIPSIS_WITH_SPACE + BatteryStatus.getLabelFromValue((short) batteryStatus_End);
+
+            lblStatus.setText(batteryStatus);
+            lblStatus.setToolTipText(Messages.Tour_Tooltip_Label_BatteryStatus_Tooltip);
+         }
+
+         if (isBatteryVoltage) {
+
+            String batteryVoltage = batteryVoltage_Start == batteryVoltage_End
+
+                  // don't repeat the same level
+                  ? _nf2.format(batteryVoltage_Start)
+
+                  : _nf2.format(batteryVoltage_Start) + UI.ELLIPSIS_WITH_SPACE + _nf2.format(batteryVoltage_End);
+
+            // add unit
+            batteryVoltage += UI.SPACE + UI.UNIT_VOLT;
+
+            lblVoltage.setText(batteryVoltage);
+            lblVoltage.setToolTipText(Messages.Tour_Tooltip_Label_BatteryVoltage_Tooltip);
+         }
+
+      }
+   }
+
 }

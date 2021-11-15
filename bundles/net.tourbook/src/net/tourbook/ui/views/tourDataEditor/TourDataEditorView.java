@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tourDataEditor;
 
+import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.BufferedWriter;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.swtaddons.autocomplete.combo.AutocompleteComboInput;
@@ -93,6 +94,7 @@ import net.tourbook.tour.SelectionTourData;
 import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.SelectionTourIds;
 import net.tourbook.tour.SelectionTourMarker;
+import net.tourbook.tour.SelectionTourPause;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
@@ -104,7 +106,7 @@ import net.tourbook.ui.TableColumnFactory;
 import net.tourbook.ui.action.ActionExtractTour;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.action.ActionSplitTour;
-import net.tourbook.ui.tourChart.ChartLabel;
+import net.tourbook.ui.tourChart.ChartLabelMarker;
 import net.tourbook.ui.tourChart.TourChart;
 import net.tourbook.ui.views.tourCatalog.SelectionTourCatalogView;
 import net.tourbook.ui.views.tourCatalog.TVICatalogComparedTour;
@@ -158,7 +160,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MenuAdapter;
@@ -363,7 +364,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private boolean                            _isSavingInProgress     = false;
 
    /**
-    * when <code>true</code> data are loaded into fields
+    * When <code>true</code> then data are loaded into fields
     */
    private boolean                            _isSetField             = false;
 
@@ -476,58 +477,59 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    /*
     * Measurement unit values
     */
-   private float                            _unitValueDistance;
-   private float                            _unitValueElevation;
-   private int[]                            _unitValueWindSpeed;
+   private float                                      _unitValueDistance;
+   private float                                      _unitValueElevation;
+   private int[]                                      _unitValueWindSpeed;
    //
-   private MenuManager                      _swimViewer_MenuManager;
-   private MenuManager                      _timeViewer_MenuManager;
-   private IContextMenuProvider             _swimViewer_ContextMenuProvider = new SwimSlice_ViewerContextMenuProvider();
-   private IContextMenuProvider             _timeViewer_ContextMenuProvider = new TimeSlice_ViewerContextMenuProvider();
+   private MenuManager                                _swimViewer_MenuManager;
+   private MenuManager                                _timeViewer_MenuManager;
+   private IContextMenuProvider                       _swimViewer_ContextMenuProvider = new SwimSlice_ViewerContextMenuProvider();
+   private IContextMenuProvider                       _timeViewer_ContextMenuProvider = new TimeSlice_ViewerContextMenuProvider();
    //
-   private Action_RemoveSwimStyle           _action_RemoveSwimStyle;
-   private Action_SetSwimStyle_Header       _action_SetSwimStyle_Header;
-   private ActionComputeDistanceValues      _actionComputeDistanceValues;
-   private ActionCreateTourMarker           _actionCreateTourMarker;
-   private ActionCSVTimeSliceExport         _actionCsvTimeSliceExport;
-   private ActionDeleteDistanceValues       _actionDeleteDistanceValues;
-   private ActionDeleteTimeSlicesKeepTime   _actionDeleteTimeSlicesKeepTime;
-   private ActionDeleteTimeSlicesRemoveTime _actionDeleteTimeSlicesRemoveTime;
-   private ActionEditTimeSlicesValues       _actionEditTimeSlicesValues;
-   private ActionExport                     _actionExportTour;
-   private ActionExtractTour                _actionExtractTour;
-   private ActionOpenAdjustAltitudeDialog   _actionOpenAdjustAltitudeDialog;
-   private ActionOpenMarkerDialog           _actionOpenMarkerDialog;
-   private ActionSetStartDistanceTo0        _actionSetStartDistanceTo_0;
-   private ActionSplitTour                  _actionSplitTour;
-   private ActionToggleReadEditMode         _actionToggleReadEditMode;
-   private ActionToggleRowSelectMode        _actionToggleRowSelectMode;
-   private ActionViewSettings               _actionViewSettings;
+   private Action_RemoveSwimStyle                     _action_RemoveSwimStyle;
+   private Action_SetSwimStyle_Header                 _action_SetSwimStyle_Header;
+   private ActionComputeDistanceValues                _actionComputeDistanceValues;
+   private ActionCreateTourMarker                     _actionCreateTourMarker;
+   private ActionCSVTimeSliceExport                   _actionCsvTimeSliceExport;
+   private ActionDeleteDistanceValues                 _actionDeleteDistanceValues;
+   private ActionDeleteTimeSlices_AdjustTourStartTime _actionDeleteTimeSlices_AdjustTourStartTime;
+   private ActionDeleteTimeSlices_KeepTime            _actionDeleteTimeSlices_KeepTime;
+   private ActionDeleteTimeSlices_RemoveTime          _actionDeleteTimeSlices_RemoveTime;
+   private ActionEditTimeSlicesValues                 _actionEditTimeSlicesValues;
+   private ActionExport                               _actionExportTour;
+   private ActionExtractTour                          _actionExtractTour;
+   private ActionOpenAdjustAltitudeDialog             _actionOpenAdjustAltitudeDialog;
+   private ActionOpenMarkerDialog                     _actionOpenMarkerDialog;
+   private ActionSetStartDistanceTo0                  _actionSetStartDistanceTo_0;
+   private ActionSplitTour                            _actionSplitTour;
+   private ActionToggleReadEditMode                   _actionToggleReadEditMode;
+   private ActionToggleRowSelectMode                  _actionToggleRowSelectMode;
+   private ActionViewSettings                         _actionViewSettings;
    //
-   private ArrayList<Action_SetSwimStyle>   _allSwimStyleActions;
+   private ArrayList<Action_SetSwimStyle>             _allSwimStyleActions;
    //
-   private TagMenuManager                   _tagMenuMgr;
+   private TagMenuManager                             _tagMenuMgr;
 
    /**
     * Number of digits for the lat/lon columns.
     */
-   private int                              _latLonDigits;
+   private int                                        _latLonDigits;
 
    /**
     * Number of lines for the description text.
     */
-   private int                              _descriptionNumLines;
+   private int                                        _descriptionNumLines;
 
-   private final NumberFormat               _nfLatLon                       = NumberFormat.getNumberInstance();
+   private final NumberFormat                         _nfLatLon                       = NumberFormat.getNumberInstance();
 
-   private TourData                         _tourData;
+   private TourData                                   _tourData;
 
-   private Color                            _foregroundColor_Default;
-   private Color                            _backgroundColor_Default;
-   private Color                            _foregroundColor_1stColumn_RefTour;
-   private Color                            _backgroundColor_1stColumn_RefTour;
-   private Color                            _foregroundColor_1stColumn_NoRefTour;
-   private Color                            _backgroundColor_1stColumn_NoRefTour;
+   private Color                                      _foregroundColor_Default;
+   private Color                                      _backgroundColor_Default;
+   private Color                                      _foregroundColor_1stColumn_RefTour;
+   private Color                                      _backgroundColor_1stColumn_RefTour;
+   private Color                                      _foregroundColor_1stColumn_NoRefTour;
+   private Color                                      _backgroundColor_1stColumn_NoRefTour;
 
    //
    // ################################################## UI controls ##################################################
@@ -807,7 +809,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       @Override
       protected Object getValue(final Object element) {
-         return Double.valueOf(__dataSerie[((TimeSlice) element).serieIndex]).toString();
+         return Double.toString(__dataSerie[((TimeSlice) element).serieIndex]);
       }
 
       public void setDataSerie(final double[] dataSerie) {
@@ -1793,6 +1795,27 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                      : 0;
       }
 
+      /**
+       * @param sortColumnId
+       * @return Returns the column widget by it's column id, when column id is not found then the
+       *         first column is returned.
+       */
+      private TableColumn getSortColumn(final String sortColumnId) {
+
+         final TableColumn[] allColumns = _timeSlice_Viewer.getTable().getColumns();
+
+         for (final TableColumn column : allColumns) {
+
+            final String columnId = ((ColumnDefinition) column.getData()).getColumnId();
+
+            if (columnId != null && columnId.equals(sortColumnId)) {
+               return column;
+            }
+         }
+
+         return allColumns[0];
+      }
+
       @Override
       public final boolean isSorterProperty(final Object element, final String property) {
 
@@ -1833,6 +1856,26 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
 
          updateUI_SetSortDirection(__sortColumnId, __sortDirection);
+      }
+
+      /**
+       * Set the sort column direction indicator for a column
+       *
+       * @param sortColumnId
+       * @param isAscendingSort
+       */
+      private void updateUI_SetSortDirection(final String sortColumnId, final int sortDirection) {
+
+         final int direction =
+               sortDirection == TimeSliceComparator.ASCENDING ? SWT.UP
+                     : sortDirection == TimeSliceComparator.DESCENDING ? SWT.DOWN
+                           : SWT.NONE;
+
+         final Table table = _timeSlice_Viewer.getTable();
+         final TableColumn tc = getSortColumn(sortColumnId);
+
+         table.setSortColumn(tc);
+         table.setSortDirection(direction);
       }
    }
 
@@ -2117,8 +2160,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     * delete selected time slices
     *
     * @param isRemoveTime
+    * @param isAdjustTourStartTime
     */
-   void actionDeleteTimeSlices(final boolean isRemoveTime) {
+   void actionDeleteTimeSlices(final boolean isRemoveTime, final boolean isAdjustTourStartTime) {
 
       // a tour with reference tours is currently not supported
       if (_isReferenceTourAvailable) {
@@ -2154,7 +2198,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       final Object[] selectedTimeSlices = selection.toArray();
 
       /*
-       * check if time slices have a successive selection
+       * Check if time slices have a successive selection
        */
       int lastIndex = -1;
       int firstIndex = -1;
@@ -2196,20 +2240,29 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
 
       /*
-       * get first selection index to select a time slice after removal
+       * Get first selection index to select a time slice after removal
        */
       final Table table = (Table) _timeSlice_Viewer.getControl();
       final int[] indices = table.getSelectionIndices();
       Arrays.sort(indices);
       int lastSelectionIndex = indices[0];
 
-      TourManager.removeTimeSlices(_tourData, firstIndex, lastIndex, isRemoveTime);
+      TourManager.removeTimeSlices(_tourData, firstIndex, lastIndex, isRemoveTime, isAdjustTourStartTime);
 
       getDataSeriesFromTourData();
 
       // update UI
-      updateUI_Tab_1_Tour();
-      updateUI_ReferenceTourRanges();
+      _isSetField = true;
+      {
+         updateUI_Tab_1_Tour();
+         updateUI_ReferenceTourRanges();
+
+         // adjust tour editor start time in the UI
+         if (isAdjustTourStartTime) {
+            updateUI_Title();
+         }
+      }
+      _isSetField = false;
 
       // update slice viewer
       _timeSlice_ViewerItems = getRemainingSliceItems(_timeSlice_ViewerItems, firstIndex, lastIndex);
@@ -2230,7 +2283,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       fireModifyNotification();
 
       /*
-       * select next available time slice
+       * Select next available time slice
        */
       final int itemCount = table.getItemCount();
       if (itemCount > 0) {
@@ -2630,6 +2683,12 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
                onSelectionChanged_TourMarker(tourMarkerSelection);
 
+            } else if (tourEventId == TourEventId.PAUSE_SELECTION && eventData instanceof SelectionTourPause) {
+
+               // ensure that the tour is displayed
+               onSelectionChanged((ISelection) eventData);
+               onSelectionChanged_TourPause((SelectionTourPause) eventData);
+
             } else if (tourEventId == TourEventId.CLEAR_DISPLAYED_TOUR) {
 
                clearEditorContent();
@@ -2719,10 +2778,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void clearEditorContent() {
 
-      if ((_tourData != null) && _isTourDirty) {
+      if (_tourData != null && _isTourDirty) {
 
          /*
-          * in this case, nothing is done because the method which fires the event
+          * In this case, nothing is done because the method, which fires the event
           * TourEventId.CLEAR_DISPLAYED_TOUR is responsible to use the correct TourData
           */
 
@@ -2779,8 +2838,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _actionOpenAdjustAltitudeDialog = new ActionOpenAdjustAltitudeDialog(this, true);
       _actionOpenMarkerDialog = new ActionOpenMarkerDialog(this, false);
 
-      _actionDeleteTimeSlicesKeepTime = new ActionDeleteTimeSlicesKeepTime(this);
-      _actionDeleteTimeSlicesRemoveTime = new ActionDeleteTimeSlicesRemoveTime(this);
+      _actionDeleteTimeSlices_AdjustTourStartTime = new ActionDeleteTimeSlices_AdjustTourStartTime(this);
+      _actionDeleteTimeSlices_KeepTime = new ActionDeleteTimeSlices_KeepTime(this);
+      _actionDeleteTimeSlices_RemoveTime = new ActionDeleteTimeSlices_RemoveTime(this);
 
       _actionCreateTourMarker = new ActionCreateTourMarker(this);
       _actionExportTour = new ActionExport(this);
@@ -2850,8 +2910,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          setTourDirty();
       };
 
-      _selectionListener = SelectionListener.widgetSelectedAdapter(
+      _selectionListener = widgetSelectedAdapter(
             selectionEvent -> {
+
                if (_isSetField || _isSavingInProgress) {
                   return;
                }
@@ -2860,17 +2921,16 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                setTourDirty();
             });
 
-      _selectionListener_Temperature = SelectionListener.widgetSelectedAdapter(
+      _selectionListener_Temperature = widgetSelectedAdapter(
             selectionEvent -> {
 
                if (UI.isLinuxAsyncEvent(selectionEvent.widget) || _isSetField || _isSavingInProgress) {
-               return;
-            }
+                  return;
+               }
 
-            _isTemperatureManuallyModified = true;
-            setTourDirty();
-         }
-      );
+               _isTemperatureManuallyModified = true;
+               setTourDirty();
+            });
 
       /*
        * listener for elapsed/moving/paused time
@@ -3047,7 +3107,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       });
 
       // set menu for the tag item
-
       final Menu tagContextMenu = menuMgr.createContextMenu(_linkTag);
       tagContextMenu.addMenuListener(new MenuAdapter() {
          @Override
@@ -3187,6 +3246,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       display.asyncExec(() -> {
 
+         if (_pageBook.isDisposed()) {
+            return;
+         }
+
          _foregroundColor_Default = parent.getForeground(); // Color {170, 170, 170, 255}    with dark mode
          _backgroundColor_Default = parent.getBackground(); // Color {47, 47, 47, 255}       with dark mode
 
@@ -3205,7 +3268,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
             _foregroundColor_1stColumn_NoRefTour = _foregroundColor_Default;
             _backgroundColor_1stColumn_NoRefTour = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-
          }
       });
    }
@@ -3252,7 +3314,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             });
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourTitles();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourTitles();
             for (final String string : arr) {
                _comboTitle.add(string);
             }
@@ -3313,7 +3375,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             });
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourPlaceStarts();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourPlaceStarts();
             for (final String string : arr) {
                if (string != null) {
                   _comboLocation_Start.add(string);
@@ -3347,7 +3409,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             });
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourPlaceEnds();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourPlaceEnds();
             for (final String string : arr) {
                if (string != null) {
                   _comboLocation_End.add(string);
@@ -3497,16 +3559,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _txtAltitudeUp = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             _txtAltitudeUp.addModifyListener(_verifyIntValue);
             _txtAltitudeUp.setData(WIDGET_KEY, WIDGET_KEY_ALTITUDE_UP);
-            _txtAltitudeUp.addKeyListener(new KeyListener() {
+            _txtAltitudeUp.addKeyListener(keyPressedAdapter(keyEvent -> _isAltitudeManuallyModified = true));
 
-               @Override
-               public void keyPressed(final KeyEvent e) {
-                  _isAltitudeManuallyModified = true;
-               }
-
-               @Override
-               public void keyReleased(final KeyEvent e) {}
-            });
             GridDataFactory.fillDefaults().hint(_hintValueFieldWidth, SWT.DEFAULT).applyTo(_txtAltitudeUp);
 
             _lblAltitudeUpUnit = _tk.createLabel(container, UI.UNIT_LABEL_ELEVATION);
@@ -3522,15 +3576,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _txtAltitudeDown = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             _txtAltitudeDown.addModifyListener(_verifyIntValue);
             _txtAltitudeDown.setData(WIDGET_KEY, WIDGET_KEY_ALTITUDE_DOWN);
-            _txtAltitudeDown.addKeyListener(new KeyListener() {
-               @Override
-               public void keyPressed(final KeyEvent e) {
-                  _isAltitudeManuallyModified = true;
-               }
-
-               @Override
-               public void keyReleased(final KeyEvent e) {}
-            });
+            _txtAltitudeDown.addKeyListener(keyPressedAdapter(keyEvent -> _isAltitudeManuallyModified = true));
             GridDataFactory.fillDefaults().hint(_hintValueFieldWidth, SWT.DEFAULT).applyTo(_txtAltitudeDown);
 
             _lblAltitudeDownUnit = _tk.createLabel(container, UI.UNIT_LABEL_ELEVATION);
@@ -4705,7 +4751,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          if (_tab1Container.isDisposed()) {
 
-            // this can occure when view is closed (very early) but not yet visible
+            // this can occur when view is closed (very early) but not yet visible
             return;
          }
 
@@ -4777,19 +4823,16 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 //       }
 //    });
 
-      table.addKeyListener(new KeyAdapter() {
-         @Override
-         public void keyPressed(final KeyEvent e) {
+      table.addKeyListener(KeyListener.keyPressedAdapter(
+            keyEvent -> {
+               if ((_isEditMode == false) || (isTourInDb() == false)) {
+                  return;
+               }
 
-            if ((_isEditMode == false) || (isTourInDb() == false)) {
-               return;
-            }
-
-            if (e.keyCode == SWT.DEL) {
-               actionDeleteTimeSlices(true);
-            }
-         }
-      });
+               if (keyEvent.keyCode == SWT.DEL) {
+                  actionDeleteTimeSlices(true, false);
+               }
+            }));
 
       _timeSlice_Viewer = new TableViewer(table);
 
@@ -5793,7 +5836,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                final TimeSlice timeSlice = (TimeSlice) cell.getElement();
                cell.setText(
                      _serieBreakTime[timeSlice.serieIndex]
-                           ? net.tourbook.ui.UI.BREAK_TIME_MARKER
+                           ? UI.SYMBOL_BOX
                            : UI.EMPTY_STRING);
             } else {
                cell.setText(UI.EMPTY_STRING);
@@ -5915,7 +5958,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
                cell.setText(tourMarker.getLabel());
 
-               if (tourMarker.getType() == ChartLabel.MARKER_TYPE_DEVICE) {
+               if (tourMarker.getType() == ChartLabelMarker.MARKER_TYPE_DEVICE) {
                   cell.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
                }
 
@@ -6082,7 +6125,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _firstColumnContainerControls.clear();
 
       /*
-       * Tour MUST be set clean otherwise a Ctrl+W whould "close" the tour editor but closing the
+       * Tour MUST be set clean otherwise a Ctrl+W would "close" the tour editor but closing the
        * app is asking to save the tour!
        */
       setTourClean();
@@ -6217,7 +6260,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                   tourDataModified = true;
                }
 
-               if (newTemperatureValue != Float.MIN_VALUE & _serieTemperature != null) {
+               if (newTemperatureValue != Float.MIN_VALUE && _serieTemperature != null) {
                   if (isTemperatureValueOffset) {
 
                      //If we are currently in imperial system, we can't just convert the offset as it will lead to errors.
@@ -6380,14 +6423,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          }
       }
 
+      final boolean canDeleteTimeSliced = _isEditMode && isTourInDb && isSliceSelected && isNoSwimData;
+
       _actionCreateTourMarker.setEnabled(_isEditMode && isTourInDb && isOneSliceSelected && canCreateMarker);
       _actionOpenMarkerDialog.setEnabled(_isEditMode && isTourInDb && isOneSliceSelected && selectedMarker != null);
 
       // select marker
       _actionOpenMarkerDialog.setTourMarker(selectedMarker);
 
-      _actionDeleteTimeSlicesRemoveTime.setEnabled(_isEditMode && isTourInDb && isSliceSelected && isNoSwimData);
-      _actionDeleteTimeSlicesKeepTime.setEnabled(_isEditMode && isTourInDb && isSliceSelected && isNoSwimData);
+      _actionDeleteTimeSlices_AdjustTourStartTime.setEnabled(canDeleteTimeSliced);
+      _actionDeleteTimeSlices_KeepTime.setEnabled(canDeleteTimeSliced);
+      _actionDeleteTimeSlices_RemoveTime.setEnabled(canDeleteTimeSliced);
 
       _actionExportTour.setEnabled(true);
       _actionCsvTimeSliceExport.setEnabled(isSliceSelected);
@@ -6565,8 +6611,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       menuMgr.add(_actionOpenMarkerDialog);
 
       menuMgr.add(new Separator());
-      menuMgr.add(_actionDeleteTimeSlicesRemoveTime);
-      menuMgr.add(_actionDeleteTimeSlicesKeepTime);
+      menuMgr.add(_actionDeleteTimeSlices_RemoveTime);
+      menuMgr.add(_actionDeleteTimeSlices_KeepTime);
+      menuMgr.add(_actionDeleteTimeSlices_AdjustTourStartTime);
 
       menuMgr.add(new Separator());
       menuMgr.add(_actionSetStartDistanceTo_0);
@@ -6994,27 +7041,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    }
 
    /**
-    * @param sortColumnId
-    * @return Returns the column widget by it's column id, when column id is not found then the
-    *         first column is returned.
-    */
-   private TableColumn getSortColumn(final String sortColumnId) {
-
-      final TableColumn[] allColumns = _timeSlice_Viewer.getTable().getColumns();
-
-      for (final TableColumn column : allColumns) {
-
-         final String columnId = ((ColumnDefinition) column.getData()).getColumnId();
-
-         if (columnId != null && columnId.equals(sortColumnId)) {
-            return column;
-         }
-      }
-
-      return allColumns[0];
-   }
-
-   /**
     * @return Returns {@link TourData} for the tour in the tour data editor or <code>null</code>
     *         when a tour is not in the tour data editor
     */
@@ -7410,7 +7436,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             if (_isInfoInTitle == false) {
 
                /*
-                * show info only when it is not yet displayed, this is an optimization because
+                * Show info only when it is not yet displayed, this is an optimization because
                 * setting the message causes an layout and this is EXTREMLY SLOW because of the bad
                 * date time controls
                 */
@@ -7514,7 +7540,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          } else if (firstElement instanceof TVICompareResultComparedTour) {
 
-            displayTour(((TVICompareResultComparedTour) firstElement).getComparedTourData().getTourId());
+            displayTour(((TVICompareResultComparedTour) firstElement).getTourId());
          }
       }
    }
@@ -7546,7 +7572,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          _selectionTourId = tourData.getTourId();
 
-         if ((tourData != null) && (currentTourId == _selectionTourId)) {
+         if (currentTourId == _selectionTourId) {
             isCurrentTourSelected = true;
             selectedTourData = tourData;
          }
@@ -7671,9 +7697,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          } else if (firstElement instanceof TVICompareResultComparedTour) {
 
-            final long comparedTourTourId = ((TVICompareResultComparedTour) firstElement)
-                  .getComparedTourData()
-                  .getTourId();
+            final long comparedTourTourId = ((TVICompareResultComparedTour) firstElement).getTourId();
 
             _selectionTourId = comparedTourTourId;
             if (currentTourId == _selectionTourId) {
@@ -7713,6 +7737,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
 
       selectTimeSlice_InViewer(leftSliderValueIndex, rightSliderValueIndex);
+   }
+
+   private void onSelectionChanged_TourPause(final SelectionTourPause pauseSelection) {
+
+      final int leftSliderValueIndex = pauseSelection.getSerieIndex();
+
+      selectTimeSlice_InViewer(leftSliderValueIndex, leftSliderValueIndex);
    }
 
    private void onSelectTab() {
@@ -7972,7 +8003,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             NLS.bind(Messages.tour_editor_dlg_save_tour_message, TourManager.getTourDateFull(_tourData)),
             MessageDialog.QUESTION,
             new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL },
-            0)//
+            0)
                   .open();
 
       if (returnCode == 0) {
@@ -8015,8 +8046,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          /*
           * saveTour will check the tour editor dirty state, but when the tour is saved the dirty
-          * flag
-          * can be set before to prevent an out of sync error
+          * flag can be set before to prevent an out of sync error
           */
          _isTourDirty = false;
 
@@ -8032,7 +8062,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _comboTitle.removeAll();
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourTitles();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourTitles();
             for (final String string : arr) {
                _comboTitle.add(string);
             }
@@ -8046,7 +8076,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _comboLocation_Start.removeAll();
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourPlaceStarts();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourPlaceStarts();
             for (final String string : arr) {
                _comboLocation_Start.add(string);
             }
@@ -8060,7 +8090,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _comboLocation_End.removeAll();
 
             // fill combobox
-            final TreeSet<String> arr = TourDatabase.getAllTourPlaceEnds();
+            final ConcurrentSkipListSet<String> arr = TourDatabase.getCachedFields_AllTourPlaceEnds();
             for (final String string : arr) {
                _comboLocation_End.add(string);
             }
@@ -8073,7 +8103,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          // notify all views
          TourManager.fireEvent(TourEventId.TOUR_CHANGED, new TourEvent(_tourData), TourDataEditorView.this);
       }
-      _isSavingInProgress = false;
+
+      /*
+       * Linux needs async, otherwise the tour is modified again when pressing Ctrl+S
+       */
+      _parent.getDisplay().asyncExec(() -> _isSavingInProgress = false);
 
       getDataSeriesFromTourData();
 
@@ -8220,23 +8254,31 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     */
    public void selectTimeSlice_InViewer(final int valueIndexStart, final int valueIndexEnd) {
 
-      final Table table = (Table) _timeSlice_Viewer.getControl();
-      final int itemCount = table.getItemCount();
+      if (valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION
+            && valueIndexEnd == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
 
-      // adjust to array bounds
-      final int checkedValueIndex1 = Math.max(0, Math.min(valueIndexStart, itemCount - 1));
-      final int checkedValueIndex2 = Math.max(0, Math.min(valueIndexEnd, itemCount - 1));
+         // both positions are ignored
 
-      if ((valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION)
-            && (valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION)) {
          return;
       }
 
+      final Table table = (Table) _timeSlice_Viewer.getControl();
+      final int numItems = table.getItemCount();
+
+      // adjust to array bounds
+      final int checkedValueIndex1 = Math.max(0, Math.min(valueIndexStart, numItems - 1));
+      final int checkedValueIndex2 = Math.max(0, Math.min(valueIndexEnd, numItems - 1));
+
       if (valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
+
          table.setSelection(checkedValueIndex2);
+
       } else if (valueIndexEnd == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
+
          table.setSelection(checkedValueIndex1);
+
       } else {
+
          table.setSelection(checkedValueIndex1, checkedValueIndex2);
       }
 
@@ -8260,7 +8302,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     * Programmatically toggles the row select mode
     *
     * @param enabled
-    *           True to activate the row select mode, false to disactivate it.
+    *           True to activate the row select mode, false to deactivate it.
     */
    public void setRowEditModeEnabled(final boolean enabled) {
 
@@ -8336,8 +8378,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       showDefaultTitle();
 
-      /*
-       * this is not an eclipse editor part but the property change must be fired to hide the "*"
+      /**
+       * This is not an eclipse editor part but the property change must be fired to hide the "*"
        * marker in the part name
        */
       firePropertyChange(PROP_DIRTY);
@@ -8820,7 +8862,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _page_EditorForm.setImage(TourTypeImage.getTourTypeImage(tourType.getTypeId()));
       }
 
-      updateUI_TitleAsynch(getTourTitle());
+      updateUI_Title_Async(getTourTitle());
 
       updateUI_Tab_1_Tour();
       updateUI_Tab_2_TimeSlices();
@@ -8906,26 +8948,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          _refTourRange = null;
       }
-   }
-
-   /**
-    * Set the sort column direction indicator for a column
-    *
-    * @param sortColumnId
-    * @param isAscendingSort
-    */
-   private void updateUI_SetSortDirection(final String sortColumnId, final int sortDirection) {
-
-      final int direction =
-            sortDirection == TimeSliceComparator.ASCENDING ? SWT.UP
-                  : sortDirection == TimeSliceComparator.DESCENDING ? SWT.DOWN
-                        : SWT.NONE;
-
-      final Table table = _timeSlice_Viewer.getTable();
-      final TableColumn tc = getSortColumn(sortColumnId);
-
-      table.setSortColumn(tc);
-      table.setSortDirection(direction);
    }
 
    private void updateUI_Tab_1_Tour() {
@@ -9358,7 +9380,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          return;
       }
 
-      final ZoneId zoneId = _tourData == null //
+      final ZoneId zoneId = _tourData == null
             ? TimeTools.getDefaultTimeZone()
             : _tourData.getTimeZoneIdWithDefault();
 
@@ -9374,14 +9396,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final String tourTitle = TourManager.getTourTitle(tourStartTime);
 
-      updateUI_TitleAsynch(tourTitle);
+      updateUI_Title_Async(tourTitle);
    }
 
    /**
-    * update the title is a really performance hog because of the date/time controls when they are
+    * Update the title is a really performance hog because of the date/time controls when they are
     * layouted
     */
-   private void updateUI_TitleAsynch(final String title) {
+   private void updateUI_Title_Async(final String title) {
 
       _uiUpdateTitleCounter++;
 

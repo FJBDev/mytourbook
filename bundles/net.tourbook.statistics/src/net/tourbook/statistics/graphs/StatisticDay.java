@@ -30,7 +30,6 @@ import net.tourbook.chart.SelectionBarChart;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.time.TimeTools;
-import net.tourbook.common.util.IToolTipHideListener;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.Util;
@@ -63,7 +62,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IViewSite;
 
 public abstract class StatisticDay extends TourbookStatistic implements IBarSelectionProvider, ITourProvider {
@@ -94,11 +92,14 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
    private final TourInfoUI            _tourInfoUI              = new TourInfoUI();
 
+   private ChartDataYSerie             _athleteBodyWeight_YData;
+   private ChartDataYSerie             _athleteBodyFat_YData;
+
    private void addTourPropertyListener() {
 
-      _tourPropertyListener = (part, propertyId, propertyData) -> {
+      _tourPropertyListener = (workbenchPart, tourEventId, propertyData) -> {
 
-         if (propertyId == TourEventId.TOUR_CHANGED && propertyData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && propertyData instanceof TourEvent) {
 
             // check if a tour was modified
             final ArrayList<TourData> modifiedTours = ((TourEvent) propertyData).getModifiedTours();
@@ -148,7 +149,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          final int yearDays = allYearDays[yearIndex];
 
          segmentStart[yearIndex] = yearDaysSum;
-         segmentEnd[yearIndex] = yearDaysSum + yearDays - 1;
+         segmentEnd[yearIndex] = yearDaysSum + yearDays - 1.0;
          segmentTitle[yearIndex] = Integer.toString(oldestYear + yearIndex);
 
          yearDaysSum += yearDays;
@@ -177,18 +178,16 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       // set tour info icon into the left axis
       _tourToolTip = new StatisticTourToolTip(_chart.getToolTipControl());
       _tourToolTip.addToolTipProvider(_tourInfoToolTipProvider);
-      _tourToolTip.addHideListener(new IToolTipHideListener() {
-         @Override
-         public void afterHideToolTip(final Event event) {
-            // hide hovered image
-            _chart.getToolTipControl().afterHideToolTip();
-         }
+      _tourToolTip.addHideListener(event -> {
+         // hide hovered image
+         _chart.getToolTipControl().afterHideToolTip();
       });
 
       _chart.setTourInfoIconToolTipProvider(_tourInfoToolTipProvider);
       _tourInfoToolTipProvider.setActionsEnabled(true);
 
       _chart.addBarSelectionListener((serieIndex, valueIndex) -> {
+
          if (_statisticData_Day.allTypeIds.length > 0) {
 
             _selectedTourId = _statisticData_Day.allTourIds[valueIndex];
@@ -198,7 +197,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
                /*
                 * Do not fire an event when this is running already in an update event. This
-                * occurs when a tour is modified (marker) in the tourbook view and the stats view
+                * occurs when a tour is modified (marker) in the toubook view and the stat view
                 * is opened !!!
                 */
 
@@ -243,6 +242,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       _chart.addTraverseListener(traverseEvent -> {
 
          if (traverseEvent.detail == SWT.TRAVERSE_RETURN) {
+
             final ISelection selection = _chart.getSelection();
             if (selection instanceof SelectionBarChart) {
                final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
@@ -279,7 +279,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          valueIndex -= tourDOYValues.length;
       }
 
-      if (tourDOYValues == null || valueIndex >= tourDOYValues.length) {
+      if (valueIndex >= tourDOYValues.length) {
          return;
       }
 
@@ -330,20 +330,37 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
     */
    void createYData_AthleteBodyFat(final ChartDataModel chartDataModel) {
 
-      final ChartDataYSerie yData = new ChartDataYSerie(
+      double visibleMinValue = 0;
+      double visibleMaxValue = 0;
+
+      // If the user has switched from a statistic to another, we need to retrieve
+      // the last min/max values and not the ones from the preference store that can
+      // be in this case outdated.
+      if (_athleteBodyFat_YData != null) {
+
+         visibleMinValue = _athleteBodyFat_YData.getVisibleMinValue();
+         visibleMaxValue = _athleteBodyFat_YData.getVisibleMaxValue();
+      } else {
+
+         visibleMinValue = _prefStore.getDouble(ITourbookPreferences.STAT_BODYFAT_YAXIS_MIN_VISIBLE_VALUE) * UI.UNIT_VALUE_WEIGHT;
+         visibleMaxValue = _prefStore.getDouble(ITourbookPreferences.STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE);
+      }
+
+      _athleteBodyFat_YData = new ChartDataYSerie(
             ChartType.LINE,
             _statisticData_Day.allAthleteBodyFat_Low,
             _statisticData_Day.allAthleteBodyFat_High);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_BODY_FAT);
-      yData.setUnitLabel(UI.UNIT_PERCENT);
-      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
-      yData.setShowYSlider(true);
+      _athleteBodyFat_YData.setYTitle(Messages.LABEL_GRAPH_BODY_FAT);
+      _athleteBodyFat_YData.setUnitLabel(UI.UNIT_PERCENT);
+      _athleteBodyFat_YData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      _athleteBodyFat_YData.setVisibleMinValue(visibleMinValue);
+      _athleteBodyFat_YData.setVisibleMaxValue(visibleMaxValue);
+      _athleteBodyFat_YData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(_athleteBodyFat_YData, GraphColorManager.PREF_GRAPH_BODYFAT);
 
-      chartDataModel.addYData(yData);
+      chartDataModel.addYData(_athleteBodyFat_YData);
    }
 
    /**
@@ -353,20 +370,37 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
     */
    void createYData_AthleteBodyWeight(final ChartDataModel chartDataModel) {
 
-      final ChartDataYSerie yData = new ChartDataYSerie(
+      double visibleMinValue = 0;
+      double visibleMaxValue = 0;
+
+      // If the user has switched from a statistic to another, we need to retrieve
+      // the last min/max values and not the ones from the preference store that can
+      // be in this case outdated.
+      if (_athleteBodyWeight_YData != null) {
+
+         visibleMinValue = _athleteBodyWeight_YData.getVisibleMinValue();
+         visibleMaxValue = _athleteBodyWeight_YData.getVisibleMaxValue();
+      } else {
+
+         visibleMinValue = _prefStore.getDouble(ITourbookPreferences.STAT_BODYWEIGHT_YAXIS_MIN_VISIBLE_VALUE) * UI.UNIT_VALUE_WEIGHT;
+         visibleMaxValue = _prefStore.getDouble(ITourbookPreferences.STAT_BODYWEIGHT_YAXIS_MAX_VISIBLE_VALUE) * UI.UNIT_VALUE_WEIGHT;
+      }
+
+      _athleteBodyWeight_YData = new ChartDataYSerie(
             ChartType.LINE,
             _statisticData_Day.allAthleteBodyWeight_Low,
             _statisticData_Day.allAthleteBodyWeight_High);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_BODY_WEIGHT);
-      yData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
-      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
-      yData.setShowYSlider(true);
+      _athleteBodyWeight_YData.setYTitle(Messages.LABEL_GRAPH_BODY_WEIGHT);
+      _athleteBodyWeight_YData.setUnitLabel(UI.UNIT_LABEL_WEIGHT);
+      _athleteBodyWeight_YData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      _athleteBodyWeight_YData.setVisibleMinValue(visibleMinValue);
+      _athleteBodyWeight_YData.setVisibleMaxValue(visibleMaxValue);
+      _athleteBodyWeight_YData.setShowYSlider(true);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYWEIGHT, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(_athleteBodyWeight_YData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
 
-      chartDataModel.addYData(yData);
+      chartDataModel.addYData(_athleteBodyWeight_YData);
    }
 
    /**
@@ -462,8 +496,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
 
       chartModel.addYData(yData);
    }
@@ -483,8 +516,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PACE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PACE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PACE);
 
       chartDataModel.addYData(yData);
    }
@@ -504,8 +536,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_SPEED);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_SPEED, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_SPEED);
 
       chartDataModel.addYData(yData);
    }
@@ -529,8 +560,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setValueDivisor(1000);
       yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
 
       chartModel.addYData(yData);
    }
@@ -553,8 +583,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       _yData_Duration.setVisibleMinValue(0);
       _yData_Duration.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME);
-      StatisticServices.setTourTypeColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME);
 
       chartModel.addYData(_yData_Duration);
    }
@@ -649,6 +678,20 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          if (valueIndex < _statisticData_Day.allTourIds.length) {
             viewState.put(STATE_SELECTED_TOUR_ID, Long.toString(_statisticData_Day.allTourIds[valueIndex]));
          }
+      }
+
+      if (_athleteBodyWeight_YData != null) {
+
+         _prefStore.setValue(ITourbookPreferences.STAT_BODYWEIGHT_YAXIS_MIN_VISIBLE_VALUE,
+               _athleteBodyWeight_YData.getVisibleMinValue() / UI.UNIT_VALUE_WEIGHT);
+         _prefStore.setValue(ITourbookPreferences.STAT_BODYWEIGHT_YAXIS_MAX_VISIBLE_VALUE,
+               _athleteBodyWeight_YData.getVisibleMaxValue() / UI.UNIT_VALUE_WEIGHT);
+      }
+
+      if (_athleteBodyFat_YData != null) {
+
+         _prefStore.setValue(ITourbookPreferences.STAT_BODYFAT_YAXIS_MIN_VISIBLE_VALUE, _athleteBodyFat_YData.getVisibleMinValue());
+         _prefStore.setValue(ITourbookPreferences.STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE, _athleteBodyFat_YData.getVisibleMaxValue());
       }
    }
 

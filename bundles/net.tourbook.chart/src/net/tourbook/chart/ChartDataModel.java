@@ -66,6 +66,11 @@ public class ChartDataModel {
    private boolean                    _isGraphOverlapped;
 
    /**
+    * Show/hide the hovered value point value label
+    */
+   private boolean                    _isShowValuePointValue;
+
+   /**
     * Minimum width for the chart, this can be overwritten for e.g. to show in a year chart for
     * each day at least one pixel
     */
@@ -98,6 +103,16 @@ public class ChartDataModel {
     * {@link #getVariableY_Values()}
     */
    private int[]                      _xData_VariableIndex;
+
+   /**
+    * When <code>true</code> then the first and last values are skipped when navigated in
+    * the bar chart.
+    * <p>
+    * This is used when x-data contains history values then the first and last values are
+    * dummy values, to prevent that the first and last values are sticked to the chart
+    * border.
+    */
+   private boolean                    _isSkipNavigationForFirstLastValues;
 
    public ChartDataModel(final ChartType chartType) {
       _chartType = chartType;
@@ -202,6 +217,14 @@ public class ChartDataModel {
       return _isNoLinesValuesDisplayed;
    }
 
+   public boolean isShowValuePointValue() {
+      return _isShowValuePointValue;
+   }
+
+   public boolean isSkipNavigationForFirstLastValues() {
+      return _isSkipNavigationForFirstLastValues;
+   }
+
    /**
     * reset the min/max values of the chart to the min/max values from the original data
     */
@@ -242,6 +265,23 @@ public class ChartDataModel {
 
    public void setShowNoLineValues(final boolean isNoLinesValuesDisplayed) {
       _isNoLinesValuesDisplayed = isNoLinesValuesDisplayed;
+   }
+
+   public void setShowValuePointValue(final boolean isShowValuePointValue) {
+      _isShowValuePointValue = isShowValuePointValue;
+   }
+
+   /**
+    * @param isSkipNavigationForFirstLastValues
+    *           When <code>true</code> then the first and last values are skipped when navigated in
+    *           the bar chart.
+    *           <p>
+    *           This is used when x-data contains history values then the first and last values are
+    *           dummy values, to prevent that the first and last values are sticked to the chart
+    *           border.
+    */
+   public void setSkipNavigationForFirstLastValues(final boolean isSkipNavigationForFirstLastValues) {
+      _isSkipNavigationForFirstLastValues = isSkipNavigationForFirstLastValues;
    }
 
    public void setTitle(final String title) {

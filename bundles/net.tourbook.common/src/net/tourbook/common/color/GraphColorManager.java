@@ -58,6 +58,7 @@ public class GraphColorManager {
    public static final String  PREF_GRAPH_GRADIENT                     = "gradient";                   //$NON-NLS-1$
    public static final String  PREF_GRAPH_PACE                         = "pace";                       //$NON-NLS-1$
    public static final String  PREF_GRAPH_POWER                        = "power";                      //$NON-NLS-1$
+   public static final String  PREF_GRAPH_SENSOR                       = "Sensor";                     //$NON-NLS-1$
    public static final String  PREF_GRAPH_SPEED                        = "speed";                      //$NON-NLS-1$
    public static final String  PREF_GRAPH_TEMPTERATURE                 = "tempterature";               //$NON-NLS-1$
    public static final String  PREF_GRAPH_TIME                         = "duration";                   //$NON-NLS-1$
@@ -282,6 +283,30 @@ public class GraphColorManager {
    private static List<ColorDefinition> createDefaultColors() {
 
       final List<ColorDefinition> allColorDef = new ArrayList<>();
+
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TIME,
+            Messages.Graph_Pref_color_statistic_time,
+
+            new RGB(0xff, 0xff, 0xff),
+            new RGB(0xbb, 0xbb, 0x8c),
+            new RGB(0xaa, 0xaa, 0x7f),
+            new RGB(0xc9, 0xc9, 0xc9),
+            new RGB(0x58, 0x58, 0x43),
+            new RGB(0xc9, 0xc9, 0xc9),
+
+            null));
+
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_DISTANCE,
+            Messages.Graph_Pref_color_statistic_distance,
+
+            new RGB(0xff, 0xff, 0xff),
+            new RGB(0xef, 0xa7, 0x10),
+            new RGB(0xcb, 0x8d, 0xe),
+            new RGB(0xf8, 0xcd, 0x76),
+            new RGB(0x8b, 0x62, 0xa),
+            new RGB(0xf8, 0xcd, 0x76),
+
+            null));
 
       allColorDef.add(new ColorDefinition(PREF_GRAPH_ALTITUDE, // colorDefinitionId
 
@@ -612,27 +637,16 @@ public class GraphColorManager {
 
             null));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_DISTANCE,
-            Messages.Graph_Pref_color_statistic_distance,
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_SENSOR,
 
-            new RGB(0xff, 0xff, 0xff),
-            new RGB(0xef, 0xa7, 0x10),
-            new RGB(0xcb, 0x8d, 0xe),
-            new RGB(0xf8, 0xcd, 0x76),
-            new RGB(0x8b, 0x62, 0xa),
-            new RGB(0xf8, 0xcd, 0x76),
+            Messages.Graph_Label_Sensor,
 
-            null));
-
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TIME,
-            Messages.Graph_Pref_color_statistic_time,
-
-            new RGB(0xff, 0xff, 0xff),
-            new RGB(0xbb, 0xbb, 0x8c),
-            new RGB(0xaa, 0xaa, 0x7f),
-            new RGB(0xc9, 0xc9, 0xc9),
-            new RGB(0x58, 0x58, 0x43),
-            new RGB(0xc9, 0xc9, 0xc9),
+            new RGB(0xc0, 0xc0, 0xc0),
+            new RGB(0xff, 0x42, 0xb8),
+            new RGB(0xff, 0x42, 0xb8),
+            new RGB(0xff, 0x42, 0xb8),
+            new RGB(0xf0, 0x0, 0x96),
+            new RGB(0xff, 0x6c, 0xc8),
 
             null));
 

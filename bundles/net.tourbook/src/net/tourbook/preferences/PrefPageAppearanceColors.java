@@ -584,6 +584,8 @@ public class PrefPageAppearanceColors extends PreferencePage implements
 
                } else if (element instanceof GraphColorItem) {
 
+                  // draw map legend image horizontally
+
                   cell.setImage(_graphColorPainter.drawGraphColorImage(
                         (GraphColorItem) element,
                         numHorizontalImages,
@@ -715,7 +717,7 @@ public class PrefPageAppearanceColors extends PreferencePage implements
       }
 
       // log changes that it is easier to adjust the default values
-      if (_selectedColor != null && _isLogging_ColorValues) {
+      if (_selectedColor != null) {
 
          System.out.println(NL + NL
 

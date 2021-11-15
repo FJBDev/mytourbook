@@ -137,9 +137,22 @@ public interface ITourbookPreferences {
    public static final String STAT_TRAINING_LINE_IS_SHOW_TRAINING_PERFORMANCE_AVG_VALUE = "STAT_TRAINING_LINE_IS_SHOW_TRAINING_PERFORMANCE_AVG_VALUE"; //$NON-NLS-1$
 
    /*
+    * Statistic: Athlete's data
+    */
+   public static final String STAT_BODYWEIGHT_YAXIS_MIN_VISIBLE_VALUE = "STAT_BODYWEIGHT_YAXIS_MIN_VISIBLE_VALUE"; //$NON-NLS-1$
+   public static final String STAT_BODYWEIGHT_YAXIS_MAX_VISIBLE_VALUE = "STAT_BODYWEIGHT_YAXIS_MAX_VISIBLE_VALUE"; //$NON-NLS-1$
+   public static final String STAT_BODYFAT_YAXIS_MIN_VISIBLE_VALUE    = "STAT_BODYFAT_YAXIS_MIN_VISIBLE_VALUE";    //$NON-NLS-1$
+   public static final String STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE    = "STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE";    //$NON-NLS-1$
+
+   /*
     * Graphs
     */
+   /** All graphs in the visible sequence */
    public static final String GRAPH_ALL                                 = "graphs.all";                                //$NON-NLS-1$
+
+   /** All graphs which are currently displayed in the chart */
+   public static final String GRAPH_VISIBLE                             = "graphs.visible";                            //$NON-NLS-1$
+
    public static final String GRAPH_ANTIALIASING                        = "Graph_Antialiasing";                        //$NON-NLS-1$
    public static final String GRAPH_ARE_PAUSES_VISIBLE                  = "GRAPH_ARE_PAUSES_VISIBLE";                  //$NON-NLS-1$
    public static final String GRAPH_BACKGROUND_SOURCE                   = "GRAPH_BACKGROUND_SOURCE";                   //$NON-NLS-1$
@@ -192,6 +205,10 @@ public interface ITourbookPreferences {
    public static final String GRAPH_MARKER_POINT_SIZE                                     = "GRAPH_MARKER_POINT_SIZE";                                      //$NON-NLS-1$
    public static final String GRAPH_MARKER_SIGN_IMAGE_SIZE                                = "GRAPH_MARKER_SIGN_IMAGE_SIZE";                                 //$NON-NLS-1$
    public static final String GRAPH_MARKER_TOOLTIP_POSITION                               = "GRAPH_MARKER_TOOLTIP_POSITION";                                //$NON-NLS-1$
+
+   public static final String GRAPH_PAUSES_IS_SHOW_PAUSE_TOOLTIP                          = "GRAPH_PAUSES_IS_SHOW_PAUSE_TOOLTIP";                          //$NON-NLS-1$
+   public static final String GRAPH_PAUSES_TOOLTIP_POSITION                               = "GRAPH_PAUSES_TOOLTIP_POSITION";                          //$NON-NLS-1$
+
    // SET_FORMATTING_ON
 
    public static final String GRAPH_PULSE_GRAPH_VALUES              = "GRAPH_PULSE_GRAPH_VALUES";              //$NON-NLS-1$
@@ -202,8 +219,9 @@ public interface ITourbookPreferences {
     */
    public static final String GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES = "GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES"; //$NON-NLS-1$
    public static final String GRAPH_IS_SHOW_PACE_GRAPH_INVERTED     = "GRAPH_IS_SHOW_PACE_GRAPH_INVERTED";     //$NON-NLS-1$
-   public static final String GRAPH_IS_SHOW_NIGHT_SECTIONS          = "GRAPH_IS_SHOW_NIGHT_SECTIONS"; //$NON-NLS-1$
-   public static final String GRAPH_OPACITY_NIGHT_SECTIONS          = "GRAPH_OPACITY_NIGHT_SECTIONS"; //$NON-NLS-1$
+   public static final String GRAPH_IS_SHOW_NIGHT_SECTIONS          = "GRAPH_IS_SHOW_NIGHT_SECTIONS";          //$NON-NLS-1$
+   public static final String GRAPH_IS_SHOW_VALUE_POINT_VALUE       = "GRAPH_IS_SHOW_VALUE_POINT_VALUE";       //$NON-NLS-1$
+   public static final String GRAPH_OPACITY_NIGHT_SECTIONS          = "GRAPH_OPACITY_NIGHT_SECTIONS";          //$NON-NLS-1$
    public static final String GRAPH_MOUSE_MODE                      = "graph.toggle-mouse";                    //$NON-NLS-1$
    public static final String GRAPH_MOVE_SLIDERS_WHEN_ZOOMED        = "graphs.move-sliders-when-zoomed";       //$NON-NLS-1$
    public static final String GRAPH_TRANSPARENCY_FILLING            = "Graph_Transparency_Filling";            //$NON-NLS-1$
@@ -211,7 +229,6 @@ public interface ITourbookPreferences {
    public static final String GRAPH_TRANSPARENCY_LINE               = "Graph_Transparency_Line";               //$NON-NLS-1$
    public static final String GRAPH_X_AXIS                          = "graphs.x-axis";                         //$NON-NLS-1$
    public static final String GRAPH_X_AXIS_STARTTIME                = "graphs.x-axis.starttime";               //$NON-NLS-1$
-   public static final String GRAPH_VISIBLE                         = "graphs.visible";                        //$NON-NLS-1$
    public static final String GRAPH_ZOOM_AUTO_ZOOM_TO_SLIDER        = "graphs.zoom.autozoom-to-slider";        //$NON-NLS-1$
 
    /*
@@ -421,7 +438,6 @@ public interface ITourbookPreferences {
    public static final String MAP_LAYOUT_BORDER_COLOR              = "MAP_LAYOUT_BORDER_COLOR";                 //$NON-NLS-1$
    public static final String MAP_LAYOUT_BORDER_DIMM_VALUE         = "MAP_LAYOUT_BORDER_DIMM_VALUE";            //$NON-NLS-1$
    public static final String MAP_LAYOUT_BORDER_WIDTH              = "map.layout.borderWidth";                  //$NON-NLS-1$
-   public static final String MAP_LAYOUT_MAP_DIMM_COLOR            = "map.layout.dim-color";                    //$NON-NLS-1$
    public static final String MAP_LAYOUT_LIVE_UPDATE               = "MAP_LAYOUT_LIVE_UPDATE";                  //$NON-NLS-1$
    public static final String MAP_LAYOUT_PAINT_WITH_BORDER         = "map.layout.paintWithBorder";              //$NON-NLS-1$
    public static final String MAP_LAYOUT_PLOT_TYPE                 = "map.layout.symbol";                       //$NON-NLS-1$

@@ -247,7 +247,7 @@ public class Suunto2SAXHandler extends DefaultHandler {
 
          _isInRootDevice = false;
 
-      } else if (name.equals(Suunto2DeviceDataReader.TAG_SUUNTO)) {
+      } else if (name.equals(Suunto2_DeviceDataReader.TAG_SUUNTO)) {
 
          finalizeTour();
       }

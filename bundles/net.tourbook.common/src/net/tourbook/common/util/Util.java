@@ -362,13 +362,15 @@ public class Util {
          return null;
       }
 
-      if (intValues.length == 0) {
+      final int numValues = intValues.length;
+
+      if (numValues == 0) {
          return new double[0];
       }
 
-      final double[] doubleValues = new double[intValues.length];
+      final double[] doubleValues = new double[numValues];
 
-      for (int valueIndex = 0; valueIndex < intValues.length; valueIndex++) {
+      for (int valueIndex = 0; valueIndex < numValues; valueIndex++) {
          doubleValues[valueIndex] = intValues[valueIndex];
       }
 
@@ -450,6 +452,25 @@ public class Util {
       }
 
       return sb.toString();
+   }
+
+   public static float[] convertShortToFloat(final short[] values) {
+
+      if (values == null) {
+         return null;
+      }
+
+      if (values.length == 0) {
+         return new float[0];
+      }
+
+      final float[] floatValues = new float[values.length];
+
+      for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
+         floatValues[valueIndex] = values[valueIndex];
+      }
+
+      return floatValues;
    }
 
    /**
@@ -572,7 +593,7 @@ public class Util {
       try {
 
          if (tempFile.delete() == false) {
-            StatusUtil.log(String.format("Temp file cannot be deleted: %s", tempFile.getAbsolutePath())); //$NON-NLS-1$
+            StatusUtil.logError(String.format("Temp file cannot be deleted: %s", tempFile.getAbsolutePath())); //$NON-NLS-1$
          }
 
       } catch (final SecurityException e) {
@@ -1808,21 +1829,13 @@ public class Util {
       return file.isDirectory();
    }
 
-   public static void logSimpleMessage(final Class<?> clazz,
-                                       final String message) {
-
-      System.out.println(String.format("%s [%s] %s", //$NON-NLS-1$
-            UI.timeStampNano(),
-            clazz.getSimpleName(),
-            message));
-   }
-
    public static void logSystemProperty_IsEnabled(final Class<?> clazz, final String propertyName, final String propertyDescription) {
 
-      System.out.println(UI.timeStampNano()
-            + " [" + clazz.getSimpleName() + "]" //$NON-NLS-1$ //$NON-NLS-2$
-            + " - System property \"" + propertyName + "\" is enabled -> " //$NON-NLS-1$ //$NON-NLS-2$
-            + propertyDescription);
+      StatusUtil.logInfo(String.format("%s [System Property - %s] - \"%s\" is enabled -> %s", //$NON-NLS-1$
+            UI.timeStampNano(),
+            clazz.getSimpleName(),
+            propertyName,
+            propertyDescription));
    }
 
    public static void logSystemProperty_Value(final Class<?> clazz,
@@ -1830,10 +1843,12 @@ public class Util {
                                               final String propertyValue,
                                               final String propertyDescription) {
 
-      System.out.println(UI.timeStampNano()
-            + " [" + clazz.getSimpleName() + "]" //$NON-NLS-1$ //$NON-NLS-2$
-            + " - System property \"" + propertyName + "=" + propertyValue + "\" -> " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + propertyDescription);
+      StatusUtil.logInfo(String.format("%s [System Property - %s] - \"%s=%s\" -> %s", //$NON-NLS-1$
+            UI.timeStampNano(),
+            clazz.getSimpleName(),
+            propertyName,
+            propertyValue,
+            propertyDescription));
    }
 
    /**
@@ -2506,11 +2521,11 @@ public class Util {
    }
 
    public static <E extends Enum<E>> void setStateEnum(final IDialogSettings state,
-                                                       final String key,
+                                                       final String stateKey,
                                                        final Enum<E> value) {
 
       if (value != null) {
-         state.put(key, value.name());
+         state.put(stateKey, value.name());
       }
    }
 

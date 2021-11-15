@@ -110,7 +110,6 @@ public class UI {
    public static final String            SLASH_WITH_SPACE              = " / ";                                //$NON-NLS-1$
    public static final String            EMPTY_STRING_FORMAT           = "%s";                                 //$NON-NLS-1$
    public static final String            MNEMONIC                      = "&";                                  //$NON-NLS-1$
-   public static final String            BREAK_TIME_MARKER             = "x";                                  //$NON-NLS-1$
 
    /**
     * contains a new line
@@ -267,7 +266,7 @@ public class UI {
    }
 
    // pref store var cannot be set from a static field because it can be null !!!
-//	private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+// private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
    private UI() {}
 
@@ -496,6 +495,28 @@ public class UI {
     * @param labelText
     * @return
     */
+   public static Composite createPage(final Composite parent, final String labelText) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.swtDefaults().numColumns(1).applyTo(container);
+      {
+         final Label label = new Label(container, SWT.WRAP);
+         label.setText(labelText);
+         GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
+      }
+
+      return container;
+   }
+
+   /**
+    * Creates a page with a static text by using a {@link FormToolkit}
+    *
+    * @param formToolkit
+    * @param parent
+    * @param labelText
+    * @return
+    */
    public static Composite createPage(final FormToolkit formToolkit, final Composite parent, final String labelText) {
 
       final Composite container = formToolkit.createComposite(parent);
@@ -594,7 +615,7 @@ public class UI {
 
             String oldPattern = sdf.toPattern();
 
-            //	some short formats have only one M and d (e.g. ths US)
+            // some short formats have only one M and d (e.g. ths US)
             if (oldPattern.indexOf("MM") == -1 && oldPattern.indexOf("dd") == -1) {//$NON-NLS-1$ //$NON-NLS-2$
                String newPattern = UI.EMPTY_STRING;
                for (int i = 0; i < oldPattern.length(); i++) {
@@ -609,12 +630,12 @@ public class UI {
                sdf.applyPattern(newPattern);
             }
 
-            //	Unknown short format => use JDBC
+            // Unknown short format => use JDBC
             if (sdf.toPattern().length() != 8) {
                sdf.applyPattern("yyyy-MM-dd"); //$NON-NLS-1$
             }
 
-            //	4 digit year
+            // 4 digit year
             if (sdf.toPattern().indexOf("yyyy") == -1) { //$NON-NLS-1$
                oldPattern = sdf.toPattern();
                String newPattern = UI.EMPTY_STRING;
@@ -668,7 +689,7 @@ public class UI {
 
             final String oldPattern = sdf.toPattern();
 
-            //	some short formats have only one h (e.g. ths US)
+            // some short formats have only one h (e.g. ths US)
             if (oldPattern.indexOf("hh") == -1) {//$NON-NLS-1$
 
                String newPattern = UI.EMPTY_STRING;
@@ -760,34 +781,6 @@ public class UI {
 
    public static Font getLogFont() {
       return _fontForLogging;
-   }
-
-   /**
-    * Checks if propertyData has the same tour as the oldTourData
-    *
-    * @param propertyData
-    * @param oldTourData
-    * @return Returns {@link TourData} from the propertyData or <code>null</code> when it's another
-    *         tour
-    */
-   public static TourData getTourPropertyTourData(final TourEvent propertyData, final TourData oldTourData) {
-
-      final ArrayList<TourData> modifiedTours = propertyData.getModifiedTours();
-      if (modifiedTours == null) {
-         return null;
-      }
-
-      final long oldTourId = oldTourData.getTourId();
-
-      for (final TourData tourData : modifiedTours) {
-         if (tourData.getTourId() == oldTourId) {
-
-            // nothing more to do, only one tour is supported
-            return tourData;
-         }
-      }
-
-      return null;
    }
 
    /**
@@ -1087,7 +1080,7 @@ public class UI {
                final String sqlExceptionText = Util.getSQLExceptionText(e);
 
                // log also the stacktrace
-               StatusUtil.log(sqlExceptionText + Util.getStackTrace(e));
+               StatusUtil.logError(sqlExceptionText + Util.getStackTrace(e));
 
                MessageDialog.openError(
                      Display.getDefault().getActiveShell(),
