@@ -822,21 +822,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    // ############################################# BATTERY #############################################
 
    /**
-    * Battery start/end values are used for the statistic views,
+    * Battery start/end values of the used recording device
     *
     * -1 indicate that the value is not yet set
     */
    private short                 battery_Percentage_Start      = -1;
    private short                 battery_Percentage_End        = -1;
-
-    /*
-     * The geo bound values are in microdegrees (degrees * 10^6).
-     */
-
-//   private int                 latitudeMinE6;                      // db-version 35
-//   private int                 latitudeMaxE6;                      // db-version 35
-//   private int                 longitudeMinE6;                     // db-version 35
-//   private int                 longitudeMaxE6;                     // db-version 35
 
    // ############################################# UNUSED FIELDS - START #############################################
    /**
@@ -921,12 +912,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    @JoinTable(inverseJoinColumns = @JoinColumn(name = "TOURTAG_TagID", referencedColumnName = "TagID"))
    private Set<TourTag>                tourTags                            = new HashSet<>();
 
-//   /**
-//    * Device sensor values
-//    */
-//   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
-//   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-//   private Set<DeviceSensorValue>     deviceSensorValues                  = new HashSet<>();
+   /**
+    * Sensors
+    */
+   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   private Set<DeviceSensorValue>     deviceSensorValues                  = new HashSet<>();
 
 //   /**
 //    * SharedMarker
@@ -1763,7 +1754,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private int[]         battery_Time;
 
    /**
-    * Containing the battery percentage value
+    * Containing the battery percentage values
     *
     * @since after 21.6
     */
@@ -7566,6 +7557,10 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return devicePluginName;
    }
 
+   public Set<DeviceSensorValue> getDeviceSensorValues() {
+      return deviceSensorValues;
+   }
+
    /**
     * @return Returns the time difference between 2 time slices or <code>-1</code> when the time
     *         slices are unequally
@@ -8784,6 +8779,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public short getStartWeekYear() {
       return startWeekYear;
+   }
+
+   @JsonIgnore
+   public short getStartYear() {
+      return startYear;
    }
 
    public short getSurfing_MinDistance() {

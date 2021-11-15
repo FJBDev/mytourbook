@@ -486,6 +486,8 @@ public class Messages extends NLS {
    public static String        DataImport_Error_file_does_not_exist_msg;
    public static String        DataImport_Error_file_does_not_exist_title;
 
+   public static String        Db_Field_SensorDescription;
+   public static String        Db_Field_SensorName;
    public static String        Db_Field_TourData_Description;
    public static String        Db_Field_TourData_EndPlace;
    public static String        Db_Field_TourData_StartPlace;
@@ -782,6 +784,9 @@ public class Messages extends NLS {
    public static String        Dialog_JoinTours_Label_TourType;
    public static String        Dialog_JoinTours_Link_TourType;
 
+   public static String        Dialog_Label_Description;
+   public static String        Dialog_Label_Name;
+
    public static String        Dialog_ModifyTours_Button_LockMultipleToursSelection_Text;
    public static String        Dialog_ModifyTours_Button_UnlockMultipleToursSelection_Text;
    public static String        Dialog_ModifyTours_Checkbox_BatteryValues;
@@ -848,6 +853,9 @@ public class Messages extends NLS {
    public static String        Dialog_SaveTags_Radio_RemoveTags_Selected;
    public static String        Dialog_SaveTags_Radio_ReplaceTags;
    public static String        Dialog_SaveTags_Wizard_Title;
+
+   public static String        Dialog_Sensor_EditSensor_Title;
+   public static String        Dialog_Sensor_Label_SensorType;
 
    public static String        Dialog_SetTimeZone_Button_AdjustTimeZone;
    public static String        Dialog_SetTimeZone_Dialog_Title;
@@ -2054,6 +2062,19 @@ public class Messages extends NLS {
    public static String        Search_View_Link_LinuxBrowser;
    public static String        Search_View_Link_SetupExternalBrowser;
 
+   public static String        Sensor_Chart_Action_TourQuickFilter_Tooltip;
+   public static String        Sensor_Chart_GraphLabel_BatteryLevel;
+   public static String        Sensor_Chart_GraphLabel_BatteryStatus;
+   public static String        Sensor_Chart_GraphLabel_BatteryVoltage;
+   public static String        Sensor_Chart_Label_SensorIsNotSelected;
+   public static String        Sensor_Chart_Label_SensorWithBatteryValuesIsNotSelected;
+
+   public static String        Sensor_Type_GearShifting;
+   public static String        Sensor_Type_Other;
+   public static String        Sensor_Type_RecordingDevice;
+
+   public static String        Sensor_View_Action_OpenSensorChart;
+
    public static String        Slideout_CalendarOptions_Action_AddProfile_Tooltip;
    public static String        Slideout_CalendarOptions_Action_CopyProfile_Tooltip;
    public static String        Slideout_CalendarOptions_Action_DeleteProfile_Tooltip;
@@ -2337,10 +2358,28 @@ public class Messages extends NLS {
    public static String        Slideout_SegmenterChartOptions_Label_Title;
    public static String        Slideout_SegmenterChartOptions_Label_ValueFont;
    public static String        Slideout_SegmenterChartOptions_Label_ValueFont_Example;
+
    public static String        Slideout_SegmenterOptions_Label_AltitudeDown;
    public static String        Slideout_SegmenterOptions_Label_AltitudeUp;
    public static String        Slideout_SegmenterOptions_Label_Title;
    public static String        Slideout_SegmenterOptions_Label_Totals;
+
+   public static String        Slideout_SensorChartOptions_Checkbox_BatteryLevel;
+   public static String        Slideout_SensorChartOptions_Checkbox_BatteryStatus;
+   public static String        Slideout_SensorChartOptions_Checkbox_BatteryVoltage;
+   public static String        Slideout_SensorChartOptions_Label_Title;
+
+   public static String        Slideout_SensorTourFilter_Action_ResetValue_Tooltip;
+   public static String        Slideout_SensorTourFilter_Checkbox_IsFilterDuration;
+   public static String        Slideout_SensorTourFilter_Checkbox_IsUseAppFilter;
+   public static String        Slideout_SensorTourFilter_Label_Title;
+   public static String        Slideout_SensorTourFilter_Link_ResetValue;
+   public static String        Slideout_SensorTourFilter_Radio_Day;
+   public static String        Slideout_SensorTourFilter_Radio_Day_Tooltip;
+   public static String        Slideout_SensorTourFilter_Radio_Month;
+   public static String        Slideout_SensorTourFilter_Radio_Month_Tooltip;
+   public static String        Slideout_SensorTourFilter_Radio_Year;
+   public static String        Slideout_SensorTourFilter_Radio_Year_Tooltip;
 
    public static String        Slideout_StatisticOptions_Label_Title;
 
