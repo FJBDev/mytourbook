@@ -4103,15 +4103,6 @@ public class TourDatabase {
             + " bodyFat                               FLOAT,                             " + NL //$NON-NLS-1$
 
             // version 42 end
-            //            // version 35 start  -  18.?
-            //            //
-            //            + " LatitudeMinE6         INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
-            //            + " LatitudeMaxE6         INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
-            //            + " LongitudeMinE6        INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
-            //            + " LongitudeMaxE6        INTEGER DEFAULT 0,                    \n" //$NON-NLS-1$
-            //            //
-            //            // version 35 end ---------
-            // version 45 start  -  21.9
 
             /*
              * The first default values were 0 but only when a new tour db was created
@@ -4293,20 +4284,6 @@ public class TourDatabase {
 
             // version 16 end ---------
 
-            // version 41 start
-            //
-            + "   govssThresholdPower        INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
-            + "   govssTimeTrialDuration     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
-            + "   govssTimeTrialDistance     INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
-            + "   govssTimeTrialAverageSlope INTEGER DEFAULT 0,                                       \n" //$NON-NLS-1$
-            + "   govssAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
-            + "   bikeScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_BIKESCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
-            + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),     \n" //$NON-NLS-1$ //$NON-NLS-2$
-            //
-            // version 41 end ---------
-
-            //
-            + "   " + KEY_BIKE + "       BIGINT                                                  \n" //$NON-NLS-1$ //$NON-NLS-2$
             //
             // version 41 start
             //
