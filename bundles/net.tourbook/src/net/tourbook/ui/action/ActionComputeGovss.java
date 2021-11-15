@@ -44,7 +44,7 @@ public class ActionComputeGovss extends Action {
 
       _tourProvider = tourDataEditor;
 
-      setText(Messages.Tour_Action_ComputeGovss_Title);
+      setText("Messages.Tour_Action_ComputeGovss_Title");
    }
 
    @Override
@@ -63,8 +63,8 @@ public class ActionComputeGovss extends Action {
 
       if (MessageDialog.openConfirm(
             Display.getCurrent().getActiveShell(),
-            Messages.Tour_Action_ComputeGovss_Title,
-            NLS.bind(Messages.Tour_Action_ComputeGovss_Message,
+            "Messages.Tour_Action_ComputeGovss_Title",
+            NLS.bind("Messages.Tour_Action_ComputeGovss_Message",
                   selectedTours.size())) == false) {
          return;
       }

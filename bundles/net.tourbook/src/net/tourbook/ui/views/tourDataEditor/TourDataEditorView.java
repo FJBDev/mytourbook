@@ -3937,7 +3937,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
    private void createUI_Section_140_TrainingStress(final Composite parent) {
 
-      _sectionTrainingStress = createSection(parent, _tk, Messages.tour_editor_section_trainingstress, false, true);
+      _sectionTrainingStress = createSection(parent, _tk, "Messages.tour_editor_section_trainingstress", false, true);
       final Composite container = (Composite) _sectionTrainingStress.getClient();
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory
