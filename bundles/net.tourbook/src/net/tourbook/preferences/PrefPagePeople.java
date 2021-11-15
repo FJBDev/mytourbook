@@ -286,7 +286,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       if (data instanceof Boolean) {
 
          final Boolean isCreatePerson = (Boolean) data;
-         if (isCreatePerson && _people.isEmpty()) {
+         if (isCreatePerson && _people != null && _people.isEmpty()) {
 
             // this is a request, to create a new person
 
