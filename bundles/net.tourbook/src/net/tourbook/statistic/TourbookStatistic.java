@@ -70,24 +70,28 @@ public abstract class TourbookStatistic {
    protected static final String    GRID_DAY_SUMMARY       = "GRID_DAY_SUMMARY__";          //$NON-NLS-1$
    protected static final String    GRID_DAY_TIME          = "GRID_DAY_TIME__";             //$NON-NLS-1$
    protected static final String    GRID_DAY_ATHLETEDATA   = "GRID_DAY_ATHLETEDATA__";      //$NON-NLS-1$
+   protected static final String    GRID_DAY_TRAININGLOAD   = "GRID_DAY_TRAININGLOAD__";     //$NON-NLS-1$
 
    protected static final String    GRID_WEEK_ALTITUDE     = "GRID_WEEK_ALTITUDE__";        //$NON-NLS-1$
    protected static final String    GRID_WEEK_DISTANCE     = "GRID_WEEK_DISTANCE__";        //$NON-NLS-1$
    protected static final String    GRID_WEEK_SUMMARY      = "GRID_WEEK_SUMMARY__";         //$NON-NLS-1$
    protected static final String    GRID_WEEK_TIME         = "GRID_WEEK_TIME__";            //$NON-NLS-1$
    protected static final String    GRID_WEEK_ATHLETEDATA  = "GRID_WEEK_ATHLETEDATA__";     //$NON-NLS-1$
+   protected static final String    GRID_WEEK_TRAININGLOAD  = "GRID_WEEK_TRAININGLOAD__";    //$NON-NLS-1$
 
    protected static final String    GRID_MONTH_ALTITUDE    = "GRID_MONTH_ALTITUDE__";       //$NON-NLS-1$
    protected static final String    GRID_MONTH_DISTANCE    = "GRID_MONTH_DISTANCE__";       //$NON-NLS-1$
    protected static final String    GRID_MONTH_SUMMARY     = "GRID_MONTH_SUMMARY__";        //$NON-NLS-1$
    protected static final String    GRID_MONTH_TIME        = "GRID_MONTH_TIME__";           //$NON-NLS-1$
    protected static final String    GRID_MONTH_ATHLETEDATA = "GRID_MONTH_ATHLETEDATA__";    //$NON-NLS-1$
+   protected static final String    GRID_MONTH_TRAININGLOAD = "GRID_MONTH_TRAININGLOAD__";   //$NON-NLS-1$
 
    protected static final String    GRID_YEAR_ALTITUDE     = "GRID_YEAR_ALTITUDE__";        //$NON-NLS-1$
    protected static final String    GRID_YEAR_DISTANCE     = "GRID_YEAR_DISTANCE__";        //$NON-NLS-1$
    protected static final String    GRID_YEAR_SUMMARY      = "GRID_YEAR_SUMMARY__";         //$NON-NLS-1$
    protected static final String    GRID_YEAR_TIME         = "GRID_YEAR_TIME__";            //$NON-NLS-1$
    protected static final String    GRID_YEAR_ATHLETEDATA  = "GRID_YEAR_ATHLETEDATA__";     //$NON-NLS-1$
+   protected static final String    GRID_YEAR_TRAININGLOAD  = "GRID_YEAR_TRAININGLOAD__";    //$NON-NLS-1$
 
    protected static final String    GRID_WEEK_HR_ZONE      = "GRID_WEEK_HR_ZONE__";         //$NON-NLS-1$
    protected static final String    GRID_MONTH_HR_ZONE     = "GRID_MONTH_HR_ZONE__";        //$NON-NLS-1$

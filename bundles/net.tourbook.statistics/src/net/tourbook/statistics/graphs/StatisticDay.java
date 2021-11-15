@@ -437,7 +437,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setShowYSlider(true);
       yData.setVisibleMinValue(0);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
 
       chartDataModel.addYData(yData);
 
@@ -472,8 +472,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
+      // StatisticServices.setTourTypeColorsIndex(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }

@@ -260,7 +260,7 @@ public class Govss extends TrainingStress {
          result = brentSolver.solve(10000, f, 0.01, 10.0);
 
       } catch (final NoBracketingException e) {
-         TourLogManager.logEx(e);
+         TourLogManager.log_EXCEPTION_WithStacktrace(e);
       }
 
       return result;
