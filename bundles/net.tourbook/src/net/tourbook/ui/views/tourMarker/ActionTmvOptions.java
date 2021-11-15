@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,26 +13,30 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.data;
+package net.tourbook.ui.views.tourMarker;
 
-public enum DeviceSensorType {
+import net.tourbook.common.tooltip.ActionToolbarSlideout;
+import net.tourbook.common.tooltip.ToolbarSlideout;
 
-   /**
-    * A sensor type is not defined
-    */
-   NONE,
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.ui.part.PageBook;
 
-   RECORDING_DEVICE, //
+public class ActionTmvOptions extends ActionToolbarSlideout {
 
-   OTHER,
+   private Control _ownerControl;
 
-   /**
-    * Gear shifting, e.g. Shimano Di2
-    */
-   GEAR_SHIFTING, //
+   public ActionTmvOptions(final PageBook pageBook) {
+      _ownerControl = pageBook;
+   }
 
-   CADENCE, //
-   HEARTBEAT, //
-   PACE, //
-   SPEED, //
+   @Override
+   protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
+
+      final SlideoutTMVOptions slideoutTMVOptions = new SlideoutTMVOptions(
+            _ownerControl,
+            toolbar);
+
+      return slideoutTMVOptions;
+   }
 }
