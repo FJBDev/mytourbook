@@ -432,7 +432,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 //            lowValueSeries,
 //            highValueSeries);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setYTitle("Device");//Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setShowYSlider(true);
       yData.setVisibleMinValue(0);
@@ -465,7 +465,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
             _statisticData_Day.allTraining_Load_TrainingStress_Low,
             _statisticData_Day.allTraining_Load_TrainingStress_High);
 
-      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setYTitle("SKIBA");//Messages.LABEL_GRAPH_TRAINING_STRESS);
       yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
       yData.setAllValueColors(0);
       yData.setShowYSlider(true);

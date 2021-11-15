@@ -17,6 +17,8 @@ package net.tourbook.statistics.graphs;
 
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
+import net.tourbook.statistic.ChartOptions_TrainingStress;
+import net.tourbook.statistic.SlideoutStatisticOptions;
 
 public class StatisticDay_TrainingLoad extends StatisticDay {
 
@@ -36,5 +38,11 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
    @Override
    protected String getGridPrefPrefix() {
       return GRID_DAY_TRAININGLOAD;
+   }
+
+   @Override
+   protected void setupStatisticSlideout(final SlideoutStatisticOptions slideout) {
+
+      slideout.setStatisticOptions(new ChartOptions_TrainingStress());
    }
 }

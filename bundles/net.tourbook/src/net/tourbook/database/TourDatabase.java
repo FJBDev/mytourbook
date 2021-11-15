@@ -8894,6 +8894,7 @@ public class TourDatabase {
 
       return newDbVersion;
    }
+
    /**
     * DB version 44 -> 45 ... MT version 21.9
     *

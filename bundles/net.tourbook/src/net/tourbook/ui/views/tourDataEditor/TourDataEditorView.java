@@ -644,6 +644,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Spinner            _spinPerson_FTP;
    private Spinner            _spinPerson_RestPulse;
    private Spinner            _spinTrainingStress_BikeScore;
+   private Spinner            _spinTrainingStress_Device;
    private Spinner            _spinTrainingStress_Govss;
    private Spinner            _spinTrainingStress_SwimScore;
    private Spinner            _spinWeather_Humidity;
@@ -661,7 +662,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Text               _txtDescription;
    private Text               _txtDistance;
    private Text               _txtWeather;
-   private Text               _txtTrainingStress_DeviceScore;
    //
    private TimeDuration       _deviceTime_Elapsed;                  // Total time of the activity
    private TimeDuration       _deviceTime_Recorded;                 // Time recorded by the device = Total time - paused times
@@ -3972,13 +3972,18 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _tk.adapt(_lblTrainingStress_DeviceScore, true, true);
             _firstColumnControls.add(_lblTrainingStress_DeviceScore);
 
-            // text
-            _txtTrainingStress_DeviceScore = new Text(container, SWT.NONE);
-            _txtTrainingStress_DeviceScore.setEditable(false);
+            // Spinner
+            _spinTrainingStress_Device = new Spinner(container, SWT.BORDER);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_txtTrainingStress_DeviceScore);
+                  .applyTo(_spinTrainingStress_Device);
+
+            _spinTrainingStress_Device.setMinimum(0);
+            _spinTrainingStress_Device.setMaximum(5_000);
+
+            _spinTrainingStress_Device.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_Device.addSelectionListener(_selectionListener);
          }
          {
             /*
@@ -8977,7 +8982,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * Training Stress
        */
-      _txtTrainingStress_DeviceScore.setText(String.valueOf(_tourData.getPower_TrainingStressScore()));
+      _spinTrainingStress_Device.setSelection((int) _tourData.getPower_TrainingStressScore());
       _spinTrainingStress_Govss.setSelection(_tourData.getGovss());
       _spinTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
       _spinTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
