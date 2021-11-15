@@ -17,10 +17,61 @@ package net.tourbook.statistics.graphs;
 
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
+import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.statistic.ChartOptions_TrainingStress;
 import net.tourbook.statistic.SlideoutStatisticOptions;
+import net.tourbook.statistic.TrainingStressPrefKeys;
+
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IViewSite;
 
 public class StatisticDay_TrainingLoad extends StatisticDay {
+
+   private IPropertyChangeListener _statDay_PrefChangeListener;
+   private boolean                 _isShowDistance;
+   private boolean                 _isShowAltitude;
+
+   private void addPrefListener(final Composite container) {
+
+      // create pref listener
+      _statDay_PrefChangeListener = propertyChangeEvent -> {
+
+         final String property = propertyChangeEvent.getProperty();
+
+         // observe which data are displayed
+         if (property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE)
+               || property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE)
+
+               || property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA)
+
+         ) {
+
+               _isDuration_ReloadData = true;
+
+            // get the changed preferences
+            getPreferences();
+
+            // update chart
+            preferencesHasChanged();
+         }
+      };
+
+      // add pref listener
+      _prefStore.addPropertyChangeListener(_statDay_PrefChangeListener);
+
+      // remove pref listener
+      container.addDisposeListener(disposeEvent -> _prefStore.removePropertyChangeListener(_statDay_PrefChangeListener));
+   }
+
+   @Override
+   public void createStatisticUI(final Composite parent, final IViewSite viewSite) {
+
+      super.createStatisticUI(parent, viewSite);
+
+      addPrefListener(parent);
+      getPreferences();
+   }
 
    @Override
    ChartDataModel getChartDataModel() {
@@ -29,20 +80,35 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
 //      chartDataModel.setIsGraphOverlapped(true);
       //TODO FB Why does the weird cursor appear ?
       createXDataDay(chartDataModel);
-      createYData_PredictedPerformance(chartDataModel);
+      if (_prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE)) {
+         createYData_PredictedPerformance(chartDataModel);
+      }
+      if (_prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA)) {
       createYData_TrainingStress(chartDataModel);
+      }
 
       return chartDataModel;
    }
-
    @Override
    protected String getGridPrefPrefix() {
       return GRID_DAY_TRAININGLOAD;
    }
 
+   private void getPreferences() {
+
+      _isShowAltitude = _prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE);
+
+      _isShowDistance = _prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA);
+   }
+
    @Override
    protected void setupStatisticSlideout(final SlideoutStatisticOptions slideout) {
 
-      slideout.setStatisticOptions(new ChartOptions_TrainingStress());
+      final TrainingStressPrefKeys prefKeys = new TrainingStressPrefKeys();
+
+      prefKeys.isShow_Device = ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE;
+      prefKeys.isShow_Skiba = ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA;
+
+      slideout.setStatisticOptions(new ChartOptions_TrainingStress(prefKeys));
    }
 }

@@ -145,6 +145,12 @@ public interface ITourbookPreferences {
    public static final String STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE    = "STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE";    //$NON-NLS-1$
 
    /*
+    * Statistic: Training Stress
+    */
+   public static final String STAT_TRAINING_MODEL_DEVICE = "STAT_TRAINING_MODEL_DEVICE"; //$NON-NLS-1$
+   public static final String STAT_TRAINING_MODEL_SKIBA  = "STAT_TRAINING_MODEL_SKIBA";  //$NON-NLS-1$
+
+   /*
     * Graphs
     */
    /** All graphs in the visible sequence */
