@@ -44,8 +44,216 @@ public class Messages extends NLS {
    public static String        Action_PhotosAndTours_RemovePhoto;
    public static String        Action_PhotosAndTours_SaveAllPhotos;
 
+   public static String        action_print_tour;
+
+   public static String        Action_TagCategory_Edit;
+   public static String        Action_TagCategory_EditCategory;
+   public static String        Action_TagCategory_Edit_Tooltip;
+   public static String        action_tagView_flat_hierarchical;
+   public static String        action_tagView_flat_layout;
+   public static String        action_tag_add;
+   public static String        Action_Tag_Add_AutoOpen;
+   public static String        Action_Tag_Add_AutoOpen_ModifiedTags;
+   public static String        Action_Tag_Add_AutoOpen_Title;
+   public static String        Action_Tag_Add_RecentTags;
+   public static String        Action_Tag_AutoOpenCancel;
+   public static String        Action_Tag_AutoOpenOK;
+   public static String        Action_Tag_Delete;
+   public static String        Action_Tag_DeleteCategory;
+   public static String        Action_Tag_Edit;
+   public static String        Action_Tag_Edit_Tooltip;
+   public static String        action_tag_open_tagging_structure;
+   public static String        action_tag_remove;
+   public static String        action_tag_remove_all;
+   public static String        Action_Tag_Restore_Tooltip;
+   public static String        Action_Tag_Save_Tooltip;
+   public static String        Action_Tag_SetTags;
+   public static String        action_tag_set_all_confirm_message;
+   public static String        action_tag_set_all_confirm_title;
+   public static String        action_tag_set_all_tag_structures;
+   public static String        action_tag_set_tag_expand_type;
+
    public static String        Action_ToolTip_Hide;
    public static String        Action_ToolTip_SetDefaults;
+
+   public static String        action_tourbook_select_year_month_tours;
+
+   public static String        action_tourCatalog_open_compare_wizard;
+
+   public static String        Action_TourType_ModifyTourTypeFilter;
+   public static String        action_tourType_modify_tourTypes;
+
+   public static String        action_tour_editor_delete_time_slices_keep_time;
+   public static String        action_tour_editor_delete_time_slices_remove_time;
+
+   public static String        adjust_altitude_action_create_spline_point;
+   public static String        adjust_altitude_btn_reset_altitude;
+   public static String        adjust_altitude_btn_reset_altitude_and_points;
+   public static String        adjust_altitude_btn_reset_altitude_and_points_tooltip;
+   public static String        adjust_altitude_btn_reset_altitude_tooltip;
+   public static String        adjust_altitude_btn_save_modified_tour;
+   public static String        adjust_altitude_btn_srtm_remove_all_points;
+   public static String        adjust_altitude_btn_srtm_remove_all_points_tooltip;
+   public static String        adjust_altitude_btn_update_altitude;
+   public static String        adjust_altitude_btn_update_altitude_tooltip;
+   public static String        adjust_altitude_btn_update_modified_tour;
+   public static String        Adjust_Altitude_CreateDummyAltitudeData_Message;
+   public static String        Adjust_Altitude_CreateDummyAltitudeData_Title;
+   public static String        adjust_altitude_dlg_dialog_message;
+   public static String        adjust_altitude_dlg_dialog_title;
+   public static String        adjust_altitude_dlg_shell_title;
+   public static String        Adjust_Altitude_Group_GeoPosition;
+   public static String        adjust_altitude_label_adjustment_type;
+   public static String        Adjust_Altitude_Label_GeoPosition_Slices;
+   public static String        adjust_altitude_type_adjust_end;
+   public static String        adjust_altitude_type_adjust_height;
+   public static String        adjust_altitude_type_adjust_whole_tour;
+   public static String        Adjust_Altitude_Type_HorizontalGeoPosition;
+   public static String        adjust_altitude_type_srtm;
+   public static String        adjust_altitude_type_srtm_spline;
+   public static String        adjust_altitude_type_start_and_end;
+
+   public static String        App_Action_About;
+   public static String        App_Action_Add;
+   public static String        App_Action_Apply;
+   public static String        App_Action_ApplyDefaults;
+   public static String        App_Action_ApplyDefaults_Tooltip;
+   public static String        app_action_button_down;
+   public static String        app_action_button_up;
+   public static String        App_Action_Cancel;
+   public static String        App_Action_Close_ToolTip;
+   public static String        App_Action_CollapseAll;
+   public static String        app_action_collapse_others_tooltip;
+   public static String        App_Action_Columns;
+   public static String        App_Action_Copy;
+   public static String        App_Action_Delete;
+   public static String        App_Action_DeleteProfile;
+   public static String        App_Action_DeleteProperty;
+   public static String        App_Action_DeleteTourMarker;
+   public static String        App_Action_Delete_WithConfirm;
+   public static String        App_Action_DeselectAll;
+   public static String        App_Action_Dialog_ActionIsInProgress_Message;
+   public static String        App_Action_Dialog_ActionIsInProgress_Title;
+   public static String        App_Action_Duplicate;
+   public static String        App_Action_Edit;
+   public static String        app_action_edit_adjust_altitude;
+   public static String        app_action_edit_rows_tooltip;
+   public static String        App_Action_edit_tour;
+   public static String        app_action_edit_tour_marker;
+   public static String        App_Action_Expand_All_Tooltip;
+   public static String        app_action_expand_selection_tooltip;
+   public static String        app_action_expand_type_flat;
+   public static String        app_action_expand_type_year_day;
+   public static String        app_action_expand_type_year_month_day;
+   public static String        App_Action_ExtractTour;
+   public static String        App_Action_JoinTours;
+   public static String        App_Action_Menu_Directory;
+   public static String        App_Action_Menu_help;
+   public static String        App_Action_Menu_Map;
+   public static String        App_Action_Menu_New;
+   public static String        App_Action_Menu_tools;
+   public static String        App_Action_Menu_Tour;
+   public static String        app_action_merge_tour;
+   public static String        App_Action_New;
+   public static String        App_Action_OpenOtherViews;
+   public static String        App_Action_open_perspective;
+   public static String        App_Action_open_preferences;
+   public static String        app_action_open_tour;
+   public static String        app_action_quick_edit;
+   public static String        app_action_read_edit_tooltip;
+   public static String        App_Action_RefreshView;
+   public static String        App_Action_Remove;
+   public static String        App_Action_RemoveTourPhotos;
+   public static String        App_Action_Remove_Immediate;
+   public static String        App_Action_Rename;
+   public static String        App_Action_RestartApp;
+   public static String        App_Action_Save;
+   public static String        App_Action_SetPerson;
+   public static String        App_Action_set_tour_type;
+   public static String        App_Action_SplitTour;
+   public static String        App_Action_ToolTipLocation_AboveTourChart_Tooltip;
+   public static String        App_Action_ToolTipLocation_BelowTourChart_Tooltip;
+   public static String        App_Action_UncheckAll;
+   public static String        app_action_update;
+   public static String        App_Action_UpdateNew;
+   public static String        App_Action_Upload_Tour;
+   public static String        app_btn_browse;
+
+   public static String        App_Cadence_Invalid;
+   public static String        App_Cadence_None;
+   public static String        App_Cadence_Rpm;
+   public static String        App_Cadence_Spm;
+
+   public static String        App_Db_Compress_Button_CompressByCopying;
+   public static String        App_Db_Compress_Button_CompressByCopying_Tooltip;
+   public static String        App_Db_Compress_Button_CompressDatabase;
+   public static String        App_Db_Compress_Button_CompressInplace;
+   public static String        App_Db_Compress_Button_CompressInplace_Tooltip;
+   public static String        App_Db_Compress_DialogTitle;
+   public static String        App_Db_Compress_Dialog_ConfirmCompress_Message;
+   public static String        App_Db_Compress_LogHeader_After;
+   public static String        App_Db_Compress_LogHeader_Before;
+   public static String        App_Db_Compress_LogHeader_Difference;
+   public static String        App_Db_Compress_LogLabel_After;
+   public static String        App_Db_Compress_LogLabel_Before;
+   public static String        App_Db_Compress_LogLabel_Difference;
+   public static String        App_Db_Compress_LogLabel_Index;
+   public static String        App_Db_Compress_LogLabel_NotUsed;
+   public static String        App_Db_Compress_LogLabel_Table;
+   public static String        App_Db_Compress_LogLabel_Totals;
+   public static String        App_Db_Compress_LogLabel_Used;
+   public static String        App_Db_Compress_Monitor_SubTask;
+   public static String        App_Db_Compress_Monitor_Task;
+   public static String        app_db_consistencyCheck_checkFailed;
+   public static String        app_db_consistencyCheck_checkIsOK;
+   public static String        app_db_consistencyCheck_dlgTitle;
+
+   public static String        App_Default_PersonFirstName;
+
+   public static String        App_Dialog_FirstStartupTip_Message;
+   public static String        App_Dialog_FirstStartupTip_Title;
+   public static String        App_Dialog_FirstStartup_Message;
+   public static String        App_Dialog_FirstStartup_Title;
+   public static String        App_Dialog_RestartApp_Title;
+
+   public static String        app_dlg_confirmFileOverwrite_message;
+   public static String        app_dlg_confirmFileOverwrite_title;
+
+   public static String        App_Label_BooleanNo;
+   public static String        App_Label_BooleanYes;
+   public static String        App_Label_H_MM;
+   public static String        App_Label_ISO8601;
+   public static String        App_Label_max;
+   public static String        App_Label_NotAvailable;
+   public static String        App_Label_NotAvailable_Shortcut;
+   public static String        App_Link_RestoreDefaultValues;
+   public static String        App_measurement_tooltip;
+   public static String        App_People_item_all;
+   public static String        App_People_tooltip;
+   public static String        App_SortDirection_Ascending;
+   public static String        App_SortDirection_Descending;
+   public static String        App_SortDirection_None;
+   public static String        App_SplashMessage_Finalize;
+   public static String        App_SplashMessage_StartingApplication;
+   public static String        App_SplashMessage_StartingDatabase;
+   public static String        App_Splash_Copyright;
+   public static String        App_Title;
+   public static String        App_ToggleState_DoNotShowAgain;
+   public static String        App_TourType_ToolTip;
+   public static String        App_TourType_ToolTipTitle;
+   public static String        App_Tour_type_item_all_types;
+   public static String        App_Tour_type_item_not_defined;
+   public static String        App_Unit_HHMMSS;
+   public static String        App_Unit_Milliseconds;
+   public static String        App_Unit_Minute;
+   public static String        App_Unit_Minute_Small;
+   public static String        App_Unit_Px;
+   public static String        app_unit_seconds;
+   public static String        App_Unit_Seconds_Small;
+   public static String        App_Window_Title;
+
+   public static String        App__False;
+   public static String        App__True;
 
    public static String        Calendar_Profile_AppDefault_Classic;
    public static String        Calendar_Profile_AppDefault_Compact;
@@ -120,236 +328,6 @@ public class Messages extends NLS {
    public static String        Calendar_View_Combo_Month_Tooltip;
    public static String        Calendar_View_Combo_Year_Tooltip;
 
-   public static String        Compute_Govss_Button_ComputeAllTours;
-   public static String        Compute_Govss_Button_ComputeAllTours_Tooltip;
-   public static String        Compute_GovssValues_ComputeForAllTours_Job_Result;
-
-   public static String        Dialog_ComputeGovss_Dialog_Title;
-   public static String        Dialog_ComputeGovss_Label_GovssNotComputed;
-
-   public static String        Action_Tag_Add_AutoOpen;
-   public static String        Action_Tag_Add_AutoOpen_ModifiedTags;
-   public static String        Action_Tag_Add_AutoOpen_Title;
-   public static String        Action_Tag_Add_RecentTags;
-   public static String        Action_Tag_AutoOpenCancel;
-   public static String        Action_Tag_AutoOpenOK;
-   public static String        Action_Tag_Delete;
-   public static String        Action_Tag_DeleteCategory;
-   public static String        Action_Tag_Edit;
-   public static String        Action_Tag_Edit_Tooltip;
-   public static String        Action_Tag_Restore_Tooltip;
-   public static String        Action_Tag_Save_Tooltip;
-   public static String        Action_Tag_SetTags;
-
-   public static String        Action_TagCategory_Edit;
-   public static String        Action_TagCategory_Edit_Tooltip;
-   public static String        Action_TagCategory_EditCategory;
-
-   public static String        Action_TourType_ModifyTourTypeFilter;
-
-   public static String        Adjust_Altitude_CreateDummyAltitudeData_Message;
-   public static String        Adjust_Altitude_CreateDummyAltitudeData_Title;
-   public static String        Adjust_Altitude_Group_GeoPosition;
-   public static String        Adjust_Altitude_Label_GeoPosition_Slices;
-   public static String        Adjust_Altitude_Type_HorizontalGeoPosition;
-
-   public static String        action_print_tour;
-   public static String        action_tag_add;
-   public static String        action_tag_open_tagging_structure;
-   public static String        action_tag_remove;
-   public static String        action_tag_remove_all;
-   public static String        action_tag_set_all_confirm_message;
-   public static String        action_tag_set_all_confirm_title;
-   public static String        action_tag_set_all_tag_structures;
-   public static String        action_tag_set_tag_expand_type;
-   public static String        action_tagView_flat_hierarchical;
-   public static String        action_tagView_flat_layout;
-   public static String        action_tour_editor_delete_time_slices_keep_time;
-   public static String        action_tour_editor_delete_time_slices_remove_time;
-   public static String        action_tourbook_select_year_month_tours;
-   public static String        action_tourCatalog_open_compare_wizard;
-   public static String        action_tourType_modify_tourTypes;
-   public static String        App_Action_Upload_Tour;
-
-   public static String        adjust_altitude_action_create_spline_point;
-   public static String        adjust_altitude_btn_reset_altitude;
-   public static String        adjust_altitude_btn_reset_altitude_and_points;
-   public static String        adjust_altitude_btn_reset_altitude_and_points_tooltip;
-   public static String        adjust_altitude_btn_reset_altitude_tooltip;
-   public static String        adjust_altitude_btn_save_modified_tour;
-   public static String        adjust_altitude_btn_srtm_remove_all_points;
-   public static String        adjust_altitude_btn_srtm_remove_all_points_tooltip;
-   public static String        adjust_altitude_btn_update_altitude;
-   public static String        adjust_altitude_btn_update_altitude_tooltip;
-   public static String        adjust_altitude_btn_update_modified_tour;
-   public static String        adjust_altitude_dlg_dialog_message;
-   public static String        adjust_altitude_dlg_dialog_title;
-   public static String        adjust_altitude_dlg_shell_title;
-   public static String        adjust_altitude_label_adjustment_type;
-   public static String        adjust_altitude_type_adjust_end;
-   public static String        adjust_altitude_type_adjust_height;
-   public static String        adjust_altitude_type_adjust_whole_tour;
-   public static String        adjust_altitude_type_srtm;
-   public static String        adjust_altitude_type_srtm_spline;
-   public static String        adjust_altitude_type_start_and_end;
-
-   public static String        app_action_button_down;
-   public static String        app_action_button_up;
-   public static String        app_action_collapse_others_tooltip;
-   public static String        app_action_edit_adjust_altitude;
-   public static String        app_action_edit_rows_tooltip;
-   public static String        app_action_edit_tour_marker;
-   public static String        app_action_expand_selection_tooltip;
-   public static String        app_action_expand_type_flat;
-   public static String        app_action_expand_type_year_day;
-   public static String        app_action_expand_type_year_month_day;
-   public static String        app_action_merge_tour;
-   public static String        app_action_open_tour;
-   public static String        app_action_quick_edit;
-   public static String        app_action_read_edit_tooltip;
-   public static String        app_action_update;
-
-   public static String        app_btn_browse;
-
-   public static String        app_db_consistencyCheck_checkFailed;
-   public static String        app_db_consistencyCheck_checkIsOK;
-   public static String        app_db_consistencyCheck_dlgTitle;
-
-   public static String        app_dlg_confirmFileOverwrite_message;
-   public static String        app_dlg_confirmFileOverwrite_title;
-
-   public static String        app_unit_seconds;
-
-   public static String        App__False;
-   public static String        App__True;
-
-   public static String        App_Action_About;
-   public static String        App_Action_Add;
-   public static String        App_Action_Apply;
-   public static String        App_Action_ApplyDefaults;
-   public static String        App_Action_ApplyDefaults_Tooltip;
-   public static String        App_Action_Cancel;
-   public static String        App_Action_Close_ToolTip;
-   public static String        App_Action_CollapseAll;
-   public static String        App_Action_CollapseAll_Tooltip;
-   public static String        App_Action_Columns;
-   public static String        App_Action_Copy;
-   public static String        App_Action_Delete;
-   public static String        App_Action_Delete_WithConfirm;
-   public static String        App_Action_DeleteProfile;
-   public static String        App_Action_DeleteTourMarker;
-   public static String        App_Action_DeselectAll;
-   public static String        App_Action_Dialog_ActionIsInProgress_Message;
-   public static String        App_Action_Dialog_ActionIsInProgress_Title;
-   public static String        App_Action_Duplicate;
-   public static String        App_Action_edit_tour;
-   public static String        App_Action_Edit;
-   public static String        App_Action_Expand_All_Tooltip;
-   public static String        App_Action_ExtractTour;
-   public static String        App_Action_JoinTours;
-   public static String        App_Action_Menu_Directory;
-   public static String        App_Action_Menu_help;
-   public static String        App_Action_Menu_Map;
-   public static String        App_Action_Menu_New;
-   public static String        App_Action_Menu_tools;
-   public static String        App_Action_Menu_Tour;
-   public static String        App_Action_New;
-   public static String        App_Action_open_perspective;
-   public static String        App_Action_open_preferences;
-   public static String        App_Action_OpenOtherViews;
-   public static String        App_Action_RefreshView;
-   public static String        App_Action_Remove;
-   public static String        App_Action_Remove_Immediate;
-   public static String        App_Action_RemoveTourPhotos;
-   public static String        App_Action_Rename;
-   public static String        App_Action_RestartApp;
-   public static String        App_Action_set_tour_type;
-   public static String        App_Action_Save;
-   public static String        App_Action_SetPerson;
-   public static String        App_Action_SplitTour;
-   public static String        App_Action_ToolTipLocation_AboveTourChart_Tooltip;
-   public static String        App_Action_ToolTipLocation_BelowTourChart_Tooltip;
-   public static String        App_Action_UncheckAll;
-   public static String        App_Action_UpdateNew;
-
-   public static String        App_measurement_tooltip;
-
-   public static String        App_Cadence_Invalid;
-   public static String        App_Cadence_None;
-   public static String        App_Cadence_Rpm;
-   public static String        App_Cadence_Spm;
-
-   public static String        App_Db_Compress_Button_CompressByCopying;
-   public static String        App_Db_Compress_Button_CompressByCopying_Tooltip;
-   public static String        App_Db_Compress_Button_CompressDatabase;
-   public static String        App_Db_Compress_Button_CompressInplace;
-   public static String        App_Db_Compress_Button_CompressInplace_Tooltip;
-   public static String        App_Db_Compress_Dialog_ConfirmCompress_Message;
-   public static String        App_Db_Compress_DialogTitle;
-   public static String        App_Db_Compress_LogLabel_After;
-   public static String        App_Db_Compress_LogLabel_Before;
-   public static String        App_Db_Compress_LogLabel_Difference;
-   public static String        App_Db_Compress_LogLabel_Index;
-   public static String        App_Db_Compress_LogLabel_NotUsed;
-   public static String        App_Db_Compress_LogLabel_Table;
-   public static String        App_Db_Compress_LogLabel_Totals;
-   public static String        App_Db_Compress_LogLabel_Used;
-   public static String        App_Db_Compress_LogHeader_After;
-   public static String        App_Db_Compress_LogHeader_Before;
-   public static String        App_Db_Compress_LogHeader_Difference;
-   public static String        App_Db_Compress_Monitor_SubTask;
-   public static String        App_Db_Compress_Monitor_Task;
-
-   public static String        App_Default_PersonFirstName;
-
-   public static String        App_Dialog_FirstStartup_Message;
-   public static String        App_Dialog_FirstStartup_Title;
-   public static String        App_Dialog_FirstStartupTip_Message;
-   public static String        App_Dialog_FirstStartupTip_Title;
-   public static String        App_Dialog_RestartApp_Title;
-
-   public static String        App_Label_BooleanNo;
-   public static String        App_Label_BooleanYes;
-   public static String        App_Label_H_MM;
-   public static String        App_Label_ISO8601;
-   public static String        App_Label_max;
-   public static String        App_Label_NotAvailable;
-   public static String        App_Label_NotAvailable_Shortcut;
-
-   public static String        App_Link_RestoreDefaultValues;
-
-   public static String        App_People_item_all;
-   public static String        App_People_tooltip;
-
-   public static String        App_SortDirection_Ascending;
-   public static String        App_SortDirection_Descending;
-   public static String        App_SortDirection_None;
-
-   public static String        App_Splash_Copyright;
-
-   public static String        App_SplashMessage_Finalize;
-   public static String        App_SplashMessage_StartingApplication;
-   public static String        App_SplashMessage_StartingDatabase;
-
-   public static String        App_Title;
-
-   public static String        App_ToggleState_DoNotShowAgain;
-
-   public static String        App_Tour_type_item_all_types;
-   public static String        App_Tour_type_item_not_defined;
-
-   public static String        App_TourType_ToolTip;
-   public static String        App_TourType_ToolTipTitle;
-
-   public static String        App_Unit_HHMMSS;
-   public static String        App_Unit_Milliseconds;
-   public static String        App_Unit_Minute;
-   public static String        App_Unit_Minute_Small;
-   public static String        App_Unit_Px;
-   public static String        App_Unit_Seconds_Small;
-
-   public static String        App_Window_Title;
-
    public static String        Collate_Tours_Label_DummyTour_Tooltip;
    public static String        Collate_Tours_Label_TimeScale_BeforePresent;
    public static String        Collate_Tours_Label_TimeScale_Today;
@@ -417,10 +395,23 @@ public class Messages extends NLS {
    public static String        Compute_CadenceZonesTimes_Label_CadenceZonesDelimiter;
    public static String        Compute_CadenceZonesTimes_Label_Description_CadenceZonesDelimiter;
 
+   public static String        Compute_Govss_Button_ComputeAllTours;
+   public static String        Compute_Govss_Button_ComputeAllTours_Tooltip;
+   public static String        Compute_GovssValues_ComputeForAllTours_Job_Result;
+
    public static String        Compute_GovssValues_Dialog_ComputeForUserTours_Title;
    public static String        Compute_GovssValues_Dialog_ComputeForUserTours_Message;
 
    public static String        Compute_PerformanceModelingChart_Group;
+
+   public static String        Compute_PerformanceModelingChart_Label_Days;
+   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay;
+   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay_Tooltip;
+   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay;
+   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay_Tooltip;
+
+   public static String        Dialog_ComputeGovss_Dialog_Title;
+   public static String        Dialog_ComputeGovss_Label_GovssNotComputed;
 
    public static String        Compute_HrZones_Dialog_ComputeAllTours_Title;
    public static String        Compute_HrZones_Dialog_ComputeAllTours_Title_Message;
@@ -428,12 +419,6 @@ public class Messages extends NLS {
    public static String        Compute_HrZones_Job_ComputeAllTours_SubTask;
    public static String        Compute_HrZone_Group;
    public static String        Compute_HrZone_Link;
-
-   public static String        Compute_PerformanceModelingChart_Label_Days;
-   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay;
-   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay_Tooltip;
-   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay;
-   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay_Tooltip;
 
    public static String        Compute_Smoothing_Button_ForAllTours;
    public static String        Compute_Smoothing_Button_ForAllTours_Tooltip;
@@ -1156,12 +1141,10 @@ public class Messages extends NLS {
    public static String        Log_ComputeCadenceZonesTimes_002_End;
    public static String        Log_ComputeCadenceZonesTimes_010_Success;
    public static String        Log_ComputeCadenceZonesTimes_011_NoSuccess;
-
    public static String        Log_ComputeGovss_001_Start;
    public static String        Log_ComputeGovss_002_End;
    public static String        Log_ComputeGovss_010_Success;
    public static String        Log_ComputeGovss_011_NoSuccess;
-
    public static String        Log_Delete_Text;
    public static String        Log_Delete_TourValues_End;
    public static String        Log_EasyImport_000_ImportStart;
@@ -1414,10 +1397,15 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Label_Theme;
    public static String        Pref_Appearance_NumberOfRecent_TourTypes;
    public static String        Pref_Appearance_NumberOfRecent_TourTypes_Tooltip;
+   public static String        pref_appearance_number_of_recent_tags;
+   public static String        pref_appearance_number_of_recent_tags_tooltip;
    public static String        Pref_Appearance_Radio_UseMovingTime;
    public static String        Pref_Appearance_Radio_UseMovingTime_Tooltip;
    public static String        Pref_Appearance_Radio_UseRecordedTime;
    public static String        Pref_Appearance_Radio_UseRecordedTime_Tooltip;
+   public static String        pref_appearance_showMemoryMonitor;
+   public static String        pref_appearance_showMemoryMonitor_message;
+   public static String        pref_appearance_showMemoryMonitor_title;
    public static String        Pref_Appearance_ShowTourTypeContextMenu;
    public static String        Pref_Appearance_ShowTourTypeContextMenu_Tooltip;
 
@@ -1459,6 +1447,8 @@ public class Messages extends NLS {
    public static String        Pref_General_Label_SetAnotherTimeZone;
    public static String        Pref_General_Notes;
    public static String        Pref_General_Notes_Tooltip;
+   public static String        pref_general_restart_app_message;
+   public static String        pref_general_restart_app_title;
    public static String        Pref_general_show_system_in_ui;
    public static String        Pref_general_system_measurement;
 
@@ -1586,6 +1576,14 @@ public class Messages extends NLS {
    public static String        Pref_MapLayout_Label_TourPaintMethod_Simple;
    public static String        Pref_MapLayout_Label_TourPaintMethod_Simple_Tooltip;
 
+   public static String        pref_map_layout_BorderWidth;
+   public static String        pref_map_layout_PaintBorder;
+   public static String        pref_map_layout_symbol;
+   public static String        pref_map_layout_symbol_dot;
+   public static String        pref_map_layout_symbol_line;
+   public static String        pref_map_layout_symbol_square;
+   public static String        pref_map_layout_symbol_width;
+
    public static String        Pref_People_Action_add_person;
    public static String        Pref_People_Button_HrZones_ComputeAllTours;
    public static String        Pref_People_Button_HrZones_ComputeAllTours_Tooltip;
@@ -1626,39 +1624,6 @@ public class Messages extends NLS {
    public static String        Pref_People_Tab_Person;
    public static String        Pref_People_Tab_TrainingStress;
    public static String        Pref_People_Title;
-
-   public static String        Pref_TrainingStress_BikeScore_GroupName;
-   public static String        Pref_TrainingStress_Govss_GroupName;
-   public static String        Pref_TrainingStress_Govss_AddTourTypes;
-   public static String        Pref_TrainingStress_Govss_RemoveTourType;
-   public static String        Pref_TrainingStress_Govss_Label_AverageSlope;
-   public static String        Pref_TrainingStress_Govss_Label_ThresholdVelocity;
-   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_AverageSlope;
-   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Distance;
-   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Duration;
-   public static String        Pref_TrainingStress_Group_ThresholdPower;
-   public static String        Pref_TrainingStress_Group_TourTypes;
-   public static String        Pref_TrainingStress_SwimScore_GroupName;
-
-   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label;
-
-   public static String        pref_appearance_number_of_recent_tags;
-   public static String        pref_appearance_number_of_recent_tags_tooltip;
-   public static String        pref_appearance_showMemoryMonitor;
-   public static String        pref_appearance_showMemoryMonitor_message;
-   public static String        pref_appearance_showMemoryMonitor_title;
-
-   public static String        pref_general_restart_app_message;
-   public static String        pref_general_restart_app_title;
-
-   public static String        pref_map_layout_BorderWidth;
-   public static String        pref_map_layout_dim_color;
-   public static String        pref_map_layout_PaintBorder;
-   public static String        pref_map_layout_symbol;
-   public static String        pref_map_layout_symbol_dot;
-   public static String        pref_map_layout_symbol_line;
-   public static String        pref_map_layout_symbol_square;
-   public static String        pref_map_layout_symbol_width;
 
    public static String        Pref_Statistic_Action_SortByData;
    public static String        Pref_Statistic_Action_SortByTime;
@@ -1764,6 +1729,20 @@ public class Messages extends NLS {
    public static String        Pref_Tour_Label_FailedUpdateInfo_BOLD;
    public static String        Pref_Tour_Label_TourCacheSize;
    public static String        Pref_Tour_Label_TourCacheSize_Info;
+
+   public static String        Pref_TrainingStress_BikeScore_GroupName;
+   public static String        Pref_TrainingStress_Govss_GroupName;
+   public static String        Pref_TrainingStress_Govss_AddTourTypes;
+   public static String        Pref_TrainingStress_Govss_RemoveTourType;
+   public static String        Pref_TrainingStress_Govss_Label_AverageSlope;
+   public static String        Pref_TrainingStress_Govss_Label_ThresholdVelocity;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_AverageSlope;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Distance;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Duration;
+   public static String        Pref_TrainingStress_Group_ThresholdPower;
+   public static String        Pref_TrainingStress_Group_TourTypes;
+   public static String        Pref_TrainingStress_SwimScore_GroupName;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label;
 
    public static String        pref_view_layout_display_lines;
    public static String        pref_view_layout_display_lines_Tooltip;
@@ -2154,12 +2133,186 @@ public class Messages extends NLS {
 
    public static String        Slideout_TourChartSmoothing_Label_Title;
 
+   public static String        Slideout_TourEditor_Label_LatLonDigits;
+   public static String        Slideout_TourEditor_Label_LatLonDigits_Tooltip;
+   public static String        Slideout_TourEditor_Label_Title;
+
+   public static String        Slideout_TourFilter_Action_ActivateAll;
+   public static String        Slideout_TourFilter_Action_ActivateAll_Tooltip;
+   public static String        Slideout_TourFilter_Action_AddProfile;
+   public static String        Slideout_TourFilter_Action_AddProfile_Tooltip;
+   public static String        Slideout_TourFilter_Action_AddProperty;
+   public static String        Slideout_TourFilter_Action_AddProperty_Tooltip;
+   public static String        Slideout_TourFilter_Action_Apply;
+   public static String        Slideout_TourFilter_Action_CopyProfile;
+   public static String        Slideout_TourFilter_Action_CopyProfile_Tooltip;
+   public static String        Slideout_TourFilter_Action_DeactivateAll;
+   public static String        Slideout_TourFilter_Action_DeactivateAll_Tooltip;
+   public static String        Slideout_TourFilter_Action_DeleteProfile;
+   public static String        Slideout_TourFilter_Action_DeleteProfile_Tooltip;
+   public static String        Slideout_TourFilter_Action_DeleteProperty_Tooltip;
+   public static String        Slideout_TourFilter_Action_MovePropertyDown_Tooltip;
+   public static String        Slideout_TourFilter_Action_MovePropertyUp_Tooltip;
+   public static String        Slideout_TourFilter_Checkbox_IsLiveUpdate;
+   public static String        Slideout_TourFilter_Checkbox_IsLiveUpdate_Tooltip;
+   public static String        Slideout_TourFilter_Checkbox_IsPropertyEnabled_Tooltip;
+   public static String        Slideout_TourFilter_Column_ProfileName;
+   public static String        Slideout_TourFilter_Column_Properties;
+   public static String        Slideout_TourFilter_Column_Properties_Tooltip;
+   public static String        Slideout_TourFilter_Confirm_DeleteProfile_Message;
+   public static String        Slideout_TourFilter_Confirm_DeleteProfile_Title;
+   public static String        Slideout_TourFilter_Confirm_DeleteProperty_Message;
+   public static String        Slideout_TourFilter_Confirm_DeleteProperty_Title;
+   public static String        Slideout_TourFilter_Label_ProfileName;
+   public static String        Slideout_TourFilter_Label_Profiles;
+   public static String        Slideout_TourFilter_Label_Title;
+   public static String        Slideout_TourFilter_Link_TextSearchHint;
+   public static String        Slideout_TourFilter_Link_TextSearchHint_Tooltip;
+
+   public static String        Slideout_TourGeoFilter_Action_Delete_AllWithoutName;
+   public static String        Slideout_TourGeoFilter_Action_Delete_WithoutName;
+   public static String        Slideout_TourGeoFilter_Action_Delete_WithoutName_Tooltip;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsAutoOpenSlideout;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsAutoOpenSlideout_Tooltip;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsSyncMapPosition;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsSyncMapPosition_Tooltip;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsUseFastMapPainting;
+   public static String        Slideout_TourGeoFilter_Checkbox_IsUseFastMapPainting_Tooltip;
+   public static String        Slideout_TourGeoFilter_Checkbox_UseAppFilter;
+   public static String        Slideout_TourGeoFilter_Color_GeoPartHover_Tooltip;
+   public static String        Slideout_TourGeoFilter_Color_GeoPartSelected_Tooltip;
+   public static String        Slideout_TourGeoFilter_Column_Created_Label;
+   public static String        Slideout_TourGeoFilter_Column_FilterName_Label;
+   public static String        Slideout_TourGeoFilter_Column_Latitude1_Header;
+   public static String        Slideout_TourGeoFilter_Column_Latitude1_Label;
+   public static String        Slideout_TourGeoFilter_Column_Latitude2_Header;
+   public static String        Slideout_TourGeoFilter_Column_Latitude2_Label;
+   public static String        Slideout_TourGeoFilter_Column_Longitude1_Header;
+   public static String        Slideout_TourGeoFilter_Column_Longitude1_Label;
+   public static String        Slideout_TourGeoFilter_Column_Longitude2_Header;
+   public static String        Slideout_TourGeoFilter_Column_Longitude2_Label;
+   public static String        Slideout_TourGeoFilter_Column_NumGeoParts_Header;
+   public static String        Slideout_TourGeoFilter_Column_NumGeoParts_Label;
+   public static String        Slideout_TourGeoFilter_Dialog_DeleteAllFilter_Message;
+   public static String        Slideout_TourGeoFilter_Dialog_DeleteAllFilter_Title;
+   public static String        Slideout_TourGeoFilter_Label_FilterIncludeExclude;
+   public static String        Slideout_TourGeoFilter_Label_GeoPartColor;
+   public static String        Slideout_TourGeoFilter_Label_Hint;
+   public static String        Slideout_TourGeoFilter_Label_History;
+   public static String        Slideout_TourGeoFilter_Label_Title;
+   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Exclude;
+   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Exclude_Tooltip;
+   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Include;
+   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Include_Tooltip;
+   public static String        Slideout_TourGeoFilter_Spinner_FastMapPainting_SkippedValues_Tooltip;
+
+   public static String        Slideout_TourInfoOptions_Checkbox_IsShowInfoTooltip;
+   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourSeparator;
+   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourSeparator_Tooltip;
+   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourTitle;
+   public static String        Slideout_TourInfoOptions_Label_Title;
+   public static String        Slideout_TourInfoOptions_Label_TooltipDelay;
+   public static String        Slideout_TourInfoOptions_Label_TooltipDelaySimple_Tooltip;
+   public static String        Slideout_TourInfoOptions_Label_TooltipDelay_Tooltip;
+
+   public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits;
+   public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits_Tooltip;
+   public static String        Slideout_TourMarkerFilter_Label_GeoFilter;
+   public static String        Slideout_TourMarkerFilter_Label_GeoFilterArea;
+   public static String        Slideout_TourMarkerFilter_Label_GeoFilterNotAvailable;
+   public static String        Slideout_TourMarkerFilter_Label_GeoFilter_Tooltip;
+   public static String        Slideout_TourMarkerFilter_Label_Title;
+
+   public static String        Slideout_TourTagFilter_Action_AddProfile_Tooltip;
+   public static String        Slideout_TourTagFilter_Action_CheckAllTags_Tooltip;
+   public static String        Slideout_TourTagFilter_Action_UncheckAllTags_Tooltip;
+   public static String        Slideout_TourTagFilter_Checkbox_IsLiveUpdate_Tooltip;
+   public static String        Slideout_TourTagFilter_Column_CombineTags;
+   public static String        Slideout_TourTagFilter_Column_CombineTags_Tooltip;
+   public static String        Slideout_TourTagFilter_Column_Tags_Checked;
+   public static String        Slideout_TourTagFilter_Column_Tags_Checked_Tooltip;
+   public static String        Slideout_TourTagFilter_Column_Tags_Unchecked;
+   public static String        Slideout_TourTagFilter_Column_Tags_Unchecked_Tooltip;
+   public static String        Slideout_TourTagFilter_CombineTags_With_AND;
+   public static String        Slideout_TourTagFilter_CombineTags_With_OR;
+   public static String        Slideout_TourTagFilter_Label_AllTags;
+   public static String        Slideout_TourTagFilter_Label_SelectedTags;
+   public static String        Slideout_TourTagFilter_Label_TagOperator;
+   public static String        Slideout_TourTagFilter_Label_Title;
+   public static String        Slideout_TourTagFilter_Radio_TagOperator_AND;
+   public static String        Slideout_TourTagFilter_Radio_TagOperator_AND_Tooltip;
+   public static String        Slideout_TourTagFilter_Radio_TagOperator_OR;
+   public static String        Slideout_TourTagFilter_Radio_TagOperator_OR_Tooltip;
+
+   public static String        Slideout_TrainingOptions_Label_Title;
+
+   public static String        SRTM_Download_Dialog_SRTMDownloadValidation_Title;
+   public static String        SRTM_Download_Info_NoDownloadValidation;
+   public static String        SRTM_Download_Info_UsernamePasswordIsEmpty;
+
+   public static String        Tag_Manager_Action_DeleteCategory;
+   public static String        Tag_Manager_Action_DeleteTag;
+   public static String        Tag_Manager_Action_DeleteTags;
+   public static String        Tag_Manager_Dialog_DeleteCategory_Categories_Message;
+   public static String        Tag_Manager_Dialog_DeleteCategory_Message;
+   public static String        Tag_Manager_Dialog_DeleteCategory_Tags_Message;
+   public static String        Tag_Manager_Dialog_DeleteCategory_Title;
+   public static String        Tag_Manager_Dialog_DeleteTag_Message;
+   public static String        Tag_Manager_Dialog_DeleteTag_Multiple_Message;
+   public static String        Tag_Manager_Dialog_DeleteTag_Title;
+   public static String        Tag_Manager_LogInfo_DeletedTagCategory;
+   public static String        Tag_Manager_LogInfo_DeletedTags;
+
+   public static String        tag_view_action_refresh_view_tooltip;
+   public static String        tag_view_title_tag;
+   public static String        tag_view_title_tag_category;
+
    public static String        Tooltip_Position_Bottom;
    public static String        Tooltip_Position_ChartBottom;
    public static String        Tooltip_Position_ChartTop;
    public static String        Tooltip_Position_Left;
    public static String        Tooltip_Position_Right;
    public static String        Tooltip_Position_Top;
+
+   public static String        Tooltip_ValuePoint_Action_CloseContextMenu;
+   public static String        Tooltip_ValuePoint_Action_OpenToolTipMenu_ToolTip;
+   public static String        Tooltip_ValuePoint_Action_Orientation_Horizontal;
+   public static String        Tooltip_ValuePoint_Action_Orientation_Vertical;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_BottomLeft;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_BottomRight;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_Header;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_MouseXPosition;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_Screen;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_TopLeft;
+   public static String        Tooltip_ValuePoint_Action_PinLocation_TopRight;
+   public static String        Tooltip_ValuePoint_Action_Value_Altimeter;
+   public static String        Tooltip_ValuePoint_Action_Value_Altitude;
+   public static String        Tooltip_ValuePoint_Action_Value_Cadence;
+   public static String        Tooltip_ValuePoint_Action_Value_ChartZoomFactor;
+   public static String        Tooltip_ValuePoint_Action_Value_Distance;
+   public static String        Tooltip_ValuePoint_Action_Value_Gears;
+   public static String        Tooltip_ValuePoint_Action_Value_Gradient;
+   public static String        Tooltip_ValuePoint_Action_Value_Header;
+   public static String        Tooltip_ValuePoint_Action_Value_Pace;
+   public static String        Tooltip_ValuePoint_Action_Value_Power;
+   public static String        Tooltip_ValuePoint_Action_Value_Pulse;
+   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StanceTime;
+   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StanceTimeBalance;
+   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StepLength;
+   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_VerticalOscillation;
+   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_VerticalRatio;
+   public static String        Tooltip_ValuePoint_Action_Value_Speed;
+   public static String        Tooltip_ValuePoint_Action_Value_Temperature;
+   public static String        Tooltip_ValuePoint_Action_Value_TimeDuration;
+   public static String        Tooltip_ValuePoint_Action_Value_TimeOfDay;
+   public static String        Tooltip_ValuePoint_Action_Value_TimeSlices;
+   public static String        Tooltip_ValuePoint_Action_Value_TourCompareResult;
+   public static String        Tooltip_ValuePoint_Format_Pace;
+   public static String        Tooltip_ValuePoint_Label_ChartZoomFactor_Tooltip;
+   public static String        Tooltip_ValuePoint_Label_NoData;
+   public static String        Tooltip_ValuePoint_Label_NoData_Tooltip;
+   public static String        Tooltip_ValuePoint_Label_SlicesCurrent_Tooltip;
+   public static String        Tooltip_ValuePoint_Label_SlicesMax_Tooltip;
 
    public static String        TourAnalyzer_Label_average;
    public static String        TourAnalyzer_Label_difference;
@@ -2285,197 +2438,8 @@ public class Messages extends NLS {
    public static String        TourGeoFilter_Loader_LoadingParts;
    public static String        TourGeoFilter_Loader_Tours;
 
-   public static String        Slideout_TourEditor_Label_LatLonDigits;
-   public static String        Slideout_TourEditor_Label_LatLonDigits_Tooltip;
-   public static String        Slideout_TourEditor_Label_Title;
-   public static String        Slideout_TourFilter_Action_ActivateAll;
-   public static String        Slideout_TourFilter_Action_ActivateAll_Tooltip;
-   public static String        Slideout_TourFilter_Action_AddProfile;
-   public static String        Slideout_TourFilter_Action_AddProfile_Tooltip;
-   public static String        Slideout_TourFilter_Action_AddProperty;
-   public static String        Slideout_TourFilter_Action_AddProperty_Tooltip;
-   public static String        Slideout_TourFilter_Action_Apply;
-   public static String        Slideout_TourFilter_Action_CopyProfile;
-   public static String        Slideout_TourFilter_Action_CopyProfile_Tooltip;
-   public static String        Slideout_TourFilter_Action_DeactivateAll;
-   public static String        Slideout_TourFilter_Action_DeactivateAll_Tooltip;
-   public static String        Slideout_TourFilter_Action_DeleteProfile;
-   public static String        Slideout_TourFilter_Action_DeleteProfile_Tooltip;
-   public static String        Slideout_TourFilter_Action_DeleteProperty_Tooltip;
-   public static String        Slideout_TourFilter_Action_MovePropertyDown_Tooltip;
-   public static String        Slideout_TourFilter_Action_MovePropertyUp_Tooltip;
-   public static String        Slideout_TourFilter_Checkbox_IsLiveUpdate;
-   public static String        Slideout_TourFilter_Checkbox_IsLiveUpdate_Tooltip;
-   public static String        Slideout_TourFilter_Checkbox_IsPropertyEnabled_Tooltip;
-   public static String        Slideout_TourFilter_Column_ProfileName;
-   public static String        Slideout_TourFilter_Column_Properties;
-   public static String        Slideout_TourFilter_Column_Properties_Tooltip;
-   public static String        Slideout_TourFilter_Confirm_DeleteProfile_Message;
-   public static String        Slideout_TourFilter_Confirm_DeleteProfile_Title;
-   public static String        Slideout_TourFilter_Confirm_DeleteProperty_Message;
-   public static String        Slideout_TourFilter_Confirm_DeleteProperty_Title;
-   public static String        Slideout_TourFilter_Label_ProfileName;
-   public static String        Slideout_TourFilter_Label_Profiles;
-   public static String        Slideout_TourFilter_Label_Title;
-   public static String        Slideout_TourFilter_Link_TextSearchHint;
-   public static String        Slideout_TourFilter_Link_TextSearchHint_Tooltip;
-   public static String        Slideout_TourGeoFilter_Action_Delete_AllWithoutName;
-   public static String        Slideout_TourGeoFilter_Action_Delete_WithoutName;
-   public static String        Slideout_TourGeoFilter_Action_Delete_WithoutName_Tooltip;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsAutoOpenSlideout;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsAutoOpenSlideout_Tooltip;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsSyncMapPosition;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsSyncMapPosition_Tooltip;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsUseFastMapPainting;
-   public static String        Slideout_TourGeoFilter_Checkbox_IsUseFastMapPainting_Tooltip;
-   public static String        Slideout_TourGeoFilter_Checkbox_UseAppFilter;
-   public static String        Slideout_TourGeoFilter_Color_GeoPartHover_Tooltip;
-   public static String        Slideout_TourGeoFilter_Color_GeoPartSelected_Tooltip;
-   public static String        Slideout_TourGeoFilter_Column_Created_Label;
-   public static String        Slideout_TourGeoFilter_Column_FilterName_Label;
-   public static String        Slideout_TourGeoFilter_Column_Latitude1_Header;
-   public static String        Slideout_TourGeoFilter_Column_Latitude1_Label;
-   public static String        Slideout_TourGeoFilter_Column_Latitude2_Header;
-   public static String        Slideout_TourGeoFilter_Column_Latitude2_Label;
-   public static String        Slideout_TourGeoFilter_Column_Longitude1_Header;
-   public static String        Slideout_TourGeoFilter_Column_Longitude1_Label;
-   public static String        Slideout_TourGeoFilter_Column_Longitude2_Header;
-   public static String        Slideout_TourGeoFilter_Column_Longitude2_Label;
-   public static String        Slideout_TourGeoFilter_Column_NumGeoParts_Header;
-   public static String        Slideout_TourGeoFilter_Column_NumGeoParts_Label;
-   public static String        Slideout_TourGeoFilter_Dialog_DeleteAllFilter_Message;
-   public static String        Slideout_TourGeoFilter_Dialog_DeleteAllFilter_Title;
-   public static String        Slideout_TourGeoFilter_Label_FilterIncludeExclude;
-   public static String        Slideout_TourGeoFilter_Label_GeoPartColor;
-   public static String        Slideout_TourGeoFilter_Label_Hint;
-   public static String        Slideout_TourGeoFilter_Label_History;
-   public static String        Slideout_TourGeoFilter_Label_Title;
-   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Exclude;
-   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Exclude_Tooltip;
-   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Include;
-   public static String        Slideout_TourGeoFilter_Radio_GeoParts_Include_Tooltip;
-   public static String        Slideout_TourGeoFilter_Spinner_FastMapPainting_SkippedValues_Tooltip;
-
-   public static String        Slideout_TourInfoOptions_Checkbox_IsShowInfoTooltip;
-   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourSeparator;
-   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourSeparator_Tooltip;
-   public static String        Slideout_TourInfoOptions_Checkbox_IsShowTourTitle;
-   public static String        Slideout_TourInfoOptions_Label_Title;
-   public static String        Slideout_TourInfoOptions_Label_TooltipDelay;
-   public static String        Slideout_TourInfoOptions_Label_TooltipDelay_Tooltip;
-
-   public static String        Slideout_TourInfoOptions_Label_TooltipDelaySimple_Tooltip;
-
-   public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits;
-   public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits_Tooltip;
-   public static String        Slideout_TourMarkerFilter_Label_GeoFilter;
-   public static String        Slideout_TourMarkerFilter_Label_GeoFilter_Tooltip;
-   public static String        Slideout_TourMarkerFilter_Label_GeoFilterArea;
-   public static String        Slideout_TourMarkerFilter_Label_GeoFilterNotAvailable;
-   public static String        Slideout_TourMarkerFilter_Label_Title;
-
-   public static String        Slideout_TourTagFilter_Action_AddProfile_Tooltip;
-   public static String        Slideout_TourTagFilter_Action_CheckAllTags_Tooltip;
-   public static String        Slideout_TourTagFilter_Action_UncheckAllTags_Tooltip;
-   public static String        Slideout_TourTagFilter_Checkbox_IsLiveUpdate_Tooltip;
-   public static String        Slideout_TourTagFilter_Column_CombineTags;
-   public static String        Slideout_TourTagFilter_Column_CombineTags_Tooltip;
-   public static String        Slideout_TourTagFilter_Column_Tags_Checked;
-   public static String        Slideout_TourTagFilter_Column_Tags_Checked_Tooltip;
-   public static String        Slideout_TourTagFilter_Column_Tags_Unchecked;
-   public static String        Slideout_TourTagFilter_Column_Tags_Unchecked_Tooltip;
-   public static String        Slideout_TourTagFilter_CombineTags_With_AND;
-   public static String        Slideout_TourTagFilter_CombineTags_With_OR;
-   public static String        Slideout_TourTagFilter_Label_AllTags;
-   public static String        Slideout_TourTagFilter_Label_SelectedTags;
-   public static String        Slideout_TourTagFilter_Label_TagOperator;
-   public static String        Slideout_TourTagFilter_Label_Title;
-   public static String        Slideout_TourTagFilter_Radio_TagOperator_AND;
-   public static String        Slideout_TourTagFilter_Radio_TagOperator_AND_Tooltip;
-   public static String        Slideout_TourTagFilter_Radio_TagOperator_OR;
-   public static String        Slideout_TourTagFilter_Radio_TagOperator_OR_Tooltip;
-
-   public static String        Slideout_TrainingOptions_Label_Title;
-
-   public static String        SRTM_Download_Dialog_SRTMDownloadValidation_Title;
-   public static String        SRTM_Download_Info_NoDownloadValidation;
-   public static String        SRTM_Download_Info_UsernamePasswordIsEmpty;
-
-   public static String        Tag_Manager_Action_DeleteCategory;
-   public static String        Tag_Manager_Action_DeleteTag;
-   public static String        Tag_Manager_Action_DeleteTags;
-   public static String        Tag_Manager_Dialog_DeleteCategory_Categories_Message;
-   public static String        Tag_Manager_Dialog_DeleteCategory_Message;
-   public static String        Tag_Manager_Dialog_DeleteCategory_Tags_Message;
-   public static String        Tag_Manager_Dialog_DeleteCategory_Title;
-   public static String        Tag_Manager_Dialog_DeleteTag_Message;
-   public static String        Tag_Manager_Dialog_DeleteTag_Multiple_Message;
-   public static String        Tag_Manager_Dialog_DeleteTag_Title;
-   public static String        Tag_Manager_LogInfo_DeletedTagCategory;
-   public static String        Tag_Manager_LogInfo_DeletedTags;
-
-   public static String        Tooltip_ValuePoint_Action_CloseContextMenu;
-   public static String        Tooltip_ValuePoint_Action_OpenToolTipMenu_ToolTip;
-   public static String        Tooltip_ValuePoint_Action_Orientation_Horizontal;
-   public static String        Tooltip_ValuePoint_Action_Orientation_Vertical;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_BottomLeft;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_BottomRight;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_Header;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_MouseXPosition;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_Screen;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_TopLeft;
-   public static String        Tooltip_ValuePoint_Action_PinLocation_TopRight;
-   public static String        Tooltip_ValuePoint_Action_Value_Altimeter;
-   public static String        Tooltip_ValuePoint_Action_Value_Altitude;
-   public static String        Tooltip_ValuePoint_Action_Value_Cadence;
-   public static String        Tooltip_ValuePoint_Action_Value_ChartZoomFactor;
-   public static String        Tooltip_ValuePoint_Action_Value_Distance;
-   public static String        Tooltip_ValuePoint_Action_Value_Gears;
-   public static String        Tooltip_ValuePoint_Action_Value_Gradient;
-   public static String        Tooltip_ValuePoint_Action_Value_Header;
-   public static String        Tooltip_ValuePoint_Action_Value_Pace;
-   public static String        Tooltip_ValuePoint_Action_Value_Power;
-   public static String        Tooltip_ValuePoint_Action_Value_Pulse;
-   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StanceTime;
-   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StanceTimeBalance;
-   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_StepLength;
-   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_VerticalOscillation;
-   public static String        Tooltip_ValuePoint_Action_Value_RunDyn_VerticalRatio;
-   public static String        Tooltip_ValuePoint_Action_Value_Speed;
-   public static String        Tooltip_ValuePoint_Action_Value_Temperature;
-   public static String        Tooltip_ValuePoint_Action_Value_TimeDuration;
-   public static String        Tooltip_ValuePoint_Action_Value_TimeOfDay;
-   public static String        Tooltip_ValuePoint_Action_Value_TimeSlices;
-   public static String        Tooltip_ValuePoint_Action_Value_TourCompareResult;
-   public static String        Tooltip_ValuePoint_Format_Pace;
-   public static String        Tooltip_ValuePoint_Label_ChartZoomFactor_Tooltip;
-   public static String        Tooltip_ValuePoint_Label_NoData;
-   public static String        Tooltip_ValuePoint_Label_NoData_Tooltip;
-   public static String        Tooltip_ValuePoint_Label_SlicesCurrent_Tooltip;
-   public static String        Tooltip_ValuePoint_Label_SlicesMax_Tooltip;
-
    public static String        TourManager_Dialog_OutOfSyncError_Message;
    public static String        TourManager_Dialog_OutOfSyncError_Title;
-
-   public static String        Tour_Marker_TooltipPosition_Bottom;
-   public static String        Tour_Marker_TooltipPosition_ChartBottom;
-   public static String        Tour_Marker_TooltipPosition_ChartTop;
-   public static String        Tour_Marker_TooltipPosition_Left;
-   public static String        Tour_Marker_TooltipPosition_Right;
-   public static String        Tour_Marker_TooltipPosition_Top;
-
-   public static String        Tour_SubMenu_TrainingStress;
-
-   public static String        tag_view_action_refresh_view_tooltip;
-   public static String        tag_view_title_tag;
-   public static String        tag_view_title_tag_category;
-
-   public static String        tour_editor_label_trainingstress_govss;
-   public static String        tour_editor_label_trainingstress_govss_tooltip;
-   public static String        tour_editor_label_trainingstress_bikescore;
-   public static String        tour_editor_label_trainingstress_bikescore_tooltip;
-   public static String        tour_editor_label_trainingstress_swimscore;
-   public static String        tour_editor_label_trainingstress_swimscore_tooltip;
 
    public static String        Tour_Action_AdjustTemperature;
    public static String        Tour_Action_AdjustTourValues;
@@ -2731,6 +2695,12 @@ public class Messages extends NLS {
    public static String        tour_editor_label_tour_tag;
    public static String        tour_editor_label_tour_title;
    public static String        tour_editor_label_tour_type;
+   public static String        tour_editor_label_trainingstress_govss;
+   public static String        tour_editor_label_trainingstress_govss_tooltip;
+   public static String        tour_editor_label_trainingstress_bikescore;
+   public static String        tour_editor_label_trainingstress_bikescore_tooltip;
+   public static String        tour_editor_label_trainingstress_swimscore;
+   public static String        tour_editor_label_trainingstress_swimscore_tooltip;
    public static String        Tour_Editor_Label_Weather;
    public static String        tour_editor_label_WindDirectionNESW_Tooltip;
    public static String        Tour_Editor_Label_WindDirection_Unit;
@@ -2939,6 +2909,7 @@ public class Messages extends NLS {
 
    public static String        Tour_SubMenu_Cadence;
    public static String        Tour_SubMenu_Elevation;
+   public static String        Tour_SubMenu_TrainingStress;
 
    public static String        Tour_Tags_Action_Layout_Flat_Tooltip;
    public static String        Tour_Tags_Action_Layout_Hierarchical_Tooltip;
@@ -2954,10 +2925,8 @@ public class Messages extends NLS {
    public static String        Training_Action_EditHrZones;
    public static String        Training_Action_EditHrZones_Tooltip;
    public static String        Training_HRZone_Label_Header_Zone;
-
    public static String        Training_Stress_Label_Info;
    public static String        Training_Stress_Group_Govss;
-
    public static String        Training_View_Action_ShowAllPulseValues;
    public static String        Training_View_Action_SynchChartScale;
    public static String        Training_View_Label_LeftChartBorder;
@@ -2972,8 +2941,8 @@ public class Messages extends NLS {
    public static String        UI_Label_BrowserCannotBeCreated_Error;
    public static String        UI_Label_no_chart_is_selected;
    public static String        UI_Label_PersonIsRequired;
-   public static String        UI_Label_No_Person_Is_Selected;
    public static String        UI_Label_TourIsNotSelected;
+
    public static String        ui_tour_not_defined;
 
    public static String        Year_Statistic_Combo_LastYears_Tooltip;
