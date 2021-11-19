@@ -17,6 +17,7 @@ package net.tourbook.common.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -45,5 +46,6 @@ public class StringUtilsTests {
 
       final String fileName = "\\$%#filename.txt";
       assertEquals(StringUtils.sanitizeFileName(fileName), "----filename.txt");
+      assertNull(StringUtils.sanitizeFileName(null));
    }
 }
