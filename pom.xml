@@ -266,6 +266,12 @@
 			    </configuration>
                     </execution>
             </executions>
+       <execution>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
      </plugin>
 
     </plugins>
