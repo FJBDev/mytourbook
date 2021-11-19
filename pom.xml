@@ -265,13 +265,13 @@
 				    <skip>true</skip>
 			    </configuration>
                     </execution>
-            </executions>
-       <execution>
+           <execution>
                     <phase>test</phase>
                     <goals>
                         <goal>report</goal>
                     </goals>
                 </execution>
+       </executions>
      </plugin>
 
     </plugins>
