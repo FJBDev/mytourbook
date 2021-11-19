@@ -209,7 +209,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
 		<version>3.0.0-M5</version>
 		<configuration>
-			<skipTests>false</skipTests>
+			<skipTests>true</skipTests>
 		</configuration>
                 <executions>
                     <execution>
@@ -242,7 +242,7 @@
 		    <useUIHarness>true</useUIHarness>
 		    <useUIThread>false</useUIThread>
 		    <product>org.eclipse.platform.ide</product>
-		    <skipTests>false</skipTests>
+		    <skipTests>true</skipTests>
 	    </configuration>
     </plugin>
     <plugin>
@@ -262,7 +262,7 @@
 				    <goal>report-aggregate</goal>
 		            </goals>
 			    <configuration>
-				    <skip>false</skip>
+				    <skip>true</skip>
 			    </configuration>
                     </execution>
            <execution>
@@ -272,7 +272,7 @@
                         <goal>report</goal>
                     </goals>
               <configuration>
-				    <skip>false</skip>
+				    <skip>true</skip>
 			    </configuration>
                 </execution>
        </executions>
