@@ -6,11 +6,15 @@
    xsi:schemaLocation   ="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
   <name>MyTourbook App</name>
+  
   <artifactId>mytourbook-app</artifactId>
   <groupId>net.tourbook</groupId>
   <version>21.9.0-SNAPSHOT</version>
+  
   <packaging>pom</packaging>
+  
   <dependencies>
     <dependency>
       <groupId>org.eclipse.pde</groupId>
@@ -29,16 +33,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
   <properties>
     <tycho.version>2.5.0</tycho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
   <modules>
     <!-- artifact.bundles -->
     <module>../../mytourbook-BUILD-autocreated/core</module>
     <!-- artifact.mytourbook.plugins.i18 -->
     <module>../../mytourbook-BUILD-autocreated/translation</module>
   </modules>
+  
   <profiles>
     <profile>
       <id>build-release</id>
