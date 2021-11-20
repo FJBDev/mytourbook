@@ -20,12 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.tourbook.common.UI;
+
 import org.junit.jupiter.api.Test;
 
 public class StringUtilsTests {
 
    @Test
-   public void testHasContent() {
+   void testHasContent() {
 
       assertTrue(StringUtils.hasContent("string"));
       assertFalse(StringUtils.hasContent(" "));
@@ -34,7 +36,7 @@ public class StringUtilsTests {
    }
 
    @Test
-   public void testJoin() {
+   void testJoin() {
 
       final String[] stringArray = { "1", "2", "3" };
       assertEquals(StringUtils.join(stringArray, ","), "1,2,3");
@@ -42,10 +44,11 @@ public class StringUtilsTests {
    }
 
    @Test
-   public void testSanitizeFileName() {
+   void testSanitizeFileName() {
 
       final String fileName = "\\$%#filename.txt";
       assertEquals(StringUtils.sanitizeFileName(fileName), "----filename.txt");
       assertNull(StringUtils.sanitizeFileName(null));
+      assertEquals(StringUtils.sanitizeFileName(""), UI.EMPTY_STRING);
    }
 }
