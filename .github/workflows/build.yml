@@ -1,8 +1,7 @@
 name: Build
 on:
-  push:
-    branches:
-      - fb-buildimprovement
+  schedule:
+  - cron: "20 7 * * *"
 jobs:
   build:
     needs: check_date
