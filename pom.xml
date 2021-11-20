@@ -258,7 +258,7 @@
             </goals>
           </execution>
           <execution>
-            <id>report</id>
+            <id>all-tests-report</id>
             <phase>verify</phase>
             <goals>
               <goal>report-aggregate</goal>
@@ -268,7 +268,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>report2</id>
+            <id>unit-tests-report</id>
             <phase>test</phase>
             <goals>
               <goal>report</goal>
