@@ -42,11 +42,13 @@
   <modules>
     <!-- artifact.bundles -->
     <module>../../mytourbook-BUILD-autocreated/core</module>
+
     <!-- artifact.mytourbook.plugins.i18 -->
     <module>../../mytourbook-BUILD-autocreated/translation</module>
   </modules>
   
   <profiles>
+
     <profile>
       <id>build-release</id>
       <modules>
@@ -54,6 +56,7 @@
         <module>build</module>
       </modules>
     </profile>
+
     <profile>
       <id>build-update-site</id>
       <modules>
@@ -61,6 +64,7 @@
         <module>build/build.update-site</module>
       </modules>
     </profile>
+
     <profile>
       <id>build-update-site-no-nl</id>
       <modules>
@@ -68,19 +72,23 @@
         <module>build/build.update-site-no-NL</module>
       </modules>
     </profile>
+
   </profiles>
   <repositories>
+
     <!-- Eclipse E4 web repository -->
     <repository>
       <id>eclipse.platform.4.20</id>
       <layout>p2</layout>
       <url>https://download.eclipse.org/releases/2021-06</url>
     </repository>
+
     <repository>
       <id>eclipse.nattable.2.0</id>
       <layout>p2</layout>
       <url>http://download.eclipse.org/nattable/releases/2.0.0/repository</url>
     </repository>
+
     <!-- Repo for Chromium is/was not supported in Eclipse
       
       <repository>
@@ -89,6 +97,7 @@
       </repository>   
       
       -->
+
     <!-- 
       
       Eclipse local repositories downloaded from https://download.eclipse.org/eclipse/downloads/
@@ -115,7 +124,10 @@
       </repository>
       
       -->
-  <repository> <id>eclipse.4.17.nl</id> <layout>p2</layout> <url>file:build/build.eclipse.4.17.nl.repo</url> </repository>  </repositories>
+  <repository> <id>eclipse.4.17.nl</id> <layout>p2</layout> <url>file:build/build.eclipse.4.17.nl.repo</url> </repository>  	
+
+  </repositories>
+
   <build>
     <testSourceDirectory>${project.basedir}/src-test</testSourceDirectory>
     <!-- 
