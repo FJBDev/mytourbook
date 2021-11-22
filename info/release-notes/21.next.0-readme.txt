@@ -65,10 +65,6 @@ Improvements
   - Added the ability to select between elapsed, moving and recorded time
   https://sourceforge.net/p/mytourbook/discussion/622811/thread/17da3fb19f/?page=1#32dc
 
-* Tour Marker View (Frederic)
-  - Added the ability to select between elapsed, moving and recorded time
-  https://sourceforge.net/p/mytourbook/discussion/622811/thread/17da3fb19f/?page=1#32dc
-
 
 Changes  
 =======
