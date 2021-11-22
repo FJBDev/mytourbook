@@ -190,7 +190,6 @@
             <artifactId>target-platform-configuration</artifactId>   <groupId>org.eclipse.tycho</groupId>
                                                                      <version>${tycho.version}</version>
             <configuration>
-              <skip>true</skip>
               <resolver>p2</resolver>
                <environments>
 
