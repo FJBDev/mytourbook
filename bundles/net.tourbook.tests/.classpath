@@ -6,6 +6,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry exported="true" kind="lib" path="jsonassert-1.5.0.jar"/> <!-- https://github.com/skyscreamer/JSONassert/releases -->
 	<classpathentry exported="true" kind="lib" path="xmlunit-core-2.8.3.jar"/> <!-- https://mvnrepository.com/artifact/org.xmlunit/xmlunit-core -->
+	<classpathentry exported="true" kind="lib" path="mockito-core-4.1.0.jar"/> <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core/4.1.0 -->
+	<classpathentry exported="true" kind="lib" path="mockito-junit-jupiter-4.1.0.jar"/> <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter/4.1.0 -->
+	<classpathentry exported="true" kind="lib" path="byte-buddy-1.12.1.jar"/> <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
+	<classpathentry exported="true" kind="lib" path="objenesis-3.2.jar"/> <!-- https://mvnrepository.com/artifact/org.objenesis/objenesis -->
 	<classpathentry exported="true" kind="lib" path="hibernate-entitymanager.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
