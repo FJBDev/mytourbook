@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,6 +31,7 @@ import gov.nasa.worldwind.render.ShapeAttributes;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.common.color.IMapColorProvider;
 import net.tourbook.data.TourData;
@@ -69,7 +70,7 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
     */
    private int                      _lastAddRemoveAction = -1;
 
-   public TourTrackLayer(final IDialogSettings state) {
+   public TourTrackLayer() {
 
       _tourPositionColors = new TourPositionColors();
 
@@ -82,7 +83,7 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
     * @param allTours
     * @return
     */
-   public ArrayList<TourMap3Position> createTrackPaths(final ArrayList<TourData> allTours) {
+   public ArrayList<TourMap3Position> createTrackPaths(final List<TourData> allTours) {
 
 //		final long start = System.currentTimeMillis();
 
@@ -245,7 +246,11 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
          }
 
          // ensure path modifications are redrawn
+         //TODO FB
+         //https://forum.worldwindcentral.com/forum/world-wind-java-forums/development-help/8056-changing-vertical-exaggeration?p=70744#post70744
+
          Map3Manager.getWWCanvas().getSceneController().setVerticalExaggeration(trackConfig.outlineWidth);
+         //zoom out when increasing VE and zoom in when decreasing VE
 
          Map3Manager.getWWCanvas().redraw();
       }
@@ -400,7 +405,7 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
     * @param tourData
     * @return Returns track positions or <code>null</code> when track is already selected.
     */
-   public ArrayList<TourMap3Position> selectTrackPath(final TourData tourData) {
+   public List<TourMap3Position> selectTrackPath(final TourData tourData) {
 
       if (_selectedTrackPath != null && _selectedTrackPath.getTourTrack().getTourData().equals(tourData)) {
 

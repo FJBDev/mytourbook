@@ -2156,7 +2156,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 //2013-10-06 10:12:12.318'141 [Map3View] 	    431273  JVM used memory (Kb)
 
    private void showAllTours_Final(final boolean isSyncMapViewWithTour,
-                                   final ArrayList<TourMap3Position> allPositions) {
+                                   final List<TourMap3Position> allPositions) {
 
       if (isSyncMapViewWithTour) {
 
@@ -2210,7 +2210,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
             if (_allTours.size() > 1) {
 
                final TourTrackLayer tourTrackLayer = Map3Manager.getLayer_TourTrack();
-               final ArrayList<TourMap3Position> trackPositions = tourTrackLayer.selectTrackPath(newTourData);
+               final List<TourMap3Position> trackPositions = tourTrackLayer.selectTrackPath(newTourData);
 
                if (trackPositions == null) {
                   // track is already selected

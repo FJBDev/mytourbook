@@ -436,7 +436,7 @@ public class Map3Manager {
       /*
        * create WW layer
        */
-      _wwLayer_TourTrack = new TourTrackLayer(_state);
+      _wwLayer_TourTrack = new TourTrackLayer();
 
       /*
        * create UI model layer

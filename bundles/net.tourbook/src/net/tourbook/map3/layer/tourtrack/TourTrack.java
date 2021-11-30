@@ -1,25 +1,24 @@
 /*******************************************************************************
  * Copyright (C) 2005, 2013  Wolfgang Schramm and Contributors
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.map3.layer.tourtrack;
 
-import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.Path.PositionColors;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.common.color.IGradientColorProvider;
 import net.tourbook.common.color.IMapColorProvider;
@@ -33,18 +32,18 @@ public class TourTrack {
 	private TourData					_tourData;
 
 	private TourMap3Position[]			_trackPositions;
-	private ArrayList<TourMap3Position>	_trackPositionsList;
+   private List<TourMap3Position> _trackPositionsList;
 
 	private IMapColorProvider			_colorProvider;
 
 	private boolean						_isHovered;
 	private boolean						_isSelected;
 
-	private int							_tourTrackHoverIndex;
+   private int                         _tourTrackHoverIndex;
 
 	public TourTrack(	final ITrackPath trackPath,
 						final TourData tourData,
-						final ArrayList<TourMap3Position> trackPositions,
+                    final List<TourMap3Position> trackPositions,
 						final IMapColorProvider colorProvider) {
 
 		_trackPath = trackPath;
@@ -57,7 +56,7 @@ public class TourTrack {
 		_colorProvider = colorProvider;
 	}
 
-	Color getColor(final Position pos, final Integer ordinal) {
+   Color getColor(final Integer ordinal) {
 
 		final PositionColors positionColors = _trackPath.getPathPositionColors();
 		if (positionColors instanceof TourPositionColors) {
@@ -67,7 +66,7 @@ public class TourTrack {
 
 			if (_colorProvider instanceof IGradientColorProvider) {
 
-				return tourPosColors.getGradientColor(trackPosition.dataSerieValue, ordinal, _tourTrackHoverIndex);
+            return tourPosColors.getGradientColor(trackPosition.dataSerieValue);
 
 			} else if (_colorProvider instanceof IDiscreteColorProvider) {
 
@@ -86,7 +85,7 @@ public class TourTrack {
 		return _tourData;
 	}
 
-	public ArrayList<TourMap3Position> getTrackPositions() {
+   public List<TourMap3Position> getTrackPositions() {
 		return _trackPositionsList;
 	}
 

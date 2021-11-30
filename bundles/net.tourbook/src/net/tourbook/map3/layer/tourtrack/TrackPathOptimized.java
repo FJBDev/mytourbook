@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -68,7 +67,7 @@ public class TrackPathOptimized extends MTMultiResolutionPath implements ITrackP
 
    private int                 _numberOfDirectionArrows;
 
-   public TrackPathOptimized(final ArrayList<TourMap3Position> trackPositions) {
+   public TrackPathOptimized(final List<TourMap3Position> trackPositions) {
       super(trackPositions);
    }
 
@@ -866,7 +865,7 @@ public class TrackPathOptimized extends MTMultiResolutionPath implements ITrackP
 
    @Override
    protected Color getColor(final Position pos, final Integer ordinal) {
-      return _tourTrack.getColor(pos, ordinal);
+      return _tourTrack.getColor(ordinal);
    }
 
    @Override
