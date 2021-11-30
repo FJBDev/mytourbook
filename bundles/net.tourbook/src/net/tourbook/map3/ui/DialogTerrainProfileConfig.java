@@ -268,11 +268,6 @@ public class DialogTerrainProfileConfig {
 
       default:
       case 0:
-         _chkShowEye.setEnabled(false);
-         _lblProfileLength.setEnabled(true);
-         _spinnerProfileLength.setEnabled(true);
-         break;
-
       case 1:
       case 4:
          _chkShowEye.setEnabled(false);
