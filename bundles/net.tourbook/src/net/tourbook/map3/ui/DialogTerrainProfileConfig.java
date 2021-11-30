@@ -337,6 +337,7 @@ public class DialogTerrainProfileConfig {
 
       enableControls();
 
+      System.out.println(graphDimension);
       //TODO FB
       //https://forum.worldwindcentral.com/forum/world-wind-java-forums/development-help/8056-changing-vertical-exaggeration?p=70744#post70744
       _wwcanvas.getSceneController().setVerticalExaggeration(5);

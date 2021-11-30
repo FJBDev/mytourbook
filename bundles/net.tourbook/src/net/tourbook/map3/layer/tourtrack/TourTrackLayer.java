@@ -245,6 +245,8 @@ public class TourTrackLayer extends RenderableLayer implements SelectListener, I
          }
 
          // ensure path modifications are redrawn
+         Map3Manager.getWWCanvas().getSceneController().setVerticalExaggeration(trackConfig.outlineWidth);
+
          Map3Manager.getWWCanvas().redraw();
       }
    }
