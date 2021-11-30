@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -120,7 +120,7 @@ public class Map3Manager {
     * Root item for the layer tree viewer. This contains the UI model.
     */
    private static TVIMap3Root                         _uiRootItem;
-   private static final WorldWindowGLCanvas           _ww;
+   private static final WorldWindowGLCanvas           _worldWindowGLCanvas;
 
    /**
     * Instance of {@link Map3View} or <code>null</code> when view is not created.
@@ -233,7 +233,7 @@ public class Map3Manager {
 //	at net.tourbook.map3.view.Map3Manager.<clinit>(Map3Manager.java:213)
 //	at net.tourbook.map3.view.Map3View.<clinit>(Map3View.java:156)
 
-      _ww = new WorldWindowGLCanvas();
+      _worldWindowGLCanvas = new WorldWindowGLCanvas();
 
       _initializeMap3();
 
@@ -251,7 +251,7 @@ public class Map3Manager {
 
       private ViewerControllerCheckStateListener(final ViewControlsLayer viewControlsLayer) {
 
-         _viewControlListener = new ViewControlsSelectListener(_ww, viewControlsLayer);
+         _viewControlListener = new ViewControlsSelectListener(_worldWindowGLCanvas, viewControlsLayer);
       }
 
       @Override
@@ -261,14 +261,14 @@ public class Map3Manager {
 
             if (__lastAddRemoveAction != 1) {
                __lastAddRemoveAction = 1;
-               _ww.addSelectListener(_viewControlListener);
+               _worldWindowGLCanvas.addSelectListener(_viewControlListener);
             }
 
          } else {
 
             if (__lastAddRemoveAction != 0) {
                __lastAddRemoveAction = 0;
-               _ww.removeSelectListener(_viewControlListener);
+               _worldWindowGLCanvas.removeSelectListener(_viewControlListener);
             }
          }
 
@@ -312,7 +312,7 @@ public class Map3Manager {
       wwModel.setLayers(layers);
 
       // model must be set BEFORE model is updated
-      _ww.setModel(wwModel);
+      _worldWindowGLCanvas.setModel(wwModel);
 
       /*
        * ensure All custom layers are in the model because it can happen, that a layer is created
@@ -520,7 +520,7 @@ public class Map3Manager {
       //this.layer = new StatusMGRSLayer();
       //this.layer = new StatusUTMLayer();
 
-      statusLayer.setEventSource(_ww);
+      statusLayer.setEventSource(_worldWindowGLCanvas);
       statusLayer.setCoordDecimalPlaces(4); // default is 4
       //layer.setElevationUnits(StatusLayer.UNIT_IMPERIAL);
 
@@ -552,7 +552,7 @@ public class Map3Manager {
        */
       // Add TerrainProfileLayer
       final TerrainProfileLayer profileLayer = new TerrainProfileLayer();
-      profileLayer.setEventSource(_ww);
+      profileLayer.setEventSource(_worldWindowGLCanvas);
       profileLayer.setStartLatLon(LatLon.fromDegrees(0, -10));
       profileLayer.setEndLatLon(LatLon.fromDegrees(0, 65));
 
@@ -568,7 +568,7 @@ public class Map3Manager {
       tviLayer.setOpacity(1.0f);
 
       final DialogTerrainProfileConfig terrainProfileConfig = new DialogTerrainProfileConfig(
-            _ww,
+            _worldWindowGLCanvas,
             profileLayer,
             _state);
 
@@ -869,7 +869,7 @@ public class Map3Manager {
    }
 
    public static WorldWindowGLCanvas getWWCanvas() {
-      return _ww;
+      return _worldWindowGLCanvas;
    }
 
    /**
@@ -1220,7 +1220,7 @@ public class Map3Manager {
 
    public static void redrawMap() {
 
-      final View view = _ww.getView();
+      final View view = _worldWindowGLCanvas.getView();
 
       view.firePropertyChange(AVKey.VIEW, null, view);
 
@@ -1319,16 +1319,16 @@ public class Map3Manager {
          // update ui/ww model
          if (tviLayer.defaultPosition == INSERT_BEFORE_COMPASS) {
 
-            insertedUILayer = insertBeforeCompass(_ww, tviLayer);
+            insertedUILayer = insertBeforeCompass(_worldWindowGLCanvas, tviLayer);
 
          } else if (tviLayer.defaultPosition == INSERT_BEFORE_PLACE_NAMES) {
 
-            insertedUILayer = insertBeforePlaceNames(_ww, tviLayer);
+            insertedUILayer = insertBeforePlaceNames(_worldWindowGLCanvas, tviLayer);
 
          } else {
 
             // insert in default position
-            insertedUILayer = insertBeforeCompass(_ww, tviLayer);
+            insertedUILayer = insertBeforeCompass(_worldWindowGLCanvas, tviLayer);
          }
 
          insertedLayers.add(insertedUILayer);
@@ -1430,17 +1430,17 @@ public class Map3Manager {
 
          if (defaultPosition == INSERT_BEFORE_COMPASS) {
 
-            ApplicationTemplate.insertBeforeCompass(_ww, toolLayer);
+            ApplicationTemplate.insertBeforeCompass(_worldWindowGLCanvas, toolLayer);
 
          } else if (defaultPosition == INSERT_BEFORE_PLACE_NAMES) {
 
-            ApplicationTemplate.insertBeforePlacenames(_ww, toolLayer);
+            ApplicationTemplate.insertBeforePlacenames(_worldWindowGLCanvas, toolLayer);
 
          } else {
 
             // ensure it's displayed
 
-            ApplicationTemplate.insertBeforeCompass(_ww, toolLayer);
+            ApplicationTemplate.insertBeforeCompass(_worldWindowGLCanvas, toolLayer);
          }
       }
    }
