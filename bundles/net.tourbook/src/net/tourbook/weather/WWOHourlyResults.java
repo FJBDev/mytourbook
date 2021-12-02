@@ -95,7 +95,7 @@ public class WWOHourlyResults {
    }
 
    public String getWeatherDescription() {
-      return weatherDesc.get(0).getValue();
+      return getWeatherDesc().get(0).getValue();
    }
 
    public int getWinddirDegree() {
