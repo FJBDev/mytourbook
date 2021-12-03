@@ -48,11 +48,9 @@ public class WorldWeatherOnlineTests {
 
    /**
     * Regression test for the weather retrieval from World Weather Online.
-    *
-    * @throws IllegalAccessException
     */
    @Test
-   void testWeatherRetrieval() throws Exception {
+   void testWeatherRetrieval() throws IllegalAccessException, NoSuchFieldException {
 
       final String worldWeatherOnlineResponse = Comparison.readFileContent(WORLDWEATHERONLINE_FILE_PATH
             + "LongsPeak-Manual-WorldWeatherOnlineResponse.json"); //$NON-NLS-1$
