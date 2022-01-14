@@ -695,7 +695,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       @Override
       protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
 
-         return new Slideout_TourEditor_Options(_pageBook, toolbar, _state, TourDataEditorView.this);
+         return new SlideoutTourEditor_Options(_pageBook, toolbar, _state, TourDataEditorView.this);
       }
    }
 
@@ -2440,7 +2440,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
                _isPartVisible = true;
 
-               Display.getCurrent().asyncExec(() -> updateUI_FromModelRunnable());
+               Display.getCurrent().asyncExec(TourDataEditorView.this::updateUI_FromModelRunnable);
             }
          }
       };
@@ -5657,7 +5657,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                final TimeSlice timeSlice = (TimeSlice) cell.getElement();
                cell.setText(
                      _serieBreakTime[timeSlice.serieIndex]
-                           ? net.tourbook.ui.UI.BREAK_TIME_MARKER
+                           ? UI.SYMBOL_BOX
                            : UI.EMPTY_STRING);
             } else {
                cell.setText(UI.EMPTY_STRING);

@@ -715,7 +715,7 @@ public class FitLog_SAXHandler extends DefaultHandler {
             _pausedTime_End.add(element.endTime);
          }
 
-         tourData.finalizeTour_TimerPauses(_pausedTime_Start, _pausedTime_End);
+         tourData.finalizeTour_TimerPauses(_pausedTime_Start, _pausedTime_End, null);
       }
 
       adjustTourTimeZoneId(tourData, tourStartTime_FromImport);
@@ -1030,7 +1030,7 @@ public class FitLog_SAXHandler extends DefaultHandler {
       } else if (_isInWeather) {
 
          _isInWeather = false;
-         _currentActivity.weatherText = _characters.toString();
+         _currentActivity.weatherText = _characters.toString().trim();
          _currentActivity.weatherWindSpeed = parseWindSpeed(_characters.toString());
 
       } else if (_isInTimeZoneUtcOffset) {

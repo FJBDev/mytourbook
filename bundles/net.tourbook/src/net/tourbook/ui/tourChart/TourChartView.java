@@ -23,9 +23,11 @@ import net.tourbook.chart.Chart;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.IHoveredValueListener;
 import net.tourbook.chart.ISliderMoveListener;
+import net.tourbook.chart.MouseWheelMode;
 import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.common.util.PostSelectionProvider;
+import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.photo.IPhotoEventListener;
@@ -196,7 +198,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
             //
             //
             ) {
-               _tourChartConfig = TourManager.createDefaultTourChartConfig();
+               _tourChartConfig = TourManager.createDefaultTourChartConfig(_state);
 
                if (_tourChart != null) {
                   _tourChart.updateTourChart(_tourData, _tourChartConfig, false);
@@ -219,7 +221,10 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
             } else if (property.equals(ITourbookPreferences.GRAPH_MOUSE_MODE)) {
 
-               _tourChart.setMouseMode(event.getNewValue());
+               final Object newValue = event.getNewValue();
+               final Enum<MouseWheelMode> enumValue = Util.getEnumValue((String) newValue, MouseWheelMode.Zoom);
+
+               _tourChart.setMouseWheelMode((MouseWheelMode) enumValue);
             }
          }
       };
@@ -433,7 +438,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
       _tourChart.setToolBarManager(getViewSite().getActionBars().getToolBarManager(), true);
       _tourChart.setContextProvider(new TourChartContextProvider(this), true);
 
-      _tourChartConfig = TourManager.createDefaultTourChartConfig();
+      _tourChartConfig = TourManager.createDefaultTourChartConfig(_state);
 
       _tourChartConfig.canUseGeoCompareTool = true;
 
@@ -487,7 +492,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
    private void fireHoveredValue(final int hoveredValuePointIndex) {
 
-      final HoveredValueData hoveredValueData = new HoveredValueData(hoveredValuePointIndex);
+      final HoveredValueData hoveredValueData = new HoveredValueData(_tourData, hoveredValuePointIndex);
 
       TourManager.fireEventWithCustomData(
             TourEventId.HOVERED_VALUE_POSITION,
@@ -532,7 +537,6 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
    @Override
    public void geoCompareEvent(final IWorkbenchPart part, final GeoCompareEventId eventId, final Object eventData) {
-      // TODO Auto-generated method stub
 
       if (part == TourChartView.this) {
          return;
@@ -586,10 +590,6 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
       if (_isInSaving) {
          return;
       }
-
-//      System.out.println((net.tourbook.common.UI.timeStampNano() + " [" + getClass().getSimpleName() + "] ")
-//            + ("\t\t\tonSelectionChanged:\t" + selection));
-//      // TODO remove SYSTEM.OUT.PRINTLN
 
       _isInSelectionChanged = true;
       {
@@ -882,7 +882,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
       _tourChart.setFocus();
 
       /*
-       * fire tour selection
+       * Fire tour selection
        */
       if (_tourData == null) {
 
@@ -894,7 +894,7 @@ public class TourChartView extends ViewPart implements ITourChartViewer, IPhotoE
 
          _postSelectionProvider.setSelectionNoFireEvent(selection);
 
-         fireSliderPosition();
+//         fireSliderPosition();
       }
    }
 

@@ -10,13 +10,19 @@ repositories/
 
 **/build/*repo/**/*.jar
 **/build/*update-site/**/*.jar
+**/build/**/build/sonar
 **/*vtm*/**/build/
+
+**/feature.net.tourbook.jre/*/jre
 
 .apt_generated
 .gradle
 .log
+.polyglot.build.properties
 .vs
 
 *.js.map
 *.js.uncompressed.js
+
+*.hprof
 

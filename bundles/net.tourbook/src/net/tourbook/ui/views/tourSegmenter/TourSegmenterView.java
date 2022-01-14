@@ -853,6 +853,12 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
                   onSelect_SegmenterType(false);
                }
 
+            } else if (property.equals(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME)) {
+
+               // recompute segments
+
+               onSelect_CreateSegments();
+
             } else if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
 
                _segmentViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
@@ -2206,7 +2212,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
       _containerBreakTime = new Composite(parent, SWT.NONE);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(_containerBreakTime);
-//		_containerBreakTime.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+//      _containerBreakTime.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
          final Composite container = new Composite(_containerBreakTime, SWT.NONE);
          GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
@@ -2218,8 +2224,12 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          createUI_59_BreakActions(_containerBreakTime);
       }
 
-      _containerBreakTime.layout(true, true);
-      UI.setEqualizeColumWidths(_firstColBreakTime);
+      // must be run async otherwise some labels are hidden because of maxWith == 0
+      parent.getDisplay().asyncExec(() -> {
+
+         _containerBreakTime.layout(true, true);
+         UI.setEqualizeColumWidths(_firstColBreakTime);
+      });
 
       return _containerBreakTime;
    }
@@ -2227,8 +2237,9 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    private void createUI_51_TourBreakTime(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
-//		container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
+//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
       {
          /*
           * tour break time
@@ -2245,6 +2256,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          _lblTourBreakTime = new Label(container, SWT.NONE);
          GridDataFactory.fillDefaults()
                .align(SWT.FILL, SWT.CENTER)
+               .grab(true, false)
                .applyTo(_lblTourBreakTime);
       }
    }

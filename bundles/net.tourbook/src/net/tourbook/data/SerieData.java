@@ -169,6 +169,11 @@ public class SerieData implements Serializable {
    public long[]               pausedTime_End;
 
    /**
+    * An auto-pause happened when a value is 1, otherwise the pause was triggered by the user with a device button
+    */
+   public long[]               pausedTime_Data;
+
+   /**
     * This field is never used but it must be kept for old data
     */
    public int[]                deviceMarker;
@@ -176,14 +181,14 @@ public class SerieData implements Serializable {
    /**
     * Containing the battery time in seconds, relative to the tour start time
     *
-    * @since after 21.6
+    * @since 21.9
     */
    public int[]                battery_Time;
 
    /**
     * Containing the battery percentage value
     *
-    * @since after 21.6
+    * @since 21.9
     */
    public short[]              battery_Percentage;
 

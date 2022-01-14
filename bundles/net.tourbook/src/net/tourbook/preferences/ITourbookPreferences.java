@@ -33,8 +33,7 @@ public interface ITourbookPreferences {
    /*
     * System
     */
-   public static final String TOUR_CACHE_SIZE      = "TourCacheSize";        //$NON-NLS-1$
-   public static final String CLEAR_TOURDATA_CACHE = "CLEAR_TOURDATA_CACHE"; //$NON-NLS-1$
+   public static final String TOUR_CACHE_SIZE = "TourCacheSize"; //$NON-NLS-1$
 
    /*
     * Tour database
@@ -219,9 +218,7 @@ public interface ITourbookPreferences {
     */
    public static final String GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES = "GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES"; //$NON-NLS-1$
    public static final String GRAPH_IS_SHOW_PACE_GRAPH_INVERTED     = "GRAPH_IS_SHOW_PACE_GRAPH_INVERTED";     //$NON-NLS-1$
-   public static final String GRAPH_IS_SHOW_NIGHT_SECTIONS          = "GRAPH_IS_SHOW_NIGHT_SECTIONS";          //$NON-NLS-1$
    public static final String GRAPH_IS_SHOW_VALUE_POINT_VALUE       = "GRAPH_IS_SHOW_VALUE_POINT_VALUE";       //$NON-NLS-1$
-   public static final String GRAPH_OPACITY_NIGHT_SECTIONS          = "GRAPH_OPACITY_NIGHT_SECTIONS";          //$NON-NLS-1$
    public static final String GRAPH_MOUSE_MODE                      = "graph.toggle-mouse";                    //$NON-NLS-1$
    public static final String GRAPH_MOVE_SLIDERS_WHEN_ZOOMED        = "graphs.move-sliders-when-zoomed";       //$NON-NLS-1$
    public static final String GRAPH_TRANSPARENCY_FILLING            = "Graph_Transparency_Filling";            //$NON-NLS-1$
@@ -230,6 +227,9 @@ public interface ITourbookPreferences {
    public static final String GRAPH_X_AXIS                          = "graphs.x-axis";                         //$NON-NLS-1$
    public static final String GRAPH_X_AXIS_STARTTIME                = "graphs.x-axis.starttime";               //$NON-NLS-1$
    public static final String GRAPH_ZOOM_AUTO_ZOOM_TO_SLIDER        = "graphs.zoom.autozoom-to-slider";        //$NON-NLS-1$
+
+   public static final String GRAPH_IS_SHOW_NIGHT_SECTIONS          = "GRAPH_IS_SHOW_NIGHT_SECTIONS";          //$NON-NLS-1$
+   public static final String GRAPH_NIGHT_SECTIONS_OPACITY          = "GRAPH_NIGHT_SECTIONS_OPACITY";          //$NON-NLS-1$
 
    /*
     * Tour info
@@ -626,4 +626,10 @@ public interface ITourbookPreferences {
    public static final String WEATHER_USE_WEATHER_RETRIEVAL = "WEATHER_STATE_USE_WEATHER_RETRIEVAL"; //$NON-NLS-1$
    public static final String WEATHER_API_KEY               = "WEATHER_API_KEY";                     //$NON-NLS-1$
 
+   /*
+    * Tour Marker View
+    */
+   public static final String TOURMARKERVIEW_USE_ELAPSED_TIME  = "TOURMARKERVIEW_USE_ELAPSED_TIME";  //$NON-NLS-1$
+   public static final String TOURMARKERVIEW_USE_MOVING_TIME   = "TOURMARKERVIEW_USE_MOVING_TIME";   //$NON-NLS-1$
+   public static final String TOURMARKERVIEW_USE_RECORDED_TIME = "TOURMARKERVIEW_USE_RECORDED_TIME"; //$NON-NLS-1$
 }
