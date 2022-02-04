@@ -96,4 +96,22 @@ public class FitDataReaderTests {
 
       Comparison.compareTourDataAgainstControl(tour, filePath);
    }
+
+   @Test
+   void testFitImportPower() {
+
+      final String filePath = FILES_PATH + "2022-02-04-152754-UBERDROID8A2F-9-0"; //$NON-NLS-1$
+      final String testFilePath = FilesUtils.getAbsoluteFilePath(filePath + ".fit");//$NON-NLS-1$
+
+      fitDataReader.processDeviceData(testFilePath,
+            deviceData,
+            alreadyImportedTours,
+            newlyImportedTours,
+            new ImportState_File(),
+            new ImportState_Process());
+
+      final TourData tour = Comparison.retrieveImportedTour(newlyImportedTours);
+
+      Comparison.compareTourDataAgainstControl(tour, filePath);
+   }
 }
