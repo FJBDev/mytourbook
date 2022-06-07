@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2021, 2022 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -137,7 +137,6 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       }
 
       //if active person has no tokens and all people has, take the tokens from all people
-
       if (OAuth2Utils.isAccessTokenValid(
             _prefStore.getLong(suuntoAccessTokenIssueDateTime) +
                   _prefStore.getLong(suuntoAccessTokenExpiresIn) * 1000)) {
@@ -159,18 +158,28 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
       return isTokenValid;
    }
 
+   public static boolean isDownloadReady_ActivePerson() {
+
+      return isReady_ActivePerson() &&
+            StringUtils.hasContent(getDownloadFolder_ActivePerson());
+   }
+
+   public static boolean isDownloadReady_AllPeople() {
+
+      return isReady_AllPeople() &&
+            StringUtils.hasContent(getDownloadFolder_AllPeople());
+   }
+
    public static boolean isReady_ActivePerson() {
 
       return StringUtils.hasContent(getAccessToken_ActivePerson()) &&
-            StringUtils.hasContent(getRefreshToken_ActivePerson()) &&
-            StringUtils.hasContent(getDownloadFolder_ActivePerson());
+            StringUtils.hasContent(getRefreshToken_ActivePerson());
    }
 
    public static boolean isReady_AllPeople() {
 
       return StringUtils.hasContent(getAccessToken_AllPeople()) &&
-            StringUtils.hasContent(getRefreshToken_AllPeople()) &&
-            StringUtils.hasContent(getDownloadFolder_AllPeople());
+            StringUtils.hasContent(getRefreshToken_AllPeople());
    }
 
    @Override
