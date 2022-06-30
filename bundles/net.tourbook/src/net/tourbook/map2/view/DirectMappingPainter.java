@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,8 +18,8 @@ package net.tourbook.map2.view;
 import de.byteholder.geoclipse.map.DirectPainterContext;
 import de.byteholder.geoclipse.map.IDirectPainter;
 import de.byteholder.geoclipse.map.Map2;
-import de.byteholder.geoclipse.map.MapLegend;
 import de.byteholder.geoclipse.map.Map2Painter;
+import de.byteholder.geoclipse.map.MapLegend;
 import de.byteholder.geoclipse.mapprovider.MP;
 
 import java.util.List;
