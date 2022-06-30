@@ -46,7 +46,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
    private int                    _leftSliderValueIndex;
    private int                    _rightSliderValueIndex;
-   private int                    _valuePointIndex;
+   private int                    _externalValuePointIndex;
 
    private boolean                _isTourVisible;
    private boolean                _isShowSliderInMap;
@@ -112,6 +112,10 @@ public class DirectMappingPainter implements IDirectPainter {
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
 
+      if (latitudeSerie == null) {
+         return false;
+      }
+
       // force array bounds
       final int sliderValueIndexAdjusted = Math.min(Math.max(sliderValueIndex, 0), latitudeSerie.length - 1);
 
@@ -164,8 +168,8 @@ public class DirectMappingPainter implements IDirectPainter {
       // set alpha when requested
       int alpha = 0xff;
       final int opacity = _sliderPathPaintingData.opacity;
-      if (opacity < 100) {
-         alpha = 0xff * opacity / 100;
+      if (opacity <= 0xff) {
+         alpha = opacity;
       }
 
       final Color lineColor = new Color(gc.getDevice(), _sliderPathPaintingData.color);
@@ -201,6 +205,10 @@ public class DirectMappingPainter implements IDirectPainter {
 
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
+
+      if (latitudeSerie == null || latitudeSerie.length == 0) {
+         return;
+      }
 
       // force array bounds
       final int leftSliderValueIndex = Math.min(Math.max(_leftSliderValueIndex, 0), latitudeSerie.length - 1);
@@ -325,6 +333,10 @@ public class DirectMappingPainter implements IDirectPainter {
 
       final double[] latitudeSerie = _tourData.latitudeSerie;
       final double[] longitudeSerie = _tourData.longitudeSerie;
+
+      if (latitudeSerie == null || latitudeSerie.length == 0) {
+         return;
+      }
 
       // force array bounds
       final int leftSliderValueIndex = Math.min(Math.max(_leftSliderValueIndex, 0), latitudeSerie.length - 1);
@@ -484,8 +496,14 @@ public class DirectMappingPainter implements IDirectPainter {
          drawMarker(painterContext, _leftSliderValueIndex, _imageLeftSlider, false);
       }
 
-      if (_isShowValuePoint) {
-         drawMarker(painterContext, _valuePointIndex, _imageValuePoint, true);
+      if (_isShowValuePoint
+
+            // check if value point is valid -> do not show invalid point
+            && _externalValuePointIndex != -1
+
+      ) {
+
+         drawMarker(painterContext, _externalValuePointIndex, _imageValuePoint, true);
       }
 
       if (_isShowSliderInLegend) {
@@ -500,8 +518,13 @@ public class DirectMappingPainter implements IDirectPainter {
     * @param tourData
     * @param leftSliderValuesIndex
     * @param rightSliderValuesIndex
-    * @param isShowSliderInLegend
+    * @param externalValuePointIndex
+    *           When <code>-1</code> then this value point is not displayed, this happens when a
+    *           trackpoint is hovered because it is irritating when the external value point has
+    *           another position
     * @param isShowSliderInMap
+    * @param isShowSliderInLegend
+    * @param isShowValuePoint
     * @param sliderRelationPaintingData
     */
    public void setPaintContext(final Map2 map,
@@ -510,7 +533,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
                                final int leftSliderValuesIndex,
                                final int rightSliderValuesIndex,
-                               final int valuePointIndex,
+                               final int externalValuePointIndex,
 
                                final boolean isShowSliderInMap,
                                final boolean isShowSliderInLegend,
@@ -524,7 +547,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
       _leftSliderValueIndex = leftSliderValuesIndex;
       _rightSliderValueIndex = rightSliderValuesIndex;
-      _valuePointIndex = valuePointIndex;
+      _externalValuePointIndex = externalValuePointIndex;
 
       _isShowSliderInMap = isShowSliderInMap;
       _isShowSliderInLegend = isShowSliderInLegend;
