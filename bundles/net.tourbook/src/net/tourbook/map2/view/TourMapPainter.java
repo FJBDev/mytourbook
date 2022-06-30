@@ -1107,6 +1107,7 @@ public class TourMapPainter extends Map2Painter {
                                   final double[] latitudeSerie,
                                   final double[] longitudeSerie) {
 
+      //todo fb
       if (tourData.isMultipleTours()) {
 
          final int[] multipleStartTimeIndex = tourData.multipleTourStartIndex;
@@ -2000,7 +2001,9 @@ public class TourMapPainter extends Map2Painter {
                                   final double longitude,
                                   final TourMarker tourMarker,
                                   final int parts) {
+      //final boolean isHighlightTourMarker) {
 
+      //todo fb here
       final MP mp = map.getMapProvider();
       final int zoomLevel = map.getZoom();
       final int tileSize = mp.getTileSize();
@@ -2032,7 +2035,7 @@ public class TourMapPainter extends Map2Painter {
          final int markerImageWidth = bannerWidth;
          final int markerImageHeight = bannerHeight + MARKER_POLE;
 
-         markerBounds = new Rectangle(bannerWidth, bannerHeight, markerImageWidth, markerImageHeight);
+         markerBounds = new Rectangle(bannerWidth * 10, bannerHeight * 10, markerImageWidth, markerImageHeight);
 
          tourMarker.setMarkerBounds(markerBounds);
       }
@@ -2113,6 +2116,7 @@ public class TourMapPainter extends Map2Painter {
 
          // draw text
          gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+         //todo fb how to make the text bold ?
          gc.drawText(
                markerLabel,
                MARKER_MARGIN + 1,

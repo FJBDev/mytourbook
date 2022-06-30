@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class DirectMappingPainter implements IDirectPainter {
 
-   private Map2                    _map;
+   private Map2                   _map;
    private TourData               _tourData;
 
    private int                    _leftSliderValueIndex;
@@ -368,7 +368,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
       for (int segmentIndex = 1; segmentIndex <= numSegments; segmentIndex++) {
 
-         int nextValueIndex = (int) (numSlices / numSegments * segmentIndex);
+         int nextValueIndex = numSegments == 0 ? 0 : (int) (numSlices / numSegments * segmentIndex);
          nextValueIndex += firstValueIndex;
 
          // get world position for the slider coordinates
