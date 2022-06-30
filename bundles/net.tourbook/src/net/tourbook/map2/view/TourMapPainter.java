@@ -67,6 +67,10 @@ import net.tourbook.photo.PhotoLoadingState;
 import net.tourbook.photo.PhotoUI;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPage_Map2_Appearance;
+import net.tourbook.tour.ITourEventListener;
+import net.tourbook.tour.SelectionTourMarker;
+import net.tourbook.tour.TourEventId;
+import net.tourbook.tour.TourManager;
 import net.tourbook.tour.filter.TourFilterFieldOperator;
 import net.tourbook.ui.views.tourCatalog.ReferenceTourManager;
 
@@ -140,7 +144,9 @@ public class TourMapPainter extends Map2Painter {
    /*
     * Static UI resources
     */
-   private static Image _tourWayPointImage;
+   private static Image     _tourWayPointImage;
+
+   private List<TourMarker> _allSelectedTourMarkers = new ArrayList<>();
 
    /*
     * None static fields
@@ -149,11 +155,13 @@ public class TourMapPainter extends Map2Painter {
    private IMapColorProvider _legendProvider;
 
    // painting parameter
-   private int     _lineWidth;
-   private int     _lineWidth2;
+   private int                _lineWidth;
+   private int                _lineWidth2;
 
-   private boolean _isFastPainting;
-   private int     _fastPainting_SkippedValues;
+   private boolean            _isFastPainting;
+   private int                _fastPainting_SkippedValues;
+
+   private ITourEventListener _tourEventListener;
 
    private class LoadCallbackImage implements ILoadCallBack {
 
@@ -188,6 +196,8 @@ public class TourMapPainter extends Map2Painter {
        */
 
       initPainter();
+
+      addTourEventListener();
    }
 
    /**
@@ -782,6 +792,23 @@ public class TourMapPainter extends Map2Painter {
       TourbookPlugin.getPrefStore().addPropertyChangeListener(_prefChangeListener);
    }
 
+   private void addTourEventListener() {
+
+      _tourEventListener = (part, eventId, eventData) -> {
+
+         if (part == TourMapPainter.this ||
+               eventId != TourEventId.MARKER_SELECTION ||
+               !(eventData instanceof SelectionTourMarker)) {
+            return;
+         }
+
+         final SelectionTourMarker markerSelection = (SelectionTourMarker) eventData;
+         _allSelectedTourMarkers = markerSelection.getSelectedTourMarker();
+      };
+
+      TourManager.getInstance().addTourEventListener(_tourEventListener);
+   }
+
    private void createImages() {
 
       _tourStartMarker = TourbookPlugin.getImageDescriptor(Messages.Image_Map_TourStartMarker).createImage();
@@ -800,6 +827,8 @@ public class TourMapPainter extends Map2Painter {
       Util.disposeResource(_tourStartMarker);
 
       Util.disposeResource(_tourWayPointImage);
+
+      TourManager.getInstance().removeTourEventListener(_tourEventListener);
 
       _isImageAvailable = false;
    }
@@ -2002,6 +2031,9 @@ public class TourMapPainter extends Map2Painter {
                                   final TourMarker tourMarker,
                                   final int parts) {
       //final boolean isHighlightTourMarker) {
+
+      //todo fb that might work but it this function is not called when the marker is selected
+      final boolean isHighlightMarker = _allSelectedTourMarkers.contains(tourMarker);
 
       //todo fb here
       final MP mp = map.getMapProvider();
