@@ -379,7 +379,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
       for (int segmentIndex = 1; segmentIndex <= numSegments; segmentIndex++) {
 
-         int nextValueIndex = (int) (numSlices / numSegments * segmentIndex);
+         int nextValueIndex = numSegments == 0 ? 0 : (int) (numSlices / numSegments * segmentIndex);
          nextValueIndex += firstValueIndex;
 
          // get world position for the slider coordinates

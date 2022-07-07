@@ -3446,6 +3446,8 @@ public class Map2View extends ViewPart implements
          }
 
          keepMapPosition(tourData);
+         //todo fb
+         // highlightMarker();
       }
    }
 
@@ -3474,6 +3476,8 @@ public class Map2View extends ViewPart implements
          }
 
          keepMapPosition(tourData);
+         //todo fb
+         // highlightPause();
       }
    }
 

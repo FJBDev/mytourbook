@@ -67,6 +67,10 @@ import net.tourbook.photo.PhotoLoadingState;
 import net.tourbook.photo.PhotoUI;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.Map2_Appearance;
+import net.tourbook.tour.ITourEventListener;
+import net.tourbook.tour.SelectionTourMarker;
+import net.tourbook.tour.TourEventId;
+import net.tourbook.tour.TourManager;
 import net.tourbook.tour.filter.TourFilterFieldOperator;
 import net.tourbook.ui.views.tourCatalog.ReferenceTourManager;
 
@@ -140,7 +144,9 @@ public class TourMapPainter extends Map2Painter {
    /*
     * Static UI resources
     */
-   private static Image _tourWayPointImage;
+   private static Image     _tourWayPointImage;
+
+   private List<TourMarker> _allSelectedTourMarkers = new ArrayList<>();
 
    /*
     * None static fields
@@ -149,13 +155,15 @@ public class TourMapPainter extends Map2Painter {
    private IMapColorProvider _legendProvider;
 
    // painting parameter
-   private int     _symbolSize;
-   private int     _symbolSize2;
-   private int     _symbolHoveredMargin;
-   private int     _symbolHoveredMargin2;
+   private int                _symbolSize;
+   private int                _symbolSize2;
+   private int                _symbolHoveredMargin;
+   private int                _symbolHoveredMargin2;
 
-   private boolean _isFastPainting;
-   private int     _fastPainting_SkippedValues;
+   private boolean            _isFastPainting;
+   private int                _fastPainting_SkippedValues;
+
+   private ITourEventListener _tourEventListener;
 
    private class LoadCallbackImage implements ILoadCallBack {
 
@@ -190,6 +198,8 @@ public class TourMapPainter extends Map2Painter {
        */
 
       initPainter();
+
+      addTourEventListener();
    }
 
    /**
@@ -790,6 +800,23 @@ public class TourMapPainter extends Map2Painter {
       TourbookPlugin.getPrefStore().addPropertyChangeListener(_prefChangeListener);
    }
 
+   private void addTourEventListener() {
+
+      _tourEventListener = (part, eventId, eventData) -> {
+
+         if (part == TourMapPainter.this ||
+               eventId != TourEventId.MARKER_SELECTION ||
+               !(eventData instanceof SelectionTourMarker)) {
+            return;
+         }
+
+         final SelectionTourMarker markerSelection = (SelectionTourMarker) eventData;
+         _allSelectedTourMarkers = markerSelection.getSelectedTourMarker();
+      };
+
+      TourManager.getInstance().addTourEventListener(_tourEventListener);
+   }
+
    private void createImages() {
 
       _tourStartMarker = TourbookPlugin.getImageDescriptor(Messages.Image_Map_TourStartMarker).createImage();
@@ -808,6 +835,8 @@ public class TourMapPainter extends Map2Painter {
       Util.disposeResource(_tourStartMarker);
 
       Util.disposeResource(_tourWayPointImage);
+
+      TourManager.getInstance().removeTourEventListener(_tourEventListener);
 
       _isImageAvailable = false;
    }
@@ -1123,6 +1152,7 @@ public class TourMapPainter extends Map2Painter {
                                   final double[] latitudeSerie,
                                   final double[] longitudeSerie) {
 
+      //todo fb
       if (tourData.isMultipleTours()) {
 
          final int[] multipleStartTimeIndex = tourData.multipleTourStartIndex;
@@ -1624,10 +1654,10 @@ public class TourMapPainter extends Map2Painter {
          _symbolHoveredMargin2 = _symbolHoveredMargin / 2;
 
          gcTile.setLineWidth(_symbolSize);
-         
+
          int devFrom_WithOffsetX = 0;
          int devFrom_WithOffsetY = 0;
-         
+
          Color lastVisibleColor = null;
 
          for (int serieIndex = 0; serieIndex < longitudeSerie.length; serieIndex++) {
@@ -1781,7 +1811,6 @@ public class TourMapPainter extends Map2Painter {
 
                   lastInsideIndex = serieIndex;
                }
-
 
                // check first outside point
                if (isVisibleDataPoint && serieIndex == lastInsideIndex + 1) {
@@ -2099,7 +2128,12 @@ public class TourMapPainter extends Map2Painter {
                                   final double longitude,
                                   final TourMarker tourMarker,
                                   final int parts) {
+      //final boolean isHighlightTourMarker) {
 
+      //todo fb that might work but it this function is not called when the marker is selected
+      final boolean isHighlightMarker = _allSelectedTourMarkers.contains(tourMarker);
+
+      //todo fb here
       final MP mp = map.getMapProvider();
       final int zoomLevel = map.getZoom();
       final int tileSize = mp.getTileSize();
@@ -2131,7 +2165,7 @@ public class TourMapPainter extends Map2Painter {
          final int markerImageWidth = bannerWidth;
          final int markerImageHeight = bannerHeight + MARKER_POLE;
 
-         markerBounds = new Rectangle(bannerWidth, bannerHeight, markerImageWidth, markerImageHeight);
+         markerBounds = new Rectangle(bannerWidth * 10, bannerHeight * 10, markerImageWidth, markerImageHeight);
 
          tourMarker.setMarkerBounds(markerBounds);
       }
@@ -2212,6 +2246,7 @@ public class TourMapPainter extends Map2Painter {
 
          // draw text
          gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+         //todo fb how to make the text bold ?
          gc.drawText(
                markerLabel,
                MARKER_MARGIN + 1,
