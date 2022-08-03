@@ -42,11 +42,6 @@ public class Messages extends NLS {
    public static String        Default_Layer_WMS_NASABlueMarble2004;
    public static String        Default_Layer_WMS_OpenStreetMap;
    public static String        Default_Layer_WMS_USGS_NAIP_PLUS;
-   public static String        Default_Layer_WMS_USGS_Topo100;
-   public static String        Default_Layer_WMS_USGS_Topo24;
-   public static String        Default_Layer_WMS_USGS_Topo250;
-   public static String        Default_Layer_WMS_USGS_TOPO_BASE_MAP;
-   public static String        Default_Layer_WMS_USGS_TOPO_BASE_MAP_LARGE_SCALE;
    public static String        Default_Layer_WorldMap;
 
    public static String        Layer_Category_Info;
@@ -124,11 +119,11 @@ public class Messages extends NLS {
    public static String        Pref_Map3Color_Column_OverwriteLegendMinMax_Label_Tooltip;
    public static String        Pref_Map3Color_Column_ProfileName;
    public static String        Pref_Map3Color_Column_ValueMarker_Absolute;
+   public static String        Pref_Map3Color_Column_ValueMarker_Absolute_Detail;
    public static String        Pref_Map3Color_Column_ValueMarker_Relative;
+   public static String        Pref_Map3Color_Column_ValueMarker_Relative_Detail;
    public static String        Pref_Map3Color_Dialog_RemoveProfile_Message;
    public static String        Pref_Map3Color_Dialog_RemoveProfile_Title;
-   public static String        Pref_Map3Color_Label_NumberOfColors;
-   public static String        Pref_Map3Color_Label_NumberOfColors_Tooltip;
    public static String        Pref_Map3Color_Label_Title;
 
    public static String        Prop_Viewer_Label_AltitudeRange_Tooltip;
