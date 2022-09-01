@@ -25,6 +25,10 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.4
+        with:
+          maven-version: 3.8.6
       - name: Make gradlew executable
         run: chmod +x ./build/build.net.tourbook/gradlew
       - name: Rename MT to mytourbook
