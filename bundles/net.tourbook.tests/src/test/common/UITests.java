@@ -82,17 +82,6 @@ public class UITests {
    @Test
    void testGetCardinalDirectionText() {
 
-//      Messages.Weather_WindDirection_ESE,
-//      Messages.Weather_WindDirection_SE,
-//      Messages.Weather_WindDirection_SSE,
-//      ,
-//      Messages.Weather_WindDirection_SSW,
-//      Messages.Weather_WindDirection_SW,
-//      Messages.Weather_WindDirection_WSW,
-//      M,
-//      Messages.Weather_WindDirection_WNW,
-//      Messages.Weather_WindDirection_NW,
-//      Messages.Weather_WindDirection_NNW
       //0° -> N
       assertEquals(Messages.Weather_WindDirection_N, UI.getCardinalDirectionText(0));
 
@@ -108,10 +97,37 @@ public class UITests {
       //90° -> E
       assertEquals(Messages.Weather_WindDirection_E, UI.getCardinalDirectionText(90));
 
+      //105° -> ESE
+      assertEquals(Messages.Weather_WindDirection_ESE, UI.getCardinalDirectionText(105));
+
+      //130° -> SE
+      assertEquals(Messages.Weather_WindDirection_SE, UI.getCardinalDirectionText(130));
+
+      //150° -> SSE
+      assertEquals(Messages.Weather_WindDirection_SSE, UI.getCardinalDirectionText(150));
+
       //180° -> S
       assertEquals(Messages.Weather_WindDirection_S, UI.getCardinalDirectionText(180));
 
+      //200° -> SSW
+      assertEquals(Messages.Weather_WindDirection_SSW, UI.getCardinalDirectionText(200));
+
+      //220° -> SW
+      assertEquals(Messages.Weather_WindDirection_SW, UI.getCardinalDirectionText(220));
+
+      //240° -> WSW
+      assertEquals(Messages.Weather_WindDirection_WSW, UI.getCardinalDirectionText(240));
+
       //270° -> W
       assertEquals(Messages.Weather_WindDirection_W, UI.getCardinalDirectionText(270));
+
+      //290° -> WNW
+      assertEquals(Messages.Weather_WindDirection_WNW, UI.getCardinalDirectionText(290));
+
+      //310° -> NW
+      assertEquals(Messages.Weather_WindDirection_NW, UI.getCardinalDirectionText(310));
+
+      //330° -> NNW
+      assertEquals(Messages.Weather_WindDirection_NNW, UI.getCardinalDirectionText(330));
    }
 }
