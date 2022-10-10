@@ -17,6 +17,7 @@ package common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.measurement_system.MeasurementSystem_Manager;
 
@@ -76,5 +77,41 @@ public class UITests {
       setImperialSystem();
       //1in -> 25.4mm
       assertEquals(25.4f, UI.convertPrecipitation_ToMetric(1.0f));
+   }
+
+   @Test
+   void testGetCardinalDirectionText() {
+
+//      Messages.Weather_WindDirection_ESE,
+//      Messages.Weather_WindDirection_SE,
+//      Messages.Weather_WindDirection_SSE,
+//      ,
+//      Messages.Weather_WindDirection_SSW,
+//      Messages.Weather_WindDirection_SW,
+//      Messages.Weather_WindDirection_WSW,
+//      M,
+//      Messages.Weather_WindDirection_WNW,
+//      Messages.Weather_WindDirection_NW,
+//      Messages.Weather_WindDirection_NNW
+      //0° -> N
+      assertEquals(Messages.Weather_WindDirection_N, UI.getCardinalDirectionText(0));
+
+      //20° -> NNE
+      assertEquals(Messages.Weather_WindDirection_NNE, UI.getCardinalDirectionText(20));
+
+      //45° -> NE
+      assertEquals(Messages.Weather_WindDirection_NE, UI.getCardinalDirectionText(45));
+
+      //65° -> ENE
+      assertEquals(Messages.Weather_WindDirection_ENE, UI.getCardinalDirectionText(65));
+
+      //90° -> E
+      assertEquals(Messages.Weather_WindDirection_E, UI.getCardinalDirectionText(90));
+
+      //180° -> S
+      assertEquals(Messages.Weather_WindDirection_S, UI.getCardinalDirectionText(180));
+
+      //270° -> W
+      assertEquals(Messages.Weather_WindDirection_W, UI.getCardinalDirectionText(270));
    }
 }
