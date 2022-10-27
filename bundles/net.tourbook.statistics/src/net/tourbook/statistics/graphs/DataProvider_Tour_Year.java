@@ -35,7 +35,7 @@ import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
 import net.tourbook.ui.SQLFilter;
 import net.tourbook.ui.TourTypeFilter;
 
-public class DataProvider_Tour_Year extends DataProvider {
+class DataProvider_Tour_Year extends DataProvider {
 
    private TourStatisticData_Year _tourYearData;
 
