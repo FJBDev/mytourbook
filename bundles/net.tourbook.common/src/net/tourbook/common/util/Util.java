@@ -55,6 +55,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -98,7 +99,7 @@ public class Util {
    public static final String UNIQUE_ID_SUFFIX_SUUNTOQUEST         = "41502"; //$NON-NLS-1$
 
    /*
-    * Default xml tags
+    * Default XML tags
     */
    private static final String TAG_ITEM   = "item";  //$NON-NLS-1$
    private static final String TAG_LIST   = "list";  //$NON-NLS-1$
@@ -107,7 +108,7 @@ public class Util {
    private static final String ATTR_VALUE = "value"; //$NON-NLS-1$
 
    /*
-    * default xml attributes
+    * default XML attributes
     */
    public static final String ATTR_ROOT_DATETIME          = "Created";                                 //$NON-NLS-1$
    public static final String ATTR_ROOT_VERSION_MAJOR     = "VersionMajor";                            //$NON-NLS-1$
@@ -118,6 +119,7 @@ public class Util {
    public static final String ATTR_COLOR_RED              = "red";                                     //$NON-NLS-1$
    public static final String ATTR_COLOR_GREEN            = "green";                                   //$NON-NLS-1$
    public static final String ATTR_COLOR_BLUE             = "blue";                                    //$NON-NLS-1$
+   public static final String ATTR_COLOR_ALPHA            = "alpha";                                   //$NON-NLS-1$
 
    public static final String CSV_FILE_EXTENSION          = "csv";                                     //$NON-NLS-1$
 
@@ -127,6 +129,41 @@ public class Util {
     * Number of processors available to the Java virtual machine.
     */
    public static final int    NUMBER_OF_PROCESSORS        = Runtime.getRuntime().availableProcessors();
+
+   /**
+    * Prepend a line number to each text line.
+    *
+    * @param text
+    * @return
+    */
+   public static String addLineNumbers(final String text) {
+
+      return addLineNumbers(text, 1);
+   }
+
+   /**
+    * Prepend a line number to each text line.
+    *
+    * @param text
+    * @return
+    */
+   public static String addLineNumbers(final String text, final int startLineNumer) {
+
+      final String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$
+
+      final StringBuilder sb = new StringBuilder();
+
+      for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+
+         final String line = lines[lineNumber];
+
+         sb.append(String.format("%-4d  ", lineNumber + startLineNumer)); //$NON-NLS-1$
+         sb.append(line);
+         sb.append(UI.NEW_LINE);
+      }
+
+      return sb.toString();
+   }
 
    public static int adjustScaleValueOnMouseScroll(final MouseEvent event) {
 
@@ -170,7 +207,7 @@ public class Util {
    }
 
    /**
-    * Clear all selection providers in all workench pages.
+    * Clear all selection providers in all workbench pages.
     */
    public static void clearSelection() {
 
@@ -221,7 +258,7 @@ public class Util {
 
    /**
     * @param os
-    * @return Returns <code>false</code> when an exception occures.
+    * @return Returns <code>false</code> when an exception occurs.
     */
    public static boolean close(final OutputStream os) {
 
@@ -294,7 +331,7 @@ public class Util {
 
    /**
     * @param text
-    * @return Returns MD5 for the text or <code>null</code> when an error occures.
+    * @return Returns MD5 for the text or <code>null</code> when an error occurs.
     */
    public static String computeMD5(final String text) {
 
@@ -1679,7 +1716,7 @@ public class Util {
    }
 
    /**
-    * Get long array from xml list/item tags.
+    * Get long array from XML list/item tags.
     *
     * @param memento
     * @param listKeyName
@@ -1734,27 +1771,70 @@ public class Util {
    }
 
    /**
-    * RBG values are in child tag as attributes
+    * RBGA values are in child tag as attributes
     *
     * @param xmlConfig
-    * @param childTag
+    * @param childTagName
     * @param defaultRgb
     * @return
     */
-   public static RGB getXmlRgb(final XMLMemento xmlConfig, final String childTag, final RGB defaultRgb) {
+   public static RGB getXmlRgb_AsParent(final XMLMemento xmlConfig, final String childTagName, final RGB defaultRgb) {
 
       for (final IMemento mementoConfigChild : xmlConfig.getChildren()) {
 
          final XMLMemento xmlConfigChild = (XMLMemento) mementoConfigChild;
          final String configTag = xmlConfigChild.getType();
 
-         if (configTag.equals(childTag)) {
+         if (configTag.equals(childTagName)) {
 
             return Util.getXmlRgb(xmlConfigChild, defaultRgb);
          }
       }
 
       return defaultRgb;
+   }
+
+   /**
+    * @param xmlMemento
+    * @param defaultValue
+    * @return Returns {@link RGBA} from the attributes red, green, blue and alpha attributes.
+    */
+   public static RGBA getXmlRgba(final IMemento xmlMemento, final RGBA defaultValue) {
+
+// SET_FORMATTING_OFF
+
+      final int red     = getXmlInteger(xmlMemento, ATTR_COLOR_RED,     defaultValue.rgb.red);
+      final int green   = getXmlInteger(xmlMemento, ATTR_COLOR_GREEN,   defaultValue.rgb.green);
+      final int blue    = getXmlInteger(xmlMemento, ATTR_COLOR_BLUE,    defaultValue.rgb.blue);
+      final int alpha   = getXmlInteger(xmlMemento, ATTR_COLOR_ALPHA,   defaultValue.alpha);
+
+// SET_FORMATTING_ON
+
+      return new RGBA(red, green, blue, alpha);
+   }
+
+   /**
+    * RBG values are in child tag as attributes
+    *
+    * @param xmlConfig
+    * @param childTagName
+    * @param defaultRgba
+    * @return
+    */
+   public static RGBA getXmlRgba_AsParent(final XMLMemento xmlConfig, final String childTagName, final RGBA defaultRgba) {
+
+      for (final IMemento mementoConfigChild : xmlConfig.getChildren()) {
+
+         final XMLMemento xmlConfigChild = (XMLMemento) mementoConfigChild;
+         final String configTag = xmlConfigChild.getType();
+
+         if (configTag.equals(childTagName)) {
+
+            return Util.getXmlRgba(xmlConfigChild, defaultRgba);
+         }
+      }
+
+      return defaultRgba;
    }
 
    public static String getXmlString(final IMemento xmlConfig, final String key, final String defaultValue) {
@@ -2832,7 +2912,7 @@ public class Util {
    }
 
    /**
-    * Set values into xml list/item tags.
+    * Set values into XML list/item tags.
     *
     * @param memento
     * @param listKeyName
@@ -2865,6 +2945,28 @@ public class Util {
          xmlColorTag.putInteger(ATTR_COLOR_RED, rgb.red);
          xmlColorTag.putInteger(ATTR_COLOR_GREEN, rgb.green);
          xmlColorTag.putInteger(ATTR_COLOR_BLUE, rgb.blue);
+      }
+
+      return xmlColorTag;
+   }
+
+   /**
+    * Creates a child for the color.
+    *
+    * @param xmlColor
+    * @param tagName
+    * @param rgba
+    * @return
+    */
+   public static IMemento setXmlRgba(final IMemento xmlColor, final String tagName, final RGBA rgba) {
+
+      final IMemento xmlColorTag = xmlColor.createChild(tagName);
+      {
+         xmlColorTag.putInteger(ATTR_COLOR_RED, rgba.rgb.red);
+         xmlColorTag.putInteger(ATTR_COLOR_GREEN, rgba.rgb.green);
+         xmlColorTag.putInteger(ATTR_COLOR_BLUE, rgba.rgb.blue);
+
+         xmlColorTag.putInteger(ATTR_COLOR_ALPHA, rgba.alpha);
       }
 
       return xmlColorTag;

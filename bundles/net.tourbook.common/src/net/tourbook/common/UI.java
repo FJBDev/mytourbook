@@ -223,6 +223,8 @@ public class UI {
 
    public static final int          FORM_FIRST_COLUMN_INDENT           = 16;
 
+   private static final String      Format_TimeDuration_mmss           = "% 03d:%02d";          //$NON-NLS-1$
+
    /**
     * The ellipsis is the string that is used to represent shortened text.
     *
@@ -931,6 +933,29 @@ public class UI {
    }
 
    /**
+    * Computes the BMI (Body Mass Index) for a given user's height and weight.
+    *
+    * @param weight
+    *           The user's weight in kilograms or pounds.
+    * @param height
+    *           The user's height in meters or inches.
+    * @return The BMI value.
+    */
+   public static float computeBodyMassIndex(double weight, double height) {
+
+      if (UNIT_IS_LENGTH_SMALL_INCH) {
+         height = height / UNIT_INCH / 1000;
+      }
+      if (UNIT_IS_WEIGHT_POUND) {
+         weight /= UNIT_VALUE_WEIGHT;
+      }
+
+      final double bmi = height == 0 ? 0 : weight / Math.pow(height, 2);
+
+      return Math.round(bmi * 10.0) / 10.0f;
+   }
+
+   /**
     * @param averageElevationChange
     *           In m/km
     * @return Returns the average elevation change in the current measurement system.
@@ -1350,7 +1375,7 @@ public class UI {
 
       _formatterSB.setLength(0);
 
-      return _formatter.format(Messages.Format_hh,
+      return _formatter.format(Messages.Format_TimeDuration_hh,
 
             time / 3600
 
@@ -1361,7 +1386,7 @@ public class UI {
 
       _formatterSB.setLength(0);
 
-      return _formatter.format(Messages.Format_hhmm,
+      return _formatter.format(Messages.Format_TimeDuration_hhmm,
 
             time / 3600,
             time % 3600 / 60
@@ -1388,7 +1413,7 @@ public class UI {
 
          // display hours
 
-         return _formatter.format(Messages.Format_hhmmss,
+         return _formatter.format(Messages.Format_TimeDuration_hhmmss,
 
                time / 3600,
                time % 3600 / 60,
@@ -1400,7 +1425,7 @@ public class UI {
 
          // ignore hours
 
-         return _formatter.format(Messages.Format_hhmm,
+         return _formatter.format(Messages.Format_TimeDuration_hhmm,
 
                time % 3600 / 60,
                time % 3600 % 60
@@ -1420,7 +1445,7 @@ public class UI {
 
       _formatterSB.setLength(0);
 
-      return _formatter.format(Messages.Format_hhmmss,
+      return _formatter.format(Messages.Format_TimeDuration_hhmmss,
             time / 3600,
             (time % 3600) / 60,
             (time % 3600) % 60)
@@ -1437,7 +1462,31 @@ public class UI {
 
       final long timeAbs = time < 0 ? 0 - time : time;
 
-      return _formatter.format(Messages.Format_hhmm,
+      return _formatter.format(Messages.Format_TimeDuration_hhmm,
+
+            timeAbs / 60,
+            timeAbs % 60
+
+      ).toString();
+   }
+
+   /**
+    * Format time with {@link #Format_TimeDuration_mmss}
+    *
+    * @param time
+    * @return
+    */
+   public static String format_mm_ss_WithSign(final long time) {
+
+      _formatterSB.setLength(0);
+
+      if (time < 0) {
+         _formatterSB.append(DASH);
+      }
+
+      final long timeAbs = time < 0 ? 0 - time : time;
+
+      return _formatter.format(Format_TimeDuration_mmss,
 
             timeAbs / 60,
             timeAbs % 60
@@ -1454,7 +1503,7 @@ public class UI {
 
       _formatterSB.setLength(0);
 
-      return _formatter.format(Messages.Format_yyyymmdd_hhmmss,
+      return _formatter.format(Messages.Format_DateTime_yyyymmdd_hhmmss,
 
             year,
             month,
@@ -1464,17 +1513,6 @@ public class UI {
             second
 
       ).toString();
-   }
-
-   public static String FormatDoubleMinMax(final double value) {
-
-      if (value == -Double.MAX_VALUE) {
-         return SYMBOL_INFINITY_MIN;
-      } else if (value == Double.MAX_VALUE) {
-         return SYMBOL_INFINITY_MAX;
-      }
-
-      return Double.toString(value);
    }
 
    public static String FormatDoubleMinMaxElevationMeter(final double value) {
@@ -1515,7 +1553,7 @@ public class UI {
 
          // display hours
 
-         timeText = _formatter.format(Messages.Format_hhmmss,
+         timeText = _formatter.format(Messages.Format_TimeDuration_hhmmss,
 
                time / 3600,
                time % 3600 / 60,
@@ -1527,7 +1565,7 @@ public class UI {
 
          // ignore hours
 
-         timeText = _formatter.format(Messages.Format_hhmm,
+         timeText = _formatter.format(Messages.Format_TimeDuration_hhmm,
 
                time % 3600 / 60,
                time % 3600 % 60
@@ -1566,7 +1604,7 @@ public class UI {
 
    /**
     * @param degreeDirection
-    *           The degree value is multiplied by 10, 0°...3600°
+    *           The degree value, 0°...360°
     * @return Returns cardinal direction text
     */
    public static String getCardinalDirectionText(final int degreeDirection) {
@@ -1576,7 +1614,7 @@ public class UI {
 
    /**
     * @param degreeDirection
-    *           The degree value is multiplied by 10, 0°...3600°
+    *           The degree value, 0°...360°
     * @return Returns cardinal direction index for {@link IWeather#windDirectionText}
     */
    public static int getCardinalDirectionTextIndex(final int degreeDirection) {

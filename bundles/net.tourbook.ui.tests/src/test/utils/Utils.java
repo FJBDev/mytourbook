@@ -17,24 +17,43 @@ package utils;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import net.tourbook.Messages;
-
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 public class Utils {
 
-   private static String tourBookViewTitle = "Tour Book"; //$NON-NLS-1$
+   private static final String TOURBOOK_VIEW_NAME      = "Tour Book";                    //$NON-NLS-1$
+   public static final String  TOUREDITOR_VIEW_NAME    = "Tour Editor";                  //$NON-NLS-1$
+   public static final String  TOURMARKERS_VIEW_NAME   = "Tour Markers";                 //$NON-NLS-1$
+   public static final String  TOURSEGMENTER_VIEW_NAME = "Tour Segmenter";               //$NON-NLS-1$
+   public static final String  STATISTICS_VIEW_NAME    = "Statistics";                   //$NON-NLS-1$
+   public static final String  TOOLS                   = "Tools ";                       //$NON-NLS-1$
+   public static final String  SAVE_MODIFIED_TOUR      = "Save modified tour (Ctrl+S)";  //$NON-NLS-1$
 
-   public static String  workingDirectory  = System.getProperty("user.dir"); //$NON-NLS-1$
+   public static final String  workingDirectory        = System.getProperty("user.dir"); //$NON-NLS-1$
+
+   private static SWTBotButton clickButton(final String mnemonicText, final SWTWorkbenchBot bot) {
+
+      return bot.button(mnemonicText).click();
+   }
+
+   public static void clickCloseButton(final SWTWorkbenchBot bot) {
+
+      clickButton(IDialogConstants.CLOSE_LABEL, bot);
+   }
+
+   public static void clickOkButton(final SWTWorkbenchBot bot) {
+
+      clickButton(IDialogConstants.OK_LABEL, bot);
+   }
 
    public static SWTBotTreeItem getTour(final SWTWorkbenchBot bot) {
 
       showTourBookView(bot);
-
-      bot.toolbarButtonWithTooltip(Messages.App_Action_CollapseAll).click();
 
       final SWTBotTreeItem tour = bot.tree().getTreeItem("2021   2").expand() //$NON-NLS-1$
             .getNode("Jan   2").expand().select().getNode("31").select(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -43,9 +62,29 @@ public class Utils {
       return tour;
    }
 
-   public static void showTourBookView(final SWTWorkbenchBot bot) {
+   /**
+    * Select a tour for which we have SRTM3 data
+    */
+   public static SWTBotTreeItem getTourWithSRTM(final SWTWorkbenchBot bot) {
 
-      showView(bot, tourBookViewTitle);
+      showTourBookView(bot);
+
+      final SWTBotTreeItem tour = bot.tree().getTreeItem("2013   1").expand() //$NON-NLS-1$
+            .getNode("May   1").expand().select().getNode("18").select(); //$NON-NLS-1$ //$NON-NLS-2$
+      assertNotNull(tour);
+
+      return tour;
+   }
+
+   public static void openOtherMenu(final SWTWorkbenchBot bot) {
+
+      final SWTBotMenu otherMenu = bot.menu(TOOLS).menu("All Views").menu("Other...").click(); //$NON-NLS-1$ //$NON-NLS-2$
+      assertNotNull(otherMenu);
+   }
+
+   public static SWTBotView showTourBookView(final SWTWorkbenchBot bot) {
+
+      return showView(bot, TOURBOOK_VIEW_NAME);
    }
 
    public static SWTBotView showView(final SWTWorkbenchBot bot, final String viewName) {

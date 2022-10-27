@@ -17,16 +17,13 @@ package views;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.jupiter.api.Test;
 
+import utils.UITest;
 import utils.Utils;
 
-public class TaggedToursViewTests {
-
-   private SWTWorkbenchBot bot = new SWTWorkbenchBot();
+public class TaggedToursViewTests extends UITest {
 
    /**
     * This test could have caught this bug in the 22.3 release
@@ -36,8 +33,7 @@ public class TaggedToursViewTests {
    void testTaggedToursView() {
 
       //Open the Tagged Tours view
-      final SWTBotMenu otherMenu = bot.menu("Tools ").menu("All Views").menu("Other...").click(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      assertNotNull(otherMenu);
+      Utils.openOtherMenu(bot);
       bot.tree().getTreeItem("1. Tour Directories").expand().getNode("Tagged Tours").select(); //$NON-NLS-1$ //$NON-NLS-2$
       bot.button("Open").click(); //$NON-NLS-1$
 
@@ -45,7 +41,7 @@ public class TaggedToursViewTests {
 
       Utils.showView(bot, "Tagged Tours"); //$NON-NLS-1$
 
-      final SWTBotTreeItem item = bot.tree(1).getTreeItem("Shoes 2   7").select(); //$NON-NLS-1$
+      final SWTBotTreeItem item = bot.tree(1).getTreeItem("Shoes 2   8").select(); //$NON-NLS-1$
       assertNotNull(item);
       final SWTBotTreeItem node = item.getNode("5/31/15").select(); //$NON-NLS-1$
       assertNotNull(node);

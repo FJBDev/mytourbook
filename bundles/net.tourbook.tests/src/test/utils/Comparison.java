@@ -53,24 +53,26 @@ public class Comparison {
    public static void compareTourDataAgainstControl(final TourData testTourData,
                                                     final String controlFileName) {
 
-      testTourData.getTourMarkersSorted();
-      final String testJson = testTourData.toJson();
+      final ArrayValueMatcher<Object> tourMarkersValueMatcher = new ArrayValueMatcher<>(
+            new CustomComparator(
+                  JSONCompareMode.STRICT,
+                  new Customization("tourMarkers[*].deviceLapTime", (o1, o2) -> true), //$NON-NLS-1$
+                  new Customization("tourMarkers[*].tourData", (o1, o2) -> true))); //$NON-NLS-1$
 
-      final ArrayValueMatcher<Object> arrValMatch = new ArrayValueMatcher<>(new CustomComparator(
-            JSONCompareMode.STRICT,
-            new Customization("tourMarkers[*].deviceLapTime", (o1, o2) -> true), //$NON-NLS-1$
-            new Customization("tourMarkers[*].tourData", (o1, o2) -> true))); //$NON-NLS-1$
-
-      final Customization arrayValueMatchCustomization = new Customization("tourMarkers", arrValMatch); //$NON-NLS-1$
       final CustomComparator customArrayValueComparator = new CustomComparator(
             JSONCompareMode.STRICT,
-            arrayValueMatchCustomization,
+            new Customization("tourMarkers", tourMarkersValueMatcher), //$NON-NLS-1$
             new Customization("importFilePath", (o1, o2) -> true), //$NON-NLS-1$
+            new Customization("tourType.createId", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("importFilePathName", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("importFilePathNameText", (o1, o2) -> true), //$NON-NLS-1$
+            new Customization("geoGrid", (o1, o2) -> true), //$NON-NLS-1$
             new Customization("tourId", (o1, o2) -> true)); //$NON-NLS-1$
 
       final String controlDocument = readFileContent(controlFileName + JSON);
+
+      testTourData.getTourMarkersSorted();
+      final String testJson = testTourData.toJson();
 
       final JSONCompareResult result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
 

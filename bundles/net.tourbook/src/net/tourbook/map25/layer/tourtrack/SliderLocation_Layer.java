@@ -4,6 +4,7 @@
 package net.tourbook.map25.layer.tourtrack;
 
 import net.tourbook.map25.Map25ConfigManager;
+import net.tourbook.map25.renderer.LocationRenderer;
 
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.core.GeoPoint;
@@ -13,7 +14,7 @@ import org.oscim.map.Map;
 
 public class SliderLocation_Layer extends Layer {
 
-	public final LocationRenderer locationRenderer;
+   private final LocationRenderer _locationRenderer;
 
 	public SliderLocation_Layer(final Map map) {
 
@@ -24,7 +25,7 @@ public class SliderLocation_Layer extends Layer {
 
 		super(map);
 
-		mRenderer = locationRenderer = new LocationRenderer(mMap, this, scale);
+      mRenderer = _locationRenderer = new LocationRenderer(mMap, this, scale);
 	}
 
 	public void onModifyConfig() {
@@ -33,7 +34,7 @@ public class SliderLocation_Layer extends Layer {
 
 		setEnabled(activeTourTrackConfig.isShowSliderLocation);
 
-		locationRenderer.updateConfig();
+      _locationRenderer.updateConfig();
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class SliderLocation_Layer extends Layer {
       super.setEnabled(isEnabled);
 
       if (!isEnabled) {
-			locationRenderer.animate(false);
+         _locationRenderer.animate(false);
 		}
 	}
 
@@ -54,7 +55,7 @@ public class SliderLocation_Layer extends Layer {
 
 		final double radius = 10 / MercatorProjection.groundResolutionWithScale(leftGeoPoint.getLatitude(), 1);
 
-		locationRenderer.setLocation(
+      _locationRenderer.setLocation(
 
 				MercatorProjection.longitudeToX(leftGeoPoint.getLongitude()),
 				MercatorProjection.latitudeToY(leftGeoPoint.getLatitude()),

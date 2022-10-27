@@ -34,7 +34,7 @@ public class WeatherUtils {
 
    public static final int    SECONDS_PER_THIRTY_MINUTE = 1800;
 
-   public static final String HEROKU_APP_URL            = "https://passeur-mytourbook-oauthapps.herokuapp.com"; //$NON-NLS-1$
+   public static final String HEROKU_APP_URL            = "https://passeur-mytourbook-oauthapps.cyclic.app"; //$NON-NLS-1$
 
    /**
     * Returns the fully detailed weather data as a human readable string.
@@ -72,6 +72,10 @@ public class WeatherUtils {
                                                    final float snowFallValue,
                                                    final TourDateTime tourDateTime,
                                                    final boolean isDisplayEmptyValues) {
+
+      if (tourDateTime == null) {
+         return UI.EMPTY_STRING;
+      }
 
       final String tourTime = String.format("%3s", tourDateTime.tourZonedDateTime.getHour() + UI.UNIT_LABEL_TIME); //$NON-NLS-1$
 
@@ -326,7 +330,7 @@ public class WeatherUtils {
     * encompass most of the track to search a weather station as close as possible
     * to the overall course and not just to a specific point.
     */
-   public static LatLng determineWeatherSearchAreaCenter(final TourData tour) {
+   static LatLng determineWeatherSearchAreaCenter(final TourData tour) {
 
       final double[] latitudeSerie = tour.latitudeSerie;
       final double[] longitudeSerie = tour.longitudeSerie;
@@ -440,7 +444,7 @@ public class WeatherUtils {
       return weatherCloudsIndex < 0 ? 0 : weatherCloudsIndex;
    }
 
-   public static String getWindDirectionText(final int degreeDirection) {
+   private static String getWindDirectionText(final int degreeDirection) {
 
       return IWeather.windDirectionText[UI.getCardinalDirectionTextIndex(degreeDirection)];
    }

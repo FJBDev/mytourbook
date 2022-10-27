@@ -1204,6 +1204,7 @@ public class Messages extends NLS {
    public static String        Log_SaveTags_Start_RemoveAllTags;
    public static String        Log_SaveTags_Start_RemoveSelectedTags;
    public static String        Log_SaveTags_Start_ReplaceTags;
+   public static String        Log_SetElevationFromSRTM_01;
    public static String        Log_SetMinMaxTemperature_NoSuccess;
    public static String        Log_SetMinMaxTemperature_Startup;
    public static String        Log_SetMinMaxTemperature_Success;
@@ -1282,6 +1283,14 @@ public class Messages extends NLS {
    public static String        Map_Bookmark_Dialog_RenameBookmark_Title;
    public static String        Map_Bookmark_Dialog_ValidationAddName;
    public static String        Map_Bookmark_Dialog_ValidationRename;
+
+   public static String        Map_Player_Action_Loop_Tooltip;
+   public static String        Map_Player_Checkbox_IsReLivePlaying;
+   public static String        Map_Player_Label_FramesPerSecond;
+   public static String        Map_Player_Lable_TimeEndOrRemaining_Tooltip;
+   public static String        Map_Player_PlayContol_Play_Tooptip;
+   public static String        Map_Player_PlayControl_Pause_Tooltip;
+   public static String        Map_Player_Spinner_FramesPerSecond_Tooptip;
 
    public static String        merge_tour_dlg_invalid_serie_data_message;
    public static String        merge_tour_dlg_invalid_tour_data_message;
@@ -1635,6 +1644,8 @@ public class Messages extends NLS {
    public static String        Pref_People_Error_path_is_invalid;
    public static String        Pref_People_Label_Age;
    public static String        Pref_People_Label_Birthday;
+   public static String        Pref_People_Label_BodyMassIndex;
+   public static String        Pref_People_Label_BodyMassIndex_Tooltip;
    public static String        Pref_People_Label_DataTransfer;
    public static String        Pref_People_Label_DefaultDataTransferFilePath;
    public static String        Pref_People_Label_DefaultDataTransferFilePath_Tooltip;
@@ -2051,12 +2062,24 @@ public class Messages extends NLS {
    public static String        Slideout_Map25Provider_Label_MapProvider;
    public static String        Slideout_Map25Provider_Label_MapProvider_Title;
    public static String        Slideout_Map25Provider_Label_ThemeStyle;
-
+   public static String        Slideout_Map25TrackOptions_Checkbox_AnimateDirectionArrows;
+   public static String        Slideout_Map25TrackOptions_Checkbox_AnimateDirectionArrows_Tooltip;
    public static String        Slideout_Map25TrackOptions_Checkbox_Outline;
    public static String        Slideout_Map25TrackOptions_Checkbox_Outline_Tooltip;
    public static String        Slideout_Map25TrackOptions_Checkbox_TrackVerticalOffset;
    public static String        Slideout_Map25TrackOptions_Label_ColorMode;
    public static String        Slideout_Map25TrackOptions_Label_ConfigName_Tooltip;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Design;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Fin;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Fin_Tooltip;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_MinimumDistance;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_MinimumDistance_Tooltip;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Size;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Size_Tooltip;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_VerticalOffset;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_VerticalOffset_Tooltip;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Wing;
+   public static String        Slideout_Map25TrackOptions_Label_DirectionArrow_Wing_Tooltip;
    public static String        Slideout_Map25TrackOptions_Label_DirectionArrows;
    public static String        Slideout_Map25TrackOptions_Label_DirectionArrows_Tooltip;
    public static String        Slideout_Map25TrackOptions_Label_LegendUnitLayout;

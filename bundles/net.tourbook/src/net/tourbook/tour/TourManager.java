@@ -15,10 +15,6 @@
  *******************************************************************************/
 package net.tourbook.tour;
 
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TFloatArrayList;
-import gnu.trove.list.array.TLongArrayList;
-
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,6 +22,7 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
@@ -71,6 +68,7 @@ import net.tourbook.data.TourPhoto;
 import net.tourbook.database.MyTourbookException;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.RawDataManager;
+import net.tourbook.importdata.RawDataManager.TourValueType;
 import net.tourbook.photo.Photo;
 import net.tourbook.photo.PhotoGallery;
 import net.tourbook.photo.PhotoManager;
@@ -100,6 +98,9 @@ import net.tourbook.ui.views.tourBook.TourBookView;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 import net.tourbook.weather.TourWeatherRetriever;
 
+import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList;
+import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
+import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -166,17 +167,17 @@ public class TourManager {
    private static final String GRAPH_LABEL_SWIM_STROKES                        = net.tourbook.common.Messages.Graph_Label_Swim_Strokes;
    private static final String GRAPH_LABEL_SWIM_SWOLF                          = net.tourbook.common.Messages.Graph_Label_Swim_Swolf;
    //
-   public static final String  LOG_TEMP_ADJUST_001_START                       = Messages.Log_TemperatureAdjustment_001_Start;
-   public static final String  LOG_TEMP_ADJUST_002_END                         = Messages.Log_TemperatureAdjustment_002_End;
-   public static final String  LOG_TEMP_ADJUST_003_TOUR_CHANGES                = Messages.Log_TemperatureAdjustment_003_TourChanges;
-   public static final String  LOG_TEMP_ADJUST_005_TOUR_IS_TOO_SHORT           = Messages.Log_TemperatureAdjustment_005_TourIsTooShort;
+   static final String         LOG_TEMP_ADJUST_001_START                       = Messages.Log_TemperatureAdjustment_001_Start;
+   static final String         LOG_TEMP_ADJUST_002_END                         = Messages.Log_TemperatureAdjustment_002_End;
+   private static final String LOG_TEMP_ADJUST_003_TOUR_CHANGES                = Messages.Log_TemperatureAdjustment_003_TourChanges;
+   private static final String LOG_TEMP_ADJUST_005_TOUR_IS_TOO_SHORT           = Messages.Log_TemperatureAdjustment_005_TourIsTooShort;
    public static final String  LOG_TEMP_ADJUST_006_IS_ABOVE_TEMPERATURE        = Messages.Log_TemperatureAdjustment_006_IsAboveTemperature;
-   public static final String  LOG_TEMP_ADJUST_010_NO_TEMPERATURE_DATA_SERIE   = Messages.Log_TemperatureAdjustment_010_NoTemperatureDataSeries;
-   public static final String  LOG_TEMP_ADJUST_011_NO_TIME_DATA_SERIE          = Messages.Log_TemperatureAdjustment_011_NoTimeDataSeries;
+   private static final String LOG_TEMP_ADJUST_010_NO_TEMPERATURE_DATA_SERIE   = Messages.Log_TemperatureAdjustment_010_NoTemperatureDataSeries;
+   private static final String LOG_TEMP_ADJUST_011_NO_TIME_DATA_SERIE          = Messages.Log_TemperatureAdjustment_011_NoTimeDataSeries;
    //
-   public static final String  LOG_RETRIEVE_WEATHER_DATA_001_START             = Messages.Log_RetrieveWeatherData_001_Start;
-   public static final String  LOG_RETRIEVE_WEATHER_DATA_002_END               = Messages.Log_RetrieveWeatherData_002_End;
-   public static final String  LOG_RETRIEVE_WEATHER_DATA_010_NO_GPS_DATA_SERIE = Messages.Log_RetrieveWeatherData_010_NoGpsDataSeries;
+   private static final String LOG_RETRIEVE_WEATHER_DATA_001_START             = Messages.Log_RetrieveWeatherData_001_Start;
+   private static final String LOG_RETRIEVE_WEATHER_DATA_002_END               = Messages.Log_RetrieveWeatherData_002_End;
+   private static final String LOG_RETRIEVE_WEATHER_DATA_010_NO_GPS_DATA_SERIE = Messages.Log_RetrieveWeatherData_010_NoGpsDataSeries;
    //
    public static final String  CUSTOM_DATA_TOUR_DATA                           = "tourData";                                                         //$NON-NLS-1$
    public static final String  CUSTOM_DATA_TOUR_CHART_CONFIGURATION            = "tourChartConfig";                                                  //$NON-NLS-1$
@@ -184,7 +185,7 @@ public class TourManager {
    public static final String  CUSTOM_DATA_ALTIMETER                           = "altimeter";                                                        //$NON-NLS-1$
    public static final String  CUSTOM_DATA_ALTITUDE                            = "altitude";                                                         //$NON-NLS-1$
    public static final String  CUSTOM_DATA_CADENCE                             = "cadence";                                                          //$NON-NLS-1$
-   public static final String  CUSTOM_DATA_DISTANCE                            = "distance";                                                         //$NON-NLS-1$
+   private static final String CUSTOM_DATA_DISTANCE                            = "distance";                                                         //$NON-NLS-1$
    public static final String  CUSTOM_DATA_GEAR_RATIO                          = "gearRatio";                                                        //$NON-NLS-1$
    public static final String  CUSTOM_DATA_GRADIENT                            = "gradient";                                                         //$NON-NLS-1$
    public static final String  CUSTOM_DATA_HISTORY                             = "history";                                                          //$NON-NLS-1$
@@ -195,7 +196,7 @@ public class TourManager {
    public static final String  CUSTOM_DATA_SPEED                               = "speed";                                                            //$NON-NLS-1$
    public static final String  CUSTOM_DATA_SPEED_SUMMARIZED                    = "speed-summarized";                                                 //$NON-NLS-1$
    public static final String  CUSTOM_DATA_TEMPERATURE                         = "temperature";                                                      //$NON-NLS-1$
-   public static final String  CUSTOM_DATA_TIME                                = "time";                                                             //$NON-NLS-1$
+   private static final String CUSTOM_DATA_TIME                                = "time";                                                             //$NON-NLS-1$
    public static final String  CUSTOM_DATA_RUN_DYN_STANCE_TIME                 = "runDyn_RunDyn_StanceTime";                                         //$NON-NLS-1$
    public static final String  CUSTOM_DATA_RUN_DYN_STANCE_TIME_BALANCE         = "runDyn_RunDyn_StanceTimeBalance";                                  //$NON-NLS-1$
    public static final String  CUSTOM_DATA_RUN_DYN_STEP_LENGTH                 = "runDyn_RunDyn_StepLength";                                         //$NON-NLS-1$
@@ -214,7 +215,7 @@ public class TourManager {
    private static final String FORMAT_MM_SS                                    = "%d:%02d";                                                          //$NON-NLS-1$
    public static final String  GEAR_RATIO_FORMAT                               = "%1.2f";                                                            //$NON-NLS-1$
    public static final String  GEAR_TEETH_FORMAT                               = "%2d : %2d";                                                        //$NON-NLS-1$
-   public static final String  GEAR_VALUE_FORMAT                               = GEAR_TEETH_FORMAT + " - " + GEAR_RATIO_FORMAT;                      //$NON-NLS-1$
+   static final String         GEAR_VALUE_FORMAT                               = GEAR_TEETH_FORMAT + " - " + GEAR_RATIO_FORMAT;                      //$NON-NLS-1$
    //
    public static final int     GRAPH_ALTITUDE                                  = 1000;
    public static final int     GRAPH_SPEED                                     = 1001;
@@ -357,7 +358,7 @@ public class TourManager {
     */
    private TourChart           _activeTourChart;
 
-   public static class LabelProviderInt implements IValueLabelProvider {
+   private static class LabelProviderInt implements IValueLabelProvider {
 
       @Override
       public String getLabel(final float graphValue) {
@@ -365,7 +366,7 @@ public class TourManager {
       }
    }
 
-   public static class LabelProviderMMSS implements IValueLabelProvider {
+   private static class LabelProviderMMSS implements IValueLabelProvider {
 
       @Override
       public String getLabel(final float graphValue) {
@@ -2673,7 +2674,6 @@ public class TourManager {
                                         final int firstRemovedIndex,
                                         final int lastRemovedIndex,
                                         final boolean isRemoveTime) {
-      // TODO Auto-generated method stub
 
       final int[] timeSerie = tourData.timeSerie;
       final long[] allPausedTime_Start = tourData.getPausedTime_Start();
@@ -2702,8 +2702,8 @@ public class TourManager {
 
       final long removedTimeDiff = sliceTime_RemoveEndDiff - sliceTime_RemoveStart;
 
-      final TLongArrayList allPausedTimeAdjusted_Start = new TLongArrayList();
-      final TLongArrayList allPausedTimeAdjusted_End = new TLongArrayList();
+      final LongArrayList allPausedTimeAdjusted_Start = new LongArrayList();
+      final LongArrayList allPausedTimeAdjusted_End = new LongArrayList();
 
       // loop: all pauses
       for (int pauseIndex = 0; pauseIndex < numPauses; pauseIndex++) {
@@ -3064,13 +3064,33 @@ public class TourManager {
          return false;
       }
 
+      TourLogManager.showLogView();
+
+      TourLogManager.addLog(
+            TourLogState.DEFAULT,
+            Messages.Log_SetElevationFromSRTM_01,
+            TourLogView.CSS_LOG_TITLE);
+
       final boolean[] returnValue = { false };
 
       BusyIndicator.showWhile(display, () -> {
 
+         TourData oldTourDataDummyClone = null;
+
          for (final TourData tourData : allTourData) {
 
+            oldTourDataDummyClone = RawDataManager.getInstance().createTourDataDummyClone(
+                  Arrays.asList(TourValueType.TIME_SLICES__ELEVATION),
+                  tourData);
+
+            TourLogManager.subLog_OK(TourManager.getTourDateTimeShort(tourData));
+
             final boolean isReplaced = tourData.replaceAltitudeWithSRTM(true);
+
+            RawDataManager.displayTourModifiedDataDifferences(
+                  TourValueType.TIME_SLICES__ELEVATION,
+                  oldTourDataDummyClone,
+                  tourData);
 
             returnValue[0] = returnValue[0] || isReplaced;
          }
@@ -4639,8 +4659,8 @@ public class TourManager {
             final int numTimeSlices = timeSerie.length;
             final int numRRTimes = allRRTimesInMilliseconds.length;
 
-            final TDoubleArrayList xData_PulseTime = new TDoubleArrayList((int) (numRRTimes * 1.05));
-            final TFloatArrayList yData_PulseTime = new TFloatArrayList((int) (numRRTimes * 1.05));
+            final DoubleArrayList xData_PulseTime = new DoubleArrayList((int) (numRRTimes * 1.05));
+            final FloatArrayList yData_PulseTime = new FloatArrayList((int) (numRRTimes * 1.05));
 
             /**
              * Synchronize 2 time series which can contain gaps
@@ -5628,9 +5648,7 @@ public class TourManager {
        * get tour from cache or database
        */
       TourData existingTourData = null;
-      TourData tourDataInCache = null;
-
-      tourDataInCache = _tourDataCache.get(requestedTourId);
+      final TourData tourDataInCache = _tourDataCache.get(requestedTourId);
 
       if (tourDataInCache != null) {
          existingTourData = tourDataInCache;

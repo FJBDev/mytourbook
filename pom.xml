@@ -20,13 +20,13 @@
       </dependency>
       <dependency>
          <artifactId>junit-jupiter-engine</artifactId>                  <groupId>org.junit.jupiter</groupId>
-                                                                        <version>5.8.2</version>
+                                                                        <version>5.9.0</version>
          <scope>test</scope>
       </dependency>
    </dependencies>	
 
    <properties>
-      <tycho.version>2.7.4</tycho.version>
+      <tycho.version>2.7.5</tycho.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
    </properties>
 
@@ -212,19 +212,35 @@
                   <skip>true</skip>
                </configuration>
             </execution>
-            <execution>
-               <id>unit-tests-report</id>
-               <phase>test</phase>
+	     <execution>
+               <id>merge-all-jacoco</id>
+               <phase>verify</phase>
                <goals>
-                  <goal>report</goal>
+                  <goal>merge</goal>
                </goals>
                <configuration>
+                  <destFile>${session.executionRootDirectory}/mergedJaCoCoReport.exec</destFile> 
+                  <append>true</append> 
                   <skip>true</skip>
-               </configuration>
-            </execution>
+               <fileSets>
+                  <fileSet>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>*.exec</include>
+                  </includes>
+                  </fileSet>
+                  <fileSet>
+                  <directory>${session.executionRootDirectory}</directory>
+                  <includes>
+                    <include>mergedJaCoCoReport.exec</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+            </configuration> 
+        </execution>
          </executions>
       </plugin>
-      
+
     </plugins>
   </build>
 
