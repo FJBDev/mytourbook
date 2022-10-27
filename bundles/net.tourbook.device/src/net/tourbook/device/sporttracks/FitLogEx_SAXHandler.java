@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2020, 2022 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * For FitLogEx files only:
  * We parse and save the CustomDataFieldDefinitions and equipments
  */
-public class FitLogEx_SAXHandler extends DefaultHandler {
+class FitLogEx_SAXHandler extends DefaultHandler {
 
    private static final String            TAG_ACTIVITY_CUSTOM_DATA_FIELD_DEFINITION   = FitLog_SAXHandler.TAG_ACTIVITY_CUSTOM_DATA_FIELD
          + "Definition";                                                                                                                 //$NON-NLS-1$
