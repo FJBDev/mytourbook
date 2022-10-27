@@ -20,5 +20,6 @@
 	<classpathentry exported="true" kind="lib" path="commons-suncalc-3.4.jar"/> <!-- https://mvnrepository.com/artifact/org.shredzone.commons/commons-suncalc -->
 	<classpathentry exported="true" kind="lib" path="httpcore-4.4.15.jar"/> <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
 	<classpathentry exported="true" kind="lib" path="httpclient-4.5.13.jar"/> <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+	<classpathentry exported="true" kind="lib" path="commons-math3-3.6.1.jar"/> <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
 	<classpathentry kind="output" path="bin"/>
 </classpath>
