@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -540,6 +540,9 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.athleteBodyFat_Low = new float[numYears];
             _tourYearData.athleteBodyFat_High = new float[numYears];
 
+            _tourYearData.predictedPerformance_Low = new float[numYears];
+            _tourYearData.predictedPerformance_High = new float[numYears];
+
          } else {
 
             final long[][] usedTypeIds = new long[numTourTypes_WithData][];
@@ -614,6 +617,9 @@ public class DataProvider_Tour_Year extends DataProvider {
             }
             _tourYearData.athleteBodyFat_Low = new float[numYears];
             _tourYearData.athleteBodyFat_High = fat;
+
+            _tourYearData.predictedPerformance_Low = new float[numYears];
+            _tourYearData.predictedPerformance_High = new float[numYears];
          }
 
          _tourYearData.numUsedTourTypes = numTourTypes_WithData;

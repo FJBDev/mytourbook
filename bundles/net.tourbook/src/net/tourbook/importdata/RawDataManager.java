@@ -343,6 +343,7 @@ public class RawDataManager {
       TOUR__CALORIES, //
       TOUR__IMPORT_FILE_LOCATION, //
       TOUR__MARKER, //
+      TOUR__TRAINING_STRESS_SCORE, //
       TOUR__WEATHER, //
 
       TIME_SLICES__BATTERY, //
@@ -734,6 +735,14 @@ public class RawDataManager {
                oldTourData.getTourMarkers().size() + UI.SPACE1 + COLUMN_FACTORY_CATEGORY_MARKER);
          newData.add(
                newTourData.getTourMarkers().size() + UI.SPACE1 + COLUMN_FACTORY_CATEGORY_MARKER);
+      }
+
+      if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
+
+         previousData.add(
+               String.valueOf(newTourData.getPower_TrainingStressScore()));
+         newData.add(
+               String.valueOf(newTourData.getPower_TrainingStressScore()));
       }
 
       if (isEntireTour || tourValueType == TourValueType.TOUR__IMPORT_FILE_LOCATION) {
@@ -1424,6 +1433,11 @@ public class RawDataManager {
             if (isEntireTour || tourValueType == TourValueType.TOUR__IMPORT_FILE_LOCATION) {
 
                tourDataDummyClone.setImportFilePath(oldTourData.getImportFilePathName());
+            }
+
+            if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
+
+               tourDataDummyClone.setPower_TrainingStressScore(oldTourData.getPower_TrainingStressScore());
             }
 
             /*
@@ -3365,6 +3379,11 @@ public class RawDataManager {
             if (tourValueTypes.contains(TourValueType.TOUR__MARKER)) {
 
                oldTourData.setTourMarkers(reimportedTourData.getTourMarkers());
+            }
+
+            if (tourValueTypes.contains(TourValueType.TOUR__TRAINING_STRESS_SCORE)) {
+
+               oldTourData.setPower_TrainingStressScore(reimportedTourData.getPower_TrainingStressScore());
             }
 
             if (tourValueTypes.contains(TourValueType.TOUR__IMPORT_FILE_LOCATION)) {

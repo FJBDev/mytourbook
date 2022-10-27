@@ -521,5 +521,4 @@ public class CRPDataReader extends TourbookDevice {
 
       return StringUtils.hasContent(getRawFilePath(fileName));
    }
-
 }

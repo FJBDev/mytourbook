@@ -424,5 +424,4 @@ public class TurDeviceReader extends TourbookDevice {
 
       return isValid;
    }
-
 }

@@ -323,6 +323,7 @@ public class Suunto3_STAXHandler {
          tourData.computeAltitudeUpDown();
          tourData.computeTourMovingTime();
          tourData.computeComputedValues();
+         tourData.computeTrainingStressData();
       }
 
       _isImported = true;

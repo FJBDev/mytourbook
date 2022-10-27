@@ -231,6 +231,40 @@
          category-data  ="AthleteData"
          category-time  ="Year"
       />
+      
+      <!-- TRAINING LOAD -->
+
+      <statistic
+         name           ="%Pref_Day_Summary_TrainingLoad"
+         class          ="net.tourbook.statistics.graphs.StatisticDay_TrainingLoad"
+         id             ="net.tourbook.statistics.StatisticSummaryDayTrainingLoad"
+         category-data  ="TrainingLoad"
+         category-time  ="Day"
+      />
+         
+      <statistic
+         name           ="%Pref_Week_Summary_TrainingLoad"
+         class          ="net.tourbook.statistics.graphs.StatisticWeek_TrainingLoad"
+         id             ="net.tourbook.statistics.StatisticSummaryWeekTrainingLoad"
+         category-data  ="TrainingLoad"
+         category-time  ="Week"
+      />
+         
+      <statistic
+         name           ="%Pref_Month_Summary_TrainingLoad"
+         class          ="net.tourbook.statistics.graphs.StatisticMonth_TrainingLoad"
+         id             ="net.tourbook.statistics.StatisticSummaryMonthTrainingLoad"
+         category-data  ="TrainingLoad"
+         category-time  ="Month"
+      />
+         
+      <statistic
+         name           ="%Pref_Year_Summary_TrainingLoad"
+         class          ="net.tourbook.statistics.graphs.StatisticYear_TrainingLoad"
+         id             ="net.tourbook.statistics.StatisticSummaryYearTrainingLoad"
+         category-data  ="TrainingLoad"
+         category-time  ="Year"
+      />
 
       <!-- BATTERY -->
 
@@ -242,7 +276,6 @@
          category-time  ="Other"
       />
 
-            
    </extension>
 
 </plugin>

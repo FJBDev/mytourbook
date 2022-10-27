@@ -1115,5 +1115,4 @@ class PolarTrainerSAXHandler extends DefaultHandler {
 
       }
    }
-
 }

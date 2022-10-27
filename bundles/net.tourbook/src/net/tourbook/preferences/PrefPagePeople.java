@@ -46,6 +46,11 @@ import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
 import net.tourbook.training.DialogHRZones;
 import net.tourbook.training.TrainingManager;
+import net.tourbook.trainingload.PrefPageBikeScore;
+import net.tourbook.trainingload.PrefPageGovss;
+import net.tourbook.trainingload.PrefPageSwimScore;
+import net.tourbook.trainingload.PrefPageTrainingStressModel;
+import net.tourbook.trainingload.PrefPageTrainingStressModel.IPersonModifiedListener;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -75,6 +80,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.KeyEvent;
@@ -105,32 +111,36 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String GRAPH_LABEL_HEARTBEAT_UNIT = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
+   private static final String                  GRAPH_LABEL_HEARTBEAT_UNIT          = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
 
-   public static final String  ID                         = "net.tourbook.preferences.PrefPagePeopleId";            //$NON-NLS-1$
+   public static final String                   ID                                  = "net.tourbook.preferences.PrefPagePeopleId";            //$NON-NLS-1$
 
-   //
-   private static final String    STATE_SELECTED_PERSON               = "selectedPersonId";           //$NON-NLS-1$
-   private static final String    STATE_SELECTED_TAB_FOLDER           = "selectedTabFolder";          //$NON-NLS-1$
+   private static final String                  STATE_SELECTED_PERSON               = "selectedPersonId";                                     //$NON-NLS-1$
+   private static final String                  STATE_SELECTED_TAB_FOLDER           = "selectedTabFolder";                                    //$NON-NLS-1$
 
-   public static final int        HEART_BEAT_MIN                      = 10;
-   public static final int        HEART_BEAT_MAX                      = 300;
+   public static final int                      HEART_BEAT_MIN                      = 10;
+   public static final int                      HEART_BEAT_MAX                      = 300;
 
    /**
     * Id to indicate that the hr zones should be displayed for the active person when the pref
     * dialog is opened
     */
-   public static final String     PREF_DATA_SELECT_HR_ZONES           = "SelectHrZones";              //$NON-NLS-1$
+   public static final String                   PREF_DATA_SELECT_HR_ZONES           = "SelectHrZones";                                        //$NON-NLS-1$
 
    /**
     * Id to indicate that the person's information should be displayed for the active person when
     * the pref
     * dialog is opened
     */
-   public static final String     PREF_DATA_SELECT_PERSON_INFORMATION = "SelectPersonInformation";    //$NON-NLS-1$
+   public static final String                   PREF_DATA_SELECT_PERSON_INFORMATION = "SelectPersonInformation";                              //$NON-NLS-1$
 
-   private final IPreferenceStore _prefStore                          = TourbookPlugin.getPrefStore();
-   private final IDialogSettings  _state                              = TourbookPlugin.getState(ID);
+   private static PrefPageTrainingStressModel[] _trainingStressModels;
+   private static PrefPageGovss                 _prefPageGovss;
+   private static PrefPageBikeScore             _prefPageBikeScore;
+   private static PrefPageSwimScore             _prefPageSwimScore;
+
+   private final IPreferenceStore               _prefStore                          = TourbookPlugin.getPrefStore();
+   private final IDialogSettings                _state                              = TourbookPlugin.getState(ID);
 
    // REMOVED BIKES 30.4.2011
 
@@ -208,6 +218,11 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    private Label                _lblAgePerson;
    private Label                _lblAgeHr;
 
+   private Combo                _comboTrainingStressModel;
+
+   private Composite            _trainingStressComposite;
+   private StackLayout          _trainingStressLayout;
+
    private Text                 _txtRawDataPath;
    private DirectoryFieldEditor _rawDataPathEditor;
 
@@ -263,7 +278,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       if (data instanceof Boolean) {
 
          final Boolean isCreatePerson = (Boolean) data;
-         if (isCreatePerson && _people.isEmpty()) {
+         if (isCreatePerson && _people != null && _people.isEmpty()) {
 
             // this is a request, to create a new person
 
@@ -328,7 +343,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       }
    }
 
-   private Set<TourPersonHRZone> cloneHrZones(final ArrayList<TourPersonHRZone> hrZones) {
+   private Set<TourPersonHRZone> cloneHrZones(final List<TourPersonHRZone> hrZones) {
 
       final HashSet<TourPersonHRZone> hrZonesClone = new HashSet<>();
 
@@ -449,6 +464,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       final Composite container = createUI(parent);
 
       updateUIDeviceList();
+      updateUITrainingStressModelsList();
 
       // update people viewer
       _people = PersonManager.getTourPeople();
@@ -459,6 +475,9 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
       enableActions();
       addPrefListener();
+
+      _comboTrainingStressModel.select(0);
+      onSelectTrainingStressModel();
 
       return container;
    }
@@ -588,6 +607,60 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
    }
 
+   private Control createUI_100_Tab_TrainingStress(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
+      GridLayoutFactory
+            .swtDefaults()
+            .numColumns(2)
+            .applyTo(container);
+      {
+         /*
+          * Label: Info
+          */
+         Label label = new Label(container, SWT.WRAP);
+         label.setText(Messages.Training_Stress_Label_Info);
+         GridDataFactory
+               .fillDefaults()//
+               .span(2, 1)
+               .grab(true, false)
+               .hint(net.tourbook.common.UI.DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
+               .applyTo(label);
+
+         // label
+         label = new Label(container, SWT.NONE);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+         label.setText(Messages.Pref_People_Label_TrainingStress_ModelName);
+
+         // combo
+         _comboTrainingStressModel = new Combo(container, SWT.READ_ONLY | SWT.DROP_DOWN);
+
+         initializeTrainingStressModels();
+
+         for (final PrefPageTrainingStressModel trainingStressModel : _trainingStressModels) {
+            _comboTrainingStressModel.add(trainingStressModel.getGroupName());
+         }
+         _comboTrainingStressModel.setVisibleItemCount(_trainingStressModels.length);
+
+         _comboTrainingStressModel.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTrainingStressModel()));
+
+         _trainingStressComposite = new Composite(container, SWT.NONE);
+         _trainingStressLayout = new StackLayout();
+         _trainingStressComposite.setLayout(_trainingStressLayout);
+
+         GridDataFactory
+               .fillDefaults()//
+               .span(2, 1)
+               .grab(true, false)
+               .hint(net.tourbook.common.UI.DEFAULT_DESCRIPTION_WIDTH, SWT.DEFAULT)
+               .applyTo(_trainingStressComposite);
+
+      }
+
+      return container;
+   }
+
    private void createUI_20_People_Actions(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
@@ -646,6 +719,11 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          final CTabItem tabItemDataTransfer = new CTabItem(_tabFolderPerson, SWT.NONE);
          tabItemDataTransfer.setText(Messages.Pref_People_Tab_DataTransfer);
          tabItemDataTransfer.setControl(createUI_90_Tab_DataTransfer(_tabFolderPerson));
+
+         // tab: training stress
+         final CTabItem tabTrainingStress = new CTabItem(_tabFolderPerson, SWT.NONE);
+         tabTrainingStress.setText(Messages.Pref_People_Tab_TrainingStress);
+         tabTrainingStress.setControl(createUI_100_Tab_TrainingStress(_tabFolderPerson));
       }
    }
 
@@ -1176,7 +1254,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       innerContainer.addMouseListener(_hrZoneMouseListener);
 //		innerContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
       {
-         final ArrayList<TourPersonHRZone> hrZones = getCurrentPerson().getHrZonesSorted();
+         final List<TourPersonHRZone> hrZones = getCurrentPerson().getHrZonesSorted();
 
          if (hrZones.isEmpty()) {
             // hr zones are not available, show info
@@ -1599,6 +1677,12 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          _prefStore.removePropertyChangeListener(_prefChangeListener);
       }
 
+      if (_trainingStressModels != null) {
+         for (final PrefPageTrainingStressModel _trainingStressModel : _trainingStressModels) {
+            _trainingStressModel.dispose();
+         }
+      }
+
       if (_isNoUI) {
          super.dispose();
          return;
@@ -1690,6 +1774,43 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    public void init(final IWorkbench workbench) {
       setPreferenceStore(_prefStore);
       noDefaultAndApplyButton();
+   }
+
+   /*
+    * Creates the training stress models UIs with a listener to be notified when the tour person is
+    * modified
+    */
+   private void initializeTrainingStressModels() {
+
+      _trainingStressModels = new PrefPageTrainingStressModel[3];
+      //TODO FB_prefPageBikeScore = new PrefPageBikeScore();
+      _prefPageGovss = new PrefPageGovss();
+      _prefPageGovss.setPersonModifiedListener(new IPersonModifiedListener() {
+
+         @Override
+         public void onPersonModifiedListener() {
+            onModifyPerson();
+         }
+      });
+      _trainingStressModels[0] = _prefPageGovss;
+      _prefPageBikeScore = new PrefPageBikeScore();
+      _prefPageBikeScore.setPersonModifiedListener(new IPersonModifiedListener() {
+
+         @Override
+         public void onPersonModifiedListener() {
+            onModifyPerson();
+         }
+      });
+      _trainingStressModels[1] = _prefPageBikeScore;
+      _prefPageSwimScore = new PrefPageSwimScore();
+      _prefPageSwimScore.setPersonModifiedListener(new IPersonModifiedListener() {
+
+         @Override
+         public void onPersonModifiedListener() {
+            onModifyPerson();
+         }
+      });
+      _trainingStressModels[2] = _prefPageSwimScore;
    }
 
    private void initUI(final Composite parent) {
@@ -1822,7 +1943,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       }
 
       final TourPerson person = getCurrentPerson();
-      final ArrayList<TourPersonHRZone> hrZones = person.getHrZonesSorted();
+      final List<TourPersonHRZone> hrZones = person.getHrZonesSorted();
 
       // check if hr zones are already available
 //		if (hrZones != null && hrZones.size() > 0) {
@@ -1923,6 +2044,13 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       enableActions();
    }
 
+   private void onSelectTrainingStressModel() {
+      final int index = _comboTrainingStressModel.getSelectionIndex();
+      _trainingStressLayout.topControl =
+            _trainingStressModels[index].getGroupUI(_trainingStressComposite, getCurrentPerson());
+      _trainingStressComposite.requestLayout();
+   }
+
    @Override
    public boolean performCancel() {
 
@@ -2021,6 +2149,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
       // reselected tab folder
       _tabFolderPerson.setSelection(Util.getStateInt(_state, STATE_SELECTED_TAB_FOLDER, 0));
+
    }
 
    /**
@@ -2109,6 +2238,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       // selected tab folder
       final int selectedTab = _tabFolderPerson.getSelectionIndex();
       _state.put(STATE_SELECTED_TAB_FOLDER, selectedTab < 0 ? 0 : selectedTab);
+
    }
 
    private void updatePersonFromUI(final TourPerson person) {
@@ -2143,6 +2273,11 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       final int hrMaxSelectionIndex = _cboHrMaxFormula.getSelectionIndex();
       person.setHrMaxFormula(TrainingManager.HRMaxFormulaKeys[hrMaxSelectionIndex]);
       person.setMaxPulse(_spinnerMaxHR.getSelection());
+
+      final int index = _comboTrainingStressModel.getSelectionIndex();
+      if (index >= 0 && index < _trainingStressModels.length) {
+         _trainingStressModels[index].saveState();
+      }
    }
 
    /**
@@ -2235,6 +2370,13 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          updateUISportComputer(person);
 
          createUI_80_HrZone_InnerContainer(hrMaxFormulaKey, maxPulse, dtBirthday);
+
+         final int index = _comboTrainingStressModel.getSelectionIndex();
+         if (index >= 0 && index < _trainingStressModels.length) {
+            _trainingStressModels[index].restoreState();
+            //TODO FB problem here : When the users restores the data, how can we detect again when the model page has changed?
+            //We need to be sent an event somehow. To be continued
+         }
       }
       _isUpdateUI = false;
    }
@@ -2324,6 +2466,18 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          // when the device id was not found, select "<no selection>" entry
          if (deviceIndex == 0) {
             _cboSportComputer.select(0);
+         }
+      }
+   }
+
+   private void updateUITrainingStressModelsList() {
+
+      // add all training stress models to the combobox
+      for (final ExternalDevice device : _deviceList) {
+         if (device == null) {
+            _cboSportComputer.add(DeviceManager.DEVICE_IS_NOT_SELECTED);
+         } else {
+            _cboSportComputer.add(device.visibleName);
          }
       }
    }

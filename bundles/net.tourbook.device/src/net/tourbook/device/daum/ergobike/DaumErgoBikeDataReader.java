@@ -369,6 +369,7 @@ public class DaumErgoBikeDataReader extends TourbookDevice {
             tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
             tourData.computeTourMovingTime();
             tourData.computeComputedValues();
+            tourData.computeTrainingStressData();
          }
 
          importState_File.isFileImportedWithValidData = true;

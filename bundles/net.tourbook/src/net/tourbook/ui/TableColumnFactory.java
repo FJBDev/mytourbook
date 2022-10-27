@@ -121,6 +121,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MOTION_DISTANCE_TOTAL;
    public static final TableColumnFactory MOTION_LATITUDE;
    public static final TableColumnFactory MOTION_LONGITUDE;
+   public static final TableColumnFactory MOTION_NORMALIZED_PACE;
    public static final TableColumnFactory MOTION_MAX_SPEED;
    public static final String             MOTION_MAX_SPEED_ID                                = "MOTION_MAX_SPEED";                                //$NON-NLS-1$
    public static final TableColumnFactory MOTION_PACE;
@@ -1672,6 +1673,28 @@ public abstract class TableColumnFactory {
             colDef.setColumnHeaderText(         UI.UNIT_LABEL_PACE);
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_pace_tooltip);
             colDef.setColumnUnit(               UI.UNIT_LABEL_PACE);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(9));
+
+            return colDef;
+         }
+      };
+
+      MOTION_NORMALIZED_PACE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "MOTION_NORMALIZED_PACE", SWT.TRAIL); //$NON-NLS-1$
+
+            final String unitLabel = "n" + UI.UNIT_LABEL_PACE; //$NON-NLS-1$
+
+            colDef.setColumnCategory(Messages.ColumnFactory_Category_Motion);
+            colDef.setColumnLabel(Messages.ColumnFactory_Pace_Normalized_Label);
+            colDef.setColumnHeaderText(unitLabel);
+            colDef.setColumnUnit(unitLabel);
+            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_Pace_Normalized_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(9));
 

@@ -35,6 +35,7 @@ import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.IToolTipProvider;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.DeviceSensor;
@@ -225,6 +226,7 @@ public class TourInfoUI {
    private Label            _lblBattery_Spacer;
    private Label            _lblBattery_Start;
    private Label            _lblBattery_End;
+   private Label            _lblBikeScore;
    private Label            _lblBodyWeight;
    private Label            _lblBreakTime;
    private Label            _lblBreakTime_Unit;
@@ -242,6 +244,7 @@ public class TourInfoUI {
    private Label            _lblGear_GearShifts;
    private Label            _lblGear_GearShifts_Spacer;
    private Label            _lblMaxAltitude;
+   private Label            _lblGovss;
    private Label            _lblMaxAltitudeUnit;
    private Label            _lblMaxPace;
    private Label            _lblMaxPaceUnit;
@@ -258,6 +261,7 @@ public class TourInfoUI {
    private Label            _lblRecordedTime;
    private Label            _lblRecordedTime_Unit;
    private Label            _lblRestPulse;
+   private Label            _lblSwimScore;
    private Label            _lblTemperature_Part1;
    private Label            _lblTemperature_Part2;
    private Label            _lblTimeZone_Value;
@@ -569,6 +573,7 @@ public class TourInfoUI {
       {
          createUI_32_Time(container);
          createUI_34_DistanceAltitude(container);
+         createUI_35_TrainingStress(container);
          createUI_36_Misc(container);
 
          // gear data
@@ -702,6 +707,39 @@ public class TourInfoUI {
       _lblAvgElevationChangeUnit = createUI_LabelValue(container, SWT.LEAD);
 
       createUI_Spacer(container);
+   }
+
+   private void createUI_35_TrainingStress(final Composite parent) {
+
+      /*
+       * BikeScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_BikeScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblBikeScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * GOVSS
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_Govss);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblGovss = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * SwimScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_SwimScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblSwimScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      // spacer
+      createUI_Spacer(parent);
    }
 
    private void createUI_36_Misc(final Composite container) {
@@ -1598,7 +1636,7 @@ public class TourInfoUI {
       }
 
       String tourTitle = _tourData.getTourTitle();
-      if (tourTitle == null || tourTitle.trim().length() == 0) {
+      if (StringUtils.isNullOrEmpty(tourTitle)) {
 
          if (_uiTourTypeName == null) {
             tourTitle = Messages.Tour_Tooltip_Label_DefaultTitle;
@@ -1876,6 +1914,19 @@ public class TourInfoUI {
       final double avgPower = _tourData.getPower_Avg();
       _lblAvg_Power.setText(FormatManager.formatPower(avgPower));
       _lblAvg_PowerUnit.setText(UI.UNIT_POWER);
+
+      /*
+       * Training Stress
+       */
+      // BikeScore
+      final int bikeScore = _tourData.getBikeScore();
+      _lblBikeScore.setText(String.valueOf(bikeScore));
+      // GOVSS
+      final int govss = _tourData.getGovss();
+      _lblGovss.setText(String.valueOf(govss));
+      // SwimScore
+      final int swimScore = _tourData.getSwimScore();
+      _lblSwimScore.setText(String.valueOf(swimScore));
 
       // calories
       final double calories = _tourData.getCalories();

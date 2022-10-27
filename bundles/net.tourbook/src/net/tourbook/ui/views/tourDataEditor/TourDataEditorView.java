@@ -244,6 +244,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private static final String           STATE_SECTION_CHARACTERISTICS                    = "STATE_SECTION_CHARACTERISTICS";                        //$NON-NLS-1$
    private static final String           STATE_SECTION_DATE_TIME                          = "STATE_SECTION_DATE_TIME";                              //$NON-NLS-1$
    private static final String           STATE_SECTION_PERSONAL                           = "STATE_SECTION_PERSONAL";                               //$NON-NLS-1$
+   private static final String           STATE_SECTION_TRAINING_STRESS                    = "STATE_SECTION_TRAINING_STRESS";                        //$NON-NLS-1$
    private static final String           STATE_SECTION_TITLE                              = "STATE_SECTION_TITLE";                                  //$NON-NLS-1$
    private static final String           STATE_SECTION_WEATHER                            = "STATE_SECTION_WEATHER";                                //$NON-NLS-1$
    //
@@ -580,6 +581,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Section                  _sectionTitle;
    private Section                  _sectionDateTime;
    private Section                  _sectionPersonal;
+   private Section                  _sectionTrainingStress;
    private Section                  _sectionWeather;
    private Section                  _sectionCharacteristics;
    //
@@ -629,6 +631,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Label              _lblStartTime;
    private Label              _lblTags;
    private Label              _lblTimeZone;
+   private Label              _lblTrainingStress_DeviceScore;
    private Label              _lblWeather_PrecipitationUnit;
    private Label              _lblWeather_PressureUnit;
    private Label              _lblWeather_SnowfallUnit;
@@ -642,6 +645,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    //
    private Link               _linkDefaultTimeZone;
    private Link               _linkGeoTimeZone;
+   private Link               _linkBikeScore;
+   private Link               _linkGovss;
+   private Link               _linkSwimScore;
    private Link               _linkRemoveTimeZone;
    private Link               _linkTag;
    private Link               _linkTourType;
@@ -652,6 +658,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Spinner            _spinPerson_Calories;
    private Spinner            _spinPerson_FTP;
    private Spinner            _spinPerson_RestPulse;
+   private Spinner            _spinTrainingStress_BikeScore;
+   private Spinner            _spinTrainingStress_Device;
+   private Spinner            _spinTrainingStress_Govss;
+   private Spinner            _spinTrainingStress_SwimScore;
    private Spinner            _spinWeather_Humidity;
    private Spinner            _spinWeather_PrecipitationValue;
    private Spinner            _spinWeather_PressureValue;
@@ -2936,7 +2946,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _allSwimStyleActions.add(new Action_SetSwimStyle(this, strokeStyle));
       }
       _action_RemoveSwimStyle = new Action_RemoveSwimStyle();
-
    }
 
    private void createFieldListener() {
@@ -3997,27 +4006,174 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
    }
 
-   private void createUI_Section_140_Weather(final Composite parent) {
+   private void createUI_Section_140_TrainingStress(final Composite parent) {
 
-      _sectionWeather = createSection(parent, _tk, Messages.tour_editor_section_weather, false, true);
-      final Composite container = (Composite) _sectionWeather.getClient();
+      _sectionTrainingStress = createSection(parent, _tk, "Messages.tour_editor_section_trainingstress", false, true);
+      final Composite container = (Composite) _sectionTrainingStress.getClient();
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.fillDefaults()
+      GridLayoutFactory
+            .fillDefaults()//
             .numColumns(2)
-            .spacing(COLUMN_SPACING, 7)
+            .spacing(COLUMN_SPACING, 5)
             .applyTo(container);
-//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
       {
-         createUI_Section_141_Weather_Description(container);
+         createUI_Section_141_TrainingStress_Col1(container);
+         createUI_Section_141_TrainingStress_Col2(container);
+      }
+   }
 
-         createUI_Section_142_Weather_Wind_Col1(container);
-         createUI_Section_143_Weather_Wind_Col2(container);
+   private void createUI_Section_141_TrainingStress_Col1(final Composite parent) {
 
-         createUI_Section_144_Weather_Temperature_Col1(container);
-         createUI_Section_144_Weather_Temperature_Col2_Device(container);
+      final Composite container = _tk.createComposite(parent);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      _firstColumnContainerControls.add(container);
+      {
+         {
+            /*
+             * Device Score
+             */
 
-         createUI_Section_147_Weather_Other_Col1(container);
-         createUI_Section_148_Weather_Other_Col2(container);
+            /*
+             * label
+             */
+            _lblTrainingStress_DeviceScore = new Label(container, SWT.NONE);
+            _lblTrainingStress_DeviceScore.setToolTipText("Device Score");
+            _lblTrainingStress_DeviceScore.setToolTipText("Device Score Tooltip");
+            _tk.adapt(_lblTrainingStress_DeviceScore, true, true);
+            _firstColumnControls.add(_lblTrainingStress_DeviceScore);
+
+            // Spinner
+            _spinTrainingStress_Device = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_spinTrainingStress_Device);
+
+            _spinTrainingStress_Device.setMinimum(0);
+            _spinTrainingStress_Device.setMaximum(5_000);
+
+            _spinTrainingStress_Device.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_Device.addSelectionListener(_selectionListener);
+         }
+         {
+            /*
+             * BikeScore
+             */
+
+            // link
+            _linkBikeScore = new Link(container, SWT.NONE);
+            _linkBikeScore.setText(Messages.tour_editor_label_trainingstress_bikescore);
+            _linkBikeScore.setToolTipText(Messages.tour_editor_label_trainingstress_bikescore_tooltip);
+            _linkBikeScore.addSelectionListener(new SelectionAdapter() {
+
+               @Override
+               public void widgetSelected(final SelectionEvent e) {
+                  //Compute the BikeScore value
+
+                  if (_isSetField || _isSavingInProgress) {
+                     return;
+                  }
+                  //TODO FB onSelect_Govss_Text();
+               }
+            });
+            _tk.adapt(_linkBikeScore, true, true);
+            _secondColumnControls.add(_linkBikeScore);
+
+            // spinner
+            _spinTrainingStress_BikeScore = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_spinTrainingStress_BikeScore);
+
+            _spinTrainingStress_BikeScore.setMinimum(0);
+            _spinTrainingStress_BikeScore.setMaximum(5_000);
+
+            _spinTrainingStress_BikeScore.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_BikeScore.addSelectionListener(_selectionListener);
+         }
+      }
+   }
+
+   /**
+    * 2. column
+    */
+   private void createUI_Section_141_TrainingStress_Col2(final Composite parent) {
+
+      final Composite container = _tk.createComposite(parent);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      {
+         {
+            /*
+             * GOVSS
+             */
+
+            // label
+            _linkGovss = new Link(container, SWT.NONE);
+            _linkGovss.setText(Messages.tour_editor_label_trainingstress_govss);
+            _linkGovss.setToolTipText(Messages.tour_editor_label_trainingstress_govss_tooltip);
+            _linkGovss.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+                  selectionEvent -> {
+
+                     //Compute the GOVSS value
+                     if (_isSetField || _isSavingInProgress) {
+                        return;
+                     }
+                     onSelect_Govss_Text();
+                  }));
+            _tk.adapt(_linkGovss, true, true);
+            _firstColumnControls.add(_linkGovss);
+
+            // spinner
+            _spinTrainingStress_Govss = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_spinTrainingStress_Govss);
+
+            _spinTrainingStress_Govss.setMinimum(0);
+            _spinTrainingStress_Govss.setMaximum(5_000);
+
+            _spinTrainingStress_Govss.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_Govss.addSelectionListener(_selectionListener);
+
+         }
+         {
+            /*
+             * SwimScore
+             */
+
+            // label
+            _linkSwimScore = new Link(container, SWT.NONE);
+            _linkSwimScore.setText(Messages.tour_editor_label_trainingstress_swimscore);
+            _linkSwimScore.setToolTipText(Messages.tour_editor_label_trainingstress_swimscore_tooltip);
+            _linkSwimScore.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+                  selectionEvent -> {
+                     //Compute the SwimScore value
+
+                     if (_isSetField || _isSavingInProgress) {
+                        return;
+                     }
+                     //TODO Fb onSelect_Govss_Text();
+                  }));
+            _tk.adapt(_linkSwimScore, true, true);
+            _secondColumnControls.add(_linkSwimScore);
+
+            // spinner
+            _spinTrainingStress_SwimScore = new Spinner(container, SWT.BORDER);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .hint(_hintValueFieldWidth, SWT.DEFAULT)
+                  .applyTo(_spinTrainingStress_SwimScore);
+
+            _spinTrainingStress_SwimScore.setMinimum(0);
+            _spinTrainingStress_SwimScore.setMaximum(5_000);
+
+            _spinTrainingStress_SwimScore.addMouseWheelListener(_mouseWheelListener);
+            _spinTrainingStress_SwimScore.addSelectionListener(_selectionListener);
+         }
       }
    }
 
@@ -4610,7 +4766,31 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
    }
 
-   private void createUI_Section_150_Characteristics(final Composite parent) {
+   private void createUI_Section_150_Weather(final Composite parent) {
+
+      _sectionWeather = createSection(parent, _tk, Messages.tour_editor_section_weather, false, true);
+      final Composite container = (Composite) _sectionWeather.getClient();
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults()
+            .numColumns(2)
+            .spacing(COLUMN_SPACING, 7)
+            .applyTo(container);
+//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+      {
+         createUI_Section_141_Weather_Description(container);
+
+         createUI_Section_142_Weather_Wind_Col1(container);
+         createUI_Section_143_Weather_Wind_Col2(container);
+
+         createUI_Section_144_Weather_Temperature_Col1(container);
+         createUI_Section_144_Weather_Temperature_Col2_Device(container);
+
+         createUI_Section_147_Weather_Other_Col1(container);
+         createUI_Section_148_Weather_Other_Col2(container);
+      }
+   }
+
+   private void createUI_Section_160_Characteristics(final Composite parent) {
 
       _sectionCharacteristics = createSection(parent, _tk, Messages.tour_editor_section_characteristics, false, true);
       final Composite container = (Composite) _sectionCharacteristics.getClient();
@@ -4719,10 +4899,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             createUI_Section_130_Personal(_tourContainer);
             createUI_SectionSeparator(_tourContainer);
 
-            createUI_Section_140_Weather(_tourContainer);
+            createUI_Section_140_TrainingStress(_tourContainer);
             createUI_SectionSeparator(_tourContainer);
 
-            createUI_Section_150_Characteristics(_tourContainer);
+            createUI_Section_150_Weather(_tourContainer);
+            createUI_SectionSeparator(_tourContainer);
+
+            createUI_Section_160_Characteristics(_tourContainer);
          }
       }
 
@@ -6340,18 +6523,18 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       final boolean isTourInDb = isTourInDb();
       final boolean isTourValid = isTourValid() && isTourInDb;
-      final boolean isNotManualTour = _isManualTour == false;
+      final boolean isNotManualTour = !_isManualTour;
       final boolean canEdit = _isEditMode && isTourInDb;
 
       // all actions are disabled when a cell editor is activated
-      final boolean isCellEditorInactive = _isCellEditorActive == false;
+      final boolean isCellEditorInactive = !_isCellEditorActive;
 
       final CTabItem selectedTab = _tabFolder.getSelection();
       final boolean isTimeSlice_ViewerTab = selectedTab == _tab_20_TimeSlices;
       final boolean isSwimSlice_ViewerTab = selectedTab == _tab_30_SwimSlices;
       final boolean isTourData = _tourData != null;
 
-      final boolean canUseTool = _isEditMode && isTourValid && (_isManualTour == false);
+      final boolean canUseTool = _isEditMode && isTourValid && (isNotManualTour);
 
       // at least 2 positions are necessary to compute the distance
       final boolean isGeoAvailable = isTourData
@@ -6584,6 +6767,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _spinPerson_FTP.setEnabled(canEdit);
       _spinPerson_RestPulse.setEnabled(canEdit);
       _spinPerson_Calories.setEnabled(canEdit);
+
+      // Training stress data
+      _linkGovss.setEnabled(canEdit && _tourData != null && _tourData.canGovssBeComputed());
+      _spinTrainingStress_Govss.setEnabled(canEdit);
+      _linkBikeScore.setEnabled(canEdit && _tourData != null && _tourData.canBikeScoreBeComputed());
+      _spinTrainingStress_BikeScore.setEnabled(canEdit);
+      _linkSwimScore.setEnabled(canEdit && _tourData != null && _tourData.canSwimScoreBeComputed());
+      _spinTrainingStress_SwimScore.setEnabled(canEdit);
 
       _linkTag.setEnabled(canEdit);
       _linkTourType.setEnabled(canEdit);
@@ -7379,6 +7570,23 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _tab1Container.setMinSize(_tourContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT));
    }
 
+   private void onSelect_Govss_Text() {
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+         final boolean isGovssComputed = _tourData.computeGovss();
+
+         if (isGovssComputed) {
+            setTourDirty();
+            updateUI_FromModel(_tourData, false, true);
+         } else {
+            MessageDialog.openInformation(
+                  Display.getCurrent().getActiveShell(),
+                  Messages.Dialog_ComputeGovss_Dialog_Title,
+                  Messages.Dialog_ComputeGovss_Label_GovssNotComputed);
+         }
+
+      });
+   }
+
    private void onSelect_Slice(final SelectionChangedEvent selectionChangedEvent) {
 
       final StructuredSelection selection = (StructuredSelection) selectionChangedEvent.getSelection();
@@ -7948,6 +8156,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _sectionCharacteristics.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_CHARACTERISTICS, true));
       _sectionDateTime.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_DATE_TIME, true));
       _sectionPersonal.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_PERSONAL, true));
+      _sectionTrainingStress.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_TRAINING_STRESS, true));
       _sectionTitle.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_TITLE, true));
       _sectionWeather.setExpanded(Util.getStateBoolean(_state, STATE_SECTION_WEATHER, true));
    }
@@ -7970,6 +8179,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _state.put(STATE_SECTION_CHARACTERISTICS, _sectionCharacteristics.isExpanded());
       _state.put(STATE_SECTION_DATE_TIME, _sectionDateTime.isExpanded());
       _state.put(STATE_SECTION_PERSONAL, _sectionPersonal.isExpanded());
+      _state.put(STATE_SECTION_TRAINING_STRESS, _sectionTrainingStress.isExpanded());
       _state.put(STATE_SECTION_TITLE, _sectionTitle.isExpanded());
       _state.put(STATE_SECTION_WEATHER, _sectionWeather.isExpanded());
    }
@@ -8046,6 +8256,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          _tourData.computeTourMovingTime();
          _tourData.computeComputedValues();
+         _tourData.computeTrainingStressData();
 
          /*
           * saveTour() will check the tour editor dirty state, but when the tour is saved, the dirty
@@ -8527,6 +8738,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          _tourData.setCadenceMultiplier(_comboCadence.getSelectedCadence().getMultiplier());
 
          /*
+          * Training Stress
+          */
+         _tourData.setGovss(_spinTrainingStress_Govss.getSelection());
+         _tourData.setBikeScore(_spinTrainingStress_BikeScore.getSelection());
+         _tourData.setSwimScore(_spinTrainingStress_SwimScore.getSelection());
+
+         /*
           * Weather
           */
          _tourData.setWeather(_txtWeather.getText().trim());
@@ -8988,6 +9206,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _spinPerson_FTP.setSelection(_tourData.getPower_FTP());
       _spinPerson_RestPulse.setSelection(_tourData.getRestPulse());
       _spinPerson_Calories.setSelection(_tourData.getCalories());
+
+      /*
+       * Training Stress
+       */
+      _spinTrainingStress_Device.setSelection((int) _tourData.getPower_TrainingStressScore());
+      _spinTrainingStress_Govss.setSelection(_tourData.getGovss());
+      _spinTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
+      _spinTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
 
       /*
        * wind properties

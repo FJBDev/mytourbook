@@ -400,6 +400,24 @@ public class Messages extends NLS {
    public static String        Compute_CadenceZonesTimes_Label_CadenceZonesDelimiter;
    public static String        Compute_CadenceZonesTimes_Label_Description_CadenceZonesDelimiter;
 
+   public static String        Compute_Govss_Button_ComputeAllTours;
+   public static String        Compute_Govss_Button_ComputeAllTours_Tooltip;
+   public static String        Compute_GovssValues_ComputeForAllTours_Job_Result;
+
+   public static String        Compute_GovssValues_Dialog_ComputeForUserTours_Title;
+   public static String        Compute_GovssValues_Dialog_ComputeForUserTours_Message;
+
+   public static String        Compute_PerformanceModelingChart_Group;
+
+   public static String        Compute_PerformanceModelingChart_Label_Days;
+   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay;
+   public static String        Compute_PerformanceModelingChart_Label_FatigueDecay_Tooltip;
+   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay;
+   public static String        Compute_PerformanceModelingChart_Label_FitnessDecay_Tooltip;
+
+   public static String        Dialog_ComputeGovss_Dialog_Title;
+   public static String        Dialog_ComputeGovss_Label_GovssNotComputed;
+
    public static String        Compute_HrZones_Dialog_ComputeAllTours_Title;
    public static String        Compute_HrZones_Dialog_ComputeAllTours_Title_Message;
    public static String        Compute_HrZones_Job_ComputeAllTours_Result;
@@ -1151,6 +1169,10 @@ public class Messages extends NLS {
    public static String        Log_ComputeCadenceZonesTimes_002_End;
    public static String        Log_ComputeCadenceZonesTimes_010_Success;
    public static String        Log_ComputeCadenceZonesTimes_011_NoSuccess;
+   public static String        Log_ComputeGovss_001_Start;
+   public static String        Log_ComputeGovss_002_End;
+   public static String        Log_ComputeGovss_010_Success;
+   public static String        Log_ComputeGovss_011_NoSuccess;
    public static String        Log_Delete_Text;
    public static String        Log_Delete_TourValues_End;
    public static String        Log_EasyImport_000_ImportStart;
@@ -1660,12 +1682,14 @@ public class Messages extends NLS {
    public static String        Pref_People_Label_last_name;
    public static String        Pref_People_Label_MaxHR;
    public static String        Pref_People_Label_RestingHR;
+   public static String        Pref_People_Label_TrainingStress_ModelName;
    public static String        Pref_People_Label_weight;
    public static String        Pref_People_Label_Years;
    public static String        Pref_People_Link_BodyWeight;
    public static String        Pref_People_Tab_DataTransfer;
    public static String        Pref_People_Tab_HRZone;
    public static String        Pref_People_Tab_Person;
+   public static String        Pref_People_Tab_TrainingStress;
    public static String        Pref_People_Title;
 
    public static String        Pref_Statistic_Action_SortByData;
@@ -1772,6 +1796,20 @@ public class Messages extends NLS {
    public static String        Pref_Tour_Label_FailedUpdateInfo_BOLD;
    public static String        Pref_Tour_Label_TourCacheSize;
    public static String        Pref_Tour_Label_TourCacheSize_Info;
+
+   public static String        Pref_TrainingStress_BikeScore_GroupName;
+   public static String        Pref_TrainingStress_Govss_GroupName;
+   public static String        Pref_TrainingStress_Govss_AddTourTypes;
+   public static String        Pref_TrainingStress_Govss_RemoveTourType;
+   public static String        Pref_TrainingStress_Govss_Label_AverageSlope;
+   public static String        Pref_TrainingStress_Govss_Label_ThresholdVelocity;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_AverageSlope;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Distance;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label_Duration;
+   public static String        Pref_TrainingStress_Group_ThresholdPower;
+   public static String        Pref_TrainingStress_Group_TourTypes;
+   public static String        Pref_TrainingStress_SwimScore_GroupName;
+   public static String        Pref_TrainingStress_Govss_ThresholdPower_Label;
 
    public static String        Pref_TransformValues_Label_Opacity;
    public static String        Pref_TransformValues_Label_Opacity_Tooltip;
@@ -2822,6 +2860,12 @@ public class Messages extends NLS {
    public static String        tour_editor_label_tour_tag;
    public static String        tour_editor_label_tour_title;
    public static String        tour_editor_label_tour_type;
+   public static String        tour_editor_label_trainingstress_govss;
+   public static String        tour_editor_label_trainingstress_govss_tooltip;
+   public static String        tour_editor_label_trainingstress_bikescore;
+   public static String        tour_editor_label_trainingstress_bikescore_tooltip;
+   public static String        tour_editor_label_trainingstress_swimscore;
+   public static String        tour_editor_label_trainingstress_swimscore_tooltip;
    public static String        Tour_Editor_Label_Weather;
    public static String        tour_editor_label_WindDirectionNESW_Tooltip;
    public static String        Tour_Editor_Label_WindDirection_Unit;
@@ -3052,6 +3096,7 @@ public class Messages extends NLS {
 
    public static String        Tour_SubMenu_Cadence;
    public static String        Tour_SubMenu_Elevation;
+   public static String        Tour_SubMenu_TrainingStress;
 
    public static String        Tour_Tags_Action_Layout_Flat_Tooltip;
    public static String        Tour_Tags_Action_Layout_Hierarchical_Tooltip;
@@ -3067,6 +3112,8 @@ public class Messages extends NLS {
    public static String        Training_Action_EditHrZones;
    public static String        Training_Action_EditHrZones_Tooltip;
    public static String        Training_HRZone_Label_Header_Zone;
+   public static String        Training_Stress_Label_Info;
+   public static String        Training_Stress_Group_Govss;
    public static String        Training_View_Action_ShowAllPulseValues;
    public static String        Training_View_Action_SynchChartScale;
    public static String        Training_View_Label_LeftChartBorder;

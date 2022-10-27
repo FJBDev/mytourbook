@@ -568,6 +568,10 @@ public class FitLog_SAXHandler extends DefaultHandler {
                tourNotes.append(UI.NEW_LINE);
             }
             tourNotes.append("\"" + key + "\" : \"" + value + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+            if (key.toUpperCase().equalsIgnoreCase(FitLogEx_SAXHandler.ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_TRIMP)) {
+               tourData.setPower_TrainingStressScore(Float.valueOf(value));
+            }
          });
 
          tourData.setTourDescription(tourNotes.toString());

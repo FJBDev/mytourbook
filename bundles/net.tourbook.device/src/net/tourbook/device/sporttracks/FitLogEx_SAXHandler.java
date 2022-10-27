@@ -41,7 +41,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
 
    private static final String            ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_NAME    = "Name";                                          //$NON-NLS-1$
    private static final String            ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_OPTIONS = "Options";                                       //$NON-NLS-1$
-   private static final String            ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_TRIMP   = "TRIMP";                                         //$NON-NLS-1$
+   static final String                    ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_TRIMP   = "TRIMP";                                         //$NON-NLS-1$
 
    private static final String            TAG_EQUIPMENT_BRAND                         = "Brand";                                         //$NON-NLS-1$
 
