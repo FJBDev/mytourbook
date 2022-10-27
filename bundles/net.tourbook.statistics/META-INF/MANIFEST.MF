@@ -17,6 +17,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: net.tourbook,
  net.tourbook.application,
  net.tourbook.chart,
+ net.tourbook.cloud,
  net.tourbook.common,
  net.tourbook.common.color,
  net.tourbook.common.preferences,
