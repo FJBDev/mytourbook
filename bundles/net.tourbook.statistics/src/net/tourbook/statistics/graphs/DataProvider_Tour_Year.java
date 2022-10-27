@@ -543,6 +543,9 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.predictedPerformance_Low = new float[numYears];
             _tourYearData.predictedPerformance_High = new float[numYears];
 
+            _tourYearData.trainingStress_Low = new float[numYears];
+            _tourYearData.trainingStress_High = new float[numYears];
+
          } else {
 
             final long[][] usedTypeIds = new long[numTourTypes_WithData][];

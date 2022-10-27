@@ -69,6 +69,8 @@ public abstract class TourStatisticData_Common {
 
    float[]   predictedPerformance_Low;
    float[]   predictedPerformance_High;
+   float[]   trainingStress_Low;
+   float[]   trainingStress_High;
 
    /**
     * Contains the used {@link TourType} ID or -1 when not available. This data has the same length
