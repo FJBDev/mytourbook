@@ -46,5 +46,6 @@ Import-Package: com.skedgo.converter,
  javax.inject,
  org.eclipse.collections.impl.list.mutable.primitive,
  org.eclipse.collections.impl.map.mutable.primitive,
- org.eclipse.e4.core.services.log
+ org.eclipse.e4.core.services.log,
+ org.joda.time.format
 Automatic-Module-Name: net.tourbook.common
