@@ -39,7 +39,7 @@ import org.apache.commons.math3.exception.NoBracketingException;
 public class Govss extends TrainingStress {
    //TODO; When a tour has its tour type changed, if this new tour type is not in the govss list, we remove the tourid from the performancemodeling table
 
-   Govss(final TourPerson tourPerson) {
+   public Govss(final TourPerson tourPerson) {
       super(tourPerson, null);
    }
 
