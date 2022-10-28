@@ -45,7 +45,7 @@ import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList;
 
-public class DataProvider_Tour_Day extends DataProvider {
+class DataProvider_Tour_Day extends DataProvider {
 
    private TourStatisticData_Day _tourDayData;
 
@@ -966,7 +966,7 @@ public class DataProvider_Tour_Day extends DataProvider {
       return statistic_RawStatisticValues;
    }
 
-   public void setGraphContext(final boolean isShowTrainingPerformance_AvgValue, final boolean isAdjustmentSamePosition) {
+   void setGraphContext(final boolean isShowTrainingPerformance_AvgValue, final boolean isAdjustmentSamePosition) {
 
       _isShowTrainingPerformance_AvgValue = isShowTrainingPerformance_AvgValue;
       _isAdjustSamePosition = isAdjustmentSamePosition;

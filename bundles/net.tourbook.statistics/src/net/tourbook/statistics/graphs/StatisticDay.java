@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -64,7 +64,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticDay extends TourbookStatistic implements IBarSelectionProvider, ITourProvider {
+abstract class StatisticDay extends TourbookStatistic implements IBarSelectionProvider, ITourProvider {
 
    private TourStatisticData_Day       _statisticData_Day;
    private DataProvider_Tour_Day       _tourDay_DataProvider    = new DataProvider_Tour_Day();
@@ -133,7 +133,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    /**
     * create segments for the chart
     */
-   ChartStatisticSegments createChartSegments(final TourStatisticData_Day tourTimeData) {
+   private ChartStatisticSegments createChartSegments(final TourStatisticData_Day tourTimeData) {
 
       final double[] segmentStart = new double[_statNumberOfYears];
       final double[] segmentEnd = new double[_statNumberOfYears];
@@ -643,7 +643,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       updateStatistic(new StatisticContext(_activePerson, _activeTourTypeFilter, _statSelectedYear, _statNumberOfYears));
    }
 
-   void resetMinMaxKeeper() {
+   private void resetMinMaxKeeper() {
 
       _minMaxKeeper.resetMinMax();
    }
