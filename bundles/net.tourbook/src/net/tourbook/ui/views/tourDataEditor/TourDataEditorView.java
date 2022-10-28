@@ -391,7 +391,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private SelectionListener                  _selectionListener;
    private SelectionListener                  _selectionListener_Temperature;
    private SelectionListener                  _columnSortListener;
-   private SelectionAdapter                   _tourTimeListener;
+   private SelectionListener                  _tourTimeListener;
    private ModifyListener                     _verifyFloatValue;
    private ModifyListener                     _verifyIntValue;
    //
@@ -658,10 +658,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Spinner            _spinPerson_Calories;
    private Spinner            _spinPerson_FTP;
    private Spinner            _spinPerson_RestPulse;
-   private Spinner            _spinTrainingStress_BikeScore;
-   private Spinner            _spinTrainingStress_Device;
-   private Spinner            _spinTrainingStress_Govss;
-   private Spinner            _spinTrainingStress_SwimScore;
    private Spinner            _spinWeather_Humidity;
    private Spinner            _spinWeather_PrecipitationValue;
    private Spinner            _spinWeather_PressureValue;
@@ -677,6 +673,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Text               _txtAltitudeUp;
    private Text               _txtDescription;
    private Text               _txtDistance;
+   private Text               _txtTrainingStress_BikeScore;
+   private Text               _txtTrainingStress_Device;
+   private Text               _txtTrainingStress_Govss;
+   private Text               _txtTrainingStress_SwimScore;
    private Text               _txtWeather;
    private Text               _txtWeather_Temperature_Average_Device;
    private Text               _txtWeather_Temperature_Min_Device;
@@ -3021,9 +3021,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * listener for elapsed/moving/paused time
        */
-      _tourTimeListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent event) {
+      _tourTimeListener = widgetSelectedAdapter(selectionEvent -> {
 
             if (_isSetField || _isSavingInProgress) {
                return;
@@ -3032,9 +3030,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             updateModel_FromUI();
             setTourDirty();
 
-            updateUI_Time(event.widget);
-         }
-      };
+         updateUI_Time(selectionEvent.widget);
+      });
 
       _verifyFloatValue = modifyEvent -> {
 
@@ -4044,17 +4041,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _firstColumnControls.add(_lblTrainingStress_DeviceScore);
 
             // Spinner
-            _spinTrainingStress_Device = new Spinner(container, SWT.BORDER);
+            _txtTrainingStress_Device = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_spinTrainingStress_Device);
+                  .applyTo(_txtTrainingStress_Device);
 
-            _spinTrainingStress_Device.setMinimum(0);
-            _spinTrainingStress_Device.setMaximum(5_000);
+//            _txtTrainingStress_Device.setMinimum(0);
+//            _txtTrainingStress_Device.setMaximum(5_000);
 
-            _spinTrainingStress_Device.addMouseWheelListener(_mouseWheelListener);
-            _spinTrainingStress_Device.addSelectionListener(_selectionListener);
+            _txtTrainingStress_Device.addMouseWheelListener(_mouseWheelListener);
+            _txtTrainingStress_Device.addSelectionListener(_selectionListener);
          }
          {
             /*
@@ -4081,17 +4078,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _secondColumnControls.add(_linkBikeScore);
 
             // spinner
-            _spinTrainingStress_BikeScore = new Spinner(container, SWT.BORDER);
+            _txtTrainingStress_BikeScore = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_spinTrainingStress_BikeScore);
+                  .applyTo(_txtTrainingStress_BikeScore);
 
-            _spinTrainingStress_BikeScore.setMinimum(0);
-            _spinTrainingStress_BikeScore.setMaximum(5_000);
-
-            _spinTrainingStress_BikeScore.addMouseWheelListener(_mouseWheelListener);
-            _spinTrainingStress_BikeScore.addSelectionListener(_selectionListener);
+            _txtTrainingStress_BikeScore.addMouseWheelListener(_mouseWheelListener);
+            _txtTrainingStress_BikeScore.addSelectionListener(_selectionListener);
          }
       }
    }
@@ -4127,17 +4121,14 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _firstColumnControls.add(_linkGovss);
 
             // spinner
-            _spinTrainingStress_Govss = new Spinner(container, SWT.BORDER);
+            _txtTrainingStress_Govss = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_spinTrainingStress_Govss);
+                  .applyTo(_txtTrainingStress_Govss);
 
-            _spinTrainingStress_Govss.setMinimum(0);
-            _spinTrainingStress_Govss.setMaximum(5_000);
-
-            _spinTrainingStress_Govss.addMouseWheelListener(_mouseWheelListener);
-            _spinTrainingStress_Govss.addSelectionListener(_selectionListener);
+            _txtTrainingStress_Govss.addMouseWheelListener(_mouseWheelListener);
+            _txtTrainingStress_Govss.addSelectionListener(_selectionListener);
 
          }
          {
@@ -4162,17 +4153,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _secondColumnControls.add(_linkSwimScore);
 
             // spinner
-            _spinTrainingStress_SwimScore = new Spinner(container, SWT.BORDER);
+            _txtTrainingStress_SwimScore = _tk.createText(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
-                  .applyTo(_spinTrainingStress_SwimScore);
+                  .applyTo(_txtTrainingStress_SwimScore);
 
-            _spinTrainingStress_SwimScore.setMinimum(0);
-            _spinTrainingStress_SwimScore.setMaximum(5_000);
+//            _txtTrainingStress_SwimScore.setMinimum(0);
+//            _txtTrainingStress_SwimScore.setMaximum(5_000);
 
-            _spinTrainingStress_SwimScore.addMouseWheelListener(_mouseWheelListener);
-            _spinTrainingStress_SwimScore.addSelectionListener(_selectionListener);
+            _txtTrainingStress_SwimScore.addMouseWheelListener(_mouseWheelListener);
+            _txtTrainingStress_SwimScore.addSelectionListener(_selectionListener);
          }
       }
    }
@@ -6770,11 +6761,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       // Training stress data
       _linkGovss.setEnabled(canEdit && _tourData != null && _tourData.canGovssBeComputed());
-      _spinTrainingStress_Govss.setEnabled(canEdit);
+      _txtTrainingStress_Govss.setEnabled(canEdit);
       _linkBikeScore.setEnabled(canEdit && _tourData != null && _tourData.canBikeScoreBeComputed());
-      _spinTrainingStress_BikeScore.setEnabled(canEdit);
+      _txtTrainingStress_BikeScore.setEnabled(canEdit);
       _linkSwimScore.setEnabled(canEdit && _tourData != null && _tourData.canSwimScoreBeComputed());
-      _spinTrainingStress_SwimScore.setEnabled(canEdit);
+      _txtTrainingStress_SwimScore.setEnabled(canEdit);
 
       _linkTag.setEnabled(canEdit);
       _linkTourType.setEnabled(canEdit);
@@ -8735,9 +8726,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          /*
           * Training Stress
           */
-         _tourData.setGovss(_spinTrainingStress_Govss.getSelection());
-         _tourData.setBikeScore(_spinTrainingStress_BikeScore.getSelection());
-         _tourData.setSwimScore(_spinTrainingStress_SwimScore.getSelection());
+//         _tourData.setGovss(Integer.valueOf(_txtTrainingStress_Govss.getText()));
+//         _tourData.setBikeScore(Integer.valueOf(_txtTrainingStress_BikeScore.getSelection());
+//         _tourData.setSwimScore(Integer.valueOf(_txtTrainingStress_SwimScore.getSelection());
 
          /*
           * Weather
@@ -9205,10 +9196,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * Training Stress
        */
-      _spinTrainingStress_Device.setSelection((int) _tourData.getPower_TrainingStressScore());
-      _spinTrainingStress_Govss.setSelection(_tourData.getGovss());
-      _spinTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
-      _spinTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
+      _txtTrainingStress_Device.setSelection((int) _tourData.getPower_TrainingStressScore());
+      _txtTrainingStress_Govss.setSelection(_tourData.getGovss());
+      _txtTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
+      _txtTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
 
       /*
        * wind properties

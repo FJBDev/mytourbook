@@ -740,9 +740,9 @@ public class RawDataManager {
       if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
 
          previousData.add(
-               String.valueOf(newTourData.getPower_TrainingStressScore()));
+               String.valueOf(Math.round(oldTourData.getPower_TrainingStressScore())));
          newData.add(
-               String.valueOf(newTourData.getPower_TrainingStressScore()));
+               String.valueOf(Math.round(newTourData.getPower_TrainingStressScore())));
       }
 
       if (isEntireTour || tourValueType == TourValueType.TOUR__IMPORT_FILE_LOCATION) {
