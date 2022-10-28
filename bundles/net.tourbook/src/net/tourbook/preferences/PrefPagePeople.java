@@ -118,7 +118,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    private static final String                  STATE_SELECTED_PERSON               = "selectedPersonId";                                     //$NON-NLS-1$
    private static final String                  STATE_SELECTED_TAB_FOLDER           = "selectedTabFolder";                                    //$NON-NLS-1$
 
-   public static final int                      HEART_BEAT_MIN                      = 10;
+   private static final int                     HEART_BEAT_MIN                      = 10;
    public static final int                      HEART_BEAT_MAX                      = 300;
 
    /**

@@ -62,11 +62,11 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory BODY_PULSE_MAX;
    public static final String             BODY_PULSE_MAX_ID                                  = "BODY_PULSE_MAX";                                  //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_AVG_BPM;
-   public static final String             BODY_PULSE_RR_AVG_BPM_ID                           = "BODY_PULSE_RR_AVG_BPM";                           //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_AVG_BPM_ID                           = "BODY_PULSE_RR_AVG_BPM";                           //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_INDEX;
-   public static final String             BODY_PULSE_RR_INDEX_ID                             = "BODY_PULSE_RR_INDEX";                             //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_INDEX_ID                             = "BODY_PULSE_RR_INDEX";                             //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_INTERVALS;
-   public static final String             BODY_PULSE_RR_INTERVALS_ID                         = "BODY_PULSE_RR_INTERVALS";                         //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_INTERVALS_ID                         = "BODY_PULSE_RR_INTERVALS";                         //$NON-NLS-1$
    public static final TableColumnFactory BODY_RESTPULSE;
    public static final String             BODY_RESTPULSE_ID                                  = "BODY_RESTPULSE";                                  //$NON-NLS-1$
    public static final TableColumnFactory BODY_WEIGHT;
@@ -75,7 +75,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory DATA_DP_TOLERANCE;
    public static final String             DATA_DP_TOLERANCE_ID                               = "DATA_DP_TOLERANCE";                               //$NON-NLS-1$
    public static final TableColumnFactory DATA_FIRST_COLUMN;
-   public static final String             DATA_FIRST_COLUMN_ID                               = "DATA_FIRST_COLUMN";                               //$NON-NLS-1$
+   private static final String            DATA_FIRST_COLUMN_ID                               = "DATA_FIRST_COLUMN";                               //$NON-NLS-1$
    public static final TableColumnFactory DATA_IMPORT_FILE_NAME;
    public static final String             DATA_IMPORT_FILE_NAME_ID                           = "DATA_IMPORT_FILE_NAME";                           //$NON-NLS-1$
    public static final TableColumnFactory DATA_IMPORT_FILE_PATH;
@@ -116,7 +116,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MOTION_DISTANCE;
    public static final String             MOTION_DISTANCE_ID                                 = "MOTION_DISTANCE";                                 //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_DELTA;
-   public static final String             MOTION_DISTANCE_DELTA_ID                           = "MOTION_DISTANCE_DELTA_ID";                        //$NON-NLS-1$
+   private static final String            MOTION_DISTANCE_DELTA_ID                           = "MOTION_DISTANCE_DELTA_ID";                        //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_DIFF;
    public static final TableColumnFactory MOTION_DISTANCE_TOTAL;
    public static final TableColumnFactory MOTION_LATITUDE;
@@ -209,15 +209,15 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory SENSOR_NAME;
    public static final String             SENSOR_NAME_ID                                     = "SENSOR_NAME";                                     //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_DESCRIPTION;
-   public static final String             SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
+   private static final String            SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NAME;
    public static final String             SENSOR_MANUFACTURER_NAME_ID                        = "SENSOR_MANUFACTURER_NAME";                        //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NUMBER;
-   public static final String             SENSOR_MANUFACTURER_NUMBER_ID                      = "SENSOR_MANUFACTURER_NUMBER";                      //$NON-NLS-1$
+   private static final String            SENSOR_MANUFACTURER_NUMBER_ID                      = "SENSOR_MANUFACTURER_NUMBER";                      //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NAME;
    public static final String             SENSOR_PRODUCT_NAME_ID                             = "SENSOR_PRODUCT_NAME";                             //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NUMBER;
-   public static final String             SENSOR_PRODUCT_NUMBER_ID                           = "SENSOR_PRODUCT_NUMBER";                           //$NON-NLS-1$
+   private static final String            SENSOR_PRODUCT_NUMBER_ID                           = "SENSOR_PRODUCT_NUMBER";                           //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_SERIAL_NUMBER;
    public static final String             SENSOR_SERIAL_NUMBER_ID                            = "SENSOR_SERIAL_NUMBER";                            //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_STATE_BATTERY_LEVEL;
