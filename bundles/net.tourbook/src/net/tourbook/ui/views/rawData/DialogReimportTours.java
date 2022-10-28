@@ -75,39 +75,39 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
-public class DialogReimportTours extends TitleAreaDialog {
+class DialogReimportTours extends TitleAreaDialog {
 
-   private static final String STATE_REIMPORT_TOURS_ALL                           = "STATE_REIMPORT_TOURS_ALL";                           //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_SELECTED                      = "STATE_REIMPORT_TOURS_SELECTED";                      //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_ALL                              = "STATE_REIMPORT_TOURS_ALL";                              //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_SELECTED                         = "STATE_REIMPORT_TOURS_SELECTED";                         //$NON-NLS-1$
 
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES                 = "STATE_REIMPORT_TOURS_BETWEEN_DATES";                 //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM            = "STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM";            //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL           = "STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL";           //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES                    = "STATE_REIMPORT_TOURS_BETWEEN_DATES";                    //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM               = "STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM";               //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL              = "STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL";              //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                    = "STATE_IS_IMPORT_ALL_TIME_SLICES";                    //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_ENTIRE_TOUR                        = "STATE_IS_IMPORT_ENTIRE_TOUR";                        //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                       = "STATE_IS_IMPORT_ALL_TIME_SLICES";                       //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_ENTIRE_TOUR                           = "STATE_IS_IMPORT_ENTIRE_TOUR";                           //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TOUR__CALORIES                     = "STATE_IS_IMPORT_TOUR__CALORIES";                     //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__MARKERS                      = "STATE_IS_IMPORT_TOUR__MARKERS";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__CALORIES                        = "STATE_IS_IMPORT_TOUR__CALORIES";                        //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                   = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__MARKERS                         = "STATE_IS_IMPORT_TOUR__MARKERS";                         //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE = "STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE"; //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__ELEVATION              = "STATE_IS_IMPORT_TIME_SLICE__ELEVATION";              //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__GEAR                   = "STATE_IS_IMPORT_TIME_SLICE__GEAR";                   //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE        = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE";        //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED        = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED";        //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS       = "STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS";       //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__SWIMMING               = "STATE_IS_IMPORT_TIME_SLICE__SWIMMING";               //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE = "STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE"; //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TRAINING               = "STATE_IS_IMPORT_TIME_SLICE__TRAINING";               //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES           = "STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                   = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                   = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__ELEVATION                 = "STATE_IS_IMPORT_TIME_SLICE__ELEVATION";                 //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__GEAR                      = "STATE_IS_IMPORT_TIME_SLICE__GEAR";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE           = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED           = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS          = "STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS";          //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__SWIMMING                  = "STATE_IS_IMPORT_TIME_SLICE__SWIMMING";                  //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE    = "STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE";    //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TRAINING                  = "STATE_IS_IMPORT_TIME_SLICE__TRAINING";                  //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES              = "STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES";              //$NON-NLS-1$
 
-   private static final String STATE_IS_LOG_DETAILS                               = "STATE_IS_LOG_DETAILS";                               //$NON-NLS-1$
-   private static final String STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND       = "STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND";       //$NON-NLS-1$
+   private static final String STATE_IS_LOG_DETAILS                                  = "STATE_IS_LOG_DETAILS";                                  //$NON-NLS-1$
+   private static final String STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND          = "STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND";          //$NON-NLS-1$
 
-   private static final int    VERTICAL_SECTION_MARGIN                            = 10;
+   private static final int    VERTICAL_SECTION_MARGIN                               = 10;
 
    //
    private static final IDialogSettings    _state          = TourbookPlugin.getState("DialogReimportTours"); //$NON-NLS-1$
@@ -191,8 +191,8 @@ public class DialogReimportTours extends TitleAreaDialog {
    /**
     * @param parentShell
     */
-   public DialogReimportTours(final Shell parentShell,
-                              final ITourViewer3 tourViewer) {
+   DialogReimportTours(final Shell parentShell,
+                       final ITourViewer3 tourViewer) {
 
       super(parentShell);
 
@@ -878,7 +878,7 @@ public class DialogReimportTours extends TitleAreaDialog {
 
       } finally {
 
-         // do post save actions for all re-imported tours, simalar to
+         // do post save actions for all re-imported tours, similar to
          // net.tourbook.database.TourDatabase.saveTour_PostSaveActions(TourData)
 
          TourDatabase.saveTour_PostSaveActions_Concurrent_2_ForAllTours(
@@ -899,7 +899,7 @@ public class DialogReimportTours extends TitleAreaDialog {
             Messages.Log_Reimport_PreviousFiles_End,
             (System.currentTimeMillis() - start) / 1000.0));
 
-      doReimport_70_FireModifyEvents(importState_Process);
+      doReimport_70_FireModifyEvents();
    }
 
    private void doReimport_60_RunConcurrent(final long tourId,
@@ -961,7 +961,7 @@ public class DialogReimportTours extends TitleAreaDialog {
       });
    }
 
-   private void doReimport_70_FireModifyEvents(final ImportState_Process importState_Process) {
+   private void doReimport_70_FireModifyEvents() {
 
       TourManager.getInstance().removeAllToursFromCache();
       TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
