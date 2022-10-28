@@ -146,7 +146,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
    private Menu      _tableContextMenu;
 
-   class MarkerViewerContentProvider implements IStructuredContentProvider {
+   private class MarkerViewerContentProvider implements IStructuredContentProvider {
 
       @Override
       public void dispose() {}
@@ -203,7 +203,7 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
       }
    }
 
-   public class TableContextMenuProvider implements IContextMenuProvider {
+   private class TableContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
