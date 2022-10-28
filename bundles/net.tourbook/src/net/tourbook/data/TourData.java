@@ -3762,6 +3762,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       computeGeo_Bounds();
       computeGeo_Grid();
+
+      computeTrainingStressData();
    }
 
    private void computeDataSeries_NotSmoothed() {
@@ -5477,7 +5479,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       }
    }
 
-   public void computeTrainingStressData() {
+   private void computeTrainingStressData() {
+
       computeGovss();
       computeBikeScore();
       computeSwimScore();
@@ -7658,6 +7661,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public short[] getBattery_Percentage() {
       return battery_Percentage;
    }
+
    public short getBattery_Percentage_End() {
       return battery_Percentage_End;
    }
@@ -7674,7 +7678,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    public int getBikeScore() {
-      return bikeScore;}
+      return bikeScore;
+   }
 
    /**
     * @return Returns the body fat.
@@ -10739,6 +10744,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public void setBattery_Percentage(final short[] battery_Percentage) {
       this.battery_Percentage = battery_Percentage;
    }
+
    public void setBattery_Percentage_End(final short battery_Percentage_End) {
       this.battery_Percentage_End = battery_Percentage_End;
    }
@@ -10752,7 +10758,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    public void setBikeScore(final int bikeScore) {
-      this.bikeScore = bikeScore;}
+      this.bikeScore = bikeScore;
+   }
 
    /**
     * @param bodyFat
@@ -11550,6 +11557,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    public void setSwimScore(final int swimScore) {
       this.swimScore = swimScore;
    }
+
    /**
     * Used for MT import/export
     *
