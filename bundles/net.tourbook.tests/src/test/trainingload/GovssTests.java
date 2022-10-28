@@ -17,7 +17,7 @@ package trainingload;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import net.tourbook.application.TourbookPlugin;
+import net.tourbook.data.TourPerson;
 import net.tourbook.trainingload.Govss;
 
 import org.junit.jupiter.api.Test;
@@ -27,8 +27,14 @@ public class GovssTests {
    @Test
    void computeThresholdPower() {
 
-      final var toto = new Govss(TourbookPlugin.getActivePerson()).Compute();
+      final TourPerson athlete = new TourPerson("Eliud", "Kipchoge");
+      athlete.setWeight(70);
+      athlete.setHeight(180);
+      final double thresholdPower = new Govss(athlete).ComputePower(10000f,
+            0,
+            0f,
+            3.9f);
 
-      assertEquals(367, toto);
+      assertEquals(367, thresholdPower);
    }
 }

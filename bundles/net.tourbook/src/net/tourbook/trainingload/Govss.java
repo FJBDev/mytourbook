@@ -175,9 +175,16 @@ public class Govss extends TrainingStress {
    /**
     * Function that calculates the running power for a given distance, slope, time and athlete.
     *
-    * @return
+    * @param distance
+    *           in meters
+    * @param slope
+    *           in %
+    * @param initialSpeed
+    *           in m/s
+    * @param speed
+    *           in m/s
     */
-   double ComputePower(final float distance, final double slope, final float initialSpeed, final float speed) {
+   public double ComputePower(final float distance, final double slope, final float initialSpeed, final float speed) {
 
       final double CAero = computeCostAerodynamicDrag(speed);
       final double Ckin = computeCostKineticEnergy(distance, initialSpeed, speed);
