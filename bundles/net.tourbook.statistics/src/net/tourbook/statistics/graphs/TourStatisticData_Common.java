@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,13 +20,12 @@ import net.tourbook.data.TourType;
 /**
  * Common fields used in statistics
  */
-public abstract class TourStatisticData_Common {
+abstract class TourStatisticData_Common {
 
    long[][] typeIds;
    long[][] typeIds_Resorted;
 
    int      numUsedTourTypes;
-   int[][]  typeColorIndex;
 
    int[][]  elapsedTime;
    int[][]  elapsedTime_Resorted;
@@ -37,7 +36,7 @@ public abstract class TourStatisticData_Common {
    int[][]  movingTime;
    int[][]  movingTime_Resorted;
    int[][]  breakTime;
-   int[][]  breakTime_Resorted;
+   private int[][] breakTime_Resorted;
 
    /*
     * Chart low/high data series
