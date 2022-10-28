@@ -120,4 +120,5 @@ public class Polar_HRM_DataReader extends TourbookDevice {
 
       return true;
    }
+
 }
