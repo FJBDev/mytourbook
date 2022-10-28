@@ -706,4 +706,5 @@ public class CM4XXMDeviceReader extends TourbookDevice {
 
       return true;
    }
+
 }

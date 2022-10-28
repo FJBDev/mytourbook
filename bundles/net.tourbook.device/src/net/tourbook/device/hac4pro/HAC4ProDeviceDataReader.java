@@ -731,4 +731,5 @@ public class HAC4ProDeviceDataReader extends TourbookDevice {
 
       return isValid;
    }
+
 }
