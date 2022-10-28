@@ -152,7 +152,7 @@ public class Govss extends TrainingStress {
     *
     * @return The GOVSS value
     */
-   public int ComputeNormalizedPace(final int startIndex, final int endIndex) {
+   public int computeNormalizedPace(final int startIndex, final int endIndex) {
 
       if (_tourData == null || _tourData.timeSerie == null || _tourData.timeSerie.length < 2) {
          return 0;
@@ -184,7 +184,7 @@ public class Govss extends TrainingStress {
     * @param speed
     *           in m/s
     */
-   public double ComputePower(final float distance, final double slope, final float initialSpeed, final float speed) {
+   public double computePower(final float distance, final double slope, final float initialSpeed, final float speed) {
 
       final double CAero = computeCostAerodynamicDrag(speed);
       final double Ckin = computeCostKineticEnergy(distance, initialSpeed, speed);
@@ -231,7 +231,7 @@ public class Govss extends TrainingStress {
          //Compute the speed (m/s)
          currentSpeed = (float) (currentElapsedTime == 0 ? 0 : currentDistance / currentElapsedTime);
 
-         powerValue = ComputePower(currentDistance, slope, initialSpeed, currentSpeed);
+         powerValue = computePower(currentDistance, slope, initialSpeed, currentSpeed);
 
          powerValues.add(powerValue);
          initialSpeed = currentSpeed;
@@ -260,7 +260,7 @@ public class Govss extends TrainingStress {
          public double value(final double x) {
             //TODO get the distance from a function parameter ?
             // add indexes for a specific section ? that way we can get the distance from distanceSerie[endIndex] - distanceSerie[startIndex] ?
-            return normalizedPower - ComputePower(tourDistance, 0.0, 0f, (float) x);
+            return normalizedPower - computePower(tourDistance, 0.0, 0f, (float) x);
          }
       };
 

@@ -30,10 +30,10 @@ public class GovssTests {
       final TourPerson athlete = new TourPerson("Eliud", "Kipchoge");
       athlete.setWeight(70);
       athlete.setHeight(180);
-      final double thresholdPower = new Govss(athlete).ComputePower(10000f,
+      final double thresholdPower = new Govss(athlete).computePower(10000f,
             0,
             0f,
-            3.9f);
+            6.2f);
 
       assertEquals(367, thresholdPower);
    }

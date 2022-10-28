@@ -4658,7 +4658,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          return result;
       }
 
-      result = new Govss(tourPerson, this).ComputeNormalizedPace(startIndex, endIndex);
+      result = new Govss(tourPerson, this).computeNormalizedPace(startIndex, endIndex);
 
       return result;
    }
