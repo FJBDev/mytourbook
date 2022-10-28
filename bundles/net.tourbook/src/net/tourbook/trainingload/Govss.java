@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.tourbook.common.UI;
+//import net.tourbook.common.UI;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 import net.tourbook.tour.TourLogManager;
@@ -164,8 +164,8 @@ public class Govss extends TrainingStress {
       final float lactateNormalizedPower = 0f;
       final double paceInSeconds = tryComputeNormalizedPace(lactateNormalizedPower);
       final double pace = 1609 / paceInSeconds;
-      final String nPace = UI.format_mm_ss((long) pace);
-      System.out.println("Normalized pace min/mile = " + nPace);
+//      final String nPace = UI.format_mm_ss((long) pace);
+//      System.out.println("Normalized pace min/mile = " + nPace);
 
       return Compute(startIndex, endIndex);
    }
