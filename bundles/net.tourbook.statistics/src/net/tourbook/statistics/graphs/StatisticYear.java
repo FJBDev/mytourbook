@@ -49,7 +49,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticYear extends TourbookStatistic {
+abstract class StatisticYear extends TourbookStatistic {
 
    private TourStatisticData_Year   _statisticData_Year;
    private DataProvider_Tour_Year   _tourYear_DataProvider = new DataProvider_Tour_Year();
@@ -74,11 +74,7 @@ public abstract class StatisticYear extends TourbookStatistic {
    private ChartDataYSerie          _athleteBodyWeight_YData;
    private ChartDataYSerie          _athleteBodyFat_YData;
 
-   public boolean canTourBeVisible() {
-      return false;
-   }
-
-   ChartStatisticSegments createChartSegments(final TourStatisticData_Year tourDataYear) {
+   private ChartStatisticSegments createChartSegments(final TourStatisticData_Year tourDataYear) {
 
       final int yearCounter = tourDataYear.elevationUp_High[0].length;
 

@@ -280,7 +280,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     */
    private static final int              _hintTextColumnWidth                             = IS_OSX ? 200 : 150;
    //
-   DecimalFormat                         _temperatureFormat                               = new DecimalFormat("###.0");                             //$NON-NLS-1$
+   private DecimalFormat                 _temperatureFormat                               = new DecimalFormat("###.0");                             //$NON-NLS-1$
    //
    private ZonedDateTime                 _tourStartTime;
    //
@@ -710,7 +710,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    /**
     * Swim style menu header item without action
     */
-   public class Action_SetSwimStyle_Header extends Action {
+   private class Action_SetSwimStyle_Header extends Action {
 
       public Action_SetSwimStyle_Header() {
 
@@ -1332,7 +1332,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
    }
 
-   public class SwimSlice_ViewerContextMenuProvider implements IContextMenuProvider {
+   private class SwimSlice_ViewerContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
@@ -1685,7 +1685,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
    }
 
-   public class TimeSlice_ViewerContextMenuProvider implements IContextMenuProvider {
+   private class TimeSlice_ViewerContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
@@ -6382,7 +6382,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     * Edit time slices values :
     * Altitude, Heartbeat, Temperature, Cadence
     */
-   public void editTimeSlicesValues() {
+   void editTimeSlicesValues() {
 
       if (isRowSelectionMode() == false) {
          return;
@@ -8066,7 +8066,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       selectTimeSlice_InViewer(startPauseIndex, startPauseIndex);
    }
 
-   public void recreateViewer() {
+   private void recreateViewer() {
 
       /*
        * Recreate time slice viewer
@@ -8472,7 +8472,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     *           Can be {@link SelectionChartXSliderPosition#IGNORE_SLIDER_POSITION} when this
     *           position should not be set.
     */
-   public void selectTimeSlice_InViewer(final int valueIndexStart, final int valueIndexEnd) {
+   private void selectTimeSlice_InViewer(final int valueIndexStart, final int valueIndexEnd) {
 
       if (valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION
             && valueIndexEnd == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
@@ -8503,10 +8503,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
 
       table.showSelection();
-   }
-
-   public void selectTimeSlicesTab() {
-      _tabFolder.setSelection(_tab_20_TimeSlices);
    }
 
    @Override
@@ -9474,7 +9470,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _tourContainer.layout(true);
    }
 
-   public void updateUI_Tab_2_TimeSlices() {
+   private void updateUI_Tab_2_TimeSlices() {
 
       if (_uiRunnableForce_TimeSliceReload) {
          _timeSlice_ViewerTourId = -1L;

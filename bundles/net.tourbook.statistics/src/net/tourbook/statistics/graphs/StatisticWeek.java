@@ -48,7 +48,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticWeek extends TourbookStatistic {
+abstract class StatisticWeek extends TourbookStatistic {
 
    private static final String      SUB_TITLE_1_LINE       = "%s … %s";                   //$NON-NLS-1$
    private static final String      SUB_TITLE_2_LINES      = "%s …\n%s";                  //$NON-NLS-1$
@@ -75,14 +75,10 @@ public abstract class StatisticWeek extends TourbookStatistic {
    private ChartDataYSerie          _athleteBodyWeight_YData;
    private ChartDataYSerie          _athleteBodyFat_YData;
 
-   public boolean canTourBeVisible() {
-      return false;
-   }
-
    /**
     * create segments for each week
     */
-   ChartStatisticSegments createChartSegments() {
+   private ChartStatisticSegments createChartSegments() {
 
       final double[] segmentStart = new double[_statNumberOfYears];
       final double[] segmentEnd = new double[_statNumberOfYears];
