@@ -4158,7 +4158,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                   .align(SWT.BEGINNING, SWT.CENTER)
                   .hint(_hintValueFieldWidth, SWT.DEFAULT)
                   .applyTo(_txtTrainingStress_SwimScore);
-
+            _txtTrainingStress_SwimScore.setEnabled(false);
 //            _txtTrainingStress_SwimScore.setMinimum(0);
 //            _txtTrainingStress_SwimScore.setMaximum(5_000);
 
