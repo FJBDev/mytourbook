@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.chart;
 
+import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.InputStream;
@@ -34,8 +35,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MenuAdapter;
@@ -159,7 +158,7 @@ public class ChartComponentGraph extends Canvas {
     * When the graph is zoomed, the chart shows only a part of the whole graph in the viewport. This
     * value contains the left border of the viewport.
     */
-   long                                _xxDevViewPortLeftBorder;
+   private long                        _xxDevViewPortLeftBorder;
 
    /**
     * ratio for the position where the chart starts on the left side within the virtual graph width
@@ -426,7 +425,7 @@ public class ChartComponentGraph extends Canvas {
    /**
     * Client area for this canvas
     */
-   Rectangle                          _clientArea;
+   private Rectangle                  _clientArea;
 
    /**
     * After a resize the custom overlay must be recomputed
@@ -666,19 +665,12 @@ public class ChartComponentGraph extends Canvas {
          }
       });
 
-      addControlListener(new ControlListener() {
+      addControlListener(controlResizedAdapter(controlEvent -> {
 
-         @Override
-         public void controlMoved(final ControlEvent e) {}
+         _clientArea = getClientArea();
 
-         @Override
-         public void controlResized(final ControlEvent e) {
-
-            _clientArea = getClientArea();
-
-            _isDisableHoveredLineValueIndex = true;
-         }
-      });
+         _isDisableHoveredLineValueIndex = true;
+      }));
 
       addListener(SWT.KeyDown, this::onKeyDown);
 
@@ -6680,7 +6672,7 @@ public class ChartComponentGraph extends Canvas {
    /**
     * @return Returns the viewport (visible width) of the chart graph
     */
-   int getDevVisibleChartWidth() {
+   private int getDevVisibleChartWidth() {
       return _chartComponents.getDevVisibleChartWidth();
    }
 
@@ -6749,7 +6741,7 @@ public class ChartComponentGraph extends Canvas {
 
       if (isAdjusted) {
 
-         // force repaining
+         // force repainting
          _isOverlayDirty = true;
       }
 
@@ -6776,16 +6768,6 @@ public class ChartComponentGraph extends Canvas {
       final long posSliderB = _xSliderB.getXXDevSliderLinePos();
 
       return posSliderA < posSliderB ? _xSliderB : _xSliderA;
-   }
-
-   ChartXSlider getSelectedSlider() {
-
-      final ChartXSlider slider = _selectedXSlider;
-
-      if (slider == null) {
-         return getLeftSlider();
-      }
-      return slider;
    }
 
    /**
@@ -6821,10 +6803,6 @@ public class ChartComponentGraph extends Canvas {
 
    double getZoomRatio() {
       return _graphZoomRatio;
-   }
-
-   double getZoomRatioLeftBorder() {
-      return _zoomRatioLeftBorder;
    }
 
    private void handleChartResize_ForSliders() {
@@ -9418,7 +9396,7 @@ public class ChartComponentGraph extends Canvas {
     *
     * @param xSlider
     */
-   void setXSliderValue_FromHoveredValuePoint(final ChartXSlider xSlider) {
+   private void setXSliderValue_FromHoveredValuePoint(final ChartXSlider xSlider) {
 
       final ChartDataXSerie xData = getXData();
 
