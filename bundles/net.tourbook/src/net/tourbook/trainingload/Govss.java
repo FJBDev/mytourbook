@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard and Contributors
+ * Copyright (C) 2022 Frédéric Bard and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -152,6 +152,7 @@ public class Govss extends TrainingStress {
     * @return The GOVSS value
     */
    public int ComputeNormalizedPace(final int startIndex, final int endIndex) {
+
       if (_tourData == null || _tourData.timeSerie == null || _tourData.timeSerie.length < 2) {
          return 0;
       }
