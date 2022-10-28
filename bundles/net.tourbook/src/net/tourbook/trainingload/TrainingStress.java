@@ -34,6 +34,7 @@ public abstract class TrainingStress {
     * @return The training stress value
     */
    public int Compute() {
+
       if (_tourData == null || _tourData.timeSerie == null || _tourData.timeSerie.length < 2) {
          return 0;
       }

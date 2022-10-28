@@ -4649,6 +4649,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    }
 
    public double computeNormalizedPace(final int startIndex, final int endIndex) {
+
       double result = 0;
 
       if (!canGovssBeComputed()) {

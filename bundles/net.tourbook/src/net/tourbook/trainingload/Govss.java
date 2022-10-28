@@ -39,7 +39,7 @@ import org.apache.commons.math3.exception.NoBracketingException;
 public class Govss extends TrainingStress {
    //TODO; When a tour has its tour type changed, if this new tour type is not in the govss list, we remove the tourid from the performancemodeling table
 
-   public Govss(final TourPerson tourPerson) {
+   Govss(final TourPerson tourPerson) {
       super(tourPerson, null);
    }
 
@@ -68,6 +68,7 @@ public class Govss extends TrainingStress {
     */
    @Override
    public int Compute(final int startIndex, final int endIndex) {
+
       if (_tourPerson == null || _tourData == null || _tourData.timeSerie == null || startIndex >= endIndex) {
          return 0;
       }
@@ -176,7 +177,7 @@ public class Govss extends TrainingStress {
     *
     * @return
     */
-   public double ComputePower(final float distance, final double slope, final float initialSpeed, final float speed) {
+   double ComputePower(final float distance, final double slope, final float initialSpeed, final float speed) {
 
       final double CAero = computeCostAerodynamicDrag(speed);
       final double Ckin = computeCostKineticEnergy(distance, initialSpeed, speed);
