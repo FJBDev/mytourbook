@@ -26,8 +26,8 @@ public class StatisticWeek_TrainingLoad extends StatisticWeek {
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
       createXData_Week(chartDataModel);
-//      createYData_PredictedPerformance(chartDataModel);
-//      createYData_TrainingStress(chartDataModel);
+      //  createYData_PredictedPerformance(chartDataModel);
+      createYData_TrainingStress(chartDataModel);
 
       return chartDataModel;
    }

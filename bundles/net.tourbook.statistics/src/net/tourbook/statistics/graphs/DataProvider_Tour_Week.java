@@ -403,7 +403,11 @@ public class DataProvider_Tour_Week extends DataProvider {
                + "   SUM(1)," + NL //                                          11 //$NON-NLS-1$
 
                + "   AVG( CASE WHEN BodyWeight = 0         THEN NULL ELSE BodyWeight END)," + NL //      12 //$NON-NLS-1$
-               + "   AVG( CASE WHEN BodyFat = 0         THEN NULL ELSE BodyFat END)" + NL //      13 //$NON-NLS-1$
+               + "   AVG( CASE WHEN BodyFat = 0         THEN NULL ELSE BodyFat END)," + NL //      13 //$NON-NLS-1$
+
+               + "   SUM(govss)," + NL //                   14  //$NON-NLS-1$
+               + "   SUM(bikeScore)," + NL //                   15  //$NON-NLS-1$
+               + "   SUM(swimScore)" + NL //                   16  //$NON-NLS-1$
 
                + fromTourData
 
@@ -435,6 +439,8 @@ public class DataProvider_Tour_Week extends DataProvider {
 
          final float[] allDbBodyWeight = new float[numAllWeeks];
          final float[] allDbBodyFat = new float[numAllWeeks];
+
+         final float[][] allDbTrainingStress = new float[numTourTypes][numAllWeeks];
 
          final PreparedStatement prepStmt = conn.prepareStatement(sql);
 
@@ -504,6 +510,8 @@ public class DataProvider_Tour_Week extends DataProvider {
             final float dbValue_BodyWeight      = result.getFloat(12) * UI.UNIT_VALUE_WEIGHT;
             final float dbValue_BodyFat         = result.getFloat(13);
 
+            final float dbValue_TrainingStress         = result.getFloat(14);
+
 // SET_FORMATTING_ON
 
             /*
@@ -543,6 +551,9 @@ public class DataProvider_Tour_Week extends DataProvider {
             if (dbValue_BodyFat > 0) {
                allDbBodyFat[weekIndex] = dbValue_BodyFat;
             }
+            if (dbValue_TrainingStress > 0) {
+               allDbTrainingStress[colorIndex][weekIndex] = dbValue_TrainingStress;
+            }
          }
 
          _tourWeekData.years = allYear_Numbers;
@@ -574,6 +585,9 @@ public class DataProvider_Tour_Week extends DataProvider {
          _tourWeekData.athleteBodyWeight_High = allDbBodyWeight;
          _tourWeekData.athleteBodyFat_Low = new float[numAllWeeks];
          _tourWeekData.athleteBodyFat_High = allDbBodyFat;
+
+         _tourWeekData.trainingStress_Low = new float[numTourTypes][numAllWeeks];
+         _tourWeekData.trainingStress_High = allDbTrainingStress;
 
       } catch (final SQLException e) {
          SQL.showException(e, sql);

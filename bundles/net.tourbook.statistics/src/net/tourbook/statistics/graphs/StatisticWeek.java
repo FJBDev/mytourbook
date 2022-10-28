@@ -402,6 +402,24 @@ public abstract class StatisticWeek extends TourbookStatistic {
       chartDataModel.addYData(yData);
    }
 
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Week.trainingStress_Low,
+            _statisticData_Week.trainingStress_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
    abstract ChartDataModel getChartDataModel();
 
    @Override
