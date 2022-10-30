@@ -1919,13 +1919,13 @@ public class TourInfoUI {
        * Training Stress
        */
       // BikeScore
-      final int bikeScore = _tourData.getBikeScore();
+      final int bikeScore = _tourData.getTrainingStress_BikeScore();
       _lblBikeScore.setText(String.valueOf(bikeScore));
       // GOVSS
-      final int govss = _tourData.getGovss();
+      final int govss = _tourData.getTrainingStress_Govss();
       _lblGovss.setText(String.valueOf(govss));
       // SwimScore
-      final int swimScore = _tourData.getSwimScore();
+      final int swimScore = _tourData.getTrainingStress_SwimScore();
       _lblSwimScore.setText(String.valueOf(swimScore));
 
       // calories

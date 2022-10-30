@@ -190,7 +190,7 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
 
       final Float trainingStressScore = mesg.getTrainingStressScore();
       if (trainingStressScore != null) {
-         tourData.setPower_TrainingStressScore(trainingStressScore);
+         tourData.setTrainingStress_Device(trainingStressScore);
       }
 
       final Float intensityFactor = mesg.getIntensityFactor();

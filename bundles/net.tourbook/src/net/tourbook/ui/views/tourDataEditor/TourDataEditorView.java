@@ -9196,10 +9196,10 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * Training Stress
        */
-      _txtTrainingStress_Device.setSelection((int) _tourData.getPower_TrainingStressScore());
-      _txtTrainingStress_Govss.setSelection(_tourData.getGovss());
-      _txtTrainingStress_BikeScore.setSelection(_tourData.getBikeScore());
-      _txtTrainingStress_SwimScore.setSelection(_tourData.getSwimScore());
+      _txtTrainingStress_Device.setSelection((int) _tourData.getTrainingStress_Device());
+      _txtTrainingStress_Govss.setSelection(_tourData.getTrainingStress_Govss());
+      _txtTrainingStress_BikeScore.setSelection(_tourData.getTrainingStress_BikeScore());
+      _txtTrainingStress_SwimScore.setSelection(_tourData.getTrainingStress_SwimScore());
 
       /*
        * wind properties

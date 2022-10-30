@@ -619,17 +619,17 @@ public class PrefPageGovss extends PrefPageTrainingStressModel {
          public boolean computeTourValues(final TourData originalTourData, final PreparedStatement sqlUpdateStatement) throws SQLException {
 
             // keep old values
-            total_Old_GovssValues[0] += originalTourData.getGovss();
+            total_Old_GovssValues[0] += originalTourData.getTrainingStress_Govss();
 
             if (!originalTourData.computeGovss()) {
                return false;
             }
 
-            total_New_GovssValues[0] += originalTourData.getGovss();
+            total_New_GovssValues[0] += originalTourData.getTrainingStress_Govss();
             ++total_New_ToursWithGovssValues[0];
 
             // update govss in the database
-            sqlUpdateStatement.setInt(1, originalTourData.getGovss());
+            sqlUpdateStatement.setInt(1, originalTourData.getTrainingStress_Govss());
             sqlUpdateStatement.setLong(2, originalTourData.getTourId());
 
             return true;

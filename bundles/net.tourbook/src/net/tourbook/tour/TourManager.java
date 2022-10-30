@@ -718,7 +718,7 @@ public class TourManager {
          } else {
 
             // update GOVSS values in the database
-            stmtUpdate.setInt(1, tourData.getGovss());
+            stmtUpdate.setInt(1, tourData.getTrainingStress_Govss());
             stmtUpdate.setLong(2, tourData.getTourId());
 
             stmtUpdate.executeUpdate();

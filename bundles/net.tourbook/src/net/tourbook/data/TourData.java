@@ -596,7 +596,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /** Total work in Joule */
    private long                  power_TotalWork;
-   private float                 power_TrainingStressScore;
+   private float                 trainingStress_Device;
    private float                 power_IntensityFactor;
 
    private int                   power_PedalLeftRightBalance;
@@ -711,17 +711,17 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    /**
     * GOVSS (Gravity Ordered Velocity Stress Score)
     */
-   private int                govss;
+   private int                trainingStress_Govss;
 
    /**
     * BikeScore
     */
-   private int                bikeScore;
+   private int                trainingStress_BikeScore;
 
    /**
     * SwimScore
     */
-   private int                swimScore;
+   private int                trainingStress_SwimScore;
 
 
    // ############################################# MERGED DATA #############################################
@@ -1878,7 +1878,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
             !tourPerson.isTourTypeForTrainingStress(TrainingStressType.BIKESCORE, tourType.getTypeId())) {
          //In case the govss was previously computed and the tour is not considered a tour for
          //which the govss should be computed anymore
-         setBikeScore(0);
+         setTrainingStress_BikeScore(0);
          return false;
       }
 
@@ -1897,7 +1897,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
             !tourPerson.isTourTypeForTrainingStress(TrainingStressType.GOVSS, tourType.getTypeId())) {
          //In case the govss was previously computed and the tour is not considered a tour for
          //which the govss should be computed anymore
-         setGovss(0);
+         setTrainingStress_Govss(0);
          return false;
 
       }
@@ -4484,7 +4484,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
          return false;
       }
 
-      setGovss(new Govss(tourPerson, this).Compute());
+      setTrainingStress_Govss(new Govss(tourPerson, this).Compute());
 
       return true;
    }
@@ -7677,8 +7677,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return battery_Time;
    }
 
-   public int getBikeScore() {
-      return bikeScore;
+   public int getTrainingStress_BikeScore() {
+      return trainingStress_BikeScore;
    }
 
    /**
@@ -8165,8 +8165,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return _geoBounds;
    }
 
-   public int getGovss() {
-      return govss;
+   public int getTrainingStress_Govss() {
+      return trainingStress_Govss;
    }
 
    /**
@@ -8746,8 +8746,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return power_TotalWork;
    }
 
-   public float getPower_TrainingStressScore() {
-      return power_TrainingStressScore;
+   public float getTrainingStress_Device() {
+      return trainingStress_Device;
    }
 
    public float[] getPowerSerie() {
@@ -9568,8 +9568,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return _swim_Swolf;
    }
 
-   public int getSwimScore() {
-      return swimScore;
+   public int getTrainingStress_SwimScore() {
+      return trainingStress_SwimScore;
    }
 
    /**
@@ -10757,8 +10757,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.battery_Time = battery_Time;
    }
 
-   public void setBikeScore(final int bikeScore) {
-      this.bikeScore = bikeScore;
+   public void setTrainingStress_BikeScore(final int bikeScore) {
+      this.trainingStress_BikeScore = bikeScore;
    }
 
    /**
@@ -11005,8 +11005,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.rearShiftCount = rearShifts;
    }
 
-   public void setGovss(final int govss) {
-      this.govss = govss;
+   public void setTrainingStress_Govss(final int govss) {
+      this.trainingStress_Govss = govss;
    }
 
    /**
@@ -11332,8 +11332,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.power_TotalWork = totalWork;
    }
 
-   public void setPower_TrainingStressScore(final float trainingStressScore) {
-      this.power_TrainingStressScore = trainingStressScore;
+   public void setTrainingStress_Device(final float trainingStressScore) {
+      this.trainingStress_Device = trainingStressScore;
    }
 
    /**
@@ -11554,8 +11554,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.surfing_NumberOfEvents = surfing_NumberOfEvents;
    }
 
-   public void setSwimScore(final int swimScore) {
-      this.swimScore = swimScore;
+   public void setTrainingStress_SwimScore(final int swimScore) {
+      this.trainingStress_SwimScore = swimScore;
    }
 
    /**

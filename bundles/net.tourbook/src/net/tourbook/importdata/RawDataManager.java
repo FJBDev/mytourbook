@@ -740,9 +740,9 @@ public class RawDataManager {
       if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
 
          previousData.add(
-               String.valueOf(Math.round(oldTourData.getPower_TrainingStressScore())));
+               String.valueOf(Math.round(oldTourData.getTrainingStress_Device())));
          newData.add(
-               String.valueOf(Math.round(newTourData.getPower_TrainingStressScore())));
+               String.valueOf(Math.round(newTourData.getTrainingStress_Device())));
       }
 
       if (isEntireTour || tourValueType == TourValueType.TOUR__IMPORT_FILE_LOCATION) {
@@ -1437,7 +1437,7 @@ public class RawDataManager {
 
             if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
 
-               tourDataDummyClone.setPower_TrainingStressScore(oldTourData.getPower_TrainingStressScore());
+               tourDataDummyClone.setTrainingStress_Device(oldTourData.getTrainingStress_Device());
             }
 
             /*
@@ -3383,7 +3383,7 @@ public class RawDataManager {
 
             if (tourValueTypes.contains(TourValueType.TOUR__TRAINING_STRESS_SCORE)) {
 
-               oldTourData.setPower_TrainingStressScore(reimportedTourData.getPower_TrainingStressScore());
+               oldTourData.setTrainingStress_Device(reimportedTourData.getTrainingStress_Device());
             }
 
             if (tourValueTypes.contains(TourValueType.TOUR__IMPORT_FILE_LOCATION)) {
@@ -3510,7 +3510,7 @@ public class RawDataManager {
             oldTourData.setPower_FTP(                          reimportedTourData.getPower_FTP());
 
             oldTourData.setPower_TotalWork(                    reimportedTourData.getPower_TotalWork());
-            oldTourData.setPower_TrainingStressScore(          reimportedTourData.getPower_TrainingStressScore());
+            oldTourData.setTrainingStress_Device(          reimportedTourData.getTrainingStress_Device());
             oldTourData.setPower_IntensityFactor(              reimportedTourData.getPower_IntensityFactor());
 
             oldTourData.setPower_PedalLeftRightBalance(        reimportedTourData.getPower_PedalLeftRightBalance());
