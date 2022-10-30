@@ -9420,9 +9420,9 @@ public class TourDatabase {
       // SET_FORMATTING_OFF
 
                   // Add new columns
-                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "govss", DEFAULT_0);//$NON-NLS-1$
-                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "bikeScore", DEFAULT_0);//$NON-NLS-1$
-                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "swimScore", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_govss", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_bikeScore", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_swimScore", DEFAULT_0);//$NON-NLS-1$
                   SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
                   SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
                   SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
@@ -9430,6 +9430,8 @@ public class TourDatabase {
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                 // SQL.RenameCol(stmt,     TABLE_TOUR_DATA, RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
+                  SQL.RenameCol(stmt,     TABLE_TOUR_DATA, "power_TrainingStressScore",    "trainingStress_Device");
 
 // SET_FORMATTING_ON
          }
