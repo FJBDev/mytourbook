@@ -4016,7 +4016,7 @@ public class TourDatabase {
             + " power_FTP                             INTEGER DEFAULT 0,                  " + NL //$NON-NLS-1$
 
             + " power_TotalWork                       BIGINT DEFAULT 0,                   " + NL //$NON-NLS-1$
-            + " power_TrainingStressScore             FLOAT DEFAULT 0,                    " + NL //$NON-NLS-1$
+            + " trainingStress_Device                 FLOAT DEFAULT 0,                    " + NL //$NON-NLS-1$
             + " power_IntensityFactor                 FLOAT DEFAULT 0,                    " + NL //$NON-NLS-1$
 
             + " power_PedalLeftRightBalance           INTEGER DEFAULT 0,                  " + NL //$NON-NLS-1$
