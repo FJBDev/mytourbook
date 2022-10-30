@@ -262,6 +262,8 @@ public class TourDatabase {
    private static final String RENAMED__TOUR_MIN_TEMPERATURE__INTO        = "weather_Temperature_Min_Device";                       //$NON-NLS-1$
    private static final String RENAMED__TOUR_ISWEATHERDATAFROMAPI__FROM   = "isWeatherDataFromApi";                                 //$NON-NLS-1$
    private static final String RENAMED__TOUR_ISWEATHERDATAFROMAPI__INTO   = "isWeatherDataFromProvider";                            //$NON-NLS-1$
+   private static final String RENAMED__TOUR_TRAININGSTRESS_DEVICE__FROM  = "power_TrainingStressScore";                            //$NON-NLS-1$
+   private static final String RENAMED__TOUR_TRAININGSTRESS_DEVICE__INTO  = "trainingStress_Device";                                //$NON-NLS-1$
    private static final String RENAMED__TOUR_WEATHER_CLOUDS__FROM         = "weatherClouds";                                        //$NON-NLS-1$
    private static final String RENAMED__TOUR_WEATHER_CLOUDS__INTO         = "weather_Clouds";                                       //$NON-NLS-1$
    private static final String RENAMED__TOUR_WEATHER_WIND_DIRECTION__FROM = "weatherWindDir";                                       //$NON-NLS-1$
@@ -9430,8 +9432,7 @@ public class TourDatabase {
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
                   SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
-                 // SQL.RenameCol(stmt,     TABLE_TOUR_DATA, RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
-                  SQL.RenameCol(stmt,     TABLE_TOUR_DATA, "power_TrainingStressScore",    "trainingStress_Device");
+                  SQL.RenameCol(stmt,     TABLE_TOUR_DATA, RENAMED__TOUR_TRAININGSTRESS_DEVICE__FROM,    RENAMED__TOUR_TRAININGSTRESS_DEVICE__INTO);
 
 // SET_FORMATTING_ON
          }
