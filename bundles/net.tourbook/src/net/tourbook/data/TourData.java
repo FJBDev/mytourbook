@@ -596,7 +596,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    /** Total work in Joule */
    private long                  power_TotalWork;
-   private float                 trainingStress_Device;
    private float                 power_IntensityFactor;
 
    private int                   power_PedalLeftRightBalance;
@@ -707,6 +706,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
    private short                  isStrideSensorPresent            = 0;
 
    // ############################################# TRAINING STRESS DATA #############################################
+
+   private float              trainingStress_Device;
 
    /**
     * GOVSS (Gravity Ordered Velocity Stress Score)
@@ -7677,10 +7678,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return battery_Time;
    }
 
-   public int getTrainingStress_BikeScore() {
-      return trainingStress_BikeScore;
-   }
-
    /**
     * @return Returns the body fat.
     */
@@ -8163,10 +8160,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       }
 
       return _geoBounds;
-   }
-
-   public int getTrainingStress_Govss() {
-      return trainingStress_Govss;
    }
 
    /**
@@ -8744,10 +8737,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public long getPower_TotalWork() {
       return power_TotalWork;
-   }
-
-   public float getTrainingStress_Device() {
-      return trainingStress_Device;
    }
 
    public float[] getPowerSerie() {
@@ -9568,10 +9557,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       return _swim_Swolf;
    }
 
-   public int getTrainingStress_SwimScore() {
-      return trainingStress_SwimScore;
-   }
-
    /**
     * Used for MT import/export
     *
@@ -10004,6 +9989,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public float getTraining_TrainingPerformance() {
       return training_TrainingPerformance;
+   }
+
+   public int getTrainingStress_BikeScore() {
+      return trainingStress_BikeScore;
+   }
+
+   public float getTrainingStress_Device() {
+      return trainingStress_Device;
+   }
+
+   public int getTrainingStress_Govss() {
+      return trainingStress_Govss;
+   }
+
+   public int getTrainingStress_SwimScore() {
+      return trainingStress_SwimScore;
    }
 
    /**
@@ -10757,10 +10758,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.battery_Time = battery_Time;
    }
 
-   public void setTrainingStress_BikeScore(final int bikeScore) {
-      this.trainingStress_BikeScore = bikeScore;
-   }
-
    /**
     * @param bodyFat
     *           Sets the body fat.
@@ -11003,10 +11000,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
       this.frontShiftCount = frontShifts;
       this.rearShiftCount = rearShifts;
-   }
-
-   public void setTrainingStress_Govss(final int govss) {
-      this.trainingStress_Govss = govss;
    }
 
    /**
@@ -11332,10 +11325,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
       this.power_TotalWork = totalWork;
    }
 
-   public void setTrainingStress_Device(final float trainingStressScore) {
-      this.trainingStress_Device = trainingStressScore;
-   }
-
    /**
     * Sets the power data serie and set's a flag that the data serie is from a device
     *
@@ -11552,10 +11541,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public void setSurfing_NumberOfEvents(final short surfing_NumberOfEvents) {
       this.surfing_NumberOfEvents = surfing_NumberOfEvents;
-   }
-
-   public void setTrainingStress_SwimScore(final int swimScore) {
-      this.trainingStress_SwimScore = swimScore;
    }
 
    /**
@@ -11900,6 +11885,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Cloneable
 
    public void setTraining_TrainingPerformance(final float trainingPerformance) {
       this.training_TrainingPerformance = trainingPerformance;
+   }
+
+   public void setTrainingStress_BikeScore(final int bikeScore) {
+      this.trainingStress_BikeScore = bikeScore;
+   }
+
+   public void setTrainingStress_Device(final float trainingStressScore) {
+      this.trainingStress_Device = trainingStressScore;
+   }
+
+   public void setTrainingStress_Govss(final int govss) {
+      this.trainingStress_Govss = govss;
+   }
+
+   public void setTrainingStress_SwimScore(final int swimScore) {
+      this.trainingStress_SwimScore = swimScore;
    }
 
    public void setupHistoryTour() {
