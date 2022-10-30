@@ -4151,9 +4151,9 @@ public class TourDatabase {
 
             //version 4X start  -  21.XX
             //
-            + " govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
-            + " bikeScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
-            + " swimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " trainingStress_Govss                  INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " trainingStress_BikeScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
+            + " trainingStress_SwimScore              INTEGER DEFAULT 0,                  \n" //$NON-NLS-1$
             //
             // version 4X end
 
