@@ -650,7 +650,7 @@ public class NatTable_DataLoader {
     * @return Returns the tour index but only when it was already fetched (which was done for
     *         displayed tour), otherwise -1.
     */
-   public int getFetchedTourIndex(final long tourId) {
+   int getFetchedTourIndex(final long tourId) {
 
       final Integer rowIndex = _fetchedTourIndex.get(tourId);
       if (rowIndex == null) {
@@ -884,7 +884,7 @@ public class NatTable_DataLoader {
       case TableColumnFactory.TRAINING_FTP_ID:                       return "power_FTP";                                   //$NON-NLS-1$
       case TableColumnFactory.TRAINING_INTENSITY_FACTOR_ID:          return "power_IntensityFactor";                       //$NON-NLS-1$
       case TableColumnFactory.TRAINING_POWER_TO_WEIGHT_ID:           return FIELD_WITHOUT_SORTING;
-      case TableColumnFactory.TRAINING_STRESS_SCORE_ID:              return "power_TrainingStressScore";                   //$NON-NLS-1$
+      case TableColumnFactory.TRAINING_STRESS_SCORE_ID:              return "trainingStress_Device";                   //$NON-NLS-1$
       case TableColumnFactory.TRAINING_PERFORMANCE_LEVEL_ID:         return "training_TrainingPerformance";                //$NON-NLS-1$
 
       /*
