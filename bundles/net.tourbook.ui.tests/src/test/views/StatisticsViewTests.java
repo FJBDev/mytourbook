@@ -36,7 +36,7 @@ public class StatisticsViewTests extends UITest {
       bot.sleep(3000);
 
       final SWTBotCombo statisticsTypeComboBox = statisticsViewBot.comboBox(0);
-      assertEquals(27, statisticsTypeComboBox.itemCount());
+      assertEquals(31, statisticsTypeComboBox.itemCount());
       assertNotNull(statisticsTypeComboBox);
       statisticsTypeComboBox.setSelection(0);
       assertEquals("Daytime", statisticsTypeComboBox.selection()); //$NON-NLS-1$
