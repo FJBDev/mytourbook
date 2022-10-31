@@ -282,7 +282,11 @@ class DataProvider_Tour_Year extends DataProvider {
                   + "      TourAltUp," + NL //                                                   //$NON-NLS-1$
 
                   + "      BodyWeight,         " + NL //       //$NON-NLS-1$
-                  + "      BodyFat          " + NL //       //$NON-NLS-1$
+                  + "      BodyFat,         " + NL //       //$NON-NLS-1$
+
+                  + "      trainingStress_Govss," + NL //                   //$NON-NLS-1$
+                  + "      trainingStress_BikeScore," + NL //                   //$NON-NLS-1$
+                  + "      trainingStress_SwimScore" + NL //                   //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                           //$NON-NLS-1$
 
