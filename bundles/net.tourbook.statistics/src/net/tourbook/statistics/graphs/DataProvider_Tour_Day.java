@@ -360,9 +360,9 @@ class DataProvider_Tour_Day extends DataProvider {
                + "   BodyWeight,         " + NL //      19 //$NON-NLS-1$
                + "   BodyFat,          " + NL //      20 //$NON-NLS-1$
 
-               + "   Govss,          " + NL //      21 //$NON-NLS-1$
-               + "   BikeScore,          " + NL //      22 //$NON-NLS-1$
-               + "   SwimScore          " + NL //      23 //$NON-NLS-1$
+               + "   trainingStress_Govss,          " + NL //      21 //$NON-NLS-1$
+               + "   trainingStress_BikeScore,          " + NL //      22 //$NON-NLS-1$
+               + "   trainingStress_SwimScore          " + NL //      23 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 

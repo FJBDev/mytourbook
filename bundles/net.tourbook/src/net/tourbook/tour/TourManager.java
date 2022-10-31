@@ -325,7 +325,7 @@ public class TourManager {
 
          + " SET"                                                                         //                                     //$NON-NLS-1$
 
-         + " govss=? "                                                                    //                //$NON-NLS-1$
+         + " trainingStress_Govss=? "                                                                                  //                //$NON-NLS-1$
 
          + " WHERE tourId=?";                                                             //                        //$NON-NLS-1$
    //

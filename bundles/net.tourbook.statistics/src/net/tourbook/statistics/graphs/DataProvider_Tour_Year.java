@@ -332,9 +332,9 @@ class DataProvider_Tour_Year extends DataProvider {
                + "   AVG( CASE WHEN BodyWeight = 0         THEN NULL ELSE BodyWeight END)," + NL //      11 //$NON-NLS-1$
                + "   AVG( CASE WHEN BodyFat = 0         THEN NULL ELSE BodyFat END)," + NL //      12 //$NON-NLS-1$
 
-               + "   SUM(govss)," + NL //                   13  //$NON-NLS-1$
-               + "   SUM(bikeScore)," + NL //                   14  //$NON-NLS-1$
-               + "   SUM(swimScore)" + NL //                   15  //$NON-NLS-1$
+               + "   SUM(trainingStress_Govss)," + NL //                   13  //$NON-NLS-1$
+               + "   SUM(trainingStress_bikeScore)," + NL //                   14  //$NON-NLS-1$
+               + "   SUM(trainingStress_swimScore)" + NL //                   15  //$NON-NLS-1$
 
                + fromTourData
 

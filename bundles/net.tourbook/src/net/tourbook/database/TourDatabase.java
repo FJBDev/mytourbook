@@ -9417,7 +9417,7 @@ public class TourDatabase {
       final Statement stmt = conn.createStatement();
       {
          // check if db is updated to version 48
-         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "govss") == false) { //$NON-NLS-1$
+         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "trainingStress_Govss") == false) { //$NON-NLS-1$
 
       // SET_FORMATTING_OFF
 
