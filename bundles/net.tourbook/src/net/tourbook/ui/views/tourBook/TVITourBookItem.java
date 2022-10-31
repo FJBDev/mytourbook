@@ -114,7 +114,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "power_FTP, " //                                    38    //$NON-NLS-1$
 
             + "power_TotalWork, " //                              39    //$NON-NLS-1$
-            + "trainingStress_Device, " //                    40    //$NON-NLS-1$
+            + "trainingStress_Device, " //                        40    //$NON-NLS-1$
             + "power_IntensityFactor, " //                        41    //$NON-NLS-1$
 
             + "power_PedalLeftRightBalance, " //                  42    //$NON-NLS-1$
