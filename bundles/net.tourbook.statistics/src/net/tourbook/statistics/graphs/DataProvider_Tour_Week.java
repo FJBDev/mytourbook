@@ -354,7 +354,10 @@ class DataProvider_Tour_Week extends DataProvider {
                   + "      TourType_TypeId," + NL //                                                      //$NON-NLS-1$
 
                   + "      BodyWeight,         " + NL //       //$NON-NLS-1$
-                  + "      BodyFat          " + NL //       //$NON-NLS-1$
+                  + "      BodyFat,         " + NL //       //$NON-NLS-1$
+                  + "      trainingStress_Govss," + NL //                   14  //$NON-NLS-1$
+                  + "      trainingStress_BikeScore," + NL //                   15  //$NON-NLS-1$
+                  + "      trainingStress_SwimScore" + NL //                   16  //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                                    //$NON-NLS-1$
 
