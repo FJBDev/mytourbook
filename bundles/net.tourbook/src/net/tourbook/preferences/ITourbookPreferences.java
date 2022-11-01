@@ -148,6 +148,7 @@ public interface ITourbookPreferences {
     */
    public static final String STAT_TRAINING_MODEL_DEVICE = "STAT_TRAINING_MODEL_DEVICE"; //$NON-NLS-1$
    public static final String STAT_TRAINING_MODEL_SKIBA  = "STAT_TRAINING_MODEL_SKIBA";  //$NON-NLS-1$
+   public static final String STAT_TRAINING_MODEL_TRIMP  = "STAT_TRAINING_MODEL_TRIMP";  //$NON-NLS-1$
 
    /*
     * Graphs

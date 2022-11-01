@@ -165,7 +165,7 @@ public class Govss extends TrainingStress {
       //TODO Temp code until i figure out where I display the normalized pace
       final float lactateNormalizedPower = 0f;
       final double paceInSeconds = tryComputeNormalizedPace(lactateNormalizedPower);
-      final double pace = 1609 / paceInSeconds;
+      final double pace = paceInSeconds == 0 ? 0 : 1609 / paceInSeconds;
 //      final String nPace = UI.format_mm_ss((long) pace);
 //      System.out.println("Normalized pace min/mile = " + nPace);
 

@@ -41,7 +41,7 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
 
          // observe which data are displayed
          if (property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE)
-               || property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE)
+               || property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_TRIMP)
 
                || property.equals(ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA)
 

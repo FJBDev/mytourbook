@@ -305,8 +305,8 @@ public class TourManager {
     */
    private static TourDataEditorView       _tourDataEditorInstance;
    //
-   private static LabelProviderMMSS       _labelProviderMMSS    = new LabelProviderMMSS();
-   private static LabelProviderInt        _labelProviderInt     = new LabelProviderInt();
+   private static LabelProviderMMSS        _labelProviderMMSS    = new LabelProviderMMSS();
+   private static LabelProviderInt         _labelProviderInt     = new LabelProviderInt();
    //
    private static volatile TourData        _joined_TourData;
    private static int                      _joined_TourIds_Hash;
@@ -319,37 +319,37 @@ public class TourManager {
    private static ArrayBlockingQueue<Long> _loadingTour_Queue    = new ArrayBlockingQueue<>(Util.NUMBER_OF_PROCESSORS);
    private static CountDownLatch           _loadingTour_CountDownLatch;
    //
-   public static final String             govss_StatementUpdate = UI.EMPTY_STRING
+   public static final String              govss_StatementUpdate = UI.EMPTY_STRING
 
-         + "UPDATE " + TourDatabase.TABLE_TOUR_DATA                                       //   //$NON-NLS-1$
+         + "UPDATE " + TourDatabase.TABLE_TOUR_DATA                                                                    //   //$NON-NLS-1$
 
-         + " SET"                                                                         //                                     //$NON-NLS-1$
+         + " SET"                                                                                                      //                                     //$NON-NLS-1$
 
          + " trainingStress_Govss=? "                                                                                  //                //$NON-NLS-1$
 
-         + " WHERE tourId=?";                                                             //                        //$NON-NLS-1$
+         + " WHERE tourId=?";                                                                                          //                        //$NON-NLS-1$
    //
-   private ComputeChartValue   _computeAvg_Altimeter;
-   private ComputeChartValue   _computeAvg_Altitude;
-   private ComputeChartValue   _computeAvg_Cadence;
-   private ComputeChartValue   _computeAvg_Gradient;
-   private ComputeChartValue   _computeAvg_Pace;
-   private ComputeChartValue   _computeAvg_Power;
-   private ComputeChartValue   _computeAvg_Pulse;
-   private ComputeChartValue   _computeAvg_Speed;
+   private ComputeChartValue               _computeAvg_Altimeter;
+   private ComputeChartValue               _computeAvg_Altitude;
+   private ComputeChartValue               _computeAvg_Cadence;
+   private ComputeChartValue               _computeAvg_Gradient;
+   private ComputeChartValue               _computeAvg_Pace;
+   private ComputeChartValue               _computeAvg_Power;
+   private ComputeChartValue               _computeAvg_Pulse;
+   private ComputeChartValue               _computeAvg_Speed;
    //
-   private ComputeChartValue   _computeAvg_RunDyn_StanceTime;
-   private ComputeChartValue   _computeAvg_RunDyn_StanceTimeBalance;
-   private ComputeChartValue   _computeAvg_RunDyn_StepLength;
-   private ComputeChartValue   _computeAvg_RunDyn_VerticalOscillation;
-   private ComputeChartValue   _computeAvg_RunDyn_VerticalRatio;
+   private ComputeChartValue               _computeAvg_RunDyn_StanceTime;
+   private ComputeChartValue               _computeAvg_RunDyn_StanceTimeBalance;
+   private ComputeChartValue               _computeAvg_RunDyn_StepLength;
+   private ComputeChartValue               _computeAvg_RunDyn_VerticalOscillation;
+   private ComputeChartValue               _computeAvg_RunDyn_VerticalRatio;
    //
-   private final TourDataCache _tourDataCache;
+   private final TourDataCache             _tourDataCache;
 
    /**
     * tour chart which shows the selected tour
     */
-   private TourChart           _activeTourChart;
+   private TourChart                       _activeTourChart;
 
    private static class LabelProviderInt implements IValueLabelProvider {
 
@@ -702,37 +702,40 @@ public class TourManager {
                                       final List<TourData> selectedTours) throws SQLException {
       boolean isUpdated = false;
 
-      final PreparedStatement stmtUpdate = conn.prepareStatement(govss_StatementUpdate);
+      try (PreparedStatement stmtUpdate = conn.prepareStatement(govss_StatementUpdate)) {
 
-      int numComputedTour = 0;
-      int numNotComputedTour = 0;
+         int numComputedTour = 0;
+         int numNotComputedTour = 0;
 
-      // loop over all tours and compute the GOVSS value
-      for (final TourData tourData : selectedTours) {
+         // loop over all tours and compute the GOVSS value
+         for (final TourData tourData : selectedTours) {
 
-         final boolean govssComputed = tourData.computeGovss();
-         if (!govssComputed) {
+            final boolean govssComputed = tourData.computeGovss();
+            if (!govssComputed) {
 
-            numNotComputedTour++;
+               numNotComputedTour++;
 
-         } else {
+            } else {
 
-            // update GOVSS values in the database
-            stmtUpdate.setInt(1, tourData.getTrainingStress_Govss());
-            stmtUpdate.setLong(2, tourData.getTourId());
+               // update GOVSS values in the database
+               stmtUpdate.setInt(1, tourData.getTrainingStress_Govss());
+               stmtUpdate.setLong(2, tourData.getTourId());
 
-            stmtUpdate.executeUpdate();
+               stmtUpdate.executeUpdate();
 
-            isUpdated = true;
-            numComputedTour++;
+               isUpdated = true;
+               numComputedTour++;
+            }
          }
-      }
 
-      TourLogManager.addSubLog(TourLogState.OK, NLS.bind(Messages.Log_ComputeGovss_010_Success, numComputedTour));
+         TourLogManager.addSubLog(TourLogState.OK, NLS.bind(Messages.Log_ComputeGovss_010_Success, numComputedTour));
 
-      if (numNotComputedTour >= 0) {
-         TourLogManager.addSubLog(TourLogState.ERROR,
-               NLS.bind(Messages.Log_ComputeGovss_011_NoSuccess, numNotComputedTour));
+         if (numNotComputedTour >= 0) {
+            TourLogManager.addSubLog(TourLogState.ERROR,
+                  NLS.bind(Messages.Log_ComputeGovss_011_NoSuccess, numNotComputedTour));
+         }
+      } catch (final SQLException e) {
+         StatusUtil.log(e);
       }
 
       return isUpdated;
