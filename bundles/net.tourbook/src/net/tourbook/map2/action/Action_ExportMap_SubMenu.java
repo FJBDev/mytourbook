@@ -17,6 +17,8 @@ package net.tourbook.map2.action;
 
 import static org.eclipse.swt.events.MenuListener.menuShownAdapter;
 
+import net.tourbook.map.ActionExportMapViewClipboard;
+import net.tourbook.map.ActionExportMapViewImage;
 import net.tourbook.map2.Messages;
 import net.tourbook.map2.view.Map2View;
 

@@ -2451,9 +2451,6 @@ public class Map2View extends ViewPart implements
       return _filteredPhotos;
    }
 
-<<<<<<< HEAD
-   public Map getMap() {
-=======
    public Long getHoveredTourId() {
 
       return _map.getHoveredTourId();
@@ -2468,7 +2465,6 @@ public class Map2View extends ViewPart implements
    }
 
    public Map2 getMap() {
->>>>>>> refs/remotes/Wolfgang/main
       return _map;
    }
 

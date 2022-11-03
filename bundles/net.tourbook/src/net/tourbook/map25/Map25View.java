@@ -266,30 +266,8 @@ public class Map25View extends ViewPart implements
    /**
     * Contains photos which are displayed in the map
     */
-<<<<<<< HEAD
-   //  private final ArrayList<Photo>        _filteredPhotos = new ArrayList<>();
-   // private List<MarkerItem>              _photoItems     = new ArrayList<>();
-=======
    private ArrayList<Photo>              _allPhotos                              = new ArrayList<>();
->>>>>>> refs/remotes/Wolfgang/main
 
-<<<<<<< HEAD
-   private ArrayList<Photo>              _allPhotos      = new ArrayList<>();
-   private List<MarkerInterface>         _photo_pts      = new ArrayList<>();
-   //  private boolean                       _isPhotoFilterActive;
-   // private int                           _photoFilterRatingStars;
-//   private int                           _photoFilterRatingStarOperator;
-
-   //  private MarkerSymbol                  _symbol;
-   //  private float                         _symbolSize     = 20f;
-   //  private int                           _symbolSizeInt  = 20;
-   //  private Bitmap                        _bitmapPhoto;
-//   private Bitmap                        _bitmapStar;
-
-   private int     _leftSliderValueIndex;
-   private int     _rightSliderValueIndex;
-   private int     _selectedSliderValueIndex;
-=======
    private final ArrayList<Photo>        _filteredPhotos                         = new ArrayList<>();
    //
    private boolean                       _isPhotoFilterActive;
@@ -299,7 +277,6 @@ public class Map25View extends ViewPart implements
    private int                           _leftSliderValueIndex;
    private int                           _rightSliderValueIndex;
    private int                           _selectedSliderValueIndex;
->>>>>>> refs/remotes/Wolfgang/main
    //
 <<<<<<< HEAD
    private int     _hash_AllPhotos;
