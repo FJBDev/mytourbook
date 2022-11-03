@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package net.tourbook.ui.views.calendar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -39,6 +40,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourManager;
+import net.tourbook.weather.WeatherUtils;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.ListenerList;
@@ -101,19 +103,19 @@ public class CalendarProfileManager {
    private static final String    TAG_ALTERNATE_MONTH2_RGB               = "AlternateMonth2RGB";        //$NON-NLS-1$
    private static final String    TAG_CALENDAR_BACKGROUND_RGB            = "CalendarBackgroundRGB";     //$NON-NLS-1$
    private static final String    TAG_CALENDAR_FOREGROUND_RGB            = "CalendarForegroundRGB";     //$NON-NLS-1$
-   private static final String    TAG_DAY_HOVERED_RGB                    = "DayHoveredRGB";             //$NON-NLS-1$;
-   private static final String    TAG_DAY_SELECTED_RGB                   = "DaySelectedRGB";            //$NON-NLS-1$;
+   private static final String    TAG_DAY_HOVERED_RGB                    = "DayHoveredRGB";             //$NON-NLS-1$
+   private static final String    TAG_DAY_SELECTED_RGB                   = "DaySelectedRGB";            //$NON-NLS-1$
    private static final String    TAG_DAY_TODAY_RGB                      = "DayTodayRGB";               //$NON-NLS-1$
    private static final String    TAG_FORMATTER                          = "Formatter";                 //$NON-NLS-1$
-   private static final String    TAG_TOUR_BACKGROUND_1_RGB              = "TourBackground1RGB";        //$NON-NLS-1$;
-   private static final String    TAG_TOUR_BACKGROUND_2_RGB              = "TourBackground2RGB";        //$NON-NLS-1$;
-   private static final String    TAG_TOUR_BORDER_RGB                    = "TourBorderRGB";             //$NON-NLS-1$;
+   private static final String    TAG_TOUR_BACKGROUND_1_RGB              = "TourBackground1RGB";        //$NON-NLS-1$
+   private static final String    TAG_TOUR_BACKGROUND_2_RGB              = "TourBackground2RGB";        //$NON-NLS-1$
+   private static final String    TAG_TOUR_BORDER_RGB                    = "TourBorderRGB";             //$NON-NLS-1$
    private static final String    TAG_TOUR_DRAGGED_RGB                   = "TourDraggedRGB";            //$NON-NLS-1$
-   private static final String    TAG_TOUR_HOVERED_RGB                   = "TourHoveredRGB";            //$NON-NLS-1$;
-   private static final String    TAG_TOUR_SELECTED_RGB                  = "TourSelectedRGB";           //$NON-NLS-1$;
-   private static final String    TAG_TOUR_CONTENT_RGB                   = "TourContentRGB";            //$NON-NLS-1$;
-   private static final String    TAG_TOUR_TITLE_RGB                     = "TourTitleRGB";              //$NON-NLS-1$;
-   private static final String    TAG_TOUR_VALUE_RGB                     = "TourValueRGB";              //$NON-NLS-1$;
+   private static final String    TAG_TOUR_HOVERED_RGB                   = "TourHoveredRGB";            //$NON-NLS-1$
+   private static final String    TAG_TOUR_SELECTED_RGB                  = "TourSelectedRGB";           //$NON-NLS-1$
+   private static final String    TAG_TOUR_CONTENT_RGB                   = "TourContentRGB";            //$NON-NLS-1$
+   private static final String    TAG_TOUR_TITLE_RGB                     = "TourTitleRGB";              //$NON-NLS-1$
+   private static final String    TAG_TOUR_VALUE_RGB                     = "TourValueRGB";              //$NON-NLS-1$
    private static final String    TAG_WEEK_VALUE_RGB                     = "weekValueRGB";              //$NON-NLS-1$
    //
    private static final String    ATTR_IS_DAY_CONTENT_VERTICAL           = "isDayContentVertical";      //$NON-NLS-1$
@@ -150,12 +152,12 @@ public class CalendarProfileManager {
    private static final String    ATTR_TOUR_CONTENT_FONT                 = "tourContentFont";           //$NON-NLS-1$
    private static final String    ATTR_TOUR_CONTENT_COLOR                = "tourContentColor";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_DRAGGED_COLOR                = "tourDraggedColor";          //$NON-NLS-1$
-   private static final String    ATTR_TOUR_HOVERED_COLOR                = "tourHoveredColor";          //$NON-NLS-1$;
+   private static final String    ATTR_TOUR_HOVERED_COLOR                = "tourHoveredColor";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_TOP                   = "tourMarginTop";             //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_LEFT                  = "tourMarginLeft";            //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_BOTTOM                = "tourMarginBottom";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_RIGHT                 = "tourMarginRight";           //$NON-NLS-1$
-   private static final String    ATTR_TOUR_SELECTED_COLOR               = "tourSelectedColor";         //$NON-NLS-1$;
+   private static final String    ATTR_TOUR_SELECTED_COLOR               = "tourSelectedColor";         //$NON-NLS-1$
    private static final String    ATTR_TOUR_TITLE_COLOR                  = "tourTitleColor";            //$NON-NLS-1$
    private static final String    ATTR_TOUR_TITLE_FONT                   = "tourTitleFont";             //$NON-NLS-1$
    private static final String    ATTR_TOUR_TRUNCATED_LINES              = "tourTruncatedLines";        //$NON-NLS-1$
@@ -293,8 +295,9 @@ public class CalendarProfileManager {
    private static final DataFormatter _tourFormatter_Time_Break;
    private static final DataFormatter _tourFormatter_TourDescription;
    private static final DataFormatter _tourFormatter_TourTitle;
-   private static final DataFormatter _weekFormatter_CadenceZones_TimePercentages;
+   private static final DataFormatter _tourFormatter_Weather_Icon;
 
+   private static final DataFormatter _weekFormatter_CadenceZones_TimePercentages;
    private static final DataFormatter _weekFormatter_Distance;
    private static final DataFormatter _weekFormatter_Elevation;
    private static final DataFormatter _weekFormatter_Elevation_Change;
@@ -307,6 +310,7 @@ public class CalendarProfileManager {
    private static final DataFormatter _weekFormatter_Time_Paused;
    private static final DataFormatter _weekFormatter_Time_Moving;
    private static final DataFormatter _weekFormatter_Time_Break;
+
    static final DataFormatter[]       allTourContentFormatter;
    static final DataFormatter[]       allWeekFormatter;
 
@@ -349,6 +353,8 @@ public class CalendarProfileManager {
       _tourFormatter_Time_Moving       = createFormatter_Time_Moving();
       _tourFormatter_Time_Break        = createFormatter_Time_Break();
 
+      _tourFormatter_Weather_Icon      = createFormatter_Weather_Icon();
+
       allTourContentFormatter = new DataFormatter[] {
 
             DEFAULT_EMPTY_FORMATTER,
@@ -374,6 +380,8 @@ public class CalendarProfileManager {
             _tourFormatter_Time_Paused,
             _tourFormatter_Time_Moving,
             _tourFormatter_Time_Break,
+
+            _tourFormatter_Weather_Icon
       };
 
       // Week
@@ -1762,6 +1770,44 @@ public class CalendarProfileManager {
       return dataFormatter;
    }
 
+   /**
+    * Weather Icon
+    */
+   private static DataFormatter createFormatter_Weather_Icon() {
+
+      final DataFormatter dataFormatter = new DataFormatter(
+            FormatterID.WEATHER_ICON,
+            Messages.Calendar_Profile_Value_WeatherIcon,
+            UI.EMPTY_STRING) {
+
+         @Override
+         String format(final CalendarTourData data,
+                       final ValueFormat valueFormat,
+                       final boolean isShowValueUnit) {
+
+            return WeatherUtils.getWeatherIcon(WeatherUtils.getWeatherIndex(data.weatherClouds));
+         }
+
+         @Override
+         public ValueFormat getDefaultFormat() {
+            return ValueFormat.TEXT;
+         }
+
+         @Override
+         public ValueFormat[] getValueFormats() {
+            return new ValueFormat[] { ValueFormat.TEXT };
+         }
+
+         @Override
+         void setValueFormat(final ValueFormat valueFormat) {}
+      };
+
+      // setup default formatter
+      dataFormatter.setValueFormat(dataFormatter.getDefaultFormat());
+
+      return dataFormatter;
+   }
+
    private static void createProfile_0_AllDefaultDefaultProfiles(final ArrayList<CalendarProfile> allProfiles) {
 
       allProfiles.clear();
@@ -3031,7 +3077,7 @@ public class CalendarProfileManager {
 
          // a profile is not yet created
 
-         StatusUtil.log("Created default profile for calendar properties");//$NON-NLS-1$
+         StatusUtil.logInfo("Created default profile for calendar properties");//$NON-NLS-1$
 
          createProfile_0_AllDefaultDefaultProfiles(_allCalendarProfiles);
 
@@ -3123,8 +3169,8 @@ public class CalendarProfileManager {
                if (profile.defaultId == DefaultId.XML_DEFAULT) {
 
                   /*
-                   * The default id is unknown, this occured when switching vom 17.12.0 -> 17.12.1
-                   * but it can occure when data are corrup, setup as default
+                   * The default id is unknown, this occurred when switching from 17.12.0 -> 17.12.1
+                   * but it can occur when data are corrupted, setup as default
                    */
                   profile.defaultId = DefaultId.DEFAULT;
 
@@ -3177,7 +3223,7 @@ public class CalendarProfileManager {
          if (inputFile.exists()) {
 
             try (FileInputStream inputStream = new FileInputStream(inputFile);
-                  InputStreamReader reader = new InputStreamReader(inputStream, UI.UTF_8)) {
+                  InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 
                xmlRoot = XMLMemento.createReadRoot(reader);
 
@@ -3288,13 +3334,13 @@ public class CalendarProfileManager {
       profile.useDraggedScrolling      = Util.getXmlBoolean(xmlProfile,                ATTR_USE_DRAGGED_SCROLLING,      true);
       profile.weekHeight               = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_HEIGHT,                DEFAULT_WEEK_HEIGHT);
       profile.weekRows                 = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_ROWS,                  DEFAULT_WEEK_ROWS);
-      profile.alternateMonthRGB        = Util.getXmlRgb(xmlProfile,                    TAG_ALTERNATE_MONTH_RGB,         DEFAULT_ALTERNATE_MONTH_RGB);
-      profile.alternateMonth2RGB       = Util.getXmlRgb(xmlProfile,                    TAG_ALTERNATE_MONTH2_RGB,        DEFAULT_ALTERNATE_MONTH2_RGB);
-      profile.calendarBackgroundRGB    = Util.getXmlRgb(xmlProfile,                    TAG_CALENDAR_BACKGROUND_RGB,     DEFAULT_CALENDAR_BACKGROUND_RGB);
-      profile.calendarForegroundRGB    = Util.getXmlRgb(xmlProfile,                    TAG_CALENDAR_FOREGROUND_RGB,     DEFAULT_CALENDAR_FOREBACKGROUND_RGB);
-      profile.dayHoveredRGB            = Util.getXmlRgb(xmlProfile,                    TAG_DAY_HOVERED_RGB,             DEFAULT_DAY_HOVERED_RGB);
-      profile.daySelectedRGB           = Util.getXmlRgb(xmlProfile,                    TAG_DAY_SELECTED_RGB,            DEFAULT_DAY_SELECTED_RGB);
-      profile.dayTodayRGB              = Util.getXmlRgb(xmlProfile,                    TAG_DAY_TODAY_RGB,               DEFAULT_DAY_TODAY_RGB);
+      profile.alternateMonthRGB        = Util.getXmlRgb_AsParent(xmlProfile,           TAG_ALTERNATE_MONTH_RGB,         DEFAULT_ALTERNATE_MONTH_RGB);
+      profile.alternateMonth2RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_ALTERNATE_MONTH2_RGB,        DEFAULT_ALTERNATE_MONTH2_RGB);
+      profile.calendarBackgroundRGB    = Util.getXmlRgb_AsParent(xmlProfile,           TAG_CALENDAR_BACKGROUND_RGB,     DEFAULT_CALENDAR_BACKGROUND_RGB);
+      profile.calendarForegroundRGB    = Util.getXmlRgb_AsParent(xmlProfile,           TAG_CALENDAR_FOREGROUND_RGB,     DEFAULT_CALENDAR_FOREBACKGROUND_RGB);
+      profile.dayHoveredRGB            = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_HOVERED_RGB,             DEFAULT_DAY_HOVERED_RGB);
+      profile.daySelectedRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_SELECTED_RGB,            DEFAULT_DAY_SELECTED_RGB);
+      profile.dayTodayRGB              = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_TODAY_RGB,               DEFAULT_DAY_TODAY_RGB);
 
       // 1. Date column
       profile.isShowDateColumn         = Util.getXmlBoolean(xmlProfile,                ATTR_IS_SHOW_DATE_COLUMN,        true);
@@ -3321,7 +3367,7 @@ public class CalendarProfileManager {
       profile.weekMarginRight          = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_MARGIN_RIGHT,          DEFAULT_WEEK_MARGIN_RIGHT,    DEFAULT_MARGIN_MIN, DEFAULT_MARGIN_MAX);
       profile.weekValueColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_WEEK_VALUE_COLOR,           DEFAULT_WEEK_VALUE_COLOR);
       profile.weekValueFont            = Util.getXmlFont(xmlProfile,                   ATTR_WEEK_VALUE_FONT,            defaultFont.getFontData()[0]);
-      profile.weekValueRGB             = Util.getXmlRgb(xmlProfile,                    TAG_WEEK_VALUE_RGB,              DEFAULT_WEEK_VALUE_RGB);
+      profile.weekValueRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_WEEK_VALUE_RGB,              DEFAULT_WEEK_VALUE_RGB);
 
       // day date
       profile.isHideDayDateWhenNoTour  = Util.getXmlBoolean(xmlProfile,                ATTR_IS_HIDE_DAY_DATE_WHEN_NO_TOUR,    true);
@@ -3347,12 +3393,12 @@ public class CalendarProfileManager {
       profile.tourDraggedColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_DRAGGED_COLOR,         DEFAULT_TOUR_DRAGGED_COLOR);
       profile.tourHoveredColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_HOVERED_COLOR,         DEFAULT_TOUR_HOVERED_COLOR);
       profile.tourSelectedColor        = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_SELECTED_COLOR,        DEFAULT_TOUR_SELECTED_COLOR);
-      profile.tourBackground1RGB       = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BACKGROUND_1_RGB,       DEFAULT_TOUR_BACKGROUND_1_RGB);
-      profile.tourBackground2RGB       = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BACKGROUND_2_RGB,       DEFAULT_TOUR_BACKGROUND_2_RGB);
-      profile.tourBorderRGB            = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BORDER_RGB,             DEFAULT_TOUR_BORDER_RGB);
-      profile.tourDraggedRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_DRAGGED_RGB,            DEFAULT_TOUR_DRAGGED_RGB);
-      profile.tourHoveredRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_HOVERED_RGB,            DEFAULT_TOUR_HOVERED_RGB);
-      profile.tourSelectedRGB          = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_SELECTED_RGB,           DEFAULT_TOUR_SELECTED_RGB);
+      profile.tourBackground1RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BACKGROUND_1_RGB,       DEFAULT_TOUR_BACKGROUND_1_RGB);
+      profile.tourBackground2RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BACKGROUND_2_RGB,       DEFAULT_TOUR_BACKGROUND_2_RGB);
+      profile.tourBorderRGB            = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BORDER_RGB,             DEFAULT_TOUR_BORDER_RGB);
+      profile.tourDraggedRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_DRAGGED_RGB,            DEFAULT_TOUR_DRAGGED_RGB);
+      profile.tourHoveredRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_HOVERED_RGB,            DEFAULT_TOUR_HOVERED_RGB);
+      profile.tourSelectedRGB          = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_SELECTED_RGB,           DEFAULT_TOUR_SELECTED_RGB);
 
       // tour content
       profile.isShowTourContent        = Util.getXmlBoolean(xmlProfile,                ATTR_IS_SHOW_TOUR_CONTENT,       true);
@@ -3370,9 +3416,9 @@ public class CalendarProfileManager {
       profile.tourContentColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_CONTENT_COLOR,         DEFAULT_TOUR_COLOR);
       profile.tourTitleColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_TITLE_COLOR,           DEFAULT_TOUR_COLOR);
       profile.tourValueColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_VALUE_COLOR,           DEFAULT_TOUR_COLOR);
-      profile.tourContentRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_CONTENT_RGB,            DEFAULT_TOUR_CONTENT_RGB);
-      profile.tourTitleRGB             = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_TITLE_RGB,              DEFAULT_TOUR_TITLE_RGB);
-      profile.tourValueRGB             = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_VALUE_RGB,              DEFAULT_TOUR_VALUE_RGB);
+      profile.tourContentRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_CONTENT_RGB,            DEFAULT_TOUR_CONTENT_RGB);
+      profile.tourTitleRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_TITLE_RGB,              DEFAULT_TOUR_TITLE_RGB);
+      profile.tourValueRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_VALUE_RGB,              DEFAULT_TOUR_VALUE_RGB);
 
 // SET_FORMATTING_ON
 
@@ -3688,6 +3734,10 @@ public class CalendarProfileManager {
 
          case TIME_BREAK:
             _tourFormatter_Time_Break.setValueFormat(valueFormat);
+            break;
+
+         case WEATHER_ICON:
+            _tourFormatter_Weather_Icon.setValueFormat(valueFormat);
             break;
 
          default:

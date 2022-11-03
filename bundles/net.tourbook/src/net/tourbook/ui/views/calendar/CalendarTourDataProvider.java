@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2021 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2022 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,8 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.ui.views.calendar;
-
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +39,8 @@ import net.tourbook.database.TourDatabase;
 import net.tourbook.tag.tour.filter.TourTagFilterManager;
 import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
 import net.tourbook.ui.SQLFilter;
+
+import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 
 public class CalendarTourDataProvider {
 
@@ -157,7 +157,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -299,7 +299,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
       }
 
@@ -355,7 +355,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -419,9 +419,11 @@ public class CalendarTourDataProvider {
          ArrayList<Integer> dbTourDeviceTime_Recorded = null;
          ArrayList<Integer> dbTourMovingTime = null;
 
+         ArrayList<String> dbTourWeatherClouds = null;
+
          ArrayList<Integer> dbCalories = null;
-         TFloatArrayList dbPowerAvg = null;
-         TFloatArrayList dbPulseAvg = null;
+         FloatArrayList dbPowerAvg = null;
+         FloatArrayList dbPulseAvg = null;
 
          ArrayList<Long> dbTypeIds = null;
          ArrayList<Integer> dbTypeColorIndex = null;
@@ -465,7 +467,8 @@ public class CalendarTourDataProvider {
                + "   TourAltDown," + NL //                        18 //$NON-NLS-1$
                + "   AvgPulse," + NL //                           19 //$NON-NLS-1$
                + "   Power_Avg," + NL //                          20 //$NON-NLS-1$
-               + "   TourDeviceTime_Recorded" + NL //                    21 //$NON-NLS-1$
+               + "   TourDeviceTime_Recorded," + NL //            21 //$NON-NLS-1$
+               + "   weather_Clouds" + NL //                      22 //$NON-NLS-1$
 
                + NL
 
@@ -534,9 +537,11 @@ public class CalendarTourDataProvider {
                   dbTourDeviceTime_Recorded = new ArrayList<>();
                   dbTourMovingTime = new ArrayList<>();
 
+                  dbTourWeatherClouds = new ArrayList<>();
+
                   dbCalories = new ArrayList<>();
-                  dbPowerAvg = new TFloatArrayList();
-                  dbPulseAvg = new TFloatArrayList();
+                  dbPowerAvg = new FloatArrayList();
+                  dbPulseAvg = new FloatArrayList();
 
                   dbTypeIds = new ArrayList<>();
                   dbTypeColorIndex = new ArrayList<>();
@@ -613,6 +618,8 @@ public class CalendarTourDataProvider {
                   dbPulseAvg.add(result.getFloat(19));
                   dbPowerAvg.add(result.getFloat(20));
 
+                  dbTourWeatherClouds.add(result.getString(22));
+
                   /*
                    * convert type id to the type index in the tour type array, this is also
                    * the color index for the tour type
@@ -679,6 +686,8 @@ public class CalendarTourDataProvider {
                data.tourTitle = dbTourTitle.get(tourIndex);
                data.tourDescription = dbTourDescription.get(tourIndex);
 
+               data.weatherClouds = dbTourWeatherClouds.get(tourIndex);
+
                final LocalDate tourDate = LocalDate.of(year, month, data.day);
                data.tourDate = tourDate;
                data.dayOfWeek = tourDate.getDayOfWeek().getValue();
@@ -710,7 +719,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -874,7 +883,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          net.tourbook.ui.UI.showSQLException(e);
 
       } finally {

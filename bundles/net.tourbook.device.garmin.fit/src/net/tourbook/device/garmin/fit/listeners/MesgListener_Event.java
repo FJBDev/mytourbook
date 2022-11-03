@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,8 +33,11 @@ import net.tourbook.device.garmin.fit.FitUtils;
 public class MesgListener_Event extends AbstractMesgListener implements EventMesgListener {
 
    List<GearData>     _gearData;
+
    private List<Long> _pausedTime_Start = new ArrayList<>();
    private List<Long> _pausedTime_End   = new ArrayList<>();
+   private List<Long> _pausedTime_Data  = new ArrayList<>();
+
    private boolean    _isTimerStopped   = true;
 
    public MesgListener_Event(final FitData fitData) {
@@ -42,8 +45,10 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
       super(fitData);
 
       _gearData = fitData.getGearData();
+
       _pausedTime_Start = fitData.getPausedTime_Start();
       _pausedTime_End = fitData.getPausedTime_End();
+      _pausedTime_Data = fitData.getPausedTime_Data();
    }
 
    private void handleTimerStartEvent(final long javaTime) {
@@ -61,8 +66,7 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
          return;
       }
 
-      final long lastPausedTime_Start = _pausedTime_Start.get(
-            numberOfPausedTime_Start - 1);
+      final long lastPausedTime_Start = _pausedTime_Start.get(numberOfPausedTime_Start - 1);
 
       if (javaTime - lastPausedTime_Start >= 1000) {
 
@@ -71,7 +75,8 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
       }
    }
 
-   private void handleTimerStopEvents(final long javaTime) {
+   private void handleTimerStopEvents(final long javaTime, final Long eventData) {
+
       // We need to avoid the cases where stops are consecutive events.
       // In this case, we ignore the stop event if the timer is already stopped.
       if (_isTimerStopped) {
@@ -79,16 +84,20 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
       }
 
       _pausedTime_Start.add(javaTime);
+      _pausedTime_Data.add(eventData);
+
       _isTimerStopped = true;
    }
 
    @Override
    public void onMesg(final EventMesg mesg) {
 
+      /*
+       * Time data
+       */
       final Event event = mesg.getEvent();
       final EventType eventType = mesg.getEventType();
-      final long javaTime = FitUtils.convertGarminTimeToJavaTime(
-            mesg.getTimestamp().getTimestamp());
+      final long javaTime = FitUtils.convertGarminTimeToJavaTime(mesg.getTimestamp().getTimestamp());
 
       if (event != null && event == Event.TIMER && eventType != null) {
 
@@ -105,7 +114,16 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
          case STOP:
          case STOP_ALL:
 
-            handleTimerStopEvents(javaTime);
+            /**
+             * eventData == 0: user stop<br>
+             * eventData == 1: auto-stop
+             */
+            final Long eventData = mesg.getData();
+
+            if (eventData != null) {
+
+               handleTimerStopEvents(javaTime, eventData);
+            }
             break;
 
          default:
@@ -113,18 +131,21 @@ public class MesgListener_Event extends AbstractMesgListener implements EventMes
          }
       }
 
+      /*
+       * Gear data
+       */
       final Long gearChangeData = mesg.getGearChangeData();
 
       // check if gear data are available, it can be null
-      if (gearChangeData == null) {
-         return;
+      if (gearChangeData != null) {
+
+         // create gear data for the current time
+         final GearData gearData = new GearData();
+
+         gearData.absoluteTime = javaTime;
+         gearData.gears = gearChangeData;
+
+         _gearData.add(gearData);
       }
-
-      // create gear data for the current time
-      final GearData gearData = new GearData();
-      gearData.absoluteTime = javaTime;
-      gearData.gears = gearChangeData;
-
-      _gearData.add(gearData);
    }
 }

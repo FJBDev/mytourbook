@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,8 +18,6 @@ package net.tourbook.common.time;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 
 import com.skedgo.converter.TimezoneMapper;
-
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -41,12 +39,14 @@ import java.time.temporal.WeekFields;
 import java.time.zone.ZoneRules;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 
+import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.joda.time.Period;
@@ -56,46 +56,46 @@ import org.shredzone.commons.suncalc.SunTimes;
 
 public class TimeTools {
 
-   private static final String                    ZERO_0                = ":0";                                 //$NON-NLS-1$
-   private static final String                    ZERO_00_00            = "+00:00";                             //$NON-NLS-1$
-   private static final String                    ZERO_00_00_DEFAULT    = "*";                                  //$NON-NLS-1$
+   private static final String                   ZERO_0                = ":0";                                 //$NON-NLS-1$
+   private static final String                   ZERO_00_00            = "+00:00";                             //$NON-NLS-1$
+   private static final String                   ZERO_00_00_DEFAULT    = "*";                                  //$NON-NLS-1$
 
    /**
     * Cached time zone labels.
     */
-   private static final TIntObjectHashMap<String> _timeZoneOffsetLabels = new TIntObjectHashMap<>();
+   private static final IntObjectHashMap<String> _timeZoneOffsetLabels = new IntObjectHashMap<>();
 
    /** Minutes per hour. */
-   private static final int                       MINUTES_PER_HOUR      = 60;
+   private static final int                      MINUTES_PER_HOUR      = 60;
    /** Seconds per minute. */
-   private static final int                       SECONDS_PER_MINUTE    = 60;
+   private static final int                      SECONDS_PER_MINUTE    = 60;
    /** Seconds per hour. */
-   private static final int                       SECONDS_PER_HOUR      = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+   private static final int                      SECONDS_PER_HOUR      = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
-   private static final PeriodFormatter           DURATION_FORMATTER;
+   private static final PeriodFormatter          DURATION_FORMATTER;
 
-   public static final ZoneId                     UTC                   = ZoneId.of("UTC");                     //$NON-NLS-1$
+   public static final ZoneId                    UTC                   = ZoneId.of("UTC");                     //$NON-NLS-1$
 
    /**
     * Calendar week which is defined in the preferences and applied in the whole app.
     */
-   public static WeekFields                       calendarWeek;
+   public static WeekFields                      calendarWeek;
 
    /**
     * Contains the short weekday strings. For example: "Sun", "Mon", etc.
     */
-   public static String[]                         weekDays_Short;
+   public static String[]                        weekDays_Short;
 
    /**
     * Contains the full text, typically the full description. For example, day-of-week Monday might
     * output "Monday".
     */
-   public static String[]                         weekDays_Full;
+   public static String[]                        weekDays_Full;
 
    /**
     * Contains the full text of a month
     */
-   public static String[]                         month_Full;
+   public static String[]                        month_Full;
 
 // SET_FORMATTING_OFF
 
@@ -126,6 +126,7 @@ public class TimeTools {
    public static final DateTimeFormatter   Formatter_Week_Month         = DateTimeFormatter.ofPattern("dd MMM");                 //$NON-NLS-1$
    public static final DateTimeFormatter   Formatter_Weekday            = DateTimeFormatter.ofPattern("E");                      //$NON-NLS-1$
    public static final DateTimeFormatter   Formatter_Weekday_L          = DateTimeFormatter.ofPattern("EEEE");                   //$NON-NLS-1$
+   public static final DateTimeFormatter   Formatter_YearMonthDay       = DateTimeFormatter.ofPattern("yyyy-MM-dd");             //$NON-NLS-1$
 
    public static final DateTimeFormatter   Formatter_DayTimeSecondsAmPm = DateTimeFormatter.ofPattern("h:mm:ss a");              //$NON-NLS-1$
 
@@ -241,10 +242,10 @@ public class TimeTools {
     */
    public static ZonedDateTime createDateTimeFromYMDhms(final long yyyymmddhhmmss) {
 
-      final int year = (int) (yyyymmddhhmmss / 10000000000L) % 10000;
-      final int month = (int) (yyyymmddhhmmss / 100000000) % 100;
-      final int day = (int) (yyyymmddhhmmss / 1000000) % 100;
-      final int hour = (int) (yyyymmddhhmmss / 10000) % 100;
+      final int year = (int) (yyyymmddhhmmss / 10_000_000_000L) % 10000;
+      final int month = (int) (yyyymmddhhmmss / 100_000_000L) % 100;
+      final int day = (int) (yyyymmddhhmmss / 1_000_000L) % 100;
+      final int hour = (int) (yyyymmddhhmmss / 10_000L) % 100;
       final int minute = (int) (yyyymmddhhmmss / 100 % 100);
       final int second = (int) (yyyymmddhhmmss % 100);
 
@@ -256,17 +257,7 @@ public class TimeTools {
     */
    public static long createdNowAsYMDhms() {
 
-      final ZonedDateTime zdtNow = ZonedDateTime.now();
-
-      final long dtYMDhms = (zdtNow.getYear() * 10000000000L)
-            + (zdtNow.getMonthValue() * 100000000L)
-            + (zdtNow.getDayOfMonth() * 1000000L)
-            //
-            + (zdtNow.getHour() * 10000L)
-            + (zdtNow.getMinute() * 100L)
-            + zdtNow.getSecond();
-
-      return dtYMDhms;
+      return createYMDhms_From_DateTime(ZonedDateTime.now());
    }
 
    private static SunTimes createSunTimes(final ZonedDateTime zonedDateTime, final double latitude, final double longitude) {
@@ -335,6 +326,24 @@ public class TimeTools {
       return new TourDateTime(tourZonedDateTime, timeZoneOffsetLabel, weekDays_Short[weekDayIndex]);
    }
 
+   /**
+    * @return Returns a long value for the given date/time in the YYYYMMDDhhmmss format
+    */
+   public static long createYMDhms_From_DateTime(final ZonedDateTime zonedDateTime) {
+
+      final long dtYMDhms = 0
+
+            + (zonedDateTime.getYear() * 10_000_000_000L)
+            + (zonedDateTime.getMonthValue() * 100_000_000L)
+            + (zonedDateTime.getDayOfMonth() * 1_000_000L)
+
+            + (zonedDateTime.getHour() * 10_000L)
+            + (zonedDateTime.getMinute() * 100L)
+            + zonedDateTime.getSecond();
+
+      return dtYMDhms;
+   }
+
    public static ZonedDateTime determineSunriseTimes(final ZonedDateTime zonedDateTime,
                                                      final double latitude,
                                                      final double longitude) {
@@ -357,7 +366,7 @@ public class TimeTools {
     * @return Returns a list with all available time zones which are sorted by zone offset, zone id
     *         and zone name key.
     */
-   public static ArrayList<TimeZoneData> getAllTimeZones() {
+   public static List<TimeZoneData> getAllTimeZones() {
 
       if (_allSortedTimeZones == null) {
 
@@ -511,7 +520,7 @@ public class TimeTools {
     */
    private static TimeZoneData getTimeZone(final String timeZoneId) {
 
-      final ArrayList<TimeZoneData> allTimeZones = getAllTimeZones();
+      final List<TimeZoneData> allTimeZones = getAllTimeZones();
 
       for (final TimeZoneData timeZone : allTimeZones) {
 
@@ -525,7 +534,7 @@ public class TimeTools {
 
    public static TimeZoneData getTimeZone_ByIndex(final int selectedTimeZoneIndex) {
 
-      final ArrayList<TimeZoneData> allTimeZone = getAllTimeZones();
+      final List<TimeZoneData> allTimeZone = getAllTimeZones();
 
       if (selectedTimeZoneIndex == -1) {
          return allTimeZone.get(0);
@@ -570,7 +579,7 @@ public class TimeTools {
     */
    public static int getTimeZoneIndex(final String timeZoneId) {
 
-      final ArrayList<TimeZoneData> allTimeZones = getAllTimeZones();
+      final List<TimeZoneData> allTimeZones = getAllTimeZones();
 
       for (int timeZoneIndex = 0; timeZoneIndex < allTimeZones.size(); timeZoneIndex++) {
 

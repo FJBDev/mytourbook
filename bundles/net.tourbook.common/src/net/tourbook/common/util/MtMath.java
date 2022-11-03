@@ -41,7 +41,7 @@ public class MtMath {
     *
 	 * @param   {Number} lat1, lon1: first point in decimal degrees
 	 * @param   {Number} lat2, lon2: second point in decimal degrees
-	 * @returns (Number} distance in metres between points
+    * @returns (Number} distance in metres between points
     *
     *    function distVincenty(lat1, lon1, lat2, lon2) {
     *      var a = 6378137, b = 6356752.314245,  f = 1/298.257223563;  // WGS-84 ellipsoid params
@@ -62,7 +62,7 @@ public class MtMath {
     *        var sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
     *        var cosSqAlpha = 1 - sinAlpha*sinAlpha;
     *        var cos2SigmaM = cosSigma - 2*sinU1*sinU2/cosSqAlpha;
-    *        if (isNaN(cos2SigmaM)) cos2SigmaM = 0;  // equatorial line: cosSqAlpha=0 (�6)
+    *        if (isNaN(cos2SigmaM)) cos2SigmaM = 0;  // equatorial line: cosSqAlpha=0 (§6)
     *        var C = f/16*cosSqAlpha*(4+f*(4-3*cosSqAlpha));
     *        lambdaP = lambda;
     *        lambda = L + (1-C) * f * sinAlpha *
@@ -88,7 +88,7 @@ public class MtMath {
     *    }
     *
     *    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  *
-	 * 
+	 *
     * </pre>
     */
 
@@ -122,6 +122,16 @@ public class MtMath {
       // NOTE: Remember that most math has the Y axis as positive above the X.
       // However, for screens we have Y as positive below. For this reason,
       // the Y values are inverted to get the expected results.
+
+      final double deltaY = y1 - y2;
+      final double deltaX = x2 - x1;
+
+      final double result = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+      return (result < 0) ? (360d + result) : result;
+   }
+
+   public static double angleFromShorts(final short x1, final short y1, final short x2, final short y2) {
 
       final double deltaY = y1 - y2;
       final double deltaX = x2 - x1;

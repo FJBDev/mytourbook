@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import static javax.persistence.FetchType.LAZY;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -50,7 +51,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
     * Manually created marker or imported marker create a unique id to identify them, saved marker
     * are compared with the marker id
     */
-   private static int        _createCounter             = 0;
+   private static final AtomicInteger _createCounter             = new AtomicInteger();
 
    /*
     * DON'T USE THE FINAL KEYWORD FOR THE ID otherwise the Id cannot be set.
@@ -116,8 +117,10 @@ public class TourTag implements Cloneable, Comparable<Object> {
    public TourTag() {}
 
    public TourTag(final String tagName) {
+
       name = tagName.trim();
-      _createId = ++_createCounter;
+
+      _createId = _createCounter.incrementAndGet();
    }
 
    @Override
@@ -286,23 +289,28 @@ public class TourTag implements Cloneable, Comparable<Object> {
       this.name = tagName;
    }
 
+   /**
+    * This method is called in the "Tour Data" view !!!
+    */
    @Override
    public String toString() {
 
       return UI.EMPTY_STRING
 
-            + "TourTag" + NL //                       //$NON-NLS-1$
-            + "[" + NL //                             //$NON-NLS-1$
+            + "TourTag" + NL //                          //$NON-NLS-1$
+            + "[" + NL //                                //$NON-NLS-1$
 
-            + "tagId       =" + tagId + NL //         //$NON-NLS-1$
-            + "isRoot      =" + isRoot + NL //        //$NON-NLS-1$
-            + "name        =" + name + NL //          //$NON-NLS-1$
-            + "notes       =" + notes + NL //         //$NON-NLS-1$
-            + "expandType  =" + expandType + NL //    //$NON-NLS-1$
-//            + "tourData    =" + tourData + NL //      //$NON-NLS-1$
-            + "_createId   =" + _createId + NL //     //$NON-NLS-1$
+            + "   tagId       =" + tagId + NL //         //$NON-NLS-1$
+            + "   isRoot      =" + isRoot + NL //        //$NON-NLS-1$
+            + "   name        =" + name + NL //          //$NON-NLS-1$
+            + "   notes       =" + notes + NL //         //$NON-NLS-1$
+            + "   expandType  =" + expandType + NL //    //$NON-NLS-1$
 
-            + "]" + NL //                             //$NON-NLS-1$
+            + "   _createId   =" + _createId + NL //     //$NON-NLS-1$
+
+//          + "   tourData    =" + tourData + NL //      //$NON-NLS-1$
+
+            + "]" + NL //                                //$NON-NLS-1$
       ;
    }
 

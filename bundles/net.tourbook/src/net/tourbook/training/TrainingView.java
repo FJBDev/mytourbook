@@ -887,7 +887,7 @@ public class TrainingView extends ViewPart {
       // must be run async otherwise it is overwritten when using the dark theme
       _pageBook.getDisplay().asyncExec(() -> {
 
-         if (_pageBook.isDisposed()) {
+         if (_pageBook.isDisposed() || _lblHRZoneColor == null) {
             return;
          }
 
@@ -1529,6 +1529,10 @@ public class TrainingView extends ViewPart {
 
             // check if this is the newest request to create an image
             if (__counter < _imageCounter) {
+               return;
+            }
+
+            if (_canvasHrZoneImage.isDisposed()) {
                return;
             }
 

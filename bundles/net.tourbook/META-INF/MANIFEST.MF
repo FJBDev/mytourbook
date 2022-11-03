@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Application_Name
 Bundle-SymbolicName: net.tourbook;singleton:=true
-Bundle-Version: 21.9.0.qualifier
+Bundle-Version: 22.8.0.qualifier
 Bundle-Activator: net.tourbook.application.TourbookPlugin
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -36,11 +36,14 @@ Require-Bundle: org.eclipse.ui,
  net.tourbook.ext.rxtx_2.2,
  net.tourbook.ext.worldwind,
  net.tourbook.p2,
- net.tourbook.ext.vtm,
- net.tourbook.ext.geoclipse
-Export-Package: de.byteholder.geoclipse.map,
+ net.tourbook.ext.geoclipse,
+ net.tourbook.ext.vtm
+Export-Package: de.byteholder.geoclipse,
+ de.byteholder.geoclipse.map,
  de.byteholder.geoclipse.map.event,
  de.byteholder.geoclipse.mapprovider,
+ de.byteholder.geoclipse.poi,
+ de.byteholder.geoclipse.preferences,
  de.byteholder.geoclipse.tileinfo,
  net.tourbook,
  net.tourbook.application,
@@ -53,6 +56,7 @@ Export-Package: de.byteholder.geoclipse.map,
  net.tourbook.map2,
  net.tourbook.math,
  net.tourbook.preferences,
+ net.tourbook.srtm,
  net.tourbook.statistic,
  net.tourbook.tag,
  net.tourbook.tag.tour.filter,
@@ -62,7 +66,12 @@ Export-Package: de.byteholder.geoclipse.map,
  net.tourbook.ui,
  net.tourbook.ui.action,
  net.tourbook.ui.tourChart,
- net.tourbook.ui.views.rawData
+ net.tourbook.ui.views,
+ net.tourbook.ui.views.rawData,
+ net.tourbook.weather,
+ net.tourbook.weather.openweathermap,
+ net.tourbook.weather.weatherapi,
+ net.tourbook.weather.worldweatheronline
 Import-Package: com.fasterxml.jackson.core.type,
  com.fasterxml.jackson.databind,
  com.javadocmd.simplelatlng,
@@ -89,10 +98,14 @@ Import-Package: com.fasterxml.jackson.core.type,
  net.tourbook.common.widgets,
  net.tourbook.photo,
  net.tourbook.photo.internal.gallery.MT20,
+ net.tourbook.weather,
+ net.tourbook.weather.worldweatheronline,
  net.tourbook.web,
  net.tourbook.web.preferences,
  org.apache.commons.collections4,
  org.apache.commons.lang3.text,
+ org.apache.http.client.utils,
+ org.eclipse.collections.impl.list.mutable.primitive,
  org.eclipse.e4.core.services.events,
  org.geotools.ows,
  org.geotools.ows.wms,
