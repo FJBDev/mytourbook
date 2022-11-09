@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -143,7 +143,7 @@ public class ImageUtils {
       return bas.toByteArray();
    }
 
-   public static double getBestRatio(final int originalX, final int originalY, final int maxX, final int maxY) {
+   private static double getBestRatio(final int originalX, final int originalY, final int maxX, final int maxY) {
 
       final double widthRatio = (double) originalX / (double) maxX;
       final double heightRatio = (double) originalY / (double) maxY;
