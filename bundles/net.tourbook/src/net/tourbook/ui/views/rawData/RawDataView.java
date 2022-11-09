@@ -3594,109 +3594,6 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       updateUI_2_Dashboard();
    }
 
-<<<<<<< HEAD
-   private void doSaveTour(final TourPerson person) {
-
-      final ArrayList<TourData> selectedTours = getAnySelectedTours();
-
-      runEasyImport_099_SaveTour(person, selectedTours, false);
-   }
-
-   /**
-    * @param tourData
-    *           {@link TourData} which is not yet saved.
-    * @param person
-    *           Person for which the tour is being saved.
-    * @param savedTours
-    *           The saved tour is added to this list.
-    */
-   private void doSaveTour_OneTour(final TourData tourData,
-                                   final TourPerson person,
-                                   final ArrayList<TourData> savedTours) {
-
-      // workaround for hibernate problems
-      if (tourData.isTourDeleted) {
-         return;
-      }
-
-      if (tourData.getTourPerson() != null) {
-
-         /*
-          * tour is already saved, resaving cannot be done in the import view it can be done in the
-          * tour editor
-          */
-         return;
-      }
-
-      // a saved tour needs a person
-      tourData.setTourPerson(person);
-
-      // set weight from person
-      if (RawDataManager.isSetBodyWeight()) {
-         tourData.setBodyWeight(person.getWeight());
-      }
-
-      tourData.setTourBike(person.getTourBike());
-
-      final TourData savedTour = TourDatabase.saveTour(tourData, true);
-
-      if (savedTour != null) {
-
-         savedTours.add(savedTour);
-
-         // update fields which are not saved but used in the UI and easy setup
-         savedTour.isTourFileDeleted = tourData.isTourFileDeleted;
-         savedTour.isTourFileMoved = tourData.isTourFileMoved;
-         savedTour.isBackupImportFile = tourData.isBackupImportFile;
-         savedTour.importFilePathOriginal = tourData.importFilePathOriginal;
-      }
-   }
-
-   /**
-    * After tours are saved, the internal structures and ui viewers must be updated
-    *
-    * @param savedTours
-    *           contains the saved {@link TourData}
-    */
-   private void doSaveTour_PostActions(final ArrayList<TourData> savedTours) {
-
-      // update viewer, fire selection event
-      if (savedTours.isEmpty()) {
-         return;
-      }
-
-      final ArrayList<Long> savedToursIds = new ArrayList<>();
-
-      // update raw data map with the saved tour data
-      final Map<Long, TourData> rawDataMap = _rawDataMgr.getImportedTours();
-      for (final TourData tourData : savedTours) {
-
-         final Long tourId = tourData.getTourId();
-
-         rawDataMap.put(tourId, tourData);
-         savedToursIds.add(tourId);
-      }
-
-      /*
-       * the selection provider can contain old tour data which conflicts with the tour data in the
-       * tour data editor
-       */
-      _postSelectionProvider.clearSelection();
-
-      // update import viewer
-      reloadViewer();
-
-      enableActions();
-
-      /*
-       * notify all views, it is not checked if the tour data editor is dirty because newly saved
-       * tours can not be modified in the tour data editor
-       */
-      TourManager.fireEventWithCustomData(TourEventId.UPDATE_UI, new SelectionTourIds(savedToursIds), this);
-   }
-
-=======
->>>>>>> refs/remotes/Wolfgang/main
    private void enableActions() {
 
       final boolean isTourImported = _rawDataMgr.getImportedTours().values().size() > 0;
@@ -4657,11 +4554,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          final File file = new File(fileName);
          if (file.exists()) {
 
-<<<<<<< HEAD
-            final boolean isImported = _rawDataMgr.importRawData(file, null, false, null, true, true);
-=======
             final ImportState_File importState_File = _rawDataMgr.importTours_FromOneFile(
->>>>>>> refs/remotes/Wolfgang/main
 
                   file, //                         importFile
                   null, //                         destinationPath
@@ -6016,14 +5909,9 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
 
          } catch (final InterruptedException | ClosedWatchServiceException e3) {
             // no-op
-<<<<<<< HEAD
-         } catch (final Exception e4) {
-            TourLogManager.logEx(e4);
-=======
             Thread.currentThread().interrupt();
          } catch (final Exception e4) {
             TourLogManager.log_EXCEPTION_WithStacktrace(e4);
->>>>>>> refs/remotes/Wolfgang/main
          } finally {
 
             try {
@@ -6035,11 +5923,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                   folderWatcher.close();
                }
             } catch (final Exception e5) {
-<<<<<<< HEAD
-               TourLogManager.logEx(e5);
-=======
                TourLogManager.log_EXCEPTION_WithStacktrace(e5);
->>>>>>> refs/remotes/Wolfgang/main
             }
          }
       };

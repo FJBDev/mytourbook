@@ -164,20 +164,12 @@ public class NmeaDataReader extends TourbookDevice {
    }
 
    @Override
-<<<<<<< HEAD
-   public boolean processDeviceData(final String importFilePath,
-                                    final DeviceData deviceData,
-                                    final Map<Long, TourData> alreadyImportedTours,
-                                    final Map<Long, TourData> newlyImportedTours,
-                                    final boolean isReimport) {
-=======
    public void processDeviceData(final String importFilePath,
                                  final DeviceData deviceData,
                                  final Map<Long, TourData> alreadyImportedTours,
                                  final Map<Long, TourData> newlyImportedTours,
                                  final ImportState_File importState_File,
                                  final ImportState_Process importState_Process) {
->>>>>>> refs/remotes/Wolfgang/main
 
       // immediately bail out if the file format is not correct.
       if (!validateRawData(importFilePath)) {

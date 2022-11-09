@@ -1114,14 +1114,8 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer,
 
    private void enableControls() {
 
-<<<<<<< HEAD
-      boolean isTourAvailable = _allSelectedTours.size() > 0;
-      //TODO FB ask W why set to true all the time ? bug ?
-      isTourAvailable = true;
-=======
       final boolean isTourAvailable = _allSelectedTours.size() > 0;
 //      isTourAvailable = true;
->>>>>>> refs/remotes/Wolfgang/main
 
       _action_CollapseAll.setEnabled(isTourAvailable && _isHierarchicalLayout);
       _action_ExpandAll.setEnabled(isTourAvailable && _isHierarchicalLayout);
@@ -1314,11 +1308,7 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer,
 
             updateUI_TagFilter();
 
-<<<<<<< HEAD
-            // tags in the tree hierarchie must be rechecked otherwise they are not checked
-=======
             // tags in the tree hierarchy must be rechecked otherwise they are not checked
->>>>>>> refs/remotes/Wolfgang/main
             _parent.getDisplay().asyncExec(this::updateUI_Tags_From_TagIds);
          }
       }
@@ -1604,13 +1594,8 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer,
 
             private long           __expandRunnableCounter = ++_expandRunnableCounter;
 
-<<<<<<< HEAD
-            private ITreeSelection     __treeSelection         = treeSelection;
-            private TreePath           __selectedTreePath      = selectedTreePath;
-=======
             private ITreeSelection __treeSelection         = treeSelection;
             private TreePath       __selectedTreePath      = selectedTreePath;
->>>>>>> refs/remotes/Wolfgang/main
 
             @Override
             public void run() {
@@ -1642,12 +1627,7 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer,
     * @param treeSelection
     * @param selectedTreePath
     */
-<<<<<<< HEAD
-   private void onTagViewer_SelectCategory_20_AutoExpandCollapse_Runnable(
-                                                                          final ITreeSelection treeSelection,
-=======
    private void onTagViewer_SelectCategory_20_AutoExpandCollapse_Runnable(final ITreeSelection treeSelection,
->>>>>>> refs/remotes/Wolfgang/main
                                                                           final TreePath selectedTreePath) {
       _isInExpandingSelection = true;
       {

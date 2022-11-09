@@ -33,10 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
-=======
 import java.util.Map.Entry;
->>>>>>> refs/remotes/Wolfgang/main
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -210,18 +207,7 @@ public class RawDataManager {
    /**
     * Contains tours which are imported or received and displayed in the import view.
     */
-<<<<<<< HEAD
-   private final Map<Long, TourData>       _toursInImportView                  = new HashMap<>();
-
-   /**
-    * Contains tours which are imported from the last file name.
-    */
-   private final Map<Long, TourData>       _newlyImportedTours                 = new HashMap<>();
-
-   private String                          _lastImportedFileName;
-=======
    private static final ConcurrentHashMap<Long, TourData>       _allImported_Tours                       = new ConcurrentHashMap<>();
->>>>>>> refs/remotes/Wolfgang/main
 
    /**
     * Contains the filenames for all imported files which are displayed in the import view
@@ -2220,9 +2206,6 @@ public class RawDataManager {
     *         the import view, tour id is the key.
     */
    public Map<Long, TourData> getImportedTours() {
-<<<<<<< HEAD
-      return _toursInImportView;
-=======
       return _allImported_Tours;
    }
 
@@ -2235,7 +2218,6 @@ public class RawDataManager {
       final ArrayList<TourData> importedTours = new ArrayList<>(importedToursCollection);
 
       return importedTours;
->>>>>>> refs/remotes/Wolfgang/main
    }
 
    /**
@@ -2955,16 +2937,10 @@ public class RawDataManager {
             device.processDeviceData(
                   sourceFileName,
                   _deviceData,
-<<<<<<< HEAD
-                  _toursInImportView,
-                  _newlyImportedTours,
-                  isReimport);
-=======
                   _allImported_Tours,
                   allNewlyImportedToursFromOneFile,
                   importState_File,
                   importState_Process);
->>>>>>> refs/remotes/Wolfgang/main
 
          } catch (final Exception e) {
             TourLogManager.log_EXCEPTION_WithStacktrace(e);
@@ -4036,143 +4012,6 @@ public class RawDataManager {
             }
          }
       });
-<<<<<<< HEAD
-
-      setImportCanceled(false);
-
-      final IRunnableWithProgress importRunnable = new IRunnableWithProgress() {
-
-         @Override
-         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-            int imported = 0;
-            final int importSize = importFilePaths.size();
-
-            monitor.beginTask(Messages.import_data_importTours_task, importSize);
-
-            setImportId();
-
-            int importCounter = 0;
-
-            // loop: import all selected files
-            for (final ImportFile filePath : importFilePaths) {
-
-               if (monitor.isCanceled()) {
-
-                  // stop importing but process imported tours
-
-                  importRunState.isImportCanceled = true;
-
-                  break;
-               }
-
-               final String osFilePath = filePath.filePath.toOSString();
-
-               final String subTask = NLS.bind(
-                     Messages.import_data_importTours_subTask, //
-                     new Object[] { ++imported, importSize, osFilePath });
-
-               monitor.worked(1);
-               monitor.subTask(subTask);
-
-               // ignore files which are imported as children from other imported files
-               if (_importedFileNamesChildren.contains(osFilePath)) {
-                  continue;
-               }
-
-               File importFile = new File(osFilePath);
-
-               if (FileSystemManager.isFileFromTourBookFileSystem(osFilePath)) {
-                  importFile = FileSystemManager.CopyLocally(osFilePath);
-
-               }
-
-               if (importRawData(importFile, null, false, null, true, false)) {
-
-                  importCounter++;
-
-                  // update state
-                  for (final TourData importedTourData : _newlyImportedTours.values()) {
-
-                     importedTourData.isBackupImportFile = filePath.isBackupImportFile;
-
-                     TourLogManager.addSubLog(//
-                           TourLogState.IMPORT_OK,
-                           NLS.bind(LOG_IMPORT_TOUR_IMPORTED,
-                                 importedTourData.getTourStartTime().format(TimeTools.Formatter_DateTime_S),
-                                 osFilePath));
-                  }
-
-                  TourLogManager.addSubLog(//
-                        TourLogState.INFO,
-                        NLS.bind(LOG_IMPORT_TOURS_IMPORTED_FROM_FILE, _newlyImportedTours.size(), osFilePath));
-
-               } else {
-
-                  _invalidFilesList.add(osFilePath);
-
-                  TourLogManager.addSubLog(TourLogState.IMPORT_ERROR, osFilePath);
-               }
-
-               if (FileSystemManager.isFileFromTourBookFileSystem(osFilePath)) {
-                  // Delete the temporary created file
-                  FilesUtils.deleteIfExists(importFile.toPath());
-               }
-
-            }
-
-            save_InvalidFilesToIgnore_InTxt();
-
-            if (importCounter > 0) {
-
-               updateTourData_InImportView_FromDb(monitor);
-
-               Display.getDefault().syncExec(() -> {
-
-                  final RawDataView view = showRawDataView();
-
-                  if (view != null) {
-                     view.reloadViewer();
-
-                     if (isEasyImport == false) {
-                        // first tour is selected later
-                        view.selectFirstTour();
-                     }
-                  }
-               });
-            }
-         }
-      };
-
-      try {
-         new ProgressMonitorDialog(Display.getDefault().getActiveShell()).run(true, true, importRunnable);
-      } catch (final Exception e) {
-         TourLogManager.logEx(e);
-      }
-
-      final double time = (System.currentTimeMillis() - start) / 1000.0;
-      TourLogManager.addLog(
-            TourLogState.DEFAULT,
-            String.format(
-                  isEasyImport
-                        ? EasyImportManager.LOG_EASY_IMPORT_002_END
-                        : RawDataManager.LOG_IMPORT_TOUR_END,
-                  time));
-
-      return importRunState;
-   }
-
-   public void setImportCanceled(final boolean importCanceled) {
-      _isImportCanceled = importCanceled;
-   }
-
-   /**
-    * Sets a unique id into the device data so that each import can be identified.
-    */
-   public void setImportId() {
-      _deviceData.importId = System.currentTimeMillis();
-=======
->>>>>>> refs/remotes/Wolfgang/main
    }
 
    public void setImportYear(final int year) {

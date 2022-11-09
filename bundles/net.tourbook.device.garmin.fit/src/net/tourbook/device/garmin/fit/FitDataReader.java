@@ -28,13 +28,9 @@ import com.garmin.fit.MesgNum;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-<<<<<<< HEAD
-import java.util.Map;
-=======
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
->>>>>>> refs/remotes/Wolfgang/main
 
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -974,23 +970,12 @@ public class FitDataReader extends TourbookDevice {
       }
    }
 
-   @Override
-<<<<<<< HEAD
-   public boolean processDeviceData(final String importFilePath,
-                                    final DeviceData deviceData,
-                                    final Map<Long, TourData> alreadyImportedTours,
-                                    final Map<Long, TourData> newlyImportedTours,
-                                    final boolean isReimport) {
-
-      boolean returnValue = false;
-=======
-   public void processDeviceData(final String importFilePath,
+   @Override public void processDeviceData(final String importFilePath,
                                  final DeviceData deviceData,
                                  final Map<Long, TourData> alreadyImportedTours,
                                  final Map<Long, TourData> newlyImportedTours,
                                  final ImportState_File importState_File,
                                  final ImportState_Process importState_Process) {
->>>>>>> refs/remotes/Wolfgang/main
 
       try (FileInputStream fileInputStream = new FileInputStream(importFilePath)) {
 
