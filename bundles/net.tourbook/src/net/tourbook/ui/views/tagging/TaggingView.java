@@ -1482,6 +1482,7 @@ public class TaggingView extends ViewPart implements ITourProvider, ITourViewer,
             final Object element = cell.getElement();
             if (element instanceof TVITagView_Tag) {
 
+               //TODO FB
                cell.setImage(TourbookPlugin.getImageDescriptor(Images.AdjustElevation).createImage());
 
             } else if (element instanceof TVITagView_TagCategory) {
