@@ -48,7 +48,7 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory DATA_TIME_INTERVAL;
 
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_END;
-   public static final String            DEVICE_BATTERY_SOC_END_ID   = "DEVICE_BATTERY_SOC_END_ID";                 //$NON-NLS-1$
+   private static final String           DEVICE_BATTERY_SOC_END_ID   = "DEVICE_BATTERY_SOC_END_ID";                 //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_START;
    public static final String            DEVICE_BATTERY_SOC_START_ID = "DEVICE_BATTERY_SOC_START_ID";               //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_DISTANCE;
