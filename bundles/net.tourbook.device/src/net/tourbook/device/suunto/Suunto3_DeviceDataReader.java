@@ -66,20 +66,12 @@ public class Suunto3_DeviceDataReader extends TourbookDevice {
    }
 
    @Override
-<<<<<<< HEAD
-   public boolean processDeviceData(final String importFilePath,
-                                    final DeviceData deviceData,
-                                    final Map<Long, TourData> alreadyImportedTours,
-                                    final Map<Long, TourData> newlyImportedTours,
-                                    final boolean isReimport) {
-=======
    public void processDeviceData(final String importFilePath,
                                  final DeviceData deviceData,
                                  final Map<Long, TourData> alreadyImportedTours,
                                  final Map<Long, TourData> newlyImportedTours,
                                  final ImportState_File importState_File,
                                  final ImportState_Process importState_Process) {
->>>>>>> refs/remotes/Wolfgang/main
 
       if (isValidXMLFile(importFilePath, SUUNTO_XML_TAG) == false) {
          return;

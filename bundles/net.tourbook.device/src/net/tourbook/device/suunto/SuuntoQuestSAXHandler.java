@@ -159,12 +159,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    public SuuntoQuestSAXHandler(final TourbookDevice deviceDataReader,
                                 final String importFileName,
                                 final Map<Long, TourData> alreadyImportedTours,
-<<<<<<< HEAD
-                                final Map<Long, TourData> newlyImportedTours,
-                                final boolean isReimport) {
-=======
                                 final Map<Long, TourData> newlyImportedTours) {
->>>>>>> refs/remotes/Wolfgang/main
 
       _device = deviceDataReader;
       _importFilePath = importFileName;
