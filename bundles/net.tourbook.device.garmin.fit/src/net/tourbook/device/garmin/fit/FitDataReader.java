@@ -970,7 +970,8 @@ public class FitDataReader extends TourbookDevice {
       }
    }
 
-   @Override public void processDeviceData(final String importFilePath,
+   @Override
+   public void processDeviceData(final String importFilePath,
                                  final DeviceData deviceData,
                                  final Map<Long, TourData> alreadyImportedTours,
                                  final Map<Long, TourData> newlyImportedTours,
