@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.Base64;
 
 import net.tourbook.common.UI;
-import net.tourbook.photo.internal.Activator;
 
 import org.apache.commons.imaging.Imaging;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -45,7 +44,7 @@ import org.imgscalr.Scalr.Rotation;
  */
 public class ImageUtils {
 
-   private static IPreferenceStore _prefStore = Activator.getDefault().getPreferenceStore();
+   private static IPreferenceStore _prefStore = PhotoActivator.getPrefStore();
 
    private static boolean          _isRotateImageAutomatically;
 

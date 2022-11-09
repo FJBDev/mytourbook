@@ -83,7 +83,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_PUSH_BUTTON);
 
          setToolTipText(Messages.App_Action_Close_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(CommonImages.App_Close_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Close));
       }
 
       @Override
@@ -99,7 +100,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_CHECK_BOX);
 
          setToolTipText(Messages.Slideout_Dialog_Action_PinSlideoutLocation_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(CommonImages.App_Pin_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Pin));
       }
 
       @Override
@@ -115,7 +117,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_CHECK_BOX);
 
          setToolTipText(Messages.Slideout_Dialog_Action_KeepSlideoutOpen_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(CommonImages.BookOpen_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_KeepOpen));
       }
 
       @Override
@@ -369,6 +372,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       final int devYBelow = devYParent + itemHeight;
 
       final Rectangle displayBounds = Display.getCurrent().getBounds();
+      final int displayWidth = displayBounds.width;
+      final int displayHeight = displayBounds.height;
 
       int devX;
       int devY;
@@ -405,8 +410,13 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       if (isCheckAbove && (devY < 0)) {
          devY = devYBelow;
       }
-      if (isCheckBelow & (devY + slideoutHeight > displayBounds.height)) {
+      if (isCheckBelow & (devY + slideoutHeight > displayHeight)) {
          devY = devYAbove;
+      }
+
+      // do not hide on the right side
+      if (devX > displayWidth - slideoutWidth) {
+         devX = displayWidth - slideoutWidth;
       }
 
       return new Point(devX, devY);

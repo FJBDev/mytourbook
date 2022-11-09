@@ -37,6 +37,7 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.map.bookmark.MapBookmarkManager;
+import net.tourbook.map.player.MapPlayerManager;
 import net.tourbook.map3.view.Map3Manager;
 import net.tourbook.map3.view.Map3State;
 import net.tourbook.photo.PhotoUI;
@@ -56,6 +57,7 @@ import net.tourbook.tourType.TourTypeImage;
 import net.tourbook.tourType.TourTypeManager;
 //import net.tourbook.ui.UI;
 import net.tourbook.ui.views.rawData.RawDataView;
+import net.tourbook.ui.views.tourCatalog.TourCompareManager;
 import net.tourbook.web.WebContentServer;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -454,9 +456,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       TourTypeManager.restoreState();
       TourTypeFilterManager.restoreState();
 
+      TourCompareManager.restoreState();
       TourFilterManager.restoreState();
       TourGeoFilter_Manager.restoreState();
       TourTagFilterManager.restoreState();
+
+      MapPlayerManager.restoreState();
    }
 
    @Override
@@ -534,10 +539,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       TourTypeMenuManager.saveState();
       TourTypeManager.saveState();
 
+      TourCompareManager.saveState();
       TourFilterManager.saveState();
       TourGeoFilter_Manager.saveState();
       TourPhotoManager.saveState();
       MapBookmarkManager.saveState();
+      MapPlayerManager.saveState();
       SwimStrokeManager.saveState();
 
       FTSearchManager.closeIndexReaderSuggester();

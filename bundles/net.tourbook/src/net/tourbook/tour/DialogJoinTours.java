@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.tour;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,7 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -41,11 +44,9 @@ import net.tourbook.tag.TagMenuManager;
 import net.tourbook.ui.ITourProvider2;
 import net.tourbook.ui.UI;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
-import net.tourbook.ui.tourChart.ChartLabel;
+import net.tourbook.ui.tourChart.ChartLabelMarker;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -55,22 +56,17 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -224,8 +220,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
                   | SWT.CLOSE
                   | SWT.MIN
 //            | SWT.MAX
-                  | SWT.RESIZE
-                  | SWT.NONE;
+                  | SWT.RESIZE;
       setShellStyle(shellStyle);
    }
 
@@ -236,38 +231,30 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
       shell.setText(Messages.Dialog_JoinTours_DlgArea_Title);
 
-      shell.addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose();
+      shell.addDisposeListener(disposeEvent -> onDispose());
+
+      shell.addListener(SWT.Resize, event -> {
+
+         // allow resizing the width but not the height
+
+         if (_shellDefaultSize == null) {
+            _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
          }
-      });
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+         final Point shellSize = shell.getSize();
 
-            // allow resizing the width but not the height
-
-            if (_shellDefaultSize == null) {
-               _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            }
-
-            final Point shellSize = shell.getSize();
-
-            /*
-             * this is not working, the shell is flickering when the shell size is below min size
-             * and I found no way to prevent a resize :-(
-             */
+         /*
+          * this is not working, the shell is flickering when the shell size is below min size
+          * and I found no way to prevent a resize :-(
+          */
 //            if (shellSize.x < _shellDefaultSize.x) {
 //               event.doit = false;
 //            }
 
-            shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
-            shellSize.y = _shellDefaultSize.y;
+         shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
+         shellSize.y = _shellDefaultSize.y;
 
-            shell.setSize(shellSize);
-         }
+         shell.setSize(shellSize);
       });
    }
 
@@ -323,16 +310,13 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       final MenuManager menuMgr = new MenuManager();
 
       menuMgr.setRemoveAllWhenShown(true);
-      menuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      menuMgr.addMenuListener(menuManager -> {
 
-            final Set<TourTag> joinedTourTags = _joinedTourData.getTourTags();
-            final boolean isTagInTour = joinedTourTags != null && !joinedTourTags.isEmpty();
+         final Set<TourTag> joinedTourTags = _joinedTourData.getTourTags();
+         final boolean isTagInTour = joinedTourTags != null && !joinedTourTags.isEmpty();
 
-            _tagMenuMgr.fillTagMenu(menuMgr, false);
-            _tagMenuMgr.enableTagActions(true, isTagInTour, joinedTourTags);
-         }
+         _tagMenuMgr.fillTagMenu(menuManager, false);
+         _tagMenuMgr.enableTagActions(true, isTagInTour, joinedTourTags);
       });
 
       // set menu for the tag item
@@ -363,17 +347,14 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       final MenuManager typeMenuMgr = new MenuManager();
 
       typeMenuMgr.setRemoveAllWhenShown(true);
-      typeMenuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      typeMenuMgr.addMenuListener(menuManager -> {
 
-            // set menu items
+         // set menu items
 
-            ActionSetTourTypeMenu.fillMenu(menuMgr, DialogJoinTours.this, false);
+         ActionSetTourTypeMenu.fillMenu(menuManager, DialogJoinTours.this, false);
 
-            menuMgr.add(new Separator());
-            menuMgr.add(_actionOpenTourTypePrefs);
-         }
+         menuManager.add(new Separator());
+         menuManager.add(_actionOpenTourTypePrefs);
       });
 
       // set menu for the tag item
@@ -382,24 +363,20 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
    private void createUI(final Composite parent) {
 
-      final SelectionAdapter defaultSelectionAdapter = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+      final SelectionListener defaultSelectionListener =
+            widgetSelectedAdapter(selectionEvent -> enableControls());
 
       _dlgInnerContainer = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(_dlgInnerContainer);
       GridLayoutFactory.swtDefaults().margins(10, 10).numColumns(3).spacing(10, 8).applyTo(_dlgInnerContainer);
 //      _dlgInnerContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
       {
-         createUI10JoinMethod(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI10JoinMethod(_dlgInnerContainer, defaultSelectionListener);
          createUI20Title(_dlgInnerContainer);
-         createUI22TourTime(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI22TourTime(_dlgInnerContainer, defaultSelectionListener);
          createUI30TypeTags(_dlgInnerContainer);
          createUI40Person(_dlgInnerContainer);
-         createUI50DescriptionMarker(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI50DescriptionMarker(_dlgInnerContainer, defaultSelectionListener);
          createUI60InsertPauses(_dlgInnerContainer);
       }
    }
@@ -407,7 +384,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
    /**
     * tour time
     */
-   private void createUI10JoinMethod(final Composite parent, final SelectionAdapter defaultSelectionAdapter) {
+   private void createUI10JoinMethod(final Composite parent, final SelectionListener defaultSelectionListener) {
 
       /*
        * join method
@@ -423,7 +400,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       // combo
       _cboJoinMethod = new Combo(parent, SWT.READ_ONLY);
       GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_cboJoinMethod);
-      _cboJoinMethod.addSelectionListener(defaultSelectionAdapter);
+      _cboJoinMethod.addSelectionListener(defaultSelectionListener);
 
       // fill combo
       for (final String timeText : STATE_TEXT_JOIN_METHOD) {
@@ -461,12 +438,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             .grab(true, false)
             .span(2, 1)
             .applyTo(_cboTourTitleSource);
-      _cboTourTitleSource.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectTourTitleSource();
-         }
-      });
+      _cboTourTitleSource.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTourTitleSource()));
 
       // fill combo
       for (final String comboText : STATE_COMBO_TEXT_TOUR_TITLE_SOURCE) {
@@ -489,14 +461,9 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
    /**
     * tour time
     */
-   private void createUI22TourTime(final Composite parent, final SelectionAdapter defaultSelectionAdapter) {
+   private void createUI22TourTime(final Composite parent, final SelectionListener defaultSelectionListener) {
 
-      final SelectionAdapter dateTimeUpdateListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+      final SelectionListener dateTimeUpdateListener = widgetSelectedAdapter(selectionEvent -> enableControls());
 
       /*
        * tour time
@@ -510,7 +477,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       _chkKeepOriginalDateTime = new Button(parent, SWT.CHECK);
       GridDataFactory.fillDefaults().span(2, 1).applyTo(_chkKeepOriginalDateTime);
       _chkKeepOriginalDateTime.setText(Messages.Dialog_SplitTour_Checkbox_KeepTime);
-      _chkKeepOriginalDateTime.addSelectionListener(defaultSelectionAdapter);
+      _chkKeepOriginalDateTime.addSelectionListener(defaultSelectionListener);
 
       /*
        * tour start date/time
@@ -566,12 +533,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
       _cboTourType = new Combo(parent, SWT.READ_ONLY);
       GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_cboTourType);
-      _cboTourType.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectTourTypeSource();
-         }
-      });
+      _cboTourType.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTourTypeSource()));
 
       // fill combo
       for (final String tourTypeText : STATE_TEXT_TOUR_TYPE_SOURCE) {
@@ -591,12 +553,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       {
          _linkTourType = new Link(tourTypeContainer, SWT.NONE);
          _linkTourType.setText(Messages.Dialog_JoinTours_Link_TourType);
-         _linkTourType.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               net.tourbook.common.UI.openControlMenu(_linkTourType);
-            }
-         });
+         _linkTourType.addSelectionListener(widgetSelectedAdapter(selectionEvent -> net.tourbook.common.UI.openControlMenu(_linkTourType)));
 
          _lblTourType = new CLabel(tourTypeContainer, SWT.NONE);
          GridDataFactory.swtDefaults().grab(true, false).applyTo(_lblTourType);
@@ -610,12 +567,8 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       GridDataFactory.fillDefaults()//
             .align(SWT.BEGINNING, SWT.FILL)
             .applyTo(_linkTag);
-      _linkTag.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            net.tourbook.common.UI.openControlMenu(_linkTag);
-         }
-      });
+      _linkTag.addSelectionListener(widgetSelectedAdapter(
+            selectionEvent -> net.tourbook.common.UI.openControlMenu(_linkTag)));
 
       _lblTourTags = new Label(parent, SWT.WRAP);
       GridDataFactory.fillDefaults()//
@@ -649,7 +602,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
    /**
     * checkbox: set marker for each tour
     */
-   private void createUI50DescriptionMarker(final Composite parent, final SelectionAdapter defaultSelectionAdapter) {
+   private void createUI50DescriptionMarker(final Composite parent, final SelectionListener defaultSelectionListener) {
 
       /*
        * description
@@ -693,7 +646,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          _chkCreateTourMarker = new Button(container, SWT.CHECK);
          GridDataFactory.fillDefaults().applyTo(_chkCreateTourMarker);
          _chkCreateTourMarker.setText(Messages.Dialog_JoinTours_Checkbox_CreateTourMarker);
-         _chkCreateTourMarker.addSelectionListener(defaultSelectionAdapter);
+         _chkCreateTourMarker.addSelectionListener(defaultSelectionListener);
 
          final Composite markerContainer = new Composite(container, SWT.NONE);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(markerContainer);
@@ -712,7 +665,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             GridDataFactory.fillDefaults()//
                   .grab(true, false)
                   .applyTo(_cboTourMarker);
-            _cboTourMarker.addSelectionListener(defaultSelectionAdapter);
+            _cboTourMarker.addSelectionListener(defaultSelectionListener);
 
             // !!! combo box is filled in updateUIMarker() !!!
          }
@@ -959,6 +912,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       int joinedPausedTime = 0;
       final ArrayList<Long> joinedPausedTime_Start = new ArrayList<>();
       final ArrayList<Long> joinedPausedTime_End = new ArrayList<>();
+      final ArrayList<Long> joinedPausedTime_Data = new ArrayList<>();
       int joinedMovingTime = 0;
       float joinedDistance = 0;
       int joinedCalories = 0;
@@ -968,7 +922,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       short joinedDeviceTimeInterval = -1;
       String joinedWeatherClouds = UI.EMPTY_STRING;
       String joinedWeather = UI.EMPTY_STRING;
-      int joinedWeatherWindDir = 0;
+      int joinedWeatherWindDirection = 0;
       int joinedWeatherWindSpeed = 0;
       int joinedRestPulse = 0;
 
@@ -1246,7 +1200,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
                final int joinMarkerIndex = joinedTourStartIndex + tourMarkerIndex;
 
-               final TourMarker tourMarker = new TourMarker(_joinedTourData, ChartLabel.MARKER_TYPE_CUSTOM);
+               final TourMarker tourMarker = new TourMarker(_joinedTourData, ChartLabelMarker.MARKER_TYPE_CUSTOM);
 
                tourMarker.setSerieIndex(joinMarkerIndex);
                tourMarker.setLabel(markerLabel);
@@ -1284,16 +1238,16 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
           */
          if (_chkIncludeDescription.getSelection()) {
 
-            final String tourDescription = tourData.getTourDescription();
-
             if (joinedDescription.length() > 0) {
                // set space between two tours
                joinedDescription.append(UI.NEW_LINE2);
             }
 
-            joinedDescription.append(Messages.Dialog_JoinTours_Label_Tour);
+            joinedDescription.append(Messages.Dialog_JoinTours_Label_Tour + UI.COLON_SPACE);
             joinedDescription.append(TourManager.getTourTitleDetailed(tourData));
-            if (tourDescription.length() > 0) {
+
+            final String tourDescription = tourData.getTourDescription();
+            if (StringUtils.hasContent(tourDescription)) {
                joinedDescription.append(UI.NEW_LINE);
                joinedDescription.append(tourDescription);
             }
@@ -1311,9 +1265,9 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             joinedDeviceTimeInterval = tourData.getDeviceTimeInterval();
 
             joinedWeather = tourData.getWeather();
-            joinedWeatherClouds = tourData.getWeatherClouds();
-            joinedWeatherWindDir = tourData.getWeatherWindDir();
-            joinedWeatherWindSpeed = tourData.getWeatherWindSpeed();
+            joinedWeatherClouds = tourData.getWeather_Clouds();
+            joinedWeatherWindDirection = tourData.getWeather_Wind_Direction();
+            joinedWeatherWindSpeed = tourData.getWeather_Wind_Speed();
 
             joinedRestPulse = tourData.getRestPulse();
 
@@ -1348,14 +1302,21 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
                final long currentTourStartTime = tourData.getTourStartTimeMS();
 
                if (previousTourEndTime < currentTourStartTime) {
+
                   joinedPausedTime_Start.add(previousTourEndTime);
                   joinedPausedTime_End.add(currentTourStartTime);
+
+                  // set this pause as a manual pause, it's not an auto-pause
+                  joinedPausedTime_Data.add(0L);
 
                   joinedPausedTime += (currentTourStartTime - previousTourEndTime) / 1000;
                }
             }
          }
 
+         /*
+          * Pauses
+          */
          final Long[] pausedTime_Start = ArrayUtils.toObject(tourData.getPausedTime_Start());
          if (pausedTime_Start != null) {
             joinedPausedTime_Start.addAll(Arrays.asList(pausedTime_Start));
@@ -1363,6 +1324,10 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          final Long[] pausedTime_End = ArrayUtils.toObject(tourData.getPausedTime_End());
          if (pausedTime_End != null) {
             joinedPausedTime_End.addAll(Arrays.asList(pausedTime_End));
+         }
+         final Long[] pausedTime_Data = ArrayUtils.toObject(tourData.getPausedTime_Data());
+         if (pausedTime_Data != null) {
+            joinedPausedTime_Data.addAll(Arrays.asList(pausedTime_Data));
          }
          joinedPausedTime += tourData.getTourDeviceTime_Paused();
 
@@ -1413,15 +1378,16 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       _joinedTourData.setRestPulse(joinedRestPulse);
 
       _joinedTourData.setWeather(joinedWeather);
-      _joinedTourData.setWeatherClouds(joinedWeatherClouds);
-      _joinedTourData.setWeatherWindDir(joinedWeatherWindDir);
-      _joinedTourData.setWeatherWindSpeed(joinedWeatherWindSpeed);
+      _joinedTourData.setWeather_Clouds(joinedWeatherClouds);
+      _joinedTourData.setWeather_Wind_Direction(joinedWeatherWindDirection);
+      _joinedTourData.setWeather_Wind_Speed(joinedWeatherWindSpeed);
 
       _joinedTourData.setTourDeviceTime_Elapsed(joinedRecordedTime + joinedPausedTime);
       _joinedTourData.setTourDeviceTime_Recorded(joinedRecordedTime);
       _joinedTourData.setTourDeviceTime_Paused(joinedPausedTime);
       _joinedTourData.setPausedTime_Start(joinedPausedTime_Start.stream().mapToLong(l -> l).toArray());
       _joinedTourData.setPausedTime_End(joinedPausedTime_End.stream().mapToLong(l -> l).toArray());
+      _joinedTourData.setPausedTime_Data(joinedPausedTime_Data.stream().mapToLong(l -> l).toArray());
       _joinedTourData.setTourComputedTime_Moving(joinedMovingTime);
       _joinedTourData.setTourDistance(joinedDistance);
 

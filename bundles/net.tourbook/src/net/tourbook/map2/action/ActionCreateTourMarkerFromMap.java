@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019, 2021 Frédéric Bard
+ * Copyright (C) 2019, 2022 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,14 +21,13 @@ import com.javadocmd.simplelatlng.util.LengthUnit;
 
 import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.map2.Messages;
 import net.tourbook.map2.view.Map2View;
 import net.tourbook.tour.DialogMarker;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.tourChart.ChartLabel;
+import net.tourbook.ui.tourChart.ChartLabelMarker;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
 import org.eclipse.jface.action.Action;
@@ -37,7 +36,7 @@ import org.eclipse.swt.widgets.Display;
 public class ActionCreateTourMarkerFromMap extends Action {
 
    private Map2View _mapView;
-   private long     _currentHoverTourId;
+   private Long     _currentHoveredTourId;
 
    public ActionCreateTourMarkerFromMap(final Map2View mapView) {
 
@@ -45,17 +44,18 @@ public class ActionCreateTourMarkerFromMap extends Action {
 
       _mapView = mapView;
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(ThemeUtil.getThemedImageName(Images.TourMarker_New)));
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourMarker_New));
    }
 
    @Override
    public void run() {
 
-      final TourData tourData = TourManager.getTour(_currentHoverTourId);
+      final TourData tourData = TourManager.getTour(_currentHoveredTourId);
+      if (tourData == null
 
-      if (tourData == null ||
-      // make sure the tour editor does not contain a modified tour
-            TourManager.isTourEditorModified()) {
+            // make sure the tour editor does not contain a modified tour
+            || TourManager.isTourEditorModified()) {
+
          return;
       }
 
@@ -86,7 +86,7 @@ public class ActionCreateTourMarkerFromMap extends Action {
       final double[] longitudeSerie = tourData.longitudeSerie;
 
       // create a new marker
-      final TourMarker tourMarker = new TourMarker(tourData, ChartLabel.MARKER_TYPE_CUSTOM);
+      final TourMarker tourMarker = new TourMarker(tourData, ChartLabelMarker.MARKER_TYPE_CUSTOM);
       tourMarker.setSerieIndex(closestLatLongIndex);
       tourMarker.setTime(relativeTourTime, tourData.getTourStartTimeMS() + (relativeTourTime * 1000));
       tourMarker.setLabel(Messages.Default_Label_NewTourMarker);
@@ -139,8 +139,8 @@ public class ActionCreateTourMarkerFromMap extends Action {
       TourManager.saveModifiedTour(tourData);
    }
 
-   public void setCurrentHoverTourId(final long tourId) {
-      _currentHoverTourId = tourId;
+   public void setCurrentHoveredTourId(final Long hoveredTourId) {
+      _currentHoveredTourId = hoveredTourId;
    }
 
 }

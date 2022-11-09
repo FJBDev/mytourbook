@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.common.util.StatusUtil;
@@ -44,20 +45,20 @@ import org.eclipse.swt.widgets.Display;
  */
 public class TagManager {
 
-   private static final String  NL                  = UI.NEW_LINE;
+   private static final String     NL                  = UI.NEW_LINE;
 
-   public static final String[] EXPAND_TYPE_NAMES   = {
+   protected static final String[] EXPAND_TYPE_NAMES   = {
          Messages.app_action_expand_type_flat,
          Messages.app_action_expand_type_year_day,
          Messages.app_action_expand_type_year_month_day };
 
-   public static final int[]    EXPAND_TYPES        = {
+   protected static final int[]    EXPAND_TYPES        = {
          TourTag.EXPAND_TYPE_FLAT,
          TourTag.EXPAND_TYPE_YEAR_DAY,
          TourTag.EXPAND_TYPE_YEAR_MONTH_DAY };
 
-   private static final String  PARAMETER_FIRST     = "?";        //$NON-NLS-1$
-   private static final String  PARAMETER_FOLLOWING = ", ?";      //$NON-NLS-1$
+   private static final String     PARAMETER_FIRST     = "?";        //$NON-NLS-1$
+   private static final String     PARAMETER_FOLLOWING = ", ?";      //$NON-NLS-1$
 
    private static boolean canDeleteTourTagCategory(final long categoryId, final String categoryName) {
 
@@ -119,7 +120,7 @@ public class TagManager {
     * @param allTags
     * @return Returns <code>true</code> when deletion was successful
     */
-   public static boolean deleteTourTag(final ArrayList<TourTag> allTags) {
+   public static boolean deleteTourTag(final List<TourTag> allTags) {
 
       // ensure that a tour is NOT modified in the tour editor
       if (TourManager.isTourEditorModified(false)) {
@@ -160,7 +161,7 @@ public class TagManager {
                   IDialogConstants.CANCEL_LABEL },
             1);
 
-      final boolean returnValue[] = { false };
+      final boolean[] returnValue = { false };
 
       if (dialog.open() == Window.OK) {
 
@@ -180,7 +181,7 @@ public class TagManager {
       return returnValue[0];
    }
 
-   private static boolean deleteTourTag_10(final ArrayList<TourTag> allTags) {
+   private static boolean deleteTourTag_10(final List<TourTag> allTags) {
 
       boolean returnResult = false;
 
@@ -241,7 +242,7 @@ public class TagManager {
 
          for (int tagIndex = 0; tagIndex < allTags.size(); tagIndex++) {
 
-            TourLogManager.logInfo(String.format(Messages.Tag_Manager_LogInfo_DeletedTags,
+            TourLogManager.log_INFO(String.format(Messages.Tag_Manager_LogInfo_DeletedTags,
                   returnValue_TourData[tagIndex],
                   returnValue_TagCategory[tagIndex],
                   returnValue_TourTag[tagIndex],
@@ -294,7 +295,7 @@ public class TagManager {
                   IDialogConstants.CANCEL_LABEL },
             1);
 
-      final boolean returnValue[] = { false };
+      final boolean[] returnValue = { false };
 
       if (dialog.open() == Window.OK) {
 
@@ -353,7 +354,7 @@ public class TagManager {
 
          // log result
          TourLogManager.showLogView();
-         TourLogManager.logInfo(String.format(Messages.Tag_Manager_LogInfo_DeletedTagCategory,
+         TourLogManager.log_INFO(String.format(Messages.Tag_Manager_LogInfo_DeletedTagCategory,
                returnValue_CategoryCategory[0],
                returnValue_TagCategory[0],
                categoryName));
@@ -399,7 +400,7 @@ public class TagManager {
          }
 
       } catch (final SQLException e) {
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          UI.showSQLException(e);
       }
 
@@ -413,7 +414,7 @@ public class TagManager {
     * @param allTags
     * @return Returns a list with all tour id's which contain the tour tag.
     */
-   private static ArrayList<Long> getTaggedTours(final ArrayList<TourTag> allTags) {
+   private static ArrayList<Long> getTaggedTours(final List<TourTag> allTags) {
 
       final ArrayList<Long> allTourIds = new ArrayList<>();
 
@@ -467,7 +468,7 @@ public class TagManager {
          }
 
       } catch (final SQLException e) {
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          UI.showSQLException(e);
       } finally {
          Util.closeSql(statement);
@@ -482,7 +483,7 @@ public class TagManager {
     * @param deletedTags
     *           An array containing the Tag Id's of the tour tags just deleted
     */
-   private static void updateTourTagFilterProfiles(final ArrayList<TourTag> deletedTags) {
+   private static void updateTourTagFilterProfiles(final List<TourTag> deletedTags) {
 
       final ArrayList<TourTagFilterProfile> profiles = TourTagFilterManager.getProfiles();
       for (final TourTagFilterProfile profile : profiles) {

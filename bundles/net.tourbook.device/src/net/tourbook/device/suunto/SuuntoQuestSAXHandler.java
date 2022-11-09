@@ -159,8 +159,12 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    public SuuntoQuestSAXHandler(final TourbookDevice deviceDataReader,
                                 final String importFileName,
                                 final Map<Long, TourData> alreadyImportedTours,
+<<<<<<< HEAD
                                 final Map<Long, TourData> newlyImportedTours,
                                 final boolean isReimport) {
+=======
+                                final Map<Long, TourData> newlyImportedTours) {
+>>>>>>> refs/remotes/Wolfgang/main
 
       _device = deviceDataReader;
       _importFilePath = importFileName;
@@ -178,7 +182,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    private void assignAdditionalData(final TourData tourData) {
 
       final ExerciseMode exerciseMode = _exerciseModesList.stream()
-            .filter((e) -> e.activity == _tourActivity)
+            .filter(e -> e.activity == _tourActivity)
             .findFirst()
             .orElse(null);
 
@@ -202,7 +206,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    @Override
    public void characters(final char[] chars, final int startIndex, final int length) throws SAXException {
 
-      if (_isInCadence //
+      if (_isInCadence
             || _isInActivity
             || _isInCalories
             || _isInDistance
@@ -216,7 +220,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
             || _isInWeight
             || _isInWeightUnit
             || _isInTime
-      //
+      
       ) {
          _characters.append(chars, startIndex, length);
       }
@@ -422,7 +426,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
             final float milliSeconds = (float) (time - timeInSeconds * 1000) / 1000;
             _markerData.relativeTime = timeInSeconds + Math.round(milliSeconds);
          } catch (final ParseException e) {
-            TourLogManager.logError(e.getMessage() + " in " + _importFilePath); //$NON-NLS-1$
+            TourLogManager.log_ERROR(e.getMessage() + " in " + _importFilePath); //$NON-NLS-1$
          }
 
          //If existing, we need to use the previous marker relative time
@@ -526,7 +530,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
       //Converting the distance data to meters if needed
       if (_distanceUnit.equalsIgnoreCase("mile")) { //$NON-NLS-1$
-         _sampleList.forEach((s) -> s.distance *= UI.UNIT_MILE);
+         _sampleList.forEach(s -> s.distance *= UI.UNIT_MILE);
       }
 
       //We sort the sample lists as it could be out of order if we added markers above
@@ -575,7 +579,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
       final Long tourId = tourData.createTourId(uniqueId);
 
       // check if the tour is already imported
-      if (_alreadyImportedTours.containsKey(tourId) == false) {
+      if (!_alreadyImportedTours.containsKey(tourId)) {
 
          // add new tour to other tours
          _newlyImportedTours.put(tourId, tourData);
@@ -601,6 +605,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
     *         The sum of the distances
     */
    private float getSamplesRangeAbsoluteDistance(final int endIndex) {
+
       final Stream<TimeData> samplesRange = _sampleList.stream().skip(0).limit(endIndex + 1);
 
       return samplesRange.map(sample -> sample.distance)
@@ -624,7 +629,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
       for (final TimeData marker : _markerList) {
          //We search for a sample that is at the same point in time
          final TimeData equivalentSample = _sampleList.stream()
-               .filter((s) -> s.relativeTime == marker.relativeTime)
+               .filter(s -> s.relativeTime == marker.relativeTime)
                .findFirst()
                .orElse(null);
 
@@ -651,7 +656,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
          } else {
             //If that doesn't exist, we insert the marker in the sample list and update the 2 adjacent elements
             TimeData closestSample = _sampleList.stream()
-                  .filter((s) -> s.relativeTime > marker.relativeTime)
+                  .filter(s -> s.relativeTime > marker.relativeTime)
                   .findFirst()
                   .orElse(null);
 

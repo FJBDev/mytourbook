@@ -20,9 +20,10 @@ import java.util.HashMap;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.chart.Chart;
+import net.tourbook.chart.MouseWheelMode;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringToArrayConverter;
+import net.tourbook.common.util.Util;
 import net.tourbook.tour.TourManager;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -35,6 +36,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -46,8 +49,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbench;
@@ -101,17 +102,16 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
    /*
     * UI controls
     */
-   private TabFolder           _tabFolder;
-   private TabItem             _tab1_Graphs;
-   private TabItem             _tab2_Grid;
-   private TabItem             _tab3_Options;
+   private CTabFolder          _tabFolder;
+   private CTabItem            _tab1_Graphs;
+   private CTabItem            _tab2_Grid;
+   private CTabItem            _tab3_Options;
 
    private CheckboxTableViewer _graphCheckboxList;
 
    private Button              _btnDown;
    private Button              _btnUp;
 
-   private Button              _chkGraphAntialiasing;
    private Button              _chkLiveUpdate;
 
    private Button              _chkMoveSlidersWhenZoomed;
@@ -130,7 +130,6 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
    private Button              _rdoShowDistance;
    private Button              _rdoShowTime;
 
-   private Spinner             _spinnerGraphTransparencyLine;
    private Spinner             _spinnerGridHorizontalDistance;
    private Spinner             _spinnerGridVerticalDistance;
 
@@ -180,18 +179,18 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
       {
-         _tabFolder = new TabFolder(container, SWT.NONE);
+         _tabFolder = new CTabFolder(container, SWT.NONE);
          _tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
          {
-            _tab1_Graphs = new TabItem(_tabFolder, SWT.NONE);
+            _tab1_Graphs = new CTabItem(_tabFolder, SWT.NONE);
             _tab1_Graphs.setText(Messages.Pref_Graphs_Tab_graph_defaults);
             _tab1_Graphs.setControl(createUI_10_Tab_1_Graphs(_tabFolder));
 
-            _tab2_Grid = new TabItem(_tabFolder, SWT.NONE);
+            _tab2_Grid = new CTabItem(_tabFolder, SWT.NONE);
             _tab2_Grid.setText(Messages.Pref_Graphs_Tab_Grid);
             _tab2_Grid.setControl(createUI_70_Tab_2_Grid(_tabFolder));
 
-            _tab3_Options = new TabItem(_tabFolder, SWT.NONE);
+            _tab3_Options = new CTabItem(_tabFolder, SWT.NONE);
             _tab3_Options.setText(Messages.Pref_Graphs_Tab_zoom_options);
             _tab3_Options.setControl(createUI_80_Tab_3_Options(_tabFolder));
          }
@@ -352,42 +351,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
-         {
-            /*
-             * label: graph filling transparency
-             */
-            final Label label = new Label(container, SWT.NONE);
-            GridDataFactory.fillDefaults()//
-                  .align(SWT.FILL, SWT.CENTER)
-                  .applyTo(label);
-            label.setText(Messages.Pref_Graphs_Label_GraphTransparencyLine);
-            label.setToolTipText(Messages.Pref_Graphs_Label_GraphTransparencyLine_Tooltip);
 
-            /*
-             * spinner: graph filling transparency
-             */
-            _spinnerGraphTransparencyLine = new Spinner(container, SWT.BORDER);
-            GridDataFactory.fillDefaults() //
-                  .align(SWT.BEGINNING, SWT.FILL)
-                  .applyTo(_spinnerGraphTransparencyLine);
-            _spinnerGraphTransparencyLine.setMinimum(0);
-            _spinnerGraphTransparencyLine.setMaximum(100);
-            _spinnerGraphTransparencyLine.setIncrement(1);
-            _spinnerGraphTransparencyLine.setPageIncrement(10);
-            _spinnerGraphTransparencyLine.setToolTipText(Messages.Pref_Graphs_Label_GraphTransparencyLine_Tooltip);
-            _spinnerGraphTransparencyLine.addMouseWheelListener(_defaultMouseWheelListener);
-            _spinnerGraphTransparencyLine.addSelectionListener(_defaultSelectionListener);
-         }
-         {
-            /*
-             * checkbox: graph antialiasing
-             */
-            _chkGraphAntialiasing = new Button(container, SWT.CHECK);
-            GridDataFactory.fillDefaults().span(2, 1).applyTo(_chkGraphAntialiasing);
-            _chkGraphAntialiasing.setText(Messages.Pref_Graphs_Checkbox_GraphAntialiasing);
-            _chkGraphAntialiasing.setToolTipText(Messages.Pref_Graphs_Checkbox_GraphAntialiasing_Tooltip);
-            _chkGraphAntialiasing.addSelectionListener(_defaultSelectionListener);
-         }
       }
    }
 
@@ -846,7 +810,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       /*
        * perform defaults for the currently selected tab
        */
-      final TabItem selectedTab = _tabFolder.getItem(_tabFolder.getSelectionIndex());
+      final CTabItem selectedTab = _tabFolder.getItem(_tabFolder.getSelectionIndex());
 
       if (selectedTab == _tab1_Graphs) {
 
@@ -876,15 +840,9 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       /*
        * perform defaults for the currently selected tab
        */
-      final TabItem selectedTab = _tabFolder.getItem(_tabFolder.getSelectionIndex());
+      final CTabItem selectedTab = _tabFolder.getItem(_tabFolder.getSelectionIndex());
 
-      if (selectedTab == _tab1_Graphs) {
-
-         _chkGraphAntialiasing.setSelection(_prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_ANTIALIASING));
-
-         _spinnerGraphTransparencyLine.setSelection(_prefStore.getDefaultInt(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE));
-
-      } else if (selectedTab == _tab2_Grid) {
+      if (selectedTab == _tab2_Grid) {
 
          _spinnerGridHorizontalDistance.setSelection(_prefStore.getDefaultInt(ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE));
          _spinnerGridVerticalDistance.setSelection(_prefStore.getDefaultInt(ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE));
@@ -926,10 +884,6 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
 
    private void restoreState_Tab_1_Graphs() {
 
-      _chkGraphAntialiasing.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_ANTIALIASING));
-
-      _spinnerGraphTransparencyLine.setSelection(_prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE));
-
       restoreState_Tab_1_Graphs_Graphs();
    }
 
@@ -938,7 +892,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       /*
        * create a list with all available graphs
        */
-      final String[] prefAllGraphIds = StringToArrayConverter.convertStringToArray(//
+      final String[] prefAllGraphIds = StringToArrayConverter.convertStringToArray(
             _prefStore.getString(ITourbookPreferences.GRAPH_ALL));
 
       _viewerGraphs = new ArrayList<>();
@@ -962,7 +916,7 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
 
       _graphCheckboxList.setInput(this);
 
-      final String[] prefVisibleIds = StringToArrayConverter.convertStringToArray(//
+      final String[] prefVisibleIds = StringToArrayConverter.convertStringToArray(
             _prefStore.getString(ITourbookPreferences.GRAPH_VISIBLE));
 
       // check all graphs which are defined in the prefs
@@ -1010,7 +964,10 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
       _chkMoveSlidersWhenZoomed.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_MOVE_SLIDERS_WHEN_ZOOMED));
 
       // zoom options
-      if (_prefStore.getString(ITourbookPreferences.GRAPH_MOUSE_MODE).equals(Chart.MOUSE_MODE_SLIDER)) {
+      final String prefMouseWheelMode = _prefStore.getString(ITourbookPreferences.GRAPH_MOUSE_MODE);
+      final Enum<MouseWheelMode> mouseWheelMode = Util.getEnumValue(prefMouseWheelMode, MouseWheelMode.Zoom);
+
+      if (mouseWheelMode.equals(MouseWheelMode.Selection)) {
          _rdoMouseModeSlider.setSelection(true);
       } else {
          _rdoMouseModeZoom.setSelection(true);
@@ -1028,10 +985,6 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
    }
 
    private void saveState_Tab_1_Graphs() {
-
-      _prefStore.setValue(ITourbookPreferences.GRAPH_ANTIALIASING, _chkGraphAntialiasing.getSelection());
-
-      _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE, _spinnerGraphTransparencyLine.getSelection());
 
       saveState_Tab_1_Graphs_Graphs();
    }
@@ -1085,9 +1038,9 @@ public class PrefPageAppearanceTourChart extends PreferencePage implements IWork
 
       // mouse wheel mode
       if (_rdoMouseModeSlider.getSelection()) {
-         _prefStore.setValue(ITourbookPreferences.GRAPH_MOUSE_MODE, Chart.MOUSE_MODE_SLIDER);
+         _prefStore.setValue(ITourbookPreferences.GRAPH_MOUSE_MODE, MouseWheelMode.Selection.name());
       } else {
-         _prefStore.setValue(ITourbookPreferences.GRAPH_MOUSE_MODE, Chart.MOUSE_MODE_ZOOM);
+         _prefStore.setValue(ITourbookPreferences.GRAPH_MOUSE_MODE, MouseWheelMode.Zoom.name());
       }
 
       // zoom options

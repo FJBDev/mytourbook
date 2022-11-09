@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,6 +14,8 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.tour;
+
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -43,8 +45,6 @@ import net.tourbook.ui.UI;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -53,22 +53,17 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -78,73 +73,78 @@ import org.eclipse.swt.widgets.Text;
  */
 public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2 {
 
-   private static final String   STATE_TOUR_TITLE                      = "TourTitle";                     //$NON-NLS-1$
-   private static final String   STATE_PERSON_ID                       = "PersonId";                      //$NON-NLS-1$
-   private static final String   STATE_TOUR_TYPE_ID                    = "TourTypeId";                    //$NON-NLS-1$
+   private static final String   STATE_TOUR_TITLE                      = "TourTitle";                            //$NON-NLS-1$
+   private static final String   STATE_PERSON_ID                       = "PersonId";                             //$NON-NLS-1$
+   private static final String   STATE_TOUR_TYPE_ID                    = "TourTypeId";                           //$NON-NLS-1$
 
-   private static final String   STATE_IS_KEEP_ORIGINAL_TIME           = "isKeepOriginalTime";            //$NON-NLS-1$
-   private static final String   STATE_IS_INCLUDE_DESCRIPTION          = "isIncludeDescription";          //$NON-NLS-1$
-   private static final String   STATE_IS_INCLUDE_MARKER_WAYPOINTS     = "isIncludeMarkerWaypoints";      //$NON-NLS-1$
+   private static final String   STATE_IS_KEEP_ORIGINAL_TIME           = "isKeepOriginalTime";                   //$NON-NLS-1$
+   private static final String   STATE_IS_INCLUDE_DESCRIPTION          = "isIncludeDescription";                 //$NON-NLS-1$
+   private static final String   STATE_IS_INCLUDE_MARKER_WAYPOINTS     = "isIncludeMarkerWaypoints";             //$NON-NLS-1$
 
-   private static final String   STATE_TOUR_TITLE_SOURCE               = "TourTitleSource";               //$NON-NLS-1$
-   private static final String   STATE_TOUR_TITLE_SOURCE_FROM_TOUR     = "fromTour";                      //$NON-NLS-1$
-   private static final String   STATE_TOUR_TITLE_SOURCE_FROM_MARKER   = "fromFirstMarker";               //$NON-NLS-1$
-   private static final String   STATE_TOUR_TITLE_SOURCE_CUSTOM        = "custom";                        //$NON-NLS-1$
+   private static final String   STATE_TOUR_TITLE_SOURCE               = "TourTitleSource";                      //$NON-NLS-1$
+   private static final String   STATE_TOUR_TITLE_SOURCE_FROM_TOUR     = "fromTour";                             //$NON-NLS-1$
+   private static final String   STATE_TOUR_TITLE_SOURCE_FROM_MARKER   = "fromFirstMarker";                      //$NON-NLS-1$
+   private static final String   STATE_TOUR_TITLE_SOURCE_CUSTOM        = "custom";                               //$NON-NLS-1$
 
-   private static final String   STATE_EXTRACT_METHOD                  = "ExtractMethod";                 //$NON-NLS-1$
-   private static final String   STATE_EXTRACT_METHOD_REMOVE           = "remove";                        //$NON-NLS-1$
-   private static final String   STATE_EXTRACT_METHOD_KEEP             = "keep";                          //$NON-NLS-1$
+   private static final String   STATE_EXTRACT_METHOD                  = "ExtractMethod";                        //$NON-NLS-1$
+   private static final String   STATE_EXTRACT_METHOD_REMOVE           = "remove";                               //$NON-NLS-1$
+   private static final String   STATE_EXTRACT_METHOD_KEEP             = "keep";                                 //$NON-NLS-1$
 
-   private static final String   STATE_TYPE_SOURCE                     = "TourTypeSource";                //$NON-NLS-1$
-   private static final String   STATE_TYPE_SOURCE_FROM_SELECTED_TOURS = "fromTour";                      //$NON-NLS-1$
-   private static final String   STATE_TYPE_SOURCE_FROM_PREVIOUS_TOUR  = "previous";                      //$NON-NLS-1$
-   private static final String   STATE_TYPE_SOURCE_CUSTOM              = "custom";                        //$NON-NLS-1$
+   private static final String   STATE_TYPE_SOURCE                     = "TourTypeSource";                       //$NON-NLS-1$
+   private static final String   STATE_TYPE_SOURCE_FROM_SELECTED_TOURS = "fromTour";                             //$NON-NLS-1$
+   private static final String   STATE_TYPE_SOURCE_FROM_PREVIOUS_TOUR  = "previous";                             //$NON-NLS-1$
+   private static final String   STATE_TYPE_SOURCE_CUSTOM              = "custom";                               //$NON-NLS-1$
 
    /**
     * state: tour title
     */
    private static final String[] ALL_STATES_TOUR_TILE_SOURCE           = new String[] {
+
          STATE_TOUR_TITLE_SOURCE_FROM_TOUR,
-         STATE_TOUR_TITLE_SOURCE_FROM_MARKER,                                                             //
-         STATE_TOUR_TITLE_SOURCE_CUSTOM,                                                                  //
+         STATE_TOUR_TITLE_SOURCE_FROM_MARKER,
+         STATE_TOUR_TITLE_SOURCE_CUSTOM,
    };
+
    private static final String[] STATE_COMBO_TEXT_TOUR_TITLE_SOURCE    = new String[] {
+
          Messages.Dialog_SplitTour_ComboText_TourTitleFromTour,
          Messages.Dialog_SplitTour_ComboText_TourTitleFromFirstMarker,
          Messages.Dialog_SplitTour_ComboText_TourTileCustom,
-         //
    };
+
    /**
     * state: split/extract method
     */
    private static final String[] ALL_STATES_EXTRACT_METHOD             = new String[] {
+
          STATE_EXTRACT_METHOD_KEEP,
          STATE_EXTRACT_METHOD_REMOVE,
-         //
    };
+
    private static final String[] STATE_COMBO_TEXT_EXTRACT_METHOD       = new String[] {
+
          Messages.Dialog_SplitTour_ComboText_KeepSlices,
          Messages.Dialog_SplitTour_ComboText_RemoveSlices,
-         //
    };
 
    /**
     * state: tour type splitted tour
     */
    private static final String[] ALL_STATES_TOUR_TYPE                  = new String[] {
+
          STATE_TYPE_SOURCE_FROM_SELECTED_TOURS,
          STATE_TYPE_SOURCE_FROM_PREVIOUS_TOUR,
-         STATE_TYPE_SOURCE_CUSTOM                                                                         //
-   };
-   private static final String[] STATE_TEXT_TOUR_TYPE_SOURCE           = new String[] {
-         Messages.Dialog_SplitTour_ComboText_TourTypeFromTour,
-         Messages.Dialog_SplitTour_ComboText_TourTypePrevious,
-         Messages.Dialog_SplitTour_ComboText_TourTypeCustom                                               //
+         STATE_TYPE_SOURCE_CUSTOM
    };
 
-   private final IDialogSettings _state                                = TourbookPlugin.getDefault()      //
-         .getDialogSettingsSection(
-               "DialogSplit");                                                                            //$NON-NLS-1$
+   private static final String[] STATE_TEXT_TOUR_TYPE_SOURCE           = new String[] {
+
+         Messages.Dialog_SplitTour_ComboText_TourTypeFromTour,
+         Messages.Dialog_SplitTour_ComboText_TourTypePrevious,
+         Messages.Dialog_SplitTour_ComboText_TourTypeCustom
+   };
+
+   private final IDialogSettings _state                                = TourbookPlugin.getState("DialogSplit"); //$NON-NLS-1$
 
    private TourDataEditorView    _tourDataEditor;
 
@@ -261,38 +261,30 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
             ? Messages.Dialog_SplitTour_DlgArea_Title
             : Messages.Dialog_ExtractTour_DlgArea_Title);
 
-      shell.addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose();
+      shell.addDisposeListener(disposeEvent -> onDispose());
+
+      shell.addListener(SWT.Resize, event -> {
+
+         // allow resizing the width but not the height
+
+         if (_shellDefaultSize == null) {
+            _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
          }
-      });
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+         final Point shellSize = shell.getSize();
 
-            // allow resizing the width but not the height
-
-            if (_shellDefaultSize == null) {
-               _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            }
-
-            final Point shellSize = shell.getSize();
-
-            /*
-             * this is not working, the shell is flickering when the shell size is below min
-             * size and I found no way to prevent a resize :-(
-             */
+         /*
+          * this is not working, the shell is flickering when the shell size is below min
+          * size and I found no way to prevent a resize :-(
+          */
 //				if (shellSize.x < _shellDefaultSize.x) {
 //					event.doit = false;
 //				}
 
-            shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
-            shellSize.y = _shellDefaultSize.y;
+         shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
+         shellSize.y = _shellDefaultSize.y;
 
-            shell.setSize(shellSize);
-         }
+         shell.setSize(shellSize);
       });
    }
 
@@ -301,11 +293,12 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
       super.create();
 
-      setTitle(_isSplitTour ? //
-            Messages.Dialog_SplitTour_DlgArea_Title
+      setTitle(_isSplitTour
+            ? Messages.Dialog_SplitTour_DlgArea_Title
             : Messages.Dialog_ExtractTour_DlgArea_Title);
-      setMessage(_isSplitTour ? //
-            Messages.Dialog_SplitTour_DlgArea_Message
+
+      setMessage(_isSplitTour
+            ? Messages.Dialog_SplitTour_DlgArea_Message
             : Messages.Dialog_ExtractTour_DlgArea_Message);
    }
 
@@ -350,17 +343,14 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       final MenuManager typeMenuMgr = new MenuManager();
 
       typeMenuMgr.setRemoveAllWhenShown(true);
-      typeMenuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      typeMenuMgr.addMenuListener(menuManager -> {
 
-            // set menu items
+         // set menu items
 
-            ActionSetTourTypeMenu.fillMenu(menuMgr, DialogExtractTour.this, false);
+         ActionSetTourTypeMenu.fillMenu(menuManager, DialogExtractTour.this, false);
 
-            menuMgr.add(new Separator());
-            menuMgr.add(_actionOpenTourTypePrefs);
-         }
+         menuManager.add(new Separator());
+         menuManager.add(_actionOpenTourTypePrefs);
       });
 
       // set menu for the tag item
@@ -372,16 +362,13 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       final MenuManager tagMenuMgr = new MenuManager();
 
       tagMenuMgr.setRemoveAllWhenShown(true);
-      tagMenuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      tagMenuMgr.addMenuListener(menuManager -> {
 
-            final Set<TourTag> targetTourTags = _tourDataTarget.getTourTags();
-            final boolean isTagInTour = targetTourTags != null && targetTourTags.size() > 0;
+         final Set<TourTag> targetTourTags = _tourDataTarget.getTourTags();
+         final boolean isTagInTour = targetTourTags != null && targetTourTags.size() > 0;
 
-            _tagMenuMgr.fillTagMenu(menuMgr, false);
-            _tagMenuMgr.enableTagActions(true, isTagInTour, targetTourTags);
-         }
+         _tagMenuMgr.fillTagMenu(menuManager, false);
+         _tagMenuMgr.enableTagActions(true, isTagInTour, targetTourTags);
       });
 
       // set menu for the tag item
@@ -411,12 +398,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
    private void createUI(final Composite parent) {
 
-      final SelectionAdapter defaultSelectionAdapter = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+      final SelectionListener defaultSelectionListener = widgetSelectedAdapter(
+            selectionEvent -> enableControls());
 
       _dlgInnerContainer = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(_dlgInnerContainer);
@@ -425,10 +408,10 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       {
          createUI_10_SplitMethod(_dlgInnerContainer);
          createUI_20_Title(_dlgInnerContainer);
-         createUI_22_TourTime(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI_22_TourTime(_dlgInnerContainer, defaultSelectionListener);
          createUI_30_TypeTags(_dlgInnerContainer);
          createUI_40_Person(_dlgInnerContainer);
-         createUI_50_DescriptionMarker(_dlgInnerContainer, defaultSelectionAdapter);
+         createUI_50_DescriptionMarker(_dlgInnerContainer);
       }
    }
 
@@ -471,12 +454,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
             .grab(true, false)
             .span(2, 1)
             .applyTo(_cboTourTitleSource);
-      _cboTourTitleSource.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectTourTitleSource();
-         }
-      });
+      _cboTourTitleSource.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTourTitleSource()));
 
       // fill combo
       for (final String comboText : STATE_COMBO_TEXT_TOUR_TITLE_SOURCE) {
@@ -499,14 +477,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
    /**
     * tour time
     */
-   private void createUI_22_TourTime(final Composite parent, final SelectionAdapter defaultSelectionAdapter) {
-
-      final SelectionAdapter dateTimeUpdateListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+   private void createUI_22_TourTime(final Composite parent,
+                                     final SelectionListener defaultSelectionAdapter) {
 
       /*
        * keep original time
@@ -543,7 +515,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
          _dtTourDate = new org.eclipse.swt.widgets.DateTime(dateContainer, SWT.DATE | SWT.DROP_DOWN | SWT.BORDER);
          GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_dtTourDate);
-         _dtTourDate.addSelectionListener(dateTimeUpdateListener);
+         _dtTourDate.addSelectionListener(defaultSelectionAdapter);
 
          /*
           * tour start: time
@@ -554,7 +526,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
          _dtTourTime = new org.eclipse.swt.widgets.DateTime(dateContainer, SWT.TIME | SWT.DROP_DOWN | SWT.BORDER);
          GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_dtTourTime);
-         _dtTourTime.addSelectionListener(dateTimeUpdateListener);
+         _dtTourTime.addSelectionListener(defaultSelectionAdapter);
       }
    }
 
@@ -576,12 +548,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
       _cboTourTypeSource = new Combo(parent, SWT.READ_ONLY);
       GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(_cboTourTypeSource);
-      _cboTourTypeSource.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectTourTypeSource();
-         }
-      });
+      _cboTourTypeSource.addSelectionListener(widgetSelectedAdapter(
+            selectionEvent -> onSelectTourTypeSource()));
 
       // fill combo
       for (final String tourTypeText : STATE_TEXT_TOUR_TYPE_SOURCE) {
@@ -600,12 +568,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       {
          _linkTourType = new Link(tourTypeContainer, SWT.NONE);
          _linkTourType.setText(Messages.Dialog_JoinTours_Link_TourType);
-         _linkTourType.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               net.tourbook.common.UI.openControlMenu(_linkTourType);
-            }
-         });
+         _linkTourType.addSelectionListener(widgetSelectedAdapter(
+               selectionEvent -> net.tourbook.common.UI.openControlMenu(_linkTourType)));
 
          _lblTourType = new CLabel(tourTypeContainer, SWT.NONE);
          GridDataFactory.swtDefaults().grab(true, false).applyTo(_lblTourType);
@@ -619,12 +583,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       GridDataFactory.fillDefaults()//
             .align(SWT.BEGINNING, SWT.FILL)
             .applyTo(_linkTag);
-      _linkTag.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            net.tourbook.common.UI.openControlMenu(_linkTag);
-         }
-      });
+      _linkTag.addSelectionListener(widgetSelectedAdapter(
+            selectionEvent -> net.tourbook.common.UI.openControlMenu(_linkTag)));
 
       _lblTourTags = new Label(parent, SWT.WRAP);
       GridDataFactory.fillDefaults()//
@@ -658,7 +618,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
    /**
     * checkbox: set marker for each tour
     */
-   private void createUI_50_DescriptionMarker(final Composite parent, final SelectionAdapter defaultSelectionAdapter) {
+   private void createUI_50_DescriptionMarker(final Composite parent) {
 
       /*
        * checkbox: description
@@ -987,7 +947,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       _tourDataTarget.createTourId();
 
       _tourDataTarget.setTourTitle(_txtTourTitle.getText());
-      _tourDataTarget.setTourDescription(extractedDescription.toString());
+      _tourDataTarget.setTourDescription(extractedDescription);
 
       _tourDataTarget.setTourMarkers(extractedTourMarker);
       _tourDataTarget.setWayPoints(extractedWayPoints);
@@ -1006,9 +966,9 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       _tourDataTarget.setTourDistance(extractedDistance);
 
       _tourDataTarget.setWeather(_tourDataSource.getWeather());
-      _tourDataTarget.setWeatherClouds(_tourDataSource.getWeatherClouds());
-      _tourDataTarget.setWeatherWindDir(_tourDataSource.getWeatherWindDir());
-      _tourDataTarget.setWeatherWindSpeed(_tourDataSource.getWeatherWindSpeed());
+      _tourDataTarget.setWeather_Clouds(_tourDataSource.getWeather_Clouds());
+      _tourDataTarget.setWeather_Wind_Direction(_tourDataSource.getWeather_Wind_Direction());
+      _tourDataTarget.setWeather_Wind_Speed(_tourDataSource.getWeather_Wind_Speed());
 
       _tourDataTarget.setRestPulse(_tourDataSource.getRestPulse());
       _tourDataTarget.setCalories(extractedCalories);
@@ -1069,7 +1029,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       // check if time slices should be removed
       if (getStateSplitMethod().equals(STATE_EXTRACT_METHOD_REMOVE)) {
 
-         TourManager.removeTimeSlices(_tourDataSource, _extractStartIndex, _extractEndIndex, true);
+         TourManager.removeTimeSlices(_tourDataSource, _extractStartIndex, _extractEndIndex, true, false);
 
          _tourDataEditor.updateUI(_tourDataSource, true);
 

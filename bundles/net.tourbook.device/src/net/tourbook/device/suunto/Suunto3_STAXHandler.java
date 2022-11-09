@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,6 +39,7 @@ import net.tourbook.common.util.Util;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.importdata.TourbookDevice;
+import net.tourbook.math.Fmath;
 import net.tourbook.tour.TourManager;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -71,9 +72,11 @@ public class Suunto3_STAXHandler {
    private static final String TAG_DEVLOG_SAMPLES = "Samples";   //$NON-NLS-1$
 
    // header tags
-   private static final String TAG_HEADER_ENERGY               = "Energy";             //$NON-NLS-1$
-   private static final String TAG_HEADER_DATETIME             = "DateTime";           //$NON-NLS-1$
-   private static final String TAG_HEADER_PEAK_TRAINING_EFFECT = "PeakTrainingEffect"; //$NON-NLS-1$
+   private static final String TAG_HEADER_BATTERY_CHARGE          = "BatteryCharge";        //$NON-NLS-1$
+   private static final String TAG_HEADER_BATTERY_CHARGE_AT_START = "BatteryChargeAtStart"; //$NON-NLS-1$
+   private static final String TAG_HEADER_ENERGY                  = "Energy";               //$NON-NLS-1$
+   private static final String TAG_HEADER_DATETIME                = "DateTime";             //$NON-NLS-1$
+   private static final String TAG_HEADER_PEAK_TRAINING_EFFECT    = "PeakTrainingEffect";   //$NON-NLS-1$
 
    // device tags
    private static final String TAG_DEVICE_SW   = "SW";   //$NON-NLS-1$
@@ -141,6 +144,9 @@ public class Suunto3_STAXHandler {
    private float               _tourPerformanceLevel;
 
    private int                 _tourCalories;
+
+   private short               _tourBatteryPercentageStart;
+   private short               _tourBatteryPercentageEnd;
 
    /**
     * This time is used when a time is not available.
@@ -275,6 +281,9 @@ public class Suunto3_STAXHandler {
 
       tourData.setCalories(_tourCalories);
 
+      tourData.setBattery_Percentage_Start(_tourBatteryPercentageStart);
+      tourData.setBattery_Percentage_End(_tourBatteryPercentageEnd);
+
       tourData.setTraining_TrainingEffect_Aerob(_tourPeakTrainingEffect);
       tourData.setTraining_TrainingPerformance(_tourPerformanceLevel);
 
@@ -308,7 +317,7 @@ public class Suunto3_STAXHandler {
          _newlyImportedTours.put(tourId, tourData);
 
          // create additional data
-         tourData.finalizeTour_TimerPauses(_pausedTime_Start, _pausedTime_End);
+         tourData.finalizeTour_TimerPauses(_pausedTime_Start, _pausedTime_End, null);
          tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed() - tourData.getTourDeviceTime_Paused());
 
          tourData.computeAltitudeUpDown();
@@ -401,6 +410,22 @@ public class Suunto3_STAXHandler {
             final String elementName = startElement.getName().getLocalPart();
 
             switch (elementName) {
+
+            case TAG_HEADER_BATTERY_CHARGE_AT_START:
+
+               data = ((Characters) eventReader.nextEvent()).getData();
+
+               _tourBatteryPercentageStart = (short) (Util.parseFloat(data) * 100);
+
+               break;
+
+            case TAG_HEADER_BATTERY_CHARGE:
+
+               data = ((Characters) eventReader.nextEvent()).getData();
+
+               _tourBatteryPercentageEnd = (short) (Util.parseFloat(data) * 100);
+
+               break;
 
             case TAG_HEADER_ENERGY:
 
@@ -600,7 +625,7 @@ public class Suunto3_STAXHandler {
             case TAG_SAMPLE_TEMPERATURE:
                data = ((Characters) eventReader.nextEvent()).getData();
                final float kelvin = Util.parseFloat(data);
-               _sampleData.temperature = kelvin - 273.15f;
+               _sampleData.temperature = (float) (kelvin + Fmath.T_ABS);
                break;
 
             case TAG_SAMPLE_UTC:

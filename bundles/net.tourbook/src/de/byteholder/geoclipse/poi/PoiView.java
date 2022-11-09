@@ -1,5 +1,5 @@
-/* *****************************************************************************
- *  Copyright (C) 2008 Michael Kanis, Veit Edunjobi and others
+/*******************************************************************************
+ *  Copyright (C) 2008, 2022 Michael Kanis, Veit Edunjobi and others
  *
  *  This file is part of Geoclipse.
  *
@@ -19,37 +19,40 @@
 
 package de.byteholder.geoclipse.poi;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import de.byteholder.gpx.PointOfInterest;
 import de.byteholder.gpx.Waypoint;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.stream.Stream;
 
 import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
+import net.tourbook.preferences.ITourbookPreferences;
 
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -66,288 +69,321 @@ import org.eclipse.ui.part.ViewPart;
  * @author Michael Kanis
  * @author Veit Edunjobi
  */
-public class PoiView extends ViewPart implements Observer {
+public class PoiView extends ViewPart implements PropertyChangeListener {
 
-	public final static String		ID								= "de.byteholder.geoclipse.poi.poiView";	//$NON-NLS-1$
+   public static final String            ID                     = "de.byteholder.geoclipse.poi.poiView"; //$NON-NLS-1$
 
-	private static final String	STATE_SEARCHED_QUERIES	= "searched.queries";							//$NON-NLS-1$
+   private static final String           STATE_SEARCHED_QUERIES = "searched.queries";                    //$NON-NLS-1$
 
-	private static final String	IMG_KEY_ANCHOR				= "anchor";											//$NON-NLS-1$
-	private static final String	IMG_KEY_CAR					= "car";												//$NON-NLS-1$
-	private static final String	IMG_KEY_CART				= "cart";											//$NON-NLS-1$
-	private static final String	IMG_KEY_FLAG				= "flag";											//$NON-NLS-1$
-	private static final String	IMG_KEY_HOUSE				= "house";											//$NON-NLS-1$
-	private static final String	IMG_KEY_SOCCER				= "soccer";											//$NON-NLS-1$
-	private static final String	IMG_KEY_STAR				= "star";											//$NON-NLS-1$
+   private static final String           IMG_KEY_ANCHOR         = "anchor";                              //$NON-NLS-1$
+   private static final String           IMG_KEY_CAR            = "car";                                 //$NON-NLS-1$
+   private static final String           IMG_KEY_CART           = "cart";                                //$NON-NLS-1$
+   private static final String           IMG_KEY_FLAG           = "flag";                                //$NON-NLS-1$
+   private static final String           IMG_KEY_HOUSE          = "house";                               //$NON-NLS-1$
+   private static final String           IMG_KEY_SOCCER         = "soccer";                              //$NON-NLS-1$
+   private static final String           IMG_KEY_STAR           = "star";                                //$NON-NLS-1$
 
-	private IDialogSettings			_state						= TourbookPlugin.getState("PoiView");		//$NON-NLS-1$
+   private static final IPreferenceStore _prefStore             = TourbookPlugin.getPrefStore();
+   private static final IDialogSettings  _state                 = TourbookPlugin.getState("PoiView");    //$NON-NLS-1$
 
-	private TableViewer				_poiViewer;
-	private List<PointOfInterest>	_pois;
-	private ArrayList<String>		_searchHistory				= new ArrayList<>();
+   private TableViewer                   _poiViewer;
+   private List<PointOfInterest>         _pois;
+   private List<String>                  _searchHistory         = new ArrayList<>();
 
-	private PostSelectionProvider	_postSelectionProvider;
+   private PostSelectionProvider         _postSelectionProvider;
 
-	private IWorkbenchHelpSystem	_wbHelpSystem;
+   private IPropertyChangeListener       _prefChangeListener;
 
-	/*
-	 * UI controls
-	 */
-	private Button						_btnSearch;
+   private IWorkbenchHelpSystem          _wbHelpSystem;
 
-	private Combo						_cboSearchQuery;
-	private ComboViewer				_queryViewer;
+   private GeoQuery                      _geoQuery              = new GeoQuery();
 
-	public class SearchContentProvider implements IStructuredContentProvider {
+   /*
+    * UI controls
+    */
+   private Button      _btnSearch;
 
-		@Override
-		public void dispose() {}
+   private Combo       _cboSearchQuery;
+   private ComboViewer _queryViewer;
 
-		@Override
-		public Object[] getElements(final Object inputElement) {
-			return _searchHistory.toArray(new String[_searchHistory.size()]);
-		}
+   public class SearchContentProvider implements IStructuredContentProvider {
 
-		@Override
-		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
-	}
+      @Override
+      public void dispose() {}
 
-	class ViewContentProvider implements IStructuredContentProvider {
-		@Override
-		public void dispose() {}
+      @Override
+      public Object[] getElements(final Object inputElement) {
+         return _searchHistory.toArray(new String[_searchHistory.size()]);
+      }
 
-		@Override
-		public Object[] getElements(final Object parent) {
-			if (_pois == null) {
-				return new String[] {};
-			} else {
-				return _pois.toArray();
-			}
-		}
+      @Override
+      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
+   }
 
-		@Override
-		public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
-	}
+   class ViewContentProvider implements IStructuredContentProvider {
 
-	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+      @Override
+      public void dispose() {}
 
-		@Override
-		public Image getColumnImage(final Object obj, final int index) {
-			switch (index) {
-			case 0:
-				return getImage(obj);
-			default:
-				return null;
-			}
-		}
+      @Override
+      public Object[] getElements(final Object parent) {
+         if (_pois == null) {
+            return new String[] {};
+         } else {
+            return _pois.toArray();
+         }
+      }
 
-		@Override
-		public String getColumnText(final Object obj, final int index) {
-			final PointOfInterest poi = (PointOfInterest) obj;
+      @Override
+      public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
+   }
 
-			switch (index) {
-			case 0:
-				return poi.getCategory();
-			case 1:
+   class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 
-				final StringBuilder sb = new StringBuilder(poi.getName());
+      @Override
+      public Image getColumnImage(final Object obj, final int index) {
+         switch (index) {
+         case 0:
+            return getImage(obj);
+         default:
+            return null;
+         }
+      }
 
-				final List<? extends Waypoint> nearestPlaces = poi.getNearestPlaces();
-				if (nearestPlaces != null && nearestPlaces.size() > 0) {
+      @Override
+      public String getColumnText(final Object obj, final int index) {
 
-					// create a string with all nearest waypoints
-					boolean isFirstPoi = true;
-					for (final Waypoint waypoint : nearestPlaces) {
+         final PointOfInterest poi = (PointOfInterest) obj;
 
-						if (isFirstPoi) {
-							isFirstPoi = false;
-							sb.append(Messages.Poi_View_Label_NearestPlacesPart1);
-							sb.append(Messages.Poi_View_Label_Near);
-						} else {
-							sb.append(Messages.Poi_View_Label_NearestPlacesPart2);
-						}
+         switch (index) {
+         case 0:
+            return poi.getCategory();
+         case 1:
 
-						sb.append(Messages.Poi_View_Label_NearestPlacesPart3);
-						sb.append(waypoint.getName());
-					}
-					sb.append(Messages.Poi_View_Label_NearestPlacesPart4);
-				}
-				return sb.toString();
-			default:
-				return getText(obj);
-			}
-		}
+            final StringBuilder sb = new StringBuilder(poi.getName());
 
-		@Override
-		public Image getImage(final Object obj) {
+            final List<? extends Waypoint> nearestPlaces = poi.getNearestPlaces();
+            if (nearestPlaces != null && nearestPlaces.size() > 0) {
 
-			if (obj instanceof PointOfInterest) {
+               // create a string with all nearest waypoints
+               boolean isFirstPoi = true;
+               for (final Waypoint waypoint : nearestPlaces) {
 
-				Image img;
-				final PointOfInterest poi = (PointOfInterest) obj;
+                  if (isFirstPoi) {
+                     isFirstPoi = false;
+                     sb.append(Messages.Poi_View_Label_NearestPlacesPart1);
+                     sb.append(Messages.Poi_View_Label_Near);
+                  } else {
+                     sb.append(Messages.Poi_View_Label_NearestPlacesPart2);
+                  }
 
-				// TODO find/make better matching icons
+                  sb.append(Messages.Poi_View_Label_NearestPlacesPart3);
+                  sb.append(waypoint.getName());
+               }
+               sb.append(Messages.Poi_View_Label_NearestPlacesPart4);
+            }
+            return sb.toString();
+         default:
+            return getText(obj);
+         }
+      }
 
-				final ImageRegistry imageRegistry = TourbookPlugin.getDefault().getImageRegistry();
-				final String poiCategory = poi.getCategory();
+      @Override
+      public Image getImage(final Object obj) {
 
-				if (poiCategory.equals("highway")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_CAR);
-				} else if (poiCategory.equals("place")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_HOUSE);
-				} else if (poiCategory.equals("waterway")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_ANCHOR);
-				} else if (poiCategory.equals("amenity")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_CART);
-				} else if (poiCategory.equals("leisure")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_STAR);
-				} else if (poiCategory.equals("sport")) { //$NON-NLS-1$
-					img = imageRegistry.get(IMG_KEY_SOCCER);
-				} else {
-					img = imageRegistry.get(IMG_KEY_FLAG);
-				}
+         if (obj instanceof PointOfInterest) {
 
-				return img;
-			} else {
-				return null;
-			}
-		}
-	}
+            Image img;
+            final PointOfInterest poi = (PointOfInterest) obj;
 
-	public PoiView() {}
+            // TODO find/make better matching icons
 
-	public PoiView(final List<PointOfInterest> pois) {
-		_pois = pois;
-	}
+            final ImageRegistry imageRegistry = TourbookPlugin.getDefault().getImageRegistry();
+            final String poiCategory = poi.getCategory();
 
-	@Override
-	public void createPartControl(final Composite parent) {
+            if (poiCategory.equals("highway")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_CAR);
+            } else if (poiCategory.equals("place")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_HOUSE);
+            } else if (poiCategory.equals("waterway")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_ANCHOR);
+            } else if (poiCategory.equals("amenity")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_CART);
+            } else if (poiCategory.equals("leisure")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_STAR);
+            } else if (poiCategory.equals("sport")) { //$NON-NLS-1$
+               img = imageRegistry.get(IMG_KEY_SOCCER);
+            } else {
+               img = imageRegistry.get(IMG_KEY_FLAG);
+            }
 
-		initImageRegistry();
+            return img;
+         } else {
+            return null;
+         }
+      }
+   }
 
-		//contextHelp for this view.
-		//Clicking F1 while this view has Focus will jump to the associated
-		//helpContext, see de.byteholder.geoclipse.help
-		_wbHelpSystem = PlatformUI.getWorkbench().getHelpSystem();
+   public PoiView() {}
 
-		//TODO this "forces" of this plug-in to de.byteholder.geoclipse.help ?!
-		final String contextId = "de.byteholder.geoclipse.help.places_view"; //$NON-NLS-1$
-		_wbHelpSystem.setHelp(parent, contextId);
+   public PoiView(final List<PointOfInterest> pois) {
+      _pois = pois;
+   }
 
-		createUI(parent);
+   private void addPrefListener() {
 
-		// this part is a selection provider
-		getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider());
+      _prefChangeListener = propertyChangeEvent -> {
 
-		restoreState();
-	}
+         final String property = propertyChangeEvent.getProperty();
 
-	private void createUI(final Composite parent) {
+         if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
 
-		final Composite container = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().spacing(0, 0).numColumns(1).applyTo(container);
-		{
-			final Composite queryContainer = new Composite(container, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(queryContainer);
-			GridLayoutFactory.fillDefaults()//
-					.extendedMargins(5, 5, 2, 2)
-					.spacing(5, 0)
-					.numColumns(3)
-					.applyTo(queryContainer);
-			{
-				/*
-				 * label: POI
-				 */
-				final Label label = new Label(queryContainer, SWT.NONE);
-				label.setText(Messages.Poi_View_Label_POI);
-				label.setToolTipText(Messages.Poi_View_Label_POI_Tooltip);
+            _poiViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
+            _poiViewer.refresh();
+         }
+      };
 
-				/*
-				 * combo: search
-				 */
-				_cboSearchQuery = new Combo(queryContainer, SWT.NONE);
-				GridDataFactory.fillDefaults()//
-						.align(SWT.FILL, SWT.CENTER)
-						.grab(true, false)
-						.applyTo(_cboSearchQuery);
-				_cboSearchQuery.setVisibleItemCount(30);
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
 
-				_cboSearchQuery.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetDefaultSelected(final SelectionEvent e) {
-						// start searching when ENTER is pressed
-						onSearchPoi();
-					}
-				});
+      _geoQuery.addPropertyChangeListener(this);
+   }
 
-				/*
-				 * button: search
-				 */
-				_btnSearch = new Button(queryContainer, SWT.PUSH);
-				_btnSearch.setText(Messages.Poi_View_Button_Search);
+   @Override
+   public void createPartControl(final Composite parent) {
 
-				_btnSearch.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(final SelectionEvent e) {
-						onSearchPoi();
-					}
-				});
-			}
+      initImageRegistry();
 
-			// ----------------------------------
+      //contextHelp for this view.
+      //Clicking F1 while this view has Focus will jump to the associated
+      //helpContext, see de.byteholder.geoclipse.help
+      _wbHelpSystem = PlatformUI.getWorkbench().getHelpSystem();
 
-			_queryViewer = new ComboViewer(_cboSearchQuery);
-			_queryViewer.setContentProvider(new SearchContentProvider());
-			_queryViewer.setComparator(new ViewerComparator());
+      //TODO this "forces" of this plug-in to de.byteholder.geoclipse.help ?!
+      final String contextId = "de.byteholder.geoclipse.help.places_view"; //$NON-NLS-1$
+      _wbHelpSystem.setHelp(parent, contextId);
 
-			// add autocomplete feature to the combo viewer
-			// this feature is disable because it's not working very well
-//			new AutoComplete(_queryViewer);
+      createUI(parent);
 
-			// ----------------------------------
+      addPrefListener();
 
-			/*
-			 * table viewer: poi items
-			 */
-			final Table poiTable = new Table(container, /* SWT.BORDER | */SWT.SINGLE | SWT.FULL_SELECTION);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(poiTable);
-			poiTable.setLinesVisible(true);
-			poiTable.setHeaderVisible(true);
+      // this part is a selection provider
+      getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider());
 
-			// column: category
-			final TableColumn columnCategory = new TableColumn(poiTable, SWT.LEFT);
-			columnCategory.setText("Category"); //$NON-NLS-1$
-			columnCategory.setWidth(75);
+      restoreState();
+   }
 
-			// column: name
-			final TableColumn columnName = new TableColumn(poiTable, SWT.LEFT);
-			columnName.setText("Name"); //$NON-NLS-1$
-			columnName.setWidth(300);
+   private void createUI(final Composite parent) {
 
-			_poiViewer = new TableViewer(poiTable);
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridLayoutFactory.fillDefaults().spacing(0, 0).numColumns(1).applyTo(container);
+      {
+         createUI_10_Header(container);
+         createUI_20_Viewer(container);
+      }
+   }
 
-			_poiViewer.setContentProvider(new ViewContentProvider());
-			_poiViewer.setLabelProvider(new ViewLabelProvider());
+   private void createUI_10_Header(final Composite parent) {
 
-			_poiViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
+      final Composite queryContainer = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(queryContainer);
+      GridLayoutFactory.fillDefaults()
+            .extendedMargins(5, 5, 2, 2)
+            .spacing(5, 0)
+            .numColumns(3)
+            .applyTo(queryContainer);
+      {
+         {
+            /*
+             * label: POI
+             */
 
-				@Override
-				public void selectionChanged(final SelectionChangedEvent e) {
+            final Label label = UI.createLabel(queryContainer, Messages.Poi_View_Label_POI);
+            label.setToolTipText(Messages.Poi_View_Label_POI_Tooltip);
+         }
+         {
+            /*
+             * combo: search
+             */
+            _cboSearchQuery = new Combo(queryContainer, SWT.NONE);
+            _cboSearchQuery.setVisibleItemCount(30);
+            _cboSearchQuery.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+               // start searching when ENTER is pressed
+               onSearchPoi();
+            }));
+            GridDataFactory.fillDefaults()
+                  .align(SWT.FILL, SWT.CENTER)
+                  .grab(true, false)
+                  .applyTo(_cboSearchQuery);
+         }
+         {
+            /*
+             * button: search
+             */
+            _btnSearch = new Button(queryContainer, SWT.PUSH);
+            _btnSearch.setText(Messages.Poi_View_Button_Search);
+            _btnSearch.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSearchPoi()));
+         }
+      }
 
-					final ISelection selection = e.getSelection();
-					final Object firstElement = ((IStructuredSelection) selection).getFirstElement();
-					final PointOfInterest selectedPoi = (PointOfInterest) firstElement;
+      _queryViewer = new ComboViewer(_cboSearchQuery);
+      _queryViewer.setContentProvider(new SearchContentProvider());
+      _queryViewer.setComparator(new ViewerComparator());
 
-					_postSelectionProvider.setSelection(selectedPoi);
-				}
-			});
-		}
-	}
+      // add autocomplete feature to the combo viewer
+      // this feature is disable because it's not working very well
+//    new AutoComplete(_queryViewer);
+   }
 
-	private void initImageRegistry() {
+   private void createUI_20_Viewer(final Composite parent) {
 
-		final TourbookPlugin activator = TourbookPlugin.getDefault();
-		final ImageRegistry imageRegistry = activator.getImageRegistry();
+      /*
+       * table viewer: poi items
+       */
+      final Table poiTable = new Table(parent, /* SWT.BORDER | */SWT.SINGLE | SWT.FULL_SELECTION);
+      GridDataFactory.fillDefaults().grab(true, true).applyTo(poiTable);
+      poiTable.setLinesVisible(true);
+      poiTable.setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
+      poiTable.setHeaderVisible(true);
+
+      // column: category
+      final TableColumn columnCategory = new TableColumn(poiTable, SWT.LEFT);
+      columnCategory.setText("Category"); //$NON-NLS-1$
+      columnCategory.setWidth(75);
+
+      // column: name
+      final TableColumn columnName = new TableColumn(poiTable, SWT.LEFT);
+      columnName.setText("Name"); //$NON-NLS-1$
+      columnName.setWidth(300);
+
+      _poiViewer = new TableViewer(poiTable);
+
+      _poiViewer.setContentProvider(new ViewContentProvider());
+      _poiViewer.setLabelProvider(new ViewLabelProvider());
+
+      _poiViewer.addPostSelectionChangedListener(selectionChangedEvent -> {
+
+         final ISelection selection = selectionChangedEvent.getSelection();
+         final Object firstElement = ((IStructuredSelection) selection).getFirstElement();
+         final PointOfInterest selectedPoi = (PointOfInterest) firstElement;
+
+         _postSelectionProvider.setSelection(selectedPoi);
+      });
+   }
+
+   @Override
+   public void dispose() {
+
+      _prefStore.removePropertyChangeListener(_prefChangeListener);
+
+      _geoQuery.removePropertyChangeListener(this);
+
+      super.dispose();
+   }
+
+   private void initImageRegistry() {
+
+      final TourbookPlugin activator = TourbookPlugin.getDefault();
+      final ImageRegistry imageRegistry = activator.getImageRegistry();
 
       if (imageRegistry.get(Images.POI_Anchor) == null) {
 
@@ -358,121 +394,106 @@ public class PoiView extends ViewPart implements Observer {
          imageRegistry.put(IMG_KEY_HOUSE, TourbookPlugin.getImageDescriptor(Images.POI_House));
          imageRegistry.put(IMG_KEY_SOCCER, TourbookPlugin.getImageDescriptor(Images.POI_Soccer));
          imageRegistry.put(IMG_KEY_STAR, TourbookPlugin.getImageDescriptor(Images.POI_Star));
-		}
-	}
+      }
+   }
 
-	private void onSearchPoi() {
+   private void onSearchPoi() {
 
-		// disable search controls
-		_cboSearchQuery.setEnabled(false);
-		_btnSearch.setEnabled(false);
+      // disable search controls
+      _cboSearchQuery.setEnabled(false);
+      _btnSearch.setEnabled(false);
 
-		final String searchText = _cboSearchQuery.getText();
+      final String searchText = _cboSearchQuery.getText();
 
-		// remove same search text
-		if (_searchHistory.contains(searchText) == false) {
+      // remove same search text
+      if (_searchHistory.contains(searchText) == false) {
 
-			// update model
-			_searchHistory.add(searchText);
+         // update model
+         _searchHistory.add(searchText);
 
-			// update viewer
-			_queryViewer.add(searchText);
-		}
+         // update viewer
+         _queryViewer.add(searchText);
+      }
 
-		// start poi search
-		final GeoQuery geoQuery = new GeoQuery(searchText);
-		geoQuery.addObserver(PoiView.this);
-		geoQuery.asyncFind();
-	}
+      // start poi search
+      _geoQuery.asyncFind(searchText);
+   }
 
-	private void restoreState() {
+   @Override
+   public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
 
-		// restore old used queries
-		final String[] stateSearchedQueries = _state.getArray(STATE_SEARCHED_QUERIES);
-		if (stateSearchedQueries != null) {
-			for (final String query : stateSearchedQueries) {
-				_searchHistory.add(query);
-			}
-		}
+      @SuppressWarnings("unchecked")
+      final List<PointOfInterest> searchResult = (List<PointOfInterest>) propertyChangeEvent.getNewValue();
 
-		// update content in the comboviewer
-		_queryViewer.setInput(new Object());
-	}
+      if (searchResult != null) {
+         _pois = searchResult;
+      }
 
-	@PersistState
-	private void saveState() {
+      Display.getDefault().asyncExec(() -> {
 
-		_state.put(STATE_SEARCHED_QUERIES, _searchHistory.toArray(new String[_searchHistory.size()]));
-	}
+         // check if view is closed
+         if (_btnSearch.isDisposed()) {
+            return;
+         }
 
-	@Override
-	public void setFocus() {
+         // refresh viewer
+         _poiViewer.setInput(new Object());
 
-		// set default button
-		_btnSearch.getShell().setDefaultButton(_btnSearch);
+         // select first entry, if there is one
+         final Table poiTable = _poiViewer.getTable();
+         if (poiTable.getItemCount() > 0) {
 
-		// set focus
-		_cboSearchQuery.setFocus();
-	}
+            final Object firstData = poiTable.getItem(0).getData();
+            if (firstData instanceof PointOfInterest) {
 
-	/**
-	 * set focus to selected item, selection and focus are not the same !!!
-	 */
-	private void setViewerFocus() {
+               _poiViewer.setSelection(new StructuredSelection(firstData));
+               setViewerFocus();
+            }
+         }
 
-		final Table table = _poiViewer.getTable();
+         _cboSearchQuery.setEnabled(true);
+         _btnSearch.setEnabled(true);
+      });
 
-		table.setSelection(table.getSelectionIndex());
-		table.setFocus();
-	}
+   }
 
-	/**
-	 * implements update from interface observer
-	 */
-	@Override
-	public void update(final Observable observable, final Object arg) {
+   private void restoreState() {
 
-		if (observable instanceof GeoQuery) {
+      // restore old used queries
+      final String[] stateSearchedQueries = _state.getArray(STATE_SEARCHED_QUERIES);
+      if (stateSearchedQueries != null) {
+         Stream.of(stateSearchedQueries).forEach(query -> _searchHistory.add(query));
+      }
 
-			final GeoQuery geoQuery = (GeoQuery) observable;
+      // update content in the comboviewer
+      _queryViewer.setInput(new Object());
+   }
 
-			final List<PointOfInterest> searchResult = geoQuery.getSearchResult();
-			if (searchResult != null) {
-				_pois = searchResult;
-			}
+   @PersistState
+   private void saveState() {
 
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
+      _state.put(STATE_SEARCHED_QUERIES, _searchHistory.toArray(new String[_searchHistory.size()]));
+   }
 
-					// check if view is closed
-					if (_btnSearch.isDisposed()) {
-						return;
-					}
+   @Override
+   public void setFocus() {
 
-					// refresh viewer
-					_poiViewer.setInput(new Object());
+      // set default button
+      _btnSearch.getShell().setDefaultButton(_btnSearch);
 
-					// select first entry, if there is one
-					final Table poiTable = _poiViewer.getTable();
-					if (poiTable.getItemCount() > 0) {
+      // set focus
+      _cboSearchQuery.setFocus();
+   }
 
-						final Object firstData = poiTable.getItem(0).getData();
-						if (firstData instanceof PointOfInterest) {
+   /**
+    * set focus to selected item, selection and focus are not the same !!!
+    */
+   private void setViewerFocus() {
 
-							_poiViewer.setSelection(new StructuredSelection(firstData));
-							setViewerFocus();
-						}
-					}
+      final Table table = _poiViewer.getTable();
 
-					_cboSearchQuery.setEnabled(true);
-					_btnSearch.setEnabled(true);
-				}
-			});
+      table.setSelection(table.getSelectionIndex());
+      table.setFocus();
+   }
 
-			if (geoQuery.getException() != null) {
-				throw new RuntimeException(geoQuery.getException());
-			}
-		}
-	}
 }

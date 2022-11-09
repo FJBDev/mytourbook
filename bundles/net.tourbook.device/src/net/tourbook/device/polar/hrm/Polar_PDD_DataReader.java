@@ -16,40 +16,39 @@
 package net.tourbook.device.polar.hrm;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+<<<<<<< HEAD
 import java.io.InputStreamReader;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+=======
+import java.util.Map;
+>>>>>>> refs/remotes/Wolfgang/main
 
-import net.tourbook.common.UI;
-import net.tourbook.common.time.TimeTools;
-import net.tourbook.common.util.StatusUtil;
-import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
-import net.tourbook.device.Activator;
 import net.tourbook.device.gpx.GPXDeviceDataReader;
 import net.tourbook.importdata.DeviceData;
+import net.tourbook.importdata.ImportState_File;
+import net.tourbook.importdata.ImportState_Process;
 import net.tourbook.importdata.SerialParameters;
 import net.tourbook.importdata.TourbookDevice;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * This device reader is importing data from Polar device files.
  */
 public class Polar_PDD_DataReader extends TourbookDevice {
 
+<<<<<<< HEAD
    private static final String    DATA_DELIMITER           = "\t";                                       //$NON-NLS-1$
+=======
+   private static final String SECTION_DAY_INFO = "[DayInfo]"; //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
+<<<<<<< HEAD
    private static final String    SECTION_DAY_INFO         = "[DayInfo]";                                //$NON-NLS-1$
    private static final String    SECTION_EXERCISE_INFO    = "[ExerciseInfo";                            //$NON-NLS-1$
    //
@@ -91,6 +90,9 @@ public class Polar_PDD_DataReader extends TourbookDevice {
       private int           calories;
       private int           sport;
    }
+=======
+   private boolean             _isDebug         = false;
+>>>>>>> refs/remotes/Wolfgang/main
 
    public Polar_PDD_DataReader() {
       // plugin constructor
@@ -106,6 +108,7 @@ public class Polar_PDD_DataReader extends TourbookDevice {
       return false;
    }
 
+<<<<<<< HEAD
    private boolean createExercise() throws Exception {
 
       final TourData exerciseData = new TourData();
@@ -456,6 +459,8 @@ public class Polar_PDD_DataReader extends TourbookDevice {
       return null;
    }
 
+=======
+>>>>>>> refs/remotes/Wolfgang/main
    @Override
    public String getDeviceModeName(final int profileId) {
       return null;
@@ -479,485 +484,13 @@ public class Polar_PDD_DataReader extends TourbookDevice {
       return -1;
    }
 
-   public int getTourSport(final Long tourId) {
-      if (_tourSportMap.containsKey(tourId)) {
-         return _tourSportMap.get(tourId);
-      } else {
-         return -1;
-      }
-   }
-
    @Override
    public int getTransferDataSize() {
       return -1;
    }
 
-   private boolean parseSection() {
-
-      boolean returnValue = false;
-
-      // the default charset has not handled correctly the german umlaute in uppercase on Linux/OSX
-      try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(_importFilePath), UI.ISO_8859_1);
-            BufferedReader fileReader = new BufferedReader(inputStream)) {
-
-         String line;
-         while ((line = fileReader.readLine()) != null) {
-
-            boolean isValid = true;
-
-            if (line.startsWith(SECTION_DAY_INFO)) {
-
-               _currentDay = new Day();
-
-               isValid = parseSection10DayInfo(fileReader);
-
-               // check version
-               if (_fileVersionDayInfo != 100) {
-                  throw new Exception(
-                        NLS.bind(
-                              "File {0} has an invalid version in section {1}", //$NON-NLS-1$
-                              _importFilePath,
-                              SECTION_DAY_INFO));
-               }
-
-            } else if (line.startsWith(SECTION_EXERCISE_INFO)) {
-
-               _currentExercise = new Exercise();
-
-               isValid = parseSection20ExerciseInfo(fileReader);
-
-               // check version
-               if (_currentExercise.fileVersion != 101) {
-                  throw new Exception(
-                        NLS.bind(
-                              "File {0} has an invalid version in section {1}", //$NON-NLS-1$
-                              _importFilePath,
-                              SECTION_EXERCISE_INFO));
-               }
-            }
-
-            if (isValid == false) {
-               return false;
-            }
-         }
-
-         returnValue = true;
-
-      } catch (final Exception e) {
-         StatusUtil.showStatus(e);
-         return false;
-      }
-
-      return returnValue;
-   }
-
-   /**
-    * <pre>
-    * 3.  Daily information
-    *
-    * The following weekly information applies for one day.
-    *
-    * [DayInfo]
-    * 100         1           4           6            1       512		// row 0
-    * 20011116    1           65         20         7500     25200		// row 1
-    * ...         														// row 2 ... n
-    * Day note text                									// text row
-    * </pre>
-    *
-    * @param fileReader
-    * @return
-    * @throws IOException
-    */
-   private boolean parseSection10DayInfo(final BufferedReader fileReader) throws IOException {
-
-      String line;
-      StringTokenizer tokenLine;
-
-      try {
-         /**
-          * <pre>
-          * Row 0
-          *
-          * Data  					Example
-          *
-          * FileVersion 				100
-          * Nbr Of Info Rows  		1
-          * Nbr Of Num Rows  		4
-          * Nbr Of Num Columns  		6
-          * Nbr Of Text Rows  		1
-          * Max Char Per Text Row  512
-          * </pre>
-          */
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-
-         tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // 1
-         _fileVersionDayInfo = Integer.parseInt(tokenLine.nextToken());
-
-         // 2
-         final int numOfInfoRows = Integer.parseInt(tokenLine.nextToken());
-
-         // 3
-         final int numOfNumberRows = Integer.parseInt(tokenLine.nextToken());
-
-         // 4
-         @SuppressWarnings("unused")
-         final int numOfNumberColumns = Integer.parseInt(tokenLine.nextToken());
-
-         // 5
-         final int numOfTextRows = Integer.parseInt(tokenLine.nextToken());
-
-         int numOfNumberRowsAnalyzed = 0;
-
-         /**
-          * <pre>
-          * Row 1
-          *
-          * Data  					Example
-          *
-          * Date	 					20110705
-          * ?
-          * ?
-          * ?
-          * ?
-          * ?
-          * </pre>
-          */
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-
-         tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // 1
-         final String date = tokenLine.nextToken();
-         final int year = Integer.parseInt(date.substring(0, 4));
-         final int month = Integer.parseInt(date.substring(4, 6));
-         final int day = Integer.parseInt(date.substring(6, 8));
-         _currentDay.date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, TimeTools.getDefaultTimeZone());
-
-         // 2
-         tokenLine.nextToken();
-
-         // 3
-         tokenLine.nextToken();
-
-         // 4
-         tokenLine.nextToken();
-
-         // 5
-         tokenLine.nextToken();
-
-         numOfNumberRowsAnalyzed++;
-
-         // skip additional info rows (which are not available in version 100)
-         if (numOfInfoRows > 1) {
-            skipRows(fileReader, numOfInfoRows - 1);
-         }
-
-         if (skipRows(fileReader, numOfNumberRows + numOfTextRows - numOfNumberRowsAnalyzed) == null) {
-            return false;
-         }
-
-      } catch (final Exception e) {
-         StatusUtil.log(e);
-         return false;
-      }
-
-      return true;
-   }
-
-   /**
-    * <pre>
-    * 4.  Exercise information
-    *
-    * The following exercise information applies for one exercise. If the day includes more than one
-    * exercise, the ExerciseInfo section will be multiplied at file. The one day can include at max 10
-    * exercises.
-    *
-    * [ExerciseInfo1]
-    * 101       1           12         6           12         512          // row 0
-    * ...                        											// row 1...n
-    * exercise name              											// text row 0
-    * exercise note text                    								// text row 1
-    * attached hrm file (if in same folder, no folder info with file name) // text row 2
-    * reserved text                 										// text row 3
-    * ...                       											// text row 4...n
-    * </pre>
-    *
-    * @param fileReader
-    * @return
-    */
-   private boolean parseSection20ExerciseInfo(final BufferedReader fileReader) {
-
-      try {
-
-         /**
-          * <pre>
-          *
-          * Row 0
-          *
-          * Data  				Example    Format
-          *
-          * 1:	FileVersion  			101
-          * 2:	Nbr Of Info Rows  		1
-          * 3:	Nbr Of Num Rows  		12
-          * 4:	Nbr Of Num Columns  		6
-          * 5:	Nbr Of Text Rows  		12
-          * 6:	Max Char Per Text Row  	512
-          * </pre>
-          */
-         String line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-
-         StringTokenizer tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // column 1
-         _currentExercise.fileVersion = Integer.parseInt(tokenLine.nextToken());
-
-         // column 2
-         final int numOfInfoRows = Integer.parseInt(tokenLine.nextToken());
-
-         // column 3
-         final int numOfNumberRows = Integer.parseInt(tokenLine.nextToken());
-
-         // column 4
-         @SuppressWarnings("unused")
-         final int numOfNumberColumns = Integer.parseInt(tokenLine.nextToken());
-
-         // column 5
-         @SuppressWarnings("unused")
-         final int numOfTextRows = Integer.parseInt(tokenLine.nextToken());
-
-         // skip additional info rows (which are not available in version 101)
-         if (numOfInfoRows > 1) {
-            skipRows(fileReader, numOfInfoRows - 1);
-         }
-
-         int numOfNumberRowsAnalyzed = 0;
-
-         /**
-          * <pre>
-          *
-          * Number Row 1
-          *
-          * Data  						Example    	Format
-          *
-          * 1:	- Reserved -  			0
-          * 2:	No report  				1
-          * 3:	Not edited manually  	0
-          * 4:	- Reserved -  			0
-          * 5:	Start time  			36000   	Seconds (from midnight 0:00:00) 36000 = 10:00:00
-          * 6:	Total time  			2700        Seconds 2700 = 0:45:00, 0 ... 99 h 59 min, for one
-          * 											phase 10 s ... 99 min 59 s
-          * </pre>
-          */
-
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         numOfNumberRowsAnalyzed++;
-
-         tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // column 1
-         tokenLine.nextToken();
-
-         // column 2
-         tokenLine.nextToken();
-
-         // column 3
-         tokenLine.nextToken();
-
-         // column 4
-         tokenLine.nextToken();
-
-         // column 5
-         if (null != _currentDay.date) {
-            _currentExercise.startTime = _currentDay.date.plusSeconds(Integer.parseInt(tokenLine.nextToken()));
-         }
-
-         // column 6
-         _currentExercise.duration = Integer.parseInt(tokenLine.nextToken());
-
-         /**
-          * <pre>
-          *
-          * Number Row 2
-          *
-          * Data							Example		Format
-          *
-          * 1:	Sport					3			Personal Sport ID
-          * 2:	Distance OLD  			150         km * 10 NOT IN USE AFTER PPP version 3.02.008
-          * 3:	Feeling  				0 ... 5		0 = :-)	5 = :-(
-          * 4:	Recovery  				0 ... 4  	0 = Fully Recovered ... 4 = Exhausted
-          * 5:	- Reserved -  			0
-          * 6:	Energy consumption  	376
-          * </pre>
-          */
-
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         numOfNumberRowsAnalyzed++;
-
-         tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // column 1
-         _currentExercise.sport = Integer.parseInt(tokenLine.nextToken());
-
-         // column 2
-         tokenLine.nextToken();
-
-         // column 3
-         tokenLine.nextToken();
-
-         // column 4
-         tokenLine.nextToken();
-
-         // column 5
-         tokenLine.nextToken();
-
-         // column 6
-         _currentExercise.calories = Integer.parseInt(tokenLine.nextToken());
-
-         /**
-          * <pre>
-          *
-          * Number Row 3
-          *
-          * Data							Example		Format
-          *
-          * 1:   Distance                12000       m
-          * 2:	?
-          * 3:	?
-          * 4:	?
-          * 5:	?
-          * 6:	?
-          * </pre>
-          */
-
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         numOfNumberRowsAnalyzed++;
-
-         tokenLine = new StringTokenizer(line, DATA_DELIMITER);
-
-         // column 1
-         _currentExercise.distance = Integer.parseInt(tokenLine.nextToken());
-
-         // column 2
-         tokenLine.nextToken();
-
-         // column 3
-         tokenLine.nextToken();
-
-         // column 4
-         tokenLine.nextToken();
-
-         // column 5
-         tokenLine.nextToken();
-
-         // column 6
-         _currentExercise.calories = Integer.parseInt(tokenLine.nextToken());
-
-         /**
-          * skip further number rows
-          */
-         if (skipRows(fileReader, numOfNumberRows - numOfNumberRowsAnalyzed) == null) {
-            return false;
-         }
-
-         /**
-          * <pre>
-          *
-          * Text rows
-          *
-          * Row 0  exercise name
-          * Row 1  exercise note text
-          * Row 2  attached hrm file (if in same folder, no folder info with file name)
-          * Row 3  hyperlink
-          * Row 4  hyperlink info text
-          * Row 5  attached location file
-          * Row 6  attached RR file
-          * Row 7  previous multisport file
-          * Row 8  next multisport file
-          * Row n  - Reserved -
-          * </pre>
-          */
-
-         String hrmFileName = null;
-         String gpxFileName = null;
-
-         // row 0
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         _currentExercise.title = line;
-
-         // row 1
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         _currentExercise.description = line;
-
-         // row 2
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         if (line.length() > 0) {
-            hrmFileName = line;
-         }
-
-         // row 3
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-
-         // row 4
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-
-         // row 5
-         line = fileReader.readLine();
-         if (line == null) {
-            return false;
-         }
-         if (line.length() > 0) {
-            gpxFileName = line;
-         }
-
-         // hrmFile and GpxFile might both be empty, Polar allows creation of an exercise without recorded data
-         if (null != hrmFileName) {
-            return createExercise(hrmFileName, gpxFileName);
-         } else {
-            return createExercise();
-         }
-
-      } catch (final Exception e) {
-         StatusUtil.showStatus(e);
-         return false;
-      }
-   }
-
    @Override
+<<<<<<< HEAD
    public boolean processDeviceData(final String importFilePath,
                                     final DeviceData deviceData,
                                     final Map<Long, TourData> alreadyImportedTours,
@@ -971,6 +504,14 @@ public class Polar_PDD_DataReader extends TourbookDevice {
 
       _additionalImportedFiles.clear();
       _exerciseFiles.clear();
+=======
+   public void processDeviceData(final String importFilePath,
+                                 final DeviceData deviceData,
+                                 final Map<Long, TourData> alreadyImportedTours,
+                                 final Map<Long, TourData> newlyImportedTours,
+                                 final ImportState_File importState_File,
+                                 final ImportState_Process importState_Process) {
+>>>>>>> refs/remotes/Wolfgang/main
 
       _isReimport = isReimport;
 
@@ -978,28 +519,18 @@ public class Polar_PDD_DataReader extends TourbookDevice {
          System.out.println(importFilePath);
       }
 
-      final boolean returnValue = parseSection();
+      new Polar_PDD_Data(
 
-      return returnValue;
-   }
+            importFilePath,
+            alreadyImportedTours,
+            newlyImportedTours,
 
-   private String skipRows(final BufferedReader fileReader, final int numberOfRows) throws IOException {
+            importState_File,
+            importState_Process,
 
-      int rowCounter = 0;
+            this
 
-      String line = null;
-      while (rowCounter < numberOfRows) {
-
-         line = fileReader.readLine();
-
-         if (line == null) {
-            return null;
-         }
-
-         rowCounter++;
-      }
-
-      return line;
+      ).parseSection();
    }
 
    /**

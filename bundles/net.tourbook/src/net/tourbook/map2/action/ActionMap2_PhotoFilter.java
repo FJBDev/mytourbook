@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@ import net.tourbook.common.tooltip.AdvancedSlideout;
 import net.tourbook.common.tooltip.SlideoutLocation;
 import net.tourbook.map2.Messages;
 import net.tourbook.map2.view.Map2View;
-import net.tourbook.tour.photo.Slideout_Map2_PhotoFilter;
+import net.tourbook.tour.photo.SlideoutPhotoFilter;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,6 +29,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.ToolItem;
 
 public class ActionMap2_PhotoFilter extends ActionToolbarSlideoutAdv {
+
+   private static final String PHOTO_FILTER_TITLE_MAP2_PHOTO_FILTER = net.tourbook.Messages.Photo_Filter_Title_Map2PhotoFilter;
 
    /*
     * UI resources
@@ -43,10 +45,10 @@ public class ActionMap2_PhotoFilter extends ActionToolbarSlideoutAdv {
 
 // SET_FORMATTING_ON
 
-   private IDialogSettings           _state;
+   private IDialogSettings     _state;
 
-   private Map2View                  _map2View;
-   private Slideout_Map2_PhotoFilter _slideoutPhotoFilter;
+   private Map2View            _map2View;
+   private SlideoutPhotoFilter _slideoutPhotoFilter;
 
    public ActionMap2_PhotoFilter(final Map2View map2View, final IDialogSettings state) {
 
@@ -62,13 +64,13 @@ public class ActionMap2_PhotoFilter extends ActionToolbarSlideoutAdv {
    @Override
    protected AdvancedSlideout createSlideout(final ToolItem toolItem) {
 
-      _slideoutPhotoFilter = new Slideout_Map2_PhotoFilter(toolItem, _map2View, _state);
+      _slideoutPhotoFilter = new SlideoutPhotoFilter(toolItem, _map2View, _state, PHOTO_FILTER_TITLE_MAP2_PHOTO_FILTER);
       _slideoutPhotoFilter.setSlideoutLocation(SlideoutLocation.BELOW_CENTER);
 
       return _slideoutPhotoFilter;
    }
 
-   public Slideout_Map2_PhotoFilter getPhotoFilterSlideout() {
+   public SlideoutPhotoFilter getPhotoFilterSlideout() {
       return _slideoutPhotoFilter;
    }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,16 +15,16 @@
  *******************************************************************************/
 package net.tourbook.ui.views.rawData;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.chart.ChartDataModel;
-import net.tourbook.chart.ISliderMoveListener;
-import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.util.Util;
@@ -32,7 +32,6 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.tour.IDataModelListener;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
@@ -43,8 +42,6 @@ import net.tourbook.ui.tourChart.I2ndAltiLayer;
 import net.tourbook.ui.tourChart.TourChart;
 import net.tourbook.ui.tourChart.TourChartConfiguration;
 
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -55,13 +52,9 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -69,36 +62,35 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
 public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2, I2ndAltiLayer {
 
-   private static final int       MAX_ADJUST_SECONDS     = 120;
-   private static final int       MAX_ADJUST_MINUTES     = 120;                                             // x 60
-   private static final int       MAX_ADJUST_ALTITUDE_1  = 20;
-   private static final int       MAX_ADJUST_ALTITUDE_10 = 40;                                              // x 10
+   private static final int              MAX_ADJUST_SECONDS     = 120;
+   private static final int              MAX_ADJUST_MINUTES     = 120;                                                                      // x 60
+   private static final int              MAX_ADJUST_ALTITUDE_1  = 20;
+   private static final int              MAX_ADJUST_ALTITUDE_10 = 40;                                                                       // x 10
 
-   private static final int       VH_SPACING             = 2;
+   private static final int              VH_SPACING             = 2;
 
-   private final IPreferenceStore _prefStore             = TourbookPlugin.getDefault().getPreferenceStore();
-   private final IDialogSettings  _dialogSettings;
+   private static final IPreferenceStore _prefStore             = TourbookPlugin.getPrefStore();
+   private static final IDialogSettings  _state                 = TourbookPlugin.getState("net.tourbook.ui.views.rawData.DialogMergeTours");//$NON-NLS-1$
 
-   private TourData               _sourceTour;
-   private TourData               _targetTour;
+   private TourData                      _sourceTour;
+   private TourData                      _targetTour;
 
-   private Composite              _dlgContainer;
+   private Composite                     _dlgContainer;
 
-   private TourChart              _tourChart;
-   private TourChartConfiguration _tourChartConfig;
+   private TourChart                     _tourChart;
+   private TourChartConfiguration        _tourChartConfig;
 
-   private PixelConverter         _pc;
+   private PixelConverter                _pc;
+   private boolean                       _isInUIInit;
 
    /*
     * vertical adjustment options
@@ -112,7 +104,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
    private Scale _scaleAltitude10;
 
    /*
-    * horzontal adjustment options
+    * horizontal adjustment options
     */
    private Button _chkSynchStartTime;
 
@@ -132,9 +124,10 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
     * save actions
     */
    private Button _chkMergeAltitude;
-   private Button _chkMergePulse;
-   private Button _chkMergeTemperature;
    private Button _chkMergeCadence;
+   private Button _chkMergePulse;
+   private Button _chkMergeSpeed;
+   private Button _chkMergeTemperature;
 
    private Button _chkAdjustAltiFromSource;
    private Button _chkAdjustAltiSmoothly;
@@ -165,33 +158,37 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
    /*
     * backup data
     */
-   private int[]                                          _backupSourceTimeSerie;
-   private float[]                                        _backupSourceDistanceSerie;
-   private float[]                                        _backupSourceAltitudeSerie;
+   private int[]                         _backupSourceTimeSerie;
+   private float[]                       _backupSourceDistanceSerie;
+   private float[]                       _backupSourceAltitudeSerie;
 
-   private TourType                                       _backupSourceTourType;
+   private TourType                      _backupSourceTourType;
 
-   private float[]                                        _backupTargetPulseSerie;
-   private float[]                                        _backupTargetTemperatureSerie;
-   private float[]                                        _backupTargetCadenceSerie;
+   private float[]                       _backupTargetAltitudeSerie;
+   private float[]                       _backupTargetCadenceSerie;
+   private float[]                       _backupTargetPulseSerie;
+   private float[]                       _backupTargetTemperatureSerie;
+   private float[]                       _backupTargetSpeedSerie;
+   private int[]                         _backupTargetTimeSerie;
+   private long                          _backupTargetDeviceTime_Elapsed;
 
-   private int                                            _backupTargetTimeOffset;
-   private int                                            _backupTargetAltitudeOffset;
+   private int                           _backupTargetTimeOffset;
+   private int                           _backupTargetAltitudeOffset;
 
-   private ActionOpenPrefDialog                           _actionOpenTourTypePrefs;
+   private ActionOpenPrefDialog          _actionOpenTourTypePrefs;
 
-   private final NumberFormat                             _nf          = NumberFormat.getNumberInstance();
+   private final NumberFormat            _nf          = NumberFormat.getNumberInstance();
 
-   private final Image                                    _iconPlaceholder;
-   private final HashMap<Integer, Image>                  _graphImages = new HashMap<>();
+   private final Image                   _iconPlaceholder;
+   private final HashMap<Integer, Image> _graphImages = new HashMap<>();
 
-   private final int                                      _tourStartTimeSynchOffset;
-   private int                                            _tourTimeOffsetBackup;
+   private final int                     _tourStartTimeSynchOffset;
+   private int                           _tourTimeOffsetBackup;
 
-   private boolean                                        _isAdjustAltiFromSourceBackup;
-   private boolean                                        _isAdjustAltiFromStartBackup;
+   private boolean                       _isAdjustAltiFromSourceBackup;
+   private boolean                       _isAdjustAltiFromStartBackup;
 
-   private org.eclipse.jface.util.IPropertyChangeListener _prefChangeListener;
+   private IPropertyChangeListener       _prefChangeListener;
 
    /**
     * @param parentShell
@@ -226,40 +223,44 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       _nf.setMinimumFractionDigits(3);
       _nf.setMaximumFractionDigits(3);
-
-      _dialogSettings = TourbookPlugin.getDefault().getDialogSettingsSection(getClass().getName());
    }
 
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
+         if (property.equals(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED)) {
 
-               /*
-                * tour data cache is cleared, reload tour data from the database
-                */
+            /*
+             * tour data cache is cleared, reload tour data from the database
+             */
 
-               if (_sourceTour.getTourPerson() != null) {
-                  _sourceTour = TourManager.getInstance().getTourData(_sourceTour.getTourId());
-               }
-
-               _targetTour = TourManager.getInstance().getTourData(_targetTour.getTourId());
-
-               onModifyProperties();
+            if (_sourceTour.getTourPerson() != null) {
+               _sourceTour = TourManager.getInstance().getTourData(_sourceTour.getTourId());
             }
+
+            _targetTour = TourManager.getInstance().getTourData(_targetTour.getTourId());
+
+            onModifyProperties();
          }
       };
 
       _prefStore.addPropertyChangeListener(_prefChangeListener);
    }
 
+   private void addVisibleGraph(final int graphId) {
+
+      final ArrayList<Integer> visibleGraphs = _tourChartConfig.getVisibleGraphs();
+
+      if (visibleGraphs.contains(graphId) == false) {
+         visibleGraphs.add(graphId);
+      }
+   }
+
    /**
-    * set button width
+    * Set button width
     */
    private void adjustButtonWidth() {
 
@@ -267,12 +268,67 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       final int btnResetValues = _btnResetValues.getBounds().width;
       final int newWidth = Math.max(btnResetAdj, btnResetValues);
 
-      GridData gd;
-      gd = (GridData) _btnResetAdjustment.getLayoutData();
-      gd.widthHint = newWidth;
+      GridData gridData;
+      gridData = (GridData) _btnResetAdjustment.getLayoutData();
+      gridData.widthHint = newWidth;
 
-      gd = (GridData) _btnResetValues.getLayoutData();
-      gd.widthHint = newWidth;
+      gridData = (GridData) _btnResetValues.getLayoutData();
+      gridData.widthHint = newWidth;
+   }
+
+   private void assignMergedSeries(final TourMerger tourMerger) {
+
+      final boolean isSourceAltitude = _sourceTour.altitudeSerie != null;
+      final boolean isTargetAltitude = _targetTour.altitudeSerie != null;
+
+      _sourceTour.dataSerieAdjustedAlti = null;
+
+      final float[] newSourceAltitudeSerie = tourMerger.getNewSourceAltitudeSerie();
+      if (isSourceAltitude) {
+         _sourceTour.dataSerie2ndAlti = newSourceAltitudeSerie;
+      } else {
+         _sourceTour.dataSerie2ndAlti = null;
+      }
+
+      if (isSourceAltitude && isTargetAltitude) {
+         _sourceTour.dataSerieDiffTo2ndAlti = tourMerger.getNewSourceAltitudeDifferencesSerie();
+      } else {
+         _sourceTour.dataSerieDiffTo2ndAlti = null;
+      }
+
+      if (_chkMergeCadence.getSelection()) {
+         _targetTour.setCadenceSerie(tourMerger.getNewTargetCadenceSerie());
+      } else {
+         _targetTour.setCadenceSerie(_backupTargetCadenceSerie);
+      }
+
+      if (_chkMergePulse.getSelection()) {
+         _targetTour.pulseSerie = tourMerger.getNewTargetPulseSerie();
+      } else {
+         _targetTour.pulseSerie = _backupTargetPulseSerie;
+      }
+
+      if (_chkMergeTemperature.getSelection()) {
+         _targetTour.temperatureSerie = tourMerger.getNewTargetTemperatureSerie();
+      } else {
+         _targetTour.temperatureSerie = _backupTargetTemperatureSerie;
+      }
+
+      //In both cases, we update the speed to trigger the recalculation of it
+      if (_chkMergeSpeed.getSelection()) {
+         final int[] newTargetTimeSerie = tourMerger.getNewTargetTimeSerie();
+         _targetTour.timeSerie = tourMerger.getNewTargetTimeSerie();
+         _targetTour.setSpeedSerie(null);
+         _targetTour.setTourDeviceTime_Elapsed(newTargetTimeSerie[newTargetTimeSerie.length - 1] - newTargetTimeSerie[0] * 1L);
+         _targetTour.setTourDeviceTime_Recorded(_targetTour.getTourDeviceTime_Elapsed());
+         _targetTour.computeTourMovingTime();
+      } else {
+         _targetTour.timeSerie = _backupTargetTimeSerie;
+         _targetTour.setSpeedSerie(_backupTargetSpeedSerie);
+         _targetTour.setTourDeviceTime_Elapsed(_backupTargetDeviceTime_Elapsed);
+         _targetTour.setTourDeviceTime_Recorded(_targetTour.getTourDeviceTime_Elapsed());
+         _targetTour.computeTourMovingTime();
+      }
    }
 
    @Override
@@ -308,255 +364,106 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       return super.close();
    }
 
-   private void computeMergedData() {
+   private float[] computeAdjustedAltitude(final TourMerger tourMerger) {
 
-      int xMergeOffset = _targetTour.getMergedTourTimeOffset();
-      final int yMergeOffset = _targetTour.getMergedAltitudeOffset();
-
-      final int[] targetTimeSerie = _targetTour.timeSerie;
       final float[] targetDistanceSerie = _targetTour.distanceSerie;
-      final float[] targetAltitudeSerie = _targetTour.altitudeSerie;
 
-      final int[] sourceTimeSerie = _sourceTour.timeSerie;
-      final float[] sourceAltitudeSerie = _sourceTour.altitudeSerie;
-      final float[] sourcePulseSerie = _sourceTour.pulseSerie;
-      final float[] sourceTemperatureSerie = _sourceTour.temperatureSerie;
-      final float[] sourceCadenceSerie = _sourceTour.getCadenceSerie();
-
-      if (_chkSynchStartTime.getSelection()) {
-
-         // synchronize start time
-
-         xMergeOffset = _tourStartTimeSynchOffset;
-      }
-
-      // check if the data series are available
-      final boolean isSourceTemperature = sourceTemperatureSerie != null;
-      final boolean isSourcePulse = sourcePulseSerie != null;
-      final boolean isSourceCadence = sourceCadenceSerie != null;
-      final boolean isSourceAltitude = sourceAltitudeSerie != null;
-
+      final boolean isSourceAltitude = _sourceTour.altitudeSerie != null;
+      final boolean isTargetAltitude = _targetTour.altitudeSerie != null;
       final boolean isTargetDistance = targetDistanceSerie != null;
-      final boolean isTargetAltitude = targetAltitudeSerie != null;
 
-      final int lastSourceIndex = sourceTimeSerie.length - 1;
-      final int serieLength = targetTimeSerie.length;
+      final float[] altitudeDifferences = new float[2];
 
-      final float[] newSourceAltitudeSerie = new float[serieLength];
-      final float[] newSourceAltiDiffSerie = new float[serieLength];
-
-      final float[] newTargetPulseSerie = new float[serieLength];
-      final float[] newTargetTemperatureSerie = new float[serieLength];
-      final float[] newTargetCadenceSerie = new float[serieLength];
-
-      int sourceIndex = 0;
-      int sourceTime = sourceTimeSerie[0] + xMergeOffset;
-      int sourceTimePrev = 0;
-      float sourceAlti = 0;
-      float sourceAltiPrev = 0;
-
-      int targetTime = targetTimeSerie[0];
-      float newSourceAltitude;
-
-      if (isSourceAltitude) {
-         sourceAlti = sourceAltitudeSerie[0] + yMergeOffset;
-         sourceAltiPrev = sourceAlti;
-         newSourceAltitude = sourceAlti;
+      if (!isSourceAltitude || !isTargetAltitude || !isTargetDistance) {
+         return altitudeDifferences;
       }
 
-      final boolean isLinearInterpolation = _chkAdjustAltiFromSource.getSelection()
-            && _chkAdjustAltiSmoothly.getSelection();
-
-      /*
-       * create new time/distance serie for the source tour according to the time of the target tour
-       */
-      for (int targetIndex = 0; targetIndex < serieLength; targetIndex++) {
-
-         targetTime = targetTimeSerie[targetIndex];
+      final int[] targetTimeSerie = tourMerger.getNewTargetTimeSerie();
+      final int serieLength = targetTimeSerie.length;
+      final float[] newSourceAltitudeDifferencesSerie = tourMerger.getNewSourceAltitudeDifferencesSerie();
+      final float[] newSourceAltitudeSerie = tourMerger.getNewSourceAltitudeSerie();
+      if (_chkAdjustAltiFromStart.getSelection()) {
 
          /*
-          * target tour is the leading time data serie, move source time forward to reach target
-          * time
+          * adjust start altitude until left slider
           */
-         while (sourceTime < targetTime) {
 
-            sourceIndex++;
+         final float[] adjustedTargetAltitudeSerie = new float[serieLength];
 
-            // check array bounds
-            sourceIndex = (sourceIndex <= lastSourceIndex) ? sourceIndex : lastSourceIndex;
+         float startAltitudeDifferences = newSourceAltitudeDifferencesSerie[0];
+         final int endIndex = _tourChart.getXSliderPosition().getLeftSliderValueIndex();
+         final float distanceDiff = targetDistanceSerie[endIndex];
 
-            if (sourceIndex == lastSourceIndex) {
-               //prevent endless loops
-               break;
-            }
+         final float[] altitudeSerie = _targetTour.altitudeSerie;
 
-            sourceTimePrev = sourceTime;
-            sourceTime = sourceTimeSerie[sourceIndex] + xMergeOffset;
+         for (int serieIndex = 0; serieIndex < serieLength; serieIndex++) {
 
-            if (isSourceAltitude) {
-               sourceAltiPrev = sourceAlti;
-               sourceAlti = sourceAltitudeSerie[sourceIndex] + yMergeOffset;
-            }
-         }
+            if (serieIndex < endIndex) {
 
-         if (isSourceAltitude) {
+               // add adjusted altitude
 
-            if (isLinearInterpolation) {
+               final float targetDistance = targetDistanceSerie[serieIndex];
+               final float distanceScale = 1 - targetDistance / distanceDiff;
 
-               /**
-                * do linear interpolation for the altitude
-                * <p>
-                * y2 = (x2-x1)(y3-y1)/(x3-x1) + y1
-                */
-               final int x1 = sourceTimePrev;
-               final int x2 = targetTime;
-               final int x3 = sourceTime;
-               final float y1 = sourceAltiPrev;
-               final float y3 = sourceAlti;
+               final float adjustedAltiDiff = startAltitudeDifferences * distanceScale;
+               final float newAltitude = altitudeSerie[serieIndex] + adjustedAltiDiff;
 
-               final int xDiff = x3 - x1;
-
-               newSourceAltitude = xDiff == 0 ? sourceAltiPrev : (x2 - x1) * (y3 - y1) / xDiff + y1;
+               adjustedTargetAltitudeSerie[serieIndex] = newAltitude;
+               newSourceAltitudeDifferencesSerie[serieIndex] = newSourceAltitudeSerie[serieIndex] - newAltitude;
 
             } else {
 
-               /*
-                * the interpolited altitude is not exact above the none interpolite altitude, it is
-                * in the middle of the previous and current altitude
-                */
-               // newSourceAltitude = sourceAlti;
-               newSourceAltitude = sourceAltiPrev;
-            }
+               // add altitude which are not adjusted
 
-            newSourceAltitudeSerie[targetIndex] = newSourceAltitude;
-
-            if (isTargetAltitude) {
-               newSourceAltiDiffSerie[targetIndex] = newSourceAltitude - targetAltitudeSerie[targetIndex];
+               adjustedTargetAltitudeSerie[serieIndex] = altitudeSerie[serieIndex];
             }
          }
 
-         if (isSourcePulse) {
-            newTargetPulseSerie[targetIndex] = sourcePulseSerie[sourceIndex];
-         }
-         if (isSourceTemperature) {
-            newTargetTemperatureSerie[targetIndex] = sourceTemperatureSerie[sourceIndex];
-         }
-         if (isSourceCadence) {
-            newTargetCadenceSerie[targetIndex] = sourceCadenceSerie[sourceIndex];
-         }
-      }
+         _sourceTour.dataSerieAdjustedAlti = adjustedTargetAltitudeSerie;
 
-      _sourceTour.dataSerieAdjustedAlti = null;
+         startAltitudeDifferences /= UI.UNIT_VALUE_ELEVATION;
 
-      if (isSourceAltitude) {
-         _sourceTour.dataSerie2ndAlti = newSourceAltitudeSerie;
-      } else {
-         _sourceTour.dataSerie2ndAlti = null;
-      }
+         final int targetEndTime = targetTimeSerie[endIndex];
+         final float targetEndDistance = targetDistanceSerie[endIndex];
 
-      if (isSourceAltitude && isTargetAltitude) {
-         _sourceTour.dataSerieDiffTo2ndAlti = newSourceAltiDiffSerie;
-      } else {
-         _sourceTour.dataSerieDiffTo2ndAlti = null;
-      }
+         // meter/min
+         altitudeDifferences[0] = targetEndTime == 0 ? //
+               0f
+               : startAltitudeDifferences / targetEndTime * 60;
 
-      if (_chkMergePulse.getSelection()) {
-         _targetTour.pulseSerie = newTargetPulseSerie;
-      } else {
-         _targetTour.pulseSerie = _backupTargetPulseSerie;
-      }
+         // meter/meter
+         altitudeDifferences[1] = targetEndDistance == 0 ? //
+               0f
+               : ((startAltitudeDifferences * 1000) / targetEndDistance) / UI.UNIT_VALUE_DISTANCE;
 
-      if (_chkMergeTemperature.getSelection()) {
-         _targetTour.temperatureSerie = newTargetTemperatureSerie;
-      } else {
-         _targetTour.temperatureSerie = _backupTargetTemperatureSerie;
-      }
-
-      if (_chkMergeCadence.getSelection()) {
-         _targetTour.setCadenceSerie(newTargetCadenceSerie);
-      } else {
-         _targetTour.setCadenceSerie(_backupTargetCadenceSerie);
-      }
-
-      float altiDiffTime = 0;
-      float altiDiffDist = 0;
-
-      if (isSourceAltitude && isTargetAltitude && isTargetDistance) {
+      } else if (_chkAdjustAltiFromSource.getSelection()) {
 
          /*
-          * compute adjusted altitude
+          * adjust target altitude from source altitude
           */
-
-         if (_chkAdjustAltiFromStart.getSelection()) {
-
-            /*
-             * adjust start altitude until left slider
-             */
-
-            final float[] adjustedTargetAltitudeSerie = new float[serieLength];
-
-            float startAltiDiff = newSourceAltiDiffSerie[0];
-            final int endIndex = _tourChart.getXSliderPosition().getLeftSliderValueIndex();
-            final float distanceDiff = targetDistanceSerie[endIndex];
-
-            final float[] altitudeSerie = _targetTour.altitudeSerie;
-
-            for (int serieIndex = 0; serieIndex < serieLength; serieIndex++) {
-
-               if (serieIndex < endIndex) {
-
-                  // add adjusted altitude
-
-                  final float targetDistance = targetDistanceSerie[serieIndex];
-                  final float distanceScale = 1 - targetDistance / distanceDiff;
-
-                  final float adjustedAltiDiff = startAltiDiff * distanceScale;
-                  final float newAltitude = altitudeSerie[serieIndex] + adjustedAltiDiff;
-
-                  adjustedTargetAltitudeSerie[serieIndex] = newAltitude;
-                  newSourceAltiDiffSerie[serieIndex] = newSourceAltitudeSerie[serieIndex] - newAltitude;
-
-               } else {
-
-                  // add altitude which are not adjusted
-
-                  adjustedTargetAltitudeSerie[serieIndex] = altitudeSerie[serieIndex];
-               }
-            }
-
-            _sourceTour.dataSerieAdjustedAlti = adjustedTargetAltitudeSerie;
-
-            startAltiDiff /= UI.UNIT_VALUE_ELEVATION;
-
-            final int targetEndTime = targetTimeSerie[endIndex];
-            final float targetEndDistance = targetDistanceSerie[endIndex];
-
-            // meter/min
-            altiDiffTime = targetEndTime == 0 ? //
-                  0f
-                  : startAltiDiff / targetEndTime * 60;
-
-            // meter/meter
-            altiDiffDist = targetEndDistance == 0 ? //
-                  0f
-                  : ((startAltiDiff * 1000) / targetEndDistance) / UI.UNIT_VALUE_DISTANCE;
-
-         } else if (_chkAdjustAltiFromSource.getSelection()) {
-
-            /*
-             * adjust target altitude from source altitude
-             */
-            final float[] newTargetAltitudeSerie = new float[serieLength];
-
-            for (int serieIndex = 0; serieIndex < serieLength; serieIndex++) {
-               newTargetAltitudeSerie[serieIndex] = newSourceAltitudeSerie[serieIndex];
-            }
-
-            _sourceTour.dataSerieAdjustedAlti = newTargetAltitudeSerie;
-         }
+         _sourceTour.dataSerieAdjustedAlti = Arrays.copyOf(newSourceAltitudeSerie, serieLength);
       }
 
-      updateUI(altiDiffTime, altiDiffDist);
+      return altitudeDifferences;
+   }
+
+   private void computeMergedData() {
+
+      final TourMerger tourMerger = new TourMerger(
+            _sourceTour,
+            _targetTour,
+            _chkAdjustAltiFromSource.getSelection(),
+            _chkAdjustAltiSmoothly.getSelection(),
+            _chkSynchStartTime.getSelection(),
+            _tourStartTimeSynchOffset);
+
+      tourMerger.computeMergedData(_chkMergeSpeed.getSelection());
+
+      assignMergedSeries(tourMerger);
+
+      final float[] altitudeDifferences = computeAdjustedAltitude(tourMerger);
+
+      updateUI(altitudeDifferences);
    }
 
    @Override
@@ -566,12 +473,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       shell.setText(Messages.tour_merger_dialog_title);
 
-      shell.addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose();
-         }
-      });
+      shell.addDisposeListener(disposeEvent -> onDispose());
    }
 
    @Override
@@ -587,7 +489,11 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _dlgContainer.layout(true, true);
 
       createActions();
-      restoreState();
+      _isInUIInit = true;
+      {
+         restoreState();
+      }
+      _isInUIInit = false;
 
       setTitle(NLS.bind(
             Messages.tour_merger_dialog_header_title,
@@ -619,6 +525,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       enableActions();
 
+      validateFields();
    }
 
    @Override
@@ -682,9 +589,13 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _backupSourceAltitudeSerie = Util.createFloatCopy(_sourceTour.altitudeSerie);
       _backupSourceTourType = _sourceTour.getTourType();
 
+      _backupTargetAltitudeSerie = Util.createFloatCopy(_targetTour.altitudeSerie);
+      _backupTargetCadenceSerie = Util.createFloatCopy(_targetTour.getCadenceSerie());
       _backupTargetPulseSerie = Util.createFloatCopy(_targetTour.pulseSerie);
       _backupTargetTemperatureSerie = Util.createFloatCopy(_targetTour.temperatureSerie);
-      _backupTargetCadenceSerie = Util.createFloatCopy(_targetTour.getCadenceSerie());
+      _backupTargetSpeedSerie = Util.createFloatCopy(_targetTour.getSpeedSerie());
+      _backupTargetTimeSerie = Util.createIntegerCopy(_targetTour.timeSerie);
+      _backupTargetDeviceTime_Elapsed = _targetTour.getTourDeviceTime_Elapsed();
 
       _backupTargetTimeOffset = _targetTour.getMergedTourTimeOffset();
       _backupTargetAltitudeOffset = _targetTour.getMergedAltitudeOffset();
@@ -734,13 +645,12 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       createUISectionAdjustments(columnDisplay);
 
       createUISectionResetButtons(columnContainer);
-
    }
 
    /**
     * group: adjust time
     */
-   private void createUIGroupHorizAdjustment(final Composite parent) {
+   private void createUIGroupHorizontalAdjustment(final Composite parent) {
 
       final int valueWidth = _pc.convertWidthInCharsToPixels(4);
       Label label;
@@ -754,40 +664,37 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             .applyTo(groupTime);
 
       /*
-       * checkbox: keep horiz. and vert. adjustments
+       * Checkbox: keep horizontal and vertical adjustments
        */
       _chkSynchStartTime = new Button(groupTime, SWT.CHECK);
       GridDataFactory.fillDefaults().applyTo(_chkSynchStartTime);
       _chkSynchStartTime.setText(Messages.tour_merger_chk_use_synced_start_time);
       _chkSynchStartTime.setToolTipText(Messages.tour_merger_chk_use_synced_start_time_tooltip);
-      _chkSynchStartTime.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      _chkSynchStartTime.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
-            // display synched time in the UI
-            if (_chkSynchStartTime.getSelection()) {
+         // display synched time in the UI
+         if (_chkSynchStartTime.getSelection()) {
 
-               // set time offset for the synched tours
+            // set time offset for the synched tours
 
-               _tourTimeOffsetBackup = getFromUITourTimeOffset();
-               updateUITourTimeOffset(_tourStartTimeSynchOffset);
+            _tourTimeOffsetBackup = getFromUITourTimeOffset();
+            updateUITourTimeOffset(_tourStartTimeSynchOffset);
 
-            } else {
+         } else {
 
-               // set time offset manually
+            // set time offset manually
 
-               updateUITourTimeOffset(_tourTimeOffsetBackup);
-            }
-
-            onModifyProperties();
-
-            if (_chkPreviewChart.getSelection() == false) {
-
-               // preview
-               updateTourChart();
-            }
+            updateUITourTimeOffset(_tourTimeOffsetBackup);
          }
-      });
+
+         onModifyProperties();
+
+         if (_chkPreviewChart.getSelection() == false) {
+
+            // preview
+            updateTourChart();
+         }
+      }));
 
       /*
        * container: seconds scale
@@ -817,18 +724,8 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _scaleAdjustSeconds.setMinimum(0);
       _scaleAdjustSeconds.setMaximum(MAX_ADJUST_SECONDS * 2);
       _scaleAdjustSeconds.setPageIncrement(20);
-      _scaleAdjustSeconds.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
-      _scaleAdjustSeconds.addListener(SWT.MouseDoubleClick, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onScaleDoubleClick(event.widget);
-         }
-      });
+      _scaleAdjustSeconds.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
+      _scaleAdjustSeconds.addListener(SWT.MouseDoubleClick, event -> onScaleDoubleClick(event.widget));
 
       /*
        * scale: adjust minutes
@@ -851,24 +748,14 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _scaleAdjustMinutes.setMinimum(0);
       _scaleAdjustMinutes.setMaximum(MAX_ADJUST_MINUTES * 2);
       _scaleAdjustMinutes.setPageIncrement(20);
-      _scaleAdjustMinutes.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
-      _scaleAdjustMinutes.addListener(SWT.MouseDoubleClick, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onScaleDoubleClick(event.widget);
-         }
-      });
+      _scaleAdjustMinutes.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
+      _scaleAdjustMinutes.addListener(SWT.MouseDoubleClick, event -> onScaleDoubleClick(event.widget));
    }
 
    /**
     * group: adjust altitude
     */
-   private void createUIGroupVertAdjustment(final Composite parent) {
+   private void createUIGroupVerticalAdjustment(final Composite parent) {
 
       _groupAltitude = new Group(parent, SWT.NONE);
       _groupAltitude.setText(Messages.tour_merger_group_adjust_altitude);
@@ -894,18 +781,8 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _scaleAltitude1.setMinimum(0);
       _scaleAltitude1.setMaximum(MAX_ADJUST_ALTITUDE_1 * 2);
       _scaleAltitude1.setPageIncrement(5);
-      _scaleAltitude1.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
-      _scaleAltitude1.addListener(SWT.MouseDoubleClick, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onScaleDoubleClick(event.widget);
-         }
-      });
+      _scaleAltitude1.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
+      _scaleAltitude1.addListener(SWT.MouseDoubleClick, event -> onScaleDoubleClick(event.widget));
 
       /*
        * scale: altitude 100m
@@ -921,18 +798,8 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().grab(true, false).applyTo(_scaleAltitude10);
       _scaleAltitude10.setMinimum(0);
       _scaleAltitude10.setMaximum(MAX_ADJUST_ALTITUDE_10 * 2);
-      _scaleAltitude10.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
-      _scaleAltitude10.addListener(SWT.MouseDoubleClick, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
-            onScaleDoubleClick(event.widget);
-         }
-      });
+      _scaleAltitude10.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
+      _scaleAltitude10.addListener(SWT.MouseDoubleClick, event -> onScaleDoubleClick(event.widget));
    }
 
    private Button createUIMergeAction(final Composite parent,
@@ -946,12 +813,10 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       mergeButton.setText(btnText);
       mergeButton.setToolTipText(btnTooltip);
 
-      mergeButton.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectMergeGraph(e);
-         }
-      });
+      mergeButton.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+         validateFields();
+         onSelectMergeGraph(selectionEvent);
+      }));
 
       if (isEnabled) {
          final Image image = TourbookPlugin.getImageDescriptor(imageEnabled).createImage();
@@ -972,8 +837,8 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             .applyTo(container);
       GridLayoutFactory.fillDefaults().numColumns(1).applyTo(container);
 
-      createUIGroupHorizAdjustment(container);
-      createUIGroupVertAdjustment(container);
+      createUIGroupHorizontalAdjustment(container);
+      createUIGroupVerticalAdjustment(container);
       createUISectionDisplayOptions(container);
    }
 
@@ -993,12 +858,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.swtDefaults()/* .indent(5, 5) .span(4, 1) */.applyTo(_chkValueDiffScaling);
       _chkValueDiffScaling.setText(Messages.tour_merger_chk_alti_diff_scaling);
       _chkValueDiffScaling.setToolTipText(Messages.tour_merger_chk_alti_diff_scaling_tooltip);
-      _chkValueDiffScaling.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
+      _chkValueDiffScaling.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
 
       /*
        * checkbox: preview chart
@@ -1007,19 +867,16 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(_chkPreviewChart);
       _chkPreviewChart.setText(Messages.tour_merger_chk_preview_graphs);
       _chkPreviewChart.setToolTipText(Messages.tour_merger_chk_preview_graphs_tooltip);
-      _chkPreviewChart.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      _chkPreviewChart.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
-            if (_chkPreviewChart.getSelection()) {
+         if (_chkPreviewChart.getSelection()) {
 
-               setMergedGraphsVisible();
+            setMergedGraphsVisible();
 
-               onModifyProperties();
-               updateTourChart();
-            }
+            onModifyProperties();
+            updateTourChart();
          }
-      });
+      }));
    }
 
    private void createUISectionResetButtons(final Composite parent) {
@@ -1035,12 +892,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).applyTo(_btnResetAdjustment);
       _btnResetAdjustment.setText(Messages.tour_merger_btn_reset_adjustment);
       _btnResetAdjustment.setToolTipText(Messages.tour_merger_btn_reset_adjustment_tooltip);
-      _btnResetAdjustment.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectResetAdjustments();
-         }
-      });
+      _btnResetAdjustment.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectResetAdjustments()));
 
       /*
        * button: show original values
@@ -1049,12 +901,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).applyTo(_btnResetValues);
       _btnResetValues.setText(Messages.tour_merger_btn_reset_values);
       _btnResetValues.setToolTipText(Messages.tour_merger_btn_reset_values_tooltip);
-      _btnResetValues.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelectResetValues();
-         }
-      });
+      _btnResetValues.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectResetValues()));
    }
 
    /**
@@ -1089,6 +936,17 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             Messages.merge_tour_source_graph_heartbeat_tooltip,
             Images.Graph_Heartbeat,
             _sourceTour.pulseSerie != null);
+
+      /*
+       * checkbox: merge speed
+       */
+      _chkMergeSpeed = createUIMergeAction(
+            group,
+            TourManager.GRAPH_SPEED,
+            Messages.merge_tour_source_graph_speed,
+            Messages.merge_tour_source_graph_speed_tooltip,
+            Images.Graph_Speed,
+            _sourceTour.timeSerie != null && _sourceTour.distanceSerie != null);
 
       /*
        * checkbox: merge temperature
@@ -1140,32 +998,29 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _chkAdjustAltiFromSource.setToolTipText(Messages.tour_merger_chk_adjust_altitude_from_source_tooltip);
 //		fChkAdjustAltiFromSource.setImage(fIconPlaceholder);
 
-      _chkAdjustAltiFromSource.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      _chkAdjustAltiFromSource.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
-            if (_chkAdjustAltiFromSource.getSelection()) {
+         if (_chkAdjustAltiFromSource.getSelection()) {
 
-               // check one adjust altitude
-               if (_chkAdjustAltiFromSource.getSelection() == false
-                     && _chkAdjustAltiFromStart.getSelection() == false) {
-                  _chkAdjustAltiFromSource.setSelection(true);
-               }
-
-               // only one altitude adjustment can be set
-               _chkAdjustAltiFromStart.setSelection(false);
-
-               _chkMergeAltitude.setSelection(true);
-
-            } else {
-
-               // disable altitude merge option
-               _chkMergeAltitude.setSelection(false);
+            // check one adjust altitude
+            if (_chkAdjustAltiFromSource.getSelection() == false
+                  && _chkAdjustAltiFromStart.getSelection() == false) {
+               _chkAdjustAltiFromSource.setSelection(true);
             }
 
-            onModifyProperties();
+            // only one altitude adjustment can be set
+            _chkAdjustAltiFromStart.setSelection(false);
+
+            _chkMergeAltitude.setSelection(true);
+
+         } else {
+
+            // disable altitude merge option
+            _chkMergeAltitude.setSelection(false);
          }
-      });
+
+         onModifyProperties();
+      }));
 
       /*
        * checkbox: smooth altitude with linear interpolation
@@ -1174,12 +1029,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().indent(indentOption2, 0).applyTo(_chkAdjustAltiSmoothly);
       _chkAdjustAltiSmoothly.setText(Messages.tour_merger_chk_adjust_altitude_linear_interpolition);
       _chkAdjustAltiSmoothly.setToolTipText(Messages.tour_merger_chk_adjust_altitude_linear_interpolition_tooltip);
-      _chkAdjustAltiSmoothly.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onModifyProperties();
-         }
-      });
+      _chkAdjustAltiSmoothly.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onModifyProperties()));
 
       /*
        * checkbox: adjust start altitude
@@ -1187,32 +1037,29 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _chkAdjustAltiFromStart = new Button(containerMergeGraph, SWT.RADIO);
       _chkAdjustAltiFromStart.setText(Messages.tour_merger_chk_adjust_start_altitude);
       _chkAdjustAltiFromStart.setToolTipText(Messages.tour_merger_chk_adjust_start_altitude_tooltip);
-      _chkAdjustAltiFromStart.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      _chkAdjustAltiFromStart.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
-            if (_chkAdjustAltiFromStart.getSelection()) {
+         if (_chkAdjustAltiFromStart.getSelection()) {
 
-               // check one adjust altitude
-               if (_chkAdjustAltiFromStart.getSelection() == false
-                     && _chkAdjustAltiFromSource.getSelection() == false) {
-                  _chkAdjustAltiFromStart.setSelection(true);
-               }
-
-               // only one altitude adjustment can be done
-               _chkAdjustAltiFromSource.setSelection(false);
-
-               _chkMergeAltitude.setSelection(true);
-
-            } else {
-
-               // disable altitude merge option
-               _chkMergeAltitude.setSelection(false);
+            // check one adjust altitude
+            if (_chkAdjustAltiFromStart.getSelection() == false
+                  && _chkAdjustAltiFromSource.getSelection() == false) {
+               _chkAdjustAltiFromStart.setSelection(true);
             }
 
-            onModifyProperties();
+            // only one altitude adjustment can be done
+            _chkAdjustAltiFromSource.setSelection(false);
+
+            _chkMergeAltitude.setSelection(true);
+
+         } else {
+
+            // disable altitude merge option
+            _chkMergeAltitude.setSelection(false);
          }
-      });
+
+         onModifyProperties();
+      }));
 
       /*
        * altitude adjustment values
@@ -1246,12 +1093,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.fillDefaults().indent(0, 10).applyTo(_chkSetTourType);
       _chkSetTourType.setText(Messages.tour_merger_chk_set_tour_type);
       _chkSetTourType.setToolTipText(Messages.tour_merger_chk_set_tour_type_tooltip);
-      _chkSetTourType.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableActions();
-         }
-      });
+      _chkSetTourType.addSelectionListener(widgetSelectedAdapter(selectionEvent -> enableActions()));
 
       final Composite ttContainer = new Composite(group, SWT.NONE);
       GridDataFactory.fillDefaults().indent(indentOption2, 0).applyTo(ttContainer);
@@ -1266,12 +1108,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _linkTourType = new Link(ttContainer, SWT.NONE);
       GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(_linkTourType);
       _linkTourType.setText(Messages.tour_editor_label_tour_type);
-      _linkTourType.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            net.tourbook.common.UI.openControlMenu(_linkTourType);
-         }
-      });
+      _linkTourType.addSelectionListener(widgetSelectedAdapter(selectionEvent -> net.tourbook.common.UI.openControlMenu(_linkTourType)));
 
       /*
        * tour type menu
@@ -1279,17 +1116,14 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       final MenuManager menuMgr = new MenuManager();
 
       menuMgr.setRemoveAllWhenShown(true);
-      menuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager menuMgr) {
+      menuMgr.addMenuListener(menuManager -> {
 
-            // set menu items
+         // set menu items
 
-            ActionSetTourTypeMenu.fillMenu(menuMgr, DialogMergeTours.this, false);
+         ActionSetTourTypeMenu.fillMenu(menuManager, DialogMergeTours.this, false);
 
-            menuMgr.add(new Separator());
-            menuMgr.add(_actionOpenTourTypePrefs);
-         }
+         menuManager.add(new Separator());
+         menuManager.add(_actionOpenTourTypePrefs);
       });
 
       // set menu for the tag item
@@ -1302,42 +1136,40 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       GridDataFactory.swtDefaults().grab(true, false).applyTo(_lblTourType);
 
       /*
-       * checkbox: keep horiz. and vert. adjustments
+       * checkbox: keep horizontal and vertical adjustments
        */
       _chkKeepHVAdjustments = new Button(group, SWT.CHECK);
       _chkKeepHVAdjustments.setText(Messages.tour_merger_chk_keep_horiz_vert_adjustments);
       _chkKeepHVAdjustments.setToolTipText(Messages.tour_merger_chk_keep_horiz_vert_adjustments_tooltip);
       _chkKeepHVAdjustments.setSelection(true);
-      _chkKeepHVAdjustments.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            // this option cannot be deselected
-            _chkKeepHVAdjustments.setSelection(true);
-         }
-      });
+      // this option cannot be deselected
+      _chkKeepHVAdjustments.addSelectionListener(widgetSelectedAdapter(
+            selectionEvent -> _chkKeepHVAdjustments.setSelection(true)));
    }
 
    private void createUITourChart(final Composite dlgContainer) {
 
-      _tourChart = new TourChart(dlgContainer, SWT.BORDER, null, _dialogSettings);
+      _tourChart = new TourChart(dlgContainer, SWT.BORDER, null, _state);
       GridDataFactory.fillDefaults().grab(true, true).minSize(300, 200).applyTo(_tourChart);
 
       _tourChart.setShowZoomActions(true);
       _tourChart.setShowSlider(true);
 
       // set altitude visible
-      _tourChartConfig = new TourChartConfiguration(true);
+      _tourChartConfig = new TourChartConfiguration(true, _state);
 
       // set one visible graph
       int visibleGraph = -1;
       if (_targetTour.altitudeSerie != null) {
          visibleGraph = TourManager.GRAPH_ALTITUDE;
+      } else if (_targetTour.getCadenceSerie() != null) {
+         visibleGraph = TourManager.GRAPH_CADENCE;
       } else if (_targetTour.pulseSerie != null) {
          visibleGraph = TourManager.GRAPH_PULSE;
       } else if (_targetTour.temperatureSerie != null) {
          visibleGraph = TourManager.GRAPH_TEMPERATURE;
-      } else if (_targetTour.getCadenceSerie() != null) {
-         visibleGraph = TourManager.GRAPH_CADENCE;
+      } else if (_targetTour.timeSerie != null && _targetTour.distanceSerie != null) {
+         visibleGraph = TourManager.GRAPH_SPEED;
       }
       if (visibleGraph != -1) {
          _tourChartConfig.addVisibleGraph(visibleGraph);
@@ -1350,26 +1182,16 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             .getString(ITourbookPreferences.MERGE_TOUR_GRAPH_X_AXIS)
             .equals(TourManager.X_AXIS_TIME));
 
-      _tourChart.addDataModelListener(new IDataModelListener() {
+      // set title
+      _tourChart.addDataModelListener(chartDataModel -> chartDataModel.setTitle(TourManager.getTourTitleDetailed(_targetTour)));
 
-         @Override
-         public void dataModelChanged(final ChartDataModel changedChartDataModel) {
+      _tourChart.addSliderMoveListener(selectionChartInfo -> {
 
-            // set title
-            changedChartDataModel.setTitle(TourManager.getTourTitleDetailed(_targetTour));
+         if (_isChartUpdated) {
+            return;
          }
-      });
 
-      _tourChart.addSliderMoveListener(new ISliderMoveListener() {
-         @Override
-         public void sliderMoved(final SelectionChartInfo chartInfo) {
-
-            if (_isChartUpdated) {
-               return;
-            }
-
-            onModifyProperties();
-         }
+         onModifyProperties();
       });
    }
 
@@ -1445,23 +1267,29 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
    private void enableGraphActions() {
 
       final boolean isAltitude = _sourceTour.altitudeSerie != null && _targetTour.altitudeSerie != null;
+      final boolean isSourceDistance = _sourceTour.distanceSerie != null;
       final boolean isSourcePulse = _sourceTour.pulseSerie != null;
+      final boolean isSourceTime = _sourceTour.timeSerie != null;
       final boolean isSourceTemperature = _sourceTour.temperatureSerie != null;
       final boolean isSourceCadence = _sourceTour.getCadenceSerie() != null;
 
       _chkMergeAltitude.setEnabled(isAltitude);
       _chkMergePulse.setEnabled(isSourcePulse);
+      _chkMergeSpeed.setEnabled(isSourceTime && isSourceDistance);
       _chkMergeTemperature.setEnabled(isSourceTemperature);
       _chkMergeCadence.setEnabled(isSourceCadence);
 
       /*
-       * keep state from the pref store but unckeck graphs which are not available
+       * keep state from the pref store but uncheck graphs which are not available
        */
       if (isAltitude == false) {
          _chkMergeAltitude.setSelection(false);
       }
       if (isSourcePulse == false) {
          _chkMergePulse.setSelection(false);
+      }
+      if (isSourceTime == false || isSourceDistance == false) {
+         _chkMergeSpeed.setSelection(false);
       }
       if (isSourceTemperature == false) {
          _chkMergeTemperature.setSelection(false);
@@ -1479,12 +1307,20 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       }
    }
 
+   private void enableMergeButton(final boolean isEnabled) {
+
+      final Button okButton = getButton(IDialogConstants.OK_ID);
+      if (okButton != null) {
+         okButton.setEnabled(isEnabled);
+      }
+   }
+
    @Override
    protected IDialogSettings getDialogBoundsSettings() {
 
       // keep window size and position
 //		return null;
-      return _dialogSettings;
+      return _state;
    }
 
    private int getFromUIAltitudeOffset() {
@@ -1536,9 +1372,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       _iconPlaceholder.dispose();
 
-      for (final Image image : _graphImages.values()) {
-         image.dispose();
-      }
+      _graphImages.values().forEach(Image::dispose);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
    }
@@ -1593,7 +1427,6 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             _isAdjustAltiFromSourceBackup = _chkAdjustAltiFromSource.getSelection();
             _isAdjustAltiFromStartBackup = _chkAdjustAltiFromStart.getSelection();
          }
-
       }
 
       if (_chkMergeAltitude.getSelection()) {
@@ -1604,7 +1437,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
          }
       } else {
 
-         // uncheck all altitude adjustments
+         // Uncheck all altitude adjustments
          _chkAdjustAltiFromSource.setSelection(false);
          _chkAdjustAltiFromStart.setSelection(false);
       }
@@ -1628,15 +1461,19 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
    private void onSelectResetValues() {
 
       /*
-       * get original data from the backuped data
+       * Get original data from the backed up data
        */
       _sourceTour.timeSerie = Util.createIntegerCopy(_backupSourceTimeSerie);
       _sourceTour.distanceSerie = Util.createFloatCopy(_backupSourceDistanceSerie);
       _sourceTour.altitudeSerie = Util.createFloatCopy(_backupSourceAltitudeSerie);
 
+      _targetTour.altitudeSerie = Util.createFloatCopy(_backupTargetAltitudeSerie);
+      _targetTour.setCadenceSerie(Util.createFloatCopy(_backupTargetCadenceSerie));
       _targetTour.pulseSerie = Util.createFloatCopy(_backupTargetPulseSerie);
       _targetTour.temperatureSerie = Util.createFloatCopy(_backupTargetTemperatureSerie);
-      _targetTour.setCadenceSerie(Util.createFloatCopy(_backupTargetCadenceSerie));
+      _targetTour.setSpeedSerie(Util.createFloatCopy(_backupTargetSpeedSerie));
+      _targetTour.timeSerie = Util.createIntegerCopy(_backupTargetTimeSerie);
+      _targetTour.setTourDeviceTime_Elapsed(_backupTargetDeviceTime_Elapsed);
 
       _targetTour.setMergedTourTimeOffset(_backupTargetTimeOffset);
       _targetTour.setMergedAltitudeOffset(_backupTargetAltitudeOffset);
@@ -1648,8 +1485,6 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
    /**
     * Restore values which have been modified in the dialog
-    *
-    * @param selectedTour
     */
    private void restoreDataBackup() {
 
@@ -1658,9 +1493,13 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _sourceTour.altitudeSerie = _backupSourceAltitudeSerie;
       _sourceTour.setTourType(_backupSourceTourType);
 
-      _targetTour.pulseSerie = _backupTargetPulseSerie;
-      _targetTour.temperatureSerie = _backupTargetTemperatureSerie;
+      _targetTour.altitudeSerie = _backupTargetAltitudeSerie;
       _targetTour.setCadenceSerie(_backupTargetCadenceSerie);
+      _targetTour.pulseSerie = _backupTargetPulseSerie;
+      _targetTour.setSpeedSerie(_backupTargetSpeedSerie);
+      _targetTour.temperatureSerie = _backupTargetTemperatureSerie;
+      _targetTour.timeSerie = _backupTargetTimeSerie;
+      _targetTour.setTourDeviceTime_Elapsed(_backupTargetDeviceTime_Elapsed);
 
       _targetTour.setMergedTourTimeOffset(_backupTargetTimeOffset);
       _targetTour.setMergedAltitudeOffset(_backupTargetAltitudeOffset);
@@ -1703,10 +1542,10 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       // restore merge graph state
       _chkMergeAltitude.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_ALTITUDE));
-      _chkMergePulse.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_PULSE));
-      _chkMergeTemperature
-            .setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_TEMPERATURE));
       _chkMergeCadence.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_CADENCE));
+      _chkMergePulse.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_PULSE));
+      _chkMergeTemperature.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_TEMPERATURE));
+      _chkMergeSpeed.setSelection(prefStore.getBoolean(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_SPEED));
    }
 
    private void saveState() {
@@ -1733,11 +1572,10 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       // save merged tour graphs
       prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_ALTITUDE, _chkMergeAltitude.getSelection());
-      prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_PULSE, _chkMergePulse.getSelection());
-      prefStore
-            .setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_TEMPERATURE, _chkMergeTemperature.getSelection());
       prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_CADENCE, _chkMergeCadence.getSelection());
-
+      prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_PULSE, _chkMergePulse.getSelection());
+      prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_TEMPERATURE, _chkMergeTemperature.getSelection());
+      prefStore.setValue(ITourbookPreferences.MERGE_TOUR_MERGE_GRAPH_SPEED, _chkMergeSpeed.getSelection());
    }
 
    private void saveTour() {
@@ -1753,12 +1591,22 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
             isMerged = true;
 
-            // update target altitude from adjuste source altitude
+            // update target altitude from adjusted source altitude
             _targetTour.altitudeSerie = _sourceTour.dataSerieAdjustedAlti;
 
             // adjust altitude up/down values
             _targetTour.computeAltitudeUpDown();
          }
+      } else {
+         _targetTour.altitudeSerie = _backupTargetAltitudeSerie;
+      }
+
+      if (_chkMergeCadence.getSelection()) {
+         // cadence is already merged
+         isMerged = true;
+      } else {
+         // restore original cadence values because these values should not be saved
+         _targetTour.setCadenceSerie(_backupTargetCadenceSerie);
       }
 
       if (_chkMergePulse.getSelection()) {
@@ -1777,12 +1625,16 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
          _targetTour.temperatureSerie = _backupTargetTemperatureSerie;
       }
 
-      if (_chkMergeCadence.getSelection()) {
-         // cadence is already merged
+      if (_chkMergeSpeed.getSelection()) {
+         // speed is already merged
          isMerged = true;
       } else {
-         // restore original cadence values because these values should not be saved
-         _targetTour.setCadenceSerie(_backupTargetCadenceSerie);
+         // restore original speed and time values because these values should not be saved
+         _targetTour.setSpeedSerie(_backupTargetSpeedSerie);
+         _targetTour.timeSerie = _backupTargetTimeSerie;
+         _targetTour.setTourDeviceTime_Elapsed(_backupTargetDeviceTime_Elapsed);
+         _targetTour.setTourDeviceTime_Recorded(_targetTour.getTourDeviceTime_Elapsed());
+         _targetTour.computeTourMovingTime();
       }
 
       if (_chkSetTourType.getSelection() == false) {
@@ -1813,30 +1665,23 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
    private void setMergedGraphsVisible() {
 
-      final ArrayList<Integer> visibleGraphs = _tourChartConfig.getVisibleGraphs();
-
       if (_chkMergeAltitude.getSelection()) {
-         if (visibleGraphs.contains(TourManager.GRAPH_ALTITUDE) == false) {
-            visibleGraphs.add(TourManager.GRAPH_ALTITUDE);
-         }
-      }
-
-      if (_chkMergePulse.getSelection()) {
-         if (visibleGraphs.contains(TourManager.GRAPH_PULSE) == false) {
-            visibleGraphs.add(TourManager.GRAPH_PULSE);
-         }
-      }
-
-      if (_chkMergeTemperature.getSelection()) {
-         if (visibleGraphs.contains(TourManager.GRAPH_TEMPERATURE) == false) {
-            visibleGraphs.add(TourManager.GRAPH_TEMPERATURE);
-         }
+         addVisibleGraph(TourManager.GRAPH_ALTITUDE);
       }
 
       if (_chkMergeCadence.getSelection()) {
-         if (visibleGraphs.contains(TourManager.GRAPH_CADENCE) == false) {
-            visibleGraphs.add(TourManager.GRAPH_CADENCE);
-         }
+         addVisibleGraph(TourManager.GRAPH_CADENCE);
+      }
+      if (_chkMergePulse.getSelection()) {
+         addVisibleGraph(TourManager.GRAPH_PULSE);
+      }
+
+      if (_chkMergeTemperature.getSelection()) {
+         addVisibleGraph(TourManager.GRAPH_TEMPERATURE);
+      }
+
+      if (_chkMergeSpeed.getSelection()) {
+         addVisibleGraph(TourManager.GRAPH_SPEED);
       }
    }
 
@@ -1858,7 +1703,10 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       _isChartUpdated = false;
    }
 
-   private void updateUI(final float altiDiffTime, final float altiDiffDist) {
+   private void updateUI(final float[] altitudeDifferences) {
+
+      final float altiDiffTime = altitudeDifferences[0];
+      final float altiDiffDist = altitudeDifferences[1];
 
       if (_chkAdjustAltiFromStart.getSelection()) {
 
@@ -1867,7 +1715,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       } else {
 
-         // adjusted alti is disabled
+         // adjusted altitude is disabled
 
          _lblAdjustAltiValueTime.setText("N/A"); //$NON-NLS-1$
          _lblAdjustAltiValueDistance.setText("N/A"); //$NON-NLS-1$
@@ -1908,5 +1756,27 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       _scaleAdjustSeconds.setSelection(seconds + MAX_ADJUST_SECONDS);
       _scaleAdjustMinutes.setSelection(minutes + MAX_ADJUST_MINUTES);
+   }
+
+   private void validateFields() {
+
+      if (_isInUIInit) {
+         return;
+      }
+
+      /*
+       * validate fields
+       */
+      boolean enableMergeButton = false;
+
+      if (_chkMergeAltitude.getSelection() ||
+            _chkMergeCadence.getSelection() ||
+            _chkMergePulse.getSelection() ||
+            _chkMergeTemperature.getSelection() ||
+            _chkMergeSpeed.getSelection()) {
+         enableMergeButton = true;
+      }
+
+      enableMergeButton(enableMergeButton);
    }
 }

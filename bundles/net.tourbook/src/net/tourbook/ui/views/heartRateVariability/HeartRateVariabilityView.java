@@ -31,7 +31,6 @@ import net.tourbook.chart.MinMaxKeeper_XData;
 import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.color.GraphColorManager;
-import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.ActionToolbarSlideout;
 import net.tourbook.common.tooltip.ToolbarSlideout;
@@ -113,7 +112,7 @@ public class HeartRateVariabilityView extends ViewPart {
    private static final int         HRV_TIME_MAX_BORDER = 9999;                                      //ms
 
    private final IPreferenceStore   _prefStore          = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore   _commonPrefStore    = CommonActivator.getPrefStore();
+   private final IPreferenceStore   _prefStore_Common   = CommonActivator.getPrefStore();
    private final IDialogSettings    _state              = TourbookPlugin.getState(ID);
 
    private ModifyListener           _defaultSpinnerModifyListener;
@@ -200,7 +199,7 @@ public class HeartRateVariabilityView extends ViewPart {
 
          setToolTipText(Messages.HRV_View_Action_SynchChartScale);
 
-         setImageDescriptor(TourbookPlugin.getImageDescriptor(ThemeUtil.getThemedImageName(Images.SyncStatistics)));
+         setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.SyncStatistics));
          setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.SyncStatistics_Disabled));
       }
 
@@ -411,16 +410,26 @@ public class HeartRateVariabilityView extends ViewPart {
 
       final String prefGraphName = ICommonPreferences.GRAPH_COLORS + GraphColorManager.PREF_GRAPH_HEARTBEAT + UI.SYMBOL_DOT;
 
-      final RGB rgbPrefLine = PreferenceConverter.getColor(_commonPrefStore, prefGraphName + GraphColorManager.PREF_COLOR_LINE);
-      final RGB rgbPrefDark = PreferenceConverter.getColor(_commonPrefStore, prefGraphName + GraphColorManager.PREF_COLOR_DARK);
-      final RGB rgbPrefBright = PreferenceConverter.getColor(_commonPrefStore, prefGraphName + GraphColorManager.PREF_COLOR_BRIGHT);
+      final String prefColorLine = net.tourbook.common.UI.IS_DARK_THEME
+            ? GraphColorManager.PREF_COLOR_LINE_DARK
+            : GraphColorManager.PREF_COLOR_LINE_LIGHT;
+
+      final String prefColorText = net.tourbook.common.UI.IS_DARK_THEME
+            ? GraphColorManager.PREF_COLOR_TEXT_DARK
+            : GraphColorManager.PREF_COLOR_TEXT_LIGHT;
+
+      // get colors from common pref store
+      final RGB rgbGradient_Bright = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + GraphColorManager.PREF_COLOR_GRADIENT_BRIGHT);
+      final RGB rgbGradient_Dark = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + GraphColorManager.PREF_COLOR_GRADIENT_DARK);
+      final RGB rgbLineColor = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + prefColorLine);
+      final RGB rgbTextColor = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + prefColorText);
 
       final double[][] rr0Series = new double[validDataLength][];
       final float[][] rr1Series = new float[validDataLength][];
 
-      final RGB[] rgbLine = new RGB[validDataLength];
-      final RGB[] rgbDark = new RGB[validDataLength];
-      final RGB[] rgbBright = new RGB[validDataLength];
+      final RGB[] allRgbGradient_Bright = new RGB[validDataLength];
+      final RGB[] allRgbLine = new RGB[validDataLength];
+      final RGB[] allRgbDark = new RGB[validDataLength];
 
       final TourData[] validTours = validTourList.toArray(new TourData[validTourList.size()]);
 
@@ -470,9 +479,9 @@ public class HeartRateVariabilityView extends ViewPart {
          rr0Series[tourIndex] = rr0Values;
          rr1Series[tourIndex] = rr1Values;
 
-         rgbLine[tourIndex] = rgbPrefLine;
-         rgbDark[tourIndex] = rgbPrefDark;
-         rgbBright[tourIndex] = rgbPrefBright;
+         allRgbLine[tourIndex] = rgbLineColor;
+         allRgbDark[tourIndex] = rgbGradient_Dark;
+         allRgbGradient_Bright[tourIndex] = rgbGradient_Bright;
       }
 
       if (validDataLength == 1) {
@@ -497,10 +506,11 @@ public class HeartRateVariabilityView extends ViewPart {
       final ChartDataYSerie yDataRR1 = new ChartDataYSerie(ChartType.XY_SCATTER, rr1Series);
       yDataRR1.setYTitle(GRAPH_LABEL_HEART_RATE_VARIABILITY);
       yDataRR1.setUnitLabel(GRAPH_LABEL_HEART_RATE_VARIABILITY_UNIT);
-      yDataRR1.setDefaultRGB(rgbPrefLine);
-      yDataRR1.setRgbLine(rgbLine);
-      yDataRR1.setRgbDark(rgbDark);
-      yDataRR1.setRgbBright(rgbBright);
+      yDataRR1.setRgbBar_Gradient_Dark(allRgbDark);
+      yDataRR1.setRgbBar_Gradient_Bright(allRgbGradient_Bright);
+      yDataRR1.setRgbBar_Line(allRgbLine);
+      
+      yDataRR1.setRgbGraph_Text(rgbTextColor);
 
       yDataRR1.forceYAxisMinValue(yDataRR1.getOriginalMinValue() - ADJUST_PULSE_VALUE);
       yDataRR1.forceYAxisMaxValue(yDataRR1.getOriginalMaxValue() + ADJUST_PULSE_VALUE);

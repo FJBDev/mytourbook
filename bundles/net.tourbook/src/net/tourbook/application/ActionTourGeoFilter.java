@@ -15,17 +15,16 @@
  *******************************************************************************/
 package net.tourbook.application;
 
-import de.byteholder.geoclipse.map.Map;
+import de.byteholder.geoclipse.map.Map2;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
-import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.tooltip.ActionToolbarSlideoutAdv;
 import net.tourbook.common.tooltip.AdvancedSlideout;
 import net.tourbook.common.tooltip.SlideoutLocation;
 import net.tourbook.common.util.Util;
 import net.tourbook.map2.view.Map2View;
-import net.tourbook.tour.filter.geo.Slideout_TourGeoFilter;
+import net.tourbook.tour.filter.geo.SlideoutTourGeoFilter;
 import net.tourbook.tour.filter.geo.TourGeoFilter;
 import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
 
@@ -37,10 +36,9 @@ import org.eclipse.ui.IViewPart;
 
 public class ActionTourGeoFilter extends ActionToolbarSlideoutAdv {
 
-   private static final ImageDescriptor _actionImageDescriptor = TourbookPlugin.getImageDescriptor(
-         ThemeUtil.getThemedImageName(Images.TourGeoFilter));
+   private static final ImageDescriptor _actionImageDescriptor = TourbookPlugin.getThemedImageDescriptor(Images.TourGeoFilter);
 
-   private Slideout_TourGeoFilter       _slideoutTourGeoFilter;
+   private SlideoutTourGeoFilter       _slideoutTourGeoFilter;
 
    public ActionTourGeoFilter() {
 
@@ -53,7 +51,7 @@ public class ActionTourGeoFilter extends ActionToolbarSlideoutAdv {
    @Override
    protected AdvancedSlideout createSlideout(final ToolItem toolItem) {
 
-      _slideoutTourGeoFilter = new Slideout_TourGeoFilter(toolItem);
+      _slideoutTourGeoFilter = new SlideoutTourGeoFilter(toolItem);
       _slideoutTourGeoFilter.setSlideoutLocation(SlideoutLocation.ABOVE_CENTER);
 
       return _slideoutTourGeoFilter;
@@ -71,7 +69,7 @@ public class ActionTourGeoFilter extends ActionToolbarSlideoutAdv {
       if (view instanceof Map2View) {
 
          final Map2View map2View = (Map2View) view;
-         final Map map = map2View.getMap();
+         final Map2 map = map2View.getMap();
 
          map.setIsFastMapPainting_Active(isSelected);
       }

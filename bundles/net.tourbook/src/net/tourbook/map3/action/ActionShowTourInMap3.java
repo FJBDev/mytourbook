@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2013  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,7 +20,7 @@ import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.map2.Messages;
-import net.tourbook.map3.ui.DialogTourTrackConfig;
+import net.tourbook.map3.ui.SlideoutMap3TourTrackConfig;
 import net.tourbook.map3.view.Map3View;
 
 import org.eclipse.jface.action.ContributionItem;
@@ -44,7 +44,7 @@ public class ActionShowTourInMap3 extends ContributionItem implements IOpeningDi
 
    private Map3View              _map3View;
 
-   private DialogTourTrackConfig _tourTrackConfigDialog;
+   private SlideoutMap3TourTrackConfig _tourTrackConfigDialog;
 
    private ToolBar               _toolBar;
    private ToolItem              _actionTrackLayer;
@@ -73,8 +73,8 @@ public class ActionShowTourInMap3 extends ContributionItem implements IOpeningDi
 
       _parent = parent;
 
-      _actionImage = TourbookPlugin.getImageDescriptor(Images.TourChart).createImage();
-      _actionImageDisabled = TourbookPlugin.getImageDescriptor(Images.TourChart_Disabled).createImage();
+      _actionImage = TourbookPlugin.getThemedImageDescriptor(Images.TourChart).createImage();
+      _actionImageDisabled = TourbookPlugin.getThemedImageDescriptor(Images.TourChart_Disabled).createImage();
    }
 
    @Override
@@ -122,7 +122,7 @@ public class ActionShowTourInMap3 extends ContributionItem implements IOpeningDi
             }
          });
 
-         _tourTrackConfigDialog = new DialogTourTrackConfig(_parent, _toolBar, _map3View);
+         _tourTrackConfigDialog = new SlideoutMap3TourTrackConfig(_parent, _toolBar, _map3View);
 
          updateUI_Tooltip();
       }

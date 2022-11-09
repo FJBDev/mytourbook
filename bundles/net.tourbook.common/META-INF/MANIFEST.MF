@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MyTourbook Commons
 Bundle-SymbolicName: net.tourbook.common;singleton:=true
-Bundle-Version: 21.3.0.qualifier
+Bundle-Version: 22.8.0.qualifier
 Bundle-Activator: net.tourbook.common.CommonActivator
 Bundle-Vendor: MyTourbook
 Export-Package: cop.swt.widgets.viewers.table.celleditors,
@@ -36,6 +36,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.services,
+ org.eclipse.swt,
  org.eclipse.nebula.widgets.nattable.core,
  net.tourbook.ext.jars,
  net.tourbook.ext.worldwind
@@ -43,5 +44,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: com.skedgo.converter,
  javax.inject,
+ org.eclipse.collections.impl.list.mutable.primitive,
+ org.eclipse.collections.impl.map.mutable.primitive,
  org.eclipse.e4.core.services.log
 Automatic-Module-Name: net.tourbook.common
