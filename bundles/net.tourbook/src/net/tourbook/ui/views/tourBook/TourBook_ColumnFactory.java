@@ -51,7 +51,7 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
-public class TourBook_ColumnFactory {
+class TourBook_ColumnFactory {
 
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
@@ -89,7 +89,7 @@ public class TourBook_ColumnFactory {
 
    private PixelConverter       _pc;
 
-   public TourBook_ColumnFactory(final ColumnManager columnManager_NatTable, final ColumnManager columnManager_Tree, final PixelConverter pc) {
+   TourBook_ColumnFactory(final ColumnManager columnManager_NatTable, final ColumnManager columnManager_Tree, final PixelConverter pc) {
 
       _columnManager_NatTable = columnManager_NatTable;
       _columnManager_Tree = columnManager_Tree;
@@ -4052,7 +4052,7 @@ public class TourBook_ColumnFactory {
       return UI.convertTemperatureFromMetric(value);
    }
 
-   void setCellColor(final ViewerCell cell, final Object element) {
+   private void setCellColor(final ViewerCell cell, final Object element) {
 
       boolean isShowSummaryRow = false;
 
