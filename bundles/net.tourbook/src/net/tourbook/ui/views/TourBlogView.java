@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -447,7 +447,7 @@ public class TourBlogView extends ViewPart {
                   }
                }
 
-               final String hoverEdit = NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle);
+               final String hoverEdit = NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
 
                final String hrefEditTour = HTTP_DUMMY + HREF_EDIT_TOUR;
 
@@ -523,10 +523,10 @@ public class TourBlogView extends ViewPart {
       final String hrefHideMarker = HTTP_DUMMY + HREF_HIDE_MARKER + markerId;
       final String hrefShowMarker = HTTP_DUMMY + HREF_SHOW_MARKER + markerId;
 
-      final String hoverEditMarker = NLS.bind(Messages.Tour_Blog_Action_EditMarker_Tooltip, markerLabel);
-      final String hoverHideMarker = NLS.bind(Messages.Tour_Blog_Action_HideMarker_Tooltip, markerLabel);
-      final String hoverOpenMarker = NLS.bind(Messages.Tour_Blog_Action_OpenMarker_Tooltip, markerLabel);
-      final String hoverShowMarker = NLS.bind(Messages.Tour_Blog_Action_ShowMarker_Tooltip, markerLabel);
+      final String hoverEditMarker = NLS.bind(Messages.Tour_Blog_Action_EditMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+      final String hoverHideMarker = NLS.bind(Messages.Tour_Blog_Action_HideMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+      final String hoverOpenMarker = NLS.bind(Messages.Tour_Blog_Action_OpenMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+      final String hoverShowMarker = NLS.bind(Messages.Tour_Blog_Action_ShowMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
 
       /*
        * get color by priority
