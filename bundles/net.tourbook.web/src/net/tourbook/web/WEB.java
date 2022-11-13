@@ -285,6 +285,11 @@ public class WEB {
       return sb.toString();
    }
 
+   public static String escapeHTML(final String htmlAttribute) {
+
+      return htmlAttribute.replaceAll("'", "&#39;"); //$NON-NLS-1$
+   }
+
    /**
     * @param path
     * @return Returns the 2nd last extension or <code>null</code> when not available.

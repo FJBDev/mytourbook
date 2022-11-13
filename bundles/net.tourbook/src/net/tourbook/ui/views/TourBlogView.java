@@ -447,7 +447,7 @@ public class TourBlogView extends ViewPart {
                   }
                }
 
-               final String hoverEdit = NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+               final String hoverEdit = WEB.escapeHTML(NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle); //$NON-NLS-1$ //$NON-NLS-2$
 
                final String hrefEditTour = HTTP_DUMMY + HREF_EDIT_TOUR;
 
