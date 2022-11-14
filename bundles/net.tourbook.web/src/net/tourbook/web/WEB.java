@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.tourbook.common.ReplacingOutputStream;
 import net.tourbook.common.UI;
@@ -190,7 +191,7 @@ public class WEB {
     */
    public static String convertHTML_Into_JavaLineBreaks(final String text) {
 
-      return text.replaceAll(HTML_ELEMENT_BR, UI.NEW_LINE1);
+      return text.replace(HTML_ELEMENT_BR, UI.NEW_LINE1);
    }
 
    /**
@@ -240,9 +241,9 @@ public class WEB {
 
       String escaped;
 
-      escaped = urlString.replaceAll(URL_SPACE, URL_SPACE_REPLACEMENT);
-      escaped = escaped.replaceAll(URL_SQB_OPEN, URL_SQB_OPEN_REPLACEMENT);
-      escaped = escaped.replaceAll(URL_SQB_CLOSE, URL_SQB_CLOSE_REPLACEMENT);
+      escaped = urlString.replace(URL_SPACE, URL_SPACE_REPLACEMENT);
+      escaped = escaped.replace(URL_SQB_OPEN, URL_SQB_OPEN_REPLACEMENT);
+      escaped = escaped.replace(URL_SQB_CLOSE, URL_SQB_CLOSE_REPLACEMENT);
 
       return escaped;
    }
@@ -262,7 +263,7 @@ public class WEB {
 
       if (urlString != null) {
 
-         final char ch[] = new char[urlString.length()];
+         final char[] ch = new char[urlString.length()];
 
          urlString.getChars(0, urlString.length(), ch, 0);
 
@@ -287,7 +288,7 @@ public class WEB {
 
    public static String escapeHTML(final String htmlAttribute) {
 
-      return htmlAttribute.replaceAll("'", "&#39;"); //$NON-NLS-1$
+      return htmlAttribute.replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
    /**
@@ -345,7 +346,7 @@ public class WEB {
     * @throws IOException
     * @throws URISyntaxException
     */
-   public static File getFile(final String filePathName) throws IOException, URISyntaxException {
+   public static File getFile(final String filePathName) {
 
       final String bundleFileName = WEB_CONTENT_FOLDER + filePathName;
 
@@ -394,7 +395,7 @@ public class WEB {
             webContent = replacePath(webContent, fromHtmlFirebugPath, toSystemFirebugPath);
          }
 
-      } catch (IOException | URISyntaxException e) {
+      } catch (final Exception e) {
          StatusUtil.showStatus(e);
       }
 
@@ -407,7 +408,7 @@ public class WEB {
     * @throws IOException
     * @throws URISyntaxException
     */
-   public static File getResourceFile(final String fileName) throws IOException, URISyntaxException {
+   public static File getResourceFile(final String fileName) {
 
       final String bundleFileName = WEB_CONTENT_FOLDER + RESOURCE_PATH + fileName;
 
@@ -446,7 +447,7 @@ public class WEB {
       } else if (href.startsWith("http") == false) { //$NON-NLS-1$
 
          // Ensure that a protocol is set otherwise a MalformedURLException exception occures
-         href = "http://" + href; //$NON-NLS-1$
+         href = PROTOCOL_HTTP + href;
       }
 
       final boolean useExternalWebBrowser = _state_WEB.getBoolean(STATE_USE_EXTERNAL_WEB_BROWSER);
@@ -510,10 +511,7 @@ public class WEB {
 
          commands.add("/usr/bin/open"); //$NON-NLS-1$
          commands.add("-a"); //$NON-NLS-1$
-
-         for (final String appCmd : appCmdLines) {
-            commands.add(appCmd);
-         }
+         commands.addAll(Arrays.asList(appCmdLines));
 
          commands.add(encodedUrl);
 
@@ -521,10 +519,7 @@ public class WEB {
 
          final String[] appCmdLines = externalWebBrowser.split("[\\r\\n\\s]+"); //$NON-NLS-1$
 
-         for (final String appCmd : appCmdLines) {
-            commands.add(appCmd);
-         }
-
+         commands.addAll(Arrays.asList(appCmdLines));
          commands.add(encodedUrl);
       }
 
