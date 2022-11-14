@@ -16,8 +16,6 @@
 package net.tourbook.ui.views;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -447,7 +445,7 @@ public class TourBlogView extends ViewPart {
                   }
                }
 
-               final String hoverEdit = WEB.escapeHTML(NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle));
+               final String hoverEdit = WEB.escapeSingleQuote(NLS.bind(Messages.Tour_Blog_Action_EditTour_Tooltip, tourTitle));
 
                final String hrefEditTour = HTTP_DUMMY + HREF_EDIT_TOUR;
 
@@ -523,10 +521,10 @@ public class TourBlogView extends ViewPart {
       final String hrefHideMarker = HTTP_DUMMY + HREF_HIDE_MARKER + markerId;
       final String hrefShowMarker = HTTP_DUMMY + HREF_SHOW_MARKER + markerId;
 
-      final String hoverEditMarker = NLS.bind(Messages.Tour_Blog_Action_EditMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
-      final String hoverHideMarker = NLS.bind(Messages.Tour_Blog_Action_HideMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
-      final String hoverOpenMarker = NLS.bind(Messages.Tour_Blog_Action_OpenMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
-      final String hoverShowMarker = NLS.bind(Messages.Tour_Blog_Action_ShowMarker_Tooltip, markerLabel).replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
+      final String hoverEditMarker = WEB.escapeSingleQuote(NLS.bind(Messages.Tour_Blog_Action_EditMarker_Tooltip, markerLabel));
+      final String hoverHideMarker = WEB.escapeSingleQuote(NLS.bind(Messages.Tour_Blog_Action_HideMarker_Tooltip, markerLabel));
+      final String hoverOpenMarker = WEB.escapeSingleQuote(NLS.bind(Messages.Tour_Blog_Action_OpenMarker_Tooltip, markerLabel));
+      final String hoverShowMarker = WEB.escapeSingleQuote(NLS.bind(Messages.Tour_Blog_Action_ShowMarker_Tooltip, markerLabel));
 
       /*
        * get color by priority
@@ -730,7 +728,7 @@ public class TourBlogView extends ViewPart {
          _browser.addProgressListener(new ProgressAdapter() {
             @Override
             public void completed(final ProgressEvent event) {
-               onBrowserCompleted(event);
+               onBrowserCompleted();
             }
          });
 
@@ -886,13 +884,13 @@ public class TourBlogView extends ViewPart {
          _imageUrl_ActionHideMarker = net.tourbook.ui.UI.getIconUrl(ThemeUtil.getThemedImageName(Images.App_Hide));
          _imageUrl_ActionShowMarker = net.tourbook.ui.UI.getIconUrl(ThemeUtil.getThemedImageName(Images.App_Show));
 
-      } catch (final IOException | URISyntaxException e) {
+      } catch (final Exception e) {
          StatusUtil.showStatus(e);
       }
 
    }
 
-   private void onBrowserCompleted(final ProgressEvent event) {
+   private void onBrowserCompleted() {
 
       if (_reloadedTourMarkerId == null) {
          return;
@@ -904,14 +902,11 @@ public class TourBlogView extends ViewPart {
       /*
        * This must be run async otherwise an endless loop will happen
        */
-      _browser.getDisplay().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      _browser.getDisplay().asyncExec(() -> {
 
-            final String href = "location.href='" + createHtml_MarkerName(reloadedTourMarkerId) + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+         final String href = "location.href='" + createHtml_MarkerName(reloadedTourMarkerId) + "'"; //$NON-NLS-1$ //$NON-NLS-2$
 
-            _browser.execute(href);
-         }
+         _browser.execute(href);
       });
 
       _reloadedTourMarkerId = null;

@@ -286,7 +286,7 @@ public class WEB {
       return sb.toString();
    }
 
-   public static String escapeHTML(final String htmlAttribute) {
+   public static String escapeSingleQuote(final String htmlAttribute) {
 
       return htmlAttribute.replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
    }
