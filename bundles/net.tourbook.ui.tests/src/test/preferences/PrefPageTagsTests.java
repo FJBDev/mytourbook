@@ -30,7 +30,7 @@ public class PrefPageTagsTests extends UITest {
       Utils.openPreferences(bot);
       bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
 
-      bot.tree().getTreeItem("Shoes 2").select(); //$NON-NLS-1$
+      bot.tree(1).getTreeItem("Shoes 2").select(); //$NON-NLS-1$
       bot.button(Messages.Action_Tag_Edit).click();
 
       Utils.clickCancelButton(bot);
