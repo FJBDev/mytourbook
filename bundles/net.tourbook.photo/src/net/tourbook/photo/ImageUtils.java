@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.Base64;
 
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
 
 import org.apache.commons.imaging.Imaging;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -93,19 +95,22 @@ public class ImageUtils {
 
    public static Image decodeStringToImage(final String imageString) {
 
-      Image image = null;
-      Image scaled050 = null;
+      if (StringUtils.isNullOrEmpty(imageString)) {
+         return null;
+      }
+
+      Image scaledImage = null;
       try (final InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(imageString))) {
 
          //TODO FB
          //When uploading the image to the DB, we will limit the size
-         image = new Image(Display.getCurrent(), inputStream);
-         scaled050 = new Image(Display.getCurrent(),
-               image.getImageData().scaledTo(70, 70));
+         final Image image = new Image(Display.getCurrent(), inputStream);
+         scaledImage = new Image(Display.getCurrent(), image.getImageData().scaledTo(70, 70));
+
       } catch (final IOException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
-      return scaled050;
+      return scaledImage;
    }
 
    /**

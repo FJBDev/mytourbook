@@ -234,6 +234,8 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
          allFilesPaths.add(filePath.toString());
       }
+
+      //scale to 70x70
    }
 
    private void restoreState() {
