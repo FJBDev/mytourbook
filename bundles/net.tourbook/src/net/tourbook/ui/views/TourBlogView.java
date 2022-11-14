@@ -21,6 +21,7 @@ import static org.eclipse.swt.browser.ProgressListener.completedAdapter;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Set;
 
@@ -37,9 +38,11 @@ import net.tourbook.common.util.CSS;
 import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
+import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.photo.ImageUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.DialogMarker;
 import net.tourbook.tour.DialogQuickEdit;
@@ -74,6 +77,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
@@ -477,7 +481,16 @@ public class TourBlogView extends ViewPart {
                      sb.append("<div>&nbsp;</div>");//$NON-NLS-1$
                   }
 
-                  sb.append("<div class='title'>" + Messages.tour_editor_section_weather + "</div>" + NL); //$NON-NLS-1$ //$NON-NLS-2$
+                  final int selectionIndex = _tourData.getWeatherIndex();
+                  final String cloudKey = IWeather.cloudIcon[selectionIndex];
+                  final Image cloudIcon = UI.IMAGE_REGISTRY.get(cloudKey);
+                  final byte[] pngImageData = ImageUtils.formatImage(cloudIcon, SWT.IMAGE_PNG);
+                  final String base64Encoded = Base64.getEncoder().encodeToString(pngImageData);
+
+                  final String htmlImage = "<img src='data:image/png;base64," + base64Encoded + "'/>"; //$NON-NLS-1$ //$NON-NLS-2$
+                  sb.append("<div class='title'>" + Messages.tour_editor_section_weather + UI.SPACE);
+                  sb.append(htmlImage);
+                  sb.append("</div>" + NL); //$NON-NLS-1$
                   sb.append("<p class='description'>" + WEB.convertHTML_LineBreaks(tourWeather) + "</p>" + NL); //$NON-NLS-1$ //$NON-NLS-2$
                }
             }
