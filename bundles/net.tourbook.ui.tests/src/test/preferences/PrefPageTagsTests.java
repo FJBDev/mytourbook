@@ -15,6 +15,8 @@
  *******************************************************************************/
 package preferences;
 
+import net.tourbook.Messages;
+
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -26,7 +28,13 @@ public class PrefPageTagsTests extends UITest {
    void openPreferencePage() {
 
       Utils.openPreferences(bot);
-      bot.tree().getTreeItem("Tagging").select();
+      bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
+
+      bot.tree().getTreeItem("Shoes 2").select(); //$NON-NLS-1$
+      bot.button(Messages.Action_Tag_Edit).click();
+
+      Utils.clickCancelButton(bot);
+      Utils.clickApplyAndCloseButton(bot);
 
       Utils.clickApplyAndCloseButton(bot);
    }
