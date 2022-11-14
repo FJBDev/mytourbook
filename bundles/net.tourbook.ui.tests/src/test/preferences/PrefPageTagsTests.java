@@ -35,7 +35,5 @@ public class PrefPageTagsTests extends UITest {
 
       Utils.clickCancelButton(bot);
       Utils.clickApplyAndCloseButton(bot);
-
-      Utils.clickApplyAndCloseButton(bot);
    }
 }
