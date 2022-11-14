@@ -394,11 +394,11 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
    private ActionToggleFossilOrEasyImport _actionToggleFossilOrEasyImportUI;
    private ActionUpload                   _actionUploadTour;
    //
-   protected TourPerson                   _activePerson;
-   protected TourPerson                   _newActivePerson;
+   private TourPerson                     _activePerson;
+   private TourPerson                     _newActivePerson;
    //
-   protected boolean                      _isPartVisible                  = false;
-   protected boolean                      _isViewerPersonDataDirty        = false;
+   private boolean                        _isPartVisible                  = false;
+   private boolean                        _isViewerPersonDataDirty        = false;
    //
    private final NumberFormat             _nf1;
    private final NumberFormat             _nf3;
@@ -687,7 +687,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
       }
    }
 
-   public class TableContextMenuProvider implements IContextMenuProvider {
+   private class TableContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
