@@ -200,7 +200,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
       fileDialog.setText("Messages.Pref_Map_Dialog_Import_Title");
       fileDialog.setFilterPath(_prefStore.getString(IMPORT_IMAGE_PATH));
 
-      fileDialog.setFilterExtensions(new String[] { "*.*", "xml" });//$NON-NLS-1$ //$NON-NLS-2$
+      fileDialog.setFilterExtensions(new String[] { "*.png", "*.jpg" });//$NON-NLS-1$ //$NON-NLS-2$
       fileDialog.setFilterNames(new String[] {
             "Messages.PrefPageMapProviders_Pref_Map_FileDialog_AllFiles",
             "Messages.PrefPageMapProviders_Pref_Map_FileDialog_XmlFiles" });
