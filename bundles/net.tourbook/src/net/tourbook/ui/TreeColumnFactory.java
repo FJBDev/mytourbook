@@ -48,9 +48,9 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory DATA_TIME_INTERVAL;
 
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_END;
-   private static final String           DEVICE_BATTERY_SOC_END_ID   = "DEVICE_BATTERY_SOC_END_ID";                 //$NON-NLS-1$
+   public static final String            DEVICE_BATTERY_SOC_END_ID   = "DEVICE_BATTERY_SOC_END_ID";                 //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_START;
-   private static final String           DEVICE_BATTERY_SOC_START_ID = "DEVICE_BATTERY_SOC_START_ID";               //$NON-NLS-1$
+   public static final String            DEVICE_BATTERY_SOC_START_ID = "DEVICE_BATTERY_SOC_START_ID";               //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_DISTANCE;
    public static final TreeColumnFactory DEVICE_NAME;
 
@@ -124,7 +124,6 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory TOUR_TAG_AND_CATEGORY_NOTES;
    public static final TreeColumnFactory TOUR_TAG_AND_TAGS;
    public static final TreeColumnFactory TOUR_TAG_ID;
-   public static final TreeColumnFactory TOUR_TAG_THUMBNAIL;
    public static final TreeColumnFactory TOUR_TAGS;
    public static final TreeColumnFactory TOUR_TITLE;
    public static final TreeColumnFactory TOUR_TYPE;
@@ -2118,7 +2117,6 @@ public abstract class TreeColumnFactory {
          }
       };
 
-
       TOUR_TAGS = new TreeColumnFactory() {
          @Override
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
@@ -2133,24 +2131,6 @@ public abstract class TreeColumnFactory {
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_tour_tag_tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
-
-            return colDef;
-         }
-      };
-      TOUR_TAG_THUMBNAIL = new TreeColumnFactory() {
-         @Override
-         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
-                                                  final PixelConverter pixelConverter) {
-
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_TAG_THUMBNAIL", SWT.TRAIL); //$NON-NLS-1$
-
-            colDef.setColumnCategory(Messages.ColumnFactory_Category_Tour);
-
-            colDef.setColumnLabel(Messages.ColumnFactory_TagID_Label);
-            colDef.setColumnHeaderText("Thumbnail");
-            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_TagID_Tooltip);
-
-            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(5));
 
             return colDef;
          }
