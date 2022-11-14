@@ -28,9 +28,10 @@ import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TimeZoneData;
 import net.tourbook.common.time.TourDateTime;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("TimeTools should")
 public class TimeToolsTests {
 
    private double eiffelTowerLat = 48.858093;
@@ -39,6 +40,7 @@ public class TimeToolsTests {
    private String parisZoneId    = "Europe/Paris"; //$NON-NLS-1$
 
    @Test
+   @DisplayName("Create Date Time from a string")
    void testCreateDateTimeFromYMDhms() {
 
       final ZonedDateTime testZonedDateTime = TimeTools.createDateTimeFromYMDhms(20220516165348L);
@@ -187,15 +189,6 @@ public class TimeToolsTests {
       assertEquals(controlTimeZoneData.zoneOffsetSeconds, testTimeZoneData.zoneOffsetSeconds);
    }
 
-   @Test
-
-   @Disabled
-   void testGetTimeZoneIndex_Default() {
-
-      assertEquals(596, TimeTools.getTimeZoneIndex_Default());
-   }
-
-   @Test
    void testToEpochMilli_LocalDateTime() {
 
       final LocalDateTime localDateTime = LocalDateTime.of(
