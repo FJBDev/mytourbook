@@ -23,7 +23,6 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -1184,7 +1183,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
                   + "   opacity:                " + (float) opacity / 100 + ";" + NL //   //$NON-NLS-1$ //$NON-NLS-2$
                   + "}" + NL; //                                                          //$NON-NLS-1$
 
-         } catch (IOException | URISyntaxException e) {
+         } catch (final Exception e) {
             TourLogManager.log_EXCEPTION_WithStacktrace(e);
          }
       }
@@ -2452,7 +2451,7 @@ public class RawDataView extends ViewPart implements ITourProviderAll, ITourView
          _imageUrl_DeviceFolder_NotChecked = getIconUrl(Images.RawData_DeviceFolder_NotChecked);
          _imageUrl_DeviceFolder_NotSetup = getIconUrl(Images.RawData_DeviceFolder_NotSetup);
 
-      } catch (final IOException | URISyntaxException e) {
+      } catch (final Exception e) {
          TourLogManager.log_EXCEPTION_WithStacktrace(e);
       }
    }

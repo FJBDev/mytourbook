@@ -286,6 +286,14 @@ public class WEB {
       return sb.toString();
    }
 
+   /**
+    * See the SO answer here that explains why we can't use the Apache Commons
+    * library to perform the escaping of a single quote
+    * https://stackoverflow.com/a/30626898/7066681
+    *
+    * @param htmlAttribute
+    * @return
+    */
    public static String escapeSingleQuote(final String htmlAttribute) {
 
       return htmlAttribute.replace("'", "&#39;"); //$NON-NLS-1$ //$NON-NLS-2$
