@@ -189,6 +189,7 @@ public class TimeToolsTests {
       assertEquals(controlTimeZoneData.zoneOffsetSeconds, testTimeZoneData.zoneOffsetSeconds);
    }
 
+   @Test
    void testToEpochMilli_LocalDateTime() {
 
       final LocalDateTime localDateTime = LocalDateTime.of(
