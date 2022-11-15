@@ -27,7 +27,7 @@ public class PrefPageMap25_Map3_ColorTests extends UITest {
 
       Utils.openPreferences(bot);
 
-      bot.tree().getTreeItem("2.5D + 3D Map").expand().getNode("Color").select();
+      bot.tree().getTreeItem("2.5D + 3D Map").expand().getNode("Color").select(); //$NON-NLS-1$ //$NON-NLS-2$
 
       Utils.clickApplyAndCloseButton(bot);
    }

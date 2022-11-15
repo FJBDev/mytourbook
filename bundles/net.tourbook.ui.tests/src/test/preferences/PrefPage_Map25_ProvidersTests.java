@@ -24,7 +24,7 @@ public class PrefPage_Map25_ProvidersTests extends UITest {
 
    private void openMapProviderPreferencePage() {
 
-      bot.tree().getTreeItem("2.5D Map").expand().getNode("Map Provider").select(); //$NON-NLS-1$
+      bot.tree().getTreeItem("2.5D Map").expand().getNode("Map Provider").select(); //$NON-NLS-1$ //$NON-NLS-2$
    }
 
    @Test
