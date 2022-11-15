@@ -33,7 +33,7 @@ public class PrefPageTagsTests extends UITest {
       bot.tree(1).getTreeItem("Shoes 2").select(); //$NON-NLS-1$
       bot.button(Messages.Action_Tag_Edit).click();
 
-      Utils.clickCancelButton(bot);
+      bot.button(Messages.App_Action_Save).click();
       Utils.clickApplyAndCloseButton(bot);
    }
 }
