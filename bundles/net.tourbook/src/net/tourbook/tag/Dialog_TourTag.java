@@ -17,9 +17,6 @@ package net.tourbook.tag;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
@@ -215,12 +212,6 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       //scale to 70x70
       _image = ImageUtils.encodeImageToString(imageFilePath);
-      try (PrintWriter out = new PrintWriter("C:/Users/frederic/git/mytourbook/MyTestFile.txt")) {
-         out.println(_image);
-      } catch (final FileNotFoundException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
       _btnImportImage.setImage(ImageUtils.decodeStringToImage(_image));
    }
 

@@ -54,7 +54,7 @@ public class ImageUtils {
 
    static {
 
-      final IPropertyChangeListener _prefChangeListener = propertyChangeEvent -> {
+      final IPropertyChangeListener prefChangeListener = propertyChangeEvent -> {
 
          final String property = propertyChangeEvent.getProperty();
 
@@ -63,7 +63,7 @@ public class ImageUtils {
          }
       };
 
-      _prefStore.addPropertyChangeListener(_prefChangeListener);
+      _prefStore.addPropertyChangeListener(prefChangeListener);
    }
 
    public static FileFilter createImageFileFilter() {
