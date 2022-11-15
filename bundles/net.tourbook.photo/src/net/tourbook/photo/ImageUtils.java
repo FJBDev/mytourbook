@@ -107,7 +107,8 @@ public class ImageUtils {
          //TODO FB
          //When uploading the image to the DB, we will limit the size
          final Image image = new Image(Display.getCurrent(), inputStream);
-         scaledImage = new Image(Display.getCurrent(), image.getImageData().scaledTo(70, 70));
+         scaledImage = image;
+         //   scaledImage = new Image(Display.getCurrent(), image.getImageData().scaledTo(70, 70));
 
       } catch (final IOException e) {
          StatusUtil.log(e);
