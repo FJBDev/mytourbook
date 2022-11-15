@@ -114,6 +114,9 @@ public class TourTag implements Cloneable, Comparable<Object> {
    @Transient
    private long                _createId = 0;
 
+   // todo fb
+   private String image;
+
    public TourTag() {}
 
    public TourTag(final String tagName) {
@@ -182,6 +185,10 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
    public int getExpandType() {
       return expandType;
+   }
+
+   public String getImage() {
+      return "";//_image;
    }
 
    /**
@@ -266,6 +273,10 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
    public void setExpandType(final int expandType) {
       this.expandType = expandType;
+   }
+
+   public void setImage(final String image) {
+      //this._image = _image;
    }
 
    public void setNotes(final String notes) {

@@ -111,7 +111,7 @@ public class TourDatabase {
     * <li>/net.tourbook.export/format-templates/mt-1.0.vm</li>
     * <li>net.tourbook.device.mt.MT_StAXHandler</li>
     */
-   private static final int TOURBOOK_DB_VERSION = 48;
+   private static final int TOURBOOK_DB_VERSION = 49;
 
 //   private static final int TOURBOOK_DB_VERSION = 49; // 22.X ??
 
@@ -5821,6 +5821,11 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_047_To_048(conn, splashManager);
          }
 
+         // 47 -> 48    22.X ??
+         if (currentDbVersion == 48) {
+            currentDbVersion = _dbDesignVersion_New = updateDb_048_To_049(conn, splashManager);
+         }
+
          // update db design version number
          updateVersionNumber_10_AfterDesignUpdate(conn, _dbDesignVersion_New);
 
@@ -9371,6 +9376,25 @@ public class TourDatabase {
                + TourData.DB_LENGTH_WEATHER_V48 + ")"; //$NON-NLS-1$
 
          exec(stmt, sql);
+      }
+      stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
+   }
+
+   private int updateDb_048_To_049(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 49;
+
+      logDbUpdate_Start(newDbVersion);
+
+      updateMonitor(splashManager, newDbVersion);
+
+      final Statement stmt = conn.createStatement();
+      {
+         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_TAG, "image", TourTag.DB_LENGTH_NOTES); //$NON-NLS-1$
       }
       stmt.close();
 

@@ -17,6 +17,7 @@ package net.tourbook.tag;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -47,17 +48,18 @@ import org.eclipse.swt.widgets.Text;
  */
 public class Dialog_TourTag extends TitleAreaDialog {
 
-   private static final String   ID     = "net.tourbook.tag.Dialog_TourTag"; //$NON-NLS-1$
+   private static final String           ID                = "net.tourbook.tag.Dialog_TourTag"; //$NON-NLS-1$
 
-   private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore        = TourbookPlugin.getPrefStore();
    private static final String           IMPORT_IMAGE_PATH = "Dialog_TourTag_ImportImagePath";  //$NON-NLS-1$
 
-   private final IDialogSettings         _state     = TourbookPlugin.getState(ID);
+   private final IDialogSettings         _state            = TourbookPlugin.getState(ID);
 
-   private String                _dlgMessage;
-   private TourTag               _tourTag_Original;
+   private String                        _dlgMessage;
+   private TourTag                       _tourTag_Original;
 
    private TourTag                       _tourTag_Clone;
+   private String                        _image;
 
    /*
     * UI controls
@@ -195,9 +197,9 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
    private void onImportImage() {
 
-      final FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
+      final FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
 
-      fileDialog.setText("Messages.Pref_Map_Dialog_Import_Title");
+      fileDialog.setText(Messages.Dialog_TourTag_ImportImage_Title);
       fileDialog.setFilterPath(_prefStore.getString(IMPORT_IMAGE_PATH));
 
       fileDialog.setFilterExtensions(new String[] { "*.png", "*.jpg" });//$NON-NLS-1$ //$NON-NLS-2$
@@ -216,7 +218,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
       }
 
       // get folder path from file path
-      final java.nio.file.Path firstFilePath = Paths.get(firstFilePathName);
+      final Path firstFilePath = Paths.get(firstFilePathName);
       final String filePathFolder = firstFilePath.getParent().toString();
 
       // keep last selected path
@@ -230,7 +232,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       for (final String fileName : allSelectedFileNames) {
 
-         final java.nio.file.Path filePath = Paths.get(filePathFolder, fileName);
+         final Path filePath = Paths.get(filePathFolder, fileName);
 
          allFilesPaths.add(filePath.toString());
       }
@@ -242,11 +244,13 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       _txtName.setText(_tourTag_Clone.getTagName());
       _txtNotes.setText(_tourTag_Clone.getNotes());
+      _image = _tourTag_Clone.getImage();
    }
 
    private void saveState() {
 
       _tourTag_Clone.setNotes(_txtNotes.getText());
       _tourTag_Clone.setTagName(_txtName.getText());
+      _tourTag_Clone.setImage(_image);
    }
 }
