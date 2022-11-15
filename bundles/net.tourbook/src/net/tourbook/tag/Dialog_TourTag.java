@@ -203,22 +203,18 @@ public class Dialog_TourTag extends TitleAreaDialog {
       fileDialog.setFilterPath(_prefStore.getString(IMPORT_IMAGE_PATH));
 
       fileDialog.setFilterExtensions(new String[] { "*.png", "*.jpg" });//$NON-NLS-1$ //$NON-NLS-2$
-      fileDialog.setFilterNames(new String[] {
-            "Messages.PrefPageMapProviders_Pref_Map_FileDialog_AllFiles",
-            "Messages.PrefPageMapProviders_Pref_Map_FileDialog_XmlFiles" });
 
-      fileDialog.setFileName("_selectedMapProvider.getId() + XML_EXTENSION");
 
       // open file dialog
-      final String firstFilePathName = fileDialog.open();
+      final String imageFilePath = fileDialog.open();
 
       // check if user canceled the dialog
-      if (firstFilePathName == null) {
+      if (imageFilePath == null) {
          return;
       }
 
       // get folder path from file path
-      final Path firstFilePath = Paths.get(firstFilePathName);
+      final Path firstFilePath = Paths.get(imageFilePath);
       final String filePathFolder = firstFilePath.getParent().toString();
 
       // keep last selected path
@@ -238,6 +234,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
       }
 
       //scale to 70x70
+      _image = ImageUtils.encodeImageToString(allFilesPaths.get(0));
    }
 
    private void restoreState() {

@@ -19,9 +19,11 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Base64;
 
 import net.tourbook.common.UI;
@@ -111,6 +113,34 @@ public class ImageUtils {
          StatusUtil.log(e);
       }
       return scaledImage;
+   }
+
+   /**
+    * Encode an Image to a Base64 String as well as resizing it to a maximum of 70 pixels
+    *
+    * @param image
+    * @return
+    */
+   public static String encodeImageToString(final String imageFilePath) {
+
+      if (StringUtils.isNullOrEmpty(imageFilePath)) {
+         return null;
+      }
+
+      //todo fb test if file exists
+
+      //todo fb Resize the image to 70pixels
+
+      byte[] fileContent = null;
+      try {
+         fileContent = Files.readAllBytes(new File(imageFilePath).toPath());
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+         return UI.EMPTY_STRING;
+      }
+      final String encodedString = Base64.getEncoder().encodeToString(fileContent);
+
+      return encodedString;
    }
 
    /**

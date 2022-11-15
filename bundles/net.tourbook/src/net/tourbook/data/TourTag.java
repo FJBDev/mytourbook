@@ -38,14 +38,14 @@ import net.tourbook.database.TourDatabase;
 @Entity
 public class TourTag implements Cloneable, Comparable<Object> {
 
-   private static final char NL                         = UI.NEW_LINE;
+   private static final char          NL                         = UI.NEW_LINE;
 
-   public static final int   DB_LENGTH_NAME             = 255;
-   public static final int   DB_LENGTH_NOTES            = 32000;
+   public static final int            DB_LENGTH_NAME             = 255;
+   public static final int            DB_LENGTH_NOTES            = 32000;
 
-   public static final int   EXPAND_TYPE_YEAR_MONTH_DAY = 0;
-   public static final int   EXPAND_TYPE_FLAT           = 1;
-   public static final int   EXPAND_TYPE_YEAR_DAY       = 2;
+   public static final int            EXPAND_TYPE_YEAR_MONTH_DAY = 0;
+   public static final int            EXPAND_TYPE_FLAT           = 1;
+   public static final int            EXPAND_TYPE_YEAR_DAY       = 2;
 
    /**
     * Manually created marker or imported marker create a unique id to identify them, saved marker
@@ -188,7 +188,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
    }
 
    public String getImage() {
-      return "";//_image;
+      return image;
    }
 
    /**
@@ -276,7 +276,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
    }
 
    public void setImage(final String image) {
-      //this._image = _image;
+      this.image = image;
    }
 
    public void setNotes(final String notes) {
@@ -335,5 +335,4 @@ public class TourTag implements Cloneable, Comparable<Object> {
       name = modifiedTourTag.name;
       notes = modifiedTourTag.notes;
    }
-
 }
