@@ -4432,9 +4432,15 @@ public class TourDatabase {
 
             // version 38 start
 
-            + "   notes                VARCHAR(" + TourTag.DB_LENGTH_NOTES + ")           " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   notes                VARCHAR(" + TourTag.DB_LENGTH_NOTES + "),          " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
             // version 38 end ---------
+
+            // version 49 start
+
+            + "   image                VARCHAR(" + TourTag.DB_LENGTH_NOTES + ")           " + NL //$NON-NLS-1$ //$NON-NLS-2$
+
+            // version 49 end ---------
 
             + ")"); //$NON-NLS-1$
 
