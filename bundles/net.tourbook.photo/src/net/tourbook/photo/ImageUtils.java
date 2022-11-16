@@ -66,9 +66,9 @@ public class ImageUtils {
 
    public static Image convertByteArrayToImage(final byte[] imageArray) {
 
-//      if (StringUtils.isNullOrEmpty(imageFilePath)) {
-//         return null;
-//      }
+      if (imageArray == null) {
+         return null;
+      }
       //todo fb test if file exists
 
       Image image = null;
