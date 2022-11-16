@@ -115,6 +115,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
    private long                _createId = 0;
 
    // todo fb
+   @Basic(optional = false)
    private byte[] image;
 
    public TourTag() {}
