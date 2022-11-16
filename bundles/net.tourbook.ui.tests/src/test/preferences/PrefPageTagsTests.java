@@ -15,6 +15,7 @@
  *******************************************************************************/
 package preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import net.tourbook.Messages;
@@ -45,18 +46,27 @@ public class PrefPageTagsTests extends UITest {
       Utils.openPreferences(bot);
       bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
 
-      //assert tag # is 1
+      //assert that there is 1 tag
+      assertEquals(1, bot.tree(1).rowCount());
+
+      //Create a new tag
       bot.button(Messages.pref_tourtag_btn_new_tag).click();
-      bot.textWithLabel(Messages.pref_tourtag_dlg_new_tag_message).setText("New Tag");
+      String newTagName = "New Tag";
+      bot.textWithLabel(Messages.pref_tourtag_dlg_new_tag_message).setText(newTagName); //$NON-NLS-1$
       Utils.clickOkButton(bot);
+      final var newTag = bot.tree(1).getTreeItem(newTagName).select(); //$NON-NLS-1$
+      assertNotNull(newTag);
 
-      final var toto = bot.tree(1).getTreeItem("New Tag").select(); //$NON-NLS-1$
-      assertNotNull(toto);
-      //assert tag # is 2
+      //assert that there are 2 tags
+      assertEquals(2, bot.tree(1).rowCount());
 
-      toto.contextMenu(Messages.Action_Tag_Delete).click();
-      bot.button("&Delete Tag").click();
-      //assert tag # is 1
+      //Delete the new tag
+      newTag.contextMenu(Messages.Action_Tag_Delete).click();
+      bot.button(Messages.Tag_Manager_Action_DeleteTag).click();
+
+      //assert that there is 1 tag
+      assertEquals(1, bot.tree(1).rowCount());
+
       Utils.clickApplyAndCloseButton(bot);
    }
 
