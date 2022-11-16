@@ -55,6 +55,7 @@ public class PrefPageTagsTests extends UITest {
       //assert tag # is 2
 
       toto.contextMenu(Messages.Action_Tag_Delete).click();
+      Utils.clickOkButton(bot);
       //assert tag # is 1
       Utils.clickApplyAndCloseButton(bot);
    }
