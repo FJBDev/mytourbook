@@ -9389,7 +9389,7 @@ public class TourDatabase {
 
       final Statement stmt = conn.createStatement();
       {
-         final String sql = "ALTER TABLE " + TABLE_TOUR_DATA + " ADD COLUMN image BLOB"; //$NON-NLS-1$ //$NON-NLS-2$
+         final String sql = "ALTER TABLE " + TABLE_TOUR_TAG + " ADD COLUMN image BLOB"; //$NON-NLS-1$ //$NON-NLS-2$
          exec(stmt, sql);
       }
       stmt.close();
