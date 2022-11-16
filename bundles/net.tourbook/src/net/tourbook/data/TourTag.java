@@ -268,6 +268,20 @@ public class TourTag implements Cloneable, Comparable<Object> {
          notes = notes.substring(0, DB_LENGTH_NOTES);
       }
 
+      /*
+       * Check: image
+       */
+      fieldValidation = TourDatabase.isFieldValidForSave(
+            image,
+            DB_LENGTH_NOTES,
+            Messages.Db_Field_TourTag_Image);
+
+      if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
+         return false;
+      } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
+         image = null;
+      }
+
       return true;
    }
 
@@ -319,6 +333,8 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
             + "   _createId   =" + _createId + NL //     //$NON-NLS-1$
 
+            + "   image       =" + image + NL //     //$NON-NLS-1$
+
 //          + "   tourData    =" + tourData + NL //      //$NON-NLS-1$
 
             + "]" + NL //                                //$NON-NLS-1$
@@ -334,5 +350,6 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
       name = modifiedTourTag.name;
       notes = modifiedTourTag.notes;
+      image = modifiedTourTag.image;
    }
 }
