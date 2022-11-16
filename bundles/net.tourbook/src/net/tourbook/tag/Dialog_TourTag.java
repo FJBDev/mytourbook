@@ -30,6 +30,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -54,7 +55,6 @@ public class Dialog_TourTag extends TitleAreaDialog {
    private TourTag                       _tourTag_Original;
 
    private TourTag                       _tourTag_Clone;
-   private String                        _image;
 
    /*
     * UI controls
@@ -210,22 +210,22 @@ public class Dialog_TourTag extends TitleAreaDialog {
          return;
       }
 
-      //scale to 70x70
-      _image = ImageUtils.encodeImageToString(imageFilePath);
-      _btnImportImage.setImage(ImageUtils.decodeStringToImage(_image));
+      //todo fb dispose image
+      final Image image = ImageUtils.convertFileToImage(imageFilePath);
+      _btnImportImage.setImage(image);
    }
 
    private void restoreState() {
 
       _txtName.setText(_tourTag_Clone.getTagName());
       _txtNotes.setText(_tourTag_Clone.getNotes());
-      _btnImportImage.setImage(ImageUtils.decodeStringToImage(_tourTag_Clone.getImage()));
+      _btnImportImage.setImage(ImageUtils.convertByteArrayToImage(_tourTag_Clone.getImage()));
    }
 
    private void saveState() {
 
       _tourTag_Clone.setNotes(_txtNotes.getText());
       _tourTag_Clone.setTagName(_txtName.getText());
-      _tourTag_Clone.setImage(_image);
+      _tourTag_Clone.setImage(ImageUtils.formatImage(_btnImportImage.getImage(), 0));
    }
 }

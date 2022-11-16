@@ -4438,7 +4438,7 @@ public class TourDatabase {
 
             // version 49 start
 
-            + "   image                VARCHAR(" + TourTag.DB_LENGTH_NOTES + ")           " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   image                BLOB                                               " + NL //$NON-NLS-1$
 
             // version 49 end ---------
 
@@ -9389,7 +9389,8 @@ public class TourDatabase {
 
       final Statement stmt = conn.createStatement();
       {
-         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_TAG, "image", TourTag.DB_LENGTH_NOTES); //$NON-NLS-1$
+         final String sql = "ALTER TABLE " + TABLE_TOUR_DATA + " ADD COLUMN image BLOB"; //$NON-NLS-1$ //$NON-NLS-2$
+         exec(stmt, sql);
       }
       stmt.close();
 

@@ -115,7 +115,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
    private long                _createId = 0;
 
    // todo fb
-   private String image;
+   private byte[] image;
 
    public TourTag() {}
 
@@ -187,7 +187,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
       return expandType;
    }
 
-   public String getImage() {
+   public byte[] getImage() {
       return image;
    }
 
@@ -268,20 +268,6 @@ public class TourTag implements Cloneable, Comparable<Object> {
          notes = notes.substring(0, DB_LENGTH_NOTES);
       }
 
-      /*
-       * Check: image
-       */
-      fieldValidation = TourDatabase.isFieldValidForSave(
-            image,
-            DB_LENGTH_NOTES,
-            Messages.Db_Field_TourTag_Image);
-
-      if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
-         return false;
-      } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         image = null;
-      }
-
       return true;
    }
 
@@ -289,7 +275,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
       this.expandType = expandType;
    }
 
-   public void setImage(final String image) {
+   public void setImage(final byte[] image) {
       this.image = image;
    }
 
