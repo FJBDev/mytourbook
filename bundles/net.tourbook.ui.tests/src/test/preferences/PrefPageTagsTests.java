@@ -15,6 +15,8 @@
  *******************************************************************************/
 package preferences;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import net.tourbook.Messages;
 
 import org.junit.jupiter.api.Test;
@@ -36,4 +38,25 @@ public class PrefPageTagsTests extends UITest {
       bot.button(Messages.App_Action_Save).click();
       Utils.clickApplyAndCloseButton(bot);
    }
+
+   @Test
+   void PrefPageTags_CreateAndDeleteTag_ShouldBeDeleted() {
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
+
+      //assert tag # is 1
+      bot.button(Messages.pref_tourtag_btn_new_tag).click();
+      bot.textWithLabel(Messages.pref_tourtag_dlg_new_tag_message).setText("New Tag");
+      Utils.clickOkButton(bot);
+
+      final var toto = bot.tree(1).getTreeItem("New Tag").select(); //$NON-NLS-1$
+      assertNotNull(toto);
+      //assert tag # is 2
+
+      toto.contextMenu(Messages.Action_Tag_Delete).click();
+      //assert tag # is 1
+      Utils.clickApplyAndCloseButton(bot);
+   }
+
 }
