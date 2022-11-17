@@ -2232,6 +2232,22 @@ public class TourDatabase {
       return getTagNamesText(tagNames, false);
    }
 
+   public static String getTagNames(final Set<TourTag> tourTags, final boolean isVertical) {
+
+      if (tourTags.isEmpty()) {
+         return UI.EMPTY_STRING;
+      }
+
+      final ArrayList<String> tagNames = new ArrayList<>();
+
+      // get tag name for each tag id
+      for (final TourTag tag : tourTags) {
+         tagNames.add(tag.getTagName());
+      }
+
+      return getTagNamesText(tagNames, isVertical);
+   }
+
    private static String getTagNamesText(final List<String> tagNames, final boolean isVertical) {
 
       // sort tags by name

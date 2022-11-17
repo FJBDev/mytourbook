@@ -1120,36 +1120,32 @@ public class UI {
       );
    }
 
-   public static void updateUI_Tags(final TourData tourData, final Composite tourTags) {
+   public static void updateUI_Tags(final TourData tourData, final Label tourTagLabel) {
 
-      updateUI_Tags(tourData, tourTags, false);
+      updateUI_Tags(tourData, tourTagLabel, false);
    }
 
    /**
     * @param tourData
-    * @param tourTags
+    * @param tourTagLabel
     * @param isVertical
     *           When <code>true</code> the tags are displayed as a list, otherwise horizontally
     */
-   public static void updateUI_Tags(final TourData tourData, final Composite tourTagsComposite, final boolean isVertical) {
+   public static void updateUI_Tags(final TourData tourData, final Label tourTagLabel, final boolean isVertical) {
 
       // tour tags
       final Set<TourTag> tourTags = tourData.getTourTags();
 
-      //TODO FB this doesn't work
-      tourTagsComposite.setData(null);
       if (tourTags == null || tourTags.isEmpty()) {
 
-         tourTagsComposite.setData(null);
+         tourTagLabel.setText(UI.EMPTY_STRING);
 
       } else {
 
-         for (final TourTag tag : tourTags) {
+         final String tagLabels = TourDatabase.getTagNames(tourTags, isVertical);
 
-            final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
-            label.setText(tag.getTagName());
-            label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
-         }
+         tourTagLabel.setText(tagLabels);
+         tourTagLabel.setToolTipText(tagLabels);
       }
    }
 
