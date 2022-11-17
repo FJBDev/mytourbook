@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,7 +47,6 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.CellLabelProvider;
-import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -94,7 +93,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
 
    private static final String     HIDE_ALLOWED_DATE_TIME = "DateTime";                    //$NON-NLS-1$
 
-   static final String             FIELD_NO               = "fieldNo";                     //$NON-NLS-1$
+   private static final String     FIELD_NO               = "fieldNo";                     //$NON-NLS-1$
 
    private static final String     STATE_IS_LIVE_UPDATE   = "STATE_IS_LIVE_UPDATE";        //$NON-NLS-1$
    private static final String     STATE_SASH_WIDTH       = "STATE_SASH_WIDTH";            //$NON-NLS-1$
@@ -485,7 +484,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
                cell.setText(Integer.toString(profile.filterProperties.size()));
             }
          });
-         tableLayout.setColumnData(tc, new ColumnPixelData(_pc.convertWidthInCharsToPixels(6), false));
+         tableLayout.setColumnData(tc, net.tourbook.ui.UI.getColumnPixelWidth(_pc, 6));
       }
 
       /*
