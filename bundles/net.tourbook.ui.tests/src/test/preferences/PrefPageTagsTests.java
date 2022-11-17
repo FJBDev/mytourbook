@@ -28,20 +28,7 @@ import utils.Utils;
 public class PrefPageTagsTests extends UITest {
 
    @Test
-   void openPreferencePage() {
-
-      Utils.openPreferences(bot);
-      bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
-
-      bot.tree(1).getTreeItem("Shoes 2").select(); //$NON-NLS-1$
-      bot.button(Messages.Action_Tag_Edit).click();
-
-      bot.button(Messages.App_Action_Save).click();
-      Utils.clickApplyAndCloseButton(bot);
-   }
-
-   @Test
-   void PrefPageTags_CreateAndDeleteTag_ShouldBeDeleted() {
+   void PrefPageTags_TagsList_CreateAndDeleteTag() {
 
       Utils.openPreferences(bot);
       bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
@@ -51,10 +38,10 @@ public class PrefPageTagsTests extends UITest {
 
       //Create a new tag
       bot.button(Messages.pref_tourtag_btn_new_tag).click();
-      String newTagName = "New Tag";
-      bot.textWithLabel(Messages.pref_tourtag_dlg_new_tag_message).setText(newTagName); //$NON-NLS-1$
+      final String newTagName = "New Tag";
+      bot.textWithLabel(Messages.pref_tourtag_dlg_new_tag_message).setText(newTagName);
       Utils.clickOkButton(bot);
-      final var newTag = bot.tree(1).getTreeItem(newTagName).select(); //$NON-NLS-1$
+      final var newTag = bot.tree(1).getTreeItem(newTagName).select();
       assertNotNull(newTag);
 
       //assert that there are 2 tags
@@ -67,6 +54,19 @@ public class PrefPageTagsTests extends UITest {
       //assert that there is 1 tag
       assertEquals(1, bot.tree(1).rowCount());
 
+      Utils.clickApplyAndCloseButton(bot);
+   }
+
+   @Test
+   void PrefPageTags_TagsList_EditTag() {
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("Tagging").select(); //$NON-NLS-1$
+
+      bot.tree(1).getTreeItem("Shoes 2").select(); //$NON-NLS-1$
+      bot.button(Messages.Action_Tag_Edit).click();
+
+      bot.button(Messages.App_Action_Save).click();
       Utils.clickApplyAndCloseButton(bot);
    }
 
