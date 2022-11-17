@@ -72,7 +72,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.part.PageBook;
 
-class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferencePage {
+public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferencePage {
 
    private static final String     APP_BTN_BROWSE                   = net.tourbook.Messages.app_btn_browse;
    private static final String     DIALOG_EXPORT_DIR_DIALOG_MESSAGE = net.tourbook.Messages.dialog_export_dir_dialog_message;
