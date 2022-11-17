@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
    static final String             ID                    = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
