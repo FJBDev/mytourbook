@@ -144,7 +144,6 @@ public class ImageUtils {
     *         <dd>PNG file format</dd>
     *         </dl>
     */
-   //todo fb
    public static byte[] formatImage(final Image image, final int format) {
 
       if (image == null) {
