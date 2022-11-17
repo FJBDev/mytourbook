@@ -86,7 +86,6 @@ import net.tourbook.extension.export.ActionExport;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.map2.view.SelectionMapPosition;
 import net.tourbook.map2.view.SelectionMapSelection;
-import net.tourbook.photo.ImageUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
@@ -618,6 +617,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Combo              _comboWeather_Wind_DirectionText;
    private Combo              _comboWeather_WindSpeedText;
    //
+   private Composite          _compositeTags;
+   //
    private DateTime           _dtStartTime;
    private DateTime           _dtTourDate;
    //
@@ -629,7 +630,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Label              _lblPerson_BodyFatUnit;
    private Label              _lblSpeedUnit;
    private Label              _lblStartTime;
-   private Composite          _lblTags;
    private Label              _lblTimeZone;
    private Label              _lblWeather_PrecipitationUnit;
    private Label              _lblWeather_PressureUnit;
@@ -4633,27 +4633,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
             _tk.adapt(_linkTag, true, true);
             _firstColumnControls.add(_linkTag);
 
-            //   _lblTags = _tk.createLabel(container, UI.EMPTY_STRING, SWT.WRAP);
-            final Image image = ImageUtils.decodeStringToImage(
-                  "iVBORw0KGgoAAAANSUhEUgAAAEYAAAA0CAIAAAC4ptkZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABHsSURBVGhD7ZYHXBPZt8dx111s2KUngYRAQhJIgBCKNEEFpEmT0EIv0hUkPZlJAyxgWxW7iIrYwYIdcFVAxVVRsWFhrSgsuq49706S59vP+/8VRfy/8vn/uLlz7zBz5nzvOffMaCn/3+nfSP8X9K9Hen//jbL9lfLP3p7fO+9qzg2o/qVIiovPwi9+mHzkweTGJ3TJWryxqRmBnJGR9erVS80VA6HviPThwwf1oLy83NfLK0xYTK2+Tije59PwOOzXh8wrSqqDG4lkxbB3xGHxlRXr1Rd/u75vlHp6nk3z8TNGmRgaoieMHG2NMV48d4nHoiOkHbeoex/gw7McqTRqtsI1LscYYxHm76+57dv0HZE6b17DoLEEC7KhAYpKIFAY7ubTIgxGDHfP5jNq79EPPpq0pZlijHHMFHu3Kv1b30050TMpPV9z8zfoOyLZidcaY8wM9AxpZma0TIVL0zvXC0oU0dZ8/Bj7A4+d6+67nn2Hw1gwJnq4HHrkfuDelPqnE1c35KUmg3s/Jm0/9F2Q3r9/N8k30EZeMe/Q9VRWhlkcz/6U0mX/XdeG5+asAkuDCZTiWsdDT+2O9tKis7E6Q9wqzkw/2RtY/9S74TlqnF5D/WGNoX5pwJGQ1XULjbI0J1lizdB6ehmSRRPPKq2rrjjU/m5X12Ut2WyspUXJKZ5yqjuquce34bGraKn/vvaYCy+ZZ3riW3pxZDraBKu21T8NfJTWXOzEGmGIFmQjQwwFZUyQbA06/Ty49S+7PXcc996ZvOeS+9azTisOstqVzDbljJbnuJGjKD5Mt7oHjjW3nGvuUC0I+kS7tWtWacx9vQYeyTk+z9bKlkikWGDxeM9wxvEX9nvu2m67EXn2Reil955n35C9QizGjbXaeY+29dq0i0oMCk+kuzsd/yNsxzn6nGVWREsMGldcVKQx9/UaYKTWZ38Z4oiWBAoIkbUJxmrVGYe6R/YgPjs7/Bsfue27k3RDiZvoSzIyIG285FT30PXkXzg7dzs7B8+mNyGN3UXrqvXG6uLxltevXdVY/HoNMNLkpBwcBkckUDBGKOKkYKf6l/a1v1Orb7oee+J4oDOuucetvhc1NZKCRlnBVQ6Hu1wanltMTyHjzLwvK8mxHC9XNz/JKiqFqjHXLw0k0uZbPRamJhSyjRXFxgxtYr3yNKPxpWX1Lfq+hxbbbgW1vCZtvuJ07Ll5IMvSyMhVXoFbeoK87zEhiW+JMWEkzSGZ4kDKEV29X2vs9VMDhgS+0gJyeKOGj/H1DaSQaQQs3jI8jZrEtmL/Qt7RQd59f/qpF7Y7bjEOd2OD0skmpjbxc6LuKCMO3Jw6NZRAJFmaEwhEa5Q+unzTFmDtg6py9k8DhpRXsZuMMwkMmoE1JZjgCCPMaTpYymAtLQeylQEa7/mbcuKRbpdjvS6n31lMi6cRiFhnv0n1f8DX3gfOklEtyCSStY2lZaRiqcbcN2hgkPY2n9+/o2p2evKs7EJLcyJDvgm18Bht/bkD9z68ffVeb/hI84VHcfm/OKRwbbz8bclUUAwtPYKc6p74nnm78raSPC0GNcFgimCexty3qT9If/9aeffubXfPs67Hnb+dP9N0slEkFOPZK6gbW+yqLh56jFywYNk6c3MyzsDQCm9hhjE1xWBxOHNrMhVHsneqf+7X3MW8pQw58ajy2CmVvf+Wb2D61TnYzyg9fdoVGRFlYmBkbIBatWb9wwedly601uzaRhessCjdaz6/xm/p3pLyTal53DUryrMycwz0UVichY0Ng2ZjT6XRra1tHOjOESXrPBfuZBy8531PeVpjWON+x8t3Pe+Vt18rz794pz7z5eoP0u7du7CGaBNdfUe4nOgdojdWH5y8fPXys65HPb/fbKzZtq6sOGZ6WMFsvoAnTE/LotMd8eaWxmisroEx2gg9Yby+9ij90tWb951rF4nn5kayojP4rsvqMm+9UdunbW/X3//Y9FiPzsablocfBbS9am1uUf/rS/TVSEWKIkOdMQSfGaF3lfYZEiIKbYknNF1pv9XefvTcb0UbtmPjubjwHLZAtKS0zM3Vc+RoXSyOoK09bPCgQdpDR/yAIo01t2Gm5C1ctKZkWcXaltuXPygXla3MZKVkxCTF1pz9rbNLa+4Jw8orw+GDP7J+GSLYY3ro2bAfh2ge/wX6OqSlq1br6oyxnzUvpFNJYnjgR4/EewZ4trykNfx57GrHC6Uy5fxz6o6rs9bX1O7avmjRwoLcTF1d459/HgJK3zAbr6E2PhMwFOza03Z1d6O3HIkXzksMDIfyeQlRiVHMhPDgCCg7d3TVzXErzmkXbv8hEP7BOmJwynLUrkfDho/dt2e7xom+9EVI6nIA3oD4DKnp6JEBze+snL3MRuswOKX4xpeGmy7rV11f1fbwxeu34ysvB63Ye2T7piVlCyorK7ZVb6FRyYO0tHTCC4dRJxvojBg5VtfMCI3W0THQNXKOy5w4f53X1ubAlDnsxNRingTKme2/tn7cqlbtMIWWTayWnt3guDKj2q4xP/481dNd5Uvf6htJXd8OdysDzrxELdhnMmYsiWJvrjfBlv+L6eFu4p47Dgfuj918o+DX28rXL+c3Xj5+5lz1zZ6yE20H99fyBXxnW+oon2RtgvMI7VFDogSBTi5itig/Y05CeIy5dyRJuIZOs5siLgvecy6IlRHs4R3j4ckvFFqHMkfYhWgNxw2OmUs89lL3h0HDh/2k9qdPfVGUmo7W4dgr49s+mO68p2uEIplgKQExtLNKxpFHtMOPPeq7R1dcSTvSrvyjq+DSq8AOpf22a7SazuxTD6WcfKcQ1iCbQC1dK6xHiL14hbW8cqlQvlReFugxNTs8yppig+evNfUII+rpeSyuDI5Jm0R3ZgVOz09MAZ/kWmPMtTnb7PbeG/PTj0b6eh/ev9U49Fl9EZI12Yps6x7eoXQ/+mRcWrGJKd655S1ld4fdoScTj/8x9WT3iFXnmS3dsbVtgXeVGJqj/pCfMON0p5xThjGjddyYYwb/MATLwPon60+NNY8pTAiLYyXloaFKytL9k9Yep0rKHflLqXQ33PjxjKkhAW6TE0MjQ6b6FKZl+HpNwbpM0p1giDYw9PALunyhVePQZ9U30oH9NRPGGTpZkmiybTFXlVY7bqBqH9KPPCZuvebS2Otz8gVp53XDzdfCT3RNv6xkFM7Hkah6I0dSTDH0OaUW02JGDx0+1MwBVIvQZB4O3ug/0X0SzcnMO8F6ZX2SXyDDwoqIwlp7BtFYOSgDQy8Hp/ApfqE+/lH+IWnR8bNn5iVGJ1DJZHd7WxfmzPIlizQ+fVZ9IyXHs8geAeSodKIRxrf5Q0TrK4+Gbuqum/QjXR4NPeTt7aaVbdQ9t4Ka33gfvW86VJvEzHarakVPi6TmzR0xxlDP3IqZzQvhzc9TLMmYzbdL4QRtqHWYkeLBcAw8dKWYC8+MnzmV4TzZlhHg7hU82Tc0IDwlbmZ8dGJ6UmZOeu7s1NyIwLCQzU2sbKFcKNX49Fn1jWRhhnPMUlhNYxL1dENaXk859sir6YXJlqsOR5+YbbxgUXnJdv8Dv1+fh7UpcSZmlilsQ50RZqNHo9MkgzC2IYHBCVnCgjnQdL8Qt4Vr4kp+iSyAvb18E0/d3ltRiUvgrVm5bvGCZfwcdn56jpuD+2SPgNgZCVHhMSlxqRnx6cyAYMeYHPrcnU5JosKMzPSEzKdPnmjc+rT6RpowbjwlMhtPd6aiUb71vbEtPVb7fidsbTde2UzecdNmf2fQ6RchV5Q4kh1u3HgTtyCn6rbRZPqY7AVOCeyJxZu9xaWzqg6uqWucy+ZG7WlYLJ9/ZN9B57jcdctWVFdUrl+1HuviY6jY4uoXwp2ZLSzgT5s8Pdwvwp3u7JBQQMud78Rf6RsSy56Zk5eRn5aQ9vqvPzVufVp9IxnjzMzMKFbpXKqJmR1nedRlpduRh1YHH9EPPLDedSPk7JvAc++wFhSSyzQr2Xpd7Z+0h44Kyi/JFSj8oIWOovkOFScmlq1PTMp7+efbsDnyc81nOQX8qsqtaWm5ClhWmFM4TyILi0k2KqlBQ+s8/EMLktOo8Tn02aUWJDvHyHRmaFxSZGJcRFxaQkZJUZnGp8+qbyTnECYWT0FNT8I7eVmiMI6b2yKvKpmtfwU095pvvGi9rAFtiEJ7+A/T0jKPE2aWrq7dX/e898+up70dNzoO1x2v2VjpU6CwqTrffr3z6bPeu52Pn3S/mJWRR5iRTF1eFxGVIJwjngsXBzLsxwUl40tqrBfvnuQT7uM1xapgSURobHxEUjQrJ3m2dA5cWr6+uq3vICm12js6wOcZ6K/evo30HR3Xbt7suHr1yu3boN19cF+wocqWZufq4uk1f6Ori6uzPcM1E/bfdn7GlpMuladt0EautrZT1jSyYajt8pWW8xebzl869GvToRNNx5rPnTrTuq32UN3h+kxRyYHjJ8//drGp5Wzjr03nL1wphuCAmGRr+eZZOfnTgsJCixaFLqhwjkhylG5wglYEyJYLCnmcfE5SXHp2Wk5+boFMII5fXr3zwo3bNxBd/7S0lrFYC9LTFyUlrQsLW5KQUB4VVZaauiw2dnVExMagoA2hocuTk6vi4vYET9/rM7WUzamOilofE13t581hF/Clki1JSZsyMnawojcmJ2+ZHjQvK6s0Pa0iNHRFHGtNZOSq6OjlyUlbQoKL+Ty+AJFQCBryk8lkRTKpmFsolMggmRwSi6UCvlQkgIV8SCQSiSGRUCAWi2AYFkKwAJbwJDIBBPHVVj4rrSWFhRtSU1dnZR329V0+e3ZNaGipQFCRmropMXEri7WLyVzHYpVmZecUFVcGBS2PjT3k5r4qKmo1k8lms+dxeYsL2eW5ueVZWduYkaBJ5fKtUVF7goOXzM6vZjI3xsWvT05em5paVlgIy2QSiUQmB0I68BMKRTxIIoBgtghGWPl8PgTzhGKhQMARivkiSCiR8qVyPiwDvQAMJDK+GC5S9CEtWVGRtKREUlIiVyikxcVFUinowRRpc+dK5s0TyeU8kQjYKpTKC0QiOC+vQCjM5/GlYJ0VCrioSFxUBBUVQ8UlELhRJgNTUXExJJeLi4vBWKxQgAZ4pFIECQiBksvBczjAaUgCwsfl8ThiCU8M8ZHgCEVCEQyJRVI5TyJHkFQwPDEsEEFcEaRx/NPS0hwVCoCkbv8oHo8nAF+gIjFfIudKZMAuSAYIgqVgqWVygAYGsFyOhABxHZEENETICHRAsEQCGhiokYDfAmBKIAIMYpGIC+yLIYFQBDIQGFQ9CIGBpDIIhkHWgTEIKQ8Gy9iH/gvpMwJ+gqQAVEB84IpIzOPx2WwOyD1wGniASKoCk8lBrzmhoQJCBmAKTqp5gPgg1WAJWCbABqj4gAqJgwjEmQvLAAMM4FUWQMqBKReWAk6BGOo78TTHvgTWH6Q4CBcf/Hg8LpfL4XBAD6jAXlYjyKQqGDnw5j/BkPAgKaeKn7pX7SSFnAfyC5aAUgFqAVgtkNhgAC4EcQA1QSoBDZEm8aRykBIiCRJhjUOf1pciARUVgQWSAwdBBgEeFZLmCJ6EeIwQgJ96jNQxNYkqPqqBqqkPHIEYZC9AAlnHEwhhWAL2Gw+WQhAkAROJBJJIkXBBEpCcIBc+sSf+ib4C6aMAGwiUhkaFpS7KH30G4VIdwEQdLmQhVGCaCyAxBIoBF+AIQeaJZVKJWIqkFviXenVAhoOEAD3YWuBm1Wp+qfqDpBZ4GEhADluNxuECLLCbJTKJikbF8TepkNR1AqBxwdYUQSIIRlhloECDzSMHVH93HGB8Bcff1H8kIPBQ4D8oU2BHqbB4YKVBpeLAyJKDXQFeKeDdAvaAWCIFMQC0yB8SCgQTVDNwAVLNQHEDZQF5KQyAvglJLfVqQhAIGo/DLuTw+FxIClYd7ASk4iN4ch6smiLnkQKANARDXcpUYHx+/2LyjxoApI8CbCCPkJcMR5WPQpEqVmCXIw2BUQMgJKoGSETIuwjU0n4m2T/TQCJ9FGADqQVLpOBlqg4FaMgXgEgMvnTArkMiyQVpygUbsr9b5pP6LkgfBZwFDSli4AtIVYRBcQM1GlQKQDLgMGp9X6T/Ef0b6X+/FIr/AGMGMsdqZhmlAAAAAElFTkSuQmCC");
-            // _lblTags = new Composite(container, SWT.H_SCROLL | SWT.BORDER);
-            //final ScrolledComposite scrollComposite = new ScrolledComposite(container, SWT.H_SCROLL);
-            final Composite parent2 = new Composite(container, SWT.NONE);
-
-            final CLabel label = new CLabel(parent2, SWT.NONE);
-            label.setText("image1");
-            label.setImage(image);
-            final CLabel label2 = new CLabel(parent2, SWT.NONE);
-            label2.setText("image2");
-            label2.setImage(image);
+            _compositeTags = new Composite(container, SWT.NONE);
             final RowLayout layout = new RowLayout();
             layout.wrap = true;
-            parent2.setLayout(layout);
-            parent2.setLayoutData(layout);
-
-//            scrollComposite.setContent(parent2);
-//            scrollComposite.setExpandVertical(true);
-//            scrollComposite.setExpandHorizontal(true);
+            _compositeTags.setLayout(layout);
+            _compositeTags.setLayoutData(layout);
 
             GridDataFactory
                   .fillDefaults()//
@@ -4663,7 +4647,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
                    */
                   .hint(2 * _hintTextColumnWidth, SWT.DEFAULT)
                   .span(3, 1)
-                  .applyTo(parent2);
+                  .applyTo(_compositeTags);
          }
 
          {
@@ -9238,7 +9222,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       // tour type/tags
       net.tourbook.ui.UI.updateUI_TourType(_tourData, _lblTourType, true);
-      //   net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTags);
+      net.tourbook.ui.UI.updateUI_Tags(_tourData, _compositeTags);
 
       // measurement system
       _lblDistanceUnit.setText(UI.UNIT_LABEL_DISTANCE);
@@ -9527,7 +9511,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       // tour type/tags
       net.tourbook.ui.UI.updateUI_TourType(_tourData, _lblTourType, true);
-//      net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTags);
+      net.tourbook.ui.UI.updateUI_Tags(_tourData, _compositeTags);
 
       // reflow layout that the tags are aligned correctly
       _tourContainer.layout(true);

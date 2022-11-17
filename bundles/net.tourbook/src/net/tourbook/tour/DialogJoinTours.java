@@ -1712,7 +1712,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
       // tour type/tags
       UI.updateUI_TourType(_joinedTourData, _lblTourType, true);
-      UI.updateUI_Tags(_joinedTourData, _lblTourTags);
+      //todo fb UI.updateUI_Tags(_joinedTourData, _lblTourTags);
 
       // reflow layout that the tags are aligned correctly
       _dlgInnerContainer.layout(true);

@@ -1388,7 +1388,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
       // tour type/tags
       UI.updateUI_TourType(_tourDataTarget, _lblTourType, true);
-      UI.updateUI_Tags(_tourDataTarget, _lblTourTags);
+      //TODO FB UI.updateUI_Tags(_tourDataTarget, _lblTourTags);
 
       // reflow layout that the tags are aligned correctly
       _dlgInnerContainer.layout(true);
