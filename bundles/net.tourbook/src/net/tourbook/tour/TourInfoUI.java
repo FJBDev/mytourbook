@@ -1635,8 +1635,7 @@ public class TourInfoUI {
        * Tags
        */
       if (_hasTags) {
-         //TODO FB
-         // net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value, true);
+         net.tourbook.ui.UI.updateUI_Tags(_tourData, _lblTourTags_Value, true);
       }
       showHideControl(_lblTourTags, _hasTags);
       showHideControl(_lblTourTags_Value, _hasTags);
