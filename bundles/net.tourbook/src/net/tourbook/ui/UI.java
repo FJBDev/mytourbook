@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Set;
 
 import net.tourbook.Images;
@@ -1148,6 +1149,35 @@ public class UI {
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
             label.setText(tag.getTagName());
             label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
+         }
+      }
+   }
+
+   public static void updateUI_TagsWithImage(final Set<TourTag> tourTags, final Composite tourTagsComposite, final List<CLabel> tagsLabels) {
+
+      // We dispose the current tags labels
+      tagsLabels.forEach(tagLabel -> {
+
+         if (tagLabel != null && !tagLabel.isDisposed()) {
+
+            net.tourbook.common.UI.disposeResource(tagLabel.getImage());
+            tagLabel.dispose();
+         }
+      });
+      tagsLabels.clear();
+
+      if (tourTags == null || tourTags.isEmpty()) {
+
+         tourTagsComposite.setData(null);
+
+      } else {
+
+         for (final TourTag tag : tourTags) {
+
+            final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
+            label.setText(tag.getTagName());
+            label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
+            tagsLabels.add(label);
          }
       }
    }
