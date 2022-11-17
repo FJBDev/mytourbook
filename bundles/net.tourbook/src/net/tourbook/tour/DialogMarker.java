@@ -57,6 +57,7 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
@@ -1062,7 +1063,7 @@ public class DialogMarker extends TitleAreaDialog implements ITourMarkerSelectio
             cell.setText(UI.EMPTY_STRING);
          }
       });
-      tableLayout.setColumnData(tc, net.tourbook.ui.UI.getColumnPixelWidth(_pc, 0));
+      tableLayout.setColumnData(tc, new ColumnPixelData(0, false));
    }
 
    /**
