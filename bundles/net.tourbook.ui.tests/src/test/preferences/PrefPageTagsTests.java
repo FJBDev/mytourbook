@@ -69,5 +69,4 @@ public class PrefPageTagsTests extends UITest {
       bot.button(Messages.App_Action_Save).click();
       Utils.clickApplyAndCloseButton(bot);
    }
-
 }
