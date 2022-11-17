@@ -37,7 +37,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
@@ -55,13 +55,13 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String      ID                    = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   static final String             ID                    = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   public static final String      ClientId              = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   static final String             ClientId              = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT         = 4917;
+   static final int                CALLBACK_PORT         = 4917;
 
    private static final String     _dropbox_WebPage_Link = "https://www.dropbox.com";                  //$NON-NLS-1$
 

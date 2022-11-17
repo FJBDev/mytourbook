@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2021, 2022 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,9 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +31,8 @@ import net.tourbook.cloud.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 
 public abstract class TokensRetrievalHandler implements HttpHandler {
 
@@ -52,12 +54,15 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
 
    private Tokens handleGetRequest(final HttpExchange httpExchange) {
 
-      final char[] separators = { '#', '&', '?' };
-
       final String response = httpExchange.getRequestURI().toString();
 
       String authorizationCode = UI.EMPTY_STRING;
-      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+      List<NameValuePair> params = new ArrayList<>();
+      try {
+         params = new URIBuilder(response, StandardCharsets.UTF_8).getQueryParams();
+      } catch (final URISyntaxException e) {
+         StatusUtil.log(e);
+      }
       final Optional<NameValuePair> result = params
             .stream()
             .filter(param -> param.getName().equals(OAuth2Constants.PARAM_CODE)).findAny();

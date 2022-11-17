@@ -58,8 +58,8 @@ import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;

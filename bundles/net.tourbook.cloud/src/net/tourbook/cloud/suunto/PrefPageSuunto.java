@@ -44,7 +44,7 @@ import net.tourbook.database.PersonManager;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -72,7 +72,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.part.PageBook;
 
-public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferencePage {
+class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferencePage {
 
    private static final String     APP_BTN_BROWSE                   = net.tourbook.Messages.app_btn_browse;
    private static final String     DIALOG_EXPORT_DIR_DIALOG_MESSAGE = net.tourbook.Messages.dialog_export_dir_dialog_message;
@@ -80,11 +80,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
    private static final String     PARAMETER_TRAILING_CHAR          = "}";                                                   //$NON-NLS-1$
    private static final String     PARAMETER_LEADING_CHAR           = "{";                                                   //$NON-NLS-1$
    private static final String     _suuntoApp_WebPage_Link          = "https://www.suunto.com/suunto-app/suunto-app/";       //$NON-NLS-1$
-   public static final String      ID                               = "net.tourbook.cloud.PrefPageSuunto";                   //$NON-NLS-1$
+   static final String             ID                               = "net.tourbook.cloud.PrefPageSuunto";                   //$NON-NLS-1$
 
-   public static final String      ClientId                         = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                //$NON-NLS-1$
+   private static final String     ClientId                         = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                    = 4919;
+   private static final int        CALLBACK_PORT                    = 4919;
 
    private static final String     STATE_SUUNTO_CLOUD_SELECTED_TAB  = "suuntoCloud.selectedTab";                             //$NON-NLS-1$
 
