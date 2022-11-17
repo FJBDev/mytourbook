@@ -22,7 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
@@ -69,7 +70,6 @@ public class ImageUtils {
       if (imageArray == null) {
          return null;
       }
-      //todo fb test if file exists
 
       Image image = null;
       try (final InputStream inputStream = new ByteArrayInputStream(imageArray)) {
@@ -85,23 +85,14 @@ public class ImageUtils {
 
    public static Image convertFileToImage(final String imageFilePath) {
 
-      if (StringUtils.isNullOrEmpty(imageFilePath)) {
+      if (StringUtils.isNullOrEmpty(imageFilePath) || !Files.exists(Paths.get(imageFilePath))) {
          return null;
       }
-      //todo fb test if file exists
 
       Image image = new Image(Display.getDefault(), imageFilePath);
       image = resize(Display.getDefault(), image, 70, 70);
 
-//      Image image = null;
-//      try (final InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(imageString))) {
-//
-//         image = new Image(Display.getCurrent(), inputStream);
-//
-//      } catch (final IOException e) {
-//         StatusUtil.log(e);
-//      }
-     return image;
+      return image;
    }
 
    public static FileFilter createImageFileFilter() {
@@ -131,23 +122,6 @@ public class ImageUtils {
 
          return false;
       };
-   }
-
-   public static Image decodeStringToImage(final String imageString) {
-
-      if (StringUtils.isNullOrEmpty(imageString)) {
-         return null;
-      }
-
-      Image image = null;
-      try (final InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(imageString))) {
-
-         image = new Image(Display.getCurrent(), inputStream);
-
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-      return image;
    }
 
    /**
@@ -231,7 +205,8 @@ public class ImageUtils {
     * @param height
     * @return
     */
-   public static Image resize(final Display display, final Image image, final int width, final int height) {
+   private static Image resize(final Display display, final Image image, final int width, final int height) {
+
       return resize(display, image, width, height, SWT.ON, SWT.HIGH, null);
    }
 
