@@ -258,6 +258,13 @@ public class TourBlogView extends ViewPart {
 
                // update modified tour
 
+               //to reproduce and fix
+               //todo fb
+
+               if (_tourData == null) {
+                  return;
+               }
+
                final long viewTourId = _tourData.getTourId();
 
                for (final TourData tourData : modifiedTours) {
