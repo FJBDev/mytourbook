@@ -47,7 +47,7 @@ public class WorkbenchTests extends UITest {
       Utils.showView(bot, "Tour Import"); //$NON-NLS-1$
 
       bot.toolbarButtonWithTooltip("Statistics (Ctrl+Shift+S)").click(); //$NON-NLS-1$
-      Utils.showView(bot, "Statistics"); //$NON-NLS-1$
+      final SWTBotView statisticsView = Utils.showView(bot, "Statistics"); //$NON-NLS-1$
 
       bot.toolbarButtonWithTooltip("Shows tour in 2D map").click(); //$NON-NLS-1$
       Utils.showView(bot, "2D Tour Map"); //$NON-NLS-1$
@@ -84,16 +84,16 @@ public class WorkbenchTests extends UITest {
       final SWTBotView geoCompareView = Utils.showView(bot, "Geo Compare"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Tour Chart Smoothing"); //$NON-NLS-1$
-      Utils.showView(bot, "Tour Chart Smoothing"); //$NON-NLS-1$
+      final SWTBotView tourChartSmoothingView = Utils.showView(bot, "Tour Chart Smoothing"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Statistic Values"); //$NON-NLS-1$
-      Utils.showView(bot, "Statistic Values"); //$NON-NLS-1$
+      final SWTBotView statisticValuesView = Utils.showView(bot, "Statistic Values"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Training"); //$NON-NLS-1$
-      Utils.showView(bot, "Training"); //$NON-NLS-1$
+      final SWTBotView trainingView = Utils.showView(bot, "Training"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Heart Rate Variability"); //$NON-NLS-1$
-      Utils.showView(bot, "Heart Rate Variability"); //$NON-NLS-1$
+      final SWTBotView heartRateVariabilityView = Utils.showView(bot, "Heart Rate Variability"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.DIRECTORY, "Photos"); //$NON-NLS-1$
       final SWTBotView photosView = Utils.showView(bot, "Photos"); //$NON-NLS-1$
@@ -101,7 +101,7 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       bot.toolbarButtonWithTooltip("Search for tours, marker and waypoints (Ctrl+K)").click(); //$NON-NLS-1$
-      Utils.showView(bot, "Search Tours"); //$NON-NLS-1$
+      final SWTBotView searchToursView = Utils.showView(bot, "Search Tours"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.DIRECTORY, "Tour Marker"); //$NON-NLS-1$
       final SWTBotView tourMarkerView = Utils.showView(bot, "Tour Marker"); //$NON-NLS-1$
@@ -135,13 +135,19 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       //Close the opened views
+      statisticsView.close();
+      tourChartSmoothingView.close();
+      statisticValuesView.close();
+      trainingView.close();
+      heartRateVariabilityView.close();
+      photosView.close();
+      searchToursView.close();
       tourMarkerView.close();
       tourLogView.close();
       waypointsView.close();
       tourDataView.close();
       tourAnalyzerView.close();
       geoCompareView.close();
-      photosView.close();
       collatedToursView.close();
       referenceToursView.close();
       comparisonResultsView.close();
