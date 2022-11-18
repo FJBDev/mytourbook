@@ -32,6 +32,5 @@ public class TourBlogViewTests extends UITest {
       final SWTBotView tourBlogView = bot.viewByTitle("Tour Blog");
 
       tourBlogView.show();
-      tourBlogView.close();
    }
 }
