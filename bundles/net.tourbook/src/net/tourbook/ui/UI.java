@@ -1176,7 +1176,7 @@ public class UI {
          for (final TourTag tag : tourTags) {
 
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
-            label.setText(tag.getTagName());
+            label.setText(tag.getTagName() + UI.NEW_LINE + "23 miles" + UI.NEW_LINE + "2h");
             label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
             tagsLabels.add(label);
          }

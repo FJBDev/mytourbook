@@ -18,6 +18,7 @@ package views;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.junit.BeforeClass;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -35,6 +36,31 @@ public class WorkbenchTests extends UITest {
       SWTBotPreferences.TIMEOUT = 10000;
    }
 
+   @Disabled
+   //Disabled because of this error
+   //com.badlogic.gdx.utils.GdxRuntimeException: Couldn't load shared library 'vtm-jni64.dll' for target: Windows Server 2022, 64-bit
+   //My hunch is that the build machine has no 3D graphics capabilities
+   @Test
+   void open25DMap() {
+
+      Utils.showViewFromMenu(bot, "Map", "2.5D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
+      Utils.showView(bot, "2.5D Tour Map"); //$NON-NLS-1$
+      //Sleeping 3 seconds as the map can be slow to display
+      bot.sleep(3000);
+   }
+
+   @Disabled
+   //Disabled because of this error
+   //java.lang.UnsatisfiedLinkError: Can't load library: D:\a\mytourbook-BUILD-autocreated\core\net.tourbook.ui.tests\natives\windows-amd64\\gluegen_rt.dll
+   //My hunch is that the build machine has no 3D graphics capabilities
+   @Test
+   void open3DMap() {
+
+      Utils.showViewFromMenu(bot, "Map", "3D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
+      //Sleeping 3 seconds as the map can be slow to display
+      bot.sleep(3000);
+   }
+
    @Test
    void testOpenViews() {
 
@@ -50,18 +76,6 @@ public class WorkbenchTests extends UITest {
       Utils.showView(bot, "2D Tour Map"); //$NON-NLS-1$
       //Sleeping 3 seconds as the map can be slow to display
       bot.sleep(3000);
-
-      Utils.showViewFromMenu(bot, "Map", "2.5D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
-      final SWTBotView twoHalfTourMapView = Utils.showView(bot, "2.5D Tour Map"); //$NON-NLS-1$
-      //Sleeping 3 seconds as the map can be slow to display
-      bot.sleep(3000);
-
-      //Commenting because of this error
-      //java.lang.UnsatisfiedLinkError: Can't load library: D:\a\mytourbook-BUILD-autocreated\core\net.tourbook.ui.tests\natives\windows-amd64\\gluegen_rt.dll
-      // Utils.showViewFromMenu(bot, "Map", "3D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
-      //My hunch is that the build machine has no 3D graphics capabilities
-      //Sleeping 3 seconds as the map can be slow to display
-      //bot.sleep(3000);
 
       final SWTBotView tourLogView = Utils.showView(bot, "Tour Log"); //$NON-NLS-1$
 
@@ -133,7 +147,6 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       //Close the opened views
-      twoHalfTourMapView.close();
       tourLogView.close();
       tourChartSmoothingView.close();
       statisticValuesView.close();
