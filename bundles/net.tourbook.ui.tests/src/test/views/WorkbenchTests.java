@@ -46,9 +46,6 @@ public class WorkbenchTests extends UITest {
       bot.toolbarButtonWithTooltip("Tour Import (Ctrl+Shift+I)").click(); //$NON-NLS-1$
       Utils.showView(bot, "Tour Import"); //$NON-NLS-1$
 
-      bot.toolbarButtonWithTooltip("Statistics (Ctrl+Shift+S)").click(); //$NON-NLS-1$
-      final SWTBotView statisticsView = Utils.showView(bot, "Statistics"); //$NON-NLS-1$
-
       bot.toolbarButtonWithTooltip("Shows tour in 2D map").click(); //$NON-NLS-1$
       Utils.showView(bot, "2D Tour Map"); //$NON-NLS-1$
       //Sleeping 3 seconds as the map can be slow to display
@@ -135,7 +132,6 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       //Close the opened views
-      statisticsView.close();
       tourChartSmoothingView.close();
       statisticValuesView.close();
       trainingView.close();
