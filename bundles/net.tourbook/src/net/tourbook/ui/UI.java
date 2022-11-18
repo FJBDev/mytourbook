@@ -1152,6 +1152,10 @@ public class UI {
 
    public static void updateUI_TagsWithImage(final Set<TourTag> tourTags, final Composite tourTagsComposite, final List<CLabel> tagsLabels) {
 
+      //Retrieve the accumulation values for each tag
+      //todo fb
+      // tourTags.forEach(tourTag -> computeTagAccumulationValues(tourTag));
+
       // We dispose the current tags labels
       tagsLabels.forEach(tagLabel -> {
 
