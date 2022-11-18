@@ -52,6 +52,7 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       Utils.showViewFromMenu(bot, "Map", "2.5D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
+      final SWTBotView twoHalfTourMapView = Utils.showView(bot, "2.5D Tour Map"); //$NON-NLS-1$
       //Sleeping 3 seconds as the map can be slow to display
       bot.sleep(3000);
 
@@ -132,6 +133,8 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       //Close the opened views
+      twoHalfTourMapView.close();
+      tourLogView.close();
       tourChartSmoothingView.close();
       statisticValuesView.close();
       trainingView.close();
@@ -139,7 +142,6 @@ public class WorkbenchTests extends UITest {
       photosView.close();
       searchToursView.close();
       tourMarkerView.close();
-      tourLogView.close();
       waypointsView.close();
       tourDataView.close();
       tourAnalyzerView.close();
