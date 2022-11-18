@@ -92,9 +92,6 @@ public class WorkbenchTests extends UITest {
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Training"); //$NON-NLS-1$
       Utils.showView(bot, "Training"); //$NON-NLS-1$
 
-      Utils.showViewFromMenu(bot, Utils.TOOLS, "Conconi Test"); //$NON-NLS-1$
-      Utils.showView(bot, "Conconi Test"); //$NON-NLS-1$
-
       Utils.showViewFromMenu(bot, Utils.TOOLS, "Heart Rate Variability"); //$NON-NLS-1$
       Utils.showView(bot, "Heart Rate Variability"); //$NON-NLS-1$
 
@@ -107,7 +104,7 @@ public class WorkbenchTests extends UITest {
       Utils.showView(bot, "Search Tours"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.DIRECTORY, "Tour Marker"); //$NON-NLS-1$
-      Utils.showView(bot, "Tour Marker"); //$NON-NLS-1$
+      final SWTBotView tourMarkerView = Utils.showView(bot, "Tour Marker"); //$NON-NLS-1$
 
       Utils.showViewFromMenu(bot, Utils.DIRECTORY, "Collated Tours"); //$NON-NLS-1$
       final SWTBotView collatedToursView = Utils.showView(bot, "Collated Tours"); //$NON-NLS-1$
@@ -138,6 +135,7 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
 
       //Close the opened views
+      tourMarkerView.close();
       tourLogView.close();
       waypointsView.close();
       tourDataView.close();
