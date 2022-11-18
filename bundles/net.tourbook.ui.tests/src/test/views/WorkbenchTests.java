@@ -49,7 +49,6 @@ public class WorkbenchTests extends UITest {
       bot.sleep(3000);
    }
 
-   @Disabled
    //Disabled because of this error
    //java.lang.UnsatisfiedLinkError: Can't load library: D:\a\mytourbook-BUILD-autocreated\core\net.tourbook.ui.tests\natives\windows-amd64\\gluegen_rt.dll
    //My hunch is that the build machine has no 3D graphics capabilities
