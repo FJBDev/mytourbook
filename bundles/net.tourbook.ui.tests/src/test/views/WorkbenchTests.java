@@ -18,7 +18,6 @@ package views;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.junit.BeforeClass;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -36,17 +35,15 @@ public class WorkbenchTests extends UITest {
       SWTBotPreferences.TIMEOUT = 10000;
    }
 
-   @Disabled
-   //Disabled because of this error
-   //com.badlogic.gdx.utils.GdxRuntimeException: Couldn't load shared library 'vtm-jni64.dll' for target: Windows Server 2022, 64-bit
-   //My hunch is that the build machine has no 3D graphics capabilities
    @Test
    void open25DMap() {
 
       Utils.showViewFromMenu(bot, "Map", "2.5D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
-      Utils.showView(bot, "2.5D Tour Map"); //$NON-NLS-1$
+      final SWTBotView twoFiveDMapView = Utils.showView(bot, "2.5D Tour Map"); //$NON-NLS-1$
       //Sleeping 3 seconds as the map can be slow to display
       bot.sleep(3000);
+
+      twoFiveDMapView.close();
    }
 
    //Disabled because of this error
