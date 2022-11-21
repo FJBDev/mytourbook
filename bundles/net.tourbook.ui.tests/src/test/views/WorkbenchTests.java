@@ -46,15 +46,15 @@ public class WorkbenchTests extends UITest {
       twoFiveDMapView.close();
    }
 
-   //Disabled because of this error
-   //java.lang.UnsatisfiedLinkError: Can't load library: D:\a\mytourbook-BUILD-autocreated\core\net.tourbook.ui.tests\natives\windows-amd64\\gluegen_rt.dll
-   //My hunch is that the build machine has no 3D graphics capabilities
    @Test
    void open3DMap() {
 
       Utils.showViewFromMenu(bot, "Map", "3D Tour Map"); //$NON-NLS-1$ //$NON-NLS-2$
+      final SWTBotView threeDMapView = Utils.showView(bot, "3D Tour Map"); //$NON-NLS-1$
       //Sleeping 3 seconds as the map can be slow to display
       bot.sleep(3000);
+
+      threeDMapView.close();
    }
 
    @Test
