@@ -16,8 +16,6 @@ Require-Bundle: net.tourbook,
  net.tourbook.cloud,
  net.tourbook.device,
  net.tourbook.device.garmin,
- net.tourbook.ext.worldwind;bundle-version="2.2.20220607",
- net.tourbook.ext.vtm,
  org.opentest4j
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

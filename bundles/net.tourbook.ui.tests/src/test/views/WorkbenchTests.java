@@ -18,6 +18,7 @@ package views;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.junit.BeforeClass;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -35,6 +36,10 @@ public class WorkbenchTests extends UITest {
       SWTBotPreferences.TIMEOUT = 10000;
    }
 
+   @Disabled
+   //Disabled because of this error
+   //com.badlogic.gdx.utils.GdxRuntimeException: Couldn't load shared library 'vtm-jni64.dll' for target: Windows Server 2022, 64-bit
+   //My hunch is that the build machine has no 3D graphics capabilities
    @Test
    void open25DMap() {
 
@@ -46,6 +51,10 @@ public class WorkbenchTests extends UITest {
       twoFiveDMapView.close();
    }
 
+   @Disabled
+   //Disabled because of this error
+   //java.lang.UnsatisfiedLinkError: Can't load library: D:\a\mytourbook-BUILD-autocreated\core\net.tourbook.ui.tests\natives\windows-amd64\\gluegen_rt.dll
+   //My hunch is that the build machine has no 3D graphics capabilities
    @Test
    void open3DMap() {
 
