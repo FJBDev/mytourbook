@@ -811,7 +811,7 @@ public class SlideoutMap2TrackOptions extends ToolbarSlideout implements IColorS
 
             // label
             _lblSliderPath_Segments = new Label(container, SWT.NONE);
-            _lblSliderPath_Segments.setText(Messages.Slideout_Map_Options_Label_SliderPath_Segements);
+            _lblSliderPath_Segments.setText(Messages.Slideout_Map_Options_Label_SliderPath_Segments);
             _firstColoumLayoutData.span(1, 1).applyTo(_lblSliderPath_Segments);
 
             // spinner

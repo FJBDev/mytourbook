@@ -2151,7 +2151,7 @@ public class Messages extends NLS {
    public static String        Slideout_Map_Options_Label_SliderLocation_Size;
    public static String        Slideout_Map_Options_Label_SliderPath_Color;
    public static String        Slideout_Map_Options_Label_SliderPath_Color_Tooltip;
-   public static String        Slideout_Map_Options_Label_SliderPath_Segements;
+   public static String        Slideout_Map_Options_Label_SliderPath_Segments;
    public static String        Slideout_Map_Options_Label_SliderPath_Width;
    public static String        Slideout_Map_Options_Label_Title;
    public static String        Slideout_Map_Options_Label_TourDirection_DistanceBetweenMarkers;
