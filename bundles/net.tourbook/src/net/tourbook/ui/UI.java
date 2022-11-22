@@ -20,6 +20,9 @@ import de.byteholder.geoclipse.preferences.IMappingPreferences;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,6 +37,7 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.common.color.MapGraphId;
+import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
@@ -547,6 +551,42 @@ public class UI {
 
          child.setEnabled(false);
       }
+   }
+
+   public static int fetchTourTagsAccumulationString() {
+
+      final String sql = NEW_LINE
+
+            + "SELECT" + NEW_LINE //                                                                        //$NON-NLS-1$
+            + "jTdataTtag.TOURTAG_TAGID," + NEW_LINE //
+            + "SUM(tourData.TOURDISTANCE) AS TOTALDISTANCE," + NEW_LINE //
+            + "SUM(tourData.TOURDEVICETIME_RECORDED) AS TOTALRECORDEDTIME" + NEW_LINE //                                                                   //$NON-NLS-1$
+            + "FROM " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag" + NEW_LINE //                                                                        //$NON-NLS-1$
+            + "INNER JOIN " + TourDatabase.TABLE_TOUR_DATA + NEW_LINE //                                                       //$NON-NLS-1$
+            + "ON jTdataTtag.TOURDATA_TOURID = tourData.TOURID" + NEW_LINE //                                                                       //$NON-NLS-1$
+            + "GROUP BY jTdataTtag.TOURTAG_TAGID" + NEW_LINE //                                                   //$NON-NLS-1$
+      ;
+
+      try (Connection connection = TourDatabase.getInstance().getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+         final ResultSet result = preparedStatement.executeQuery();
+
+         // get first result
+         result.next();
+
+         // get first value
+         final int numTours = result.getInt(2);
+
+         return numTours;
+
+//       TourDatabase.disableRuntimeStatistic(conn);
+
+      } catch (final SQLException e) {
+         SQL.showException(e, sql);
+      }
+
+      return 0;
    }
 
    public static String format_yyyymmdd_hhmmss(final TourData tourData) {
@@ -1172,6 +1212,8 @@ public class UI {
          tourTagsComposite.setData(null);
 
       } else {
+
+         UI.fetchTourTagsAccumulationString();
 
          for (final TourTag tag : tourTags) {
 
