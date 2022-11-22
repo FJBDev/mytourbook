@@ -555,17 +555,14 @@ public class UI {
 
    public static int fetchTourTagsAccumulationString() {
 
-      final String sql = NEW_LINE
-
-            + "SELECT" + NEW_LINE //                                                                        //$NON-NLS-1$
+      final String sql = "SELECT" + NEW_LINE //                                                                        //$NON-NLS-1$
             + "jTdataTtag.TOURTAG_TAGID," + NEW_LINE //
             + "SUM(tourData.TOURDISTANCE) AS TOTALDISTANCE," + NEW_LINE //
             + "SUM(tourData.TOURDEVICETIME_RECORDED) AS TOTALRECORDEDTIME" + NEW_LINE //                                                                   //$NON-NLS-1$
             + "FROM " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag" + NEW_LINE //                                                                        //$NON-NLS-1$
             + "INNER JOIN " + TourDatabase.TABLE_TOUR_DATA + NEW_LINE //                                                       //$NON-NLS-1$
             + "ON jTdataTtag.TOURDATA_TOURID = tourData.TOURID" + NEW_LINE //                                                                       //$NON-NLS-1$
-            + "GROUP BY jTdataTtag.TOURTAG_TAGID" + NEW_LINE //                                                   //$NON-NLS-1$
-      ;
+            + "GROUP BY jTdataTtag.TOURTAG_TAGID" + NEW_LINE; //$NON-NLS-1$
 
       try (Connection connection = TourDatabase.getInstance().getConnection();
             final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
