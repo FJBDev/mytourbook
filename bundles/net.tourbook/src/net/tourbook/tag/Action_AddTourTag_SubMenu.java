@@ -126,7 +126,7 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
          super(Messages.Action_Tag_Add_AutoOpen_ModifiedTags);
 
          // this action is only for info
-         setEnabled(false);
+         super.setEnabled(false);
       }
    }
 
