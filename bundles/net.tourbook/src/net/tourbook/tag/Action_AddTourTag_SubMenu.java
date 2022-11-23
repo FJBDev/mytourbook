@@ -35,12 +35,14 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourTag;
 import net.tourbook.data.TourTagCategory;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.photo.ImageUtils;
 import net.tourbook.preferences.PrefPageTags;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -302,6 +304,7 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
 
          // check the tag when it's set in the tour
          final ActionTourTag actionTourTag = new ActionTourTag(menuTourTag);
+         actionTourTag.setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(menuTourTag.getImage())));
 
          final boolean isModifiedTags = _modifiedTags.size() > 0;
          final boolean isSelectedTags = _selectedTourTags != null;
