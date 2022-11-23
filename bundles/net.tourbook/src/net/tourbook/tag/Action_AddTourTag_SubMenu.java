@@ -47,8 +47,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-//TODO FB add the image as an icon
-//http://www.java2s.com/Tutorial/Java/0280__SWT/AddImagetoMenuItem.htm
+//TODO FB dispose the image
 /**
  * Add tag(s) from the selected tours
  */
