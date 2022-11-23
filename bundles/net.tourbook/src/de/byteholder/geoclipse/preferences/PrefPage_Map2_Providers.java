@@ -2475,7 +2475,7 @@ public class PrefPage_Map2_Providers extends PreferencePage implements IWorkbenc
 
       for (final String fileName : allSelectedFileNames) {
 
-         final java.nio.file.Path filePath = Paths.get(filePathFolder, fileName);
+         final Path filePath = Paths.get(filePathFolder, fileName);
 
          allFilesPaths.add(filePath.toString());
       }
@@ -2865,7 +2865,7 @@ public class PrefPage_Map2_Providers extends PreferencePage implements IWorkbenc
          try {
 
             // create temp file name
-            final java.nio.file.Path tempFile = Files.createTempFile("MapProvider_", XML_EXTENSION);//$NON-NLS-1$
+            final Path tempFile = Files.createTempFile("MapProvider_", XML_EXTENSION);//$NON-NLS-1$
 
             tempFilePath = tempFile.toString();
 
