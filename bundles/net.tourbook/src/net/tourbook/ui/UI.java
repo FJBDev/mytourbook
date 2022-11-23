@@ -1215,7 +1215,8 @@ public class UI {
 
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
             label.setText(tag.getTagName() + UI.NEW_LINE + "23 miles" + UI.NEW_LINE + "2h");
-            //todo fb label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
+            final Image image = new Image(Display.getDefault(), tag.getImageFilePath());
+            label.setImage(image);
             tagsLabels.add(label);
          }
 

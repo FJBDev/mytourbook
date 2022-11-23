@@ -115,7 +115,6 @@ public class TourTag implements Cloneable, Comparable<Object> {
    @Transient
    private long                _createId = 0;
 
-   // todo fb
    private String imageFilePath;
 
    public TourTag() {}
