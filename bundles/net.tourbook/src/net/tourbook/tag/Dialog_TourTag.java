@@ -95,6 +95,8 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       // set window title
       shell.setText(Messages.Dialog_TourTag_Title);
+
+      shell.addDisposeListener(disposeEvent -> onDispose());
    }
 
    @Override
@@ -211,6 +213,10 @@ public class Dialog_TourTag extends TitleAreaDialog {
       super.okPressed();
    }
 
+   private void onDispose() {
+      _canvasTagImage.dispose();
+   }
+
    private void onSelectImage() {
 
       final FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
@@ -228,8 +234,6 @@ public class Dialog_TourTag extends TitleAreaDialog {
       }
 
       final Image image = new Image(Display.getDefault(), imageFilePath);
-
-      //todo fb dispose image
       _canvasTagImage.setImage(image);
    }
 
