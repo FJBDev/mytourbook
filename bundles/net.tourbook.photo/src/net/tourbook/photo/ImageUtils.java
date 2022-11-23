@@ -22,12 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
-import net.tourbook.common.util.StringUtils;
 
 import org.apache.commons.imaging.Imaging;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -79,18 +76,6 @@ public class ImageUtils {
       } catch (final IOException e) {
          StatusUtil.log(e);
       }
-
-      return image;
-   }
-
-   public static Image convertFileToImage(final String imageFilePath) {
-
-      if (StringUtils.isNullOrEmpty(imageFilePath) || !Files.exists(Paths.get(imageFilePath))) {
-         return null;
-      }
-
-      Image image = new Image(Display.getDefault(), imageFilePath);
-      image = resize(Display.getDefault(), image, 70, 70);
 
       return image;
    }

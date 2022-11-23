@@ -17,12 +17,15 @@ package net.tourbook.tag;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.widgets.ImageCanvas;
 import net.tourbook.data.TourTag;
-import net.tourbook.photo.ImageUtils;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -36,6 +39,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -66,9 +70,10 @@ public class Dialog_TourTag extends TitleAreaDialog {
    /*
     * UI controls
     */
-   private Button _btnSelectImage;
-   private Text   _txtNotes;
-   private Text   _txtName;
+   private Button      _btnSelectImage;
+   private ImageCanvas _canvasTagImage;
+   private Text        _txtNotes;
+   private Text        _txtName;
 
    public Dialog_TourTag(final Shell parentShell, final String dlgMessage, final TourTag tourTag) {
 
@@ -153,14 +158,14 @@ public class Dialog_TourTag extends TitleAreaDialog {
             label.setText(Messages.Dialog_TourTag_Label_Image);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(label);
 
-            final ImageCanvas _canvasProfileImage = new ImageCanvas(container, SWT.DOUBLE_BUFFERED);
+            _canvasTagImage = new ImageCanvas(container, SWT.DOUBLE_BUFFERED);
             GridDataFactory.fillDefaults()//
                   .hint(_pc.convertWidthInCharsToPixels(10), SWT.DEFAULT)
-                  .applyTo(_canvasProfileImage);
+                  .applyTo(_canvasTagImage);
 
             _btnSelectImage = new Button(container, SWT.PUSH);
             _btnSelectImage.setText(Messages.app_btn_browse);
-            _btnSelectImage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onImportImage()));
+            _btnSelectImage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectImage()));
             GridDataFactory.fillDefaults()
                   .align(SWT.LEFT, SWT.CENTER)
                   .applyTo(_btnSelectImage);
@@ -206,7 +211,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
       super.okPressed();
    }
 
-   private void onImportImage() {
+   private void onSelectImage() {
 
       final FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
 
@@ -218,14 +223,14 @@ public class Dialog_TourTag extends TitleAreaDialog {
       // open file dialog
       final String imageFilePath = fileDialog.open();
 
-      // check if user canceled the dialog
-      if (imageFilePath == null) {
+      if (StringUtils.isNullOrEmpty(imageFilePath) || !Files.exists(Paths.get(imageFilePath))) {
          return;
       }
 
+      final Image image = new Image(Display.getDefault(), imageFilePath);
+
       //todo fb dispose image
-      final Image image = ImageUtils.convertFileToImage(imageFilePath);
-      _btnSelectImage.setImage(image);
+      _canvasTagImage.setImage(image);
    }
 
    private void restoreState() {
