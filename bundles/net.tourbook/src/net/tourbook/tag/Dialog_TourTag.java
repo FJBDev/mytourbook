@@ -20,6 +20,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.widgets.ImageCanvas;
 import net.tourbook.data.TourTag;
 import net.tourbook.photo.ImageUtils;
 
@@ -28,6 +29,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -55,6 +57,11 @@ public class Dialog_TourTag extends TitleAreaDialog {
    private TourTag                       _tourTag_Original;
 
    private TourTag                       _tourTag_Clone;
+
+   /*
+    * UI resources
+    */
+   private PixelConverter _pc;
 
    /*
     * UI controls
@@ -106,6 +113,8 @@ public class Dialog_TourTag extends TitleAreaDialog {
    @Override
    protected Control createDialogArea(final Composite parent) {
 
+      _pc = new PixelConverter(parent);
+
       final Composite dlgContainer = (Composite) super.createDialogArea(parent);
 
       createUI(dlgContainer);
@@ -126,7 +135,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(container);
+      GridLayoutFactory.swtDefaults().numColumns(3).applyTo(container);
       {
          {
             // Text: Name
@@ -136,20 +145,26 @@ public class Dialog_TourTag extends TitleAreaDialog {
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
 
             _txtName = new Text(container, SWT.BORDER);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_txtName);
+            GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(_txtName);
          }
          {
-            // Text: Image
+            // Text: Image File Path
             final Label label = UI.createLabel(container, UI.EMPTY_STRING);
             label.setText(Messages.Dialog_TourTag_Label_Image);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(label);
+
+            final ImageCanvas _canvasProfileImage = new ImageCanvas(container, SWT.DOUBLE_BUFFERED);
+            GridDataFactory.fillDefaults()//
+                  .hint(_pc.convertWidthInCharsToPixels(10), SWT.DEFAULT)
+                  .applyTo(_canvasProfileImage);
 
             _btnSelectImage = new Button(container, SWT.PUSH);
             _btnSelectImage.setText(Messages.app_btn_browse);
             _btnSelectImage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onImportImage()));
             GridDataFactory.fillDefaults()
-                  .align(SWT.LEFT, SWT.FILL)
+                  .align(SWT.LEFT, SWT.CENTER)
                   .applyTo(_btnSelectImage);
+
          }
          {
             // Text: Notes
@@ -160,6 +175,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
             _txtNotes = new Text(container, SWT.BORDER | SWT.WRAP | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
             GridDataFactory.fillDefaults()
+                  .span(2, 1)
                   .grab(true, true)
                   .hint(convertWidthInCharsToPixels(100), convertHeightInCharsToPixels(20))
                   .applyTo(_txtNotes);
