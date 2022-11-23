@@ -27,7 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
@@ -41,6 +40,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
    private static final char          NL                         = UI.NEW_LINE;
 
+   public static final int            DB_LENGTH_FILE_PATH        = 260;
    public static final int            DB_LENGTH_NAME             = 255;
    public static final int            DB_LENGTH_NOTES            = 32000;
 
@@ -116,8 +116,7 @@ public class TourTag implements Cloneable, Comparable<Object> {
    private long                _createId = 0;
 
    // todo fb
-   @Lob
-   private byte[] image;
+   private String imageFilePath;
 
    public TourTag() {}
 
@@ -189,8 +188,8 @@ public class TourTag implements Cloneable, Comparable<Object> {
       return expandType;
    }
 
-   public byte[] getImage() {
-      return image;
+   public String getImageFilePath() {
+      return imageFilePath;
    }
 
    /**
@@ -277,8 +276,8 @@ public class TourTag implements Cloneable, Comparable<Object> {
       this.expandType = expandType;
    }
 
-   public void setImage(final byte[] image) {
-      this.image = image;
+   public void setImageFilePath(final String imageFilePath) {
+      this.imageFilePath = imageFilePath;
    }
 
    public void setNotes(final String notes) {
@@ -313,17 +312,17 @@ public class TourTag implements Cloneable, Comparable<Object> {
             + "TourTag" + NL //                          //$NON-NLS-1$
             + "[" + NL //                                //$NON-NLS-1$
 
-            + "   tagId       =" + tagId + NL //         //$NON-NLS-1$
-            + "   isRoot      =" + isRoot + NL //        //$NON-NLS-1$
-            + "   name        =" + name + NL //          //$NON-NLS-1$
-            + "   notes       =" + notes + NL //         //$NON-NLS-1$
-            + "   expandType  =" + expandType + NL //    //$NON-NLS-1$
+            + "   tagId         =" + tagId + NL //         //$NON-NLS-1$
+            + "   isRoot        =" + isRoot + NL //        //$NON-NLS-1$
+            + "   name          =" + name + NL //          //$NON-NLS-1$
+            + "   notes         =" + notes + NL //         //$NON-NLS-1$
+            + "   expandType    =" + expandType + NL //    //$NON-NLS-1$
 
-            + "   _createId   =" + _createId + NL //     //$NON-NLS-1$
+            + "   _createId     =" + _createId + NL //     //$NON-NLS-1$
 
-            + "   image       =" + image + NL //     //$NON-NLS-1$
+            + "   imageFilePath =" + imageFilePath + NL //     //$NON-NLS-1$
 
-//          + "   tourData    =" + tourData + NL //      //$NON-NLS-1$
+//          + "   tourData      =" + tourData + NL //      //$NON-NLS-1$
 
             + "]" + NL //                                //$NON-NLS-1$
       ;
@@ -338,6 +337,6 @@ public class TourTag implements Cloneable, Comparable<Object> {
 
       name = modifiedTourTag.name;
       notes = modifiedTourTag.notes;
-      image = modifiedTourTag.image;
+      imageFilePath = modifiedTourTag.imageFilePath;
    }
 }

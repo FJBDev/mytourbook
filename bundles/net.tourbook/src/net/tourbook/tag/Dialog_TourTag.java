@@ -59,7 +59,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
    /*
     * UI controls
     */
-   private Button _btnImportImage;
+   private Button _btnSelectImage;
    private Text   _txtNotes;
    private Text   _txtName;
 
@@ -144,12 +144,12 @@ public class Dialog_TourTag extends TitleAreaDialog {
             label.setText(Messages.Dialog_TourTag_Label_Image);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(label);
 
-            _btnImportImage = new Button(container, SWT.NONE);
-            _btnImportImage.setSize(1000, 1000);
-            _btnImportImage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onImportImage()));
+            _btnSelectImage = new Button(container, SWT.PUSH);
+            _btnSelectImage.setText(Messages.app_btn_browse);
+            _btnSelectImage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onImportImage()));
             GridDataFactory.fillDefaults()
                   .align(SWT.LEFT, SWT.FILL)
-                  .applyTo(_btnImportImage);
+                  .applyTo(_btnSelectImage);
          }
          {
             // Text: Notes
@@ -209,20 +209,20 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       //todo fb dispose image
       final Image image = ImageUtils.convertFileToImage(imageFilePath);
-      _btnImportImage.setImage(image);
+      _btnSelectImage.setImage(image);
    }
 
    private void restoreState() {
 
       _txtName.setText(_tourTag_Clone.getTagName());
       _txtNotes.setText(_tourTag_Clone.getNotes());
-      _btnImportImage.setImage(ImageUtils.convertByteArrayToImage(_tourTag_Clone.getImage()));
+      // _btnSelectImage.setImage(ImageUtils.convertByteArrayToImage(_tourTag_Clone.getImageFilePath()));
    }
 
    private void saveState() {
 
       _tourTag_Clone.setNotes(_txtNotes.getText());
       _tourTag_Clone.setTagName(_txtName.getText());
-      _tourTag_Clone.setImage(ImageUtils.formatImage(_btnImportImage.getImage(), 0));
+      _tourTag_Clone.setImageFilePath("TODO");
    }
 }

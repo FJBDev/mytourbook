@@ -45,7 +45,6 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.photo.IPhotoPreferences;
-import net.tourbook.photo.ImageUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.SelectionTourIds;
@@ -1216,7 +1215,7 @@ public class UI {
 
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
             label.setText(tag.getTagName() + UI.NEW_LINE + "23 miles" + UI.NEW_LINE + "2h");
-            label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
+            //todo fb label.setImage(ImageUtils.convertByteArrayToImage(tag.getImage()));
             tagsLabels.add(label);
          }
 

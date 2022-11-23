@@ -27,12 +27,10 @@ import net.tourbook.Messages;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourTag;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.photo.ImageUtils;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -59,7 +57,7 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
       public ActionTourTag(final TourTag tourTag) {
 
          super(tourTag.getTagName(), AS_CHECK_BOX);
-         setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(tourTag.getImage())));
+         //todo fb  setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(tourTag.getImage())));
 
          _tourTag = tourTag;
       }
