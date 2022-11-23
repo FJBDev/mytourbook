@@ -75,6 +75,8 @@ public class Dialog_TourTag extends TitleAreaDialog {
    private Text        _txtNotes;
    private Text        _txtName;
 
+   private String      _imageFilePath;
+
    public Dialog_TourTag(final Shell parentShell, final String dlgMessage, final TourTag tourTag) {
 
       super(parentShell);
@@ -229,25 +231,32 @@ public class Dialog_TourTag extends TitleAreaDialog {
       // open file dialog
       final String imageFilePath = fileDialog.open();
 
-      if (StringUtils.isNullOrEmpty(imageFilePath) || !Files.exists(Paths.get(imageFilePath))) {
-         return;
-      }
-
-      final Image image = new Image(Display.getDefault(), imageFilePath);
-      _canvasTagImage.setImage(image);
+      setTagImage(imageFilePath);
    }
 
    private void restoreState() {
 
       _txtName.setText(_tourTag_Clone.getTagName());
       _txtNotes.setText(_tourTag_Clone.getNotes());
-      // _btnSelectImage.setImage(ImageUtils.convertByteArrayToImage(_tourTag_Clone.getImageFilePath()));
+      setTagImage(_tourTag_Clone.getImageFilePath());
    }
 
    private void saveState() {
 
       _tourTag_Clone.setNotes(_txtNotes.getText());
       _tourTag_Clone.setTagName(_txtName.getText());
-      _tourTag_Clone.setImageFilePath("TODO");
+      _tourTag_Clone.setImageFilePath(_imageFilePath);
+   }
+
+   private void setTagImage(final String imageFilePath) {
+
+      if (StringUtils.isNullOrEmpty(imageFilePath) || !Files.exists(Paths.get(imageFilePath))) {
+         return;
+      }
+
+      _imageFilePath = imageFilePath;
+
+      final Image image = new Image(Display.getDefault(), imageFilePath);
+      _canvasTagImage.setImage(image);
    }
 }
