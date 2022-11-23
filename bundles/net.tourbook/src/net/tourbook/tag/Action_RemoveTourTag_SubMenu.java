@@ -59,6 +59,7 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
       public ActionTourTag(final TourTag tourTag) {
 
          super(tourTag.getTagName(), AS_CHECK_BOX);
+         setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(tourTag.getImage())));
 
          _tourTag = tourTag;
       }
@@ -96,7 +97,6 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
 
          // check the tag when it's set in the tour
          final ActionTourTag actionTourTag = new ActionTourTag(menuTourTag);
-         actionTourTag.setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(menuTourTag.getImage())));
 
          boolean isTagChecked = false;
          final boolean isOneTour = _selectedTours != null && _selectedTours.size() == 1;

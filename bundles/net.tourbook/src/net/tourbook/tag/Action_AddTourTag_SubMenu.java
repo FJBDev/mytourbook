@@ -152,6 +152,7 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
       public ActionTourTag(final TourTag tourTag) {
 
          super(tourTag.getTagName(), AS_CHECK_BOX);
+         setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(tourTag.getImage())));
 
          __tourTag = tourTag;
       }
@@ -304,7 +305,6 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
 
          // check the tag when it's set in the tour
          final ActionTourTag actionTourTag = new ActionTourTag(menuTourTag);
-         actionTourTag.setImageDescriptor(ImageDescriptor.createFromImage(ImageUtils.convertByteArrayToImage(menuTourTag.getImage())));
 
          final boolean isModifiedTags = _modifiedTags.size() > 0;
          final boolean isSelectedTags = _selectedTourTags != null;
