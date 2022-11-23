@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.time.ZonedDateTime;
@@ -66,7 +67,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.ToolBarManager;
@@ -2421,7 +2421,7 @@ public class PrefPage_Map2_Providers extends PreferencePage implements IWorkbenc
          return;
       }
 
-      final File exportFilePath = new Path(selectedFilePath).toFile();
+      final File exportFilePath = Paths.get(selectedFilePath).toFile();
 
       // keep path
       _prefStore.setValue(EXPORT_FILE_PATH, exportFilePath.getPath());
@@ -2461,7 +2461,7 @@ public class PrefPage_Map2_Providers extends PreferencePage implements IWorkbenc
       }
 
       // get folder path from file path
-      final java.nio.file.Path firstFilePath = Paths.get(firstFilePathName);
+      final Path firstFilePath = Paths.get(firstFilePathName);
       final String filePathFolder = firstFilePath.getParent().toString();
 
       // keep last selected path
