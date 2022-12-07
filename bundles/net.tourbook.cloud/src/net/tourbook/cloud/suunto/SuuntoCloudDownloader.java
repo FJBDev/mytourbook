@@ -58,7 +58,6 @@ import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
 
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -93,7 +92,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(OAuth2Utils.createOAuthPasseurUri("/suunto/workout/exportFit?workoutKey=" + workoutPayload.workoutKey))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+            .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .GET()
             .build();
 
@@ -378,7 +377,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          final HttpRequest request = HttpRequest.newBuilder()
                .uri(uriBuilder.build())
-               .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
                .GET()
                .build();
 

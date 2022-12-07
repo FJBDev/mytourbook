@@ -63,7 +63,6 @@ import net.tourbook.ui.TourTypeFilter;
 import net.tourbook.ui.TourTypeFilterSet;
 import net.tourbook.weather.WeatherUtils;
 
-import org.apache.hc.core5.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -512,7 +511,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(StravaBaseUrl + "/uploads")) //$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+            .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .header(OAuth2Constants.CONTENT_TYPE, "multipart/form-data; boundary=" + publisher.getBoundary()) //$NON-NLS-1$
             .timeout(Duration.ofMinutes(5))
             .POST(publisher.build())
@@ -549,7 +548,7 @@ public class StravaUploader extends TourbookCloudUploader {
 
       final HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(StravaBaseUrl + "/activities")) //$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+            .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
             .timeout(Duration.ofMinutes(5))
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))

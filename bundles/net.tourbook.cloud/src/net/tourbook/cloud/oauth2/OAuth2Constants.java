@@ -17,6 +17,8 @@ package net.tourbook.cloud.oauth2;
 
 public class OAuth2Constants {
 
+   public static final String AUTHORIZATION            = "Authorization";                                   //$NON-NLS-1$
+
    public static final String BEARER                   = "Bearer ";                                         //$NON-NLS-1$
 
    public static final String CONTENT_TYPE             = "Content-Type";                                    //$NON-NLS-1$

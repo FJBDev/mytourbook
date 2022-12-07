@@ -50,7 +50,6 @@ import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.TourTypeFilter;
 
-import org.apache.hc.core5.http.HttpHeaders;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -234,7 +233,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          final HttpRequest request = HttpRequest.newBuilder()
                .uri(OAuth2Utils.createOAuthPasseurUri("/suunto/route/import"))//$NON-NLS-1$
                .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
-               .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken()) //     .timeout(Duration.ofMinutes(5))
+               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken()) //     .timeout(Duration.ofMinutes(5))
                .POST(BodyPublishers.ofString(payload.toString()))
                .build();
 
