@@ -233,7 +233,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          final HttpRequest request = HttpRequest.newBuilder()
                .uri(OAuth2Utils.createOAuthPasseurUri("/suunto/route/import"))//$NON-NLS-1$
                .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
-               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken()) //     .timeout(Duration.ofMinutes(5))
+               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
                .POST(BodyPublishers.ofString(payload.toString()))
                .build();
 
