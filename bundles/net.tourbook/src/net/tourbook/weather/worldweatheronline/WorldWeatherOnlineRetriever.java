@@ -174,19 +174,23 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
 
       final StringBuilder weatherRequestWithParameters = new StringBuilder(baseApiUrl + UI.SYMBOL_QUESTION_MARK);
 
-      weatherRequestWithParameters.append("key=" + prefStore.getString(ITourbookPreferences.WEATHER_API_KEY)); //$NON-NLS-1$
-      weatherRequestWithParameters.append("q" + searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("date" + startDate); //$NON-NLS-1$
+   // SET_FORMATTING_OFF
+
+      weatherRequestWithParameters.append(      "key"             + "=" + prefStore.getString(ITourbookPreferences.WEATHER_API_KEY)); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("&" + "q"               + "=" + searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "date"            + "=" + startDate); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       //tp=1 : Specifies the weather forecast time interval in hours. Here, every 1 hour
-      weatherRequestWithParameters.append("tp" + "1"); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("format" + "json"); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("includelocation" + "yes"); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("extra" + "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("lang" + Locale.getDefault().getLanguage()); //$NON-NLS-1$
+      weatherRequestWithParameters.append("&" + "tp"              + "=" + "1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "format"          + "=" + "json"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "includelocation" + "=" + "yes"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "extra"           + "=" + "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "lang"            + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+// SET_FORMATTING_ON
 
       //If the tour finishes a different day, we need to specify the ending date
       if (!endDate.equals(startDate)) {
-         weatherRequestWithParameters.append("enddate" + endDate); //$NON-NLS-1$
+         weatherRequestWithParameters.append("&" + "enddate" + "=" + endDate); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
 
       return weatherRequestWithParameters.toString();

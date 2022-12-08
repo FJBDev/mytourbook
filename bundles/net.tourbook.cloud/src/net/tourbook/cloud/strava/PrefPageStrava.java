@@ -424,10 +424,14 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final StringBuilder authorizeUrl = new StringBuilder(_stravaApp_WebPage_Link + "/oauth/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-      authorizeUrl.append(OAuth2Constants.PARAM_RESPONSE_TYPE + OAuth2Constants.PARAM_CODE);
-      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID + ClientId); //$NON-NLS-1$
-      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$ //$NON-NLS-2$
-      authorizeUrl.append("&" + "scope" + "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+// SET_FORMATTING_OFF
+
+      authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + ClientId); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI +  "=" + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      authorizeUrl.append("&" + "scope" +                             "=" + "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+// SET_FORMATTING_ON
 
       Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }

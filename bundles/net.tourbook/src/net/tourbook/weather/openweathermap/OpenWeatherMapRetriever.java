@@ -95,11 +95,15 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
 
       final StringBuilder weatherRequestWithParameters = new StringBuilder(BASE_API_URL + UI.SYMBOL_QUESTION_MARK);
 
-      weatherRequestWithParameters.append("units=metric");
-      weatherRequestWithParameters.append("lat=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("lon=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("lang=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("dt=" + date); //$NON-NLS-1$
+// SET_FORMATTING_OFF
+
+      weatherRequestWithParameters.append(      "units" + "=" + "metric"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lat"   + "=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lon"   + "=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lang"  + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "dt"    + "=" + date); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+// SET_FORMATTING_ON
 
       return weatherRequestWithParameters.toString();
    }

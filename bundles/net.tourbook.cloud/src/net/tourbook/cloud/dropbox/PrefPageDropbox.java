@@ -311,7 +311,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
 
       final StringBuilder authorizeUrl = new StringBuilder(_dropbox_WebPage_Link + "/oauth2/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-   // SET_FORMATTING_OFF
+// SET_FORMATTING_OFF
 
       authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE);
       authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + ClientId); //$NON-NLS-1$

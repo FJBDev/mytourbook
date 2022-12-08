@@ -90,10 +90,14 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
       final StringBuilder weatherRequestWithParameters = new StringBuilder(baseApiUrl + UI.SYMBOL_QUESTION_MARK);
 
-      weatherRequestWithParameters.append("lat=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("lon=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("lang=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$
-      weatherRequestWithParameters.append("dt=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$
+// SET_FORMATTING_OFF
+
+      weatherRequestWithParameters.append(      "lat"   + "=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("&" + "lon"   + "=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lang"  + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "dt"    + "=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+// SET_FORMATTING_ON
 
       return weatherRequestWithParameters.toString();
    }
