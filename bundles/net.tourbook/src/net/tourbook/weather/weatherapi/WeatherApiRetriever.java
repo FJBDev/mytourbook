@@ -92,10 +92,10 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
 // SET_FORMATTING_OFF
 
-      weatherRequestWithParameters.append(      "lat"   + "=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$ //$NON-NLS-2$
-      weatherRequestWithParameters.append("&" + "lon"   + "=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      weatherRequestWithParameters.append("&" + "lang"  + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      weatherRequestWithParameters.append("&" + "dt"    + "=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append(      "lat"  + "=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("&" + "lon"  + "=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lang" + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "dt"   + "=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 // SET_FORMATTING_ON
 
