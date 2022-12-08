@@ -19,8 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,6 @@ import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.weather.HistoricalWeatherRetriever;
 import net.tourbook.weather.WeatherUtils;
-
-import org.apache.http.client.utils.URIBuilder;
 
 public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
@@ -92,35 +88,14 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
    private String buildWeatherApiRequest(final LocalDate requestedDate) {
 
-      String weatherRequestWithParameters = UI.EMPTY_STRING;
+      final StringBuilder weatherRequestWithParameters = new StringBuilder(baseApiUrl + UI.SYMBOL_QUESTION_MARK);
 
-      try {
-         final URI apiUri = new URI(baseApiUrl);
+      weatherRequestWithParameters.append("lat=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$
+      weatherRequestWithParameters.append("lon=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$
+      weatherRequestWithParameters.append("lang=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$
+      weatherRequestWithParameters.append("dt=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$
 
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(apiUri.getScheme())
-               .setHost(apiUri.getHost())
-               .setPath(apiUri.getPath());
-
-         uriBuilder.setParameter("lat", String.valueOf(searchAreaCenter.getLatitude())); //$NON-NLS-1$
-         uriBuilder.setParameter("lon", String.valueOf(searchAreaCenter.getLongitude())); //$NON-NLS-1$
-         uriBuilder.setParameter("lang", Locale.getDefault().getLanguage()); //$NON-NLS-1$
-
-         final String date = requestedDate.format(TimeTools.Formatter_YearMonthDay);
-
-         uriBuilder.setParameter("dt", date); //$NON-NLS-1$
-         weatherRequestWithParameters = uriBuilder.build().toString();
-
-         return weatherRequestWithParameters;
-
-      } catch (final URISyntaxException e) {
-
-         StatusUtil.logError(
-               "WeatherApiRetriever.buildWeatherApiRequest : Error while " + //$NON-NLS-1$
-                     "building the historical weather request:" //$NON-NLS-1$
-                     + e.getMessage());
-         return UI.EMPTY_STRING;
-      }
+      return weatherRequestWithParameters.toString();
    }
 
    private HistoryResult deserializeWeatherData(final String weatherDataResponse) {

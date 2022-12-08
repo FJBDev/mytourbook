@@ -22,8 +22,6 @@ import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,6 @@ import net.tourbook.ui.views.calendar.CalendarProfile;
 import net.tourbook.weather.HistoricalWeatherRetriever;
 import net.tourbook.weather.WeatherUtils;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 
@@ -175,43 +172,24 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
 
    private String buildWeatherApiRequest() {
 
-      String weatherRequestWithParameters = UI.EMPTY_STRING;
+      final StringBuilder weatherRequestWithParameters = new StringBuilder(baseApiUrl + UI.SYMBOL_QUESTION_MARK);
 
-      try {
-         final URI apiUri = new URI(baseApiUrl);
+      weatherRequestWithParameters.append("key=" + prefStore.getString(ITourbookPreferences.WEATHER_API_KEY)); //$NON-NLS-1$
+      weatherRequestWithParameters.append("q" + searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("date" + startDate); //$NON-NLS-1$
+      //tp=1 : Specifies the weather forecast time interval in hours. Here, every 1 hour
+      weatherRequestWithParameters.append("tp" + "1"); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("format" + "json"); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("includelocation" + "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("extra" + "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("lang" + Locale.getDefault().getLanguage()); //$NON-NLS-1$
 
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(apiUri.getScheme())
-               .setHost(apiUri.getHost())
-               .setPath(apiUri.getPath());
-
-         uriBuilder.setParameter("key", prefStore.getString(ITourbookPreferences.WEATHER_API_KEY)); //$NON-NLS-1$
-         uriBuilder.setParameter("q", searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("date", startDate); //$NON-NLS-1$
-         //tp=1 : Specifies the weather forecast time interval in hours. Here, every 1 hour
-         uriBuilder.setParameter("tp", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("format", "json"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("includelocation", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("extra", "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("lang", Locale.getDefault().getLanguage()); //$NON-NLS-1$
-
-         //If the tour finishes a different day, we need to specify the ending date
-         if (!endDate.equals(startDate)) {
-            uriBuilder.setParameter("enddate", endDate); //$NON-NLS-1$
-         }
-
-         weatherRequestWithParameters = uriBuilder.build().toString();
-
-         return weatherRequestWithParameters;
-
-      } catch (final URISyntaxException e) {
-
-         StatusUtil.logError(
-               "WorldWeatherOnlineRetriever.buildWeatherApiRequest : Error while " + //$NON-NLS-1$
-                     "building the historical weather request :" //$NON-NLS-1$
-                     + e.getMessage());
-         return UI.EMPTY_STRING;
+      //If the tour finishes a different day, we need to specify the ending date
+      if (!endDate.equals(startDate)) {
+         weatherRequestWithParameters.append("enddate" + endDate); //$NON-NLS-1$
       }
+
+      return weatherRequestWithParameters.toString();
    }
 
    /**
