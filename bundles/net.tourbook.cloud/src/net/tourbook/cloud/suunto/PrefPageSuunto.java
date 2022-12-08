@@ -17,7 +17,6 @@ package net.tourbook.cloud.suunto;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,7 +43,6 @@ import net.tourbook.database.PersonManager;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
-import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -849,26 +847,13 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          return;
       }
 
-      final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
-      authorizeUrlBuilder.setHost("cloudapi-oauth.suunto.com"); //$NON-NLS-1$
-      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_RESPONSE_TYPE,
-            OAuth2Constants.PARAM_CODE);
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_CLIENT_ID,
-            ClientId);
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_REDIRECT_URI,
-            "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
-      try {
-         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+      final StringBuilder authorizeUrl = new StringBuilder("https://cloudapi-oauth.suunto.com" + "/oauth/authorize" + UI.SYMBOL_QUESTION_MARK);
 
-         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
+      authorizeUrl.append(OAuth2Constants.PARAM_RESPONSE_TYPE + OAuth2Constants.PARAM_CODE);
+      authorizeUrl.append(OAuth2Constants.PARAM_CLIENT_ID + ClientId);
+      authorizeUrl.append(OAuth2Constants.PARAM_REDIRECT_URI + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
+
+      Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }
 
    private void onSelectBrowseDirectory() {

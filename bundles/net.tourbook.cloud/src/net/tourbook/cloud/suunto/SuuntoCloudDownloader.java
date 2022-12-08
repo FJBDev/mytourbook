@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -58,7 +57,6 @@ import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
 
-import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -357,26 +355,34 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    private Workouts retrieveWorkoutsList() {
 
+      final StringBuilder queryParameters = new StringBuilder();
+
+      if (getSuuntoUseWorkoutFilterStartDate()) {
+
+         final long startDateFilter = getSuuntoWorkoutFilterStartDate();
+         queryParameters.append("since=" + startDateFilter); //$NON-NLS-1$
+      }
+      if (getSuuntoUseWorkoutFilterEndDate()) {
+
+         final long endDateFilter = getSuuntoWorkoutFilterEndDate();
+
+         if (StringUtils.hasContent(queryParameters.toString())) {
+            queryParameters.append('&');
+         }
+
+         queryParameters.append("until=" + endDateFilter); //$NON-NLS-1$
+      }
+
+      if (StringUtils.hasContent(queryParameters.toString())) {
+         queryParameters.insert(0, '?');
+      }
+
+      final URI oAuthPasseurAppUri = OAuth2Utils.createOAuthPasseurUri("/suunto/workouts" + queryParameters);
+
       try {
 
-         final URI oAuthPasseurAppUri = OAuth2Utils.createOAuthPasseurUri(UI.EMPTY_STRING);
-
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(oAuthPasseurAppUri.getScheme())
-               .setHost(oAuthPasseurAppUri.getHost())
-               .setPath("suunto/workouts"); //$NON-NLS-1$
-
-         if (getSuuntoUseWorkoutFilterStartDate()) {
-            final long startDateFilter = getSuuntoWorkoutFilterStartDate();
-            uriBuilder.setParameter("since", String.valueOf(startDateFilter)); //$NON-NLS-1$
-         }
-         if (getSuuntoUseWorkoutFilterEndDate()) {
-            final long endDateFilter = getSuuntoWorkoutFilterEndDate();
-            uriBuilder.setParameter("until", String.valueOf(endDateFilter)); //$NON-NLS-1$
-         }
-
          final HttpRequest request = HttpRequest.newBuilder()
-               .uri(uriBuilder.build())
+               .uri(oAuthPasseurAppUri)
                .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
                .GET()
                .build();
@@ -387,7 +393,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
             return new ObjectMapper().readValue(response.body(), Workouts.class);
          }
-      } catch (IOException | InterruptedException | URISyntaxException e) {
+      } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
          Thread.currentThread().interrupt();
       }

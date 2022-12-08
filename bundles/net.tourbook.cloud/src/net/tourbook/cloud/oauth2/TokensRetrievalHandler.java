@@ -21,18 +21,13 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import net.tourbook.cloud.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.URIBuilder;
 
 public abstract class TokensRetrievalHandler implements HttpHandler {
 
@@ -57,18 +52,15 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
       final String response = httpExchange.getRequestURI().toString();
 
       String authorizationCode = UI.EMPTY_STRING;
-      List<NameValuePair> params = new ArrayList<>();
-      try {
-         params = new URIBuilder(response, StandardCharsets.UTF_8).getQueryParams();
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
-      final Optional<NameValuePair> result = params
-            .stream()
-            .filter(param -> param.getName().equals(OAuth2Constants.PARAM_CODE)).findAny();
 
-      if (result.isPresent()) {
-         authorizationCode = result.get().getValue();
+      final Optional<String> codeParameter = Stream.of(response.split("?")[1].split("&"))
+            .map(parameter -> parameter.split("="))
+            .filter(parameter -> OAuth2Constants.PARAM_CODE.equalsIgnoreCase(parameter[0]))
+            .map(parameter -> parameter[1])
+            .findFirst();
+
+      if (codeParameter.isPresent()) {
+         authorizationCode = codeParameter.get();
       }
 
       return retrieveTokens(authorizationCode);

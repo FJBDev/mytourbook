@@ -17,7 +17,6 @@ package net.tourbook.cloud.dropbox;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,11 +32,9 @@ import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
-import org.apache.hc.core5.net.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
@@ -312,23 +309,16 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          return;
       }
 
-      final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
-      authorizeUrlBuilder.setHost("www.dropbox.com"); //$NON-NLS-1$
-      authorizeUrlBuilder.setPath("/oauth2/authorize"); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, DropboxClient.DropboxCallbackUrl);
-      authorizeUrlBuilder.addParameter("code_challenge", codeChallenge); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter("code_challenge_method", "S256"); //$NON-NLS-1$ //$NON-NLS-2$
-      authorizeUrlBuilder.addParameter("token_access_type", "offline"); //$NON-NLS-1$ //$NON-NLS-2$
-      try {
-         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+      final StringBuilder authorizeUrl = new StringBuilder(_dropbox_WebPage_Link + "/oauth2/authorize" + UI.SYMBOL_QUESTION_MARK);
 
-         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
+      authorizeUrl.append(OAuth2Constants.PARAM_RESPONSE_TYPE + OAuth2Constants.PARAM_CODE);
+      authorizeUrl.append(OAuth2Constants.PARAM_CLIENT_ID + ClientId);
+      authorizeUrl.append(OAuth2Constants.PARAM_REDIRECT_URI + DropboxClient.DropboxCallbackUrl);
+      authorizeUrl.append("code_challenge" + codeChallenge); //$NON-NLS-1$
+      authorizeUrl.append("code_challenge_method" + "S256"); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("token_access_type" + "offline"); //$NON-NLS-1$ //$NON-NLS-2$
+
+      Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }
 
    @Override
