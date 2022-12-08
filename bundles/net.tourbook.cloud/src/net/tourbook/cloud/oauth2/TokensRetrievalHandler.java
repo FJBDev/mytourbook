@@ -51,14 +51,14 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
 
       String authorizationCode = UI.EMPTY_STRING;
 
-      final Optional<String> codeParameter = Stream.of(httpExchange.getRequestURI().getQuery().split("&")) //$NON-NLS-1$
+      final Optional<String> codeValue = Stream.of(httpExchange.getRequestURI().getQuery().split("&")) //$NON-NLS-1$
             .map(parameter -> parameter.split("=")) //$NON-NLS-1$
             .filter(parameter -> OAuth2Constants.PARAM_CODE.equalsIgnoreCase(parameter[0]))
             .map(parameter -> parameter[1])
             .findFirst();
 
-      if (codeParameter.isPresent()) {
-         authorizationCode = codeParameter.get();
+      if (codeValue.isPresent()) {
+         authorizationCode = codeValue.get();
       }
 
       return retrieveTokens(authorizationCode);
