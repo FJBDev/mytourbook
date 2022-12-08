@@ -309,14 +309,18 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          return;
       }
 
-      final StringBuilder authorizeUrl = new StringBuilder(_dropbox_WebPage_Link + "/oauth2/authorize" + UI.SYMBOL_QUESTION_MARK);
+      final StringBuilder authorizeUrl = new StringBuilder(_dropbox_WebPage_Link + "/oauth2/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-      authorizeUrl.append(OAuth2Constants.PARAM_RESPONSE_TYPE + OAuth2Constants.PARAM_CODE);
-      authorizeUrl.append(OAuth2Constants.PARAM_CLIENT_ID + ClientId);
-      authorizeUrl.append(OAuth2Constants.PARAM_REDIRECT_URI + DropboxClient.DropboxCallbackUrl);
-      authorizeUrl.append("code_challenge" + codeChallenge); //$NON-NLS-1$
-      authorizeUrl.append("code_challenge_method" + "S256"); //$NON-NLS-1$ //$NON-NLS-2$
-      authorizeUrl.append("token_access_type" + "offline"); //$NON-NLS-1$ //$NON-NLS-2$
+   // SET_FORMATTING_OFF
+
+      authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE);
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + ClientId); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI +  "=" + DropboxClient.DropboxCallbackUrl); //$NON-NLS-1$
+      authorizeUrl.append("&" + "code_challenge" +                    "=" + codeChallenge); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + "code_challenge_method" +             "=" + "S256"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      authorizeUrl.append("&" + "token_access_type" +                 "=" + "offline"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+// SET_FORMATTING_ON
 
       Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }

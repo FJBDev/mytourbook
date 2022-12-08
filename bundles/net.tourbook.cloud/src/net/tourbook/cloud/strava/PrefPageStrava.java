@@ -422,12 +422,12 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      final StringBuilder authorizeUrl = new StringBuilder(_stravaApp_WebPage_Link + "/oauth/authorize" + UI.SYMBOL_QUESTION_MARK);
+      final StringBuilder authorizeUrl = new StringBuilder(_stravaApp_WebPage_Link + "/oauth/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
       authorizeUrl.append(OAuth2Constants.PARAM_RESPONSE_TYPE + OAuth2Constants.PARAM_CODE);
-      authorizeUrl.append(OAuth2Constants.PARAM_CLIENT_ID + ClientId);
-      authorizeUrl.append(OAuth2Constants.PARAM_REDIRECT_URI + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
-      authorizeUrl.append("scope" + "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID + ClientId); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + "scope" + "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
       Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }

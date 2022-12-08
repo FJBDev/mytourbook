@@ -49,11 +49,9 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
 
    private Tokens handleGetRequest(final HttpExchange httpExchange) {
 
-      final String response = httpExchange.getRequestURI().toString();
-
       String authorizationCode = UI.EMPTY_STRING;
 
-      final Optional<String> codeParameter = Stream.of(response.split("?")[1].split("&"))
+      final Optional<String> codeParameter = Stream.of(httpExchange.getRequestURI().getQuery())
             .map(parameter -> parameter.split("="))
             .filter(parameter -> OAuth2Constants.PARAM_CODE.equalsIgnoreCase(parameter[0]))
             .map(parameter -> parameter[1])
