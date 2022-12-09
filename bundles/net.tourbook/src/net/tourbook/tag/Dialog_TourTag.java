@@ -39,7 +39,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -226,6 +225,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
       fileDialog.setText(Messages.Dialog_TourTag_ImportImage_Title);
       fileDialog.setFilterPath(_prefStore.getString(IMPORT_IMAGE_PATH));
 
+      //todo fb
       fileDialog.setFilterExtensions(new String[] { "*.png", "*.jpg" });//$NON-NLS-1$ //$NON-NLS-2$
 
       // open file dialog
@@ -256,7 +256,7 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       _imageFilePath = imageFilePath;
 
-      final Image image = new Image(Display.getDefault(), imageFilePath);
+      final Image image = net.tourbook.ui.UI.prepareTagImage(_imageFilePath);
       _canvasTagImage.setImage(image);
    }
 }
