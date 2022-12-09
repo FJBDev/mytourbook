@@ -39,6 +39,7 @@ import net.tourbook.chart.Chart;
 import net.tourbook.common.color.MapGraphId;
 import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourTag;
@@ -1243,8 +1244,10 @@ public class UI {
 
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
             label.setText(tag.getTagName() + UI.NEW_LINE + "23 miles" + UI.NEW_LINE + "2h");
-            final Image image = UI.prepareTagImage(tag.getImageFilePath());
-            label.setImage(image);
+            if (StringUtils.hasContent(tag.getImageFilePath())) {
+               final Image image = UI.prepareTagImage(tag.getImageFilePath());
+               label.setImage(image);
+            }
             tagsLabels.add(label);
          }
 
