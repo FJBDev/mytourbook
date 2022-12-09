@@ -184,12 +184,13 @@ public class ImageUtils {
    /**
     * Returns a new scaled image. new Image must be disposed after use.
     *
+    * @param display
     * @param image
     * @param width
     * @param height
     * @return
     */
-   private static Image resize(final Display display, final Image image, final int width, final int height) {
+   public static Image resize(final Display display, final Image image, final int width, final int height) {
 
       return resize(display, image, width, height, SWT.ON, SWT.HIGH, null);
    }

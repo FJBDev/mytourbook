@@ -36,11 +36,14 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourTagCategory;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.PrefPageTags;
+import net.tourbook.ui.UI;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -149,8 +152,8 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
       public ActionTourTag(final TourTag tourTag) {
 
          super(tourTag.getTagName(), AS_CHECK_BOX);
-         //      final Image image = new Image(Display.getDefault(), tourTag.getImageFilePath());
-         //    setImageDescriptor(ImageDescriptor.createFromImage(image));
+         final Image image = UI.prepareTagImage(tourTag.getImageFilePath());
+         setImageDescriptor(ImageDescriptor.createFromImage(image));
 
          __tourTag = tourTag;
       }

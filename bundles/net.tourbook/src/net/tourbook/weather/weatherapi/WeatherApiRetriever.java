@@ -178,11 +178,8 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
          }
       }
 
-// SET_FORMATTING_OFF
-
       final boolean hourlyDataExists = historyResult.filterHourData(tourStartTime, tourEndTime);
-      if(!hourlyDataExists)
-      {
+      if (!hourlyDataExists) {
          return false;
       }
 
@@ -190,6 +187,9 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
       //We look for the weather data in the middle of the tour to populate the weather conditions
       historyResult.findMiddleHour(tourMiddleTime);
+
+// SET_FORMATTING_OFF
+
       tour.setWeather(                       historyResult.getWeatherDescription());
       tour.setWeather_Clouds(                historyResult.getWeatherType());
 

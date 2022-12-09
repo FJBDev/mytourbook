@@ -45,6 +45,7 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.photo.IPhotoPreferences;
+import net.tourbook.photo.ImageUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.SelectionTourIds;
@@ -867,6 +868,38 @@ public class UI {
       }
 
       return UI.EMPTY_STRING;
+   }
+
+   public static Image prepareTagImage(final String imageFilePath)
+   {
+      Image image = new Image(Display.getDefault(), imageFilePath);
+
+      final int imageWidth = image.getBounds().width;
+      final int imageHeight = image.getBounds().height;
+
+      float newimageWidth = 0;
+      float newimageHeight = 0;
+
+      //landscape
+      if (imageWidth > imageHeight) {
+
+         newimageWidth = 70;
+         newimageHeight = newimageWidth * imageHeight / imageWidth;
+      }
+      //portrait
+      else if (imageWidth < imageHeight) {
+
+         newimageHeight = 70;
+         newimageWidth = newimageHeight * imageWidth / imageHeight;
+      } else //imageWidth == imageHeight
+      {
+         newimageWidth = 70;
+         newimageHeight = 70;
+      }
+
+      image = ImageUtils.resize(Display.getDefault(), image, Math.round(newimageWidth), Math.round(newimageHeight));
+
+      return image;
    }
 
    public static ImageData rotate(final ImageData srcData, final int direction) {
