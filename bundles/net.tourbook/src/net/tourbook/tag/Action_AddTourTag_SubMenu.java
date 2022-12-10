@@ -148,14 +148,20 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
    private class ActionTourTag extends Action {
 
       private final TourTag __tourTag;
+      private Image         __tourTagImage;
 
       public ActionTourTag(final TourTag tourTag) {
 
          super(tourTag.getTagName(), AS_CHECK_BOX);
-         final Image image = UI.prepareTagImage(tourTag.getImageFilePath());
-         setImageDescriptor(ImageDescriptor.createFromImage(image));
+         __tourTagImage = UI.prepareTagImage(tourTag.getImageFilePath());
+         setImageDescriptor(ImageDescriptor.createFromImage(__tourTagImage));
 
          __tourTag = tourTag;
+      }
+
+      public void dispose() {
+
+         net.tourbook.common.UI.disposeResource(__tourTagImage);
       }
 
       @Override
@@ -363,6 +369,8 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
    public void dispose() {
 
       if (_menu != null) {
+         final var toto = _menu.getItems();
+         _menu.getItems()[0].dispose();
          _menu.dispose();
          _menu = null;
       }

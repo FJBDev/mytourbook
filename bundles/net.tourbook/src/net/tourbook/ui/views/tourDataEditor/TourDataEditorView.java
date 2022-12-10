@@ -6148,7 +6148,6 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
        */
       setTourClean();
 
-      _tagsLabels.forEach(tagLabel -> UI.disposeResource(tagLabel.getImage()));
 
       super.dispose();
    }
