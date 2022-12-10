@@ -224,9 +224,8 @@ public class Dialog_TourTag extends TitleAreaDialog {
 
       fileDialog.setText(Messages.Dialog_TourTag_ImportImage_Title);
       fileDialog.setFilterPath(_prefStore.getString(IMPORT_IMAGE_PATH));
-
-      //todo fb
-      fileDialog.setFilterExtensions(new String[] { "*.png", "*.jpg" });//$NON-NLS-1$ //$NON-NLS-2$
+      fileDialog.setFilterNames(new String[] { Messages.Dialog_TourTag_FileDialog_ImageFiles });
+      fileDialog.setFilterExtensions(new String[] { "*.bmp;*.gif;*.png;*.jpg" });//$NON-NLS-1$
 
       // open file dialog
       final String imageFilePath = fileDialog.open();

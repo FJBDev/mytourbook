@@ -884,6 +884,7 @@ public class Messages extends NLS {
    public static String        Dialog_TourTagCategory_Title;
    public static String        Dialog_TourTag_EditTag_Message;
    public static String        Dialog_TourTag_EditTag_Title;
+   public static String        Dialog_TourTag_FileDialog_ImageFiles;
    public static String        Dialog_TourTag_ImportImage_Title;
    public static String        Dialog_TourTag_Label_Image;
    public static String        Dialog_TourTag_Label_Notes;
