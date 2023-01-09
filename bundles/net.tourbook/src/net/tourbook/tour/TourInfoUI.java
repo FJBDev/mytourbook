@@ -1229,7 +1229,7 @@ public class TourInfoUI {
       _allSensorValue_Voltage = new ArrayList<>();
 
       final Set<DeviceSensorValue> allSensorValues = _tourData.getDeviceSensorValues();
-      if (allSensorValues.size() == 0) {
+      if (allSensorValues.isEmpty()) {
          return;
       }
 

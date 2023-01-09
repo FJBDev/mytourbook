@@ -2749,7 +2749,7 @@ public class TourManager {
 
       final List<TourData> modifiedTours = new ArrayList<>();
 
-      if (tourDataList == null || tourDataList.size() == 0) {
+      if (tourDataList == null || tourDataList.isEmpty()) {
          return modifiedTours;
       }
 
