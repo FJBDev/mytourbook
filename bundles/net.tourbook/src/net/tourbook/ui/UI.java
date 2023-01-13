@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -873,6 +873,10 @@ public class UI {
 
    public static Image prepareTagImage(final String imageFilePath) {
 
+      if (StringUtils.isNullOrEmpty(imageFilePath)) {
+         return null;
+      }
+
       Image image = new Image(Display.getDefault(), imageFilePath);
 
       final int imageWidth = image.getBounds().width;
@@ -1244,8 +1248,8 @@ public class UI {
 
             final CLabel label = new CLabel(tourTagsComposite, SWT.NONE);
             label.setText(tag.getTagName() + UI.NEW_LINE + "23 miles" + UI.NEW_LINE + "2h");
-            if (StringUtils.hasContent(tag.getImageFilePath())) {
-               final Image image = UI.prepareTagImage(tag.getImageFilePath());
+            final Image image = UI.prepareTagImage(tag.getImageFilePath());
+            if (image != null) {
                label.setImage(image);
             }
             tagsLabels.add(label);
