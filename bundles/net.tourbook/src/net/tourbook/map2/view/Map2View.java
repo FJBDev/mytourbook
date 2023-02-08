@@ -1283,11 +1283,13 @@ public class Map2View extends ViewPart implements
 
    public void actionZoomIn() {
 
+//      _map.setZoom(_map.getZoom() + 1, CenterMapBy.Map);
       _map.setZoom(_map.getZoom() + 1, _map.getCenterMapBy());
    }
 
    public void actionZoomOut() {
 
+//      _map.setZoom(_map.getZoom() - 1, CenterMapBy.Map);
       _map.setZoom(_map.getZoom() - 1, _map.getCenterMapBy());
    }
 
