@@ -172,6 +172,7 @@ public class DirectMappingPainter implements IDirectPainter {
          alpha = opacity;
       }
 
+      //todo fb ca se passe ici
       final Color lineColor = new Color(gc.getDevice(), _sliderPathPaintingData.color);
 
       gc.setLineWidth(_sliderPathPaintingData.lineWidth);
