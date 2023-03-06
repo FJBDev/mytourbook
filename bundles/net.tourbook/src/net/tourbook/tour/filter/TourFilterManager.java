@@ -986,6 +986,7 @@ public class TourFilterManager {
             }
             break;
 
+         //ca se passe ici
          case TIME_TOUR_TIME:
 
             sql = "(TourData.startHour * 3600 + TourData.startMinute)"; //$NON-NLS-1$
