@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.formatter.FormatManager;
@@ -144,7 +145,7 @@ public class DialogModifyColumns extends TrayDialog {
 
          super(null, AS_CHECK_BOX);
 
-         setImageDescriptor(CommonActivator.getImageDescriptor(Messages.Image__ColumnCategory));
+         setImageDescriptor(CommonActivator.getImageDescriptor(CommonImages.ColumnCategory));
          setToolTipText(Messages.ColumnModifyDialog_Button_ShowCategoryColumn_Tooltip);
       }
 
@@ -442,7 +443,7 @@ public class DialogModifyColumns extends TrayDialog {
     *
     * @param isSetDefaults
     *           When <code>true</code> then column properties are set from the default settings
-    *           otherwiese they are copied from {@link #_columnViewerModel}
+    *           otherwise they are copied from {@link #_columnViewerModel}
     * @return Returns all {@link ColumnDefinition}s in default order/selection.
     */
    private ArrayList<ColumnDefinition> cloneAllColumns(final boolean isSetDefaults) {
@@ -1033,7 +1034,7 @@ public class DialogModifyColumns extends TrayDialog {
                   final Table filterTable = _columnViewer.getTable();
 
                   /*
-                   * check if drag was startet from this item, remove the item before the new item
+                   * check if drag was started from this item, remove the item before the new item
                    * is inserted
                    */
                   if (LocalSelectionTransfer.getTransfer().getSelectionSetTime() == _dndDragStartViewerLeft) {
@@ -1663,7 +1664,7 @@ public class DialogModifyColumns extends TrayDialog {
       final ColumnProfile selectedProfile = getSelectedProfile();
 
       if (selectedProfile == _selectedProfile) {
-         // no new selection, this occures when another profile is checked
+         // no new selection, this occurs when another profile is checked
          return;
       }
 

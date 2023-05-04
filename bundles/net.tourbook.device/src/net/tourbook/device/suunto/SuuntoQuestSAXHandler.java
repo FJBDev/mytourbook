@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020 Frédéric Bard and Contributors
+ * Copyright (C) 2021 Frédéric Bard and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,14 +15,17 @@
  *******************************************************************************/
 package net.tourbook.device.suunto;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import net.tourbook.common.UI;
@@ -35,10 +38,8 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.TourbookDevice;
+import net.tourbook.tour.TourLogManager;
 
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -68,35 +69,42 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
    // move tags
    // -- samples tags
-   private static final String TAG_MOVE       = "Move";       //$NON-NLS-1$
-   private static final String TAG_SAMPLES    = "Samples";    //$NON-NLS-1$
-   private static final String TAG_CADENCE    = "Cadence";    //$NON-NLS-1$
-   private static final String TAG_DISTANCE   = "Distance";   //$NON-NLS-1$
-   private static final String TAG_HR         = "HR";         //$NON-NLS-1$
+   private static final String           TAG_MOVE       = "Move";       //$NON-NLS-1$
+   private static final String           TAG_SAMPLES    = "Samples";    //$NON-NLS-1$
+   private static final String           TAG_CADENCE    = "Cadence";    //$NON-NLS-1$
+   private static final String           TAG_DISTANCE   = "Distance";   //$NON-NLS-1$
+   private static final String           TAG_HR         = "HR";         //$NON-NLS-1$
    // -- marks tags
-   private static final String TAG_MARKS      = "Marks";      //$NON-NLS-1$
-   private static final String TAG_MARK       = "Mark";       //$NON-NLS-1$
-   private static final String TAG_MARK_INDEX = "Index";      //$NON-NLS-1$
+   private static final String           TAG_MARKS      = "Marks";      //$NON-NLS-1$
+   private static final String           TAG_MARK       = "Mark";       //$NON-NLS-1$
+   private static final String           TAG_MARK_INDEX = "Index";      //$NON-NLS-1$
    // -- header tags
-   private static final String TAG_CALORIES   = "Calories";   //$NON-NLS-1$
-   private static final String TAG_HEADER     = "Header";     //$NON-NLS-1$
-   private static final String TAG_SAMPLERATE = "SampleRate"; //$NON-NLS-1$
-   private static final String TAG_TIME       = "Time";       //$NON-NLS-1$
+   private static final String           TAG_CALORIES   = "Calories";   //$NON-NLS-1$
+   private static final String           TAG_HEADER     = "Header";     //$NON-NLS-1$
+   private static final String           TAG_SAMPLERATE = "SampleRate"; //$NON-NLS-1$
+   private static final String           TAG_TIME       = "Time";       //$NON-NLS-1$
 
+   private static final SimpleDateFormat TIME_FORMAT_SSS;
+   static {
+
+      TIME_FORMAT_SSS = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
+      TIME_FORMAT_SSS.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
+   }
    //
-   private HashMap<Long, TourData> _alreadyImportedTours;
-   private HashMap<Long, TourData> _newlyImportedTours;
+   private Map<Long, TourData>     _alreadyImportedTours;
+   private Map<Long, TourData>     _newlyImportedTours;
    private TourbookDevice          _device;
+
    private String                  _importFilePath;
    private ArrayList<TourType>     _allTourTypes;
    //
-
    private ArrayList<TimeData>     _sampleList        = new ArrayList<>();
    private float[]                 _cadenceData;
+
    private float[]                 _distanceData;
    private float[]                 _pulseData;
-
    private TimeData                _markerData;
+
    private int                     _markIndex;
    private ArrayList<TimeData>     _markerList        = new ArrayList<>();
 
@@ -105,7 +113,6 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
    private boolean                 _isImported;
    private StringBuilder           _characters        = new StringBuilder();
-
    private boolean                 _isInActivity;
    private boolean                 _isInDevice;
    private boolean                 _isInExerciseMode;
@@ -128,9 +135,9 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    private boolean                 _isInSearchedDevices;
    private boolean                 _isInTime;
    private boolean                 _isInVersion;
+
    private boolean                 _isInWeight;
    private boolean                 _isInWeightUnit;
-
    private int                     _tourActivity;
    private int                     _tourCalories;
    private String                  _deviceVersion;
@@ -138,7 +145,9 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    private short                   _tourSampleRate;
    private LocalDateTime           _tourStartTime;
    private int                     _tourTimezone;
+
    private float                   _weight;
+
    private String                  _weightUnit;
 
    public class ExerciseMode {
@@ -149,8 +158,8 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
    public SuuntoQuestSAXHandler(final TourbookDevice deviceDataReader,
                                 final String importFileName,
-                                final HashMap<Long, TourData> alreadyImportedTours,
-                                final HashMap<Long, TourData> newlyImportedTours) {
+                                final Map<Long, TourData> alreadyImportedTours,
+                                final Map<Long, TourData> newlyImportedTours) {
 
       _device = deviceDataReader;
       _importFilePath = importFileName;
@@ -168,7 +177,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    private void assignAdditionalData(final TourData tourData) {
 
       final ExerciseMode exerciseMode = _exerciseModesList.stream()
-            .filter((e) -> e.activity == _tourActivity)
+            .filter(e -> e.activity == _tourActivity)
             .findFirst()
             .orElse(null);
 
@@ -177,7 +186,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
       }
 
       final TourType tourType = _allTourTypes.stream()
-            .filter((t) -> t.getName().equalsIgnoreCase(exerciseMode.name))
+            .filter(t -> t.getName().equalsIgnoreCase(exerciseMode.name))
             .findFirst()
             .orElse(null);
 
@@ -192,7 +201,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
    @Override
    public void characters(final char[] chars, final int startIndex, final int length) throws SAXException {
 
-      if (_isInCadence //
+      if (_isInCadence
             || _isInActivity
             || _isInCalories
             || _isInDistance
@@ -206,7 +215,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
             || _isInWeight
             || _isInWeightUnit
             || _isInTime
-      //
+      
       ) {
          _characters.append(chars, startIndex, length);
       }
@@ -406,21 +415,14 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
          _isInMarkTime = false;
 
-         final PeriodFormatter periodFormatter =
-               new PeriodFormatterBuilder().printZeroAlways()
-                     .appendHours()
-                     .appendSeparator(UI.SYMBOL_COLON)
-                     .appendMinutes()
-                     .appendSeparator(UI.SYMBOL_COLON)
-                     .appendSeconds()
-                     .appendSeparator(UI.SYMBOL_DOT)
-                     .appendMillis()
-                     .maximumParsedDigits(2)
-                     .toFormatter();
-
-         final Period markerPeriod = periodFormatter.parsePeriod(_characters.toString());
-         _markerData.relativeTime = markerPeriod.toStandardSeconds().getSeconds()
-               + Math.round((float) markerPeriod.getMillis() / 1000);
+         try {
+            final long time = TIME_FORMAT_SSS.parse(_characters.toString()).getTime();
+            final int timeInSeconds = (int) time / 1000;
+            final float milliSeconds = (float) (time - timeInSeconds * 1000) / 1000;
+            _markerData.relativeTime = timeInSeconds + Math.round(milliSeconds);
+         } catch (final ParseException e) {
+            TourLogManager.log_ERROR(e.getMessage() + " in " + _importFilePath); //$NON-NLS-1$
+         }
 
          //If existing, we need to use the previous marker relative time
          //to determine the current marker's relative time
@@ -487,7 +489,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
     * @param tourStartTime
     *           The tour start time that is used to compute the {@see TimeData#absoluteTime}
     */
-   private void finalizeSamples(final ZonedDateTime tourStartTime) {
+   private void finalizeSamples() {
 
       //Inserting
       int relativeTime = 0;
@@ -523,7 +525,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
 
       //Converting the distance data to meters if needed
       if (_distanceUnit.equalsIgnoreCase("mile")) { //$NON-NLS-1$
-         _sampleList.forEach((s) -> s.distance *= net.tourbook.ui.UI.UNIT_MILE);
+         _sampleList.forEach(s -> s.distance *= UI.UNIT_MILE);
       }
 
       //We sort the sample lists as it could be out of order if we added markers above
@@ -552,7 +554,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
             TimeTools.UTC);
       tourData.setTourStartTime(tourStartTime);
 
-      finalizeSamples(tourStartTime);
+      finalizeSamples();
 
       assignAdditionalData(tourData);
 
@@ -572,13 +574,14 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
       final Long tourId = tourData.createTourId(uniqueId);
 
       // check if the tour is already imported
-      if (_alreadyImportedTours.containsKey(tourId) == false) {
+      if (!_alreadyImportedTours.containsKey(tourId)) {
 
          // add new tour to other tours
          _newlyImportedTours.put(tourId, tourData);
 
          // create additional data
-         tourData.computeTourDrivingTime();
+         tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
+         tourData.computeTourMovingTime();
          tourData.computeComputedValues();
       }
 
@@ -597,6 +600,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
     *         The sum of the distances
     */
    private float getSamplesRangeAbsoluteDistance(final int endIndex) {
+
       final Stream<TimeData> samplesRange = _sampleList.stream().skip(0).limit(endIndex + 1);
 
       return samplesRange.map(sample -> sample.distance)
@@ -620,7 +624,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
       for (final TimeData marker : _markerList) {
          //We search for a sample that is at the same point in time
          final TimeData equivalentSample = _sampleList.stream()
-               .filter((s) -> s.relativeTime == marker.relativeTime)
+               .filter(s -> s.relativeTime == marker.relativeTime)
                .findFirst()
                .orElse(null);
 
@@ -647,7 +651,7 @@ public class SuuntoQuestSAXHandler extends DefaultHandler {
          } else {
             //If that doesn't exist, we insert the marker in the sample list and update the 2 adjacent elements
             TimeData closestSample = _sampleList.stream()
-                  .filter((s) -> s.relativeTime > marker.relativeTime)
+                  .filter(s -> s.relativeTime > marker.relativeTime)
                   .findFirst()
                   .orElse(null);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,9 @@
 package net.tourbook.application;
 
 import net.tourbook.Messages;
-import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.tag.tour.filter.TourTagFilterManager;
 import net.tourbook.tour.TourTypeFilterManager;
 import net.tourbook.tour.filter.TourFilterManager;
@@ -48,9 +50,9 @@ import org.eclipse.ui.application.IActionBarConfigurer;
  */
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
-   private static final String               MENU_CONTRIB_TOOLBAR_APP_FILTER = "mc_tb_AppFilter";            //$NON-NLS-1$
+   private static final String               MENU_CONTRIB_TOOLBAR_APP_FILTER = "mc_tb_AppFilter";             //$NON-NLS-1$
 
-   private static IPreferenceStore           _prefStore                      = TourbookPlugin.getPrefStore();
+   private static IPreferenceStore           _prefStoreCommon                = CommonActivator.getPrefStore();
 
    private IWorkbenchWindow                  _window;
 
@@ -273,7 +275,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
          /*
           * Toolbar: Measurement
           */
-         final boolean isShowMeasurement = _prefStore.getBoolean(ITourbookPreferences.MEASUREMENT_SYSTEM_SHOW_IN_UI);
+         final boolean isShowMeasurement = _prefStoreCommon.getBoolean(ICommonPreferences.MEASUREMENT_SYSTEM_SHOW_IN_UI);
          if (isShowMeasurement) {
 
             final IToolBarManager tbMgr_System = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
@@ -328,7 +330,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
       _actionPreferences = ActionFactory.PREFERENCES.create(window);
       _actionPreferences.setText(Messages.App_Action_open_preferences);
-      _actionPreferences.setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__options));
+      _actionPreferences.setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Options));
       register(_actionPreferences);
 
       _actionOtherViews = new ActionOtherViews(window);

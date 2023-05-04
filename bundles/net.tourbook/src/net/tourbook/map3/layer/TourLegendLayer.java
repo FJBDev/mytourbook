@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +36,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorProviderConfig;
@@ -46,16 +47,14 @@ import net.tourbook.map.MapUtils;
 import net.tourbook.map2.view.TourMapPainter;
 import net.tourbook.map3.view.Map3Manager;
 
-import org.eclipse.jface.dialogs.IDialogSettings;
-
 /**
  * Part of this code is copied from: gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceLegend
  */
 public class TourLegendLayer extends RenderableLayer {
 
-   public static final String             MAP3_LAYER_ID = "TourLegendLayer";   //$NON-NLS-1$
+   public static final String             MAP3_LAYER_ID = "TourLegendLayer"; //$NON-NLS-1$
 
-   private static final Font              DEFAULT_FONT  = UI.AWT_FONT_ARIAL_12;
+   private static final Font              DEFAULT_FONT  = UI.AWT_DIALOG_FONT;
    private static final Color             DEFAULT_COLOR = Color.WHITE;
 
    private IMapColorProvider              _colorProvider;
@@ -142,7 +141,7 @@ public class TourLegendLayer extends RenderableLayer {
       }
    }
 
-   public TourLegendLayer(final IDialogSettings state) {
+   public TourLegendLayer() {
 
       _legendImage = new ScreenImage();
 
@@ -191,7 +190,7 @@ public class TourLegendLayer extends RenderableLayer {
                                                                           final double minValue,
                                                                           final double maxValue,
                                                                           final Iterable<? extends LabelAttributes> labels) {
-      final ArrayList<Renderable> list = new ArrayList<Renderable>();
+      final ArrayList<Renderable> list = new ArrayList<>();
 
       if (labels != null) {
          for (final LabelAttributes attr : labels) {
@@ -400,7 +399,7 @@ public class TourLegendLayer extends RenderableLayer {
 
    /**
     * Creates a new legend image.
-    * 
+    *
     * @param isTourAvailable
     * @param isUpdateMinMax
     * @param mapColorProvider
@@ -446,9 +445,10 @@ public class TourLegendLayer extends RenderableLayer {
       final int legendWidth = image.getWidth();
 
       final Graphics2D g2d = image.createGraphics();
+
       try {
 
-         final boolean isDataAvailable = MapUtils.configureColorProvider(//
+         final boolean isDataAvailable = MapUtils.configureColorProvider(
                Map3Manager.getMap3View().getAllTours(),
                gradientColorProvider,
                ColorProviderConfig.MAP3_TOUR,
@@ -456,12 +456,15 @@ public class TourLegendLayer extends RenderableLayer {
 
          if (isDataAvailable) {
 
-            TourMapPainter.drawMapLegend(
+            TourMapPainter.drawMap3_Legend(
                   g2d,
                   gradientColorProvider,
                   ColorProviderConfig.MAP3_TOUR,
                   legendWidth,
-                  legendHeight);
+                  legendHeight,
+                  UI.IS_DARK_THEME,
+                  false // no unit shadow
+            );
          }
 
       } finally {
@@ -480,13 +483,12 @@ public class TourLegendLayer extends RenderableLayer {
       _legendImageLocation = new Point(devXCenter, devYCenter);
       _legendImage.setScreenLocation(_legendImageLocation);
 
-      final ArrayList<TourLegendLabel> legendLabels = TourMapPainter.getMapLegendLabels(
-            legendWidth,
+      final List<TourLegendLabel> legendLabels = TourMapPainter.getMap3_LegendLabels(
             legendHeight,
             gradientColorProvider,
             ColorProviderConfig.MAP3_TOUR);
 
-      final ArrayList<LabelAttributes> labelAttributes = new ArrayList<TourLegendLayer.LabelAttributes>();
+      final ArrayList<LabelAttributes> labelAttributes = new ArrayList<>();
 
       for (final TourLegendLabel mapLegendLabel : legendLabels) {
 

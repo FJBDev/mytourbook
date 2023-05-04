@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,11 +18,13 @@ package net.tourbook.ui.views.tourCatalog;
 class StoredComparedTour {
 
    long  comparedId;
+   long  tourId;
+   long  refTourId;
 
    int   startIndex;
    int   endIndex;
 
    float tourSpeed;
-   int   tourRecordingTime;
+   int   tourElapsedTime;
 
 }

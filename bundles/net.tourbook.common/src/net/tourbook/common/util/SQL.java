@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,10 +21,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import net.tourbook.common.UI;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-
-import net.tourbook.common.UI;
 
 /**
  * SQL utilities.
@@ -32,24 +32,6 @@ import net.tourbook.common.UI;
 public final class SQL {
 
    public static final String SQL_STRING_SEPARATOR = "'"; //$NON-NLS-1$
-
-   private static String addLineNumbers(final String text) {
-
-      final String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$
-
-      final StringBuilder sb = new StringBuilder();
-
-      for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
-
-         final String line = lines[lineNumber];
-
-         sb.append(String.format("%d   ", lineNumber + 1)); //$NON-NLS-1$
-         sb.append(line);
-         sb.append(UI.NEW_LINE);
-      }
-
-      return sb.toString();
-   }
 
    public static void close(final Connection conn) {
 
@@ -82,6 +64,28 @@ public final class SQL {
             SQL.showException(e);
          }
       }
+   }
+
+   public static String createParameterList(final int numItems) {
+
+      final StringBuilder sb = new StringBuilder();
+
+      boolean isFirst = true;
+
+      for (int listIndex = 0; listIndex < numItems; listIndex++) {
+
+         if (isFirst) {
+
+            sb.append('?');
+
+            isFirst = false;
+
+         } else {
+            sb.append(", ?"); //$NON-NLS-1$
+         }
+      }
+
+      return sb.toString();
    }
 
    /**
@@ -134,6 +138,9 @@ public final class SQL {
 
    public static void showException(SQLException exception) {
 
+      // log into the eclipse log file
+      StatusUtil.log(exception);
+
       while (exception != null) {
 
          final String sqlExceptionText = Util.getSQLExceptionText(exception);
@@ -141,9 +148,7 @@ public final class SQL {
          System.out.println(sqlExceptionText);
          exception.printStackTrace();
 
-         MessageDialog.openError(Display.getCurrent().getActiveShell(), //
-               "SQL Error", //$NON-NLS-1$
-               sqlExceptionText);
+         MessageDialog.openError(Display.getCurrent().getActiveShell(), "SQL Error", sqlExceptionText); //$NON-NLS-1$
 
          exception = exception.getNextException();
       }
@@ -151,23 +156,23 @@ public final class SQL {
 
    public static void showException(final SQLException exception, final String sqlStatement) {
 
-      final String sqlStatementWithNumber = addLineNumbers(sqlStatement);
+      // log without line number that it can be easily copy/pasted into a sql tool
+      System.out.println();
+      System.out.println(sqlStatement);
 
-      Display.getDefault().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      final String sqlStatementWithNumber = Util.addLineNumbers(sqlStatement);
 
-            final String message = "SQL statement: " + UI.NEW_LINE2 // //$NON-NLS-1$
-                  + sqlStatementWithNumber + UI.NEW_LINE2
-                  + Util.getSQLExceptionText(exception);
+      final Display display = Display.getDefault();
+      display.asyncExec(() -> {
 
-            MessageDialog.openError(Display.getDefault().getActiveShell(), //
-                  "SQL Error", //$NON-NLS-1$
-                  message);
+         final String message = "SQL statement: " + UI.NEW_LINE2 // //$NON-NLS-1$
+               + sqlStatementWithNumber + UI.NEW_LINE2
+               + Util.getSQLExceptionText(exception);
 
-            StatusUtil.log(message);
-            StatusUtil.log(exception);
-         }
+         SQLMessageDialog.openError(display.getActiveShell(), "SQL Error", message); //$NON-NLS-1$
+
+         StatusUtil.logError(message);
+         StatusUtil.log(exception);
       });
    }
 }

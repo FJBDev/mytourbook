@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,36 +15,35 @@
  *******************************************************************************/
 package net.tourbook.ui.views.geoCompare;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.time.ZonedDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.NormalizedGeoData;
 import net.tourbook.data.TourData;
+import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourManager;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IWorkbenchPart;
 
 public class GeoCompareManager {
 
-   private static final int                                      COMPARATOR_THREADS   = Runtime.getRuntime().availableProcessors();
-
-   private static final LinkedBlockingDeque<GeoPartComparerItem> _compareWaitingQueue = new LinkedBlockingDeque<>();
-
+   private static final int                                      COMPARATOR_THREADS    = Runtime.getRuntime().availableProcessors();
    private static ThreadPoolExecutor                             _comparerExecutor;
 
-   private static boolean                                        LOG_TOUR_COMPARING   = false;
-
-   private static final ListenerList<IGeoCompareListener>        _geoCompareListeners = new ListenerList<>(ListenerList.IDENTITY);
+   private static final LinkedBlockingDeque<GeoPartComparerItem> _compareWaitingQueue  = new LinkedBlockingDeque<>();
+   private static final ListenerList<IGeoCompareListener>        _geoCompareListeners  = new ListenerList<>(ListenerList.IDENTITY);
 
    private static boolean                                        _isGeoComparingOn;
+   private static boolean                                        IS_LOG_TOUR_COMPARING = false;
 
    static {
 
@@ -66,15 +65,15 @@ public class GeoCompareManager {
          }
       };
 
-      System.out.println(
-            (String.format(
-                  "[%s] Comparing tours with %d threads", //$NON-NLS-1$
-                  GeoCompareManager.class.getSimpleName(),
-                  COMPARATOR_THREADS)));
-// TODO remove SYSTEM.OUT.PRINTLN
+//      System.out.println(String.format(
+//            "[%s] Comparing tours with %d threads", //$NON-NLS-1$
+//            GeoCompareManager.class.getSimpleName(),
+//            COMPARATOR_THREADS));
 
       _comparerExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(COMPARATOR_THREADS, threadFactory);
    }
+
+   protected final static IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
    public static void addGeoCompareEventListener(final IGeoCompareListener listener) {
 
@@ -184,7 +183,7 @@ public class GeoCompareManager {
 
             /*
              * Make sure the compare index is not larger than the tour index, this happens when the
-             * part slices has exeeded the tour slices
+             * part slices has exceeded the tour slices
              */
             if (compareIndex == numNormTourSlices) {
                latLonDiff = -1;
@@ -210,7 +209,7 @@ public class GeoCompareManager {
 
             minDiffValue = latLonDiff;
 
-            // keep tour index where the min diff occured
+            // keep tour index where the min diff occurred
             normMinDiffIndex = normTourIndex;
          }
 
@@ -235,11 +234,19 @@ public class GeoCompareManager {
 
          comparerItem.avgAltimeter = tourData.computeAvg_FromValues(tourData.getAltimeterSerie(), origStartIndex, origEndIndex);
 
-         final int recordingTime = tourData.timeSerie[origEndIndex] - tourData.timeSerie[origStartIndex];
-         final int drivingTime = Math.max(0, recordingTime - tourData.getBreakTime(origStartIndex, origEndIndex));
-         comparerItem.recordingTime = recordingTime;
-         comparerItem.movingTime = drivingTime;
-         comparerItem.distance = tourData.distanceSerie[origEndIndex] - tourData.distanceSerie[origStartIndex];
+         final int elapsedTime = tourData.timeSerie[origEndIndex] - tourData.timeSerie[origStartIndex];
+         final int movingTime = Math.max(0, elapsedTime - tourData.getBreakTime(origStartIndex, origEndIndex));
+         final int recordedTime = Math.max(0, elapsedTime - tourData.getPausedTime(origStartIndex, origEndIndex));
+         comparerItem.elapsedTime = elapsedTime;
+         comparerItem.movingTime = movingTime;
+         comparerItem.recordedTime = recordedTime;
+
+         final float distance = tourData.distanceSerie[origEndIndex] - tourData.distanceSerie[origStartIndex];
+         comparerItem.distance = distance;
+
+         final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
+         final long time = isPaceAndSpeedFromRecordedTime ? recordedTime : movingTime;
+         comparerItem.avgPace = distance == 0 ? 0 : time * 1000 / distance;
       }
 
       final ZonedDateTime tourStartTime = tourData.getTourStartTime();
@@ -279,7 +286,7 @@ public class GeoCompareManager {
 
       comparerItem.tourLatLonDiff = tourLatLonDiff;
 
-      if (LOG_TOUR_COMPARING) {
+      if (IS_LOG_TOUR_COMPARING) {
 
          final float time_Compare = (float) (System.nanoTime() - startComparing) / 1000000;
          final float time_All = (float) (System.nanoTime() - startLoading) / 1000000;
@@ -288,42 +295,41 @@ public class GeoCompareManager {
 
          final float cmpAvgTime = numCompares / time_Compare;
 
-         System.out.println(
-               String.format(
-                     UI.EMPTY_STRING
-                           + "[%3d]" // thread //$NON-NLS-1$
-                           + " tour %-20s" //$NON-NLS-1$
-                           // + "   exec %5d"
+         System.out.println(String.format(
 
-                           + "   diff %12d" //$NON-NLS-1$
-                           + "   # %5d / %5d" //$NON-NLS-1$
+               UI.EMPTY_STRING
+                     + "[%3d]" // thread //$NON-NLS-1$
+                     + " tour %-20s" //$NON-NLS-1$
+                     // + "   exec %5d"
 
-                           + "   cmp %7.0f" //$NON-NLS-1$
-                           + "   #cmp %10d" //$NON-NLS-1$
-                           + "   #cmpAvg %8.0f" //$NON-NLS-1$
+                     + "   diff %12d" //$NON-NLS-1$
+                     + "   # %5d / %5d" //$NON-NLS-1$
 
-                           + "   all %7.0f ms" //$NON-NLS-1$
-                           + "   ld %10.4f" //$NON-NLS-1$
-                           + "   cnvrt %10.4f", //$NON-NLS-1$
+                     + "   cmp %7.0f" //$NON-NLS-1$
+                     + "   #cmp %10d" //$NON-NLS-1$
+                     + "   #cmpAvg %8.0f" //$NON-NLS-1$
 
-                     Thread.currentThread().getId(),
-                     comparerItem.tourId,
-                     //                     loaderItem.executorId,
+                     + "   all %7.0f ms" //$NON-NLS-1$
+                     + "   ld %10.4f" //$NON-NLS-1$
+                     + "   cnvrt %10.4f", //$NON-NLS-1$
 
-                     normMinDiffIndex < 0 ? normMinDiffIndex : normLatLonDiff[normMinDiffIndex],
-                     numNormTourSlices,
-                     numNormPartSlices,
+               Thread.currentThread().getId(),
+               comparerItem.tourId,
+               //                     loaderItem.executorId,
 
-                     time_Compare,
-                     numCompares,
-                     cmpAvgTime,
+               normMinDiffIndex < 0 ? normMinDiffIndex : normLatLonDiff[normMinDiffIndex],
+               numNormTourSlices,
+               numNormPartSlices,
 
-                     time_All,
-                     time_Load,
-                     time_Convert
+               time_Compare,
+               numCompares,
+               cmpAvgTime,
 
-               ));
-         // TODO remove SYSTEM.OUT.PRINTLN
+               time_All,
+               time_Load,
+               time_Convert
+
+         ));
       }
    }
 

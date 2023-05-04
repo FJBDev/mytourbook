@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,9 +16,13 @@
 package net.tourbook.tour.photo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
 import net.tourbook.common.tooltip.AdvancedSlideoutShell;
 import net.tourbook.common.util.Util;
@@ -27,9 +31,11 @@ import net.tourbook.photo.IPhotoPreferences;
 import net.tourbook.photo.Photo;
 import net.tourbook.photo.PhotoGallery;
 import net.tourbook.photo.PhotoSelection;
+import net.tourbook.photo.internal.gallery.MT20.GalleryMT20Item;
 import net.tourbook.ui.tourChart.ChartPhoto;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -60,631 +66,685 @@ import org.eclipse.swt.widgets.ToolBar;
 
 /**
  * Photo tooltip UI for a tour chart or map or something unknown
- * 
+ *
  * @author Wolfgang Schramm, created 3.8.2012
  */
 
 public abstract class PhotoToolTipUI extends AdvancedSlideoutShell {
 
-	private static final String				STATE_PHOTO_GALLERY_IS_VERTICAL	= "STATE_PHOTO_GALLERY_IS_VERTICAL";	//$NON-NLS-1$
-	private static final String				STATE_TOOL_TIP_LOCATION			= "STATE_TOOL_TIP_LOCATION";			//$NON-NLS-1$
+   private static final String            STATE_PHOTO_GALLERY_IS_VERTICAL = "STATE_PHOTO_GALLERY_IS_VERTICAL"; //$NON-NLS-1$
+   private static final String            STATE_TOOL_TIP_LOCATION         = "STATE_TOOL_TIP_LOCATION";         //$NON-NLS-1$
 
-	private IDialogSettings					_state;
+   private IDialogSettings                _state;
 
-	private int								_displayedPhotosHash;
+   private int                            _displayedPhotosHash;
 
-	private final ArrayList<Photo>			_allPhotos						= new ArrayList<Photo>();
+   private final ArrayList<Photo>         _allPhotos                      = new ArrayList<>();
 
-	private ActionCloseToolTip				_actionCloseToolTip;
-	private ActionPinToolTip				_actionPinToolTip;
-	private ActionToggleGalleryOrientation	_actionToggleGalleryOrientation;
-	private ActionToolTipLocationUpDown		_actionToolTipLocation;
+   private ActionAddPhoto                 _actionAddPhoto;
+   private ActionCloseToolTip             _actionCloseToolTip;
+   private ActionPinToolTip               _actionPinToolTip;
+   private ActionRemovePhoto              _actionRemovePhoto;
+   private ActionToggleGalleryOrientation _actionToggleGalleryOrientation;
+   private ActionToolTipLocationUpDown    _actionToolTipLocation;
 
-	private ToolBarManager					_galleryToolbarManager;
-	private boolean							_isVerticalGallery;
-	private boolean							_isShellDragged;
+   private ToolBarManager                 _galleryToolbarManager;
+   private boolean                        _isVerticalGallery;
+   private boolean                        _isShellDragged;
 
-	/**
-	 * <pre>
-	 * 1 ... above tour chart
-	 * 0 ... below tour chart
-	 * </pre>
-	 */
-	private int								_toolTipLocationUpDown;
+   private boolean                        _isLinkPhotoDisplayed;
 
-	private int								_devXMousedown;
-	private int								_devYMousedown;
+   /**
+    * <pre>
+    * 1 ... above tour chart
+    * 0 ... below tour chart
+    * </pre>
+    */
+   private int                            _toolTipLocationUpDown;
 
-	/*
-	 * UI controls
-	 */
-	private Composite						_galleryContainer;
+   private int                            _devXMousedown;
+   private int                            _devYMousedown;
 
-	private PhotoGallery					_photoGallery;
+   /*
+    * UI controls
+    */
+   private Composite        _galleryContainer;
 
-	private ToolBar							_ttToolbarControlExit;
-	private ToolBar							_galleryToolbarControl;
+   private TourPhotoGallery _photoGallery;
 
-	private Label							_labelDragToolTip;
+   private ToolBar          _ttToolbarControlExit;
+   private ToolBar          _galleryToolbarControl;
 
-	private Cursor							_cursorResize;
-	private Cursor							_cursorHand;
+   private Label            _labelDragToolTip;
 
-	private class ActionCloseToolTip extends Action {
+   private Cursor           _cursorResize;
+   private Cursor           _cursorHand;
 
-		public ActionCloseToolTip() {
+   private class ActionCloseToolTip extends Action {
 
-			super(null, Action.AS_PUSH_BUTTON);
+      public ActionCloseToolTip() {
 
-			setToolTipText(Messages.App_Action_Close_ToolTip);
-			setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__App_Close));
-		}
+         super(null, Action.AS_PUSH_BUTTON);
 
-		@Override
-		public void run() {
-			actionCloseToolTip();
-		}
-	}
+         setToolTipText(Messages.App_Action_Close_ToolTip);
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Close));
+      }
 
-	private class ActionPinToolTip extends Action {
+      @Override
+      public void run() {
+         actionCloseToolTip();
+      }
+   }
 
-		public ActionPinToolTip() {
+   private class ActionPinToolTip extends Action {
 
-			super(null, Action.AS_CHECK_BOX);
+      public ActionPinToolTip() {
 
-			setToolTipText(Messages.Photo_Tooltip_Action_PinToolTip_ToolTip);
-			setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__Pin_Blue));
-		}
+         super(null, Action.AS_CHECK_BOX);
 
-		@Override
-		public void run() {
+         setToolTipText(Messages.Photo_Tooltip_Action_PinToolTip_ToolTip);
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Pin));
+      }
 
-			final boolean isPinned = _actionPinToolTip.isChecked();
+      @Override
+      public void run() {
 
-			setIsSlideoutPinned(isPinned);
+         final boolean isPinned = _actionPinToolTip.isChecked();
 
-			enableControls();
-		}
-	}
+         setIsSlideoutPinned(isPinned);
 
-	private class ActionToggleGalleryOrientation extends Action {
+         enableControls();
+      }
+   }
 
-		public ActionToggleGalleryOrientation() {
-			super(null, Action.AS_PUSH_BUTTON);
-		}
+   private class ActionToggleGalleryOrientation extends Action {
 
-		@Override
-		public void run() {
-			actionToggleVH();
-		}
-	}
+      public ActionToggleGalleryOrientation() {
 
-	private class ActionToolTipLocationUpDown extends Action {
+         super(null, Action.AS_PUSH_BUTTON);
 
-		public ActionToolTipLocationUpDown() {
+         // an image must be set otherwise the toolbar icons can be too small, this happens not allways :-(
+         setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.PhotoGallery_Horizontal));
+      }
 
-			super(null, Action.AS_PUSH_BUTTON);
+      @Override
+      public void run() {
+         actionToggleVH();
+      }
+   }
 
-			setToolTipText(Messages.App_Action_ToolTipLocation_AboveTourChart_Tooltip);
-			setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__ArrowDown));
-		}
+   private class ActionToolTipLocationUpDown extends Action {
 
-		@Override
-		public void run() {
-			actionToolTipLocation();
-		}
-	}
+      public ActionToolTipLocationUpDown() {
 
-	private final class PhotoGalleryProvider implements IPhotoGalleryProvider {
+         super(null, Action.AS_PUSH_BUTTON);
 
-		@Override
-		public IStatusLineManager getStatusLineManager() {
-			return null;
-		}
+         setToolTipText(Messages.App_Action_ToolTipLocation_AboveTourChart_Tooltip);
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowDown));
+      }
 
-		@Override
-		public IToolBarManager getToolBarManager() {
-			return _galleryToolbarManager;
-		}
+      @Override
+      public void run() {
+         actionToolTipLocation();
+      }
+   }
 
-		@Override
-		public void registerContextMenu(final String menuId, final MenuManager menuManager) {}
+   private final class PhotoGalleryProvider implements IPhotoGalleryProvider {
 
-		@Override
-		public void setSelection(final PhotoSelection photoSelection) {
-			onSelectPhoto(photoSelection);
-		}
-	}
+      @Override
+      public IStatusLineManager getStatusLineManager() {
+         return null;
+      }
 
-	public PhotoToolTipUI(final Control ownerControl, final IDialogSettings state) {
+      @Override
+      public IToolBarManager getToolBarManager() {
+         return _galleryToolbarManager;
+      }
 
-		super(ownerControl, state, null);
+      @Override
+      public void registerContextMenu(final String menuId, final MenuManager menuManager) {}
 
-		_state = state;
+      @Override
+      public void setSelection(final PhotoSelection photoSelection) {
+         onSelectPhoto(photoSelection);
+      }
+   }
 
-		_cursorResize = new Cursor(ownerControl.getDisplay(), SWT.CURSOR_SIZEALL);
-		_cursorHand = new Cursor(ownerControl.getDisplay(), SWT.CURSOR_HAND);
+   private class TourPhotoGallery extends PhotoGallery {
 
-		ownerControl.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(final DisposeEvent e) {
-				onDispose();
-			}
-		});
+      public TourPhotoGallery(final IDialogSettings state) {
+         super(state);
+      }
 
-		createActions();
-	}
+      @Override
+      public void fillContextMenu(final IMenuManager menuMgr) {
+         PhotoToolTipUI.this.fillContextMenu(menuMgr);
+      }
+   }
 
-	private void actionCloseToolTip() {
+   public PhotoToolTipUI(final Control ownerControl, final IDialogSettings state) {
 
-		/*
-		 * hide gallery tooltip shell, when not closed this dialog keeps opened because it checks
-		 * that no other shells are open
-		 */
-		_photoGallery.closePhotoTooltip();
+      super(ownerControl, state, null);
 
-		// hide this shell
-		ttHide_WithoutAnimation();
-	}
+      _state = state;
 
-	private void actionToggleVH() {
+      _cursorResize = new Cursor(ownerControl.getDisplay(), SWT.CURSOR_SIZEALL);
+      _cursorHand = new Cursor(ownerControl.getDisplay(), SWT.CURSOR_HAND);
 
-		// keep state for current orientation
-		_photoGallery.saveState();
+      // prevent that the opened tooltip is partly hidden
+      setIsForceBoundsToBeInsideOfViewport(true);
 
-		// toggle gallery
-		_isVerticalGallery = !_isVerticalGallery;
+      ownerControl.addDisposeListener(new DisposeListener() {
+         @Override
+         public void widgetDisposed(final DisposeEvent e) {
+            onDispose();
+         }
+      });
 
-		updateUI_ToogleAction();
+      createActions();
+   }
 
-		/*
-		 * set tooltip shell to the correct size, each orientation has it's own size
-		 */
-		final Point contentSize = getContentSize();
+   private void actionCloseToolTip() {
 
-		// set size in layout data
-		final GridData gd = (GridData) _galleryContainer.getLayoutData();
-		gd.widthHint = contentSize.x;
-		gd.heightHint = contentSize.y;
+      /*
+       * hide gallery tooltip shell, when not closed this dialog keeps opened because it checks
+       * that no other shells are open
+       */
+      _photoGallery.closePhotoTooltip();
 
-		// relayout shell
-		getToolTipShell().pack(true);
+      // hide this shell
+      ttHide_WithoutAnimation();
+   }
 
-		// show shell at default location
-		showAtDefaultLocation();
+   private void actionToggleVH() {
 
-		setIsShellToggle();
+      // keep state for current orientation
+      _photoGallery.saveState();
 
-		_photoGallery.setVertical(_isVerticalGallery);
-	}
+      // toggle gallery
+      _isVerticalGallery = !_isVerticalGallery;
 
-	private void actionToolTipLocation() {
+      updateUI_ToogleAction();
 
-		_toolTipLocationUpDown = _toolTipLocationUpDown == 1 ? 0 : 1;
+      /*
+       * set tooltip shell to the correct size, each orientation has it's own size
+       */
+      final Point contentSize = getContentSize();
 
-		updateUI_ToolTipLocation();
+      // set size in layout data
+      final GridData gd = (GridData) _galleryContainer.getLayoutData();
+      gd.widthHint = contentSize.x;
+      gd.heightHint = contentSize.y;
 
-		super.doNotStopAnimation();
+      // relayout shell
+      getToolTipShell().pack(true);
 
-		showShell();
-	}
+      // show shell at default location
+      showAtDefaultLocation();
 
-	@Override
-	protected void afterCreateShell(final Shell shell) {
+      setIsShellToggle();
 
-		if (_state == null) {
-			// this happened when testing
-			return;
-		}
+      _photoGallery.setVertical(_isVerticalGallery);
+   }
 
-		/*
-		 * restore MUST be done after the shell is created, otherwise clientArea() can return 0
-		 * values
-		 */
-		_photoGallery.restoreState();
+   private void actionToolTipLocation() {
 
-		// set gallery orientation
-		_photoGallery.setVertical(_isVerticalGallery);
+      _toolTipLocationUpDown = _toolTipLocationUpDown == 1 ? 0 : 1;
 
-		/**
-		 * Prevent to open pref dialog, when it's opened it would close this tooltip and the pref
-		 * dialog is hidden -->> APP IS FREEZING !!!
-		 */
-		_photoGallery.setShowOtherShellActions(false);
+      updateUI_ToolTipLocation();
 
-		shell.addDisposeListener(new DisposeListener() {
+      super.doNotStopAnimation();
 
-			@Override
-			public void widgetDisposed(final DisposeEvent e) {
+      showShell();
+   }
 
-				if (_photoGallery.isDisposed()) {
-					// this happens by multiple shells
-					return;
-				}
-				_photoGallery.saveState();
-			}
-		});
-	}
+   @Override
+   protected void afterCreateShell(final Shell shell) {
 
-	@Override
-	protected void beforeHideToolTip() {
+      if (_state == null) {
+         // this happened when testing
+         return;
+      }
 
-		// force to show the same images
+      /*
+       * restore MUST be done after the shell is created, otherwise clientArea() can return 0
+       * values
+       */
+      _photoGallery.restoreState();
 
-		_displayedPhotosHash = Integer.MIN_VALUE;
-	}
+      // set gallery orientation
+      _photoGallery.setVertical(_isVerticalGallery);
 
-	@Override
-	protected void closeInternalShells() {
+      /**
+       * Prevent to open pref dialog, when it's opened it would close this tooltip and the pref
+       * dialog is hidden -->> APP IS FREEZING !!!
+       */
+      _photoGallery.setShowOtherShellActions(false);
 
-		if (_photoGallery != null) {
-			_photoGallery.closePhotoTooltip();
-		}
-	}
+      shell.addDisposeListener(new DisposeListener() {
 
-	private void createActions() {
+         @Override
+         public void widgetDisposed(final DisposeEvent e) {
 
-		_actionPinToolTip = new ActionPinToolTip();
-		_actionToggleGalleryOrientation = new ActionToggleGalleryOrientation();
-		_actionCloseToolTip = new ActionCloseToolTip();
-		_actionToolTipLocation = new ActionToolTipLocationUpDown();
-	}
+            if (_photoGallery.isDisposed()) {
+               // this happens by multiple shells
+               return;
+            }
+            _photoGallery.saveState();
+         }
+      });
+   }
 
-	@Override
-	protected Composite createSlideoutContentArea(final Composite parent) {
+   @Override
+   protected void beforeHideToolTip() {
 
-		final Composite container = createUI(parent);
+      // force to show the same images
 
-		updateUI_Colors(parent);
+      _displayedPhotosHash = Integer.MIN_VALUE;
+   }
 
-		return container;
-	}
-
-	private Composite createUI(final Composite parent) {
-
-		final Composite shellContainer = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(1).spacing(2, 2).applyTo(shellContainer);
-		shellContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
-		{
-			createUI_10_Gallery(shellContainer);
-		}
-
-		createUI_20_ActionBar(_photoGallery.getCustomActionBarContainer());
-
-		fillActionBar();
-
-		// must be called after the custom action bar is created
-		_photoGallery.createActionBar();
-		_galleryToolbarManager.update(false);
-
-		return shellContainer;
-	}
-
-	private void createUI_10_Gallery(final Composite parent) {
-
-		_galleryContainer = new Composite(parent, SWT.NONE);
-		GridDataFactory
-				.fillDefaults()//
-				.grab(true, true)
-				.applyTo(_galleryContainer);
-		GridLayoutFactory
-				.fillDefaults()//
-				.numColumns(1)
-				.extendedMargins(0, 0, 0, 0)
-				.applyTo(_galleryContainer);
-		_galleryContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-		{
-			_photoGallery = new PhotoGallery(_state);
-
-			_photoGallery.setShowCustomActionBar();
-			_photoGallery.setShowThumbnailSize();
-
-			_photoGallery.createPhotoGallery(
-					_galleryContainer,
-					SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI,
-					new PhotoGalleryProvider());
-		}
-	}
-
-	private void createUI_20_ActionBar(final Composite parent) {
-
-		GridLayoutFactory.fillDefaults().applyTo(parent);
-
-		final Composite container = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
-		{
-			/*
-			 * create toolbar for the exit button
-			 */
-			_ttToolbarControlExit = new ToolBar(container, SWT.FLAT);
-			GridDataFactory
-					.fillDefaults()//
-					.applyTo(_ttToolbarControlExit);
-//			_ttToolbarControlExit.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
-
-			/*
-			 * spacer
-			 */
-			_labelDragToolTip = new Label(container, SWT.NONE);
-			GridDataFactory
-					.fillDefaults()//
-					.grab(true, false)
-					.hint(50, SWT.DEFAULT)
-					.applyTo(_labelDragToolTip);
-			_labelDragToolTip.setText(UI.EMPTY_STRING);
-			_labelDragToolTip.setToolTipText(Messages.Photo_Tooltip_Action_MoveToolTip_ToolTip);
-//			_labelDragToolTip.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
-			_labelDragToolTip.addMouseTrackListener(new MouseTrackListener() {
-
-				@Override
-				public void mouseEnter(final MouseEvent e) {
-					_labelDragToolTip.setCursor(_cursorHand);
-				}
-
-				@Override
-				public void mouseExit(final MouseEvent e) {}
-
-				@Override
-				public void mouseHover(final MouseEvent e) {}
-			});
-
-			_labelDragToolTip.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDown(final MouseEvent e) {
-					onMouseDown(e);
-				}
-
-				@Override
-				public void mouseUp(final MouseEvent e) {
-					onMouseUp(e);
-				}
-			});
-			_labelDragToolTip.addMouseMoveListener(new MouseMoveListener() {
-				@Override
-				public void mouseMove(final MouseEvent e) {
-					onMouseMove(e);
-				}
-			});
-
-			/*
-			 * create gallery toolbar
-			 */
-			_galleryToolbarControl = new ToolBar(container, SWT.FLAT);
-			GridDataFactory
-					.fillDefaults()//
-					.align(SWT.END, SWT.FILL)
-					.applyTo(_galleryToolbarControl);
-		}
-	}
-
-	protected void enableControls() {
-
-		_actionToolTipLocation.setEnabled(isToolTipPinned() == false);
-	}
+   @Override
+   protected void closeInternalShells() {
 
-	private void fillActionBar() {
+      if (_photoGallery != null) {
+         _photoGallery.closePhotoTooltip();
+      }
+   }
 
-		/*
-		 * fill exit toolbar
-		 */
-		final ToolBarManager exitToolbarManager = new ToolBarManager(_ttToolbarControlExit);
+   private void createActions() {
 
-		exitToolbarManager.add(_actionCloseToolTip);
-		exitToolbarManager.add(_actionPinToolTip);
-		exitToolbarManager.add(_actionToolTipLocation);
+      _actionCloseToolTip = new ActionCloseToolTip();
+      _actionPinToolTip = new ActionPinToolTip();
+      _actionToggleGalleryOrientation = new ActionToggleGalleryOrientation();
+      _actionToolTipLocation = new ActionToolTipLocationUpDown();
+   }
 
-		exitToolbarManager.update(true);
+   private void createActions_WithUI() {
 
-		/*
-		 * fill gallery toolbar
-		 */
-		_galleryToolbarManager = new ToolBarManager(_galleryToolbarControl);
+      _actionAddPhoto = new ActionAddPhoto(_photoGallery);
+      _actionRemovePhoto = new ActionRemovePhoto(_photoGallery);
+   }
 
-		_galleryToolbarManager.add(_actionToggleGalleryOrientation);
-		_galleryToolbarManager.add(new Separator());
-	}
+   @Override
+   protected Composite createSlideoutContentArea(final Composite parent) {
 
-	@Override
-	protected Color getShellColor_Background(final ColorRegistry colorRegistry) {
-		return colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
-	}
+      final Composite container = createUI(parent);
 
-	@Override
-	protected Color getShellColor_Foreground(final ColorRegistry colorRegistry) {
-		return colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
-	}
+      updateUI_Colors(parent);
 
-	@Override
-	protected String getShellTitle_NoResize() {
-		return Messages.Photo_Tooltip_Label_ShellNoResize;
-	}
+      return container;
+   }
 
-	@Override
-	protected String getShellTitle_WithResize() {
-		return Messages.Photo_Tooltip_Label_ShellWithResize;
-	}
+   private Composite createUI(final Composite parent) {
 
-	/**
-	 * @return Returns current tooltip location
-	 *         <p>
-	 *         1 ... above tour chart<br>
-	 *         0 ... below tour chart
-	 */
-	protected int getTooltipLocation() {
-		return _toolTipLocationUpDown;
-	}
+      final Composite shellContainer = new Composite(parent, SWT.NONE);
+      GridLayoutFactory.fillDefaults().numColumns(1).spacing(2, 2).applyTo(shellContainer);
+      shellContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+      {
+         createUI_10_Gallery(shellContainer);
+      }
 
-	@Override
-	protected boolean isToolTipDragged() {
-		return _isShellDragged;
-	}
+      createUI_20_ActionBar(_photoGallery.getCustomActionBarContainer());
 
-	@Override
-	protected boolean isVerticalLayout() {
-		return _isVerticalGallery;
-	}
+      createActions_WithUI();
+      fillActionBar();
 
-	private void onDispose() {
+      // must be called after the custom action bar is created
+      _photoGallery.createActionBar();
+      _galleryToolbarManager.update(false);
+
+      return shellContainer;
+   }
+
+   private void createUI_10_Gallery(final Composite parent) {
+
+      _galleryContainer = new Composite(parent, SWT.NONE);
+      GridDataFactory
+            .fillDefaults()//
+            .grab(true, true)
+            .applyTo(_galleryContainer);
+      GridLayoutFactory
+            .fillDefaults()//
+            .numColumns(1)
+            .extendedMargins(0, 0, 0, 0)
+            .applyTo(_galleryContainer);
+      _galleryContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+      {
+         _photoGallery = new TourPhotoGallery(_state);
 
-		_cursorResize.dispose();
-		_cursorHand.dispose();
-	}
+         _photoGallery.setShowCustomActionBar();
+         _photoGallery.setShowThumbnailSize();
 
-	private void onMouseDown(final MouseEvent e) {
+         _photoGallery.createPhotoGallery(
+               _galleryContainer,
+               SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI,
+               new PhotoGalleryProvider());
+      }
+   }
 
-		_isShellDragged = true;
+   private void createUI_20_ActionBar(final Composite parent) {
 
-		_devXMousedown = e.x;
-		_devYMousedown = e.y;
+      GridLayoutFactory.fillDefaults().applyTo(parent);
 
-		_labelDragToolTip.setCursor(_cursorResize);
-	}
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
+      {
+         /*
+          * create toolbar for the exit button
+          */
+         _ttToolbarControlExit = new ToolBar(container, SWT.FLAT);
+         GridDataFactory
+               .fillDefaults()//
+               .applyTo(_ttToolbarControlExit);
+//         _ttToolbarControlExit.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
 
-	private void onMouseMove(final MouseEvent e) {
+         /*
+          * spacer
+          */
+         _labelDragToolTip = new Label(container, SWT.NONE);
+         GridDataFactory
+               .fillDefaults()//
+               .grab(true, false)
+               .hint(50, SWT.DEFAULT)
+               .applyTo(_labelDragToolTip);
+         _labelDragToolTip.setText(UI.EMPTY_STRING);
+         _labelDragToolTip.setToolTipText(Messages.Photo_Tooltip_Action_MoveToolTip_ToolTip);
+//         _labelDragToolTip.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+         _labelDragToolTip.addMouseTrackListener(new MouseTrackListener() {
 
-		if (_isShellDragged) {
+            @Override
+            public void mouseEnter(final MouseEvent e) {
+               _labelDragToolTip.setCursor(_cursorHand);
+            }
 
-			// shell is dragged
+            @Override
+            public void mouseExit(final MouseEvent e) {}
 
-			final int diffX = _devXMousedown - e.x;
-			final int diffY = _devYMousedown - e.y;
+            @Override
+            public void mouseHover(final MouseEvent e) {}
+         });
 
-			setShellLocation(diffX, diffY);
-		}
-	}
+         _labelDragToolTip.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(final MouseEvent e) {
+               onMouseDown(e);
+            }
 
-	private void onMouseUp(final MouseEvent e) {
+            @Override
+            public void mouseUp(final MouseEvent e) {
+               onMouseUp(e);
+            }
+         });
+         _labelDragToolTip.addMouseMoveListener(new MouseMoveListener() {
+            @Override
+            public void mouseMove(final MouseEvent e) {
+               onMouseMove(e);
+            }
+         });
 
-		if (_isShellDragged) {
+         /*
+          * create gallery toolbar
+          */
+         _galleryToolbarControl = new ToolBar(container, SWT.FLAT);
+         GridDataFactory
+               .fillDefaults()//
+               .align(SWT.END, SWT.FILL)
+               .applyTo(_galleryToolbarControl);
+      }
+   }
 
-			// shell is dragged with the mouse, stop dragging
+   private void enableActions() {
 
-			_isShellDragged = false;
+      final Collection<GalleryMT20Item> selectedPhotos = _photoGallery.getGallerySelection();
 
-			_labelDragToolTip.setCursor(null);
+      final boolean isPhotoSelected = selectedPhotos.size() > 0;
 
-			setSlideoutPinnedLocation();
-		}
-	}
+      _actionAddPhoto.setEnabled(isPhotoSelected && _isLinkPhotoDisplayed);
+      _actionRemovePhoto.setEnabled(isPhotoSelected);
+   }
 
-	@Override
-	protected void onReparentShell(final Shell reparentedShell) {
-		_photoGallery.onReparentShell(reparentedShell);
-	}
+   protected void enableControls() {
 
-	protected abstract void onSelectPhoto(final PhotoSelection photoSelection);
+      _actionToolTipLocation.setEnabled(isToolTipPinned() == false);
+   }
 
-	protected void restoreState() {
+   private void fillActionBar() {
 
-		_isVerticalGallery = Util.getStateBoolean(_state, STATE_PHOTO_GALLERY_IS_VERTICAL, true);
-		_toolTipLocationUpDown = Util.getStateInt(_state, STATE_TOOL_TIP_LOCATION, 1);
+      /*
+       * fill exit toolbar
+       */
+      final ToolBarManager exitToolbarManager = new ToolBarManager(_ttToolbarControlExit);
 
-		updateUI_ToogleAction();
-		updateUI_ToolTipLocation();
+      exitToolbarManager.add(_actionCloseToolTip);
+      exitToolbarManager.add(_actionPinToolTip);
+      exitToolbarManager.add(_actionToolTipLocation);
 
-		enableControls();
-	}
+      exitToolbarManager.update(true);
 
-	@Override
-	protected void restoreState_SlideoutIsPinned(final boolean isToolTipPinned) {
-		_actionPinToolTip.setChecked(isToolTipPinned);
-	}
+      /*
+       * fill gallery toolbar
+       */
+      _galleryToolbarManager = new ToolBarManager(_galleryToolbarControl);
 
-	protected void saveState() {
+      _galleryToolbarManager.add(_actionToggleGalleryOrientation);
+      _galleryToolbarManager.add(new Separator());
+   }
 
-		_state.put(STATE_PHOTO_GALLERY_IS_VERTICAL, _isVerticalGallery);
-		_state.put(STATE_TOOL_TIP_LOCATION, _toolTipLocationUpDown);
-	}
+   private void fillContextMenu(final IMenuManager menuMgr) {
 
-	protected void showPhotoToolTip(final ArrayList<ChartPhoto> hoveredPhotos, final boolean isLinkPhotoDisplayed) {
+      if (_isLinkPhotoDisplayed) {
+         menuMgr.add(_actionAddPhoto);
+      }
 
-		final boolean isPhotoHovered = hoveredPhotos != null && hoveredPhotos.size() > 0;
+      menuMgr.add(_actionRemovePhoto);
 
-		final int hoveredPhotosHash = isPhotoHovered ? hoveredPhotos.hashCode() : 0;
+      enableActions();
+   }
 
-		/**
-		 * check if new images should be displayed, this check is VERY IMPORTANT otherwise this can
-		 * be a performance hog
-		 */
-		if (_displayedPhotosHash == hoveredPhotosHash) {
-			return;
-		}
+   public PhotoGallery getPhotoGallery() {
+      return _photoGallery;
+   }
 
-		_displayedPhotosHash = hoveredPhotosHash;
+   @Override
+   protected Color getShellColor_Background(final ColorRegistry colorRegistry) {
+      return colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
+   }
 
-		// display shell
-		if (showShell() == false) {
-			return;
-		}
+   @Override
+   protected Color getShellColor_Foreground(final ColorRegistry colorRegistry) {
+      return colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
+   }
 
-		/*
-		 * display photo images
-		 */
-		// create list containing all images
-		_allPhotos.clear();
-		for (final ChartPhoto chartPhoto : hoveredPhotos) {
-			_allPhotos.add(chartPhoto.photo);
-		}
+   @Override
+   protected String getShellTitle_NoResize() {
+      return Messages.Photo_Tooltip_Label_ShellNoResize;
+   }
 
-		final String galleryPositionKey = hoveredPhotosHash + "_PhotoToolTipUI";//$NON-NLS-1$
+   @Override
+   protected String getShellTitle_WithResize() {
+      return Messages.Photo_Tooltip_Label_ShellWithResize;
+   }
 
-		_photoGallery.showImages(_allPhotos, galleryPositionKey, isLinkPhotoDisplayed, true);
-	}
+   /**
+    * @return Returns current tooltip location
+    *         <p>
+    *         1 ... above tour chart<br>
+    *         0 ... below tour chart
+    */
+   protected int getTooltipLocation() {
+      return _toolTipLocationUpDown;
+   }
 
-	private void updateUI_Colors(final Composite parent) {
+   @Override
+   protected boolean isToolTipDragged() {
+      return _isShellDragged;
+   }
 
-		final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
-		final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
-		final Color bgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
+   @Override
+   protected boolean isVerticalLayout() {
+      return _isVerticalGallery;
+   }
 
-//		final Color fgColor = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
-//		final Color bgColor = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+   private void onDispose() {
 
-		final Color selectionFgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND);
-		final Color noFocusSelectionFgColor = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND);
+      _cursorResize.dispose();
+      _cursorHand.dispose();
+   }
 
-		_galleryContainer.setForeground(fgColor);
-		_galleryContainer.setBackground(bgColor);
+   private void onMouseDown(final MouseEvent e) {
 
-		_photoGallery.updateColors(fgColor, bgColor, selectionFgColor, noFocusSelectionFgColor, true);
-	}
+      _isShellDragged = true;
 
-	private void updateUI_ToogleAction() {
+      _devXMousedown = e.x;
+      _devYMousedown = e.y;
 
-		if (_isVerticalGallery) {
+      _labelDragToolTip.setCursor(_cursorResize);
+   }
 
-			_actionToggleGalleryOrientation.setToolTipText(//
-					Messages.Photo_Gallery_Action_ToggleGalleryHorizontal_ToolTip);
+   private void onMouseMove(final MouseEvent e) {
 
-			_actionToggleGalleryOrientation.setImageDescriptor(//
-					TourbookPlugin.getImageDescriptor(Messages.Image__PhotoGalleryHorizontal));
+      if (_isShellDragged) {
 
-		} else {
+         // shell is dragged
 
-			_actionToggleGalleryOrientation.setToolTipText(//
-					Messages.Photo_Gallery_Action_ToggleGalleryVertical_ToolTip);
+         final int diffX = _devXMousedown - e.x;
+         final int diffY = _devYMousedown - e.y;
 
-			_actionToggleGalleryOrientation.setImageDescriptor(//
-					TourbookPlugin.getImageDescriptor(Messages.Image__PhotoGalleryVertical));
-		}
-	}
+         setShellLocation(diffX, diffY);
+      }
+   }
 
-	private void updateUI_ToolTipLocation() {
+   private void onMouseUp(final MouseEvent e) {
 
-		if (_toolTipLocationUpDown == 1) {
+      if (_isShellDragged) {
 
-			// above tour chart
+         // shell is dragged with the mouse, stop dragging
 
-			_actionToolTipLocation.setToolTipText(Messages.App_Action_ToolTipLocation_BelowTourChart_Tooltip);
-			_actionToolTipLocation.setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__ArrowDown));
+         _isShellDragged = false;
 
-		} else {
+         _labelDragToolTip.setCursor(null);
 
-			// below tour chart
+         setSlideoutPinnedLocation();
+      }
+   }
 
-			_actionToolTipLocation.setToolTipText(Messages.App_Action_ToolTipLocation_AboveTourChart_Tooltip);
-			_actionToolTipLocation.setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__ArrowUp));
-		}
-	}
+   @Override
+   protected void onReparentShell(final Shell reparentedShell) {
+      _photoGallery.onReparentShell(reparentedShell);
+   }
+
+   protected abstract void onSelectPhoto(final PhotoSelection photoSelection);
+
+   protected void restoreState() {
+
+      _isVerticalGallery = Util.getStateBoolean(_state, STATE_PHOTO_GALLERY_IS_VERTICAL, true);
+      _toolTipLocationUpDown = Util.getStateInt(_state, STATE_TOOL_TIP_LOCATION, 1);
+
+      updateUI_ToogleAction();
+      updateUI_ToolTipLocation();
+
+      enableControls();
+   }
+
+   @Override
+   protected void restoreState_SlideoutIsPinned(final boolean isToolTipPinned) {
+      _actionPinToolTip.setChecked(isToolTipPinned);
+   }
+
+   @Override
+   protected void saveState() {
+
+      super.saveState();
+
+      _state.put(STATE_PHOTO_GALLERY_IS_VERTICAL, _isVerticalGallery);
+      _state.put(STATE_TOOL_TIP_LOCATION, _toolTipLocationUpDown);
+   }
+
+   protected void showPhotoToolTip(final ArrayList<ChartPhoto> hoveredPhotos, final boolean isLinkPhotoDisplayed) {
+
+      _isLinkPhotoDisplayed = isLinkPhotoDisplayed;
+
+      final boolean isPhotoHovered = hoveredPhotos != null && hoveredPhotos.size() > 0;
+
+      final int hoveredPhotosHash = isPhotoHovered ? hoveredPhotos.hashCode() : 0;
+
+      /**
+       * check if new images should be displayed, this check is VERY IMPORTANT otherwise this can
+       * be a performance hog
+       */
+      if (_displayedPhotosHash == hoveredPhotosHash) {
+         return;
+      }
+
+      _displayedPhotosHash = hoveredPhotosHash;
+
+      // display shell
+      if (showShell() == false) {
+         return;
+      }
+
+      /*
+       * display photo images
+       */
+      // create list containing all images
+      _allPhotos.clear();
+      for (final ChartPhoto chartPhoto : hoveredPhotos) {
+         _allPhotos.add(chartPhoto.photo);
+      }
+
+      final String galleryPositionKey = hoveredPhotosHash + "_PhotoToolTipUI";//$NON-NLS-1$
+
+      _photoGallery.showImages(_allPhotos, galleryPositionKey, isLinkPhotoDisplayed, true);
+   }
+
+   private void updateUI_Colors(final Composite parent) {
+
+      final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
+      final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
+      final Color bgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
+
+//      final Color fgColor = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
+//      final Color bgColor = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+
+      final Color selectionFgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND);
+      final Color noFocusSelectionFgColor = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND);
+
+      _galleryContainer.setForeground(fgColor);
+      _galleryContainer.setBackground(bgColor);
+
+      _photoGallery.updateColors(fgColor, bgColor, selectionFgColor, noFocusSelectionFgColor, true);
+   }
+
+   private void updateUI_ToogleAction() {
+
+      if (_isVerticalGallery) {
+
+         _actionToggleGalleryOrientation.setToolTipText(Messages.Photo_Gallery_Action_ToggleGalleryHorizontal_ToolTip);
+         _actionToggleGalleryOrientation.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.PhotoGallery_Horizontal));
+
+      } else {
+
+         _actionToggleGalleryOrientation.setToolTipText(Messages.Photo_Gallery_Action_ToggleGalleryVertical_ToolTip);
+         _actionToggleGalleryOrientation.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.PhotoGallery_Vertical));
+      }
+   }
+
+   private void updateUI_ToolTipLocation() {
+
+      if (_toolTipLocationUpDown == 1) {
+
+         // above tour chart
+
+         _actionToolTipLocation.setToolTipText(Messages.App_Action_ToolTipLocation_BelowTourChart_Tooltip);
+         _actionToolTipLocation.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowDown));
+
+      } else {
+
+         // below tour chart
+
+         _actionToolTipLocation.setToolTipText(Messages.App_Action_ToolTipLocation_AboveTourChart_Tooltip);
+         _actionToolTipLocation.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowUp));
+      }
+   }
 }

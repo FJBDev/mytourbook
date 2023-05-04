@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,10 +18,12 @@ package net.tourbook.ui.views.calendar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
@@ -37,11 +39,14 @@ import net.tourbook.common.formatter.ValueFormatter_Time_HHMMSS;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
+import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourManager;
+import net.tourbook.weather.WeatherUtils;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -54,20 +59,17 @@ import org.osgi.framework.Version;
 
 public class CalendarProfileManager {
 
-   private static final String VALUE_UNIT_K_CALORIES = net.tourbook.ui.Messages.Value_Unit_KCalories;
-   private static final String VALUE_UNIT_PULSE      = net.tourbook.ui.Messages.Value_Unit_Pulse;
-
-   private static final String DEFAULT_PREFIX        = " : ";                                        //$NON-NLS-1$
+   private static final String DEFAULT_PREFIX    = " : ";                                  //$NON-NLS-1$
    //
-   private static final String PROFILE_FILE_NAME     = "calendar-profiles.xml";                      //$NON-NLS-1$
+   private static final String PROFILE_FILE_NAME = "calendar-profiles.xml";                //$NON-NLS-1$
    //
    /**
     * Version number is not yet used.
     */
-   private static final int    PROFILE_VERSION       = 1;
+   private static final int    PROFILE_VERSION   = 1;
    //
-   private static final Bundle _bundle               = TourbookPlugin.getDefault().getBundle();
-   private static final IPath  _stateLocation        = Platform.getStateLocation(_bundle);
+   private static final Bundle _bundle           = TourbookPlugin.getDefault().getBundle();
+   private static final IPath  _stateLocation    = Platform.getStateLocation(_bundle);
    //
    //
    // common attributes
@@ -99,19 +101,19 @@ public class CalendarProfileManager {
    private static final String    TAG_ALTERNATE_MONTH2_RGB               = "AlternateMonth2RGB";        //$NON-NLS-1$
    private static final String    TAG_CALENDAR_BACKGROUND_RGB            = "CalendarBackgroundRGB";     //$NON-NLS-1$
    private static final String    TAG_CALENDAR_FOREGROUND_RGB            = "CalendarForegroundRGB";     //$NON-NLS-1$
-   private static final String    TAG_DAY_HOVERED_RGB                    = "DayHoveredRGB";             //$NON-NLS-1$;
-   private static final String    TAG_DAY_SELECTED_RGB                   = "DaySelectedRGB";            //$NON-NLS-1$;
+   private static final String    TAG_DAY_HOVERED_RGB                    = "DayHoveredRGB";             //$NON-NLS-1$
+   private static final String    TAG_DAY_SELECTED_RGB                   = "DaySelectedRGB";            //$NON-NLS-1$
    private static final String    TAG_DAY_TODAY_RGB                      = "DayTodayRGB";               //$NON-NLS-1$
    private static final String    TAG_FORMATTER                          = "Formatter";                 //$NON-NLS-1$
-   private static final String    TAG_TOUR_BACKGROUND_1_RGB              = "TourBackground1RGB";        //$NON-NLS-1$;
-   private static final String    TAG_TOUR_BACKGROUND_2_RGB              = "TourBackground2RGB";        //$NON-NLS-1$;
-   private static final String    TAG_TOUR_BORDER_RGB                    = "TourBorderRGB";             //$NON-NLS-1$;
+   private static final String    TAG_TOUR_BACKGROUND_1_RGB              = "TourBackground1RGB";        //$NON-NLS-1$
+   private static final String    TAG_TOUR_BACKGROUND_2_RGB              = "TourBackground2RGB";        //$NON-NLS-1$
+   private static final String    TAG_TOUR_BORDER_RGB                    = "TourBorderRGB";             //$NON-NLS-1$
    private static final String    TAG_TOUR_DRAGGED_RGB                   = "TourDraggedRGB";            //$NON-NLS-1$
-   private static final String    TAG_TOUR_HOVERED_RGB                   = "TourHoveredRGB";            //$NON-NLS-1$;
-   private static final String    TAG_TOUR_SELECTED_RGB                  = "TourSelectedRGB";           //$NON-NLS-1$;
-   private static final String    TAG_TOUR_CONTENT_RGB                   = "TourContentRGB";            //$NON-NLS-1$;
-   private static final String    TAG_TOUR_TITLE_RGB                     = "TourTitleRGB";              //$NON-NLS-1$;
-   private static final String    TAG_TOUR_VALUE_RGB                     = "TourValueRGB";              //$NON-NLS-1$;
+   private static final String    TAG_TOUR_HOVERED_RGB                   = "TourHoveredRGB";            //$NON-NLS-1$
+   private static final String    TAG_TOUR_SELECTED_RGB                  = "TourSelectedRGB";           //$NON-NLS-1$
+   private static final String    TAG_TOUR_CONTENT_RGB                   = "TourContentRGB";            //$NON-NLS-1$
+   private static final String    TAG_TOUR_TITLE_RGB                     = "TourTitleRGB";              //$NON-NLS-1$
+   private static final String    TAG_TOUR_VALUE_RGB                     = "TourValueRGB";              //$NON-NLS-1$
    private static final String    TAG_WEEK_VALUE_RGB                     = "weekValueRGB";              //$NON-NLS-1$
    //
    private static final String    ATTR_IS_DAY_CONTENT_VERTICAL           = "isDayContentVertical";      //$NON-NLS-1$
@@ -148,12 +150,12 @@ public class CalendarProfileManager {
    private static final String    ATTR_TOUR_CONTENT_FONT                 = "tourContentFont";           //$NON-NLS-1$
    private static final String    ATTR_TOUR_CONTENT_COLOR                = "tourContentColor";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_DRAGGED_COLOR                = "tourDraggedColor";          //$NON-NLS-1$
-   private static final String    ATTR_TOUR_HOVERED_COLOR                = "tourHoveredColor";          //$NON-NLS-1$;
+   private static final String    ATTR_TOUR_HOVERED_COLOR                = "tourHoveredColor";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_TOP                   = "tourMarginTop";             //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_LEFT                  = "tourMarginLeft";            //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_BOTTOM                = "tourMarginBottom";          //$NON-NLS-1$
    private static final String    ATTR_TOUR_MARGIN_RIGHT                 = "tourMarginRight";           //$NON-NLS-1$
-   private static final String    ATTR_TOUR_SELECTED_COLOR               = "tourSelectedColor";         //$NON-NLS-1$;
+   private static final String    ATTR_TOUR_SELECTED_COLOR               = "tourSelectedColor";         //$NON-NLS-1$
    private static final String    ATTR_TOUR_TITLE_COLOR                  = "tourTitleColor";            //$NON-NLS-1$
    private static final String    ATTR_TOUR_TITLE_FONT                   = "tourTitleFont";             //$NON-NLS-1$
    private static final String    ATTR_TOUR_TRUNCATED_LINES              = "tourTruncatedLines";        //$NON-NLS-1$
@@ -274,8 +276,8 @@ public class CalendarProfileManager {
    static final int                   YEAR_COLUMNS_MAX           = 100;
    static final int                   YEAR_COLUMN_DAY_WIDTH_MIN  = 1;
    static final int                   YEAR_COLUMN_DAY_WIDTH_MAX  = 500;
-
    private static final DataFormatter _tourFormatter_Distance;
+
    private static final DataFormatter _tourFormatter_Elevation;
    private static final DataFormatter _tourFormatter_Elevation_Change;
    private static final DataFormatter _tourFormatter_Energy_kcal;
@@ -284,11 +286,14 @@ public class CalendarProfileManager {
    private static final DataFormatter _tourFormatter_Power_Avg;
    private static final DataFormatter _tourFormatter_Pulse_Avg;
    private static final DataFormatter _tourFormatter_Speed;
-   private static final DataFormatter _tourFormatter_Time_Moving;
+   private static final DataFormatter _tourFormatter_Time_Elapsed;
+   private static final DataFormatter _tourFormatter_Time_Recorded;
    private static final DataFormatter _tourFormatter_Time_Paused;
-   private static final DataFormatter _tourFormatter_Time_Recording;
+   private static final DataFormatter _tourFormatter_Time_Moving;
+   private static final DataFormatter _tourFormatter_Time_Break;
    private static final DataFormatter _tourFormatter_TourDescription;
    private static final DataFormatter _tourFormatter_TourTitle;
+   private static final DataFormatter _tourFormatter_Weather_Icon;
 
    private static final DataFormatter _weekFormatter_CadenceZones_TimePercentages;
    private static final DataFormatter _weekFormatter_Distance;
@@ -298,23 +303,24 @@ public class CalendarProfileManager {
    private static final DataFormatter _weekFormatter_Energy_MJ;
    private static final DataFormatter _weekFormatter_Pace;
    private static final DataFormatter _weekFormatter_Speed;
-   private static final DataFormatter _weekFormatter_Time_Moving;
+   private static final DataFormatter _weekFormatter_Time_Elapsed;
+   private static final DataFormatter _weekFormatter_Time_Recorded;
    private static final DataFormatter _weekFormatter_Time_Paused;
-   private static final DataFormatter _weekFormatter_Time_Recording;
+   private static final DataFormatter _weekFormatter_Time_Moving;
+   private static final DataFormatter _weekFormatter_Time_Break;
 
    static final DataFormatter[]       allTourContentFormatter;
    static final DataFormatter[]       allWeekFormatter;
 
 // SET_FORMATTING_OFF
 
-   private static final IValueFormatter   _valueFormatter_Number_1_0            = new ValueFormatter_Number_1_0(false);
+   private static final IValueFormatter   _valueFormatter_Number_1_0 = new ValueFormatter_Number_1_0(false);
    private static final IValueFormatter   _valueFormatter_Number_1_1            = new ValueFormatter_Number_1_1(false);
    private static final IValueFormatter   _valueFormatter_Number_1_2            = new ValueFormatter_Number_1_2(false);
    private static final IValueFormatter   _valueFormatter_Number_1_3            = new ValueFormatter_Number_1_3(false);
    private static final IValueFormatter   _valueFormatter_Time_HH               = new ValueFormatter_Time_HH();
    private static final IValueFormatter   _valueFormatter_Time_HHMM             = new ValueFormatter_Time_HHMM();
    private static final IValueFormatter   _valueFormatter_Time_HHMMSS           = new ValueFormatter_Time_HHMMSS();
-
    static {
 
       /*
@@ -339,9 +345,13 @@ public class CalendarProfileManager {
       _tourFormatter_Energy_kcal       = createFormatter_Energy_kcal();
       _tourFormatter_Energy_MJ         = createFormatter_Energy_MJ();
 
-      _tourFormatter_Time_Moving       = createFormatter_Time_Moving();
+      _tourFormatter_Time_Elapsed      = createFormatter_Time_Elapsed();
+      _tourFormatter_Time_Recorded     = createFormatter_Time_Recorded();
       _tourFormatter_Time_Paused       = createFormatter_Time_Paused();
-      _tourFormatter_Time_Recording    = createFormatter_Time_Recording();
+      _tourFormatter_Time_Moving       = createFormatter_Time_Moving();
+      _tourFormatter_Time_Break        = createFormatter_Time_Break();
+
+      _tourFormatter_Weather_Icon      = createFormatter_Weather_Icon();
 
       allTourContentFormatter = new DataFormatter[] {
 
@@ -363,9 +373,13 @@ public class CalendarProfileManager {
             _tourFormatter_Energy_kcal,
             _tourFormatter_Energy_MJ,
 
-            _tourFormatter_Time_Recording,
-            _tourFormatter_Time_Moving,
+            _tourFormatter_Time_Elapsed,
+            _tourFormatter_Time_Recorded,
             _tourFormatter_Time_Paused,
+            _tourFormatter_Time_Moving,
+            _tourFormatter_Time_Break,
+
+            _tourFormatter_Weather_Icon
       };
 
       // Week
@@ -380,9 +394,11 @@ public class CalendarProfileManager {
       _weekFormatter_Energy_kcal                   = createFormatter_Energy_kcal();
       _weekFormatter_Energy_MJ                     = createFormatter_Energy_MJ();
 
-      _weekFormatter_Time_Moving                   = createFormatter_Time_Moving();
+      _weekFormatter_Time_Elapsed                  = createFormatter_Time_Elapsed();
+      _weekFormatter_Time_Recorded                 = createFormatter_Time_Recorded();
       _weekFormatter_Time_Paused                   = createFormatter_Time_Paused();
-      _weekFormatter_Time_Recording                = createFormatter_Time_Recording();
+      _weekFormatter_Time_Moving                   = createFormatter_Time_Moving();
+      _weekFormatter_Time_Break                    = createFormatter_Time_Break();
 
       allWeekFormatter = new DataFormatter[] {
 
@@ -399,9 +415,11 @@ public class CalendarProfileManager {
             _weekFormatter_Energy_kcal,
             _weekFormatter_Energy_MJ,
 
-            _weekFormatter_Time_Recording,
-            _weekFormatter_Time_Moving,
+            _weekFormatter_Time_Elapsed,
+            _weekFormatter_Time_Recorded,
             _weekFormatter_Time_Paused,
+            _weekFormatter_Time_Moving,
+            _weekFormatter_Time_Break
       };
 
       DEFAULT_TOUR_FORMATTER_DATA = new FormatterData[] {
@@ -411,7 +429,7 @@ public class CalendarProfileManager {
          new FormatterData(true,      FormatterID.DISTANCE,             _tourFormatter_Distance.getDefaultFormat()),
          new FormatterData(true,      FormatterID.ELEVATION,            _tourFormatter_Elevation.getDefaultFormat()),
          new FormatterData(true,      FormatterID.ELEVATION_CHANGE,     _tourFormatter_Elevation_Change.getDefaultFormat()),
-         new FormatterData(true,      FormatterID.TIME_MOVING,          _tourFormatter_Time_Moving.getDefaultFormat()),
+         new FormatterData(true,      FormatterID.TIME_MOVING,          _weekFormatter_Time_Recorded.getDefaultFormat()),
          new FormatterData(false,     FormatterID.EMPTY,                ValueFormat.DUMMY_VALUE),
          new FormatterData(false,     FormatterID.EMPTY,                ValueFormat.DUMMY_VALUE),
          new FormatterData(false,     FormatterID.EMPTY,                ValueFormat.DUMMY_VALUE),
@@ -427,7 +445,7 @@ public class CalendarProfileManager {
          new FormatterData(true,      FormatterID.SPEED,                _weekFormatter_Speed.getDefaultFormat()),
          new FormatterData(true,      FormatterID.PACE,                 _weekFormatter_Pace.getDefaultFormat()),
          new FormatterData(true,      FormatterID.CADENCE_ZONES_TIMES,  _weekFormatter_CadenceZones_TimePercentages.getDefaultFormat()),
-         new FormatterData(true,      FormatterID.TIME_MOVING,          _weekFormatter_Time_Moving.getDefaultFormat()),
+         new FormatterData(true,      FormatterID.TIME_MOVING,          _weekFormatter_Time_Recorded.getDefaultFormat()),
          new FormatterData(false,     FormatterID.EMPTY,                ValueFormat.DUMMY_VALUE),
       };
 
@@ -599,7 +617,7 @@ public class CalendarProfileManager {
          new DayContentColor_ComboData(CalendarColor.CUSTOM,      Messages.Calendar_Profile_Color_Custom),
       };
 
-// SET_FORMATTING_ON
+   // SET_FORMATTING_ON
    //
    /**
     * Contains all calendar profiles which are loaded from a xml file.
@@ -614,7 +632,8 @@ public class CalendarProfileManager {
    //
    private static String                                       _fromXml_ActiveCalendarProfileId;
    //
-   private final static ListenerList<ICalendarProfileListener> _profileListener = new ListenerList<>();
+   private static final ListenerList<ICalendarProfileListener> _profileListener = new ListenerList<>();
+   private static final IPreferenceStore                       _prefStore       = TourbookPlugin.getPrefStore();
 
    static class CalendarColor_ComboData {
 
@@ -853,7 +872,7 @@ public class CalendarProfileManager {
 
             if (data.distance > 0) {
 
-               final double distance = data.distance / 1000.0 / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+               final double distance = data.distance / 1000.0 / UI.UNIT_VALUE_DISTANCE;
 
                final String valueText = valueFormatter.printDouble(distance);
 
@@ -912,11 +931,11 @@ public class CalendarProfileManager {
 
             if (data.elevationGain > 0) {
 
-               final float elevation = data.elevationGain / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
+               final float elevation = data.elevationGain / UI.UNIT_VALUE_ELEVATION;
                final String valueText = valueFormatter.printDouble(elevation);
 
                return isShowValueUnit
-                     ? valueText + UI.SPACE + UI.UNIT_LABEL_ALTITUDE + UI.SPACE
+                     ? valueText + UI.SPACE + UI.UNIT_LABEL_ELEVATION + UI.SPACE
                      : valueText + UI.SPACE;
 
             } else {
@@ -967,13 +986,12 @@ public class CalendarProfileManager {
 
             if (data.elevationGain > 0 && data.distance > 0) {
 
-               final float totalDistance = data.distance / 1000f / net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
-               final float totalElevationChange = (data.elevationGain + data.elevationLoss) / net.tourbook.ui.UI.UNIT_VALUE_ALTITUDE;
-               final float elevationChangePerDistanceUnit = totalElevationChange / totalDistance;
-               final String valueText = valueFormatter.printDouble(elevationChangePerDistanceUnit);
+               final float totalDistance = data.distance / UI.UNIT_VALUE_DISTANCE;
+               final float totalElevationChange = (data.elevationGain + data.elevationLoss) / UI.UNIT_VALUE_ELEVATION;
+               final String valueText = valueFormatter.printDouble(UI.computeAverageElevationChange(totalElevationChange, totalDistance));
 
                return isShowValueUnit
-                     ? valueText + UI.SPACE + UI.UNIT_LABEL_ALTITUDE + "/" + UI.UNIT_LABEL_DISTANCE //$NON-NLS-1$
+                     ? valueText + UI.SPACE + UI.UNIT_LABEL_ELEVATION + "/" + UI.UNIT_LABEL_DISTANCE //$NON-NLS-1$
                      : valueText + UI.SPACE;
 
             } else {
@@ -1069,7 +1087,7 @@ public class CalendarProfileManager {
                final String valueText = valueFormatter.printDouble(kcal);
 
                return isShowValueUnit
-                     ? valueText + UI.SPACE + VALUE_UNIT_K_CALORIES + UI.SPACE
+                     ? valueText + UI.SPACE + OtherMessages.VALUE_UNIT_K_CALORIES + UI.SPACE
                      : valueText + UI.SPACE;
 
             } else {
@@ -1125,7 +1143,7 @@ public class CalendarProfileManager {
 
             if (calories > 0) {
 
-               final double joule = calories * net.tourbook.ui.UI.UNIT_CALORIE_2_JOULE;
+               final double joule = calories * UI.UNIT_CALORIE_2_JOULE;
                final double megaJoule = joule / 1_000_000;
 
                final String valueText = valueFormatter.printDouble(megaJoule);
@@ -1183,11 +1201,15 @@ public class CalendarProfileManager {
          @Override
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
-            if (data.drivingTime > 0 && data.distance > 0) {
+            if (data.movingTime > 0 && data.distance > 0) {
+
+               final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(
+                     ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
+               final int time = isPaceAndSpeedFromRecordedTime ? data.recordedTime : data.movingTime;
 
                final float pace = data.distance == 0
                      ? 0
-                     : 1000 * data.drivingTime / data.distance * net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+                     : 1000 * time / data.distance * UI.UNIT_VALUE_DISTANCE;
 
                final String valueText = UI.format_mm_ss((long) pace);
 
@@ -1285,7 +1307,7 @@ public class CalendarProfileManager {
                final String valueText = valueFormatter.printDouble(data.pulse_Avg);
 
                return isShowValueUnit
-                     ? valueText + UI.SPACE + UI.SYMBOL_AVERAGE_WITH_SPACE + VALUE_UNIT_PULSE + UI.SPACE
+                     ? valueText + UI.SPACE + UI.SYMBOL_AVERAGE_WITH_SPACE + OtherMessages.VALUE_UNIT_PULSE + UI.SPACE
                      : valueText + UI.SPACE;
 
             } else {
@@ -1336,14 +1358,18 @@ public class CalendarProfileManager {
          @Override
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
-            if (data.distance > 0 && data.drivingTime > 0) {
+            final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(
+                  ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
+            final int time = isPaceAndSpeedFromRecordedTime ? data.recordedTime : data.movingTime;
+
+            if (data.distance > 0 && time > 0) {
 
                float speed = data.distance == 0
                      ? 0
-                     : data.distance / (data.drivingTime / 3.6f);
+                     : data.distance / (time / 3.6f);
 
                //convert to the current measurement system
-               speed /= net.tourbook.ui.UI.UNIT_VALUE_DISTANCE;
+               speed /= UI.UNIT_VALUE_DISTANCE;
                final String valueText = valueFormatter.printDouble(speed);
 
                return isShowValueUnit
@@ -1384,6 +1410,119 @@ public class CalendarProfileManager {
    }
 
    /**
+    * Break time
+    *
+    * @return
+    */
+   private static DataFormatter createFormatter_Time_Break() {
+
+      final DataFormatter dataFormatter = new DataFormatter(
+            FormatterID.TIME_BREAK,
+            Messages.Calendar_Profile_Value_BreakTime,
+            GraphColorManager.PREF_GRAPH_TIME) {
+
+         @Override
+         String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
+
+            if (data.elapsedTime > 0) {
+
+               final String valueText = valueFormatter.printLong(data.elapsedTime - data.movingTime);
+
+               return isShowValueUnit
+                     ? valueText + UI.SPACE + UI.UNIT_LABEL_TIME + UI.SPACE
+                     : valueText + UI.SPACE;
+
+            } else {
+               return UI.EMPTY_STRING;
+            }
+         }
+
+         @Override
+         public ValueFormat getDefaultFormat() {
+            return ValueFormat.TIME_HH_MM;
+         }
+
+         @Override
+         public ValueFormat[] getValueFormats() {
+
+            return new ValueFormat[] {
+                  ValueFormat.TIME_HH,
+                  ValueFormat.TIME_HH_MM,
+                  ValueFormat.TIME_HH_MM_SS };
+         }
+
+         @Override
+         void setValueFormat(final ValueFormat valueFormat) {
+
+            valueFormatId = valueFormat;
+            valueFormatter = getFormatter_Time(valueFormat.name());
+         }
+      };
+
+      // setup default formatter
+      dataFormatter.setValueFormat(dataFormatter.getDefaultFormat());
+
+      return dataFormatter;
+   }
+
+   /**
+    * Elapsed time
+    *
+    * @return
+    */
+   private static DataFormatter createFormatter_Time_Elapsed() {
+
+      final DataFormatter dataFormatter = new DataFormatter(
+            FormatterID.TIME_ELAPSED,
+            Messages.Calendar_Profile_Value_ElapsedTime,
+            GraphColorManager.PREF_GRAPH_TIME) {
+
+         @Override
+         String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
+
+            if (data.elapsedTime > 0) {
+
+               final String valueText = valueFormatter.printLong(data.elapsedTime);
+
+               return isShowValueUnit
+                     ? valueText + UI.SPACE + UI.UNIT_LABEL_TIME + UI.SPACE
+                     : valueText + UI.SPACE;
+
+            } else {
+
+               return UI.EMPTY_STRING;
+            }
+         }
+
+         @Override
+         public ValueFormat getDefaultFormat() {
+            return ValueFormat.TIME_HH_MM;
+         }
+
+         @Override
+         public ValueFormat[] getValueFormats() {
+
+            return new ValueFormat[] {
+                  ValueFormat.TIME_HH,
+                  ValueFormat.TIME_HH_MM,
+                  ValueFormat.TIME_HH_MM_SS };
+         }
+
+         @Override
+         void setValueFormat(final ValueFormat valueFormat) {
+
+            valueFormatId = valueFormat;
+            valueFormatter = getFormatter_Time(valueFormat.name());
+         }
+      };
+
+      // setup default formatter
+      dataFormatter.setValueFormat(dataFormatter.getDefaultFormat());
+
+      return dataFormatter;
+   }
+
+   /**
     * Moving time
     *
     * @return
@@ -1398,9 +1537,9 @@ public class CalendarProfileManager {
          @Override
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
-            if (data.drivingTime > 0) {
+            if (data.movingTime > 0) {
 
-               final String valueText = valueFormatter.printLong(data.drivingTime);
+               final String valueText = valueFormatter.printLong(data.movingTime);
 
                return isShowValueUnit
                      ? valueText + UI.SPACE + UI.UNIT_LABEL_TIME + UI.SPACE
@@ -1454,9 +1593,9 @@ public class CalendarProfileManager {
          @Override
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
-            if (data.recordingTime > 0) {
+            if (data.elapsedTime > 0) {
 
-               final String valueText = valueFormatter.printLong(data.recordingTime - data.drivingTime);
+               final String valueText = valueFormatter.printLong(data.elapsedTime - data.recordedTime);
 
                return isShowValueUnit
                      ? valueText + UI.SPACE + UI.UNIT_LABEL_TIME + UI.SPACE
@@ -1496,23 +1635,23 @@ public class CalendarProfileManager {
    }
 
    /**
-    * Recording time
+    * Recorded time
     *
     * @return
     */
-   private static DataFormatter createFormatter_Time_Recording() {
+   private static DataFormatter createFormatter_Time_Recorded() {
 
       final DataFormatter dataFormatter = new DataFormatter(
-            FormatterID.TIME_RECORDING,
-            Messages.Calendar_Profile_Value_RecordingTime,
+            FormatterID.TIME_RECORDED,
+            Messages.Calendar_Profile_Value_RecordedTime,
             GraphColorManager.PREF_GRAPH_TIME) {
 
          @Override
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
-            if (data.recordingTime > 0) {
+            if (data.recordedTime > 0) {
 
-               final String valueText = valueFormatter.printLong(data.recordingTime);
+               final String valueText = valueFormatter.printLong(data.recordedTime);
 
                return isShowValueUnit
                      ? valueText + UI.SPACE + UI.UNIT_LABEL_TIME + UI.SPACE
@@ -1607,6 +1746,44 @@ public class CalendarProfileManager {
          String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
 
             return data.tourTitle;
+         }
+
+         @Override
+         public ValueFormat getDefaultFormat() {
+            return ValueFormat.TEXT;
+         }
+
+         @Override
+         public ValueFormat[] getValueFormats() {
+            return new ValueFormat[] { ValueFormat.TEXT };
+         }
+
+         @Override
+         void setValueFormat(final ValueFormat valueFormat) {}
+      };
+
+      // setup default formatter
+      dataFormatter.setValueFormat(dataFormatter.getDefaultFormat());
+
+      return dataFormatter;
+   }
+
+   /**
+    * Weather Icon
+    */
+   private static DataFormatter createFormatter_Weather_Icon() {
+
+      final DataFormatter dataFormatter = new DataFormatter(
+            FormatterID.WEATHER_ICON,
+            Messages.Calendar_Profile_Value_WeatherIcon,
+            UI.EMPTY_STRING) {
+
+         @Override
+         String format(final CalendarTourData data,
+                       final ValueFormat valueFormat,
+                       final boolean isShowValueUnit) {
+
+            return WeatherUtils.getWeatherIcon(WeatherUtils.getWeatherIndex(data.weatherClouds));
          }
 
          @Override
@@ -2898,7 +3075,7 @@ public class CalendarProfileManager {
 
          // a profile is not yet created
 
-         StatusUtil.log("Created default profile for calendar properties");//$NON-NLS-1$
+         StatusUtil.logInfo("Created default profile for calendar properties");//$NON-NLS-1$
 
          createProfile_0_AllDefaultDefaultProfiles(_allCalendarProfiles);
 
@@ -2990,8 +3167,8 @@ public class CalendarProfileManager {
                if (profile.defaultId == DefaultId.XML_DEFAULT) {
 
                   /*
-                   * The default id is unknown, this occured when switching vom 17.12.0 -> 17.12.1
-                   * but it can occure when data are corrup, setup as default
+                   * The default id is unknown, this occurred when switching from 17.12.0 -> 17.12.1
+                   * but it can occur when data are corrupted, setup as default
                    */
                   profile.defaultId = DefaultId.DEFAULT;
 
@@ -3044,7 +3221,7 @@ public class CalendarProfileManager {
          if (inputFile.exists()) {
 
             try (FileInputStream inputStream = new FileInputStream(inputFile);
-                  InputStreamReader reader = new InputStreamReader(inputStream, UI.UTF_8)) {
+                  InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
 
                xmlRoot = XMLMemento.createReadRoot(reader);
 
@@ -3079,7 +3256,7 @@ public class CalendarProfileManager {
          _allCalendarProfiles.addAll(missingDefaultDefaultProfiles);
 
          // ensure profiles are created
-         if (_allCalendarProfiles.size() == 0) {
+         if (_allCalendarProfiles.isEmpty()) {
             createProfile_0_AllDefaultDefaultProfiles(_allCalendarProfiles);
          }
 
@@ -3155,13 +3332,13 @@ public class CalendarProfileManager {
       profile.useDraggedScrolling      = Util.getXmlBoolean(xmlProfile,                ATTR_USE_DRAGGED_SCROLLING,      true);
       profile.weekHeight               = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_HEIGHT,                DEFAULT_WEEK_HEIGHT);
       profile.weekRows                 = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_ROWS,                  DEFAULT_WEEK_ROWS);
-      profile.alternateMonthRGB        = Util.getXmlRgb(xmlProfile,                    TAG_ALTERNATE_MONTH_RGB,         DEFAULT_ALTERNATE_MONTH_RGB);
-      profile.alternateMonth2RGB       = Util.getXmlRgb(xmlProfile,                    TAG_ALTERNATE_MONTH2_RGB,        DEFAULT_ALTERNATE_MONTH2_RGB);
-      profile.calendarBackgroundRGB    = Util.getXmlRgb(xmlProfile,                    TAG_CALENDAR_BACKGROUND_RGB,     DEFAULT_CALENDAR_BACKGROUND_RGB);
-      profile.calendarForegroundRGB    = Util.getXmlRgb(xmlProfile,                    TAG_CALENDAR_FOREGROUND_RGB,     DEFAULT_CALENDAR_FOREBACKGROUND_RGB);
-      profile.dayHoveredRGB            = Util.getXmlRgb(xmlProfile,                    TAG_DAY_HOVERED_RGB,             DEFAULT_DAY_HOVERED_RGB);
-      profile.daySelectedRGB           = Util.getXmlRgb(xmlProfile,                    TAG_DAY_SELECTED_RGB,            DEFAULT_DAY_SELECTED_RGB);
-      profile.dayTodayRGB              = Util.getXmlRgb(xmlProfile,                    TAG_DAY_TODAY_RGB,               DEFAULT_DAY_TODAY_RGB);
+      profile.alternateMonthRGB        = Util.getXmlRgb_AsParent(xmlProfile,           TAG_ALTERNATE_MONTH_RGB,         DEFAULT_ALTERNATE_MONTH_RGB);
+      profile.alternateMonth2RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_ALTERNATE_MONTH2_RGB,        DEFAULT_ALTERNATE_MONTH2_RGB);
+      profile.calendarBackgroundRGB    = Util.getXmlRgb_AsParent(xmlProfile,           TAG_CALENDAR_BACKGROUND_RGB,     DEFAULT_CALENDAR_BACKGROUND_RGB);
+      profile.calendarForegroundRGB    = Util.getXmlRgb_AsParent(xmlProfile,           TAG_CALENDAR_FOREGROUND_RGB,     DEFAULT_CALENDAR_FOREBACKGROUND_RGB);
+      profile.dayHoveredRGB            = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_HOVERED_RGB,             DEFAULT_DAY_HOVERED_RGB);
+      profile.daySelectedRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_SELECTED_RGB,            DEFAULT_DAY_SELECTED_RGB);
+      profile.dayTodayRGB              = Util.getXmlRgb_AsParent(xmlProfile,           TAG_DAY_TODAY_RGB,               DEFAULT_DAY_TODAY_RGB);
 
       // 1. Date column
       profile.isShowDateColumn         = Util.getXmlBoolean(xmlProfile,                ATTR_IS_SHOW_DATE_COLUMN,        true);
@@ -3188,7 +3365,7 @@ public class CalendarProfileManager {
       profile.weekMarginRight          = Util.getXmlInteger(xmlProfile,                ATTR_WEEK_MARGIN_RIGHT,          DEFAULT_WEEK_MARGIN_RIGHT,    DEFAULT_MARGIN_MIN, DEFAULT_MARGIN_MAX);
       profile.weekValueColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_WEEK_VALUE_COLOR,           DEFAULT_WEEK_VALUE_COLOR);
       profile.weekValueFont            = Util.getXmlFont(xmlProfile,                   ATTR_WEEK_VALUE_FONT,            defaultFont.getFontData()[0]);
-      profile.weekValueRGB             = Util.getXmlRgb(xmlProfile,                    TAG_WEEK_VALUE_RGB,              DEFAULT_WEEK_VALUE_RGB);
+      profile.weekValueRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_WEEK_VALUE_RGB,              DEFAULT_WEEK_VALUE_RGB);
 
       // day date
       profile.isHideDayDateWhenNoTour  = Util.getXmlBoolean(xmlProfile,                ATTR_IS_HIDE_DAY_DATE_WHEN_NO_TOUR,    true);
@@ -3214,12 +3391,12 @@ public class CalendarProfileManager {
       profile.tourDraggedColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_DRAGGED_COLOR,         DEFAULT_TOUR_DRAGGED_COLOR);
       profile.tourHoveredColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_HOVERED_COLOR,         DEFAULT_TOUR_HOVERED_COLOR);
       profile.tourSelectedColor        = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_SELECTED_COLOR,        DEFAULT_TOUR_SELECTED_COLOR);
-      profile.tourBackground1RGB       = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BACKGROUND_1_RGB,       DEFAULT_TOUR_BACKGROUND_1_RGB);
-      profile.tourBackground2RGB       = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BACKGROUND_2_RGB,       DEFAULT_TOUR_BACKGROUND_2_RGB);
-      profile.tourBorderRGB            = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_BORDER_RGB,             DEFAULT_TOUR_BORDER_RGB);
-      profile.tourDraggedRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_DRAGGED_RGB,            DEFAULT_TOUR_DRAGGED_RGB);
-      profile.tourHoveredRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_HOVERED_RGB,            DEFAULT_TOUR_HOVERED_RGB);
-      profile.tourSelectedRGB          = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_SELECTED_RGB,           DEFAULT_TOUR_SELECTED_RGB);
+      profile.tourBackground1RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BACKGROUND_1_RGB,       DEFAULT_TOUR_BACKGROUND_1_RGB);
+      profile.tourBackground2RGB       = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BACKGROUND_2_RGB,       DEFAULT_TOUR_BACKGROUND_2_RGB);
+      profile.tourBorderRGB            = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_BORDER_RGB,             DEFAULT_TOUR_BORDER_RGB);
+      profile.tourDraggedRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_DRAGGED_RGB,            DEFAULT_TOUR_DRAGGED_RGB);
+      profile.tourHoveredRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_HOVERED_RGB,            DEFAULT_TOUR_HOVERED_RGB);
+      profile.tourSelectedRGB          = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_SELECTED_RGB,           DEFAULT_TOUR_SELECTED_RGB);
 
       // tour content
       profile.isShowTourContent        = Util.getXmlBoolean(xmlProfile,                ATTR_IS_SHOW_TOUR_CONTENT,       true);
@@ -3237,17 +3414,16 @@ public class CalendarProfileManager {
       profile.tourContentColor         = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_CONTENT_COLOR,         DEFAULT_TOUR_COLOR);
       profile.tourTitleColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_TITLE_COLOR,           DEFAULT_TOUR_COLOR);
       profile.tourValueColor           = (CalendarColor) Util.getXmlEnum(xmlProfile,   ATTR_TOUR_VALUE_COLOR,           DEFAULT_TOUR_COLOR);
-      profile.tourContentRGB           = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_CONTENT_RGB,            DEFAULT_TOUR_CONTENT_RGB);
-      profile.tourTitleRGB             = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_TITLE_RGB,              DEFAULT_TOUR_TITLE_RGB);
-      profile.tourValueRGB             = Util.getXmlRgb(xmlProfile,                    TAG_TOUR_VALUE_RGB,              DEFAULT_TOUR_VALUE_RGB);
+      profile.tourContentRGB           = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_CONTENT_RGB,            DEFAULT_TOUR_CONTENT_RGB);
+      profile.tourTitleRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_TITLE_RGB,              DEFAULT_TOUR_TITLE_RGB);
+      profile.tourValueRGB             = Util.getXmlRgb_AsParent(xmlProfile,           TAG_TOUR_VALUE_RGB,              DEFAULT_TOUR_VALUE_RGB);
 
 // SET_FORMATTING_ON
 
       // tour formatter
       final FormatterData[] tourFormatterData = restoreProfile_FormatterData(
             xmlProfile,
-            TAG_ALL_TOUR_FORMATTER,
-            profile);
+            TAG_ALL_TOUR_FORMATTER);
       if (tourFormatterData != null) {
          profile.allTourFormatterData = tourFormatterData;
       }
@@ -3255,8 +3431,7 @@ public class CalendarProfileManager {
       // week formatter
       final FormatterData[] weekFormatterData = restoreProfile_FormatterData(
             xmlProfile,
-            TAG_ALL_WEEK_FORMATTER,
-            profile);
+            TAG_ALL_WEEK_FORMATTER);
       if (weekFormatterData != null) {
          profile.allWeekFormatterData = weekFormatterData;
       }
@@ -3265,8 +3440,7 @@ public class CalendarProfileManager {
    }
 
    private static FormatterData[] restoreProfile_FormatterData(final XMLMemento xmlProfile,
-                                                               final String tagAllFormatter,
-                                                               final CalendarProfile profile) {
+                                                               final String tagAllFormatter) {
 
       final XMLMemento xmlAllFormatter = (XMLMemento) xmlProfile.getChild(tagAllFormatter);
       if (xmlAllFormatter != null) {
@@ -3540,16 +3714,28 @@ public class CalendarProfileManager {
             _tourFormatter_Speed.setValueFormat(valueFormat);
             break;
 
-         case TIME_MOVING:
-            _tourFormatter_Time_Moving.setValueFormat(valueFormat);
+         case TIME_ELAPSED:
+            _tourFormatter_Time_Elapsed.setValueFormat(valueFormat);
+            break;
+
+         case TIME_RECORDED:
+            _tourFormatter_Time_Recorded.setValueFormat(valueFormat);
             break;
 
          case TIME_PAUSED:
             _tourFormatter_Time_Paused.setValueFormat(valueFormat);
             break;
 
-         case TIME_RECORDING:
-            _tourFormatter_Time_Recording.setValueFormat(valueFormat);
+         case TIME_MOVING:
+            _tourFormatter_Time_Moving.setValueFormat(valueFormat);
+            break;
+
+         case TIME_BREAK:
+            _tourFormatter_Time_Break.setValueFormat(valueFormat);
+            break;
+
+         case WEATHER_ICON:
+            _tourFormatter_Weather_Icon.setValueFormat(valueFormat);
             break;
 
          default:
@@ -3598,16 +3784,24 @@ public class CalendarProfileManager {
             _weekFormatter_Speed.setValueFormat(valueFormat);
             break;
 
-         case TIME_MOVING:
-            _weekFormatter_Time_Moving.setValueFormat(valueFormat);
+         case TIME_ELAPSED:
+            _weekFormatter_Time_Elapsed.setValueFormat(valueFormat);
+            break;
+
+         case TIME_RECORDED:
+            _weekFormatter_Time_Recorded.setValueFormat(valueFormat);
             break;
 
          case TIME_PAUSED:
             _weekFormatter_Time_Paused.setValueFormat(valueFormat);
             break;
 
-         case TIME_RECORDING:
-            _weekFormatter_Time_Recording.setValueFormat(valueFormat);
+         case TIME_MOVING:
+            _weekFormatter_Time_Moving.setValueFormat(valueFormat);
+            break;
+
+         case TIME_BREAK:
+            _weekFormatter_Time_Break.setValueFormat(valueFormat);
             break;
 
          default:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2018 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,114 +20,70 @@ package net.tourbook.ui.tourChart;
 
 import org.eclipse.swt.graphics.Rectangle;
 
-import net.tourbook.common.UI;
-import net.tourbook.photo.Photo;
+public abstract class ChartLabel {
 
-public class ChartLabel {
+   public boolean   isVisible;
+   public boolean   isDescription;
 
-	/**
-	 * marker was created in the device
-	 */
-	public final static int	MARKER_TYPE_DEVICE		= 1;
+   /**
+    * x-position in graph units
+    */
+   public double    graphX;
 
-	/**
-	 * marker was created in the tourbook application
-	 */
-	public final static int	MARKER_TYPE_CUSTOM		= 2;
+   /**
+    * x-position in graph units
+    */
+   public double    graphXEnd;
 
-	public static final int	VISIBLE_TYPE_DEFAULT	= 0;
-	public static final int	VISIBLE_TYPE_TYPE_NEW	= 10;
-	public static final int	VISIBLE_TYPE_TYPE_EDIT	= 20;
+   /**
+    * index in the data serie
+    */
+   public int       serieIndex;
 
-	public boolean			isVisible;
-	public boolean			isDescription;
+   /**
+    * visual position in the chart
+    */
+   public int       visualPosition;
 
-	/**
-	 * x-position in graph units
-	 */
-	public double			graphX;
+   public int       labelXOffset;
 
-	/**
-	 * index in the data serie
-	 */
-	public int				serieIndex;
+   public int       labelYOffset;
+   public int       visualType;
 
-	public String			markerLabel				= UI.EMPTY_STRING;
+   /**
+    * Painted position.
+    */
+   public Rectangle paintedLabel;
 
-	/**
-	 * visual position in the chart
-	 */
-	public int				visualPosition;
+   public int       devHoverSize;
+   public int       devPointSize;
 
-	/**
-	 * marker type, this can be <code>TourMarker.MARKER_TYPE_DEVICE</code> or
-	 * <code>TourMarker.MARKER_TYPE_CUSTOM</code>
-	 */
-	public int				type;
+   /**
+    * Is <code>true</code> when the label is drawn vertically.
+    */
+   public boolean   devIsVertical;
 
-	public int				labelXOffset;
+   /**
+    * Contains custom data, can be used to keep references to the model.
+    */
+   public Object    data;
 
-	public int				labelYOffset;
-	public int				visualType;
+   /*
+    * Graph margins
+    */
+   public int devYBottom;
 
-	public Photo			markerSignPhoto;
+   public int devYTop;
+   public int devGraphWidth;
 
-	/*
-	 * Painted label positions
-	 */
-	public int				devXMarker;
-	public int				devYMarker;
+   ChartLabel() {}
 
-	/**
-	 * Painted position.
-	 */
-	public Rectangle		paintedLabel;
-
-	public int				devHoverSize;
-
-	public int				devMarkerPointSize;
-	/**
-	 * Bounds where the marker sign image is painted.
-	 */
-	public Rectangle		devMarkerSignImageBounds;
-
-	/**
-	 * Is <code>true</code> when the label is drawn vertically.
-	 */
-	public boolean			devIsVertical;
-
-	/**
-	 * Contains custom data, can be used to keep references to the model.
-	 */
-	public Object			data;
-
-	/*
-	 * Graph margins
-	 */
-	public int				devYBottom;
-
-	public int				devYTop;
-	public int				devGraphWidth;
-
-	ChartLabel() {}
-
-	/**
-	 * @return Returns <code>true</code> when the marker is created with the device.
-	 */
-	public boolean isDeviceMarker() {
-
-		return type == ChartLabel.MARKER_TYPE_DEVICE;
-	}
-
-	@Override
-	public String toString() {
-		return "ChartLabel [" // //$NON-NLS-1$
+   @Override
+   public String toString() {
+      return "ChartLabel [" // //$NON-NLS-1$
 //				+ ("serieIndex=" + serieIndex + ", ")
 //				+ ("graphX=" + graphX + ", ")
-//				+ ("devXMarker=" + devXMarker + ", ")
-//				+ ("devYMarker=" + devYMarker + ", ")
-				+ ("markerLabel=" + markerLabel) //$NON-NLS-1$
-				+ "]"; //$NON-NLS-1$
-	}
+            + "]"; //$NON-NLS-1$
+   }
 
 }

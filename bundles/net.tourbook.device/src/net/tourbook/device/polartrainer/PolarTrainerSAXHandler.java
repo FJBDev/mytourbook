@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2016 Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -17,1143 +17,1102 @@ package net.tourbook.device.polartrainer;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
-import net.tourbook.data.TourType;
-import net.tourbook.database.TourDatabase;
 import net.tourbook.device.InvalidDeviceSAXException;
-import net.tourbook.importdata.DeviceData;
-import net.tourbook.importdata.TourbookDevice;
-import net.tourbook.preferences.TourTypeColorDefinition;
-import net.tourbook.ui.tourChart.ChartLabel;
+import net.tourbook.importdata.ImportState_File;
+import net.tourbook.importdata.ImportState_Process;
+import net.tourbook.importdata.RawDataManager;
+import net.tourbook.importdata.TourTypeWrapper;
+import net.tourbook.ui.tourChart.ChartLabelMarker;
 
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.byteholder.geoclipse.map.UI;
-
 /**
- * This sax handler performs data import for the following scema:
- * 
+ * This sax handler performs data import for the following schema:
+ *
  * <pre>
  * &lt;xs:schema version="1.0"
- * 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
- * 	targetNamespace="http://www.polarpersonaltrainer.com"
- * 	xmlns="http://www.polarpersonaltrainer.com"
- * 	elementFormDefault="qualified"
- * 	attributeFormDefault="unqualified"&gt;
- * 
- * 	&lt;xs:annotation&gt;
- * 		&lt;xs:appinfo&gt;Polar Personaltrainer.com data export&lt;/xs:appinfo&gt;
- * 		&lt;xs:documentation xml:lang="en"&gt;
- * 			XML Schema for validating data objects exported from Polar Personaltrainer.com
- * 
- * 			&lt;b&gt;ALL UNITS ARE ASSUMED METRIC.&lt;/b&gt;
- * 		&lt;/xs:documentation&gt;
- * 	&lt;/xs:annotation&gt;
+ *    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ *    targetNamespace="http://www.polarpersonaltrainer.com"
+ *    xmlns="http://www.polarpersonaltrainer.com"
+ *    elementFormDefault="qualified"
+ *    attributeFormDefault="unqualified"&gt;
+ *
+ *    &lt;xs:annotation&gt;
+ *       &lt;xs:appinfo&gt;Polar Personaltrainer.com data export&lt;/xs:appinfo&gt;
+ *       &lt;xs:documentation xml:lang="en"&gt;
+ *          XML Schema for validating data objects exported from Polar Personaltrainer.com
+ *
+ *          &lt;b&gt;ALL UNITS ARE ASSUMED METRIC.&lt;/b&gt;
+ *       &lt;/xs:documentation&gt;
+ *    &lt;/xs:annotation&gt;
  * </pre>
  */
-public class PolarTrainerSAXHandler extends DefaultHandler {
-
-	private static final String		DEVICE_NAME_POLAR_PERSONALTRAINER	= "Polar Personal Trainer";											//$NON-NLS-1$
-
-	/**
-	 * <pre>
-	 *       <xs:enumeration value="HEARTRATE"/>
-	 *       <xs:enumeration value="SPEED"/>
-	 *       <xs:enumeration value="CADENCE"/>
-	 *       <xs:enumeration value="ALTITUDE"/>
-	 *       <xs:enumeration value="POWER"/>
-	 *       <xs:enumeration value="POWER_PI"/>
-	 *       <xs:enumeration value="POWER_LRB"/>
-	 *       <xs:enumeration value="AIR_PRESSURE"/>
-	 *       <xs:enumeration value="RUN_CADENCE"/>
-	 *       <xs:enumeration value="TEMPERATURE"/>
-	 * </pre>
-	 * 
-	 * value <code>DISTANCE</code> is available but not documented in
-	 */
-	private static final String		SAMPLE_TYPE_ALTITUDE				= "ALTITUDE";															//$NON-NLS-1$
-	private static final String		SAMPLE_TYPE_CADENCE					= "CADENCE";															//$NON-NLS-1$
-	private static final String		SAMPLE_TYPE_DISTANCE				= "DISTANCE";															//$NON-NLS-1$
-	private static final String		SAMPLE_TYPE_HEARTRATE				= "HEARTRATE";															//$NON-NLS-1$
-	private static final String		SAMPLE_TYPE_SPEED					= "SPEED";																//$NON-NLS-1$
-	private static final String		SAMPLE_TYPE_TEMPERATURE				= "TEMPERATURE";														//$NON-NLS-1$
-//	private static final String		SAMPLE_TYPE_POWER			= "POWER";
-//	private static final String		SAMPLE_TYPE_POWER_PI		= "POWER_PI";
-//	private static final String		SAMPLE_TYPE_POWER_LRB		= "POWER_LRB";
-//	private static final String		SAMPLE_TYPE_AIR_PRESSURE	= "AIR_PRESSURE";
-//	private static final String		SAMPLE_TYPE_RUN_CADENCE		= "RUN_CADENCE";
-																																				//
-	private static final String		PATTERN_HHMMSS						= "(\\d{0,2}):*(\\d{0,2}):*(\\d{0,2}).*";								//$NON-NLS-1$
-	private static final String		PATTERN_DATE_TIME					= "(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})\\.\\d{1}";	//$NON-NLS-1$
-	//
-	private static final Pattern	_patternHHMMSS						= Pattern.compile(
-																				PATTERN_HHMMSS,
-																				Pattern.DOTALL);
-	private static final Pattern	_patternDateTime					= Pattern.compile(
-																				PATTERN_DATE_TIME,
-																				Pattern.DOTALL);
-	//
-	private static final String		TAG_ROOT							= "polar-exercise-data";												//$NON-NLS-1$
-	private static final String		TAG_ROOT_XMLNS						= "xmlns";																//$NON-NLS-1$
-	private static final String		TAG_ROOT_XMLNS_POLARTRAINER			= "http://www.polarpersonaltrainer.com";								//$NON-NLS-1$
-	private static final String		TAG_ROOT_VERSION					= "version";															//$NON-NLS-1$
-	private static final String		TAG_ROOT_VERSION_1					= "1.0";																//$NON-NLS-1$
-	//
-	private static final String		TAG_EXERCISE						= "exercise";															//$NON-NLS-1$
-	private static final String		TAG_EXERCISE_CREATED				= "created";															//$NON-NLS-1$
-	private static final String		TAG_EXERCISE_TIME					= "time";																//$NON-NLS-1$
-	private static final String		TAG_EXERCISE_NAME					= "name";																//$NON-NLS-1$
-	private static final String		TAG_EXERCISE_SPORT					= "sport";																//$NON-NLS-1$
-	//
-	private static final String		TAG_RESULT							= "result";															//$NON-NLS-1$
-	private static final String		TAG_RESULT_DURATION					= "duration";															//$NON-NLS-1$
-	private static final String		TAG_RESULT_CALORIES					= "calories";															//$NON-NLS-1$
-	private static final String		TAG_RESULT_RECORDING_RATE			= "recording-rate";													//$NON-NLS-1$
-	//
-	private static final String		TAG_LAPS							= "laps";																//$NON-NLS-1$
-	private static final String		TAG_LAP								= "lap";																//$NON-NLS-1$
-	private static final String		TAG_LAP_DURATION					= "duration";															//$NON-NLS-1$
-	private static final String		TAG_LAP_DISTANCE					= "distance";															//$NON-NLS-1$
-	//
-	private static final String		TAG_SAMPLES							= "samples";															//$NON-NLS-1$
-	private static final String		TAG_SAMPLE							= "sample";															//$NON-NLS-1$
-	private static final String		TAG_SAMPLE_TYPE						= "type";																//$NON-NLS-1$
-	private static final String		TAG_SAMPLE_VALUES					= "values";															//$NON-NLS-1$
-	//
-	private static final String		TAG_USER_SETTINGS					= "user-settings";														//$NON-NLS-1$
-	private static final String		TAG_USER_SETTINGS_RESTING			= "resting";															//$NON-NLS-1$
-
-	//
-	private boolean					_isPolarDataValid					= false;
-	private int						_dataVersion						= -1;
-	//
-	private boolean					_isInExercise;
-	private boolean					_isInExerciseCreated;
-	private boolean					_isInExerciseTime;
-	private boolean					_isInExerciseName;
-	private boolean					_isInExerciseSport;
-	//
-	private boolean					_isInResult;
-	private boolean					_isInResultCalories;
-	private boolean					_isInResultDuration;
-	private boolean					_isInResultRecordingRate;
-	//
-	private boolean					_isInLaps;
-	private boolean					_isInLap;
-	private boolean					_isInLapDuration;
-	private boolean					_isInLapDistance;
-	//
-	private boolean					_isInSamples;
-	private boolean					_isInSample;
-	private boolean					_isInSampleType;
-	private boolean					_isInSampleValues;
-	//
-	private boolean					_isInUserSettings;
-	private boolean					_isInUserSettingsResting;
-
-	private TourbookDevice			_device;
-	private String					_importFilePath;
-	private HashMap<Long, TourData>	_alreadyImportedTours;
-	private HashMap<Long, TourData>	_newlyImportedTours;
-	private ArrayList<TourType>		_allTourTypes;
-
-	private boolean					_isImported;
-	private boolean					_isDebug							= false;
-	private boolean					_isNewTourType						= false;
-
-	private ArrayList<TimeData>		_timeSlices							= new ArrayList<TimeData>();
-	private ArrayList<Lap>			_laps								= new ArrayList<Lap>();
+class PolarTrainerSAXHandler extends DefaultHandler {
+
+   private static final String DEVICE_NAME_POLAR_PERSONALTRAINER = "Polar Personal Trainer"; //$NON-NLS-1$
+
+   /**
+    * <pre>
+    *       <xs:enumeration value="HEARTRATE"/>
+    *       <xs:enumeration value="SPEED"/>
+    *       <xs:enumeration value="CADENCE"/>
+    *       <xs:enumeration value="ALTITUDE"/>
+    *       <xs:enumeration value="POWER"/>
+    *       <xs:enumeration value="POWER_PI"/>
+    *       <xs:enumeration value="POWER_LRB"/>
+    *       <xs:enumeration value="AIR_PRESSURE"/>
+    *       <xs:enumeration value="RUN_CADENCE"/>
+    *       <xs:enumeration value="TEMPERATURE"/>
+    * </pre>
+    *
+    * value <code>DISTANCE</code> is available but not documented in
+    */
+   private static final String SAMPLE_TYPE_ALTITUDE              = "ALTITUDE";               //$NON-NLS-1$
+   private static final String SAMPLE_TYPE_CADENCE               = "CADENCE";                //$NON-NLS-1$
+   private static final String SAMPLE_TYPE_DISTANCE              = "DISTANCE";               //$NON-NLS-1$
+   private static final String SAMPLE_TYPE_HEARTRATE             = "HEARTRATE";              //$NON-NLS-1$
+   private static final String SAMPLE_TYPE_SPEED                 = "SPEED";                  //$NON-NLS-1$
+   private static final String SAMPLE_TYPE_TEMPERATURE           = "TEMPERATURE";            //$NON-NLS-1$
+// private static final String SAMPLE_TYPE_POWER                 = "POWER";
+// private static final String SAMPLE_TYPE_POWER_PI              = "POWER_PI";
+// private static final String SAMPLE_TYPE_POWER_LRB             = "POWER_LRB";
+// private static final String SAMPLE_TYPE_AIR_PRESSURE          = "AIR_PRESSURE";
+// private static final String SAMPLE_TYPE_RUN_CADENCE           = "RUN_CADENCE";
+   //
+   private static final String    PATTERN_HHMMSS              = "(\\d{0,2}):*(\\d{0,2}):*(\\d{0,2}).*";                             //$NON-NLS-1$
+   private static final String    PATTERN_DATE_TIME           = "(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})\\.\\d{1}"; //$NON-NLS-1$
+   //
+   private static final Pattern   _patternHHMMSS              = Pattern.compile(
+         PATTERN_HHMMSS,
+         Pattern.DOTALL);
+
+   private static final Pattern   _patternDateTime            = Pattern.compile(
+         PATTERN_DATE_TIME,
+         Pattern.DOTALL);
+   //
+   private static final String    TAG_ROOT                    = "polar-exercise-data";                                              //$NON-NLS-1$
+   private static final String    TAG_ROOT_XMLNS              = "xmlns";                                                            //$NON-NLS-1$
+   private static final String    TAG_ROOT_XMLNS_POLARTRAINER = "http://www.polarpersonaltrainer.com";                              //$NON-NLS-1$
+   private static final String    TAG_ROOT_VERSION            = "version";                                                          //$NON-NLS-1$
+   private static final String    TAG_ROOT_VERSION_1          = "1.0";                                                              //$NON-NLS-1$
+   //
+   private static final String    TAG_EXERCISE                = "exercise";                                                         //$NON-NLS-1$
+   private static final String    TAG_EXERCISE_CREATED        = "created";                                                          //$NON-NLS-1$
+   private static final String    TAG_EXERCISE_TIME           = "time";                                                             //$NON-NLS-1$
+   private static final String    TAG_EXERCISE_NAME           = "name";                                                             //$NON-NLS-1$
+   private static final String    TAG_EXERCISE_SPORT          = "sport";                                                            //$NON-NLS-1$
+   //
+   private static final String    TAG_RESULT                  = "result";                                                           //$NON-NLS-1$
+   private static final String    TAG_RESULT_DURATION         = "duration";                                                         //$NON-NLS-1$
+   private static final String    TAG_RESULT_CALORIES         = "calories";                                                         //$NON-NLS-1$
+   private static final String    TAG_RESULT_RECORDING_RATE   = "recording-rate";                                                   //$NON-NLS-1$
+   //
+   private static final String    TAG_LAPS                    = "laps";                                                             //$NON-NLS-1$
+   private static final String    TAG_LAP                     = "lap";                                                              //$NON-NLS-1$
+   private static final String    TAG_LAP_DURATION            = "duration";                                                         //$NON-NLS-1$
+   private static final String    TAG_LAP_DISTANCE            = "distance";                                                         //$NON-NLS-1$
+   //
+   private static final String    TAG_SAMPLES                 = "samples";                                                          //$NON-NLS-1$
+   private static final String    TAG_SAMPLE                  = "sample";                                                           //$NON-NLS-1$
+   private static final String    TAG_SAMPLE_TYPE             = "type";                                                             //$NON-NLS-1$
+   private static final String    TAG_SAMPLE_VALUES           = "values";                                                           //$NON-NLS-1$
+   //
+   private static final String    TAG_USER_SETTINGS           = "user-settings";                                                    //$NON-NLS-1$
+   private static final String    TAG_USER_SETTINGS_RESTING   = "resting";                                                          //$NON-NLS-1$
+   //
+   private boolean                _isPolarDataValid;
+   private int                    _dataVersion                = -1;
+   //
+   private boolean                _isInExercise;
+   private boolean                _isInExerciseCreated;
+   private boolean                _isInExerciseTime;
+   private boolean                _isInExerciseName;
+   private boolean                _isInExerciseSport;
+   //
+   private boolean                _isInResult;
+   private boolean                _isInResultCalories;
+   private boolean                _isInResultDuration;
+   private boolean                _isInResultRecordingRate;
+   //
+   private boolean                _isInLaps;
+   private boolean                _isInLap;
+   private boolean                _isInLapDuration;
+   private boolean                _isInLapDistance;
+   //
+   private boolean                _isInSamples;
+   private boolean                _isInSample;
+   private boolean                _isInSampleType;
+   private boolean                _isInSampleValues;
+   //
+   private boolean                _isInUserSettings;
+   private boolean                _isInUserSettingsResting;
+   //
+   private boolean                _isDebug;
+   //
+   private String                 _importFilePath;
+   private Map<Long, TourData>    _alreadyImportedTours;
+   private Map<Long, TourData>    _newlyImportedTours;
+   private ImportState_File       _importState_File;
+   private ImportState_Process    _importState_Process;
+   private PolarTrainerDataReader _polarTrainer_DataReader;
 
-	private Exercise				_currentExercise;
-	private Lap						_currentLap;
-	private String					_currentSampleType;
+   private ArrayList<TimeData>    _timeSlices                 = new ArrayList<>();
+   private ArrayList<Lap>         _laps                       = new ArrayList<>();
 
-	private StringBuilder			_characters							= new StringBuilder(100);
+   private Exercise               _currentExercise;
+   private Lap                    _currentLap;
+   private String                 _currentSampleType;
 
-	private class Exercise {
+   private StringBuilder          _characters                 = new StringBuilder(100);
 
-		private String			tourTitle;
-		private String			sport;
+   private class Exercise {
 
-		private ZonedDateTime	tourStart;
-		private ZonedDateTime	dtCreated;
-		private ZonedDateTime	dtStartTime;
+      private String        tourTitle;
+      private String        sportName;
 
-		private short			timeInterval;
+      private ZonedDateTime tourStart;
+      private ZonedDateTime dtCreated;
+      private ZonedDateTime dtStartTime;
 
-		/**
-		 * in kcal
-		 */
-		private int				calories	= -1;
+      private short         timeInterval;
 
-		private int				restPulse;
-		private int				recordingRate;
+      /**
+       * in kcal
+       */
+      private int           calories = -1;
 
-		/**
-		 * in seconds
-		 */
-		private long			duration	= -1;
+      private int           restPulse;
+      private int           recordingRate;
 
-		private float[]			altitudeValues;
-		private float[]			cadenceValues;
-		private float[]			distanceValues;
-		private float[]			pulseValues;
-		private float[]			speedValues;
-		private float[]			temperatureValues;
+      /**
+       * in seconds
+       */
+      private long          duration = -1;
 
-	}
+      private float[]       altitudeValues;
+      private float[]       cadenceValues;
+      private float[]       distanceValues;
+      private float[]       pulseValues;
+      private float[]       speedValues;
+      private float[]       temperatureValues;
 
-	private class Lap {
+   }
 
-		private int		duration	= -1;	// <!-- 500 hours max -->
-		private float	distance;
+   private class Lap {
 
-		@Override
-		public String toString() {
-			return "Lap [duration=" + duration + ", distance=" + distance + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
+      private int   duration = -1; // <!-- 500 hours max -->
+      private float distance;
 
-	}
+      @Override
+      public String toString() {
+         return "Lap [duration=" + duration + ", distance=" + distance + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      }
 
-	public PolarTrainerSAXHandler(	final TourbookDevice device,
-									final String importFileName,
-									final DeviceData deviceData,
-									final HashMap<Long, TourData> alreadyImportedTours,
-									final HashMap<Long, TourData> newlyImportedTours) {
+   }
 
-		_device = device;
-		_importFilePath = importFileName;
-		_alreadyImportedTours = alreadyImportedTours;
-		_newlyImportedTours = newlyImportedTours;
+   PolarTrainerSAXHandler(final String importFileName,
+                          final Map<Long, TourData> alreadyImportedTours,
+                          final Map<Long, TourData> newlyImportedTours,
+                          final ImportState_File importState_File,
+                          final ImportState_Process importState_Process,
+                          final PolarTrainerDataReader polarTrainerSAXHandler) {
 
-		_allTourTypes = TourDatabase.getAllTourTypes();
-	}
+      _importFilePath = importFileName;
+      _alreadyImportedTours = alreadyImportedTours;
+      _newlyImportedTours = newlyImportedTours;
 
-	@Override
-	public void characters(final char[] chars, final int startIndex, final int length) throws SAXException {
+      _importState_File = importState_File;
+      _importState_Process = importState_Process;
 
-		if (_isPolarDataValid && (//
-				_isInLapDuration
-						|| _isInLapDistance
-						|| _isInSampleType
-						|| _isInSampleValues
-						|| _isInExerciseCreated
-						|| _isInExerciseTime
-						|| _isInExerciseName
-						|| _isInExerciseSport
-						|| _isInResultCalories
-						|| _isInResultRecordingRate || _isInResultDuration
-				//
-				)) {
+      _polarTrainer_DataReader = polarTrainerSAXHandler;
+   }
 
-			_characters.append(chars, startIndex, length);
-		}
-	}
+   @Override
+   public void characters(final char[] chars, final int startIndex, final int length) throws SAXException {
 
-	public void dispose() {
-		_laps.clear();
-		_timeSlices.clear();
-	}
+      if (_isPolarDataValid
 
-	@Override
-	public void endElement(final String uri, final String localName, final String name) throws SAXException {
+            && (_isInLapDuration
+                  || _isInLapDistance
+                  || _isInSampleType
+                  || _isInSampleValues
+                  || _isInExerciseCreated
+                  || _isInExerciseTime
+                  || _isInExerciseName
+                  || _isInExerciseSport
+                  || _isInResultCalories
+                  || _isInResultRecordingRate
+                  || _isInResultDuration
 
-//		System.out.println("</" + name + ">\t" + _isInSample);
+            )) {
 
-		try {
+         _characters.append(chars, startIndex, length);
+      }
+   }
 
-			/*
-			 * get values
-			 */
-			if (_isInLap) {
+   void dispose() {
 
-				parseLap02End(name);
+      _laps.clear();
+      _timeSlices.clear();
+   }
 
-			} else if (_isInSample) {
+   @Override
+   public void endElement(final String uri, final String localName, final String name) throws SAXException {
 
-				parseSample02End(name);
+//      System.out.println("</" + name + ">\t" + _isInSample);
 
-			} else if (_isInResult) {
+      try {
 
-				parseResult02End(name);
+         /*
+          * get values
+          */
+         if (_isInLap) {
 
-			} else if (_isInUserSettings) {
+            parseLap02End(name);
 
-				parseUserSettings02End(name);
+         } else if (_isInSample) {
 
-			} else if (_isInExerciseCreated) {
+            parseSample02End(name);
 
-				_isInExerciseCreated = false;
-				_currentExercise.dtCreated = getDateTime(_characters.toString());
+         } else if (_isInResult) {
 
-			} else if (_isInExerciseTime) {
+            parseResult02End(name);
 
-				_isInExerciseTime = false;
-				_currentExercise.dtStartTime = getDateTime(_characters.toString());
+         } else if (_isInUserSettings) {
 
-			} else if (_isInExerciseName) {
+            parseUserSettings02End(name);
 
-				_isInExerciseName = false;
-				_currentExercise.tourTitle = _characters.toString();
+         } else if (_isInExerciseCreated) {
 
-			} else if (_isInExerciseSport) {
+            _isInExerciseCreated = false;
+            _currentExercise.dtCreated = getDateTime(_characters.toString());
 
-				_isInExerciseSport = false;
-				_currentExercise.sport = _characters.toString();
-			}
+         } else if (_isInExerciseTime) {
 
-			/*
-			 * reset state
-			 */
-			if (name.equals(TAG_SAMPLES)) {
+            _isInExerciseTime = false;
+            _currentExercise.dtStartTime = getDateTime(_characters.toString());
 
-				_isInSamples = false;
+         } else if (_isInExerciseName) {
 
-			} else if (name.equals(TAG_SAMPLE)) {
+            _isInExerciseName = false;
+            _currentExercise.tourTitle = _characters.toString();
 
-				_isInSample = false;
+         } else if (_isInExerciseSport) {
 
-			} else if (name.equals(TAG_LAPS)) {
+            _isInExerciseSport = false;
+            _currentExercise.sportName = _characters.toString();
+         }
 
-				_isInLaps = false;
+         /*
+          * reset state
+          */
+         if (name.equals(TAG_SAMPLES)) {
 
-			} else if (name.equals(TAG_LAP)) {
+            _isInSamples = false;
 
-				_isInLap = false;
+         } else if (name.equals(TAG_SAMPLE)) {
 
-				_laps.add(_currentLap);
+            _isInSample = false;
 
-				if (_isDebug) {
-					System.out.println("\t" + _currentLap); //$NON-NLS-1$
-				}
+         } else if (name.equals(TAG_LAPS)) {
 
-			} else if (name.equals(TAG_USER_SETTINGS)) {
+            _isInLaps = false;
 
-				// /polar-exercise-data/calendar-items/exercise/result/user-settings/heart-rate/resting
+         } else if (name.equals(TAG_LAP)) {
 
-				_isInUserSettings = false;
+            _isInLap = false;
 
-			} else if (name.equals(TAG_RESULT)) {
+            _laps.add(_currentLap);
 
-				_isInResult = false;
+            if (_isDebug) {
+               System.out.println("\t" + _currentLap); //$NON-NLS-1$
+            }
 
-			} else if (name.equals(TAG_EXERCISE)) {
+         } else if (name.equals(TAG_USER_SETTINGS)) {
 
-				/*
-				 * exercise/tour ends
-				 */
+            // /polar-exercise-data/calendar-items/exercise/result/user-settings/heart-rate/resting
 
-				_isInExercise = false;
+            _isInUserSettings = false;
 
-				finalizeTour();
-			}
+         } else if (name.equals(TAG_RESULT)) {
 
-		} catch (final NumberFormatException e) {
-			StatusUtil.showStatus(e);
-		}
+            _isInResult = false;
 
-	}
+         } else if (name.equals(TAG_EXERCISE)) {
 
-	private void finalizeTour() throws InvalidDeviceSAXException {
+            /*
+             * exercise/tour ends
+             */
 
-		if (finalizeTour_10_CreateTimeSlices() == false) {
-			_isImported = false;
-			return;
-		}
+            _isInExercise = false;
 
-		// create data object for each tour
-		final TourData tourData = new TourData();
+            finalizeTour();
+         }
 
-		/*
-		 * set tour start date/time
-		 */
-		tourData.setTourStartTime(_currentExercise.tourStart);
+      } catch (final NumberFormatException e) {
+         StatusUtil.showStatus(e);
+      }
 
-		tourData.setDeviceTimeInterval(_currentExercise.timeInterval);
+   }
 
-		tourData.setImportFilePath(_importFilePath);
+   private void finalizeTour() throws InvalidDeviceSAXException {
 
-		tourData.setTourTitle(_currentExercise.tourTitle);
-		tourData.setCalories(_currentExercise.calories);
-		tourData.setRestPulse(_currentExercise.restPulse);
+      if (finalizeTour_10_CreateTimeSlices() == false) {
+         return;
+      }
 
-		tourData.setDeviceId(_device.deviceId);
-		tourData.setDeviceName(DEVICE_NAME_POLAR_PERSONALTRAINER);
+      // create data object for each tour
+      final TourData tourData = new TourData();
 
-		tourData.setDeviceFirmwareVersion(_dataVersion == 1 ? TAG_ROOT_VERSION_1 : UI.EMPTY_STRING);
+      /*
+       * set tour start date/time
+       */
+      tourData.setTourStartTime(_currentExercise.tourStart);
 
-		tourData.createTimeSeries(_timeSlices, true);
+      tourData.setDeviceTimeInterval(_currentExercise.timeInterval);
 
-		// after all data are added, the tour id can be created
-		final String uniqueId = _device.createUniqueId(tourData, Util.UNIQUE_ID_SUFFIX_POLAR_TRAINER);
-		final Long tourId = tourData.createTourId(uniqueId);
+      tourData.setImportFilePath(_importFilePath);
 
-		// check if the tour is already imported
-		if (_alreadyImportedTours.containsKey(tourId) == false) {
+      tourData.setTourTitle(_currentExercise.tourTitle);
+      tourData.setCalories(_currentExercise.calories);
+      tourData.setRestPulse(_currentExercise.restPulse);
 
-			// add new tour to other tours
-			_newlyImportedTours.put(tourId, tourData);
+      tourData.setDeviceId(_polarTrainer_DataReader.deviceId);
+      tourData.setDeviceName(DEVICE_NAME_POLAR_PERSONALTRAINER);
 
-			finalizeTour_20_CreateMarkers(tourData);
-			finalizeTour_30_SetTourType(tourData);
+      tourData.setDeviceFirmwareVersion(_dataVersion == 1 ? TAG_ROOT_VERSION_1 : UI.EMPTY_STRING);
 
-			// create additional data
-			tourData.computeAltitudeUpDown();
-			tourData.computeTourDrivingTime();
-			tourData.computeComputedValues();
-		}
+      tourData.createTimeSeries(_timeSlices, true);
 
-		_isImported = true;
-	}
+      // after all data are added, the tour id can be created
+      final String uniqueId = _polarTrainer_DataReader.createUniqueId(tourData, Util.UNIQUE_ID_SUFFIX_POLAR_TRAINER);
+      final Long tourId = tourData.createTourId(uniqueId);
 
-	/**
-	 * @throws InvalidDeviceSAXException
-	 */
-	private boolean finalizeTour_10_CreateTimeSlices() throws InvalidDeviceSAXException {
+      // check if the tour is already imported
+      if (_alreadyImportedTours.containsKey(tourId) == false) {
 
-		_timeSlices.clear();
+         // add new tour to other tours
+         _newlyImportedTours.put(tourId, tourData);
 
-		final float[] altitudeValues = _currentExercise.altitudeValues;
-		final float[] cadenceValues = _currentExercise.cadenceValues;
-		final float[] distanceValues = _currentExercise.distanceValues;
-		final float[] pulseValues = _currentExercise.pulseValues;
-		final float[] speedValues = _currentExercise.speedValues;
-		final float[] temperatureValues = _currentExercise.temperatureValues;
+         finalizeTour_20_CreateMarkers(tourData);
+         finalizeTour_30_SetTourType(tourData);
 
-		final ZonedDateTime dtCreated = _currentExercise.dtCreated;
-		final ZonedDateTime dtExerciseStartTime = _currentExercise.dtStartTime;
-		final long exerciseDuration = _currentExercise.duration;
+         // create additional data
+         tourData.computeAltitudeUpDown();
+         tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
+         tourData.computeTourMovingTime();
+         tourData.computeComputedValues();
+      }
 
-		/*
-		 * dtCreated is always available (minOccurs="1"), exercise start time is optional
-		 */
-		ZonedDateTime dtStartTime = dtExerciseStartTime;
-		if (dtStartTime == null) {
-			dtStartTime = dtCreated;
-		}
-		final long tourStartTime = dtStartTime.toInstant().toEpochMilli();
-		_currentExercise.tourStart = dtStartTime;
+      _importState_File.isFileImportedWithValidData = true;
+   }
 
-		/*
-		 * get value length
-		 */
-		int valueLength = -1;
-		if (altitudeValues != null) {
-			valueLength = altitudeValues.length;
-		} else if (cadenceValues != null) {
-			valueLength = cadenceValues.length;
-		} else if (distanceValues != null) {
-			valueLength = distanceValues.length;
-		} else if (pulseValues != null) {
-			valueLength = pulseValues.length;
-		} else if (speedValues != null) {
-			valueLength = speedValues.length;
-		} else if (temperatureValues != null) {
-			valueLength = temperatureValues.length;
-		}
+   /**
+    * @throws InvalidDeviceSAXException
+    */
+   private boolean finalizeTour_10_CreateTimeSlices() throws InvalidDeviceSAXException {
 
-		// check if data are available
-		if (valueLength < 1) {
-			// at least one value must be available
-			return false;
-		}
+      _timeSlices.clear();
 
-		final boolean isAltitude = altitudeValues != null;
-		final boolean isCadence = cadenceValues != null;
-		final boolean isDistance = distanceValues != null;
-		final boolean isSpeed = speedValues != null;
-		final boolean isPulse = pulseValues != null;
-		final boolean isTemperature = temperatureValues != null;
+      final float[] altitudeValues = _currentExercise.altitudeValues;
+      final float[] cadenceValues = _currentExercise.cadenceValues;
+      final float[] distanceValues = _currentExercise.distanceValues;
+      final float[] pulseValues = _currentExercise.pulseValues;
+      final float[] speedValues = _currentExercise.speedValues;
+      final float[] temperatureValues = _currentExercise.temperatureValues;
 
-		/*
-		 * get time interval
-		 */
-		int timeInterval = _currentExercise.recordingRate;
-		if (timeInterval < 1) {
+      final ZonedDateTime dtCreated = _currentExercise.dtCreated;
+      final ZonedDateTime dtExerciseStartTime = _currentExercise.dtStartTime;
+      final long exerciseDuration = _currentExercise.duration;
 
-			final float interval = (float) exerciseDuration / valueLength;
-			timeInterval = (int) (interval + 0.5);
+      /*
+       * dtCreated is always available (minOccurs="1"), exercise start time is optional
+       */
+      ZonedDateTime dtStartTime = dtExerciseStartTime;
+      if (dtStartTime == null) {
+         dtStartTime = dtCreated;
+      }
+      final long tourStartTime = dtStartTime.toInstant().toEpochMilli();
+      _currentExercise.tourStart = dtStartTime;
 
-			if (timeInterval == 0) {
-				throw new InvalidDeviceSAXException(NLS.bind("Tour time interval cannot be determined in: {0}", //$NON-NLS-1$
-						_importFilePath));
-			}
-		}
-		_currentExercise.timeInterval = (short) timeInterval;
+      /*
+       * get value length
+       */
+      int valueLength = -1;
+      if (altitudeValues != null) {
+         valueLength = altitudeValues.length;
+      } else if (cadenceValues != null) {
+         valueLength = cadenceValues.length;
+      } else if (distanceValues != null) {
+         valueLength = distanceValues.length;
+      } else if (pulseValues != null) {
+         valueLength = pulseValues.length;
+      } else if (speedValues != null) {
+         valueLength = speedValues.length;
+      } else if (temperatureValues != null) {
+         valueLength = temperatureValues.length;
+      }
 
-		float absoluteDistance = 0;
+      // check if data are available
+      if (valueLength < 1) {
+         // at least one value must be available
+         return false;
+      }
 
-		/*
-		 * create slices
-		 */
-		for (int valueIndex = 0; valueIndex < valueLength; valueIndex++) {
+      final boolean isAltitude = altitudeValues != null;
+      final boolean isCadence = cadenceValues != null;
+      final boolean isDistance = distanceValues != null;
+      final boolean isSpeed = speedValues != null;
+      final boolean isPulse = pulseValues != null;
+      final boolean isTemperature = temperatureValues != null;
 
-			final TimeData timeSlice = new TimeData();
+      /*
+       * get time interval
+       */
+      int timeInterval = _currentExercise.recordingRate;
+      if (timeInterval < 1) {
 
-			timeSlice.absoluteTime = tourStartTime + (valueIndex * timeInterval * 1000);
+         final float interval = (float) exerciseDuration / valueLength;
+         timeInterval = (int) (interval + 0.5);
 
-			if (isAltitude) {
-				timeSlice.absoluteAltitude = altitudeValues[valueIndex];
-			}
+         if (timeInterval == 0) {
+            throw new InvalidDeviceSAXException(NLS.bind("Tour time interval cannot be determined in: {0}", //$NON-NLS-1$
+                  _importFilePath));
+         }
+      }
+      _currentExercise.timeInterval = (short) timeInterval;
 
-			if (isCadence) {
-				timeSlice.cadence = cadenceValues[valueIndex];
-			}
+      float absoluteDistance = 0;
 
-			if (isDistance) {
-				timeSlice.absoluteDistance = distanceValues[valueIndex];
-			} else if (isSpeed) {
+      /*
+       * create slices
+       */
+      for (int valueIndex = 0; valueIndex < valueLength; valueIndex++) {
 
-				// get distance from speed, speed is not saved it is always computed
+         final TimeData timeSlice = new TimeData();
 
-				final float speedMeterSecond = (float) (speedValues[valueIndex] * (1000.0 / 3600));
-				final float distanceDiff = speedMeterSecond * timeInterval;
+         timeSlice.absoluteTime = tourStartTime + (valueIndex * timeInterval * 1000);
 
-				absoluteDistance += distanceDiff;
+         if (isAltitude) {
+            timeSlice.absoluteAltitude = altitudeValues[valueIndex];
+         }
 
-				timeSlice.absoluteDistance = absoluteDistance;
-			}
+         if (isCadence) {
+            timeSlice.cadence = cadenceValues[valueIndex];
+         }
 
-			if (isPulse) {
-				timeSlice.pulse = pulseValues[valueIndex];
-			}
+         if (isDistance) {
+            timeSlice.absoluteDistance = distanceValues[valueIndex];
+         } else if (isSpeed) {
 
-			if (isTemperature) {
-				timeSlice.temperature = temperatureValues[valueIndex];
-			}
+            // get distance from speed, speed is not saved it is always computed
 
-			_timeSlices.add(timeSlice);
-		}
+            final float speedMeterSecond = UI.convertSpeed_KmhToMs(speedValues[valueIndex]);
+            final float distanceDiff = speedMeterSecond * timeInterval;
 
-		return true;
-	}
+            absoluteDistance += distanceDiff;
 
-	private void finalizeTour_20_CreateMarkers(final TourData tourData) {
+            timeSlice.absoluteDistance = absoluteDistance;
+         }
 
-		if (_laps.size() == 0) {
-			return;
-		}
+         if (isPulse) {
+            timeSlice.pulse = pulseValues[valueIndex];
+         }
 
-		final int[] timeSerie = tourData.timeSerie;
-		if (timeSerie.length == 0) {
-			return;
-		}
+         if (isTemperature) {
+            timeSlice.temperature = temperatureValues[valueIndex];
+         }
 
-		final Set<TourMarker> tourMarkers = tourData.getTourMarkers();
+         _timeSlices.add(timeSlice);
+      }
 
-		final float[] altitudeSerie = tourData.altitudeSerie;
-		final float[] distanceSerie = tourData.distanceSerie;
-		final double[] latitudeSerie = tourData.latitudeSerie;
-		final double[] longitudeSerie = tourData.longitudeSerie;
+      return true;
+   }
 
-		int sumLapDuration = 0;
-		int lapCounter = 1;
+   private void finalizeTour_20_CreateMarkers(final TourData tourData) {
 
-		for (final Lap lap : _laps) {
+      if (_laps.isEmpty()) {
+         return;
+      }
 
-			final int lapDuration = lap.duration;
-			final int relativeTourTime = sumLapDuration + lapDuration;
-			int serieIndex = 0;
+      final int[] timeSerie = tourData.timeSerie;
+      if (timeSerie.length == 0) {
+         return;
+      }
 
-			// get serie index
-			for (final int tourRelativeTime : timeSerie) {
-				if (tourRelativeTime >= relativeTourTime) {
-					break;
-				}
-				serieIndex++;
-			}
+      final Set<TourMarker> tourMarkers = tourData.getTourMarkers();
 
-			// check array bounds
-			if (serieIndex >= timeSerie.length) {
-				serieIndex = timeSerie.length - 1;
-			}
+      final float[] altitudeSerie = tourData.altitudeSerie;
+      final float[] distanceSerie = tourData.distanceSerie;
+      final double[] latitudeSerie = tourData.latitudeSerie;
+      final double[] longitudeSerie = tourData.longitudeSerie;
 
-			final TourMarker tourMarker = new TourMarker(tourData, ChartLabel.MARKER_TYPE_DEVICE);
+      int sumLapDuration = 0;
+      int lapCounter = 1;
 
-			tourMarker.setLabel(Integer.toString(lapCounter));
-			tourMarker.setSerieIndex(serieIndex);
-			tourMarker.setTime(relativeTourTime, tourData.getTourStartTimeMS() + (relativeTourTime * 1000));
+      for (final Lap lap : _laps) {
 
-			if (altitudeSerie != null) {
-				tourMarker.setAltitude(altitudeSerie[serieIndex]);
-			}
+         final int lapDuration = lap.duration;
+         final int relativeTourTime = sumLapDuration + lapDuration;
+         int serieIndex = 0;
 
-			if (distanceSerie != null) {
-				tourMarker.setDistance(distanceSerie[serieIndex]);
-			}
+         // get serie index
+         for (final int tourRelativeTime : timeSerie) {
+            if (tourRelativeTime >= relativeTourTime) {
+               break;
+            }
+            serieIndex++;
+         }
 
-			if (latitudeSerie != null) {
-				tourMarker.setGeoPosition(latitudeSerie[serieIndex], longitudeSerie[serieIndex]);
-			}
+         // check array bounds
+         if (serieIndex >= timeSerie.length) {
+            serieIndex = timeSerie.length - 1;
+         }
 
-			tourMarkers.add(tourMarker);
+         final TourMarker tourMarker = new TourMarker(tourData, ChartLabelMarker.MARKER_TYPE_DEVICE);
 
-			lapCounter++;
-			sumLapDuration += lapDuration;
-		}
-	}
+         tourMarker.setLabel(Integer.toString(lapCounter));
+         tourMarker.setSerieIndex(serieIndex);
+         tourMarker.setTime(relativeTourTime, tourData.getTourStartTimeMS() + (relativeTourTime * 1000));
 
-	/**
-	 * Set tour type from category field
-	 * 
-	 * @param tourData
-	 */
-	private void finalizeTour_30_SetTourType(final TourData tourData) {
+         if (altitudeSerie != null) {
+            tourMarker.setAltitude(altitudeSerie[serieIndex]);
+         }
 
-		final String sport = _currentExercise.sport;
+         if (distanceSerie != null) {
+            tourMarker.setDistance(distanceSerie[serieIndex]);
+         }
 
-		if (sport == null) {
-			return;
-		}
+         if (latitudeSerie != null) {
+            tourMarker.setGeoPosition(latitudeSerie[serieIndex], longitudeSerie[serieIndex]);
+         }
 
-		TourType tourType = null;
+         tourMarkers.add(tourMarker);
 
-		// find tour type in existing tour types
-		for (final TourType mapTourType : _allTourTypes) {
-			if (sport.equalsIgnoreCase(mapTourType.getName())) {
-				tourType = mapTourType;
-				break;
-			}
-		}
+         lapCounter++;
+         sumLapDuration += lapDuration;
+      }
+   }
 
-		TourType newSavedTourType = null;
+   /**
+    * Set tour type from category field
+    *
+    * @param tourData
+    */
+   private void finalizeTour_30_SetTourType(final TourData tourData) {
 
-		if (tourType == null) {
+      final String sportName = _currentExercise.sportName;
 
-			// create new tour type
+      if (sportName == null) {
+         return;
+      }
 
-			final TourType newTourType = new TourType(sport);
+      final TourTypeWrapper tourTypeWrapper = RawDataManager.setTourType(tourData, sportName);
 
-			final TourTypeColorDefinition newColorDefinition = new TourTypeColorDefinition(
-					newTourType,
-					Long.toString(newTourType.getTypeId()),
-					newTourType.getName());
+      if (tourTypeWrapper.isNewTourType) {
+         _importState_Process.isCreated_NewTourType().set(true);
+      }
+   }
 
-			newTourType.setColorBright(newColorDefinition.getGradientBright_Default());
-			newTourType.setColorDark(newColorDefinition.getGradientDark_Default());
-			newTourType.setColorLine(newColorDefinition.getLineColor_Default());
-			newTourType.setColorText(newColorDefinition.getTextColor_Default());
+   /**
+    * Create date/time with the regex:
+    *
+    * <pre>
+    * (\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})\\.\\d{1}
+    * </pre>
+    *
+    * @param dtValue
+    * @return Returns parsed date/time or <code>null</code> when the format is not correct.
+    */
+   private ZonedDateTime getDateTime(final String dtValue) {
 
-			// save new entity
-			newSavedTourType = TourDatabase.saveEntity(newTourType, newTourType.getTypeId(), TourType.class);
-			if (newSavedTourType != null) {
-				tourType = newSavedTourType;
-				_allTourTypes.add(tourType);
-			}
-		}
+      final Matcher matcherResult = _patternDateTime.matcher(dtValue);
 
-		tourData.setTourType(tourType);
+      if (matcherResult.matches()) {
 
-		_isNewTourType |= newSavedTourType != null;
-	}
+         try {
 
-	/**
-	 * Create date/time with the regex:
-	 * 
-	 * <pre>
-	 * (\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})\\.\\d{1}
-	 * </pre>
-	 * 
-	 * @param dtValue
-	 * @return Returns parsed date/time or <code>null</code> when the format is not correct.
-	 */
-	private ZonedDateTime getDateTime(final String dtValue) {
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            int hour = 0;
+            int minute = 0;
+            int seconds = 0;
 
-		final Matcher matcherResult = _patternDateTime.matcher(dtValue);
-		if (matcherResult.matches()) {
+            final int groupCount = matcherResult.groupCount();
+            if (groupCount < 6) {
+               return null;
+            }
 
-			try {
+            for (int groupNo = 1; groupNo <= groupCount; groupNo++) {
 
-				int year = 0;
-				int month = 0;
-				int day = 0;
-				int hour = 0;
-				int minute = 0;
-				int seconds = 0;
+               final String stringValue = matcherResult.group(groupNo);
+               if (stringValue == null) {
+                  return null;
+               }
 
-				final int groupCount = matcherResult.groupCount();
-				if (groupCount < 6) {
-					return null;
-				}
+               final int value = Integer.parseInt(stringValue);
 
-				for (int groupNo = 1; groupNo <= groupCount; groupNo++) {
+               if (groupNo == 1) {
+                  year = value;
+               } else if (groupNo == 2) {
+                  month = value;
+               } else if (groupNo == 3) {
+                  day = value;
+               } else if (groupNo == 4) {
+                  hour = value;
+               } else if (groupNo == 5) {
+                  minute = value;
+               } else if (groupNo == 6) {
+                  seconds = value;
+               }
+            }
 
-					final String stringValue = matcherResult.group(groupNo);
-					if (stringValue == null) {
-						return null;
-					}
+            return ZonedDateTime.of(year, month, day, hour, minute, seconds, 0, TimeTools.getDefaultTimeZone());
 
-					final int value = Integer.parseInt(stringValue);
+         } catch (final NumberFormatException e) {
+            return null;
+         }
+      }
 
-					if (groupNo == 1) {
-						year = value;
-					} else if (groupNo == 2) {
-						month = value;
-					} else if (groupNo == 3) {
-						day = value;
-					} else if (groupNo == 4) {
-						hour = value;
-					} else if (groupNo == 5) {
-						minute = value;
-					} else if (groupNo == 6) {
-						seconds = value;
-					}
-				}
+      return null;
+   }
 
-				return ZonedDateTime.of(year, month, day, hour, minute, seconds, 0, TimeTools.getDefaultTimeZone());
+   private float getFloatValue(final String textValue) {
 
-			} catch (final NumberFormatException e) {
-				return null;
-			}
-		}
+      try {
+         if (textValue != null) {
+            return Float.parseFloat(textValue);
+         } else {
+            return Float.MIN_VALUE;
+         }
 
-		return null;
-	}
+      } catch (final NumberFormatException e) {
+         return Float.MIN_VALUE;
+      }
+   }
 
-	private float getFloatValue(final String textValue) {
+   /**
+    * Parse hh:mm:ss values with <code>\d{0,2}:*\d{0,2}:*\d{0,2}</code>
+    *
+    * @param hhmmssValue
+    * @return Returns hh:mm:ss value in seconds or <code>-1</code> when hhmmssValue value cannot be
+    *         parsed.
+    */
+   private long getHHMMSS(final String hhmmssValue) {
 
-		try {
-			if (textValue != null) {
-				return Float.parseFloat(textValue);
-			} else {
-				return Float.MIN_VALUE;
-			}
+      final Matcher matcherResult = _patternHHMMSS.matcher(hhmmssValue);
+      if (matcherResult.matches()) {
 
-		} catch (final NumberFormatException e) {
-			return Float.MIN_VALUE;
-		}
-	}
+         try {
 
-	/**
-	 * Parse hh:mm:ss values with <code>\d{0,2}:*\d{0,2}:*\d{0,2}</code>
-	 * 
-	 * @param hhmmssValue
-	 * @return Returns hh:mm:ss value in seconds or <code>-1</code> when hhmmssValue falue cannot be
-	 *         parsed.
-	 */
-	private long getHHMMSS(final String hhmmssValue) {
+            long returnValue = -1;
 
-		final Matcher matcherResult = _patternHHMMSS.matcher(hhmmssValue);
-		if (matcherResult.matches()) {
+            final int groupCount = matcherResult.groupCount();
+            if (groupCount < 3) {
+               return -1;
+            }
 
-			try {
+            for (int groupNo = 1; groupNo <= groupCount; groupNo++) {
 
-				long returnValue = -1;
+               final String stringValue = matcherResult.group(groupNo);
+               if (stringValue == null) {
+                  return -1;
+               }
 
-				final int groupCount = matcherResult.groupCount();
-				if (groupCount < 3) {
-					return -1;
-				}
+               final long value = Long.parseLong(stringValue);
 
-				for (int groupNo = 1; groupNo <= groupCount; groupNo++) {
+               if (groupNo == 1) {
+                  returnValue = value * 3600;
+               } else if (groupNo == 2) {
+                  returnValue += value * 60;
+               } else if (groupNo == 3) {
+                  returnValue += value;
+               }
+            }
 
-					final String stringValue = matcherResult.group(groupNo);
-					if (stringValue == null) {
-						return -1;
-					}
+            return returnValue;
 
-					final long value = Long.parseLong(stringValue);
+         } catch (final NumberFormatException e) {
+            return -1;
+         }
+      }
 
-					if (groupNo == 1) {
-						returnValue = value * 3600;
-					} else if (groupNo == 2) {
-						returnValue += value * 60;
-					} else if (groupNo == 3) {
-						returnValue += value;
-					}
-				}
+      return -1;
+   }
 
-				return returnValue;
+   private int getIntValue(final String textValue) {
+      try {
+         if (textValue != null) {
+            return Integer.parseInt(textValue);
+         } else {
+            return Integer.MIN_VALUE;
+         }
 
-			} catch (final NumberFormatException e) {
-				return -1;
-			}
-		}
+      } catch (final NumberFormatException e) {
+         return Integer.MIN_VALUE;
+      }
+   }
 
-		return -1;
-	}
+   private void initNewTour() {
 
-	private int getIntValue(final String textValue) {
-		try {
-			if (textValue != null) {
-				return Integer.parseInt(textValue);
-			} else {
-				return Integer.MIN_VALUE;
-			}
+      _laps.clear();
 
-		} catch (final NumberFormatException e) {
-			return Integer.MIN_VALUE;
-		}
-	}
+      _currentSampleType = null;
+      _currentExercise = new Exercise();
+   }
 
-	private void initNewTour() {
+   private void parseLap01Start(final String name) {
 
-		_laps.clear();
+      if (name.equals(TAG_LAP_DURATION)) {
+         _isInLapDuration = true;
+      } else if (name.equals(TAG_LAP_DISTANCE)) {
+         _isInLapDistance = true;
+      } else {
+         return;
+      }
 
-		_currentSampleType = null;
-		_currentExercise = new Exercise();
-	}
+      _characters.delete(0, _characters.length());
+   }
 
-	/**
-	 * @return Returns <code>true</code> when a tour was imported
-	 */
-	public boolean isImported() {
-		return _isImported;
-	}
+   private void parseLap02End(final String name) {
 
-	boolean isNewTourType() {
-		return _isNewTourType;
-	}
+      if (_isInLapDuration && name.equals(TAG_LAP_DURATION)) {
 
-	private void parseLap01Start(final String name) {
+         // <duration>02:11:24</duration>
 
-		if (name.equals(TAG_LAP_DURATION)) {
-			_isInLapDuration = true;
-		} else if (name.equals(TAG_LAP_DISTANCE)) {
-			_isInLapDistance = true;
-		} else {
-			return;
-		}
+         _isInLapDuration = false;
+         _currentLap.duration = (int) getHHMMSS(_characters.toString());
 
-		_characters.delete(0, _characters.length());
-	}
+      } else if (_isInLapDistance && name.equals(TAG_LAP_DISTANCE)) {
 
-	private void parseLap02End(final String name) {
+         // <distance>62200.0</distance>
 
-		if (_isInLapDuration && name.equals(TAG_LAP_DURATION)) {
+         _isInLapDistance = false;
+         _currentLap.distance = getFloatValue(_characters.toString());
+      }
+   }
 
-			// <duration>02:11:24</duration>
+   private void parseResult01Start(final String name) {
 
-			_isInLapDuration = false;
-			_currentLap.duration = (int) getHHMMSS(_characters.toString());
+      if (name.equals(TAG_RESULT_CALORIES)) {
+         _isInResultCalories = true;
+      } else if (name.equals(TAG_RESULT_RECORDING_RATE)) {
+         _isInResultRecordingRate = true;
+      } else if (name.equals(TAG_RESULT_DURATION)) {
+         _isInResultDuration = true;
+      } else {
+         return;
+      }
 
-		} else if (_isInLapDistance && name.equals(TAG_LAP_DISTANCE)) {
+      _characters.delete(0, _characters.length());
+   }
 
-			// <distance>62200.0</distance>
+   private void parseResult02End(final String name) {
 
-			_isInLapDistance = false;
-			_currentLap.distance = getFloatValue(_characters.toString());
-		}
-	}
+      if (_isInResultCalories && name.equals(TAG_RESULT_CALORIES)) {
 
-	private void parseResult01Start(final String name) {
+         _isInResultCalories = false;
+         _currentExercise.calories = getIntValue(_characters.toString());
 
-		if (name.equals(TAG_RESULT_CALORIES)) {
-			_isInResultCalories = true;
-		} else if (name.equals(TAG_RESULT_RECORDING_RATE)) {
-			_isInResultRecordingRate = true;
-		} else if (name.equals(TAG_RESULT_DURATION)) {
-			_isInResultDuration = true;
-		} else {
-			return;
-		}
+      } else if (_isInResultRecordingRate && name.equals(TAG_RESULT_RECORDING_RATE)) {
 
-		_characters.delete(0, _characters.length());
-	}
+         _isInResultRecordingRate = false;
+         _currentExercise.recordingRate = getIntValue(_characters.toString());
 
-	private void parseResult02End(final String name) {
+      } else if (_isInResultDuration && name.equals(TAG_RESULT_DURATION)) {
 
-		if (_isInResultCalories && name.equals(TAG_RESULT_CALORIES)) {
+         _isInResultDuration = false;
+         _currentExercise.duration = getHHMMSS(_characters.toString());
+      }
+   }
 
-			_isInResultCalories = false;
-			_currentExercise.calories = getIntValue(_characters.toString());
+   private void parseSample01Start(final String name) {
 
-		} else if (_isInResultRecordingRate && name.equals(TAG_RESULT_RECORDING_RATE)) {
+      if (name.equals(TAG_SAMPLE_TYPE)) {
+         _isInSampleType = true;
+      } else if (name.equals(TAG_SAMPLE_VALUES)) {
+         _isInSampleValues = true;
+      } else {
+         return;
+      }
 
-			_isInResultRecordingRate = false;
-			_currentExercise.recordingRate = getIntValue(_characters.toString());
+      _characters.delete(0, _characters.length());
+   }
 
-		} else if (_isInResultDuration && name.equals(TAG_RESULT_DURATION)) {
+   private void parseSample02End(final String name) {
 
-			_isInResultDuration = false;
-			_currentExercise.duration = getHHMMSS(_characters.toString());
-		}
-	}
+      if (_isInSampleType && name.equals(TAG_SAMPLE_TYPE)) {
 
-	private void parseSample01Start(final String name) {
+         // e.g. <type>TEMPERATURE</type>
 
-		if (name.equals(TAG_SAMPLE_TYPE)) {
-			_isInSampleType = true;
-		} else if (name.equals(TAG_SAMPLE_VALUES)) {
-			_isInSampleValues = true;
-		} else {
-			return;
-		}
+         _isInSampleType = false;
 
-		_characters.delete(0, _characters.length());
-	}
+         final String sampleType = _characters.toString();
 
-	private void parseSample02End(final String name) {
+         if (sampleType.equals(SAMPLE_TYPE_ALTITUDE)
+               || sampleType.equals(SAMPLE_TYPE_CADENCE)
+               || sampleType.equals(SAMPLE_TYPE_DISTANCE)
+               || sampleType.equals(SAMPLE_TYPE_HEARTRATE)
+               || sampleType.equals(SAMPLE_TYPE_SPEED)
+               || sampleType.equals(SAMPLE_TYPE_TEMPERATURE)) {
+            _currentSampleType = sampleType;
+         } else {
+            _currentSampleType = null;
+         }
 
-		if (_isInSampleType && name.equals(TAG_SAMPLE_TYPE)) {
+      } else if (_isInSampleValues && name.equals(TAG_SAMPLE_VALUES)) {
 
-			// e.g. <type>TEMPERATURE</type>
+         // e.g. <values>15.1,15.1,15.1,15,15,14.9,14.8 ..... 16.9,16.8</values>
 
-			_isInSampleType = false;
+         _isInSampleValues = false;
 
-			final String sampleType = _characters.toString();
+         parseSampleValues(_characters.toString());
+      }
+   }
 
-			if (sampleType.equals(SAMPLE_TYPE_ALTITUDE)
-					|| sampleType.equals(SAMPLE_TYPE_CADENCE)
-					|| sampleType.equals(SAMPLE_TYPE_DISTANCE)
-					|| sampleType.equals(SAMPLE_TYPE_HEARTRATE)
-					|| sampleType.equals(SAMPLE_TYPE_SPEED)
-					|| sampleType.equals(SAMPLE_TYPE_TEMPERATURE)) {
-				_currentSampleType = sampleType;
-			} else {
-				_currentSampleType = null;
-			}
+   private void parseSampleValues(final String valueString) {
 
-		} else if (_isInSampleValues && name.equals(TAG_SAMPLE_VALUES)) {
+      if (_currentSampleType == null) {
+         return;
+      }
 
-			// e.g. <values>15.1,15.1,15.1,15,15,14.9,14.8 ..... 16.9,16.8</values>
+      final float[] sampleValues = parseSampleValues10(valueString);
+      if (sampleValues == null) {
+         return;
+      }
 
-			_isInSampleValues = false;
+      if (_currentSampleType.equals(SAMPLE_TYPE_ALTITUDE)) {
+         _currentExercise.altitudeValues = sampleValues;
+      } else if (_currentSampleType.equals(SAMPLE_TYPE_CADENCE)) {
+         _currentExercise.cadenceValues = sampleValues;
+      } else if (_currentSampleType.equals(SAMPLE_TYPE_DISTANCE)) {
+         _currentExercise.distanceValues = sampleValues;
+      } else if (_currentSampleType.equals(SAMPLE_TYPE_HEARTRATE)) {
+         _currentExercise.pulseValues = sampleValues;
+      } else if (_currentSampleType.equals(SAMPLE_TYPE_SPEED)) {
+         _currentExercise.speedValues = sampleValues;
+      } else if (_currentSampleType.equals(SAMPLE_TYPE_TEMPERATURE)) {
+         _currentExercise.temperatureValues = sampleValues;
+      }
+   }
 
-			parseSampleValues(_characters.toString());
-		}
-	}
+   /**
+    * Get all values from the &lt;sample&gt; tag
+    *
+    * @param valueString
+    * @return Returns samples as floating values.
+    */
+   private float[] parseSampleValues10(final String valueString) {
 
-	private void parseSampleValues(final String valueString) {
+      float[] floatValues = null;
 
-		if (_currentSampleType == null) {
-			return;
-		}
+      try {
 
-		final float[] sampleValues = parseSampleValues10(valueString);
-		if (sampleValues == null) {
-			return;
-		}
+         final ArrayList<String> floatStrings = new ArrayList<>();
 
-		if (_currentSampleType.equals(SAMPLE_TYPE_ALTITUDE)) {
-			_currentExercise.altitudeValues = sampleValues;
-		} else if (_currentSampleType.equals(SAMPLE_TYPE_CADENCE)) {
-			_currentExercise.cadenceValues = sampleValues;
-		} else if (_currentSampleType.equals(SAMPLE_TYPE_DISTANCE)) {
-			_currentExercise.distanceValues = sampleValues;
-		} else if (_currentSampleType.equals(SAMPLE_TYPE_HEARTRATE)) {
-			_currentExercise.pulseValues = sampleValues;
-		} else if (_currentSampleType.equals(SAMPLE_TYPE_SPEED)) {
-			_currentExercise.speedValues = sampleValues;
-		} else if (_currentSampleType.equals(SAMPLE_TYPE_TEMPERATURE)) {
-			_currentExercise.temperatureValues = sampleValues;
-		}
-	}
+         final StringTokenizer tokenizer = new StringTokenizer(valueString, UI.SYMBOL_COMMA);
+         while (tokenizer.hasMoreElements()) {
+            floatStrings.add((String) tokenizer.nextElement());
+         }
 
-	/**
-	 * Get all values from the &lt;sample&gt; tag
-	 * 
-	 * @param valueString
-	 * @return Returns samples as floating values.
-	 */
-	private float[] parseSampleValues10(final String valueString) {
+         final String[] floatValueStrings = floatStrings.toArray(new String[floatStrings.size()]);
+         final int floatValueLength = floatValueStrings.length;
 
-		float[] floatValues = null;
+         floatValues = new float[floatValueLength];
 
-		try {
+         for (int floatIndex = 0; floatIndex < floatValueLength; floatIndex++) {
+            floatValues[floatIndex] = Float.parseFloat(floatValueStrings[floatIndex]);
+         }
 
-			final ArrayList<String> floatStrings = new ArrayList<String>();
+      } catch (final NumberFormatException e) {
+         StatusUtil.showStatus(e);
+         return null;
+      }
 
-			final StringTokenizer tokenizer = new StringTokenizer(valueString, UI.KOMMA);
-			while (tokenizer.hasMoreElements()) {
-				floatStrings.add((String) tokenizer.nextElement());
-			}
+      return floatValues;
+   }
 
-			final String[] floatValueStrings = floatStrings.toArray(new String[floatStrings.size()]);
-			final int floatValueLength = floatValueStrings.length;
+   private void parseUserSettings01Start(final String name) {
 
-			floatValues = new float[floatValueLength];
+      if (name.equals(TAG_USER_SETTINGS_RESTING)) {
+         _isInUserSettingsResting = true;
+      } else {
+         return;
+      }
 
-			for (int floatIndex = 0; floatIndex < floatValueLength; floatIndex++) {
-				floatValues[floatIndex] = Float.parseFloat(floatValueStrings[floatIndex]);
-			}
+      _characters.delete(0, _characters.length());
+   }
 
-		} catch (final NumberFormatException e) {
-			StatusUtil.showStatus(e);
-			return null;
-		}
+   private void parseUserSettings02End(final String name) {
 
-		return floatValues;
-	}
+      if (_isInUserSettingsResting && name.equals(TAG_USER_SETTINGS_RESTING)) {
 
-	private void parseUserSettings01Start(final String name) {
+         _isInUserSettingsResting = false;
+         _currentExercise.restPulse = getIntValue(_characters.toString());
+      }
+   }
 
-		if (name.equals(TAG_USER_SETTINGS_RESTING)) {
-			_isInUserSettingsResting = true;
-		} else {
-			return;
-		}
+   @Override
+   public void startElement(final String uri, final String localName, final String name, final Attributes attributes)
+         throws SAXException {
 
-		_characters.delete(0, _characters.length());
-	}
+//      System.out.print("<" + name + ">\n");
 
-	private void parseUserSettings02End(final String name) {
+      if (_dataVersion == 1) {
 
-		if (_isInUserSettingsResting && name.equals(TAG_USER_SETTINGS_RESTING)) {
+         /*
+          * xmlns="http://www.polarpersonaltrainer.com" version="1.0"
+          */
+         if (_isInExercise) {
 
-			_isInUserSettingsResting = false;
-			_currentExercise.restPulse = getIntValue(_characters.toString());
-		}
-	}
+            if (_isInLaps && _isInLap) {
 
-	@Override
-	public void startElement(final String uri, final String localName, final String name, final Attributes attributes)
-			throws SAXException {
+               parseLap01Start(name);
 
-//		System.out.print("<" + name + ">\n");
+            } else if (_isInSamples && _isInSample) {
 
-		if (_dataVersion == 1) {
+               parseSample01Start(name);
 
-			/*
-			 * xmlns="http://www.polarpersonaltrainer.com" version="1.0"
-			 */
-			if (_isInExercise) {
+            } else if (_isInResult) {
 
-				if (_isInLaps && _isInLap) {
+               parseResult01Start(name);
 
-					parseLap01Start(name);
+            } else if (_isInUserSettings) {
 
-				} else if (_isInSamples && _isInSample) {
+               parseUserSettings01Start(name);
+            }
 
-					parseSample01Start(name);
+            if (name.equals(TAG_LAPS)) {
 
-				} else if (_isInResult) {
+               _isInLaps = true;
 
-					parseResult01Start(name);
+            } else if (name.equals(TAG_LAP)) {
 
-				} else if (_isInUserSettings) {
+               // a new lap starts
 
-					parseUserSettings01Start(name);
-				}
+               _isInLap = true;
+               _currentLap = new Lap();
 
-				if (name.equals(TAG_LAPS)) {
+            } else if (name.equals(TAG_SAMPLES)) {
 
-					_isInLaps = true;
+               // /polar-exercise-data/calendar-items/exercise/result/samples
 
-				} else if (name.equals(TAG_LAP)) {
+               _isInSamples = true;
 
-					// a new lap starts
+            } else if (name.equals(TAG_SAMPLE)) {
 
-					_isInLap = true;
-					_currentLap = new Lap();
+               // /polar-exercise-data/calendar-items/exercise/result/samples/sample
 
-				} else if (name.equals(TAG_SAMPLES)) {
+               _isInSample = true;
 
-					// /polar-exercise-data/calendar-items/exercise/result/samples
+            } else if (name.equals(TAG_USER_SETTINGS)) {
 
-					_isInSamples = true;
+               // /polar-exercise-data/calendar-items/exercise/result/user-settings/heart-rate/resting
 
-				} else if (name.equals(TAG_SAMPLE)) {
+               _isInUserSettings = true;
 
-					// /polar-exercise-data/calendar-items/exercise/result/samples/sample
+            } else if (name.equals(TAG_EXERCISE_CREATED)) {
 
-					_isInSample = true;
+               // /polar-exercise-data/calendar-items/exercise/created
 
-				} else if (name.equals(TAG_USER_SETTINGS)) {
+               _isInExerciseCreated = true;
+               _characters.delete(0, _characters.length());
 
-					// /polar-exercise-data/calendar-items/exercise/result/user-settings/heart-rate/resting
+            } else if (name.equals(TAG_EXERCISE_TIME)) {
 
-					_isInUserSettings = true;
+               // /polar-exercise-data/calendar-items/exercise/time
 
-				} else if (name.equals(TAG_EXERCISE_CREATED)) {
+               _isInExerciseTime = true;
+               _characters.delete(0, _characters.length());
 
-					// /polar-exercise-data/calendar-items/exercise/created
+            } else if (name.equals(TAG_EXERCISE_NAME)) {
 
-					_isInExerciseCreated = true;
-					_characters.delete(0, _characters.length());
+               // /polar-exercise-data/calendar-items/exercise/name
 
-				} else if (name.equals(TAG_EXERCISE_TIME)) {
+               _isInExerciseName = true;
+               _characters.delete(0, _characters.length());
 
-					// /polar-exercise-data/calendar-items/exercise/time
+            } else if (name.equals(TAG_EXERCISE_SPORT)) {
 
-					_isInExerciseTime = true;
-					_characters.delete(0, _characters.length());
+               // /polar-exercise-data/calendar-items/exercise/sport
 
-				} else if (name.equals(TAG_EXERCISE_NAME)) {
+               _isInExerciseSport = true;
+               _characters.delete(0, _characters.length());
 
-					// /polar-exercise-data/calendar-items/exercise/name
+            } else if (name.equals(TAG_RESULT)) {
 
-					_isInExerciseName = true;
-					_characters.delete(0, _characters.length());
+               // /polar-exercise-data/calendar-items/exercise/result
 
-				} else if (name.equals(TAG_EXERCISE_SPORT)) {
+               _isInResult = true;
+            }
 
-					// /polar-exercise-data/calendar-items/exercise/sport
+         } else if (name.equals(TAG_EXERCISE)) {
 
-					_isInExerciseSport = true;
-					_characters.delete(0, _characters.length());
+            /*
+             * a new exercise/tour starts
+             */
 
-				} else if (name.equals(TAG_RESULT)) {
+            _isInExercise = true;
 
-					// /polar-exercise-data/calendar-items/exercise/result
+            initNewTour();
+         }
 
-					_isInResult = true;
-				}
+      } else if (_dataVersion < 0) {
 
-			} else if (name.equals(TAG_EXERCISE)) {
+         // this must be the first element
 
-				/*
-				 * a new exercise/tour starts
-				 */
+         if (name.equals(TAG_ROOT)) {
 
-				_isInExercise = true;
+            // check version and root tag in the xml file
+            boolean isPolarTrainer = false;
+            _dataVersion = -1;
 
-				initNewTour();
-			}
+            for (int attrIndex = 0; attrIndex < attributes.getLength(); attrIndex++) {
 
-		} else if (_dataVersion < 0) {
+               final String attrName = attributes.getQName(attrIndex);
+               final String attrValue = attributes.getValue(attrIndex);
 
-			// this must be the first element
+               if (attrName.equalsIgnoreCase(TAG_ROOT_XMLNS)) {
+                  if (attrValue.equalsIgnoreCase(TAG_ROOT_XMLNS_POLARTRAINER)) {
+                     isPolarTrainer = true;
+                     continue;
+                  }
+               }
 
-			if (name.equals(TAG_ROOT)) {
+               if (attrName.equalsIgnoreCase(TAG_ROOT_VERSION)) {
+                  if (attrValue.equalsIgnoreCase(TAG_ROOT_VERSION_1)) {
+                     _dataVersion = 1;
+                     continue;
+                  }
+               }
+            }
 
-				// check version and root tag in the xml file
-				boolean isPolarTrainer = false;
-				_dataVersion = -1;
+            if (isPolarTrainer && _dataVersion > -1) {
+               _isPolarDataValid = true;
+               return;
+            }
+         }
 
-				for (int attrIndex = 0; attrIndex < attributes.getLength(); attrIndex++) {
+         throw new InvalidDeviceSAXException(NLS.bind("Polar xml data are not valid in: {0}", _importFilePath)); //$NON-NLS-1$
 
-					final String attrName = attributes.getQName(attrIndex);
-					final String attrValue = attributes.getValue(attrIndex);
-
-					if (attrName.equalsIgnoreCase(TAG_ROOT_XMLNS)) {
-						if (attrValue.equalsIgnoreCase(TAG_ROOT_XMLNS_POLARTRAINER)) {
-							isPolarTrainer = true;
-							continue;
-						}
-					}
-
-					if (attrName.equalsIgnoreCase(TAG_ROOT_VERSION)) {
-						if (attrValue.equalsIgnoreCase(TAG_ROOT_VERSION_1)) {
-							_dataVersion = 1;
-							continue;
-						}
-					}
-				}
-
-				if (isPolarTrainer && _dataVersion > -1) {
-					_isPolarDataValid = true;
-					return;
-				}
-			}
-
-			throw new InvalidDeviceSAXException(NLS.bind("Polar xml data are not valid in: {0}", _importFilePath)); //$NON-NLS-1$
-
-		}
-	}
+      }
+   }
 
 }

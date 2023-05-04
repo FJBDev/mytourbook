@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -40,21 +40,23 @@ public class TVICatalogComparedTour extends TVICatalogTourItem {
    int  endIndex   = -1;
 
    /*
-    * fields from TourData
+    * Fields from TourData
     */
    long            tourTypeId;
    String          tourTitle;
 
    LocalDate       tourDate;
+   int             year;
 
    float           tourSpeed;
-   int             tourRecordingTime;
+   int             tourDeviceTime_Elapsed;
 
    float           avgPulse;
 
    ArrayList<Long> tagIds;
 
-   public TVICatalogComparedTour(final TVICatalogYearItem parentItem) {
+   public TVICatalogComparedTour(final TreeViewerItem parentItem) {
+
       setParentItem(parentItem);
    }
 
@@ -147,11 +149,25 @@ public class TVICatalogComparedTour extends TVICatalogTourItem {
       this.startIndex = startIndex;
    }
 
-   public void setTourRecordingTime(final int tourRecordingTime) {
-      this.tourRecordingTime = tourRecordingTime;
+   public void setTourDeviceTime_Elapsed(final int tourDeviceTime_Elapsed) {
+      this.tourDeviceTime_Elapsed = tourDeviceTime_Elapsed;
    }
 
    void setTourSpeed(final float tourSpeed) {
       this.tourSpeed = tourSpeed;
+   }
+
+   @Override
+   public String toString() {
+
+      return NL
+
+            + "TVICatalogComparedTour" + NL //$NON-NLS-1$
+
+//            + " compareId = " + compareId + NL //$NON-NLS-1$
+//            + " refId     = " + refId + NL //$NON-NLS-1$
+            + " tourDate  = " + tourDate + NL //$NON-NLS-1$
+            + " tourTitle = " + tourTitle + NL //$NON-NLS-1$
+      ;
    }
 }

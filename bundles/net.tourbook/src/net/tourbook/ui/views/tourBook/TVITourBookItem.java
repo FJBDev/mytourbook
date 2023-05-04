@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,28 +22,46 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.data.TourData;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.ITourItem;
 import net.tourbook.tour.TourManager;
+
+import org.eclipse.jface.preference.IPreferenceStore;
 
 public abstract class TVITourBookItem extends TreeViewerItem implements ITourItem {
 
    static ZonedDateTime       calendar8 = ZonedDateTime.now().with(TimeTools.calendarWeek.dayOfWeek(), 1);
 
+   /**
+    * All tour fields in the tourbook view, the first field is <code>tourId</code> which can be
+    * prefixed with <code>DISTINCT</code>
+    */
    public static final String SQL_ALL_TOUR_FIELDS;
-   static final String        SQL_ALL_OTHER_FIELDS;
 
+   public static final String SQL_ALL_OTHER_FIELDS;
+   public static final int    SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER;
+
+   /**
+    * <b>All</b> fields which are used in {@link #SQL_SUM_COLUMNS} <b>MUST be defined in</b>
+    * {@link #SQL_SUM_FIELDS}, otherwise the SQL fails
+    */
    static final String        SQL_SUM_COLUMNS;
+
+   /**
+    * SQL fields for {@link #SQL_SUM_COLUMNS}, the field ordering is NOT important
+    */
    static final String        SQL_SUM_FIELDS;
 
    static {
 
-      SQL_ALL_TOUR_FIELDS = NL
+      SQL_ALL_TOUR_FIELDS = UI.EMPTY_STRING
 
             + "tourID, " //                                       1     //$NON-NLS-1$
 
@@ -51,11 +69,11 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "startMonth, " //                                   3     //$NON-NLS-1$
             + "startDay, " //                                     4     //$NON-NLS-1$
             + "tourDistance, " //                                 5     //$NON-NLS-1$
-            + "tourRecordingTime, " //                            6     //$NON-NLS-1$
-            + "tourDrivingTime, " //                              7     //$NON-NLS-1$
+            + "tourDeviceTime_Elapsed, " //                       6     //$NON-NLS-1$
+            + "tourComputedTime_Moving, " //                      7     //$NON-NLS-1$
             + "tourAltUp, " //                                    8     //$NON-NLS-1$
             + "tourAltDown, " //                                  9     //$NON-NLS-1$
-            + "startDistance, " //                                10     //$NON-NLS-1$
+            + "startDistance, " //                                10    //$NON-NLS-1$
             + "tourType_typeId, " //                              11    //$NON-NLS-1$
             + "tourTitle, " //                                    12    //$NON-NLS-1$
             + "deviceTimeInterval, " //                           13    //$NON-NLS-1$
@@ -64,7 +82,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "maxPulse, " //                                     16    //$NON-NLS-1$
             + "avgPulse, " //                                     17    //$NON-NLS-1$
             + "avgCadence, " //                                   18    //$NON-NLS-1$
-            + "(DOUBLE(avgTemperature) / temperatureScale), " //  19    //$NON-NLS-1$
+            + "weather_Temperature_Average_Device, " //           19    //$NON-NLS-1$
 
             + "TourStartTime, " //                                20    //$NON-NLS-1$
             + "TimeZoneId, " //                                   21    //$NON-NLS-1$
@@ -72,9 +90,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "startWeek, " //                                    22    //$NON-NLS-1$
             + "startWeekYear, " //                                23    //$NON-NLS-1$
             //
-            + "weatherWindDir, " //                               24    //$NON-NLS-1$
-            + "weatherWindSpd, " //                               25    //$NON-NLS-1$
-            + "weatherClouds, " //                                26    //$NON-NLS-1$
+            + "weather_Wind_Direction, " //                       24    //$NON-NLS-1$
+            + "weather_Wind_Speed, " //                           25    //$NON-NLS-1$
+            + "weather_Clouds, " //                               26    //$NON-NLS-1$
             //
             + "restPulse, " //                                    27    //$NON-NLS-1$
             + "calories, " //                                     28    //$NON-NLS-1$
@@ -105,7 +123,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "power_AvgLeftPedalSmoothness, " //                 45    //$NON-NLS-1$
             + "power_AvgRightPedalSmoothness, " //                46    //$NON-NLS-1$
 
-            + "bikerWeight, " //                                  47    //$NON-NLS-1$
+            + "bodyWeight, " //                                   47    //$NON-NLS-1$
             //
             // ---------- IMPORT -------------
             //
@@ -163,113 +181,151 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "cadenceZones_DelimiterValue, " //                  79    //$NON-NLS-1$
 
             // ---------- WEATHER -------------
-
-            + "weather_Temperature_Min, " //                      80    //$NON-NLS-1$
-            + "weather_Temperature_Max, " //                      81    //$NON-NLS-1$
+            + "weather_Temperature_Min_Device, " //               80    //$NON-NLS-1$
+            + "weather_Temperature_Max_Device, " //               81    //$NON-NLS-1$
+            + "temperatureScale, " //                             82    //$NON-NLS-1$
 
             // ---------- TOUR START LOCATION -------------
-
-            + "tourStartPlace, " //                               82    //$NON-NLS-1$
-            + "tourEndPlace, " //                                 83    //$NON-NLS-1$
+            + "tourStartPlace, " //                               83    //$NON-NLS-1$
+            + "tourEndPlace, " //                                 84    //$NON-NLS-1$
 
             // -------- AVERAGE ALTITUDE CHANGE -----------
+            + "avgAltitudeChange, " //                            85    //$NON-NLS-1$
 
-            + "avgAltitudeChange " //                             84    //$NON-NLS-1$
-      ;
+            // -------- TIME -----------
+            + "tourDeviceTime_Recorded, " //                      86    //$NON-NLS-1$
+            + "tourDeviceTime_Paused, " //                        87    //$NON-NLS-1$
 
-      SQL_ALL_OTHER_FIELDS = NL
+            // computed break time
+            + "(tourDeviceTime_Elapsed - tourComputedTime_Moving), " // 88    //$NON-NLS-1$
 
-            /////////////////////////////////////////////////////////////////////////
-            // -------- JOINT TABLES, they are added at the end --------------
-            /////////////////////////////////////////////////////////////////////////
+            // -------- BATTERY -----------
+            + "Battery_Percentage_Start, " //                     89    //$NON-NLS-1$
+            + "Battery_Percentage_End," //                        90    //$NON-NLS-1$
 
-            + "jTdataTtag.TourTag_tagId, "//                      last+1   //$NON-NLS-1$
-            + "Tmarker.markerId "//                               last+2   //$NON-NLS-1$
-      ;
+            // -------- TEMPERATURES -----------
+            + "weather_Temperature_Average," //                   91    //$NON-NLS-1$
+            + "weather_Temperature_Max," //                       92    //$NON-NLS-1$
+            + "weather_Temperature_Min " //                       93    //$NON-NLS-1$
 
-      SQL_SUM_FIELDS = NL
-
-            + "TourDistance,                " + NL //$NON-NLS-1$
-            + "TourRecordingTime,           " + NL //$NON-NLS-1$
-            + "TourDrivingTime,             " + NL //$NON-NLS-1$
-            + "TourAltUp,                   " + NL //$NON-NLS-1$
-            + "TourAltDown,                 " + NL //$NON-NLS-1$
-
-            + "MaxAltitude,                 " + NL //$NON-NLS-1$
-            + "MaxPulse,                    " + NL //$NON-NLS-1$
-            + "MaxSpeed,                    " + NL //$NON-NLS-1$
-
-            + "AvgCadence,                  " + NL //$NON-NLS-1$
-            + "AvgPulse,                    " + NL //$NON-NLS-1$
-            + "AvgTemperature,              " + NL //$NON-NLS-1$
-            + "CadenceMultiplier,           " + NL //$NON-NLS-1$
-            + "TemperatureScale,            " + NL //$NON-NLS-1$
-            + "WeatherWindDir,              " + NL //$NON-NLS-1$
-            + "WeatherWindSpd,              " + NL //$NON-NLS-1$
-
-            + "Calories,                    " + NL //$NON-NLS-1$
-            + "RestPulse,                   " + NL //$NON-NLS-1$
-
-            + "Power_TotalWork,             " + NL //$NON-NLS-1$
-
-            + "NumberOfTimeSlices,          " + NL //$NON-NLS-1$
-            + "NumberOfPhotos,              " + NL //$NON-NLS-1$
-
-            + "FrontShiftCount,             " + NL //$NON-NLS-1$
-            + "RearShiftCount,              " + NL //$NON-NLS-1$
-
-            + "surfing_NumberOfEvents,      " + NL //$NON-NLS-1$
-
-            + "cadenceZone_SlowTime,        " + NL //$NON-NLS-1$
-            + "cadenceZone_FastTime,        " + NL //$NON-NLS-1$
-            + "cadenceZones_DelimiterValue, " + NL //$NON-NLS-1$
-
-            + "weather_Temperature_Min,     " + NL //$NON-NLS-1$
-            + "weather_Temperature_Max      " + NL //$NON-NLS-1$
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //
+      // VERY IMPORTANT
+      //
+      // Adjust constant SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER when sql fields are added,
+      // otherwise tags and number of markers are not displayed !!!
+      //
+      //////////////////////////////////////////////////////////////////////////////////////////
 
       ;
 
-      SQL_SUM_COLUMNS = NL
+      SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER = 94;
 
-            + "SUM( CAST(TourDistance AS BIGINT)),          " + NL // 0   //$NON-NLS-1$
-            + "SUM( CAST(TourRecordingTime AS BIGINT)),     " + NL // 1   //$NON-NLS-1$
-            + "SUM( CAST(TourDrivingTime AS BIGINT)),       " + NL // 2   //$NON-NLS-1$
-            + "SUM( CAST(TourAltUp AS BIGINT)),             " + NL // 3   //$NON-NLS-1$
-            + "SUM( CAST(TourAltDown AS BIGINT)),           " + NL // 4   //$NON-NLS-1$
-            + "SUM(1),                                      " + NL // 5   //$NON-NLS-1$
+      /////////////////////////////////////////////////////////////////////////
+      // -------- JOINT TABLES, they are added at the end --------------
+      /////////////////////////////////////////////////////////////////////////
+      SQL_ALL_OTHER_FIELDS = UI.EMPTY_STRING
+
+            + "jTdataTtag.TourTag_tagId, " //                     SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 0   //$NON-NLS-1$
+            + "Tmarker.markerId " //                              SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 1   //$NON-NLS-1$
+      ;
+
+      SQL_SUM_FIELDS = UI.EMPTY_STRING
+
+            + "TourDistance," + NL //                                      //$NON-NLS-1$
+            + "TourDeviceTime_Elapsed," + NL //                            //$NON-NLS-1$
+            + "TourComputedTime_Moving," + NL //                           //$NON-NLS-1$
+            + "TourAltUp," + NL //                                         //$NON-NLS-1$
+            + "TourAltDown," + NL //                                       //$NON-NLS-1$
+
+            + "MaxAltitude," + NL //                                       //$NON-NLS-1$
+            + "MaxPulse," + NL //                                          //$NON-NLS-1$
+            + "MaxSpeed," + NL //                                          //$NON-NLS-1$
+
+            + "AvgCadence," + NL //                                        //$NON-NLS-1$
+            + "AvgPulse," + NL //                                          //$NON-NLS-1$
+
+            + "CadenceMultiplier," + NL //                                 //$NON-NLS-1$
+            + "TemperatureScale," + NL //                                  //$NON-NLS-1$
+
+            + "Calories," + NL //                                          //$NON-NLS-1$
+            + "RestPulse," + NL //                                         //$NON-NLS-1$
+
+            + "Power_TotalWork," + NL //                                   //$NON-NLS-1$
+
+            + "NumberOfTimeSlices," + NL //                                //$NON-NLS-1$
+            + "NumberOfPhotos," + NL //                                    //$NON-NLS-1$
+
+            + "FrontShiftCount," + NL //                                   //$NON-NLS-1$
+            + "RearShiftCount," + NL //                                    //$NON-NLS-1$
+
+            + "surfing_NumberOfEvents," + NL //                            //$NON-NLS-1$
+
+            + "cadenceZone_SlowTime," + NL //                              //$NON-NLS-1$
+            + "cadenceZone_FastTime," + NL //                              //$NON-NLS-1$
+            + "cadenceZones_DelimiterValue," + NL //                       //$NON-NLS-1$
+
+            + "Weather_Temperature_Average," + NL //                       //$NON-NLS-1$
+            + "Weather_Temperature_Average_Device," + NL //                //$NON-NLS-1$
+            + "Weather_Temperature_Min_Device," + NL //                    //$NON-NLS-1$
+            + "Weather_Temperature_Max_Device," + NL //                    //$NON-NLS-1$
+            + "Weather_Wind_Direction," + NL //                            //$NON-NLS-1$
+            + "Weather_Wind_Speed," + NL //                                //$NON-NLS-1$
+
+            + "tourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
+            + "tourDeviceTime_Paused" + NL //                              //$NON-NLS-1$
+      ;
+
+      SQL_SUM_COLUMNS = UI.EMPTY_STRING
+
+            + "SUM( CAST(TourDistance AS BIGINT))," + NL //             0  //$NON-NLS-1$
+            + "SUM( CAST(TourDeviceTime_Elapsed AS BIGINT))," + NL //   1  //$NON-NLS-1$
+            + "SUM( CAST(TourComputedTime_Moving AS BIGINT))," + NL //  2  //$NON-NLS-1$
+            + "SUM( CAST(TourAltUp AS BIGINT))," + NL //                3  //$NON-NLS-1$
+            + "SUM( CAST(TourAltDown AS BIGINT))," + NL //              4  //$NON-NLS-1$
+            + "SUM(1)," + NL //                                         5  //$NON-NLS-1$
             //
-            + "MAX(MaxSpeed),                               " + NL // 6   //$NON-NLS-1$
-            + "MAX(MaxAltitude),                            " + NL // 7   //$NON-NLS-1$
-            + "MAX(MaxPulse),                               " + NL // 8 //$NON-NLS-1$
+            + "MAX(MaxSpeed)," + NL //                                  6  //$NON-NLS-1$
+            + "MAX(MaxAltitude)," + NL //                               7  //$NON-NLS-1$
+            + "MAX(MaxPulse)," + NL //                                  8  //$NON-NLS-1$
             //
-            + "AVG( CASE WHEN AvgPulse = 0         THEN NULL ELSE AvgPulse END         ), " + NL //                              9   //$NON-NLS-1$
-            + "AVG( CASE WHEN AvgCadence = 0       THEN NULL ELSE DOUBLE(AvgCadence) * CadenceMultiplier END ),      " + NL //   10   //$NON-NLS-1$
-            + "AVG( CASE WHEN AvgTemperature = 0   THEN NULL ELSE DOUBLE(AvgTemperature) / TemperatureScale END ),   " + NL //   11   //$NON-NLS-1$
-            + "AVG( CASE WHEN WeatherWindDir = 0   THEN NULL ELSE WeatherWindDir END   ), " + NL //                              12   //$NON-NLS-1$
-            + "AVG( CASE WHEN WeatherWindSpd = 0   THEN NULL ELSE WeatherWindSpd END   ), " + NL //                              13   //$NON-NLS-1$
-            + "AVG( CASE WHEN RestPulse = 0        THEN NULL ELSE RestPulse END        ), " + NL //                              14   //$NON-NLS-1$
+            + "AVG( CASE WHEN AvgPulse = 0         THEN NULL ELSE AvgPulse END), " + NL //                                    9     //$NON-NLS-1$
+            + "AVG( CASE WHEN AvgCadence = 0       THEN NULL ELSE DOUBLE(AvgCadence) * CadenceMultiplier END)," + NL //       10    //$NON-NLS-1$
+            + "AVG( CASE WHEN weather_Temperature_Average_Device = 0   THEN NULL ELSE DOUBLE(weather_Temperature_Average_Device) / TemperatureScale END)," //$NON-NLS-1$
+            + NL //    11
+            + "AVG( CASE WHEN Weather_Wind_Direction = 0 THEN NULL ELSE Weather_Wind_Direction END), " + NL //                12    //$NON-NLS-1$
+            + "AVG( CASE WHEN Weather_Wind_Speed = 0 THEN NULL ELSE Weather_Wind_Speed END), " + NL //                        13    //$NON-NLS-1$
+            + "AVG( CASE WHEN RestPulse = 0        THEN NULL ELSE RestPulse END), " + NL //                                   14    //$NON-NLS-1$
             //
-            + "SUM( CAST(Calories AS BIGINT)),              " + NL // 15   //$NON-NLS-1$
-            + "SUM( CAST(Power_TotalWork AS BIGINT)),       " + NL // 16   //$NON-NLS-1$
+            + "SUM( CAST(Calories AS BIGINT))," + NL //                 15 //$NON-NLS-1$
+            + "SUM( CAST(Power_TotalWork AS BIGINT))," + NL //          16 //$NON-NLS-1$
 
-            + "SUM( CAST(NumberOfTimeSlices AS BIGINT)),    " + NL // 17   //$NON-NLS-1$
-            + "SUM( CAST(NumberOfPhotos AS BIGINT)),        " + NL // 18   //$NON-NLS-1$
+            + "SUM( CAST(NumberOfTimeSlices AS BIGINT))," + NL //       17 //$NON-NLS-1$
+            + "SUM( CAST(NumberOfPhotos AS BIGINT))," + NL //           18 //$NON-NLS-1$
             //
-            + "SUM( CAST(FrontShiftCount AS BIGINT)),       " + NL // 19   //$NON-NLS-1$
-            + "SUM( CAST(RearShiftCount AS BIGINT)),        " + NL // 20   //$NON-NLS-1$
+            + "SUM( CAST(FrontShiftCount AS BIGINT))," + NL //          19 //$NON-NLS-1$
+            + "SUM( CAST(RearShiftCount AS BIGINT))," + NL //           20 //$NON-NLS-1$
 
-            + "SUM( CAST(Surfing_NumberOfEvents AS BIGINT))," + NL // 21   //$NON-NLS-1$
+            + "SUM( CAST(Surfing_NumberOfEvents AS BIGINT))," + NL //   21 //$NON-NLS-1$
 
-            + "SUM( CAST(cadenceZone_SlowTime AS BIGINT)),  " + NL // 22   //$NON-NLS-1$
-            + "SUM( CAST(cadenceZone_FastTime AS BIGINT)),  " + NL // 23   //$NON-NLS-1$
-            + "AVG( CASE WHEN cadenceZones_DelimiterValue = 0 THEN NULL ELSE cadenceZones_DelimiterValue END ), " + NL // 24  //$NON-NLS-1$
+            + "SUM( CAST(cadenceZone_SlowTime AS BIGINT))," + NL //     22 //$NON-NLS-1$
+            + "SUM( CAST(cadenceZone_FastTime AS BIGINT))," + NL //     23 //$NON-NLS-1$
+            + "AVG( CASE WHEN cadenceZones_DelimiterValue = 0 THEN NULL ELSE cadenceZones_DelimiterValue END)," + NL //       24 //$NON-NLS-1$
 
-            + "MIN(CASE WHEN weather_Temperature_Min = 0 THEN NULL ELSE weather_Temperature_Min END), " + NL // 25            //$NON-NLS-1$
-            + "MAX(CASE WHEN weather_Temperature_Max = 0 THEN NULL ELSE weather_Temperature_Max END)  " + NL // 26            //$NON-NLS-1$
+            + "MIN( CASE WHEN weather_Temperature_Min_Device = 0 THEN NULL ELSE weather_Temperature_Min_Device END)," + NL // 25 //$NON-NLS-1$
+            + "MAX( CASE WHEN weather_Temperature_Max_Device = 0 THEN NULL ELSE weather_Temperature_Max_Device END)," + NL // 26 //$NON-NLS-1$
+
+            + "SUM( CAST(tourDeviceTime_Recorded AS BIGINT))," + NL //  27 //$NON-NLS-1$
+            + "SUM( CAST(tourDeviceTime_Paused AS BIGINT))," + NL //    28 //$NON-NLS-1$
+
+            + "AVG( CASE WHEN weather_Temperature_Average = 0   THEN NULL ELSE DOUBLE(weather_Temperature_Average) / TemperatureScale END)" // 29 //$NON-NLS-1$
       ;
 
    }
 
+   protected static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+   //
+   //
    TourBookView tourBookView;
 
    String       treeColumn;
@@ -292,9 +348,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    //
    String       colTourTitle;
    //
-   String       colTourLocation_Start;   // tourStartPlace
-   String       colTourLocation_End;     // tourEndPlace
-   long         colPersonId;             // tourPerson_personId
+   String       colTourLocation_Start;        // tourStartPlace
+   String       colTourLocation_End;          // tourEndPlace
+   long         colPersonId;                  // tourPerson_personId
    //
    long         colCounter;
    //
@@ -303,9 +359,11 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    float        colBodyWeight;
    int          colRestPulse;
    //
-   long         colTourRecordingTime;
-   long         colTourDrivingTime;
-   long         colPausedTime;
+   long         colTourDeviceTime_Elapsed;
+   long         colTourDeviceTime_Recorded;
+   long         colTourComputedTime_Moving;
+   long         colTourDeviceTime_Paused;
+   long         colTourComputedTime_Break;
    //
    long         colAltitudeUp;
    long         colAltitudeDown;
@@ -320,12 +378,15 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    float        colAvgPulse;
    float        colAvgCadence;
    //
-   float        colTemperature_Avg;
+   float        colTemperature_Average;
    float        colTemperature_Min;
    float        colTemperature_Max;
+   float        colTemperature_Average_Device;
+   float        colTemperature_Min_Device;
+   float        colTemperature_Max_Device;
    //
-   int          colWindSpd;
-   int          colWindDir;
+   int          colWindSpeed;
+   int          colWindDirection;
    String       colClouds;
    //
    int          colWeekNo;
@@ -404,7 +465,12 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    //
    String col_ImportFileName;
    String col_ImportFilePath;
-   String col_DeviceName;
+   //
+   // ----------- DEVICE ---------
+   //
+   short  colBatterySoC_Start;
+   short  colBatterySoC_End;
+   String colDeviceName;
 
    TVITourBookItem(final TourBookView view) {
 
@@ -425,53 +491,53 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
 // SET_FORMATTING_OFF
 
-      final int dbYear                 = result.getInt(2);
-      final int dbMonth                = result.getInt(3);
-      final int dbDay                  = result.getInt(4);
+      final int dbYear                    = result.getInt(2);
+      final int dbMonth                   = result.getInt(3);
+      final int dbDay                     = result.getInt(4);
 
-      tourItem.treeColumn              = Integer.toString(dbDay);
-      tourItem.tourYear                = dbYear;
-      tourItem.tourMonth               = dbMonth;
-      tourItem.tourDay                 = dbDay;
+      tourItem.treeColumn                 = Integer.toString(dbDay);
+      tourItem.tourYear                   = dbYear;
+      tourItem.tourMonth                  = dbMonth;
+      tourItem.tourDay                    = dbDay;
 
-      tourItem.colTourDistance         = result.getLong(5);
-      tourItem.colTourRecordingTime    = result.getLong(6);
-      tourItem.colTourDrivingTime      = result.getLong(7);
-      tourItem.colAltitudeUp           = result.getLong(8);
-      tourItem.colAltitudeDown         = result.getLong(9);
+      tourItem.colTourDistance            = result.getLong(5);
+      tourItem.colTourDeviceTime_Elapsed  = result.getLong(6);
+      tourItem.colTourComputedTime_Moving = result.getLong(7);
+      tourItem.colAltitudeUp              = result.getLong(8);
+      tourItem.colAltitudeDown            = result.getLong(9);
 
-      tourItem.colStartDistance        = result.getLong(10);
-      final Object tourTypeId          = result.getObject(11);
-      tourItem.colTourTitle            = result.getString(12);
-      tourItem.colTimeInterval         = result.getShort(13);
+      tourItem.colStartDistance           = result.getLong(10);
+      final Object tourTypeId             = result.getObject(11);
+      tourItem.colTourTitle               = result.getString(12);
+      tourItem.colTimeInterval            = result.getShort(13);
 
-      tourItem.colMaxSpeed             = result.getFloat(14);
-      tourItem.colMaxAltitude          = result.getLong(15);
-      tourItem.colMaxPulse             = result.getLong(16);
-      tourItem.colAvgPulse             = result.getFloat(17);
-      final float dbAvgCadence         = result.getFloat(18);
-      tourItem.colTemperature_Avg      = result.getFloat(19);
+      tourItem.colMaxSpeed                = result.getFloat(14);
+      tourItem.colMaxAltitude             = result.getLong(15);
+      tourItem.colMaxPulse                = result.getLong(16);
+      tourItem.colAvgPulse                = result.getFloat(17);
+      final float dbAvgCadence            = result.getFloat(18);
+      final float dbAvgTemperature_Device = result.getFloat(19);
 
-      final long dbTourStartTime       = result.getLong(20);
-      final String dbTimeZoneId        = result.getString(21);
+      final long dbTourStartTime          = result.getLong(20);
+      final String dbTimeZoneId           = result.getString(21);
 
-      tourItem.colWeekNo               = result.getInt(22);
-      tourItem.colWeekYear             = result.getInt(23);
+      tourItem.colWeekNo                  = result.getInt(22);
+      tourItem.colWeekYear                = result.getInt(23);
 
-      tourItem.colWindDir              = result.getInt(24);
-      tourItem.colWindSpd              = result.getInt(25);
-      tourItem.colClouds               = result.getString(26);
-      tourItem.colRestPulse            = result.getInt(27);
+      tourItem.colWindDirection           = result.getInt(24);
+      tourItem.colWindSpeed               = result.getInt(25);
+      tourItem.colClouds                  = result.getString(26);
+      tourItem.colRestPulse               = result.getInt(27);
 
-      tourItem.colCalories             = result.getLong(28);
-      tourItem.colPersonId             = result.getLong(29);
+      tourItem.colCalories                = result.getLong(28);
+      tourItem.colPersonId                = result.getLong(29);
 
-      tourItem.colNumberOfTimeSlices   = result.getLong(30);
-      tourItem.colNumberOfPhotos       = result.getLong(31);
-      tourItem.colDPTolerance          = result.getInt(32);
+      tourItem.colNumberOfTimeSlices      = result.getLong(30);
+      tourItem.colNumberOfPhotos          = result.getLong(31);
+      tourItem.colDPTolerance             = result.getInt(32);
 
-      tourItem.colFrontShiftCount      = result.getLong(33);
-      tourItem.colRearShiftCount       = result.getLong(34);
+      tourItem.colFrontShiftCount         = result.getLong(33);
+      tourItem.colRearShiftCount          = result.getLong(34);
 
       // ----------------- POWER ------------------
 
@@ -552,17 +618,35 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       // ---------- WEATHER -------------
 
-      tourItem.colTemperature_Min                     = result.getFloat(80);
-      tourItem.colTemperature_Max                     = result.getFloat(81);
+      tourItem.colTemperature_Min_Device                     = result.getFloat(80);
+      tourItem.colTemperature_Max_Device                     = result.getFloat(81);
+      final int dbTemperatureScale                    = result.getInt(82);
 
       // ---------- TOUR START LOCATION -------------
 
-      tourItem.colTourLocation_Start                  = result.getString(82);
-      tourItem.colTourLocation_End                    = result.getString(83);
+      tourItem.colTourLocation_Start                  = result.getString(83);
+      tourItem.colTourLocation_End                    = result.getString(84);
 
       // -------- AVERAGE ALTITUDE CHANGE -----------
 
-      tourItem.colAltitude_AvgChange                  = result.getLong(84);
+      tourItem.colAltitude_AvgChange                  = result.getLong(85);
+
+      // -------- TIME -----------
+
+      tourItem.colTourDeviceTime_Recorded             = result.getLong(86);
+      tourItem.colTourDeviceTime_Paused               = result.getLong(87);
+      tourItem.colTourComputedTime_Break              = result.getLong(88);
+
+      // -------- BATTERY -----------
+
+      tourItem.colBatterySoC_Start                    = result.getShort(89);
+      tourItem.colBatterySoC_End                      = result.getShort(90);
+
+      // -------- TEMPERATURES -----------
+
+      final float dbAvgTemperature = result.getFloat(91);
+      tourItem.colTemperature_Max = result.getFloat(92);
+      tourItem.colTemperature_Min = result.getFloat(93);
 
 // SET_FORMATTING_ON
 
@@ -576,12 +660,16 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       tourItem.colSlowVsFastCadence = TourManager.generateCadenceZones_TimePercentages(cadenceZone_SlowTime, cadenceZone_FastTime);
 
+      tourItem.colTemperature_Average_Device = dbAvgTemperature_Device / dbTemperatureScale;
+
+      tourItem.colTemperature_Average = dbAvgTemperature / dbTemperatureScale;
+
       // -----------------------------------------------
 
       dbDeviceName = dbDeviceName == null ? UI.EMPTY_STRING : dbDeviceName;
       dbFirmwareVersion = dbFirmwareVersion == null ? UI.EMPTY_STRING : dbFirmwareVersion;
 
-      final String deviceName = dbFirmwareVersion.length() == 0//
+      final String deviceName = dbFirmwareVersion.length() == 0
             ? dbDeviceName
             : dbDeviceName
                   + UI.SPACE
@@ -589,7 +677,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
                   + dbFirmwareVersion
                   + UI.SYMBOL_BRACKET_RIGHT;
 
-      tourItem.col_DeviceName = deviceName;
+      tourItem.colDeviceName = deviceName;
 
       // -----------------------------------------------
 
@@ -607,11 +695,12 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       // compute average speed/pace, prevent divide by 0
       final long dbDistance = tourItem.colTourDistance;
-      final long dbDrivingTime = tourItem.colTourDrivingTime;
-      tourItem.colAvgSpeed = dbDrivingTime == 0 ? 0 : 3.6f * dbDistance / dbDrivingTime;
-      tourItem.colAvgPace = dbDistance == 0 ? 0 : dbDrivingTime * 1000 / dbDistance;
-
-      tourItem.colPausedTime = tourItem.colTourRecordingTime - tourItem.colTourDrivingTime;
+      final long dbRecordedTime = tourItem.colTourDeviceTime_Recorded;
+      final long dbMovingTime = tourItem.colTourComputedTime_Moving;
+      final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
+      final long time = isPaceAndSpeedFromRecordedTime ? dbRecordedTime : dbMovingTime;
+      tourItem.colAvgSpeed = time == 0 ? 0 : 3.6f * dbDistance / time;
+      tourItem.colAvgPace = dbDistance == 0 ? 0 : time * 1000f / dbDistance;
 
       if (UI.IS_SCRAMBLE_DATA) {
          tourItem.scrambleData();
@@ -626,8 +715,8 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       colTourDistance                  = result.getLong(startIndex + 0);
 
-      colTourRecordingTime             = result.getLong(startIndex + 1);
-      colTourDrivingTime               = result.getLong(startIndex + 2);
+      colTourDeviceTime_Elapsed        = result.getLong(startIndex + 1);
+      colTourComputedTime_Moving       = result.getLong(startIndex + 2);
 
       colAltitudeUp                    = result.getLong(startIndex + 3);
       colAltitudeDown                  = result.getLong(startIndex + 4);
@@ -635,25 +724,27 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       // VERY IMPORTANT !
       // Note that we don't do an AVG(avgAltitudeChange) as it would return wrong results.
       // Indeed, we can't do a mean average as we need to do a distance-weighted average.
-      colAltitude_AvgChange            = colTourDistance <= 0 ? 0 : (colAltitudeUp + colAltitudeDown) / (colTourDistance / 1000f);
+      colAltitude_AvgChange            = UI.computeAverageElevationChange(colAltitudeUp + colAltitudeDown, colTourDistance);
 
       colCounter                       = result.getLong(startIndex + 5);
 
       colMaxSpeed                      = result.getFloat(startIndex + 6);
 
+      final boolean isPaceAndSpeedFromRecordedTime = _prefStore.getBoolean(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME);
+      final long time = isPaceAndSpeedFromRecordedTime ? colTourDeviceTime_Recorded : colTourComputedTime_Moving;
       // compute average speed/pace, prevent divide by 0
-      colAvgSpeed                      = colTourDrivingTime == 0 ? 0 : 3.6f * colTourDistance / colTourDrivingTime;
-      colAvgPace                       = colTourDistance == 0 ? 0 : colTourDrivingTime * 1000f / colTourDistance;
+      colAvgSpeed                      = time == 0 ? 0 : 3.6f * colTourDistance / time;
+      colAvgPace                       = colTourDistance == 0 ? 0 : time * 1000f / colTourDistance;
 
       colMaxAltitude                   = result.getLong(startIndex + 7);
       colMaxPulse                      = result.getLong(startIndex + 8);
 
       colAvgPulse                      = result.getFloat(startIndex + 9);
       colAvgCadence                    = result.getFloat(startIndex + 10);
-      colTemperature_Avg               = result.getFloat(startIndex + 11);
+      colTemperature_Average_Device    = result.getFloat(startIndex + 11);
 
-      colWindDir                       = result.getInt(startIndex + 12);
-      colWindSpd                       = result.getInt(startIndex + 13);
+      colWindDirection                 = result.getInt(startIndex + 12);
+      colWindSpeed                     = result.getInt(startIndex + 13);
       colRestPulse                     = result.getInt(startIndex + 14);
 
       colCalories                      = result.getLong(startIndex + 15);
@@ -671,12 +762,18 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       final int cadenceZone_FastTime   = result.getInt(startIndex + 23);
       colCadenceZonesDelimiter         = result.getInt(startIndex + 24);
 
-      colTemperature_Min               = result.getFloat(startIndex + 25);
-      colTemperature_Max               = result.getFloat(startIndex + 26);
+      colTemperature_Min_Device        = result.getFloat(startIndex + 25);
+      colTemperature_Max_Device        = result.getFloat(startIndex + 26);
+
+      colTourDeviceTime_Recorded       = result.getLong(startIndex + 27);
+      colTourDeviceTime_Paused         = result.getLong(startIndex + 28);
+
+      colTemperature_Average           = result.getFloat(startIndex + 29);
 
 // SET_FORMATTING_ON
 
-      colPausedTime = colTourRecordingTime - colTourDrivingTime;
+      colTourDeviceTime_Paused = colTourDeviceTime_Elapsed - colTourDeviceTime_Recorded;
+      colTourComputedTime_Break = colTourDeviceTime_Elapsed - colTourComputedTime_Moving;
 
       colSlowVsFastCadence = TourManager.generateCadenceZones_TimePercentages(cadenceZone_SlowTime, cadenceZone_FastTime);
    }
@@ -706,6 +803,18 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
          return false;
       }
 
+      if (this instanceof TVITourBookTour && obj instanceof TVITourBookTour) {
+
+         // cloned tours can have all the same data except the tour ID
+
+         final TVITourBookTour thisTour = (TVITourBookTour) this;
+         final TVITourBookTour otherTour = (TVITourBookTour) obj;
+
+         if (thisTour.tourId != otherTour.tourId) {
+            return false;
+         }
+      }
+
       final TVITourBookItem other = (TVITourBookItem) obj;
       if (colTourDateTime == null) {
          if (other.colTourDateTime != null) {
@@ -732,8 +841,8 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
          final long result_TourId = result.getLong(1);
 
-         final Object result_TagId = result.getObject(85);
-         final Object result_MarkerId = result.getObject(86);
+         final Object result_TagId = result.getObject(SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER);
+         final Object result_MarkerId = result.getObject(TVITourBookItem.SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER + 1);
 
          if (result_TourId == prevTourId) {
 

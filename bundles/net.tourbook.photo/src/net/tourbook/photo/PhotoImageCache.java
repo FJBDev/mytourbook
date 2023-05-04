@@ -26,7 +26,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import net.tourbook.photo.internal.Activator;
 import net.tourbook.photo.internal.manager.ImageCacheWrapper;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -38,7 +37,7 @@ import org.eclipse.swt.graphics.Rectangle;
  */
 public class PhotoImageCache {
 
-   private static IPreferenceStore _prefStore                 = Activator.getDefault().getPreferenceStore();
+   private static IPreferenceStore _prefStore                 = PhotoActivator.getPrefStore();
 
    private static int              _maxThumbImageCacheSize    = _prefStore.getInt(IPhotoPreferences.PHOTO_THUMBNAIL_IMAGE_CACHE_SIZE);
 
@@ -131,7 +130,14 @@ public class PhotoImageCache {
             final Image image = cacheWrapper.image;
 
             if (image != null) {
-               image.dispose();
+
+               // sometimes the device of the image is null which causes an exception
+
+               try {
+                  image.dispose();
+               } catch (final Exception e) {
+                  // ignore
+               }
             }
          }
       }

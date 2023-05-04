@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,12 @@ import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.data.TourData;
 import net.tourbook.tag.ChangedTags;
+import net.tourbook.ui.tourChart.HoveredValueData;
+import net.tourbook.ui.views.sensors.SelectionRecordingDeviceBattery;
+import net.tourbook.ui.views.sensors.SelectionSensor;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
+
+import org.eclipse.jface.viewers.ISelection;
 
 public enum TourEventId {
 
@@ -82,6 +87,11 @@ public enum TourEventId {
    TAG_STRUCTURE_CHANGED,
 
    /**
+    * Tag content has changed, e.g. tag image size
+    */
+   TAG_CONTENT_CHANGED,
+
+   /**
     * Sliders in the tour chart moved. Property data contains {@link SelectionChartInfo} or
     * {@link SelectionChartXSliderPosition} with the position of the sliders.
     */
@@ -94,6 +104,12 @@ public enum TourEventId {
    CLEAR_DISPLAYED_TOUR,
 
    /**
+    * This event is fired when mouse is hovering a value point, event data contains
+    * {@link HoveredValueData}
+    */
+   HOVERED_VALUE_POSITION,
+
+   /**
     * Event data contain the selected tours.
     */
    TOUR_SELECTION,
@@ -104,8 +120,34 @@ public enum TourEventId {
    MARKER_SELECTION,
 
    /**
+    * A tour pause is selected, event data contain a {@link SelectionTourPause}.
+    */
+   PAUSE_SELECTION,
+
+   /**
+    * A sensor is selected, event data contains a {@link SelectionSensor}
+    */
+   SELECTION_SENSOR,
+
+   /**
+    * A sensor is selected, event data contains a {@link SelectionRecordingDeviceBattery}
+    */
+   SELECTION_RECORDING_DEVICE_BATTERY,
+
+   /**
+    * Something is selected in the map, event data contains a {@link ISelection}
+    */
+   MAP_SELECTION,
+
+   /**
     * Show geo grid in the map, event data contains {@link TourGeoFilterItem}
     */
    MAP_SHOW_GEO_GRID,
+
+   /**
+    * This event is fired when a statistic is updated, the event data contains the
+    * {@link Selection_StatisticValues}.
+    */
+   STATISTIC_VALUES,
 
 }

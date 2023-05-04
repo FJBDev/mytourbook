@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,10 +15,9 @@
  *******************************************************************************/
 package net.tourbook.ui.action;
 
-import java.util.Iterator;
-
 import net.tourbook.Messages;
-import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.util.ITreeViewer;
 
 import org.eclipse.jface.action.Action;
@@ -41,9 +40,9 @@ public class ActionExpandSelection extends Action {
       _treeViewerProvider = treeViewerProvider;
 
       setText(Messages.app_action_expand_selection_tooltip);
-      setToolTipText(Messages.app_action_expand_selection_tooltip);
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__expand_all));
+      setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_ExpandAll));
+      setDisabledImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_ExpandAll_Disabled));
    }
 
    /**
@@ -89,7 +88,7 @@ public class ActionExpandSelection extends Action {
 
       final ITreeSelection selection = (ITreeSelection) treeViewer.getSelection();
 
-      if (selection.size() == 0) {
+      if (selection.isEmpty()) {
 
          if (_isExpandAllWhenNoSelection) {
 
@@ -100,8 +99,8 @@ public class ActionExpandSelection extends Action {
 
          tree.setRedraw(false);
          {
-            for (final Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
-               treeViewer.expandToLevel(iterator.next(), _expandLevels);
+            for (final Object name : selection) {
+               treeViewer.expandToLevel(name, _expandLevels);
             }
          }
          tree.setRedraw(true);

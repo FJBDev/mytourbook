@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2013  Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -16,6 +16,8 @@
 package net.tourbook.data;
 
 import java.io.File;
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,270 +35,382 @@ import org.eclipse.core.runtime.Path;
 
 /**
  * Contains a photo for a tour.
- * <p>
- * <b>This object is currently not used (version 12.12), it will be used in the next version.</b>
- * 
+ *
  * @since 12.12
  */
 @Entity
-public class TourPhoto {
+public class TourPhoto implements Serializable {
 
-	public static final int	DB_LENGTH_FILE_PATH	= 260;
+   private static final long          serialVersionUID    = 1L;
 
-	/**
-	 * Unique id for the {@link TourPhoto} entity
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long			photoId				= TourDatabase.ENTITY_IS_NOT_SAVED;
+   private static final char          NL                  = UI.NEW_LINE;
 
-	/**
-	 * Image filename WITH extension.
-	 */
-	private String			imageFileName;
+   public static final int            DB_LENGTH_FILE_PATH = 260;
 
-	/**
-	 * Image file extension.
-	 */
-	private String			imageFileExt;
+   /**
+    * Manually created marker or imported marker create a unique id to identify them, saved marker
+    * are compared with the marker id
+    */
+   private static final AtomicInteger _createCounter      = new AtomicInteger();
 
-	/**
-	 * Image file path without filename.
-	 */
-	private String			imageFilePath;
+   /**
+    * Unique id for the {@link TourPhoto} entity
+    */
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private long                       photoId             = TourDatabase.ENTITY_IS_NOT_SAVED;
 
-	/**
-	 * Full image file name with path.
-	 */
-	private String			imageFilePathName;
+   /**
+    * Image filename WITH extension.
+    */
+   private String                     imageFileName;
 
-	/**
-	 * Exif time in milliseconds, when not available, the last modified time of the image file is
-	 * used.
-	 */
-	private long			imageExifTime;
+   /**
+    * Image file extension.
+    */
+   private String                     imageFileExt;
 
-	/**
-	 * Last modified in GMT
-	 */
-	private long			imageFileLastModified;
+   /**
+    * Image file path without filename.
+    */
+   private String                     imageFilePath;
 
-	/**
-	 *
-	 */
-	private long			adjustedTime;
+   /**
+    * Full image file name with path.
+    */
+   private String                     imageFilePathName;
 
-	/**
-	 * <code>0</code> geo position is from a tour<br>
-	 * <code>1</code> geo position is from a photo, from the EXIF data within the photo file<br>
-	 */
-	private int				isGeoFromPhoto;
+   /**
+    * Exif time in milliseconds, when not available, the last modified time of the image file is
+    * used.
+    */
+   private long                       imageExifTime;
 
-	/**
-	 * Rating for a photo, stars can be set from 0 to 5, 0 is no rating.
-	 */
-	private int				ratingStars;
+   /**
+    * Last modified in GMT
+    */
+   private long                       imageFileLastModified;
 
-	/**
-	 * Double.MIN_VALUE cannot be used, it cannot be saved in the database. 0 is the value when the
-	 * value is <b>NOT</b> set !!!
-	 */
-	private double			latitude			= 0;
-	private double			longitude			= 0;
+   /**
+    *
+    */
+   private long                       adjustedTime;
 
-	@ManyToOne(optional = false)
-	private TourData		tourData;
+   /**
+    * <code>0</code> geo position is from a tour<br>
+    * <code>1</code> geo position is from a photo, from the EXIF data within the photo file<br>
+    */
+   private int                        isGeoFromPhoto;
 
-	/**
-	 * Unique id for manually created markers because the {@link #photoId} is 0 when the marker is
-	 * not persisted
-	 */
-	@Transient
-	private long			_createId			= 0;
+   /**
+    * Rating for a photo, stars can be set from 0 to 5, 0 is no rating.
+    */
+   private int                        ratingStars;
+   /**
+    * Double.MIN_VALUE cannot be used, it cannot be saved in the database. 0 is the value when the
+    * value is <b>NOT</b> set !!!
+    */
+   private double                     latitude            = 0;
 
-	/**
-	 * manually created marker or imported marker create a unique id to identify them, saved marker
-	 * are compared with the marker id
-	 */
-	private static int		_createCounter		= 0;
+   private double                     longitude           = 0;
 
-	// constructor is required for hibernate
-	public TourPhoto() {}
+   @ManyToOne(optional = false)
+   private TourData                   tourData;
 
-	public TourPhoto(final TourData tourData, final Photo photo) {
+   /**
+    * Unique id for manually created markers because the {@link #photoId} is 0 when the marker is
+    * not persisted
+    */
+   @Transient
+   private long                       _createId           = 0;
 
-		_createId = ++_createCounter;
+   // constructor is required for hibernate
+   public TourPhoto() {}
 
-		this.tourData = tourData;
+   /**
+    * Used for MT import/export
+    *
+    * @param tourData
+    */
+   public TourPhoto(final TourData tourData) {
 
-		final File imageFile = photo.imageFile;
+      _createId = _createCounter.incrementAndGet();
 
-		final String filePathName = imageFile.getAbsolutePath();
-		final IPath filePath = new Path(filePathName);
+      this.tourData = tourData;
+   }
 
-		final String fileExtension = filePath.getFileExtension();
+   /**
+    * Create a tour photo from a gallery photo
+    *
+    * @param tourData
+    * @param galleryPhoto
+    */
+   public TourPhoto(final TourData tourData, final Photo galleryPhoto) {
 
-		imageFileName = filePath.lastSegment();
-		imageFileExt = fileExtension == null ? UI.EMPTY_STRING : fileExtension;
-		imageFilePath = filePath.removeLastSegments(1).toOSString();
-		imageFilePathName = filePathName;
+      _createId = _createCounter.incrementAndGet();
 
-		imageFileLastModified = imageFile.lastModified();
-		imageExifTime = photo.imageExifTime;
+      this.tourData = tourData;
 
-		if (photo.isGeoFromExif) {
-			setIsGeoFromPhoto();
-		} else {
-			setIsGeoFromTour();
-		}
+      final File imageFile = galleryPhoto.imageFile;
 
-//		final long photoAdjustedTimeLink = photo.adjustedTimeLink;
-//		adjustedTime = photoAdjustedTimeLink == Long.MIN_VALUE ? imageExifTime : photoAdjustedTimeLink;
+      final String filePathName = imageFile.getAbsolutePath();
+
+      setFilePathName(filePathName);
+
+      imageFileLastModified = imageFile.lastModified();
+      imageExifTime = galleryPhoto.imageExifTime;
+
+      if (galleryPhoto.isGeoFromExif) {
+         setIsGeoFromPhoto();
+      } else {
+         setIsGeoFromTour();
+      }
+
+//      final long photoAdjustedTimeLink = photo.adjustedTimeLink;
+//      adjustedTime = photoAdjustedTimeLink == Long.MIN_VALUE ? imageExifTime : photoAdjustedTimeLink;
 //
-//		latitude = photo.getLatitude();
-//		longitude = photo.getLongitude();
-	}
+//      latitude = photo.getLatitude();
+//      longitude = photo.getLongitude();
+   }
 
-	@Override
-	public boolean equals(final Object obj) {
+   @Override
+   public boolean equals(final Object obj) {
 
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof TourPhoto)) {
-			return false;
-		}
+      if (this == obj) {
+         return true;
+      }
+      if (obj == null) {
+         return false;
+      }
+      if (!(obj instanceof TourPhoto)) {
+         return false;
+      }
 
-		final TourPhoto other = (TourPhoto) obj;
+      final TourPhoto other = (TourPhoto) obj;
 
-		if (_createId == 0) {
+      if (_createId == 0) {
 
-			// photo is from the database
-			if (photoId != other.photoId) {
-				return false;
-			}
-		} else {
+         // photo is from the database
+         if (photoId != other.photoId) {
+            return false;
+         }
+      } else {
 
-			// photo was create
-			if (_createId != other._createId) {
-				return false;
-			}
-		}
+         // photo was create
+         if (_createId != other._createId) {
+            return false;
+         }
+      }
 
-		return true;
-	}
+      return true;
+   }
 
-	public long getAdjustedTime() {
-		return adjustedTime;
-	}
+   public long getAdjustedTime() {
+      return adjustedTime;
+   }
 
-	/**
-	 * @return Returns EXIF time in milliseconds, when not available, the last modified time of the
-	 *         image file is used.
-	 */
-	public long getImageExifTime() {
-		return imageExifTime;
-	}
+   /**
+    * @return Returns EXIF time in milliseconds, when not available, the last modified time of the
+    *         image file is used.
+    */
+   public long getImageExifTime() {
+      return imageExifTime;
+   }
 
-	public String getImageFileExt() {
-		return imageFileExt;
-	}
+   public String getImageFileExt() {
+      return imageFileExt;
+   }
 
-	public long getImageFileLastModified() {
-		return imageFileLastModified;
-	}
+   public long getImageFileLastModified() {
+      return imageFileLastModified;
+   }
 
-	public String getImageFileName() {
-		return imageFileName;
-	}
+   public String getImageFileName() {
+      return imageFileName;
+   }
 
-	public String getImageFilePath() {
-		return imageFilePath;
-	}
+   public String getImageFilePath() {
+      return imageFilePath;
+   }
 
-	/**
-	 * @return Returns the full filepathname
-	 */
-	public String getImageFilePathName() {
-		return imageFilePathName;
-	}
+   /**
+    * @return Returns the full filepathname
+    */
+   public String getImageFilePathName() {
+      return imageFilePathName;
+   }
 
-	/**
-	 * @return Returns 0 when latitude is <b>NOT</b> set.
-	 */
-	public double getLatitude() {
-		return latitude;
-	}
+   /**
+    * Used for MT import/export
+    *
+    * @return
+    */
+   public int getIsGeoFromPhoto() {
+      return isGeoFromPhoto;
+   }
 
-	public double getLongitude() {
-		return longitude;
-	}
+   /**
+    * @return Returns 0 when latitude is <b>NOT</b> set.
+    */
+   public double getLatitude() {
+      return latitude;
+   }
 
-	public long getPhotoId() {
-		return photoId;
-	}
+   public double getLongitude() {
+      return longitude;
+   }
 
-	public int getRatingStars() {
-		return ratingStars;
-	}
+   public long getPhotoId() {
+      return photoId;
+   }
 
-	public Long getTourId() {
-		return tourData.getTourId();
-	}
+   public int getRatingStars() {
+      return ratingStars;
+   }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (_createId ^ (_createId >>> 32));
-		result = prime * result + (int) (photoId ^ (photoId >>> 32));
-		return result;
-	}
+   public Long getTourId() {
 
-	/**
-	 * @return Returns <code>true</code> when geo coordinated are save in the photo image.
-	 */
-	public boolean isGeoFromExif() {
-		return isGeoFromPhoto == 1;
-	}
+      return tourData.getTourId();
+   }
 
-	public boolean isGeoFromTour() {
-		return isGeoFromPhoto == 0;
-	}
+   @Override
+   public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + (int) (_createId ^ (_createId >>> 32));
+      result = prime * result + (int) (photoId ^ (photoId >>> 32));
+      return result;
+   }
 
-	public void setAdjustedTime(final long adjustedTime) {
-		this.adjustedTime = adjustedTime;
-	}
+   /**
+    * @return Returns <code>true</code> when geo coordinated are save in the photo image.
+    */
+   public boolean isGeoFromExif() {
+      return isGeoFromPhoto == 1;
+   }
 
-	public void setGeoLocation(final double latitude, final double longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
-	}
+   public boolean isGeoFromTour() {
+      return isGeoFromPhoto == 0;
+   }
 
-	public void setIsGeoFromPhoto() {
-		isGeoFromPhoto = 1;
-	}
+   public void setAdjustedTime(final long adjustedTime) {
+      this.adjustedTime = adjustedTime;
+   }
 
-	public void setIsGeoFromTour() {
-		isGeoFromPhoto = 0;
-	}
+   public void setFilePathName(final String filePathName) {
 
-	public void setRatingStars(final int ratingStars) {
-		this.ratingStars = ratingStars;
-	}
+      final IPath filePath = new Path(filePathName);
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append(TourPhoto.class.getSimpleName())
-				.append(" id:") //$NON-NLS-1$
-				.append(photoId)
-				.append(" createId:") //$NON-NLS-1$
-				.append(_createId)
-				.toString();
-	}
+      final String fileExtension = filePath.getFileExtension();
+
+      imageFileName = filePath.lastSegment();
+      imageFileExt = fileExtension == null ? UI.EMPTY_STRING : fileExtension;
+      imageFilePath = filePath.removeLastSegments(1).toOSString();
+      imageFilePathName = filePathName;
+   }
+
+   public void setGeoLocation(final double latitude, final double longitude) {
+      this.latitude = latitude;
+      this.longitude = longitude;
+   }
+
+   /**
+    * Used for MT import/export
+    *
+    * @param imageExifTime
+    */
+   public void setImageExifTime(final long imageExifTime) {
+      this.imageExifTime = imageExifTime;
+   }
+
+   /**
+    * Used for MT import/export
+    *
+    * @param imageFileLastModified
+    */
+   public void setImageFileLastModified(final long imageFileLastModified) {
+      this.imageFileLastModified = imageFileLastModified;
+   }
+
+   /**
+    * Used for MT import/export
+    *
+    * @param fromFlag
+    */
+   public void setIsGeoFrom(final int fromFlag) {
+      isGeoFromPhoto = fromFlag;
+   }
+
+   public void setIsGeoFromPhoto() {
+      isGeoFromPhoto = 1;
+   }
+
+   public void setIsGeoFromTour() {
+      isGeoFromPhoto = 0;
+   }
+
+   /**
+    * Used for MT import/export
+    *
+    * @param latitude
+    */
+   public void setLatitude(final double latitude) {
+      this.latitude = latitude;
+   }
+
+   /**
+    * Used for MT import/export
+    *
+    * @param longitude
+    */
+   public void setLongitude(final double longitude) {
+      this.longitude = longitude;
+   }
+
+   public void setRatingStars(final int ratingStars) {
+      this.ratingStars = ratingStars;
+   }
+
+   public void setupDeepClone(final TourData tourDataFromClone) {
+
+      _createId = _createCounter.incrementAndGet();
+
+      photoId = TourDatabase.ENTITY_IS_NOT_SAVED;
+
+      tourData = tourDataFromClone;
+   }
+
+   /**
+    * This method is called in the "Tour Data" view !!!
+    */
+   @Override
+   public String toString() {
+
+      return UI.EMPTY_STRING
+
+            + "TourPhoto" + NL //                                             //$NON-NLS-1$
+
+            + "[" + NL //                                                     //$NON-NLS-1$
+
+            + "   photoId                 =" + photoId + NL //                //$NON-NLS-1$
+            + "   imageFileName           =" + imageFileName + NL //          //$NON-NLS-1$
+            + "   imageFileExt            =" + imageFileExt + NL //           //$NON-NLS-1$
+            + "   imageFilePath           =" + imageFilePath + NL //          //$NON-NLS-1$
+            + "   imageFilePathName       =" + imageFilePathName + NL //      //$NON-NLS-1$
+            + "   imageExifTime           =" + imageExifTime + NL //          //$NON-NLS-1$
+            + "   imageFileLastModified   =" + imageFileLastModified + NL //  //$NON-NLS-1$
+            + "   adjustedTime            =" + adjustedTime + NL //           //$NON-NLS-1$
+            + "   isGeoFromPhoto          =" + isGeoFromPhoto + NL //         //$NON-NLS-1$
+            + "   ratingStars             =" + ratingStars + NL //            //$NON-NLS-1$
+            + "   latitude                =" + latitude + NL //               //$NON-NLS-1$
+            + "   longitude               =" + longitude + NL //              //$NON-NLS-1$
+
+            + "   _createId               =" + _createId + NL //              //$NON-NLS-1$
+
+//          + "   tourData                =" + tourData + NL //               //$NON-NLS-1$
+
+            + "]" + NL //                                                     //$NON-NLS-1$
+      ;
+   }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.ui.action;
 
 import java.util.ArrayList;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.data.TourData;
@@ -28,42 +29,42 @@ import org.eclipse.jface.action.Action;
 
 public class ActionDuplicateTour extends Action {
 
-	private final ITourProvider _tourProvider;
+   private final ITourProvider _tourProvider;
 
-	public ActionDuplicateTour(final ITourProvider tourProvider) {
+   public ActionDuplicateTour(final ITourProvider tourProvider) {
 
-		super(null, AS_PUSH_BUTTON);
+      super(null, AS_PUSH_BUTTON);
 
-		setText(Messages.Tour_Action_DuplicateTour);
+      setText(Messages.Tour_Action_DuplicateTour);
 
-		setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__Tour_Duplicate));
-		setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__Tour_Duplicate_disabled));
+      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.Tour_Duplicate));
+      setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.Tour_Duplicate_Disabled));
 
-		_tourProvider = tourProvider;
-	}
+      _tourProvider = tourProvider;
+   }
 
-	@Override
-	public void run() {
+   @Override
+   public void run() {
 
-		// check if the tour editor contains a modified tour
-		if (TourManager.isTourEditorModified()) {
-			return;
-		}
+      // check if the tour editor contains a modified tour
+      if (TourManager.isTourEditorModified()) {
+         return;
+      }
 
-		final ArrayList<TourData> selectedTours = _tourProvider.getSelectedTours();
+      final ArrayList<TourData> selectedTours = _tourProvider.getSelectedTours();
 
-		if (selectedTours == null || selectedTours.size() < 1) {
+      if (selectedTours == null || selectedTours.isEmpty()) {
 
-			// a tour is not selected -> this should not happen, action should be disabled
+         // a tour is not selected -> this should not happen, action should be disabled
 
-			return;
-		}
+         return;
+      }
 
-		final TourDataEditorView tourEditorView = TourManager.openTourEditor(true);
-		if (tourEditorView != null) {
+      final TourDataEditorView tourEditorView = TourManager.openTourEditor(true);
+      if (tourEditorView != null) {
 
-			final TourData selectedTour = selectedTours.get(0);
-			tourEditorView.actionCreateTour(selectedTour);
-		}
-	}
+         final TourData selectedTour = selectedTours.get(0);
+         tourEditorView.actionCreateTour(selectedTour);
+      }
+   }
 }

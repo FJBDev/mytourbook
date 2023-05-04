@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,8 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.common.util;
-
-import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -42,6 +40,7 @@ import net.tourbook.common.formatter.ValueFormatter_Time_HHMMSS;
 import net.tourbook.common.formatter.ValueFormatter_Time_SSS;
 import net.tourbook.common.tooltip.AdvancedSlideoutShell;
 
+import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.AbstractColumnLayout;
@@ -129,7 +128,15 @@ public class ColumnManager {
    /**
     * Minimum column width, when the column width is 0, there was a bug that this happened.
     */
-   private static final int    MINIMUM_COLUMN_WIDTH                      = 7;
+   private static final int    COLUMN_WIDTH_MINIMUM                      = 7;
+
+   /**
+    * There was a case when the column width in a NatTable was 393'515'928 which required a computer
+    * restart to kill MT, it got frozen when scrolling horizontally.
+    * <p>
+    * 1000 would be too small on high-dpi displays
+    */
+   static final int            COLUMN_WIDTH_MAXIMUM                      = 5_000;
 
    /*
     * Value formatter
@@ -187,7 +194,7 @@ public class ColumnManager {
     * {@link ColumnManager} is used for a {@link NatTable}, it provides properties from a
     * {@link NatTable}.
     */
-   private INatTable_PropertiesProvider       _natTablePropertiesProvider;
+   private INatTable_PropertiesProvider      _natTablePropertiesProvider;
 
    /**
     * Context menu listener
@@ -214,7 +221,7 @@ public class ColumnManager {
          }
       };
 
-      _profileSorter = new Comparator<ColumnProfile>() {
+      _profileSorter = new Comparator<>() {
          @Override
          public int compare(final ColumnProfile colProfile1, final ColumnProfile colProfile2) {
             return colProfile1.name.compareTo(colProfile2.name);
@@ -716,7 +723,7 @@ public class ColumnManager {
       if (colDef.isColumnHidden()) {
          columnWidth = 0;
       } else {
-         columnWidth = columnWidth < MINIMUM_COLUMN_WIDTH //
+         columnWidth = columnWidth < COLUMN_WIDTH_MINIMUM
                ? colDef.getDefaultColumnWidth()
                : columnWidth;
       }
@@ -825,7 +832,7 @@ public class ColumnManager {
 
                   contextMenu = getContextMenu(isTableHeaderHit, headerContextMenu[0], defaultContextMenuProvider);
 
-                  StatusUtil.log("Table header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Table header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
 
                } else if (defaultContextMenuProvider != null
                      && contextMenu == defaultContextMenuProvider.getContextMenu()
@@ -833,7 +840,7 @@ public class ColumnManager {
 
                   contextMenu = defaultContextMenuProvider.recreateContextMenu();
 
-                  StatusUtil.log("Table context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Table context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
                }
             }
 
@@ -889,7 +896,8 @@ public class ColumnManager {
     *           Can be <code>null</code> when a default context menu is not available
     */
    public void createHeaderContextMenu(final Table table, final IContextMenuProvider defaultContextMenuProvider) {
-      this.createHeaderContextMenu(table, defaultContextMenuProvider, table.getShell());
+
+      createHeaderContextMenu(table, defaultContextMenuProvider, table.getShell());
    }
 
    /**
@@ -952,7 +960,7 @@ public class ColumnManager {
 
                   contextMenu = getContextMenu(isTableHeaderHit, headerContextMenu[0], defaultContextMenuProvider);
 
-                  StatusUtil.log("Table header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Table header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
 
                } else if (defaultContextMenuProvider != null
                      && contextMenu == defaultContextMenuProvider.getContextMenu()
@@ -960,7 +968,7 @@ public class ColumnManager {
 
                   contextMenu = defaultContextMenuProvider.recreateContextMenu();
 
-                  StatusUtil.log("Table context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Table context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
                }
             }
 
@@ -1079,7 +1087,7 @@ public class ColumnManager {
 
                   contextMenu = getContextMenu(isTreeHeaderHit, headerContextMenu[0], defaultContextMenuProvider);
 
-                  StatusUtil.log("Tree header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Tree header context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
 
                } else if (defaultContextMenuProvider != null
                      && contextMenu == defaultContextMenuProvider.getContextMenu()
@@ -1087,7 +1095,7 @@ public class ColumnManager {
 
                   contextMenu = defaultContextMenuProvider.recreateContextMenu();
 
-                  StatusUtil.log("Tree context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
+                  StatusUtil.logError("Tree context menu has had the wrong parent and is recreated."); //$NON-NLS-1$
                }
             }
 
@@ -1667,6 +1675,10 @@ public class ColumnManager {
       return orderedColumnIds.toArray(new String[orderedColumnIds.size()]);
    }
 
+   ColumnViewer getColumnViewer() {
+      return _columnViewer;
+   }
+
    private int getColumnWidth(final String columnWidthId) {
 
       final String[] values = _activeProfile.visibleColumnIdsAndWidth;
@@ -1703,7 +1715,7 @@ public class ColumnManager {
       if (colDef.isColumnHidden()) {
          columnWidth = 0;
       } else {
-         columnWidth = columnWidth < MINIMUM_COLUMN_WIDTH //
+         columnWidth = columnWidth < COLUMN_WIDTH_MINIMUM
                ? colDef.getDefaultColumnWidth()
                : columnWidth;
       }
@@ -1867,7 +1879,7 @@ public class ColumnManager {
 
          final int numColumns = dataLayer.getColumnCount();
 
-         final TIntArrayList allOrderedColumns = new TIntArrayList();
+         final IntArrayList allOrderedColumns = new IntArrayList();
 
          for (int columnIndex = 0; columnIndex < numColumns; columnIndex++) {
 
@@ -2228,7 +2240,7 @@ public class ColumnManager {
       }
 
       // ensure 1 profile is available
-      if (allProfiles.size() == 0) {
+      if (allProfiles.isEmpty()) {
 
          // create default profile
          final ColumnProfile defaultProfile = new ColumnProfile();
@@ -2435,9 +2447,11 @@ public class ColumnManager {
             // there is somewhere an error that the column width is 0,
 
             columnWidth = colDef.getDefaultColumnWidth();
-            columnWidth = Math.max(MINIMUM_COLUMN_WIDTH, columnWidth);
+            columnWidth = Math.max(COLUMN_WIDTH_MINIMUM, columnWidth);
          }
       }
+
+      columnWidth = Math.min(columnWidth, COLUMN_WIDTH_MAXIMUM);
 
       columnIdsAndWidth.add(columnId);
       columnIdsAndWidth.add(Integer.toString(columnWidth));
@@ -2705,7 +2719,7 @@ public class ColumnManager {
        * When no columns are visible (which is the first time), show only the default columns
        * because every column reduces performance
        */
-      if ((visibleColDefs.size() == 0) && (_allDefinedColumnDefinitions.size() > 0)) {
+      if ((visibleColDefs.isEmpty()) && (_allDefinedColumnDefinitions.size() > 0)) {
 
          final ArrayList<String> columnIds = new ArrayList<>();
          int createIndex = 0;
@@ -2726,7 +2740,7 @@ public class ColumnManager {
       /*
        * When no default columns are set, use the first column
        */
-      if ((visibleColDefs.size() == 0) && (_allDefinedColumnDefinitions.size() > 0)) {
+      if ((visibleColDefs.isEmpty()) && (_allDefinedColumnDefinitions.size() > 0)) {
 
          final ColumnDefinition firstColumn = _allDefinedColumnDefinitions.get(0);
          firstColumn.setCreateIndex(0);

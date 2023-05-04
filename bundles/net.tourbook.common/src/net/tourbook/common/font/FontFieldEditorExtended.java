@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2018 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,6 +14,9 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.common.font;
+
+import net.tourbook.common.Messages;
+import net.tourbook.common.UI;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
@@ -42,9 +45,6 @@ import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-
-import net.tourbook.common.Messages;
-import net.tourbook.common.UI;
 
 /**
  * This is a copy of {@link orgFontFieldEditor} with an open & close listener which is fired when
@@ -149,7 +149,7 @@ public class FontFieldEditorExtended extends FieldEditor {
        * @return the preferred size of the previewer.
        */
       public int getPreferredWidth() {
-         return convertHorizontalDLUsToPixels(_txtPreviewText, 40 * 4);
+         return convertHorizontalDLUsToPixels(_txtPreviewText, 30 * 4);
       }
 
       public void setEnabled(final boolean isEnabled) {
@@ -606,6 +606,15 @@ public class FontFieldEditorExtended extends FieldEditor {
       gd = (GridData) _containerFontSize.getLayoutData();
       gd.horizontalIndent = horizontalIndent;
       gd.verticalIndent = verticalIndent;
+   }
+
+   @Override
+   public void setFocus() {
+
+// this is not working
+//    _btnChangeFont.setFocus();
+
+      _spinFontSize.setFocus();
    }
 
    /**

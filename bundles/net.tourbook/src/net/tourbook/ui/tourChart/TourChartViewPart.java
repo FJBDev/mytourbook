@@ -1,20 +1,40 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2018 Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.ui.tourChart;
 
+import java.util.ArrayList;
+
+import net.tourbook.application.TourbookPlugin;
+import net.tourbook.chart.MouseWheelMode;
+import net.tourbook.common.util.PostSelectionProvider;
+import net.tourbook.common.util.Util;
+import net.tourbook.data.NormalizedGeoData;
+import net.tourbook.data.TourData;
+import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.tour.ITourEventListener;
+import net.tourbook.tour.TourEvent;
+import net.tourbook.tour.TourEventId;
+import net.tourbook.tour.TourManager;
+import net.tourbook.ui.views.geoCompare.GeoCompareEventId;
+import net.tourbook.ui.views.geoCompare.GeoCompareManager;
+import net.tourbook.ui.views.geoCompare.GeoPartItem;
+import net.tourbook.ui.views.geoCompare.IGeoCompareListener;
+import net.tourbook.ui.views.tourSegmenter.TourSegmenterView;
+
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -26,252 +46,253 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 
-import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.util.PostSelectionProvider;
-import net.tourbook.data.NormalizedGeoData;
-import net.tourbook.data.TourData;
-import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.tour.ITourEventListener;
-import net.tourbook.tour.TourEvent;
-import net.tourbook.tour.TourEventId;
-import net.tourbook.tour.TourManager;
-import net.tourbook.ui.UI;
-import net.tourbook.ui.views.geoCompare.GeoCompareEventId;
-import net.tourbook.ui.views.geoCompare.GeoCompareManager;
-import net.tourbook.ui.views.geoCompare.GeoPartItem;
-import net.tourbook.ui.views.geoCompare.IGeoCompareListener;
-import net.tourbook.ui.views.tourSegmenter.TourSegmenterView;
-
 /**
  * Provides a skeleton for a view which displays a tour chart
  */
 public abstract class TourChartViewPart extends ViewPart implements IGeoCompareListener {
 
-	private static final String			ID			= "net.tourbook.ui.tourChart.TourChartViewPart";	//$NON-NLS-1$
+   private static final String           ID         = "net.tourbook.ui.tourChart.TourChartViewPart";   //$NON-NLS-1$
 
-	private final IPreferenceStore		_prefStore	= TourbookPlugin.getDefault().getPreferenceStore();
+   private static final IPreferenceStore _prefStore = TourbookPlugin.getDefault().getPreferenceStore();
+   private static final IDialogSettings  _state     = TourbookPlugin.getState(ID);
 
-	public TourData						_tourData;
+   public TourData                       _tourData;
 
-	protected TourChart					_tourChart;
-	protected TourChartConfiguration	_tourChartConfig;
+   protected TourChart                   _tourChart;
+   protected TourChartConfiguration      _tourChartConfig;
 
-	public PostSelectionProvider		_postSelectionProvider;
+   public PostSelectionProvider          _postSelectionProvider;
 
-	private IPropertyChangeListener		_prefChangeListener;
-	private ITourEventListener			_tourEventListener;
-	private ISelectionListener			_postSelectionListener;
-	private IPartListener2				_partListener;
+   private ITourEventListener            _abstractTourEventListener;
+   private IPropertyChangeListener       _prefChangeListener;
+   private ISelectionListener            _postSelectionListener;
+   private IPartListener2                _partListener;
 
-	/**
-	 * set the part listener to save the view settings, the listeners are called before the controls
-	 * are disposed
-	 */
-	private void addPartListeners() {
+   /**
+    * set the part listener to save the view settings, the listeners are called before the controls
+    * are disposed
+    */
+   private void addPartListeners() {
 
-		_partListener = new IPartListener2() {
+      _partListener = new IPartListener2() {
 
-			@Override
-			public void partActivated(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partActivated(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partClosed(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partClosed(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partDeactivated(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partDeactivated(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partHidden(final IWorkbenchPartReference partRef) {
-				if (partRef.getPart(false) == TourChartViewPart.this) {
-					_tourChart.partIsHidden();
-				}
-			}
+         @Override
+         public void partHidden(final IWorkbenchPartReference partRef) {
+            if (partRef.getPart(false) == TourChartViewPart.this) {
+               _tourChart.partIsHidden();
+            }
+         }
 
-			@Override
-			public void partInputChanged(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partInputChanged(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partOpened(final IWorkbenchPartReference partRef) {}
+         @Override
+         public void partOpened(final IWorkbenchPartReference partRef) {}
 
-			@Override
-			public void partVisible(final IWorkbenchPartReference partRef) {
-				if (partRef.getPart(false) == TourChartViewPart.this) {
-					_tourChart.partIsVisible();
-				}
-			}
-		};
+         @Override
+         public void partVisible(final IWorkbenchPartReference partRef) {
+            if (partRef.getPart(false) == TourChartViewPart.this) {
+               _tourChart.partIsVisible();
+            }
+         }
+      };
 
-		getViewSite().getPage().addPartListener(_partListener);
-	}
+      getViewSite().getPage().addPartListener(_partListener);
+   }
 
-	private void addPrefListener() {
+   private void addPrefListener() {
 
-		_prefChangeListener = new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = new IPropertyChangeListener() {
+         @Override
+         public void propertyChange(final PropertyChangeEvent event) {
 
-				final String property = event.getProperty();
+            final String property = event.getProperty();
 
-				/*
-				 * set a new chart configuration when the preferences has changed
-				 */
-				if (property.equals(ITourbookPreferences.GRAPH_VISIBLE)
-						|| property.equals(ITourbookPreferences.GRAPH_X_AXIS)
-						|| property.equals(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME)) {
+            /*
+             * set a new chart configuration when the preferences has changed
+             */
+            if (property.equals(ITourbookPreferences.GRAPH_VISIBLE)
+                  || property.equals(ITourbookPreferences.GRAPH_X_AXIS)
+                  || property.equals(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME)) {
 
-					_tourChartConfig = TourManager.createDefaultTourChartConfig();
+               _tourChartConfig = TourManager.createDefaultTourChartConfig(_state);
 
-					if (_tourChart != null) {
-						_tourChart.updateTourChart(_tourData, _tourChartConfig, false);
-					}
+               if (_tourChart != null) {
+                  _tourChart.updateTourChart(_tourData, _tourChartConfig, false);
+               }
 
-				} else if (property.equals(ITourbookPreferences.GRAPH_MOUSE_MODE)) {
+            } else if (property.equals(ITourbookPreferences.GRAPH_MOUSE_MODE)) {
 
-					_tourChart.setMouseMode(event.getNewValue());
-				}
-			}
-		};
+               final Object newValue = event.getNewValue();
+               final Enum<MouseWheelMode> enumValue = Util.getEnumValue((String) newValue, MouseWheelMode.Zoom);
 
-		_prefStore.addPropertyChangeListener(_prefChangeListener);
-	}
+               _tourChart.setMouseWheelMode((MouseWheelMode) enumValue);
+            }
+         }
+      };
 
-	/**
-	 * listen for events when a tour is selected
-	 */
-	private void addSelectionListener() {
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
+   }
 
-		_postSelectionListener = new ISelectionListener() {
-			@Override
-			public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-				onSelectionChanged(part, selection);
-			}
-		};
-		getSite().getPage().addPostSelectionListener(_postSelectionListener);
-	}
+   /**
+    * listen for events when a tour is selected
+    */
+   private void addSelectionListener() {
 
-	private void addTourEventListener() {
+      _postSelectionListener = new ISelectionListener() {
+         @Override
+         public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
+            onSelectionChanged(part, selection);
+         }
+      };
+      getSite().getPage().addPostSelectionListener(_postSelectionListener);
+   }
 
-		_tourEventListener = new ITourEventListener() {
-			@Override
-			public void tourChanged(final IWorkbenchPart part, final TourEventId eventId, final Object eventData) {
+   private void addTourEventListener() {
 
-				if (_tourData == null || part == TourChartViewPart.this) {
-					return;
-				}
+      _abstractTourEventListener = new ITourEventListener() {
+         @Override
+         public void tourChanged(final IWorkbenchPart part, final TourEventId eventId, final Object eventData) {
 
-				if (eventId == TourEventId.SEGMENT_LAYER_CHANGED) {
+            if (_tourData == null || part == TourChartViewPart.this) {
+               return;
+            }
 
-					if (part instanceof TourSegmenterView) {
-						_tourChart.updateTourSegmenter();
-					}
+            if (eventId == TourEventId.SEGMENT_LAYER_CHANGED) {
 
-				} else if (eventId == TourEventId.TOUR_CHART_PROPERTY_IS_MODIFIED) {
-					_tourChart.updateTourChart(true, true);
+               if (part instanceof TourSegmenterView) {
+                  _tourChart.updateTourSegmenter();
+               }
 
-				} else if (eventId == TourEventId.CLEAR_DISPLAYED_TOUR) {
+            } else if (eventId == TourEventId.TOUR_CHART_PROPERTY_IS_MODIFIED) {
+               _tourChart.updateTourChart(true, true);
 
-					_tourData = null;
-					_postSelectionProvider.clearSelection();
+            } else if (eventId == TourEventId.CLEAR_DISPLAYED_TOUR) {
 
-					updateChart();
+               _tourData = null;
+               _postSelectionProvider.clearSelection();
 
-				} else if (eventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
+               updateChart();
 
-					final TourData tourData = UI.getTourPropertyTourData((TourEvent) eventData, _tourData);
-					if (tourData != null) {
+            } else if (eventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
 
-						_tourData = tourData;
+               final TourEvent tourEvent = (TourEvent) eventData;
+               final ArrayList<TourData> modifiedTours = tourEvent.getModifiedTours();
 
-						updateChart();
-					}
+               if (modifiedTours != null) {
 
-				}
-			}
-		};
+                  final long oldTourId = _tourData.getTourId();
 
-		TourManager.getInstance().addTourEventListener(_tourEventListener);
-	}
+                  for (final TourData tourData : modifiedTours) {
 
-	@Override
-	public void createPartControl(final Composite parent) {
+                     // check if the current tour is modified
+                     if (tourData.getTourId() == oldTourId) {
 
-		addPrefListener();
-		addTourEventListener();
-		addSelectionListener();
-		addPartListeners();
-		GeoCompareManager.addGeoCompareEventListener(this);
+                        _tourData = tourData;
 
-		// set this part as selection provider
-		getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider(ID));
-	}
+                        updateChart();
 
-	@Override
-	public void dispose() {
+                        // current tour is updated -> nothing more to do
+                        break;
+                     }
+                  }
+               }
+            }
+         }
+      };
 
-		getSite().getPage().removePostSelectionListener(_postSelectionListener);
-		getSite().getPage().removePartListener(_partListener);
+      TourManager.getInstance().addTourEventListener(_abstractTourEventListener);
+   }
 
-		TourManager.getInstance().removeTourEventListener(_tourEventListener);
-		GeoCompareManager.removeGeoCompareListener(this);
+   @Override
+   public void createPartControl(final Composite parent) {
 
-		_prefStore.removePropertyChangeListener(_prefChangeListener);
+      addPrefListener();
+      addTourEventListener();
+      addSelectionListener();
+      addPartListeners();
+      GeoCompareManager.addGeoCompareEventListener(this);
 
-		super.dispose();
-	}
+      // set this part as selection provider
+      getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider(ID));
+   }
 
-	@Override
-	public void geoCompareEvent(final IWorkbenchPart part, final GeoCompareEventId eventId, final Object eventData) {
+   @Override
+   public void dispose() {
 
-		if (part == TourChartViewPart.this) {
-			return;
-		}
+      getSite().getPage().removePostSelectionListener(_postSelectionListener);
+      getSite().getPage().removePartListener(_partListener);
 
-		switch (eventId) {
+      TourManager.getInstance().removeTourEventListener(_abstractTourEventListener);
+      GeoCompareManager.removeGeoCompareListener(this);
 
-		case COMPARE_GEO_PARTS:
+      _prefStore.removePropertyChangeListener(_prefChangeListener);
 
-			if (eventData instanceof GeoPartItem) {
+      super.dispose();
+   }
 
-				final GeoPartItem geoPartItem = (GeoPartItem) eventData;
+   @Override
+   public void geoCompareEvent(final IWorkbenchPart part, final GeoCompareEventId eventId, final Object eventData) {
 
-				final NormalizedGeoData normalizedTourPart = geoPartItem.normalizedTourPart;
-				final long tourId = normalizedTourPart.tourId;
+      if (part == TourChartViewPart.this) {
+         return;
+      }
 
-				_tourData = TourManager.getInstance().getTourData(tourId);
+      switch (eventId) {
 
-				if (_tourChartConfig == null) {
-					_tourChartConfig = TourManager.createDefaultTourChartConfig();
-				}
+      case COMPARE_GEO_PARTS:
 
-//				TourManager.fireEventWithCustomData(
-//						TourEventId.GEO_PART_COMPARE,
-//						comparerItem,
-//						GeoPartView.this);
+         if (eventData instanceof GeoPartItem) {
 
-			}
+            final GeoPartItem geoPartItem = (GeoPartItem) eventData;
 
-		case SET_COMPARING_ON:
-		case SET_COMPARING_OFF:
-		default:
-			break;
-		}
+            final NormalizedGeoData normalizedTourPart = geoPartItem.normalizedTourPart;
+            final long tourId = normalizedTourPart.tourId;
 
-	}
+            _tourData = TourManager.getInstance().getTourData(tourId);
 
-	/**
-	 * A post selection event was received by the selection listener
-	 * 
-	 * @param part
-	 * @param selection
-	 */
-	protected abstract void onSelectionChanged(IWorkbenchPart part, ISelection selection);
+            if (_tourChartConfig == null) {
+               _tourChartConfig = TourManager.createDefaultTourChartConfig(_state);
+            }
 
-	/**
-	 * Update the chart after the tour data was modified
-	 */
-	protected abstract void updateChart();
+//            TourManager.fireEventWithCustomData(
+//                  TourEventId.GEO_PART_COMPARE,
+//                  comparerItem,
+//                  GeoPartView.this);
+
+         }
+
+      case SET_COMPARING_ON:
+      case SET_COMPARING_OFF:
+      default:
+         break;
+      }
+
+   }
+
+   /**
+    * A post selection event was received by the selection listener
+    *
+    * @param part
+    * @param selection
+    */
+   protected abstract void onSelectionChanged(IWorkbenchPart part, ISelection selection);
+
+   /**
+    * Update the chart after the tour data was modified
+    */
+   protected abstract void updateChart();
 
 }

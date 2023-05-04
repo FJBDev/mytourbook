@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2019, 2022 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,13 +17,14 @@ package net.tourbook.ui.action;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.SQL;
 import net.tourbook.data.TourData;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.importdata.RawDataManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
@@ -59,25 +60,25 @@ public class ActionComputeCadenceZonesTimes extends Action {
          return;
       }
 
-      final ArrayList<TourData> selectedTours = _tourProvider.getSelectedTours();
-      if (selectedTours == null || selectedTours.size() < 1) {
+      final List<TourData> selectedTours = _tourProvider.getSelectedTours();
+      if (selectedTours == null || selectedTours.isEmpty()) {
          // tours are not selected -> this can occur when loading tour data is canceled
          return;
       }
 
-      if (MessageDialog.openConfirm(
+      if (!MessageDialog.openConfirm(
             Display.getCurrent().getActiveShell(),
             Messages.Tour_Action_ComputeCadenceZonesTimes_Title,
             NLS.bind(Messages.Tour_Action_ComputeCadenceZonesTimes_Message,
                   selectedTours.size(),
-                  _prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER))) == false) {
+                  _prefStore.getInt(ITourbookPreferences.CADENCE_ZONES_DELIMITER)))) {
          return;
       }
 
       final long start = System.currentTimeMillis();
 
       TourLogManager.showLogView();
-      TourLogManager.logTitle(NLS.bind(Messages.Log_ComputeCadenceZonesTimes_001_Start, selectedTours.size()));
+      TourLogManager.log_TITLE(NLS.bind(Messages.Log_ComputeCadenceZonesTimes_001_Start, selectedTours.size()));
 
       boolean isTaskDone = false;
       try (Connection sqlConnection = TourDatabase.getInstance().getConnection()) {
@@ -88,21 +89,23 @@ public class ActionComputeCadenceZonesTimes extends Action {
          SQL.showException(e);
       } finally {
 
-         TourLogManager.logTitle(String.format(Messages.Log_ComputeCadenceZonesTimes_002_End, (System.currentTimeMillis() - start) / 1000.0));
+         TourLogManager.log_TITLE(String.format(Messages.Log_ComputeCadenceZonesTimes_002_End, (System.currentTimeMillis() - start) / 1000.0));
 
          if (isTaskDone) {
 
             TourManager.getInstance().clearTourDataCache();
 
-            Display.getDefault().asyncExec(new Runnable() {
-               @Override
-               public void run() {
+            Display.getDefault().asyncExec(() -> {
 
-                  TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
+               TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR);
+               // prevent re-importing in the import view
+               RawDataManager.setIsReimportingActive(true);
+               {
+                  // fire unique event for all changes
                   TourManager.fireEvent(TourEventId.ALL_TOURS_ARE_MODIFIED);
                }
+               RawDataManager.setIsReimportingActive(false);
             });
-
          }
       }
    }

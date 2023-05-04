@@ -1,23 +1,24 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2010  Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package de.byteholder.geoclipse.map;
 
+import de.byteholder.geoclipse.mapprovider.MP;
+import de.byteholder.geoclipse.preferences.IMappingPreferences;
+
 import java.io.File;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -29,201 +30,190 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.byteholder.geoclipse.mapprovider.MP;
-import de.byteholder.geoclipse.preferences.IMappingPreferences;
-
 /**
- * this will manage the loading for offline images
+ * This is managing the loading for offline images
  */
 public class OfflineLoadManager {
 
-	private static OfflineLoadManager					_instance;
+   private static OfflineLoadManager                _instance;
 
-	private MP											_mp;
+   private static final ConcurrentLinkedQueue<Tile> _offlineTiles            = new ConcurrentLinkedQueue<>();
 
-	private static final ConcurrentLinkedQueue<Tile>	_offlineTiles		= new ConcurrentLinkedQueue<Tile>();
+   private static boolean                           _isLoading               = false;
 
-	private final IPreferenceStore						_prefStore			= TourbookPlugin
-																					.getDefault()
-																					.getPreferenceStore();
+   private static final IPreferenceStore            _prefStore               = TourbookPlugin.getPrefStore();
 
-	private String										_osTileCachePath;
+   private MP                                       _mp;
 
-	private static boolean								_isLoading			= false;
+   private String                                   _osTileCachePath;
 
-	private final TileLoadObserver						_tileLoadObserver	= new TileLoadObserver();
+   private final TileImageLoaderCallback            _tileImageLoaderCallback = new TileImageLoaderCallback_ForOfflineImages();
 
-	/**
-	 * This observer is called in the {@link Tile} when a tile image is set into the tile
-	 */
-	private final class TileLoadObserver implements Observer {
+   /**
+    * This callback is called when a tile image was loaded and is set into the tile
+    */
+   final class TileImageLoaderCallback_ForOfflineImages implements TileImageLoaderCallback {
 
-		@Override
-		public void update(final Observable observable, final Object arg) {
+      @Override
+      public void update(final Tile tile) {
 
-			if (observable instanceof Tile) {
+         // update loading state
+         final LinkedBlockingDeque<Tile> waitingQueue = MP.getTileWaitingQueue();
 
-				final Tile tile = (Tile) observable;
+         if (waitingQueue.isEmpty()) {
+            _isLoading = false;
+         }
+      }
+   }
 
-				tile.deleteObserver(this);
+   static OfflineLoadManager getInstance() {
 
-				// update loading state
-				final LinkedBlockingDeque<Tile> waitingQueue = MP.getTileWaitingQueue();
-				if (waitingQueue.size() == 0) {
-					_isLoading = false;
-				}
-			}
-		}
-	}
+      if (_instance == null) {
+         _instance = new OfflineLoadManager();
+      }
 
-	static OfflineLoadManager getInstance() {
+      return _instance;
+   }
 
-		if (_instance == null) {
-			_instance = new OfflineLoadManager();
-		}
+   /**
+    * @return Returns true when loading is in progress
+    */
+   static boolean isLoading() {
+      return _isLoading;
+   }
 
-		return _instance;
-	}
+   /**
+    * @param offlineMp
+    * @param offlineTile
+    * @return Return <code>true</code> when the offline image needs to be loaded,
+    *         <code>false</code> when the image is already available
+    */
+   boolean addOfflineTile(final MP offlineMp, final Tile offlineTile) {
 
-	/**
-	 * @return Returns true when loading is in progress
-	 */
-	static boolean isLoading() {
-		return _isLoading;
-	}
+      if (isOfflineImageAvailable(offlineMp, offlineTile)) {
+         return false;
+      }
 
-	/**
-	 * @param offlineMp
-	 * @param offlineTile
-	 * @return Return <code>true</code> when the offline image needs to be loaded,
-	 *         <code>false</code> when the image is already available
-	 */
-	boolean addOfflineTile(final MP offlineMp, final Tile offlineTile) {
+      _isLoading = true;
 
-		if (isOfflineImageAvailable(offlineMp, offlineTile)) {
-			return false;
-		}
+      _offlineTiles.add(offlineTile);
 
-		_isLoading = true;
+      _mp.putTileInWaitingQueue(offlineTile, false);
 
-		_offlineTiles.add(offlineTile);
+      offlineTile.setImageLoaderCallback(_tileImageLoaderCallback);
 
-		_mp.putTileInWaitingQueue(offlineTile, false);
+      return true;
+   }
 
-		offlineTile.addObserver(_tileLoadObserver);
- 
-		return true;
-	}
+   /**
+    * check and create tile cache path
+    */
+   private boolean checkOfflinePath() {
 
-	/**
-	 * check and create tile cache path
-	 */
-	private boolean checkOfflinePath() {
+      String workingDirectory;
 
-		String workingDirectory;
+      final boolean useDefaultLocation = _prefStore
+            .getBoolean(IMappingPreferences.OFFLINE_CACHE_USE_DEFAULT_LOCATION);
 
-		final boolean useDefaultLocation = _prefStore
-				.getBoolean(IMappingPreferences.OFFLINE_CACHE_USE_DEFAULT_LOCATION);
+      if (useDefaultLocation) {
+         workingDirectory = Platform.getInstanceLocation().getURL().getPath();
+      } else {
+         workingDirectory = _prefStore.getString(IMappingPreferences.OFFLINE_CACHE_PATH);
+      }
 
-		if (useDefaultLocation) {
-			workingDirectory = Platform.getInstanceLocation().getURL().getPath();
-		} else {
-			workingDirectory = _prefStore.getString(IMappingPreferences.OFFLINE_CACHE_PATH);
-		}
+      if (new File(workingDirectory).exists() == false) {
 
-		if (new File(workingDirectory).exists() == false) {
+         StatusUtil.showStatus("working directory is not available: " + workingDirectory); //$NON-NLS-1$
+         return false;
+      }
 
-			StatusUtil.showStatus("working directory is not available: " + workingDirectory); //$NON-NLS-1$
-			return false;
-		}
+      final IPath tileCachePath = new Path(workingDirectory).append(TileImageCache.TILE_OFFLINE_CACHE_OS_PATH);
 
-		final IPath tileCachePath = new Path(workingDirectory).append(TileImageCache.TILE_OFFLINE_CACHE_OS_PATH);
+      if (tileCachePath.toFile().exists() == false) {
+         if (tileCachePath.toFile().mkdirs() == false) {
+            return false;
+         }
+      }
 
-		if (tileCachePath.toFile().exists() == false) {
-			if (tileCachePath.toFile().mkdirs() == false) {
-				return false;
-			}
-		}
+      _osTileCachePath = tileCachePath.toOSString();
 
-		_osTileCachePath = tileCachePath.toOSString();
+      return true;
+   }
 
-		return true;
-	}
+   public boolean deleteOfflineImage(final MP offlineMp, final Tile offlineTile) {
 
-	public boolean deleteOfflineImage(final MP offlineMp, final Tile offlineTile) {
+      final IPath tilePath = offlineMp.getTileOSPath(_osTileCachePath, offlineTile);
 
-		final IPath tilePath = offlineMp.getTileOSPath(_osTileCachePath, offlineTile);
+      try {
 
-		try {
+         if (tilePath == null) {
+            return false;
+         }
 
-			if (tilePath == null) {
-				return false;
-			}
+         final File tileFile = tilePath.toFile();
+         if (tileFile.exists()) {
 
-			final File tileFile = tilePath.toFile();
-			if (tileFile.exists()) {
+            // offline image is available
 
-				// offline image is available
+            return tileFile.delete();
+         }
 
-				return tileFile.delete();
-			}
+      } catch (final Exception e) {
+         StatusUtil.showStatus("error occured when deleding offline image: " + tilePath.toOSString(), e); //$NON-NLS-1$
+      }
 
-		} catch (final Exception e) {
-			StatusUtil.showStatus("error occured when deleding offline image: " + tilePath.toOSString(), e); //$NON-NLS-1$
-		}
+      return false;
+   }
 
-		return false;
-	}
+   boolean initialize(final MP mp) {
 
-	boolean initialize(final MP mp) {
+      if (_isLoading) {
+         return false;
+      }
 
-		if (_isLoading) {
-			return false;
-		}
+      _mp = mp;
 
-		_mp = mp;
+      return checkOfflinePath();
+   }
 
-		return checkOfflinePath();
-	}
+   /**
+    * check if the image is available as offline image
+    *
+    * @param offlineMp
+    */
+   boolean isOfflineImageAvailable(final MP offlineMp, final Tile offlineTile) {
 
-	/**
-	 * check if the image is available as offline image
-	 * 
-	 * @param offlineMp
-	 */
-	boolean isOfflineImageAvailable(final MP offlineMp, final Tile offlineTile) {
+      try {
 
-		try {
+         final IPath tilePath = offlineMp.getTileOSPath(_osTileCachePath, offlineTile);
+         if (tilePath == null) {
+            return false;
+         }
 
-			final IPath tilePath = offlineMp.getTileOSPath(_osTileCachePath, offlineTile);
-			if (tilePath == null) {
-				return false;
-			}
+         final File tileFile = tilePath.toFile();
+         if (tileFile.exists()) {
 
-			final File tileFile = tilePath.toFile();
-			if (tileFile.exists()) {
+            // offline image is available
 
-				// offline image is available
+            return true;
+         }
 
-				return true;
-			}
+      } catch (final Exception e) {
+         StatusUtil.showStatus("error occured when checking offline image", e); //$NON-NLS-1$
+         return false;
+      }
 
-		} catch (final Exception e) {
-			StatusUtil.showStatus("error occured when checking offline image", e); //$NON-NLS-1$
-			return false;
-		}
+      return false;
+   }
 
-		return false;
-	}
+   void stopLoading() {
 
-	void stopLoading() {
+      _offlineTiles.clear();
 
-		_offlineTiles.clear();
+      // stop loading images
+      _mp.resetAll(false);
 
-		// stop loading images
-		_mp.resetAll(false);
-
-		_isLoading = false;
-	}
+      _isLoading = false;
+   }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,8 +22,8 @@ import java.text.DateFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.tourbook.common.time.TimeTools;
@@ -31,15 +31,19 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.importdata.DeviceData;
+import net.tourbook.importdata.ImportState_File;
+import net.tourbook.importdata.ImportState_Process;
 import net.tourbook.importdata.SerialParameters;
 import net.tourbook.importdata.TourbookDevice;
 
 public class CiclotourTextDataReader extends TourbookDevice {
 
    private static final String FILE_HEADER_EN = "Time:	Distance:	Alt.:	Speed:	HR:	Temperature:	Gradient:	Cadence:"; //$NON-NLS-1$
-   private static final String FILE_HEADER_DE = "Zeit:	Strecke:	H�he:	Geschw:	Puls:	Temperatur:	Prozent:	Cadence:";          //$NON-NLS-1$
+   private static final String FILE_HEADER_DE = "Zeit:	Strecke:	Höhe:	Geschw:	Puls:	Temperatur:	Prozent:	Cadence:";          //$NON-NLS-1$
 
-   public CiclotourTextDataReader() {}
+   public CiclotourTextDataReader() {
+      // plugin constructor
+   }
 
    @Override
    public String buildFileNameFromRawData(final String rawDataFileName) {
@@ -57,7 +61,7 @@ public class CiclotourTextDataReader extends TourbookDevice {
     * and <code>yy</code> the year.
     * <p>
     * As a default, todays date is returned.
-    * 
+    *
     * @param file
     *           The file from which the name should be derived.
     * @return A Date object that has its calendar information set correctly, but not its time
@@ -116,7 +120,7 @@ public class CiclotourTextDataReader extends TourbookDevice {
    /**
     * Computes the equivalent of the time section of the parameter in seconds. The date section is
     * ignored.
-    * 
+    *
     * @param cal
     *           A Calendar object
     * @return The equivalent of the time in seconds
@@ -137,14 +141,16 @@ public class CiclotourTextDataReader extends TourbookDevice {
    }
 
    @Override
-   public boolean processDeviceData(final String importFilePath,
-                                    final DeviceData deviceData,
-                                    final HashMap<Long, TourData> alreadyImportedTours,
-                                    final HashMap<Long, TourData> newlyImportedTours) {
+   public void processDeviceData(final String importFilePath,
+                                 final DeviceData deviceData,
+                                 final Map<Long, TourData> alreadyImportedTours,
+                                 final Map<Long, TourData> newlyImportedTours,
+                                 final ImportState_File importState_File,
+                                 final ImportState_Process importState_Process) {
 
       // immediately bail out if the file format is not correct.
       if (!validateRawData(importFilePath)) {
-         return false;
+         return;
       }
 
       final TourData tourData = new TourData();
@@ -165,7 +171,7 @@ public class CiclotourTextDataReader extends TourbookDevice {
       StringTokenizer tokenizer = null;
       String tokenLine;
 
-      final ArrayList<TimeData> timeDataList = new ArrayList<TimeData>();
+      final ArrayList<TimeData> timeDataList = new ArrayList<>();
       TimeData timeData;
 
       int previousTime = 0;
@@ -192,7 +198,7 @@ public class CiclotourTextDataReader extends TourbookDevice {
                continue;
             }
 
-            // file format is Tabbed Seperated Values
+            // file format is Tabbed Separated Values
             tokenizer = new StringTokenizer(tokenLine, "\t"); //$NON-NLS-1$
 
             final String recTime = tokenizer.nextToken();
@@ -263,7 +269,8 @@ public class CiclotourTextDataReader extends TourbookDevice {
             newlyImportedTours.put(tourId, tourData);
 
             // create additional data
-            tourData.computeTourDrivingTime();
+            tourData.setTourDeviceTime_Recorded(tourData.getTourDeviceTime_Elapsed());
+            tourData.computeTourMovingTime();
             tourData.computeComputedValues();
          }
 
@@ -273,12 +280,12 @@ public class CiclotourTextDataReader extends TourbookDevice {
 
       }
 
-      return true;
+      importState_File.isFileImportedWithValidData = true;
    }
 
    /**
     * Checks the presence of the header information written by the CicloTour text export function.
-    * 
+    *
     * @see net.tourbook.importdata.IRawDataReader#validateRawData(java.lang.String)
     * @return <code>true</code> if the file appears to be a valid CicloTour Text file, otherwise
     *         <code>false</code>.

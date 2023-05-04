@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +21,8 @@ public enum TourFilterFieldId {
    ALTITUDE_DOWN, //
    ALTITUDE_MAX, //
 
-   TIME_RECORDING_TIME, //
-   TIME_DRIVING_TIME, //
+   TIME_ELAPSED_TIME, //
+   TIME_MOVING_TIME, //
    TIME_BREAK_TIME, //
    TIME_TOUR_DATE, //
    TIME_TOUR_TIME, //
@@ -68,5 +68,6 @@ public enum TourFilterFieldId {
    TRAINING_STRESS_SCORE, //
 
    WEATHER_TEMPERATURE, //
+   WEATHER_TEMPERATURE_FROMDEVICE, //
 
 }
