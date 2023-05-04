@@ -10,8 +10,7 @@ Require-Bundle: org.junit.jupiter.api,
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
- org.opentest4j,
- net.tourbook.ext.apache
+ org.opentest4j
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  hibernate-core-5.6.5.Final.jar,
