@@ -10,7 +10,8 @@ Require-Bundle: org.junit.jupiter.api,
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
- org.opentest4j
+ org.opentest4j,
+ net.tourbook.ext.apache
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  hibernate-core-5.4.20.Final.jar,
@@ -22,6 +23,8 @@ Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: com.fasterxml.jackson.core.type,
  com.fasterxml.jackson.databind,
+ javax.persistence,
+ javax.persistence.spi,
  net.tourbook.cloud.oauth2,
  net.tourbook.cloud.strava,
  net.tourbook.cloud.suunto,
@@ -48,7 +51,5 @@ Import-Package: com.fasterxml.jackson.core.type,
  org.eclipse.jface.preference,
  org.eclipse.swt,
  org.eclipse.swt.widgets,
- org.json,
- javax.persistence,
- javax.persistence.spi
+ org.json
 Automatic-Module-Name: net.tourbook.tests
