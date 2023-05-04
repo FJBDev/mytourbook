@@ -6,7 +6,7 @@ Bundle-Version: 23.3.2.qualifier
 Require-Bundle: org.junit.jupiter.api,
  net.tourbook,
  net.tourbook.ext.jars,
- net.tourbook.ext.ejb3,
+ net.tourbook.ext.jpa,
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
