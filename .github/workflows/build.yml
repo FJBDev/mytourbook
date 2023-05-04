@@ -35,6 +35,8 @@ jobs:
         run: powershell -Command "(gc pom.xml) -replace '<skipTests>true</skipTests>', '<skipTests>false</skipTests>' | Out-File -encoding ASCII pom.xml" && cd bundles/net.tourbook.tests && powershell -Command "(gc pom.xml) -replace '<skipTests>true</skipTests>', '<skipTests>false</skipTests>' | Out-File -encoding ASCII pom.xml" && cd ../net.tourbook.ui.tests && powershell -Command "(gc pom.xml) -replace '<skipTests>true</skipTests>', '<skipTests>false</skipTests>' | Out-File -encoding ASCII pom.xml"
       - name: Activate JaCoCo for the code coverage
         run: powershell -Command "(gc pom.xml) -replace '<skip>true</skip>', '<skip>false</skip>' | Out-File -encoding ASCII pom.xml"
+      - name: Change the persistence.xml file for the module net.tourbook.tests
+        run: cd bundles/net.tourbook/src/META-INF/ && powershell -Command "(gc persistence.xml) -replace 'jdbc:derby://localhost:1527/tourbook;create=true', 'jdbc:derby:tourbook' | Out-File -encoding ASCII persistence.xml" && powershell -Command "(gc persistence.xml) -replace 'ClientDriver', 'EmbeddedDriver' | Out-File -encoding ASCII persistence.xml"
       - name: Build and analyze              
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
