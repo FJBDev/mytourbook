@@ -48,11 +48,11 @@
          version="0.0.0"/>
 
    <includes
-         id="feature.net.tourbook.ext.jars"
+         id="feature.net.tourbook.ext.jpa"
          version="0.0.0"/>
 
    <includes
-         id="feature.net.tourbook.ext.jpa"
+         id="feature.net.tourbook.ext.jars"
          version="0.0.0"/>
 
    <includes
