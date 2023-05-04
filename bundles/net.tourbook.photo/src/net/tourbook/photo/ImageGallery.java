@@ -374,33 +374,33 @@ public abstract class ImageGallery implements IItemListener, IGalleryContextMenu
          }
       };
 
-//      SORT_BY_IMAGE_DATE = new Comparator<>() {
-//         @Override
-//         public int compare(final Photo photo1, final Photo photo2) {
-//
-//            if (_workerCancelled) {
-//               // couldn't find another way how to stop sorting
-//               return 0;
-//            }
-//
-//            final long diff = photo1.imageExifTime - photo2.imageExifTime;
-//
-//            return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-//         }
-//      };
-//
-//      SORT_BY_FILE_NAME = new Comparator<>() {
-//         @Override
-//         public int compare(final Photo photo1, final Photo photo2) {
-//
-//            if (_workerCancelled) {
-//               // couldn't find another way how to stop sorting
-//               return 0;
-//            }
-//
-//            return photo1.imageFilePathName.compareToIgnoreCase(photo2.imageFilePathName);
-//         }
-//      };
+      SORT_BY_IMAGE_DATE = new Comparator<>() {
+         @Override
+         public int compare(final Photo photo1, final Photo photo2) {
+
+            if (_workerCancelled) {
+               // couldn't find another way how to stop sorting
+               return 0;
+            }
+
+            final long diff = photo1.imageExifTime - photo2.imageExifTime;
+
+            return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+         }
+      };
+
+      SORT_BY_FILE_NAME = new Comparator<>() {
+         @Override
+         public int compare(final Photo photo1, final Photo photo2) {
+
+            if (_workerCancelled) {
+               // couldn't find another way how to stop sorting
+               return 0;
+            }
+
+            return photo1.imageFilePathName.compareToIgnoreCase(photo2.imageFilePathName);
+         }
+      };
    }
 
    private class ContentProvider implements IStructuredContentProvider {
