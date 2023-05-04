@@ -116,7 +116,6 @@ import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
-import org.hibernate.annotations.Cascade;
 
 /**
  * Tour data contains all data for one tour, an entity is saved in the database
@@ -970,15 +969,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Photos for this tour
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData", orphanRemoval = true)
    private Set<TourPhoto>              tourPhotos                          = new HashSet<>();
 
    /**
     * Tour marker
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData", orphanRemoval = true)
    @XmlElementWrapper(name = "TourMarkers")
    @XmlElement(name = "TourMarker")
    @JsonProperty
@@ -987,16 +984,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Contains the tour way points
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData", orphanRemoval = true)
    @JsonProperty
    private  Set<TourWayPoint>          tourWayPoints                       = new HashSet<>();
 
    /**
     * Reference tours
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData", orphanRemoval = true)
    private  Set<TourReference>         tourReferences                     = new HashSet<>();
 
    /**
