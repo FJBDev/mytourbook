@@ -32,7 +32,6 @@ Import-Package: com.fasterxml.jackson.core.type,
  net.tourbook.data,
  net.tourbook.device.cm4xxm,
  net.tourbook.device.crp,
- org.apache.derby.client,
  net.tourbook.device.daum.ergobike,
  net.tourbook.device.garmin,
  net.tourbook.device.garmin.fit,
@@ -53,4 +52,3 @@ Import-Package: com.fasterxml.jackson.core.type,
  org.eclipse.swt.widgets,
  org.json
 Automatic-Module-Name: net.tourbook.tests
-Meta-Persistence: META-INF/persistence.xml
