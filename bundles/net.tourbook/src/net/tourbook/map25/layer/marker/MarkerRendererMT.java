@@ -17,7 +17,6 @@ package net.tourbook.map25.layer.marker;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -82,36 +81,36 @@ public class MarkerRendererMT extends BucketRenderer {
 
    private static final TimSort<ProjectedItem>   ZSORT                      = new TimSort<>();
 
-   final static Comparator<ProjectedItem>        zComparator;
+   //final static Comparator<ProjectedItem>        zComparator;
    static {
 
-      zComparator = new Comparator<>() {
-
-         @Override
-         public int compare(final ProjectedItem a,
-                            final ProjectedItem b) {
-
-            if (a.isVisible && b.isVisible) {
-
-               if (a.dy > b.dy) {
-                  return -1;
-               }
-               if (a.dy < b.dy) {
-                  return 1;
-               }
-
-            } else if (a.isVisible) {
-
-               return -1;
-
-            } else if (b.isVisible) {
-
-               return 1;
-            }
-
-            return 0;
-         }
-      };
+//      zComparator = new Comparator<>() {
+//
+//         @Override
+//         public int compare(final ProjectedItem a,
+//                            final ProjectedItem b) {
+//
+//            if (a.isVisible && b.isVisible) {
+//
+//               if (a.dy > b.dy) {
+//                  return -1;
+//               }
+//               if (a.dy < b.dy) {
+//                  return 1;
+//               }
+//
+//            } else if (a.isVisible) {
+//
+//               return -1;
+//
+//            } else if (b.isVisible) {
+//
+//               return 1;
+//            }
+//
+//            return 0;
+//         }
+//      };
    }
 
    private MarkerSymbol                    _defaultMarkerSymbol;
@@ -228,7 +227,7 @@ public class MarkerRendererMT extends BucketRenderer {
          return;
       }
 
-      ZSORT.doSort(a, zComparator, lo, hi);
+      ZSORT.doSort(a, null, lo, hi);
    }
 
    public synchronized void configureRenderer() {
