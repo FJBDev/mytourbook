@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +35,8 @@ import net.tourbook.database.TourDatabase;
 /**
  */
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "sensorValueId")
+
 public class DeviceSensorValue implements Serializable {
 
    private static final long    serialVersionUID     = 1L;
