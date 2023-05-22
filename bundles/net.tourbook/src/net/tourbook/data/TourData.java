@@ -150,6 +150,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public static final int               DB_LENGTH_TIME_ZONE_ID            = 255;
 
    public static final int               DB_LENGTH_WEATHER                 = 1000;
+   public static final int               DB_LENGTH_WEATHER_AIRQUALITY      = 255;
    public static final int               DB_LENGTH_WEATHER_V48             = 32000;
    public static final int               DB_LENGTH_WEATHER_CLOUDS          = 255;
 
@@ -464,7 +465,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * Time for all HR zones are contained in {@link #hrZone0} ... {@link #hrZone9}. Each tour can
     * have up to 10 HR zones, when HR zone value is <code>-1</code> then this zone is not set.
     * <p>
-    * These values are used in the statistic views.
+    * These values are used in the statistic views and the tour info tooltip.
     */
    private int                   hrZone0                        = -1;                     // db-version 16
    private int                   hrZone1                        = -1;                     // db-version 16
@@ -625,6 +626,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    private float                 weather_Temperature_WindChill;                        // db-version 39
 
+
+   /**
+    * Air Quality
+    */
+   private String                 weather_AirQuality;                                  // db-version 50
 
    // ############################################# POWER #############################################
 
@@ -998,15 +1004,15 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    @ManyToMany(fetch = EAGER)
    @JoinTable(inverseJoinColumns = @JoinColumn(name = "TOURTAG_TagID", referencedColumnName = "TagID"))
- @JsonProperty
-private Set<TourTag>                tourTags                            = new HashSet<>();
+   @JsonProperty
+   private Set<TourTag>                tourTags                            = new HashSet<>();
 
    /**
     * Sensors
     */
    @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-   private Set<DeviceSensorValue>     deviceSensorValues                  = new HashSet<>();
+   private Set<DeviceSensorValue>      deviceSensorValues                  = new HashSet<>();
 
 //   /**
 //    * SharedMarker
@@ -1199,6 +1205,13 @@ private Set<TourTag>                tourTags                            = new Ha
     */
    @Transient
    private int[]                 movingTimeSerie;
+
+   /**
+    *
+    * This is a time serie like {@link #timeSerie} but contains only times without pauses
+    */
+   @Transient
+   private int[]                 recordedTimeSerie;
 
    /**
     * Contains the temperature in the metric measurement system.
@@ -2298,6 +2311,7 @@ private Set<TourTag>                tourTags                            = new Ha
       breakTimeSerie = null;
       pausedTimeSerie = null;
       movingTimeSerie = null;
+      recordedTimeSerie = null;
 
       _pulseSerie_Smoothed = null;
       pulseSerie_FromTime = null;
@@ -4694,6 +4708,28 @@ private Set<TourTag>                tourTags                            = new Ha
             hrZone7,
             hrZone8,
             hrZone9 };
+   }
+
+   public float computeMax_FromValues(final float[] valueSerie, final int firstIndex, int lastIndex) {
+
+      if (valueSerie == null) {
+         return 0;
+      }
+
+      float maxValue = 0;
+
+      lastIndex = Math.min(lastIndex, valueSerie.length - 1);
+
+      for (int serieIndex = firstIndex; serieIndex <= lastIndex; serieIndex++) {
+
+         final float value = valueSerie[serieIndex];
+
+         if (value > maxValue) {
+            maxValue = value;
+         }
+      }
+
+      return maxValue;
    }
 
    private void computeMaxAltitude() {
@@ -7812,7 +7848,7 @@ private Set<TourTag>                tourTags                            = new Ha
    }
 
    /**
-    * @return Returns battery time in seconds, relative to the tour start time
+    * @return Returns battery time in milliseconds, relative to the tour start time
     */
    public int[] getBattery_Time() {
       return battery_Time;
@@ -8932,6 +8968,10 @@ private Set<TourTag>                tourTags                            = new Ha
 
       powerSerie = new float[timeSerie.length];
 
+      /*
+       * Power is computed with a formula from http://kreuzotter.de/english/espeed.htm
+       */
+
       final float weightBody = 75;
       final float weightBike = 10;
       final float bodyHeight = 188;
@@ -8939,7 +8979,7 @@ private Set<TourTag>                tourTags                            = new Ha
       final float cR = 0.008f; // Rollreibungskoeffizient Asphalt
       final float cD = 0.8f; // Streomungskoeffizient
       final float p = 1.145f; // 20C / 400m
-//      float p = 0.968f; // 10C / 2000m
+//    float p = 0.968f; // 10C / 2000m
 
       final float weightTotal = weightBody + weightBike;
       final float bsa = (float) (0.007184f * Math.pow(weightBody, 0.425) * Math.pow(bodyHeight, 0.725));
@@ -8949,12 +8989,12 @@ private Set<TourTag>                tourTags                            = new Ha
       final float slope = weightTotal * 9.81f; // * gradient/100
       final float air = 0.5f * p * cD * aP; // * v2;
 
-//      int joule = 0;
-//      int prefTime = 0;
+//    int joule = 0;
+//    int prefTime = 0;
 
       for (int timeIndex = 0; timeIndex < timeSerie.length; timeIndex++) {
 
-         final float speed = speedSerie[timeIndex] / 3.6f; // speed km/h -> m/s
+         final float speed = UI.convertSpeed_KmhToMs(speedSerie[timeIndex]);
          float gradient = gradientSerie[timeIndex] / 100; // gradient (%) /100
 
          // adjust computed errors
@@ -9224,6 +9264,155 @@ private Set<TourTag>                tourTags                            = new Ha
 
    public int getRearShiftCount() {
       return rearShiftCount;
+   }
+
+   public int[] getRecordedTimeSerie() {
+
+      if (recordedTimeSerie != null) {
+         return recordedTimeSerie;
+      }
+
+      // check if data are available
+      if (timeSerie == null || timeSerie.length == 0) {
+         return null;
+      }
+
+      final boolean isPauseTimeAvailable = pausedTime_Start != null && pausedTime_Start.length > 0;
+      final boolean isPauseDataAvailable = pausedTime_Data != null && pausedTime_Start.length > 0;
+
+      int numPauses = 0;
+      long nextPause_Start = Long.MAX_VALUE;
+      long nextPause_End = Long.MAX_VALUE;
+
+      // pause data are not available -> it will be displayed as an auto-pause
+      // this is equal to TourManager.createJoinedTourData()
+      boolean isAutoPause = true;
+      boolean isLastPause = false;
+      boolean isLastPauseChecked = false;
+
+      if (isPauseTimeAvailable) {
+
+         numPauses = pausedTime_Start.length;
+         nextPause_Start = pausedTime_Start[0];
+         nextPause_End = pausedTime_End[0];
+      }
+
+      if (isPauseDataAvailable) {
+         isAutoPause = pausedTime_Data[0] == 1;
+      }
+
+      final int numTimeSlices = timeSerie.length;
+
+      recordedTimeSerie = new int[numTimeSlices];
+
+      int sumPausedTimes = 0;
+      int nextSlicePausedTime = 0;
+
+      int pauseIndex = 0;
+
+      // loop: all time slices
+      for (int serieIndex = 0; serieIndex < numTimeSlices; serieIndex++) {
+
+         final int relativeTime = timeSerie[serieIndex];
+
+         // set pause time from the previous slice because the pause flag is set before the pause
+         sumPausedTimes += nextSlicePausedTime;
+         nextSlicePausedTime = 0;
+
+         if (isPauseTimeAvailable) {
+
+            final long currentAbsoluteTime = relativeTime * 1000L + tourStartTime;
+
+            final long pauseDiff_Start = nextPause_Start - currentAbsoluteTime;
+            final long pauseDiff_End = nextPause_End - currentAbsoluteTime;
+
+            final boolean isBeforeNextPause = pauseDiff_Start > 0;
+            final boolean isBeforeNextPause_End = pauseDiff_End > 0;
+
+            final boolean isInPause = isBeforeNextPause == false && isBeforeNextPause_End;
+
+            if (isBeforeNextPause) {
+
+               // before next pause -> nothing to do
+
+            } else {
+
+               // inside or after a pause
+
+               if (isInPause) {
+
+                  // inside a pause
+
+                  final int nextSerieIndex = serieIndex < numTimeSlices
+                        ? serieIndex + 1
+                        : serieIndex;
+
+                  final int nextRelativeTime = timeSerie[nextSerieIndex];
+
+                  final int timeDiff = nextRelativeTime - relativeTime;
+
+                  // set pause in the next slice because the pause flag is set before the pause
+                  nextSlicePausedTime = isAutoPause
+
+//                      // auto pauses are ignored
+//                      ? 0
+
+                        // auto pauses are not ignored
+                        // https://github.com/mytourbook/mytourbook/issues/502#issuecomment-1498240431
+                        ? timeDiff
+
+                        // pause is triggered by a user
+                        : timeDiff;
+
+                  if (isLastPause) {
+                     isLastPauseChecked = true;
+                  }
+
+               } else {
+
+                  // after a pause -> advance to the next pause
+
+                  pauseIndex++;
+
+                  if (pauseIndex < numPauses) {
+
+                     // next pause is available
+
+                     nextPause_Start = pausedTime_Start[pauseIndex];
+                     nextPause_End = pausedTime_End[pauseIndex];
+
+                     if (isPauseDataAvailable) {
+                        isAutoPause = pausedTime_Data[0] == 1;
+                     }
+
+                  } else {
+
+                     // last pause reached -> check last pause
+
+                     isLastPause = true;
+                  }
+
+                  if (isLastPause
+
+                        // "wait" until the last pause is also checked
+                        && isLastPauseChecked) {
+
+                     /*
+                      * After the last pause, set max value that the current slice is always before
+                      * the "next" pause so that nothing is added
+                      */
+
+                     nextPause_Start = Long.MAX_VALUE;
+                     nextPause_End = Long.MAX_VALUE;
+                  }
+               }
+            }
+         }
+
+         recordedTimeSerie[serieIndex] = relativeTime - sumPausedTimes;
+      }
+
+      return recordedTimeSerie;
    }
 
    public int getRestPulse() {
@@ -10161,6 +10350,20 @@ private Set<TourTag>                tourTags                            = new Ha
     */
    public String getWeather() {
       return weather == null ? UI.EMPTY_STRING : weather;
+   }
+
+   public String getWeather_AirQuality() {
+      return weather_AirQuality;
+   }
+
+   /**
+    * @return Returns the index for the air quality value in
+    *         {@link IWeather#airQualityTexts} or 0 when the air quality
+    *         index is not defined
+    */
+   public int getWeather_AirQuality_TextIndex() {
+
+      return WeatherUtils.getWeather_AirQuality_TextIndex(weather_AirQuality);
    }
 
    /**
@@ -12645,6 +12848,10 @@ private Set<TourTag>                tourTags                            = new Ha
     */
    public void setWeather(final String weather) {
       this.weather = weather;
+   }
+
+   public void setWeather_AirQuality(final String weather_AirQuality) {
+      this.weather_AirQuality = weather_AirQuality;
    }
 
    /**

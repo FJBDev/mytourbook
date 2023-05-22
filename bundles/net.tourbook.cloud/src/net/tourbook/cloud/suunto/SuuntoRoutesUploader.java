@@ -20,12 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -33,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
@@ -48,7 +48,6 @@ import net.tourbook.ext.velocity.VelocityService;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.TourTypeFilter;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -63,15 +62,17 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
    private static final String LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
    private static final String LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
 
-   private static HttpClient   _httpClient                   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static TourExporter _tourExporter                 = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE);
 
+   private static String       CLOUD_UPLOADER_ID             = "Suunto";                                                 //$NON-NLS-1$
    private boolean             _useActivePerson;
    private boolean             _useAllPeople;
 
    public SuuntoRoutesUploader() {
 
-      super("SUUNTO", Messages.VendorName_Suunto_Routes); //$NON-NLS-1$
+      super(CLOUD_UPLOADER_ID,
+            Messages.VendorName_Suunto_Routes,
+            Activator.getImageDescriptor(CloudImages.Cloud_Suunto_Logo));
 
       _tourExporter.setUseDescription(true);
 
@@ -166,11 +167,6 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
    }
 
    @Override
-   public List<TourTypeFilter> getTourTypeFilters() {
-      return new ArrayList<>();
-   }
-
-   @Override
    protected boolean isReady() {
 
       _useActivePerson = SuuntoTokensRetrievalHandler.isReady_ActivePerson();
@@ -210,7 +206,9 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
 
    private CompletableFuture<RouteUpload> sendAsyncRequest(final String tourStartTime, final HttpRequest request) {
 
-      final CompletableFuture<RouteUpload> routeUpload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+      final CompletableFuture<RouteUpload> routeUpload = OAuth2Utils.httpClient.sendAsync(
+            request,
+            HttpResponse.BodyHandlers.ofString())
             .thenApply(routeUploadResponse -> convertResponseToUpload(routeUploadResponse, tourStartTime))
             .exceptionally(e -> {
                final RouteUpload errorUpload = new RouteUpload();
@@ -342,7 +340,7 @@ public class SuuntoRoutesUploader extends TourbookCloudUploader {
          MessageDialog.openInformation(
                Display.getDefault().getActiveShell(),
                Messages.Dialog_UploadRoutesToSuunto_Title,
-               NLS.bind(Messages.Dialog_UploadRoutesToSuunto_Message, numberOfUploadedTours[0], numberOfTours - numberOfUploadedTours[0]));
+               NLS.bind(Messages.Dialog_UploadToursToSuunto_Message, numberOfUploadedTours[0], numberOfTours - numberOfUploadedTours[0]));
 
       } catch (final InvocationTargetException | InterruptedException e) {
          StatusUtil.log(e);

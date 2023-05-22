@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -371,19 +371,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.GRAPH_JAMET_SMOOTHING_SPEED_TAU, 10.0);
 
       /*
-       * view colors
-       */
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_CATEGORY,          new RGB(0xF2, 0x5B, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_TITLE,             new RGB(0x00, 0x6F, 0xDD));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB,               new RGB(0xF2, 0x5B, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB_SUB,           new RGB(0x00, 0x6F, 0xDD));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_TOUR,              new RGB(0x00, 0x00, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_BG_HISTORY_TOUR,   new RGB(0xFC, 0xFF, 0xE3));
-
-      /*
        * Display formats
        */
-
       store.setDefault(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES, false);
 
       /*
@@ -530,11 +519,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
        * Pref page: Map3 color
        */
       store.setDefault(ITourbookPreferences.MAP3_IS_COLOR_SELECTOR_DISPLAYED, true);
-
-      /*
-       * Tour import
-       */
-      store.setDefault(ITourbookPreferences.IMPORT_IS_NEW_UI, false);
 
       /*
        * Adjust temperature

@@ -31,6 +31,10 @@ public class OtherMessages {
 
    public static final String APP_THEME_BACKGROUND_COLOR_DARK_TOOLTIP    = net.tourbook.common.Messages.App_Theme_BackgroundColor_Dark_Tooltip;
    public static final String APP_THEME_BACKGROUND_COLOR_LIGHT_TOOLTIP   = net.tourbook.common.Messages.App_Theme_BackgroundColor_Light_Tooltip;
+   public static final String APP_THEME_BRIGHT_THEME                     = net.tourbook.common.Messages.App_Theme_BrightTheme;
+   public static final String APP_THEME_BRIGHT_THEME_TOOLTIP             = net.tourbook.common.Messages.App_Theme_BrightTheme_Tooltip;
+   public static final String APP_THEME_DARK_THEME                       = net.tourbook.common.Messages.App_Theme_DarkTheme;
+   public static final String APP_THEME_DARK_THEME_TOOLTIP               = net.tourbook.common.Messages.App_Theme_DarkTheme_Tooltip;
    public static final String APP_THEME_FOREGROUND_COLOR_DARK_TOOLTIP    = net.tourbook.common.Messages.App_Theme_ForegroundColor_Dark_Tooltip;
    public static final String APP_THEME_FOREGROUND_COLOR_LIGHT_TOOLTIP   = net.tourbook.common.Messages.App_Theme_ForegroundColor_Light_Tooltip;
    public static final String APP_THEME_VALUE_FOR_LIGHT_TOOLTIP          = net.tourbook.common.Messages.App_Theme_ValueFor_Light_Tooltip;
@@ -50,6 +54,8 @@ public class OtherMessages {
    public static final String GRAPH_LABEL_GRADIENT                       = net.tourbook.common.Messages.Graph_Label_Gradient;
    public static final String GRAPH_LABEL_GRADIENT_UNIT                  = net.tourbook.common.Messages.Graph_Label_Gradient_Unit;
    public static final String GRAPH_LABEL_HEARTBEAT                      = net.tourbook.common.Messages.Graph_Label_Heartbeat;
+   public static final String GRAPH_LABEL_HEARTBEAT_AVG                  = net.tourbook.common.Messages.Graph_Label_Heartbeat_Avg;
+   public static final String GRAPH_LABEL_HEARTBEAT_AVG_MAX              = net.tourbook.common.Messages.Graph_Label_Heartbeat_AvgMax;
    public static final String GRAPH_LABEL_HEARTBEAT_UNIT                 = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
    public static final String GRAPH_LABEL_HEART_RATE_VARIABILITY         = net.tourbook.common.Messages.Graph_Label_HeartRateVariability;
    public static final String GRAPH_LABEL_HEART_RATE_VARIABILITY_UNIT    = net.tourbook.common.Messages.Graph_Label_HeartRateVariability_Unit;

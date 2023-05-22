@@ -46,6 +46,7 @@ import net.tourbook.common.weather.IWeather;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.action.ToolBarManager;
@@ -72,6 +73,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.VerifyListener;
@@ -152,6 +156,7 @@ public class UI {
    public static final String       SPACE2                             = "  ";                  //$NON-NLS-1$
    public static final String       SPACE3                             = "   ";                 //$NON-NLS-1$
    public static final String       SPACE4                             = "    ";                //$NON-NLS-1$
+   public static final String       SPACE8                             = "        ";            //$NON-NLS-1$
    public static final String       TAB1                               = "\t";                  //$NON-NLS-1$
    public static final String       ZERO                               = "0";                   //$NON-NLS-1$
 
@@ -653,6 +658,12 @@ public class UI {
    public static Color           SYS_COLOR_DARK_GRAY;
    public static Color           SYS_COLOR_DARK_GREEN;
 
+   public static Color           SYS_COLOR_LIST_BACKGROUND;
+
+   public static Color           SYS_COLOR_WIDGET_FOREGROUND;
+   public static Color           SYS_COLOR_WIDGET_DARK_SHADOW;
+   public static Color           SYS_COLOR_WIDGET_BACKGROUND;
+
 // SET_FORMATTING_ON
 
    public static final ImageRegistry     IMAGE_REGISTRY;
@@ -663,6 +674,9 @@ public class UI {
     * Contains the value that opacity is 100% opaque
     */
    public static int                     TRANSFORM_OPACITY_MAX;
+
+   private static final GridDataFactory  _gridDataHint_Zero          = GridDataFactory.fillDefaults().hint(0, 0);
+   private static final GridDataFactory  _gridDataHint_Default       = GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT);
 
    private static final IPreferenceStore _prefStore_Common           = CommonActivator.getPrefStore();
 
@@ -686,21 +700,28 @@ public class UI {
 
 // SET_FORMATTING_OFF
 
-      IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,                    CommonActivator.getImageDescriptor(CommonImages.CustomizeProfilesColumns));
-      IMAGE_REGISTRY.put(IMAGE_EMPTY_16,                             CommonActivator.getImageDescriptor(CommonImages.App_EmptyIcon_Placeholder));
+      IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,  CommonActivator.getImageDescriptor(CommonImages.CustomizeProfilesColumns));
+      IMAGE_REGISTRY.put(IMAGE_EMPTY_16,           CommonActivator.getImageDescriptor(CommonImages.App_EmptyIcon_Placeholder));
 
-      SYS_COLOR_BLACK       = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-      SYS_COLOR_BLUE        = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
-      SYS_COLOR_CYAN        = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
-      SYS_COLOR_GRAY        = Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
-      SYS_COLOR_GREEN       = Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
-      SYS_COLOR_MAGENTA     = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
-      SYS_COLOR_RED         = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-      SYS_COLOR_WHITE       = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-      SYS_COLOR_YELLOW      = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+      final Display display = Display.getCurrent();
 
-      SYS_COLOR_DARK_GRAY   = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
-      SYS_COLOR_DARK_GREEN  = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
+      SYS_COLOR_BLACK               = display.getSystemColor(SWT.COLOR_BLACK);
+      SYS_COLOR_BLUE                = display.getSystemColor(SWT.COLOR_BLUE);
+      SYS_COLOR_CYAN                = display.getSystemColor(SWT.COLOR_CYAN);
+      SYS_COLOR_GRAY                = display.getSystemColor(SWT.COLOR_GRAY);
+      SYS_COLOR_GREEN               = display.getSystemColor(SWT.COLOR_GREEN);
+      SYS_COLOR_MAGENTA             = display.getSystemColor(SWT.COLOR_MAGENTA);
+      SYS_COLOR_RED                 = display.getSystemColor(SWT.COLOR_RED);
+      SYS_COLOR_WHITE               = display.getSystemColor(SWT.COLOR_WHITE);
+      SYS_COLOR_YELLOW              = display.getSystemColor(SWT.COLOR_YELLOW);
+
+      SYS_COLOR_DARK_GRAY           = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+      SYS_COLOR_DARK_GREEN          = display.getSystemColor(SWT.COLOR_DARK_GREEN);
+
+      SYS_COLOR_LIST_BACKGROUND     = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+      SYS_COLOR_WIDGET_BACKGROUND   = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+      SYS_COLOR_WIDGET_DARK_SHADOW  = display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW);
+      SYS_COLOR_WIDGET_FOREGROUND   = display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
 
       TRANSFORM_OPACITY_MAX = _prefStore_Common.getInt(ICommonPreferences.TRANSFORM_VALUE_OPACITY_MAX);
 
@@ -720,6 +741,7 @@ public class UI {
       final String commaSpace = Messages.Period_Format_CommaSpace;
       final String space2 = Messages.Period_Format_SpaceAndSpace;
       final String[] variants = {
+
             Messages.Period_Format_Space,
             Messages.Period_Format_Comma,
             Messages.Period_Format_CommaAndAnd,
@@ -796,7 +818,6 @@ public class UI {
             .toFormatter();
 
    }
-
    /**
     * Number of horizontal dialog units per character, value <code>4</code>.
     */
@@ -1205,6 +1226,17 @@ public class UI {
    }
 
    /**
+    * Convert a speed value from km/h to m/s
+    *
+    * @param speed
+    * @return Returns the speed value in m/s.
+    */
+   public static float convertSpeed_KmhToMs(final float speed) {
+
+      return speed * 0.277777778f;
+   }
+
+   /**
     * @param temperature
     * @return Returns the temperature in the current measurement system.
     */
@@ -1229,6 +1261,32 @@ public class UI {
       }
 
       return (temperature - UNIT_FAHRENHEIT_ADD) / UNIT_FAHRENHEIT_MULTI;
+   }
+
+   public static void copyTextIntoClipboard(final String text, final String statusMessage) {
+
+      final Display display = Display.getDefault();
+      final TextTransfer textTransfer = TextTransfer.getInstance();
+
+      final Clipboard clipBoard = new Clipboard(display);
+      {
+         clipBoard.setContents(
+
+               new Object[] { text },
+               new Transfer[] { textTransfer });
+      }
+      clipBoard.dispose();
+
+      final IStatusLineManager statusLineMgr = UI.getStatusLineManager();
+      if (statusLineMgr != null) {
+
+         // show info that data are copied
+         // "Data were copied into the clipboard"
+         statusLineMgr.setMessage(statusMessage);
+
+         // cleanup message
+         display.timerExec(3000, () -> statusLineMgr.setMessage(null));
+      }
    }
 
    /**
@@ -1303,7 +1361,7 @@ public class UI {
    }
 
    /**
-    * Creates one action in a toolbar.
+    * Creates one {@link Action} in it's own toolbar.
     *
     * @param parent
     * @param action
@@ -1311,9 +1369,26 @@ public class UI {
    public static void createToolbarAction(final Composite parent, final Action action) {
 
       final ToolBar toolbar = new ToolBar(parent, SWT.FLAT);
-
       final ToolBarManager tbm = new ToolBarManager(toolbar);
+
       tbm.add(action);
+
+      tbm.update(true);
+   }
+
+   /**
+    * Creates one {@link ContributionItem} in it' own toolbar.
+    *
+    * @param parent
+    * @param contribItem
+    */
+   public static void createToolbarAction(final Composite parent, final ContributionItem contribItem) {
+
+      final ToolBar toolbar = new ToolBar(parent, SWT.FLAT);
+      final ToolBarManager tbm = new ToolBarManager(toolbar);
+
+      tbm.add(contribItem);
+
       tbm.update(true);
    }
 
@@ -1374,14 +1449,16 @@ public class UI {
    public static Composite createUI_PageNoData(final Composite parent, final String message) {
 
       final Composite pageNoData = new Composite(parent, SWT.NONE);
+
       // use a dimmed color, default is white
       pageNoData.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+
       GridDataFactory.fillDefaults().grab(true, true).applyTo(pageNoData);
       GridLayoutFactory.swtDefaults().numColumns(1).applyTo(pageNoData);
       {
          final Label lblNoData = new Label(pageNoData, SWT.WRAP);
-         GridDataFactory.fillDefaults().grab(true, true).applyTo(lblNoData);
          lblNoData.setText(message);
+         GridDataFactory.fillDefaults().grab(true, true).applyTo(lblNoData);
       }
 
       return pageNoData;
@@ -1857,28 +1934,17 @@ public class UI {
     */
    public static boolean isCtrlKey(final Event event) {
 
-      boolean isCtrlKey;
+      return (event.stateMask & SWT.MOD1) > 0;
+   }
 
-      if (UI.IS_OSX) {
-         isCtrlKey = (event.stateMask & SWT.MOD1) > 0;
-      } else {
-         isCtrlKey = (event.stateMask & SWT.MOD1) > 0;
-      }
+   public static boolean isCtrlKey(final KeyEvent keyEvent) {
 
-      return isCtrlKey;
+      return (keyEvent.stateMask & SWT.MOD1) > 0;
    }
 
    public static boolean isCtrlKey(final MouseEvent event) {
 
-      boolean isCtrlKey;
-
-      if (IS_OSX) {
-         isCtrlKey = (event.stateMask & SWT.MOD1) > 0;
-      } else {
-         isCtrlKey = (event.stateMask & SWT.MOD1) > 0;
-      }
-
-      return isCtrlKey;
+      return (event.stateMask & SWT.MOD1) > 0;
    }
 
    /**
@@ -1906,6 +1972,19 @@ public class UI {
       return false;
    }
 
+   public static boolean isShiftKey(final KeyEvent keyEvent) {
+
+      boolean isShiftKey;
+
+      if (IS_OSX) {
+         isShiftKey = (keyEvent.stateMask & SWT.MOD3) > 0;
+      } else {
+         isShiftKey = (keyEvent.stateMask & SWT.MOD2) > 0;
+      }
+
+      return isShiftKey;
+   }
+
    public static boolean isShiftKey(final MouseEvent event) {
 
       boolean isShiftKey;
@@ -1917,6 +1996,29 @@ public class UI {
       }
 
       return isShiftKey;
+   }
+
+   /**
+    * Log RGB values as Java code:
+    * <p>
+    * <code>
+    *  new RGB(0x5B, 0x5B, 0x5B),
+    * </code>
+    *
+    * @param rgb
+    * @return
+    */
+   public static String logRGB(final RGB rgb) {
+
+      if (rgb == null) {
+         return "null"; //$NON-NLS-1$
+      }
+
+      return "new RGB(" //$NON-NLS-1$
+            + "0x" + Integer.toHexString(rgb.red) + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "0x" + Integer.toHexString(rgb.green) + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "0x" + Integer.toHexString(rgb.blue) //$NON-NLS-1$
+            + "),"; //$NON-NLS-1$
    }
 
    public static String nanoTime(final int nanoValue) {
@@ -2020,9 +2122,25 @@ public class UI {
       }
    }
 
+   public static void paintImageCentered(final Event event, final Image image, final int availableWidth) {
+
+      final Rectangle imageRect = image.getBounds();
+
+      // center horizontal
+      final int xOffset = (availableWidth - imageRect.width) / 2;
+
+      // center vertical
+      final int yOffset = Math.max(0, (event.height - imageRect.height) / 2);
+
+      final int devX = event.x + xOffset;
+      final int devY = event.y + yOffset;
+
+      event.gc.drawImage(image, devX, devY);
+   }
+
    public static String replaceHTML_BackSlash(final String filePath) {
 
-      return filePath.replace(//
+      return filePath.replace(
             SYMBOL_BACKSLASH,
             SYMBOL_HTML_BACKSLASH);
    }
@@ -2039,7 +2157,7 @@ public class UI {
 
    public static String replaceJS_BackSlash(final String filePath) {
 
-      return filePath.replace(//
+      return filePath.replace(
             SYMBOL_BACKSLASH,
             JS_BACKSLASH_REPLACEMENT);
    }
@@ -2297,12 +2415,12 @@ public class UI {
          }
       };
 
-      TableViewerEditor.create(//
+      TableViewerEditor.create(
             viewer,
             focusCellManager,
             actSupport,
-            ColumnViewerEditor.TABBING_HORIZONTAL //
-                  | ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR //
+            ColumnViewerEditor.TABBING_HORIZONTAL
+                  | ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
                   | ColumnViewerEditor.TABBING_VERTICAL
                   | ColumnViewerEditor.KEYBOARD_ACTIVATION);
    }
@@ -2734,6 +2852,81 @@ public class UI {
       }
 
       return shortedText;
+   }
+
+   /**
+    * Set control visible or hidden
+    *
+    * @param control
+    * @param isVisible
+    */
+   public static void showHideControl(final Control control,
+                                      final boolean isVisible) {
+
+      showHideControl(control, isVisible, SWT.DEFAULT, SWT.DEFAULT);
+   }
+
+   /**
+    * Set control visible or hidden
+    *
+    * @param control
+    * @param isVisible
+    * @param defaultWidth
+    */
+   public static void showHideControl(final Control control,
+                                      final boolean isVisible,
+                                      final int defaultWidth) {
+
+      showHideControl(control, isVisible, defaultWidth, SWT.DEFAULT);
+   }
+
+   /**
+    * Set control visible or hidden
+    *
+    * @param control
+    * @param isVisible
+    * @param defaultWidth
+    * @param defaultHeight
+    */
+   public static void showHideControl(final Control control,
+                                      final boolean isVisible,
+                                      final int defaultWidth,
+                                      final int defaultHeight) {
+
+      if (isVisible) {
+
+         if (control.getLayoutData() instanceof GridData) {
+
+            final GridData gridData = (GridData) control.getLayoutData();
+
+            gridData.widthHint = defaultWidth;
+            gridData.heightHint = defaultHeight;
+
+         } else {
+
+            _gridDataHint_Default.applyTo(control);
+         }
+
+         // allow tab access
+         control.setVisible(true);
+
+      } else {
+
+         if (control.getLayoutData() instanceof GridData) {
+
+            final GridData gridData = (GridData) control.getLayoutData();
+
+            gridData.widthHint = 0;
+            gridData.heightHint = 0;
+
+         } else {
+
+            _gridDataHint_Zero.applyTo(control);
+         }
+
+         // deny tab access
+         control.setVisible(false);
+      }
    }
 
    /**
@@ -3169,7 +3362,6 @@ public class UI {
          }
       };
    }
-
 }
 
 //this conversion is not working for all png images, found SWT2Dutil.java

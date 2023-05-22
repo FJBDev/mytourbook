@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,6 +32,10 @@ public class Messages extends NLS {
 
    public static String        App_Theme_BackgroundColor_Light_Tooltip;
    public static String        App_Theme_BackgroundColor_Dark_Tooltip;
+   public static String        App_Theme_BrightTheme;
+   public static String        App_Theme_BrightTheme_Tooltip;
+   public static String        App_Theme_DarkTheme;
+   public static String        App_Theme_DarkTheme_Tooltip;
    public static String        App_Theme_ForegroundColor_Light_Tooltip;
    public static String        App_Theme_ForegroundColor_Dark_Tooltip;
    public static String        App_Theme_ValueFor_Light_Tooltip;
@@ -150,6 +154,8 @@ public class Messages extends NLS {
    public static String        Graph_Label_Gradient;
    public static String        Graph_Label_Gradient_Unit;
    public static String        Graph_Label_Heartbeat;
+   public static String        Graph_Label_Heartbeat_Avg;
+   public static String        Graph_Label_Heartbeat_AvgMax;
    public static String        Graph_Label_Heartbeat_Unit;
    public static String        Graph_Label_HeartRateVariability;
    public static String        Graph_Label_HeartRateVariability_Unit;
@@ -283,6 +289,13 @@ public class Messages extends NLS {
    public static String        Pref_System_Option_SmallLength_Millimeter;
    public static String        Pref_System_Option_Temperature_Celsius;
    public static String        Pref_System_Option_Temperature_Fahrenheit;
+
+   public static String        Weather_AirQuality_Good;
+   public static String        Weather_AirQuality_Fair;
+   public static String        Weather_AirQuality_IsNotDefined;
+   public static String        Weather_AirQuality_Moderate;
+   public static String        Weather_AirQuality_Poor;
+   public static String        Weather_AirQuality_VeryPoor;
 
    public static String        Weather_Clouds_Clouds;
    public static String        Weather_Clouds_Cloudy;

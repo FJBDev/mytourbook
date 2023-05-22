@@ -165,7 +165,6 @@ import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -176,9 +175,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -274,6 +270,7 @@ public class Map2View extends ViewPart implements
    static final String           STATE_IS_SHOW_IN_TOOLBAR_ALTITUDE                     = "STATE_IS_SHOW_IN_TOOLBAR_ALTITUDE";                   //$NON-NLS-1$
    static final String           STATE_IS_SHOW_IN_TOOLBAR_GRADIENT                     = "STATE_IS_SHOW_IN_TOOLBAR_GRADIENT";                   //$NON-NLS-1$
    static final String           STATE_IS_SHOW_IN_TOOLBAR_PACE                         = "STATE_IS_SHOW_IN_TOOLBAR_PACE";                       //$NON-NLS-1$
+   static final String           STATE_IS_SHOW_IN_TOOLBAR_POWER                        = "STATE_IS_SHOW_IN_TOOLBAR_POWER";                      //$NON-NLS-1$
    static final String           STATE_IS_SHOW_IN_TOOLBAR_PULSE                        = "STATE_IS_SHOW_IN_TOOLBAR_PULSE";                      //$NON-NLS-1$
    static final String           STATE_IS_SHOW_IN_TOOLBAR_SPEED                        = "STATE_IS_SHOW_IN_TOOLBAR_SPEED";                      //$NON-NLS-1$
    static final String           STATE_IS_SHOW_IN_TOOLBAR_HR_ZONE                      = "STATE_IS_SHOW_IN_TOOLBAR_HR_ZONE";                    //$NON-NLS-1$
@@ -282,6 +279,7 @@ public class Map2View extends ViewPart implements
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_ALTITUDE_DEFAULT             = true;
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_GRADIENT_DEFAULT             = false;
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_PACE_DEFAULT                 = false;
+   static final boolean          STATE_IS_SHOW_IN_TOOLBAR_POWER_DEFAULT                = false;
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_PULSE_DEFAULT                = true;
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_SPEED_DEFAULT                = false;
    static final boolean          STATE_IS_SHOW_IN_TOOLBAR_HR_ZONE_DEFAULT              = false;
@@ -331,6 +329,7 @@ public class Map2View extends ViewPart implements
          MapGraphId.Altitude,
          MapGraphId.Gradient,
          MapGraphId.Pace,
+         MapGraphId.Power,
          MapGraphId.Pulse,
          MapGraphId.Speed,
 
@@ -465,6 +464,7 @@ public class Map2View extends ViewPart implements
    private EnumMap<MapGraphId, Action>       _allTourColor_Actions = new EnumMap<>(MapGraphId.class);
    private ActionTourColor                   _actionTourColor_Elevation;
    private ActionTourColor                   _actionTourColor_Gradient;
+   private ActionTourColor                   _actionTourColor_Power;
    private ActionTourColor                   _actionTourColor_Pulse;
    private ActionTourColor                   _actionTourColor_Speed;
    private ActionTourColor                   _actionTourColor_Pace;
@@ -939,37 +939,17 @@ public class Map2View extends ViewPart implements
 
    private void actionCopyLocationToClipboard() {
 
-      final Display display = Display.getDefault();
-
       final GeoPosition mouseDown_GeoPosition = _map.get_mouseDown_GeoPosition();
 
       final String geoPosition = String.format(Messages.Clipboard_Content_MapLocation,
             mouseDown_GeoPosition.latitude,
             mouseDown_GeoPosition.longitude);
 
-      final TextTransfer textTransfer = TextTransfer.getInstance();
+      final String statusMessage = String.format(Messages.StatusLine_Message_CopiedLatitudeLongitude,
+            mouseDown_GeoPosition.latitude,
+            mouseDown_GeoPosition.longitude);
 
-      final Clipboard clipBoard = new Clipboard(display);
-      {
-         clipBoard.setContents(
-
-               new Object[] { geoPosition },
-               new Transfer[] { textTransfer } //
-         );
-      }
-      clipBoard.dispose();
-
-      final IStatusLineManager statusLineMgr = UI.getStatusLineManager();
-      if (statusLineMgr != null) {
-
-         // show info that data are copied
-         statusLineMgr.setMessage(String.format(Messages.StatusLine_Message_CopiedLatitudeLongitude,
-               mouseDown_GeoPosition.latitude,
-               mouseDown_GeoPosition.longitude));
-
-         // cleanup message
-         display.timerExec(4000, () -> statusLineMgr.setMessage(null));
-      }
+      UI.copyTextIntoClipboard(geoPosition, statusMessage);
    }
 
    private void actionGotoLocation() {
@@ -1321,17 +1301,18 @@ public class Map2View extends ViewPart implements
 
 // SET_FORMATTING_OFF
 
-      _map.addBreadcrumbListener    (this::mapListener_Breadcrumb);
-      _map.addHoveredTourListener   (this::mapListener_HoveredTour);
-      _map.addMapGridBoxListener    (this::mapListener_MapGridBox);
-      _map.addMapInfoListener       (this::mapListener_MapInfo);
-      _map.addMapPositionListener   (this::mapListener_MapPosition);
-      _map.addMapSelectionListener  (this::mapListener_MapSelection);
-      _map.addMousePositionListener (this::mapListener_MousePosition);
-      _map.addPOIListener           (this::mapListener_POI);
-      _map.addTourSelectionListener (this::mapListener_InsideMap);
+      _map.addBreadcrumbListener    (()                        -> mapListener_Breadcrumb());
+      _map.addHoveredTourListener   (mapHoveredTourEvent       -> mapListener_HoveredTour(mapHoveredTourEvent));
+      _map.addMapInfoListener       ((mapCenter, mapZoomLevel) -> mapListener_MapInfo(mapCenter, mapZoomLevel));
+      _map.addMapSelectionListener  (selection                 -> mapListener_MapSelection(selection));
+      _map.addMousePositionListener (mapGeoPositionEvent       -> mapListener_MousePosition(mapGeoPositionEvent));
+      _map.addPOIListener           (mapPOIEvent               -> mapListener_POI(mapPOIEvent));
+      _map.addTourSelectionListener (selection                 -> mapListener_InsideMap(selection));
 
-      _map.addControlListener       (controlResizedAdapter(this::mapListener_ControlResize));
+      _map.addMapGridBoxListener    ((mapZoomLevel, mapGeoCenter, isGridSelected, mapGridData)     -> mapListener_MapGridBox(mapZoomLevel, mapGeoCenter, isGridSelected, mapGridData));
+      _map.addMapPositionListener   ((mapCenter, mapZoomLevel, isZoomed)                           -> mapListener_MapPosition(mapCenter, mapZoomLevel, isZoomed));
+
+      _map.addControlListener       (controlResizedAdapter(controlEvent -> mapListener_ControlResize(controlEvent)));
 
 // SET_FORMATTING_ON
 
@@ -1713,6 +1694,13 @@ public class Map2View extends ViewPart implements
             Images.Graph_Gradient,
             Images.Graph_Gradient_Disabled);
 
+      _actionTourColor_Power = new ActionTourColor(
+            this,
+            MapGraphId.Power,
+            Messages.map_action_tour_color_power_tooltip,
+            Images.Graph_Power,
+            Images.Graph_Power_Disabled);
+
       _actionTourColor_Pulse = new ActionTourColor(
             this,
             MapGraphId.Pulse,
@@ -1752,6 +1740,7 @@ public class Map2View extends ViewPart implements
 
       _allTourColor_Actions.put(MapGraphId.Altitude,           _actionTourColor_Elevation);
       _allTourColor_Actions.put(MapGraphId.Gradient,           _actionTourColor_Gradient);
+      _allTourColor_Actions.put(MapGraphId.Power,              _actionTourColor_Power);
       _allTourColor_Actions.put(MapGraphId.Pulse,              _actionTourColor_Pulse);
       _allTourColor_Actions.put(MapGraphId.Speed,              _actionTourColor_Speed);
       _allTourColor_Actions.put(MapGraphId.Pace,               _actionTourColor_Pace);
@@ -2138,6 +2127,7 @@ public class Map2View extends ViewPart implements
 
          _actionTourColor_Elevation          .setEnabled(false);
          _actionTourColor_Gradient           .setEnabled(false);
+         _actionTourColor_Power              .setEnabled(false);
          _actionTourColor_Pulse              .setEnabled(false);
          _actionTourColor_Speed              .setEnabled(false);
          _actionTourColor_Pace               .setEnabled(false);
@@ -2148,6 +2138,7 @@ public class Map2View extends ViewPart implements
 
          _actionTourColor_Elevation          .setEnabled(true);
          _actionTourColor_Gradient           .setEnabled(true);
+         _actionTourColor_Power              .setEnabled(true);
          _actionTourColor_Pulse              .setEnabled(true);
          _actionTourColor_Speed              .setEnabled(true);
          _actionTourColor_Pace               .setEnabled(true);
@@ -2162,6 +2153,7 @@ public class Map2View extends ViewPart implements
 
          _actionTourColor_Elevation          .setEnabled(true);
          _actionTourColor_Gradient           .setEnabled(oneTourData.getGradientSerie() != null);
+         _actionTourColor_Power              .setEnabled(oneTourData.getPowerSerie() != null);
          _actionTourColor_Pulse              .setEnabled(isPulse);
          _actionTourColor_Speed              .setEnabled(oneTourData.getSpeedSerie() != null);
          _actionTourColor_Pace               .setEnabled(oneTourData.getPaceSerie() != null);
@@ -2172,6 +2164,7 @@ public class Map2View extends ViewPart implements
 
          _actionTourColor_Elevation          .setEnabled(false);
          _actionTourColor_Gradient           .setEnabled(false);
+         _actionTourColor_Power              .setEnabled(false);
          _actionTourColor_Pulse              .setEnabled(false);
          _actionTourColor_Speed              .setEnabled(false);
          _actionTourColor_Pace               .setEnabled(false);
@@ -2308,6 +2301,12 @@ public class Map2View extends ViewPart implements
 
       fillToolbar_TourColors_Color(
             tbm,
+            MapGraphId.Power,
+            STATE_IS_SHOW_IN_TOOLBAR_POWER,
+            STATE_IS_SHOW_IN_TOOLBAR_POWER_DEFAULT);
+
+      fillToolbar_TourColors_Color(
+            tbm,
             MapGraphId.Pace,
             STATE_IS_SHOW_IN_TOOLBAR_PACE,
             STATE_IS_SHOW_IN_TOOLBAR_PACE_DEFAULT);
@@ -2346,6 +2345,10 @@ public class Map2View extends ViewPart implements
 
    private void geoFilter_10_Loader(final MapGridData mapGridData,
                                     final TourGeoFilter tourGeoFilter) {
+
+      if (mapGridData == null) {
+         return;
+      }
 
       final org.eclipse.swt.graphics.Point geoParts_TopLeft_E2 = mapGridData.geoParts_TopLeft_E2;
       final org.eclipse.swt.graphics.Point geoParts_BottomRight_E2 = mapGridData.geoParts_BottomRight_E2;
@@ -4261,6 +4264,10 @@ public class Map2View extends ViewPart implements
             _actionTourColor_Pace.setChecked(true);
             break;
 
+         case Power:
+            _actionTourColor_Power.setChecked(true);
+            break;
+
          case Pulse:
             _actionTourColor_Pulse.setChecked(true);
             break;
@@ -4758,16 +4765,16 @@ public class Map2View extends ViewPart implements
 
    private void setVisibleDataPoints(final TourData tourData) {
 
+      if (tourData == null) {
+         return;
+      }
+
       if (_map.isCutOffLinesInPauses() == false) {
 
          // all lines are visible -> reset visible points
 
          tourData.visibleDataPointSerie = null;
 
-         return;
-      }
-
-      if (tourData == null) {
          return;
       }
 

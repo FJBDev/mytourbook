@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -112,6 +112,7 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
    private ActionNavigatePreviousTour        _actionNavigatePrevTour;
    private ActionNavigateNextTour            _actionNavigateNextTour;
    private ActionSaveComparedTour            _actionSaveComparedTour;
+   private ActionSaveAndNextComparedTour     _actionSaveAndNext_ComparedTour;
    private ActionUndoChanges                 _actionUndoChanges;
 
    private boolean                           _isDataDirty;
@@ -176,6 +177,29 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
       }
    }
 
+   private class ActionSaveAndNextComparedTour extends Action {
+
+      public ActionSaveAndNextComparedTour() {
+
+         super(null, AS_PUSH_BUTTON);
+
+         setToolTipText(Messages.TourCatalog_View_Action_SaveAndNext);
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_SaveAndNext));
+         setDisabledImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_SaveAndNext_Disabled));
+
+         setEnabled(false);
+      }
+
+      @Override
+      public void run() {
+
+         saveComparedTour();
+
+         _pageBook.getDisplay().asyncExec(() -> actionNavigateTour(true));
+      }
+   }
+
    private class ActionSaveComparedTour extends Action {
 
       public ActionSaveComparedTour() {
@@ -192,6 +216,7 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
 
       @Override
       public void run() {
+
          saveComparedTour();
       }
    }
@@ -287,9 +312,10 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
       _actionSynchChartsBySize = new ActionSynchChartHorizontalBySize(this);
       _actionSynchChartsByScale = new ActionSynchChartHorizontalByScale(this);
 
-      _actionNavigatePrevTour = new ActionNavigatePreviousTour();
       _actionNavigateNextTour = new ActionNavigateNextTour();
+      _actionNavigatePrevTour = new ActionNavigatePreviousTour();
       _actionSaveComparedTour = new ActionSaveComparedTour();
+      _actionSaveAndNext_ComparedTour = new ActionSaveAndNextComparedTour();
       _actionUndoChanges = new ActionUndoChanges();
    }
 
@@ -397,9 +423,11 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
 
       final boolean isNotMoved = _defaultStartIndex == _movedStartIndex && _defaultEndIndex == _movedEndIndex;
       final boolean isMoved = isNotMoved == false;
+      final boolean isElevationCompareTour = _isGeoCompareRefTour == false && (isMoved || _comparedTour_CompareId == -1);
 
       // geo compared with ref tour cannot be saved !
-      _actionSaveComparedTour.setEnabled(_isGeoCompareRefTour == false && (isMoved || _comparedTour_CompareId == -1));
+      _actionSaveComparedTour.setEnabled(isElevationCompareTour);
+      _actionSaveAndNext_ComparedTour.setEnabled(isElevationCompareTour);
    }
 
    private void enableSynchronization() {
@@ -444,6 +472,7 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
 
       tbm.add(_actionNavigatePrevTour);
       tbm.add(_actionNavigateNextTour);
+      tbm.add(_actionSaveAndNext_ComparedTour);
       tbm.add(_actionSaveComparedTour);
       tbm.add(_actionUndoChanges);
 
@@ -459,11 +488,13 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
     */
    private void fireChangeEvent(final int startIndex, final int endIndex) {
 
+      final float avgAltimeter = _tourData.computeAvg_FromValues(_tourData.getAltimeterSerie(), _movedStartIndex, _movedEndIndex);
       final float avgPulse = _tourData.computeAvg_PulseSegment(startIndex, endIndex);
+      final float maxPulse = _tourData.computeMax_FromValues(_tourData.getPulse_SmoothedSerie(), startIndex, endIndex);
       final float speed = TourManager.computeTourSpeed(_tourData, startIndex, endIndex);
       final int elapsedTime = TourManager.computeTourDeviceTime_Elapsed(_tourData, startIndex, endIndex);
 
-      fireChangeEvent(startIndex, endIndex, avgPulse, speed, elapsedTime, false);
+      fireChangeEvent(startIndex, endIndex, avgAltimeter, avgPulse, maxPulse, speed, elapsedTime, false);
    }
 
    /**
@@ -476,7 +507,9 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
     */
    private void fireChangeEvent(final int startIndex,
                                 final int endIndex,
+                                final float avgAltimeter,
                                 final float avgPulse,
+                                final float maxPulse,
                                 final float speed,
                                 final int tourDeviceTime_Elapsed,
                                 final boolean isDataSaved) {
@@ -490,7 +523,9 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
             isDataSaved,
             _comparedTourItem);
 
+      customData.avgAltimeter = avgAltimeter;
       customData.avgPulse = avgPulse;
+      customData.maxPulse = maxPulse;
       customData.speed = speed;
       customData.tourDeviceTime_Elapsed = tourDeviceTime_Elapsed;
 
@@ -621,20 +656,25 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
       final EntityTransaction ts = em.getTransaction();
 
       try {
+
          final TourCompared comparedTour = em.find(TourCompared.class, _comparedTour_CompareId);
 
          if (comparedTour != null) {
 
             final ChartDataModel chartDataModel = _tourChart.getChartDataModel();
 
+            final float avgAltimeter = _tourData.computeAvg_FromValues(_tourData.getAltimeterSerie(), _movedStartIndex, _movedEndIndex);
             final float avgPulse = _tourData.computeAvg_PulseSegment(_movedStartIndex, _movedEndIndex);
+            final float maxPulse = _tourData.computeMax_FromValues(_tourData.getPulse_SmoothedSerie(), _movedStartIndex, _movedEndIndex);
             final float speed = TourManager.computeTourSpeed(_tourData, _movedStartIndex, _movedEndIndex);
             final int elapsedTime = TourManager.computeTourDeviceTime_Elapsed(_tourData, _movedStartIndex, _movedEndIndex);
 
             // set new data in entity
             comparedTour.setStartIndex(_movedStartIndex);
             comparedTour.setEndIndex(_movedEndIndex);
+            comparedTour.setAvgAltimeter(avgAltimeter);
             comparedTour.setAvgPulse(avgPulse);
+            comparedTour.setMaxPulse(maxPulse);
             comparedTour.setTourSpeed(speed);
 
             // update entity
@@ -660,7 +700,7 @@ public class TourCatalogView_ComparedTour extends TourChartViewPart implements I
             _tourChart.updateChart(chartDataModel, true);
             enableActions();
 
-            fireChangeEvent(_defaultStartIndex, _defaultEndIndex, avgPulse, speed, elapsedTime, true);
+            fireChangeEvent(_defaultStartIndex, _defaultEndIndex, avgAltimeter, avgPulse, maxPulse, speed, elapsedTime, true);
          }
       } catch (final Exception e) {
          e.printStackTrace();

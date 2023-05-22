@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,17 +44,34 @@ import utils.Utils;
 public class TourBookViewTests extends UITest {
 
    @Test
-   void adustTourValues_RetrieveWeatherData_OutsideOfAllowedRange() {
+   void adustTourValues_RetrieveWeatherData_OpenWeatherMap() {
 
+      // Select OpenWeatherMap to make sure the air quality is retrieved
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("Weather").select(); //$NON-NLS-1$
+
+      bot.comboBox().setSelection(1);
+
+      // Select to display the full weather information
+      bot.checkBox(Messages.Pref_Weather_Check_DisplayFullLog).click();
+
+      Utils.clickApplyAndCloseButton(bot);
+
+      // Select a tour
+      Utils.showTourBookView(bot);
       final SWTBotTreeItem tour = Utils.getTour(bot);
-
       tour.contextMenu(Messages.Tour_Action_AdjustTourValues)
             .menu(Messages.tour_editor_section_weather)
             .menu(Messages.Tour_Action_RetrieveWeatherData).click();
 
+      bot.sleep(5000);
+
       final List<?> logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(Object::toString).anyMatch(log -> log.contains(
             "1/31/2021, 7:15 AM -> Error while retrieving the weather data: \"{\"cod\":\"400\",\"message\":\"requested time is out of allowed range of 5 days back\"}\"")));//$NON-NLS-1$
+      assertTrue(logs.stream().map(Object::toString).anyMatch(log -> log.contains(
+            "1/31/2021, 7:15 AM: Sunny, ø 0°C, min. 0°C, max. 0°C, feels like 0°C, air quality Fair")));//$NON-NLS-1$
    }
 
    @Test
@@ -93,7 +108,7 @@ public class TourBookViewTests extends UITest {
    }
 
    @BeforeEach
-   void InitializeEach() {
+   void setUp() {
 
       tourBookView = Utils.showTourBookView(bot);
    }
@@ -112,29 +127,6 @@ public class TourBookViewTests extends UITest {
       //Check the new computed distance
       tour = Utils.getTour(bot);
       assertEquals("0.551", tour.cell(tourBookView_Distance_Column_Index)); //$NON-NLS-1$
-   }
-
-   @Test
-   void testDeleteTourCalories() {
-
-      //Check the initial calories value
-      SWTBotTreeItem tour = Utils.getTourWithSRTM(bot);
-      assertEquals("2", tour.cell(tourBookView_Calories_Column_Index)); //$NON-NLS-1$
-
-      //Delete the calories value
-      tour.contextMenu(Messages.Dialog_DeleteTourValues_Action_OpenDialog).click();
-      bot.checkBox(Messages.Dialog_ModifyTours_Checkbox_Calories).click();
-      bot.button(Messages.Dialog_DeleteTourValues_Button_Delete).click();
-      Utils.clickOkButton(bot);
-
-      bot.sleep(1000);
-
-      //Setting the focus again on the Tourbook view
-      tourBookView = Utils.showTourBookView(bot);
-
-      //Check that the calories were deleted
-      tour = Utils.getTourWithSRTM(bot);
-      assertEquals(UI.EMPTY_STRING, tour.cell(tourBookView_Calories_Column_Index));
    }
 
    @Test

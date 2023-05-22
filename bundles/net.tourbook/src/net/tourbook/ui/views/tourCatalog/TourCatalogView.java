@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tourCatalog;
 
+import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
+
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,14 +25,18 @@ import java.util.Set;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
+import net.tourbook.common.formatter.ValueFormat;
+import net.tourbook.common.formatter.ValueFormatSet;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.ColumnDefinition;
 import net.tourbook.common.util.ColumnManager;
+import net.tourbook.common.util.ColumnProfile;
 import net.tourbook.common.util.IContextMenuProvider;
 import net.tourbook.common.util.ITourViewer;
 import net.tourbook.common.util.ITreeViewer;
@@ -91,14 +97,19 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
@@ -158,6 +169,14 @@ public class TourCatalogView extends ViewPart implements
 
    private TreeViewer                          _tourViewer;
    private ColumnManager                       _columnManager;
+   private TreeColumnDefinition                _colDef_TourTypeImage;
+
+   /**
+    * Index of the column with the image, index can be changed when the columns are reordered with
+    * the mouse or the column manager
+    */
+   private int                                 _columnIndex_TourTypeImage = -1;
+   private int                                 _columnWidth_TourTypeImage;
 
    private boolean                             _isToolTipInRefTour;
    private boolean                             _isToolTipInTitle;
@@ -525,7 +544,9 @@ public class TourCatalogView extends ViewPart implements
                      comparedTour.setStartIndex(compareTourProperty.startIndex);
                      comparedTour.setEndIndex(compareTourProperty.endIndex);
 
+                     comparedTour.setAvgAltimeter(compareTourProperty.avgAltimeter);
                      comparedTour.setAvgPulse(compareTourProperty.avgPulse);
+                     comparedTour.setMaxPulse(compareTourProperty.maxPulse);
                      comparedTour.setTourSpeed(compareTourProperty.speed);
                      comparedTour.setTourDeviceTime_Elapsed(compareTourProperty.tourDeviceTime_Elapsed);
 
@@ -705,10 +726,48 @@ public class TourCatalogView extends ViewPart implements
          }
       });
 
+      createUI_15_ColumnImages(tree);
+
       createUI_20_ContextMenu();
 
       // set tour info tooltip provider
       _tourInfoToolTip = new TreeViewerTourInfoToolTip(_tourViewer);
+   }
+
+   private void createUI_15_ColumnImages(final Tree tree) {
+
+      boolean isColumnVisible = false;
+      final ControlListener controlResizedAdapter = controlResizedAdapter(controlEvent -> onResize_SetWidthForImageColumn());
+
+      // update column index which is needed for repainting
+      final ColumnProfile activeProfile = _columnManager.getActiveProfile();
+      _columnIndex_TourTypeImage = activeProfile.getColumnIndex(_colDef_TourTypeImage.getColumnId());
+
+      // add column resize listener
+      if (_columnIndex_TourTypeImage >= 0) {
+
+         isColumnVisible = true;
+         tree.getColumn(_columnIndex_TourTypeImage).addControlListener(controlResizedAdapter);
+      }
+
+      // add tree resize listener
+      if (isColumnVisible) {
+
+         /*
+          * NOTE: MeasureItem, PaintItem and EraseItem are called repeatedly. Therefore, it is
+          * critical for performance that these methods be as efficient as possible.
+          */
+         final Listener treePaintListener = event -> {
+
+            if (event.type == SWT.PaintItem) {
+
+               onPaint_TreeViewer(event);
+            }
+         };
+
+         tree.addControlListener(controlResizedAdapter);
+         tree.addListener(SWT.PaintItem, treePaintListener);
+      }
    }
 
    /**
@@ -751,9 +810,11 @@ public class TourCatalogView extends ViewPart implements
       defineColumn_TourType();
       defineColumn_Title();
       defineColumn_Tags();
-      defineColumn_Speed();
       defineColumn_Time_ElapsedTime();
+      defineColumn_AvgSpeed();
+      defineColumn_AvgAltimeter();
       defineColumn_AvgPulse();
+      defineColumn_MaxPulse();
    }
 
    /**
@@ -834,7 +895,45 @@ public class TourCatalogView extends ViewPart implements
    }
 
    /**
-    * column: Avg pulse
+    * Column: Avg vertical speed (VAM average ascent speed)
+    */
+   private void defineColumn_AvgAltimeter() {
+
+      final TreeColumnDefinition colDef = new TreeColumnDefinition(_columnManager, "motionAltimeter", SWT.TRAIL); //$NON-NLS-1$
+
+      colDef.setColumnCategory(OtherMessages.COLUMN_FACTORY_CATEGORY_MOTION);
+
+      colDef.setIsDefaultColumn();
+      colDef.setColumnHeaderText(UI.UNIT_LABEL_ALTIMETER);
+      colDef.setColumnUnit(UI.UNIT_LABEL_ALTIMETER);
+      colDef.setColumnHeaderToolTipText(OtherMessages.COLUMN_FACTORY_MOTION_ALTIMETER_TOOLTIP);
+      colDef.setColumnLabel(OtherMessages.COLUMN_FACTORY_MOTION_ALTIMETER);
+
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(8));
+      colDef.setValueFormats(
+            ValueFormatSet.Number,
+            ValueFormat.NUMBER_1_0,
+            _columnManager);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            if (element instanceof TVICatalogComparedTour) {
+
+               final TVICatalogComparedTour compareItem = (TVICatalogComparedTour) element;
+
+               final double value = compareItem.avgAltimeter;
+
+               colDef.printDetailValue(cell, value);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Avg pulse
     */
    private void defineColumn_AvgPulse() {
 
@@ -847,7 +946,29 @@ public class TourCatalogView extends ViewPart implements
             final Object element = cell.getElement();
             if (element instanceof TVICatalogComparedTour) {
 
-               final float value = ((TVICatalogComparedTour) element).getAvgPulse();
+               final float value = ((TVICatalogComparedTour) element).avgPulse;
+
+               colDef.printDoubleValue(cell, value, element instanceof TVICatalogComparedTour);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Average speed
+    */
+   private void defineColumn_AvgSpeed() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.MOTION_AVG_SPEED.createColumn(_columnManager, _pc);
+      colDef.setIsDefaultColumn();
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            if (element instanceof TVICatalogComparedTour) {
+
+               final double value = ((TVICatalogComparedTour) element).avgSpeed / UI.UNIT_VALUE_DISTANCE;
 
                colDef.printDoubleValue(cell, value, element instanceof TVICatalogComparedTour);
             }
@@ -879,20 +1000,22 @@ public class TourCatalogView extends ViewPart implements
    }
 
    /**
-    * column: speed
+    * Column: Max pulse
     */
-   private void defineColumn_Speed() {
+   private void defineColumn_MaxPulse() {
 
-      final TreeColumnDefinition colDef = TreeColumnFactory.MOTION_AVG_SPEED.createColumn(_columnManager, _pc);
+      final TreeColumnDefinition colDef = TreeColumnFactory.BODY_PULSE_MAX.createColumn(_columnManager, _pc);
+
       colDef.setIsDefaultColumn();
       colDef.setLabelProvider(new CellLabelProvider() {
+
          @Override
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
             if (element instanceof TVICatalogComparedTour) {
 
-               final double value = ((TVICatalogComparedTour) element).tourSpeed / UI.UNIT_VALUE_DISTANCE;
+               final float value = ((TVICatalogComparedTour) element).maxPulse;
 
                colDef.printDoubleValue(cell, value, element instanceof TVICatalogComparedTour);
             }
@@ -991,20 +1114,18 @@ public class TourCatalogView extends ViewPart implements
    }
 
    /**
-    * column: tour type
+    * Column: Tour type
     */
    private void defineColumn_TourType() {
 
-      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_TYPE.createColumn(_columnManager, _pc);
-      colDef.setIsDefaultColumn();
-      colDef.setLabelProvider(new CellLabelProvider() {
+      _colDef_TourTypeImage = TreeColumnFactory.TOUR_TYPE.createColumn(_columnManager, _pc);
+      _colDef_TourTypeImage.setIsDefaultColumn();
+      _colDef_TourTypeImage.setLabelProvider(new CellLabelProvider() {
+
+         // !!! When using cell.setImage() then it is not centered !!!
+         // !!! Set dummy label provider, otherwise an error occures !!!
          @Override
-         public void update(final ViewerCell cell) {
-            final Object element = cell.getElement();
-            if (element instanceof TVICatalogComparedTour) {
-               cell.setImage(TourTypeImage.getTourTypeImage(((TVICatalogComparedTour) element).tourTypeId));
-            }
-         }
+         public void update(final ViewerCell cell) {}
       });
    }
 
@@ -1410,6 +1531,48 @@ public class TourCatalogView extends ViewPart implements
                   }
                }
             }
+         }
+      }
+   }
+
+   private void onPaint_TreeViewer(final Event event) {
+
+      // paint images at the correct column
+
+      final int columnIndex = event.index;
+
+      if (columnIndex == _columnIndex_TourTypeImage) {
+
+         onPaint_TreeViewer_TourTypeImage(event);
+      }
+   }
+
+   private void onPaint_TreeViewer_TourTypeImage(final Event event) {
+
+      final Object itemData = event.item.getData();
+
+      if (itemData instanceof TVICatalogComparedTour) {
+
+         final TVICatalogComparedTour tviItem = (TVICatalogComparedTour) itemData;
+         final long tourTypeId = tviItem.tourTypeId;
+
+         final Image image = TourTypeImage.getTourTypeImage(tourTypeId);
+         if (image != null) {
+
+            UI.paintImageCentered(event, image, _columnWidth_TourTypeImage);
+         }
+      }
+   }
+
+   private void onResize_SetWidthForImageColumn() {
+
+      if (_colDef_TourTypeImage != null) {
+
+         final TreeColumn treeColumn = _colDef_TourTypeImage.getTreeColumn();
+
+         if (treeColumn != null && treeColumn.isDisposed() == false) {
+
+            _columnWidth_TourTypeImage = treeColumn.getWidth();
          }
       }
    }

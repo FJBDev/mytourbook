@@ -58,6 +58,7 @@ import net.tourbook.commands.AppCommands;
 import net.tourbook.commands.ISaveAndRestorePart;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
+import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.swimming.StrokeStyle;
@@ -162,6 +163,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
+import org.eclipse.nebula.widgets.tablecombo.TableCombo;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -173,7 +175,6 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -416,7 +417,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private SelectionListener                  _selectionListener;
    private SelectionListener                  _selectionListener_Temperature;
    private SelectionListener                  _columnSortListener;
-   private SelectionAdapter                   _tourTimeListener;
+   private SelectionListener                  _tourTimeListener;
    private ModifyListener                     _verifyFloatValue;
    private ModifyListener                     _verifyIntValue;
    //
@@ -696,6 +697,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private Spinner            _spinWeather_Wind_DirectionValue;
    private Spinner            _spinWeather_Wind_SpeedValue;
    //
+   private TableCombo         _tableComboWeather_AirQuality;
+   //
    private Text               _txtAltitudeDown;
    private Text               _txtAltitudeUp;
    private Text               _txtDescription;
@@ -733,7 +736,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    /**
     * Swim style menu header item without action
     */
-   public class Action_SetSwimStyle_Header extends Action {
+   private class Action_SetSwimStyle_Header extends Action {
 
       public Action_SetSwimStyle_Header() {
 
@@ -1355,7 +1358,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
    }
 
-   public class SwimSlice_ViewerContextMenuProvider implements IContextMenuProvider {
+   private class SwimSlice_ViewerContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
@@ -1708,7 +1711,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {}
    }
 
-   public class TimeSlice_ViewerContextMenuProvider implements IContextMenuProvider {
+   private class TimeSlice_ViewerContextMenuProvider implements IContextMenuProvider {
 
       @Override
       public void disposeContextMenu() {
@@ -3153,20 +3156,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * listener for elapsed/moving/paused time
        */
-      _tourTimeListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent event) {
+      _tourTimeListener = widgetSelectedAdapter(selectionEvent -> {
 
-            if (_isSetField || _isSavingInProgress) {
-               return;
-            }
-
-            updateModel_FromUI();
-            setTourDirty();
-
-            updateUI_Time(event.widget);
+         if (_isSetField || _isSavingInProgress) {
+            return;
          }
-      };
+
+         updateModel_FromUI();
+         setTourDirty();
+
+         updateUI_Time(selectionEvent.widget);
+      });
 
       _verifyFloatValue = modifyEvent -> {
 
@@ -4165,6 +4165,8 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          createUI_Section_147_Weather_Other_Col1(container);
          createUI_Section_148_Weather_Other_Col2(container);
+
+         createUI_Section_149_Weather_Other_Col1(container);
       }
    }
 
@@ -4754,6 +4756,47 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          // label: mm, inches
          _lblWeather_SnowfallUnit = _tk.createLabel(container, UI.UNIT_LABEL_DISTANCE_MM_OR_INCH);
+      }
+   }
+
+   private void createUI_Section_149_Weather_Other_Col1(final Composite parent) {
+
+      final Composite container = _tk.createComposite(parent);
+      GridLayoutFactory.fillDefaults().numColumns(4).applyTo(container);
+      _firstColumnContainerControls.add(container);
+      {
+         /*
+          * Air Quality
+          */
+
+         // label
+         final Label label = _tk.createLabel(container, Messages.Tour_Editor_Label_AirQuality);
+         label.setToolTipText(Messages.Tour_Editor_Label_AirQuality_Tooltip);
+         _firstColumnControls.add(label);
+
+         // combo: Air quality
+         _tableComboWeather_AirQuality = new TableCombo(container, SWT.READ_ONLY | SWT.BORDER);
+         _tableComboWeather_AirQuality.setToolTipText(Messages.Tour_Editor_Label_AirQuality_Tooltip);
+         _tableComboWeather_AirQuality.setShowTableHeader(false);
+         _tableComboWeather_AirQuality.defineColumns(1);
+         _tableComboWeather_AirQuality.addModifyListener(_modifyListener);
+
+         // We update the model in the selection listener as the selected
+         // index value comes back with -1 in the modify listener
+         _tableComboWeather_AirQuality.addSelectionListener(
+               widgetSelectedAdapter(selectionEvent -> onSelect_AirQuality()));
+
+         _tk.adapt(_tableComboWeather_AirQuality, true, false);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.FILL).applyTo(_tableComboWeather_AirQuality);
+
+         fillAirQualityCombo();
+
+         // force the icon to be displayed to ensure the width is correctly set when the size is computed
+         _isSetField = true;
+         {
+            _tableComboWeather_AirQuality.select(0);
+         }
+         _isSetField = false;
       }
    }
 
@@ -6389,7 +6432,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     * Edit time slices values :
     * Altitude, Heartbeat, Temperature, Cadence
     */
-   public void editTimeSlicesValues() {
+   void editTimeSlicesValues() {
 
       if (isRowSelectionMode() == false) {
          return;
@@ -6738,6 +6781,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
       //Weather
       _linkWeather.setEnabled(canEdit && isWeatherRetrievalActivated);
+      _tableComboWeather_AirQuality.setEnabled(canEdit);
       _comboWeather_Clouds.setEnabled(canEdit);
       _comboWeather_Wind_DirectionText.setEnabled(canEdit);
       _comboWeather_WindSpeedText.setEnabled(canEdit);
@@ -6784,6 +6828,65 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _linkTourType.setEnabled(canEdit);
 
       timeSliceTable.setEnabled(isDeviceTour);
+   }
+
+   private void fillAirQualityCombo() {
+
+      for (int index = 0; index < IWeather.airQualityTexts.length; index++) {
+
+         final TableItem tableItem = new TableItem(_tableComboWeather_AirQuality.getTable(), SWT.READ_ONLY);
+
+         // set the column text
+         tableItem.setText(IWeather.airQualityTexts[index]);
+
+         Color backgroundColor = null;
+         Color foregroundColor = null;
+
+         switch (index) {
+
+         case 1: // Good - green
+
+            backgroundColor = new Color(0, 128, 0);
+            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(203, 255, 203);
+
+            break;
+
+         case 2: // Fair - yellow
+
+            backgroundColor = new Color(255, 255, 0);
+            foregroundColor = UI.IS_DARK_THEME ? new Color(46, 46, 0) : new Color(46, 46, 0);
+
+            break;
+
+         case 3: // Moderate - dark yellow
+
+            backgroundColor = new Color(128, 128, 0);
+            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 255, 165);
+            break;
+
+         case 4: // Poor - dark red
+
+            backgroundColor = new Color(128, 0, 0);
+            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 170, 170);
+            break;
+
+         case 5: // Very poor - dark grey
+
+            backgroundColor = new Color(128, 128, 128);
+            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
+            break;
+
+         default:
+
+            backgroundColor = ThemeUtil.getDefaultBackgroundColor_Combo();
+            foregroundColor = ThemeUtil.getDefaultForegroundColor_Combo();
+
+            break;
+         }
+
+         tableItem.setBackground(backgroundColor);
+         tableItem.setForeground(foregroundColor);
+      }
    }
 
    private void fillContextMenu_SwimSlice(final IMenuManager menuMgr) {
@@ -7599,6 +7702,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _containerTags_Scrolled.setMinSize(contentSize);
    }
 
+   private void onSelect_AirQuality() {
+
+      final int airQuality_SelectionIndex = _tableComboWeather_AirQuality.getSelectionIndex();
+      String airQualityValue = IWeather.airQualityTexts[airQuality_SelectionIndex];
+      if (airQualityValue.equals(IWeather.airQualityIsNotDefined)) {
+         // replace invalid value
+         airQualityValue = UI.EMPTY_STRING;
+      }
+      _tourData.setWeather_AirQuality(airQualityValue);
+   }
+
    private void onSelect_Slice(final SelectionChangedEvent selectionChangedEvent) {
 
       final StructuredSelection selection = (StructuredSelection) selectionChangedEvent.getSelection();
@@ -8088,7 +8202,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       selectTimeSlice_InViewer(startPauseIndex, startPauseIndex);
    }
 
-   public void recreateViewer() {
+   private void recreateViewer() {
 
       /*
        * Recreate time slice viewer
@@ -8498,7 +8612,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
     *           Can be {@link SelectionChartXSliderPosition#IGNORE_SLIDER_POSITION} when this
     *           position should not be set.
     */
-   public void selectTimeSlice_InViewer(final int valueIndexStart, final int valueIndexEnd) {
+   private void selectTimeSlice_InViewer(final int valueIndexStart, final int valueIndexEnd) {
 
       if (valueIndexStart == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION
             && valueIndexEnd == SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
@@ -9411,6 +9525,9 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       }
       _spinWeather_PressureValue.setData(UI.FIX_LINUX_ASYNC_EVENT_1, true);
 
+      // Air Quality
+      _tableComboWeather_AirQuality.select(_tourData.getWeather_AirQuality_TextIndex());
+
       /*
        * Time
        */
@@ -9522,7 +9639,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       _tourContainer.layout(true);
    }
 
-   public void updateUI_Tab_2_TimeSlices() {
+   private void updateUI_Tab_2_TimeSlices() {
 
       if (_uiRunnableForce_TimeSliceReload) {
          _timeSlice_ViewerTourId = -1L;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -425,13 +425,6 @@ public interface ITourbookPreferences {
    public static final String VIEW_LAYOUT_CHANGED                   = "view.layout.changed";                     //$NON-NLS-1$
    public static final String VIEW_LAYOUT_DISPLAY_LINES             = "view.layout.display.lines";               //$NON-NLS-1$
 
-   public static final String VIEW_LAYOUT_COLOR_BG_HISTORY_TOUR     = "VIEW_LAYOUT_COLOR_BG_HISTORY_TOUR";       //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_COLOR_CATEGORY            = "view.layout.color.category";              //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_COLOR_SUB                 = "view.layout.color.sub";                   //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_COLOR_SUB_SUB             = "view.layout.color.sub-sub";               //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_COLOR_TITLE               = "view.layout.color.title";                 //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_COLOR_TOUR                = "view.layout.color.tour";                  //$NON-NLS-1$
-
    /**
     * Layout for maps
     */
@@ -595,11 +588,6 @@ public interface ITourbookPreferences {
     * Tour segmenter
     */
    public static final String TOUR_SEGMENTER_CHART_VALUE_FONT = "TOUR_SEGMENTER_CHART_VALUE_FONT"; //$NON-NLS-1$
-
-   /*
-    * Tour import
-    */
-   public static final String IMPORT_IS_NEW_UI = "IMPORT_IS_NEW_UI"; //$NON-NLS-1$
 
    /*
     * Adjust temperature
