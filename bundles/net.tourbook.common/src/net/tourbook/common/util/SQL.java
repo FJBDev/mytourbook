@@ -109,6 +109,23 @@ public final class SQL {
       return SQL.SQL_STRING_SEPARATOR + string + SQL.SQL_STRING_SEPARATOR;
    }
 
+   public static void logException(SQLException exception) {
+
+      // log into the eclipse log file
+      StatusUtil.log(exception);
+
+      // log into the console
+      while (exception != null) {
+
+         final String sqlExceptionText = Util.getSQLExceptionText(exception);
+
+         System.out.println(sqlExceptionText);
+         exception.printStackTrace();
+
+         exception = exception.getNextException();
+      }
+   }
+
    public static void logParameterMetaData(final PreparedStatement statement) {
 
 //		try {
@@ -160,6 +177,7 @@ public final class SQL {
       System.out.println();
       System.out.println(sqlStatement);
 
+      // add line numbers
       final String sqlStatementWithNumber = Util.addLineNumbers(sqlStatement);
 
       final Display display = Display.getDefault();
@@ -169,10 +187,10 @@ public final class SQL {
                + sqlStatementWithNumber + UI.NEW_LINE2
                + Util.getSQLExceptionText(exception);
 
-         SQLMessageDialog.openError(display.getActiveShell(), "SQL Error", message); //$NON-NLS-1$
-
          StatusUtil.logError(message);
          StatusUtil.log(exception);
+
+         SQLMessageDialog.openError(display.getActiveShell(), "SQL Error", message); //$NON-NLS-1$
       });
    }
 }
