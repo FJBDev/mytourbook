@@ -18,6 +18,7 @@ package net.tourbook.ui.views.rawData;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static net.tourbook.ui.UI.getIconUrl;
+import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
@@ -77,6 +78,7 @@ import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.OpenDialogManager;
 import net.tourbook.common.util.ColumnDefinition;
 import net.tourbook.common.util.ColumnManager;
+import net.tourbook.common.util.ColumnProfile;
 import net.tourbook.common.util.IContextMenuProvider;
 import net.tourbook.common.util.ITourViewer;
 import net.tourbook.common.util.ITourViewer3;
@@ -183,6 +185,7 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionEvent;
@@ -382,6 +385,13 @@ public class RawDataView extends ViewPart implements
    private SelectionListener                _columnSortListener;
    private TableColumnDefinition            _timeZoneOffsetColDef;
    private TourViewer_Comparator            _tourViewer_Comparator;
+   //
+   private TableColumnDefinition            _colDef_TourTypeImage;
+   private TableColumnDefinition            _colDef_WeatherClouds;
+   private int                              _columnIndex_TourTypeImage      = -1;
+   private int                              _columnIndex_WeatherClouds      = -1;
+   private int                              _columnWidth_TourTypeImage;
+   private int                              _columnWidth_WeatherClouds;
    //
    private String                           _columnId_DeviceName;
    private String                           _columnId_ImportFileName;
@@ -2507,6 +2517,7 @@ public class RawDataView extends ViewPart implements
          htmlImage = "style='" // //$NON-NLS-1$
 
                + "background-image:   url(" + imageUrl + ");" + NL //$NON-NLS-1$ //$NON-NLS-2$
+               + "background-size:    16px;" + NL //$NON-NLS-1$
 
                + "'"; //$NON-NLS-1$
       }
@@ -3196,7 +3207,53 @@ public class RawDataView extends ViewPart implements
             _tourViewer_Comparator.__sortColumnId,
             _tourViewer_Comparator.__sortDirection);
 
+      createUI_93_ColumnImages(table);
       createUI_94_ContextMenu();
+   }
+
+   private void createUI_93_ColumnImages(final Table table) {
+
+      boolean isColumnVisible = false;
+      final ControlListener controlResizedAdapter = controlResizedAdapter(controlEvent -> onResize_SetWidthForImageColumn());
+
+      // update column index which is needed for repainting
+      final ColumnProfile activeProfile = _tourViewer_ColumnManager.getActiveProfile();
+      _columnIndex_TourTypeImage = activeProfile.getColumnIndex(_colDef_TourTypeImage.getColumnId());
+      _columnIndex_WeatherClouds = activeProfile.getColumnIndex(_colDef_WeatherClouds.getColumnId());
+
+      final int numColumns = table.getColumns().length;
+
+      // add column resize listener
+      if (_columnIndex_TourTypeImage >= 0 && _columnIndex_TourTypeImage < numColumns) {
+
+         isColumnVisible = true;
+         table.getColumn(_columnIndex_TourTypeImage).addControlListener(controlResizedAdapter);
+      }
+
+      if (_columnIndex_WeatherClouds >= 0 && _columnIndex_WeatherClouds < numColumns) {
+
+         isColumnVisible = true;
+         table.getColumn(_columnIndex_WeatherClouds).addControlListener(controlResizedAdapter);
+      }
+
+      // add table resize listener
+      if (isColumnVisible) {
+
+         /*
+          * NOTE: MeasureItem, PaintItem and EraseItem are called repeatedly. Therefore, it is
+          * critical for performance that these methods be as efficient as possible.
+          */
+         final Listener paintListener = event -> {
+
+            if (event.type == SWT.PaintItem) {
+
+               onPaint_TableViewer(event);
+            }
+         };
+
+         table.addControlListener(controlResizedAdapter);
+         table.addListener(SWT.PaintItem, paintListener);
+      }
    }
 
    /**
@@ -3836,34 +3893,19 @@ public class RawDataView extends ViewPart implements
    }
 
    /**
-    * column: tour type image
+    * Column: Tour type image
     */
    private void defineColumn_Tour_Type() {
 
-      final ColumnDefinition colDef = TableColumnFactory.TOUR_TYPE.createColumn(_tourViewer_ColumnManager, _pc);
+      _colDef_TourTypeImage = TableColumnFactory.TOUR_TYPE.createColumn(_tourViewer_ColumnManager, _pc);
 
-      colDef.setIsDefaultColumn();
-      colDef.setLabelProvider(new CellLabelProvider() {
+      _colDef_TourTypeImage.setIsDefaultColumn();
+      _colDef_TourTypeImage.setLabelProvider(new CellLabelProvider() {
+
+         // !!! When using cell.setImage() then it is not centered !!!
+         // !!! Set dummy label provider, otherwise an error occures !!!
          @Override
-         public void update(final ViewerCell cell) {
-
-            final TourType tourType = ((TourData) cell.getElement()).getTourType();
-
-            if (tourType == null) {
-               cell.setImage(TourTypeImage.getTourTypeImage(TourDatabase.ENTITY_IS_NOT_SAVED));
-            } else {
-
-               final long tourTypeId = tourType.getTypeId();
-               final Image tourTypeImage = TourTypeImage.getTourTypeImage(tourTypeId);
-
-               /*
-                * when a tour type image is modified, it will keep the same image resource only the
-                * content is modified but in the rawDataView the modified image is not displayed
-                * compared with the tourBookView which displays the correct image
-                */
-               cell.setImage(tourTypeImage);
-            }
-         }
+         public void update(final ViewerCell cell) {}
       });
    }
 
@@ -3888,30 +3930,19 @@ public class RawDataView extends ViewPart implements
    }
 
    /**
-    * column: clouds
+    * Column: Cloud image
     */
    private void defineColumn_Weather_Clouds() {
 
-      final ColumnDefinition colDef = TableColumnFactory.WEATHER_CLOUDS.createColumn(_tourViewer_ColumnManager, _pc);
+      _colDef_WeatherClouds = TableColumnFactory.WEATHER_CLOUDS.createColumn(_tourViewer_ColumnManager, _pc);
 
-      colDef.setIsDefaultColumn();
-      colDef.setLabelProvider(new CellLabelProvider() {
+      _colDef_WeatherClouds.setIsDefaultColumn();
+      _colDef_WeatherClouds.setLabelProvider(new CellLabelProvider() {
 
+         // !!! When using cell.setImage() then it is not centered !!!
+         // !!! Set dummy label provider, otherwise an error occures !!!
          @Override
-         public void update(final ViewerCell cell) {
-
-            final String weatherCloudId = ((TourData) cell.getElement()).getWeather_Clouds();
-            if (weatherCloudId == null) {
-               cell.setText(UI.EMPTY_STRING);
-            } else {
-               final Image img = UI.IMAGE_REGISTRY.get(weatherCloudId);
-               if (img != null) {
-                  cell.setImage(img);
-               } else {
-                  cell.setText(weatherCloudId);
-               }
-            }
-         }
+         public void update(final ViewerCell cell) {}
       });
    }
 
@@ -4881,6 +4912,98 @@ public class RawDataView extends ViewPart implements
          }
 
          break;
+      }
+   }
+
+   private void onPaint_TableViewer(final Event event) {
+
+      // paint column image
+
+      final int columnIndex = event.index;
+
+      if (columnIndex == _columnIndex_TourTypeImage) {
+
+         onPaint_TableViewer_TourTypeImage(event);
+
+      } else if (columnIndex == _columnIndex_WeatherClouds) {
+
+         onPaint_TableViewer_WeatherClouds(event);
+      }
+   }
+
+   private void onPaint_TableViewer_TourTypeImage(final Event event) {
+
+      final Object itemData = event.item.getData();
+
+      if (itemData instanceof TourData) {
+
+         final TourData tourData = (TourData) itemData;
+         final TourType tourType = tourData.getTourType();
+
+         if (tourType != null) {
+
+            final long tourTypeId = tourType.getTypeId();
+            final Image image = TourTypeImage.getTourTypeImage(tourTypeId);
+
+            if (image != null) {
+
+               UI.paintImageCentered(event, image, _columnWidth_TourTypeImage);
+            }
+         }
+      }
+   }
+
+   private void onPaint_TableViewer_WeatherClouds(final Event event) {
+
+      final Object itemData = event.item.getData();
+
+      if (itemData instanceof TourData) {
+
+         final TourData tourData = (TourData) itemData;
+
+         final String weatherClouds = tourData.getWeather_Clouds();
+         if (weatherClouds == null) {
+
+            // paint nothing
+
+         } else {
+
+            final Image image = UI.IMAGE_REGISTRY.get(weatherClouds);
+
+            if (image == null) {
+
+               // paint text left aligned
+
+               event.gc.drawText(weatherClouds, event.x, event.y, false);
+
+            } else {
+
+               UI.paintImageCentered(event, image, _columnWidth_WeatherClouds);
+            }
+         }
+      }
+   }
+
+   private void onResize_SetWidthForImageColumn() {
+
+      if (_colDef_TourTypeImage != null) {
+
+         final TableColumn tableColumn = _colDef_TourTypeImage.getTableColumn();
+
+         if (tableColumn != null && tableColumn.isDisposed() == false) {
+
+            _columnWidth_TourTypeImage = tableColumn.getWidth();
+         }
+      }
+
+      if (_colDef_WeatherClouds != null) {
+
+         final TableColumn tableColumn = _colDef_WeatherClouds.getTableColumn();
+
+         if (tableColumn != null && tableColumn.isDisposed() == false) {
+
+            _columnWidth_WeatherClouds = tableColumn.getWidth();
+         }
       }
    }
 
@@ -7102,6 +7225,18 @@ public class RawDataView extends ViewPart implements
 
    private void updateUI_DeviceState_SimpleUI() {
 
+      final ToolItem deviceState_ActionToolItem = _actionSimpleUI_DeviceState.getActionToolItem();
+
+      if (deviceState_ActionToolItem == null) {
+
+         /*
+          * This happend during development when closing the import view. It may be possible that
+          * this UI was not yet displayed.
+          */
+
+         return;
+      }
+
       /*
        * Device watching On/Off
        */
@@ -7132,7 +7267,7 @@ public class RawDataView extends ViewPart implements
          // watching is off
 
          _actionSimpleUI_DeviceState.notSelectedTooltip = Messages.Import_Data_HTML_WatchingIsOff;
-         _actionSimpleUI_DeviceState.getActionToolItem().setImage(_images.get(IMAGE_DEVICE_FOLDER_OFF));
+         deviceState_ActionToolItem.setImage(_images.get(IMAGE_DEVICE_FOLDER_OFF));
 
       } else if (isWatchAnything && _isDeviceStateValid) {
 
@@ -7154,7 +7289,7 @@ public class RawDataView extends ViewPart implements
                : Messages.Import_Data_HTML_NothingIsWatched;
 
          _actionSimpleUI_DeviceState.notSelectedTooltip = tooltip;
-         _actionSimpleUI_DeviceState.getActionToolItem().setImage(stateImage);
+         deviceState_ActionToolItem.setImage(stateImage);
       }
    }
 

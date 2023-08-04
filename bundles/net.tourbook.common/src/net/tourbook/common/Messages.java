@@ -32,12 +32,17 @@ public class Messages extends NLS {
 
    public static String        App_Theme_BackgroundColor_Light_Tooltip;
    public static String        App_Theme_BackgroundColor_Dark_Tooltip;
+   public static String        App_Theme_BrightTheme;
+   public static String        App_Theme_BrightTheme_Tooltip;
+   public static String        App_Theme_DarkTheme;
+   public static String        App_Theme_DarkTheme_Tooltip;
    public static String        App_Theme_ForegroundColor_Light_Tooltip;
    public static String        App_Theme_ForegroundColor_Dark_Tooltip;
    public static String        App_Theme_ValueFor_Light_Tooltip;
    public static String        App_Theme_ValueFor_Dark_Tooltip;
 
    public static String        Action_App_CustomizeColumnsAndProfiles;
+   public static String        Action_App_RestartApp_Tooltip;
    public static String        Action_App_SizeAllColumnsToFit;
 
    public static String        Action_ColumnManager_Column_Info;
@@ -150,17 +155,21 @@ public class Messages extends NLS {
    public static String        Graph_Label_Gradient;
    public static String        Graph_Label_Gradient_Unit;
    public static String        Graph_Label_Heartbeat;
+   public static String        Graph_Label_Heartbeat_Avg;
+   public static String        Graph_Label_Heartbeat_AvgMax;
    public static String        Graph_Label_Heartbeat_Unit;
    public static String        Graph_Label_HeartRateVariability;
    public static String        Graph_Label_HeartRateVariability_Unit;
    public static String        Graph_Label_History;
    public static String        Graph_Label_HrZone;
    public static String        Graph_Label_Pace;
+   public static String        Graph_Label_Pace_Interval;
    public static String        Graph_Label_Pace_Summarized;
    public static String        Graph_Label_Power;
    public static String        Graph_Label_Power_Unit;
    public static String        Graph_Label_Sensor;
    public static String        Graph_Label_Speed;
+   public static String        Graph_Label_Speed_Interval;
    public static String        Graph_Label_Speed_Summarized;
    public static String        Graph_Label_Temperature;
    public static String        Graph_Label_Time;
@@ -170,6 +179,7 @@ public class Messages extends NLS {
    public static String        Graph_Label_TimeStart;
    public static String        Graph_Label_Tour;
    public static String        Graph_Label_Tour_Compare;
+   public static String        Graph_Label_Tour_Compare_ReferenceTour;
    public static String        Graph_Label_Tour_Compare_Unit;
    public static String        Graph_Label_Geo_Compare_Unit;
    public static String        Graph_Label_Prefix_AthleteData;
@@ -284,12 +294,12 @@ public class Messages extends NLS {
    public static String        Pref_System_Option_Temperature_Celsius;
    public static String        Pref_System_Option_Temperature_Fahrenheit;
 
-   public static String        Weather_AirQuality_Good;
-   public static String        Weather_AirQuality_Fair;
-   public static String        Weather_AirQuality_IsNotDefined;
-   public static String        Weather_AirQuality_Moderate;
-   public static String        Weather_AirQuality_Poor;
-   public static String        Weather_AirQuality_VeryPoor;
+   public static String        Weather_AirQuality_0_IsNotDefined;
+   public static String        Weather_AirQuality_1_Good;
+   public static String        Weather_AirQuality_2_Fair;
+   public static String        Weather_AirQuality_3_Moderate;
+   public static String        Weather_AirQuality_4_Poor;
+   public static String        Weather_AirQuality_5_VeryPoor;
 
    public static String        Weather_Clouds_Clouds;
    public static String        Weather_Clouds_Cloudy;

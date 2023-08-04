@@ -953,7 +953,7 @@ public class Util {
       return counter;
    }
 
-   public static boolean getPrefixPrefBoolean(final IPreferenceStore prefStore,
+   public static boolean getPrefixPref_Boolean(final IPreferenceStore prefStore,
                                               final String prefPrefix,
                                               final String prefKey) {
 
@@ -968,7 +968,7 @@ public class Util {
       return prefValue;
    }
 
-   public static int getPrefixPrefInt(final IPreferenceStore prefStore,
+   public static int getPrefixPref_Int(final IPreferenceStore prefStore,
                                       final String prefPrefix,
                                       final String prefKey) {
 
@@ -989,9 +989,11 @@ public class Util {
 
             + "SQLException" + NL //$NON-NLS-1$
             + NL
-            + "SQLState: " + e.getSQLState() + NL //$NON-NLS-1$
-            + "ErrorCode: " + e.getErrorCode() + NL //$NON-NLS-1$
-            + "Message: " + e.getMessage() + NL; //$NON-NLS-1$
+            + "SQLState:   " + e.getSQLState() + NL //$NON-NLS-1$
+            + "ErrorCode:  " + e.getErrorCode() + NL //$NON-NLS-1$
+            + "Message:    " + e.getMessage() + NL //$NON-NLS-1$
+            + "Cause:      " + e.getCause() + NL //$NON-NLS-1$
+      ;
 
       return text;
    }

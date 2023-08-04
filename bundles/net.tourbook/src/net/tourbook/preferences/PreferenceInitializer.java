@@ -258,6 +258,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES, false);
       store.setDefault(ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES, false);
 
+      // speed/pace interval graph, unit is meters
+      store.setDefault(ITourbookPreferences.GRAPH_SPEED_PACE_DISTANCE_INTERVAL, 1000);
+
       /*
        * Min/Max values
        */
@@ -371,19 +374,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.GRAPH_JAMET_SMOOTHING_SPEED_TAU, 10.0);
 
       /*
-       * view colors
-       */
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_CATEGORY,          new RGB(0xF2, 0x5B, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_TITLE,             new RGB(0x00, 0x6F, 0xDD));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB,               new RGB(0xF2, 0x5B, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB_SUB,           new RGB(0x00, 0x6F, 0xDD));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_TOUR,              new RGB(0x00, 0x00, 0x00));
-      PreferenceConverter.setDefault(store, ITourbookPreferences.VIEW_LAYOUT_COLOR_BG_HISTORY_TOUR,   new RGB(0xFC, 0xFF, 0xE3));
-
-      /*
        * Display formats
        */
-
       store.setDefault(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES, false);
 
       /*
@@ -414,19 +406,16 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       PreferenceConverter.setDefault(store, ITourbookPreferences.GEO_COMPARE_COMPARED_TOUR_PART_RGB,  new RGB(0xff, 0x00, 0x80));
 
       /*
-       * general appearance
+       * General appearance
        */
-      store.setDefault(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TOUR_TYPES, 3);
-      store.setDefault(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TAGS, 3);
-      store.setDefault(ITourbookPreferences.APPEARANCE_SHOW_TOUR_TYPE_CONTEXT_MENU, true);
+      store.setDefault(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TOUR_TYPES,          3);
+      store.setDefault(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TAGS,                3);
+      store.setDefault(ITourbookPreferences.APPEARANCE_SHOW_TOUR_TYPE_CONTEXT_MENU,          true);
 
-      // heap is not displayed by default since version 11.7
-      store.setDefault(ITourbookPreferences.APPEARANCE_SHOW_MEMORY_MONITOR, false);
-
-      store.setDefault(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME, false);
-      store.setDefault(ITourbookPreferences.APPEARANCE_IS_TAGGING_AUTO_OPEN, true);
-      store.setDefault(ITourbookPreferences.APPEARANCE_IS_TAGGING_ANIMATION, true);
-      store.setDefault(ITourbookPreferences.APPEARANCE_TAGGING_AUTO_OPEN_DELAY, 500);
+      store.setDefault(ITourbookPreferences.APPEARANCE_IS_PACEANDSPEED_FROM_RECORDED_TIME,   false);
+      store.setDefault(ITourbookPreferences.APPEARANCE_IS_TAGGING_AUTO_OPEN,                 true);
+      store.setDefault(ITourbookPreferences.APPEARANCE_IS_TAGGING_ANIMATION,                 true);
+      store.setDefault(ITourbookPreferences.APPEARANCE_TAGGING_AUTO_OPEN_DELAY,              500);
 
       /*
        * merge tour dialog

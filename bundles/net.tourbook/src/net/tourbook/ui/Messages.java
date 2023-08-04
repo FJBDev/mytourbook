@@ -232,11 +232,15 @@ public class Messages extends NLS {
    public static String        ColumnFactory_DPTolerance_Label;
    public static String        ColumnFactory_DPTolerance_Tooltip;
 
-   public static String        ColumnFactory_ElevationGainDelta_Label;
-   public static String        ColumnFactory_ElevationLossDelta_Label;
-   public static String        ColumnFactory_ElevationGainDelta_Tooltip;
-   public static String        ColumnFactory_ElevationLossDelta_Tooltip;
-
+   public static String        ColumnFactory_Elevation_Diff_Tooltip;
+   public static String        ColumnFactory_Elevation_Gain_Tooltip;
+   public static String        ColumnFactory_Elevation_GainDiff_Tooltip;
+   public static String        ColumnFactory_Elevation_GainDelta_Label;
+   public static String        ColumnFactory_Elevation_GainDelta_Tooltip;
+   public static String        ColumnFactory_Elevation_Loss_Tooltip;
+   public static String        ColumnFactory_Elevation_LossDiff_Tooltip;
+   public static String        ColumnFactory_Elevation_LossDelta_Label;
+   public static String        ColumnFactory_Elevation_LossDelta_Tooltip;
    public static String        ColumnFactory_GearFrontShiftCount_Header;
    public static String        ColumnFactory_GearFrontShiftCount_Label;
    public static String        ColumnFactory_GearFrontShiftCount_Tooltip;
@@ -249,6 +253,8 @@ public class Messages extends NLS {
    public static String        ColumnFactory_GearTeeth_Header;
    public static String        ColumnFactory_GearTeeth_Label;
    public static String        ColumnFactory_GearTeeth_Tooltip;
+   public static String        ColumnFactory_HasGeoData_Header;
+   public static String        ColumnFactory_HasGeoData_Label;
 
    public static String        ColumnFactory_Id_Label;
    public static String        ColumnFactory_Id_Tooltip;
@@ -566,6 +572,7 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_AirQuality;
    public static String        Tour_Tooltip_Label_AltitudeDown;
    public static String        Tour_Tooltip_Label_AltitudeUp;
+   public static String        Tour_Tooltip_Label_AvgAltimeter;
    public static String        Tour_Tooltip_Label_AvgCadence;
    public static String        Tour_Tooltip_Label_AvgElevationChange;
    public static String        Tour_Tooltip_Label_AvgPace;

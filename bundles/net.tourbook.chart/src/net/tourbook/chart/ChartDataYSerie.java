@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,7 +39,8 @@ public class ChartDataYSerie extends ChartDataSerie {
     */
    public static final int        BAR_LAYOUT_BESIDE                 = 3;
 
-   public static final String     YDATA_INFO                        = "yDataInfo";                //$NON-NLS-1$
+   public static final String     YDATA_GRAPH_ID                    = "yDataGraphID";             //$NON-NLS-1$
+   public static final String     CLONE_MIN_MAX_VALUES_GRAPH_ID     = "cloneMinMaxValuesGraphID"; //$NON-NLS-1$
 
    public static final int        FILL_METHOD_NO                    = 0;
    public static final int        FILL_METHOD_FILL_BOTTOM           = 1;
@@ -108,9 +109,20 @@ public class ChartDataYSerie extends ChartDataSerie {
     */
    private IFillPainter           _customFillPainter;
 
+   /**
+    * Mostly the top slider
+    */
    private ChartYSlider           _ySlider1;
 
+   /**
+    * Mostly the bottom Slider
+    */
    private ChartYSlider           _ySlider2;
+
+   /**
+    * Min/max value which is set when the slider is moved with the mouse
+    */
+   private float[]                _sliderMinMaxValue;
 
    private final ChartType        _chartType;
 
@@ -394,6 +406,10 @@ public class ChartDataYSerie extends ChartDataSerie {
 
    public ISliderLabelProvider getSliderLabelProvider() {
       return _sliderLabelProvider;
+   }
+
+   public float[] getSliderMinMaxValue() {
+      return _sliderMinMaxValue;
    }
 
    public String getXTitle() {
@@ -819,6 +835,16 @@ public class ChartDataYSerie extends ChartDataSerie {
 
    public void setSliderLabelProvider(final ISliderLabelProvider sliderLabelProvider) {
       _sliderLabelProvider = sliderLabelProvider;
+   }
+
+   /**
+    * These min/max values are set when a vertical slider is moved/dragged with the mouse.
+    *
+    * @param sliderMinMaxValue
+    */
+   public void setSliderMinMaxValue(final float[] sliderMinMaxValue) {
+
+      _sliderMinMaxValue = sliderMinMaxValue;
    }
 
    /**

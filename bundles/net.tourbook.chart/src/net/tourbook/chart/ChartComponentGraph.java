@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import net.tourbook.chart.preferences.IChartPreferences;
 import net.tourbook.common.DPITools;
 import net.tourbook.common.PointLong;
 import net.tourbook.common.RectangleLong;
@@ -349,22 +350,22 @@ public class ChartComponentGraph extends Canvas {
    /**
     * <code>true</code> when the x-marker is moved with the mouse
     */
-   private boolean                    _isXMarkerMoved;
+   private boolean                    _isXValueMarkerMoved;
 
    /**
     * x-position when the x-marker was started to drag
     */
-   private int                        _devXMarkerDraggedStartPos;
+   private int                        _devXValueMarker_DraggedStartPos;
 
    /**
     * x-position when the x-marker is moved
     */
-   private int                        _devXMarkerDraggedPos;
+   private int                        _devXValueMarker_DraggedPos;
 
-   private int                        _movedXMarkerStartValueIndex;
-   private int                        _movedXMarkerEndValueIndex;
+   private int                        _movedXValueMarker_StartValueIndex;
+   private int                        _movedXValueMarker_EndValueIndex;
 
-   private double                     _xMarkerValueDiff;
+   private double                     _xValueMarker_ValueDiff;
 
    /**
     * <code>true</code> when the chart is dragged with the mouse
@@ -690,7 +691,7 @@ public class ChartComponentGraph extends Canvas {
    private void adjustYSlider() {
 
       /*
-       * check if the y slider was outside of the bounds, recompute the chart when necessary
+       * Check if the y slider was outside of the bounds, recompute the chart when necessary
        */
 
       final GraphDrawingData drawingData = _ySliderDragged.getDrawingData();
@@ -708,24 +709,39 @@ public class ChartComponentGraph extends Canvas {
       final int devYSliderLine1 = slider1.getDevYSliderLine();
       final int devYSliderLine2 = slider2.getDevYSliderLine();
 
+      final boolean isBottomToTop = drawingData.getYData().isYAxisDirection();
+
       double graphValue1 = 0;
       double graphValue2 = 0;
-      if (drawingData.getYData().isYAxisDirection()) {
+
+      if (isBottomToTop) {
+
          graphValue1 = (((double) devYBottom - devYSliderLine1) / scaleY + graphYBottom);
          graphValue2 = (((double) devYBottom - devYSliderLine2) / scaleY + graphYBottom);
+
       } else {
+
          graphValue1 = (((double) devYSliderLine1 - devYTop) / scaleY + graphYBottom);
          graphValue2 = (((double) devYSliderLine2 - devYTop) / scaleY + graphYBottom);
       }
 
+      boolean isAdjustedSlider1 = false;
+
       // get value which was adjusted
       if (_ySliderDragged == slider1) {
+
          yData.adjustedYValue = (float) graphValue1;
+
+         isAdjustedSlider1 = true;
+
       } else if (_ySliderDragged == slider2) {
+
          yData.adjustedYValue = (float) graphValue2;
+
       } else {
+
          // this case should not happen
-         System.out.println("y-slider is not set correctly\t");//$NON-NLS-1$
+         System.out.println("y-slider is not set correctly");//$NON-NLS-1$
          return;
       }
 
@@ -752,8 +768,41 @@ public class ChartComponentGraph extends Canvas {
          slider1.setDevYSliderLine(devYTop);
          slider2.setDevYSliderLine(devYBottom);
       }
+
       yData.setVisibleMinValue(minValue);
       yData.setVisibleMaxValue(maxValue);
+
+      /*
+       * Keep slider positions which are used to force these values when creating new chart data
+       */
+      final float[] sliderMinMaxValue = yData.getSliderMinMaxValue();
+      if (sliderMinMaxValue != null) {
+
+         // set only the adjusted value
+
+         if (isBottomToTop) {
+
+            if (isAdjustedSlider1) {
+
+               sliderMinMaxValue[1] = (float) maxValue;
+
+            } else {
+
+               sliderMinMaxValue[0] = (float) minValue;
+            }
+
+         } else {
+
+            if (isAdjustedSlider1) {
+
+               sliderMinMaxValue[0] = (float) minValue;
+
+            } else {
+
+               sliderMinMaxValue[1] = (float) maxValue;
+            }
+         }
+      }
 
       _ySliderDragged = null;
 
@@ -761,22 +810,22 @@ public class ChartComponentGraph extends Canvas {
 //      setCursorStyle();
 
       /*
-       * the hited slider could be outsite of the chart, hide the labels on the slider
+       * The hited slider could be outsite of the chart, hide the labels on the slider
        */
       _hitYSlider = null;
 
       /*
-       * when the chart is synchronized, the y-slider position is modified, so we overwrite the
+       * When the chart is synchronized, the y-slider position is modified, so we overwrite the
        * synchronized chart y-slider positions until the zoom in marker is overwritten
        */
-      final SynchConfiguration synchedChartConfig = _chartComponents._synchConfigSrc;
+      final SynchConfiguration synchedChartConfig = _chartComponents.synchConfigSrc;
 
       if (synchedChartConfig != null) {
 
          final ChartYDataMinMaxKeeper synchedChartMinMaxKeeper = synchedChartConfig.getYDataMinMaxKeeper();
 
          // get the id for the changed y-slider
-         final Integer yDataInfo = (Integer) yData.getCustomData(ChartDataYSerie.YDATA_INFO);
+         final Integer yDataInfo = (Integer) yData.getCustomData(ChartDataYSerie.YDATA_GRAPH_ID);
 
          // adjust min value for the changed y-slider
          final HashMap<Integer, Double> minKeeper = synchedChartMinMaxKeeper.getMinValues();
@@ -2559,7 +2608,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
       } else {
@@ -2567,8 +2616,8 @@ public class ChartComponentGraph extends Canvas {
          graphValueOffset = (float) (_xxDevViewPortLeftBorder / scaleX);
       }
 
-      final int synchMarkerStartIndex = xData.getSynchMarkerStartIndex();
-      final int synchMarkerEndIndex = xData.getSynchMarkerEndIndex();
+      final int synchMarkerStartIndex = xData.getXValueMarker_StartIndex();
+      final int synchMarkerEndIndex = xData.getXValueMarker_EndIndex();
 
       if (synchMarkerStartIndex == -1) {
 
@@ -2580,8 +2629,10 @@ public class ChartComponentGraph extends Canvas {
          drawAsync_510_LineGraph_Segment(
                gcGraph,
                graphDrawingData,
+
                0,
                serieSize,
+
                rgbFgLine,
                rgbBgDark,
                rgbBgBright,
@@ -2602,8 +2653,10 @@ public class ChartComponentGraph extends Canvas {
          drawAsync_510_LineGraph_Segment(
                gcGraph,
                graphDrawingData,
+
                0,
                serieSize,
+
                rgbFgLine,
                rgbBgDark,
                rgbBgBright,
@@ -2615,8 +2668,10 @@ public class ChartComponentGraph extends Canvas {
          drawAsync_510_LineGraph_Segment(
                gcGraph,
                graphDrawingData,
+
                synchMarkerStartIndex,
-               synchMarkerEndIndex + 0,
+               synchMarkerEndIndex,
+
                rgbFgLine,
                rgbBgDark,
                rgbBgBright,
@@ -2671,6 +2726,7 @@ public class ChartComponentGraph extends Canvas {
 
       final int numYValues = yValues.length;
 
+      final boolean isBottom2Top = yData.isYAxisDirection();
       final int graphFillMethod = yData.getGraphFillMethod();
       final boolean[] noFill = xData.getNoLine();
       final boolean[] lineGaps = yData.getLineGaps();
@@ -2927,7 +2983,7 @@ public class ChartComponentGraph extends Canvas {
             } else if (noFill != null && noFill[valueIndex]) {
 
                /*
-                * draw NO line, but draw a line at the bottom or the x-axis with y=0
+                * Draw a NO line, but draw a line at the bottom or the x-axis with y=0
                 */
 
                if (graphFillMethod == ChartDataYSerie.FILL_METHOD_FILL_BOTTOM
@@ -2969,13 +3025,16 @@ public class ChartComponentGraph extends Canvas {
                isNoLine = true;
                devXPrevNoLine = devX;
 
-               // keep correct position that the hovered line dev position is painted at the correct position
-               devY = devY0Inverse - devY1;
+               // set hovered line dev position to be painted at the correct position
+               devY = isBottom2Top
+
+                     ? devY0Inverse - devY1
+                     : devY1 - devY_XAxisLine;
 
             } else {
 
                /*
-                * draw line to the current point
+                * Draw line to the current point
                 */
 
                if (isLineGap) {
@@ -2993,14 +3052,18 @@ public class ChartComponentGraph extends Canvas {
 
                      isNoLine = false;
 
-                     path.lineTo((int) devXPrevNoLine, (int) (devY0Inverse - devY1Prev));
+                     final int devY_NoLine = isBottom2Top
+
+                           ? (int) (devY0Inverse - devY1Prev)
+                           : (int) (devY1Prev - devY_XAxisLine);
+
+                     path.lineTo((int) devXPrevNoLine, devY_NoLine);
                   }
 
-                  if (yData.isYAxisDirection()) {
-                     devY = devY0Inverse - devY1;
-                  } else {
-                     devY = devY1 - devY_XAxisLine;
-                  }
+                  devY = isBottom2Top
+
+                        ? devY0Inverse - devY1
+                        : devY1 - devY_XAxisLine;
 
                   path.lineTo(devXf, devY);
 
@@ -3011,7 +3074,7 @@ public class ChartComponentGraph extends Canvas {
             }
 
             /*
-             * set line hover positions
+             * Set line graph hover positions
              */
             final double devXDiff = (devX - devXPrev) / 2;
             final double devXDiffWidth = devXDiff < 1 ? 1 : (devXDiff + 0.5);
@@ -3031,6 +3094,7 @@ public class ChartComponentGraph extends Canvas {
                   0,
                   (long) (devXDiffWidth + 1),
                   devChartHeight);
+
             final PointLong currentPoint = new PointLong(devX_long, (long) (devYTop + devY));
 
             lineDevPositions[valueIndex] = currentPoint;
@@ -3269,7 +3333,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       double graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
 
          // a zoom marker is not set, draw it normally
          graphValueOffset = (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
@@ -3336,7 +3400,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       double devXOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
 
          // a synch marker is not set, draw it normally
          devXOffset = Math.max(0, _xxDevViewPortLeftBorder) / scaleX;
@@ -3441,9 +3505,11 @@ public class ChartComponentGraph extends Canvas {
             final float valueYHigh = yHighValues[valueIndex];
 
             final float barHeight = (Math.max(valueYHigh, valueYLow) - Math.min(valueYHigh, valueYLow));
-            if (barHeight == 0) {
-               continue;
-            }
+
+// DISABLED, that these bars are not totally hidden
+//            if (barHeight == 0) {
+//               continue;
+//            }
 
             int devBarHeight = (int) (barHeight * scaleY);
 
@@ -3621,7 +3687,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
       } else {
@@ -3856,7 +3922,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
       } else {
@@ -4226,7 +4292,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
       } else {
@@ -4482,7 +4548,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleX);
       } else {
@@ -4734,7 +4800,7 @@ public class ChartComponentGraph extends Canvas {
 
       // get the horizontal offset for the graph
       float graphValueOffset;
-      if (_chartComponents._synchConfigSrc == null) {
+      if (_chartComponents.synchConfigSrc == null) {
          // a zoom marker is not set, draw it normally
          graphValueOffset = (float) (Math.max(0, _xxDevViewPortLeftBorder) / scaleXVariable);
       } else {
@@ -5410,7 +5476,7 @@ public class ChartComponentGraph extends Canvas {
 
       final boolean isOverlayImageVisible = _isXSliderVisible
             || _isYSliderVisible
-            || _isXMarkerMoved
+            || _isXValueMarkerMoved
             || _isSelectionVisible
             || _isHoveredLineVisible;
 
@@ -5629,8 +5695,8 @@ public class ChartComponentGraph extends Canvas {
          // reset x/y slider dirty state
          _isSliderDirty = false;
 
-         if (_isXMarkerMoved) {
-            drawSync_430_XMarker(gcOverlay);
+         if (_isXValueMarkerMoved) {
+            drawSync_430_XValueMarker(gcOverlay);
          }
 
          if (_isSelectionVisible) {
@@ -5778,12 +5844,10 @@ public class ChartComponentGraph extends Canvas {
 
    private void drawSync_415_XSliderArea(final GC gc) {
 
-      final Display display = getDisplay();
-
-//      final int rgb = 0xa0;
-//      final Color colorXMarker = new Color(display, rgb, rgb, rgb);
-
-      final Color colorXMarker = new Color(0x91, 0xC7, 0xFF);
+      final Color fgColor = new Color(0x91, 0xC7, 0xFF);
+      final Color bgColor = UI.IS_DARK_THEME
+            ? new Color(46, 111, 178)
+            : UI.SYS_COLOR_WHITE;
 
       // draw x-marker for each graph
       for (final GraphDrawingData drawingData : _allGraphDrawingData) {
@@ -5791,14 +5855,24 @@ public class ChartComponentGraph extends Canvas {
          // get left/right slider position
          final int valueIndexA = _xSliderA.getValuesIndex();
          final int valueIndexB = _xSliderB.getValuesIndex();
-         final int startIndex = valueIndexA < valueIndexB ? valueIndexA : valueIndexB;
-         final int endIndex = valueIndexA > valueIndexB ? valueIndexA : valueIndexB;
+         int startIndex = valueIndexA < valueIndexB ? valueIndexA : valueIndexB;
+         int endIndex = valueIndexA > valueIndexB ? valueIndexA : valueIndexB;
 
          final ChartDataXSerie xData = drawingData.getXData();
 
          final double scaleX = drawingData.getScaleX();
 
          final double[] xValues = xData.getHighValuesDouble()[0];
+         final int numXValues = xValues.length;
+
+         // fix ArrayIndexOutOfBoundsException
+         if (startIndex >= numXValues) {
+            startIndex = numXValues - 1;
+         }
+         if (endIndex >= numXValues) {
+            endIndex = numXValues - 1;
+         }
+
          final double valueXStart = xValues[startIndex];
          final double valueXEnd = xValues[endIndex];
 
@@ -5809,17 +5883,30 @@ public class ChartComponentGraph extends Canvas {
          final int devYBottom = drawingData.getDevYBottom();
 
          // draw area
-         gc.setForeground(colorXMarker);
-         gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+         gc.setForeground(fgColor);
+         gc.setBackground(bgColor);
 
-         gc.setAlpha(0x80);
+         if (UI.IS_DARK_THEME) {
 
-         gc.fillGradientRectangle(//
-               devXStart,
-               devYBottom,
-               devXEnd - devXStart,
-               devYTop - devYBottom,
-               true);
+            gc.setAlpha(0x60);
+
+            gc.fillRectangle(
+                  devXStart,
+                  devYBottom,
+                  devXEnd - devXStart,
+                  devYTop - devYBottom);
+
+         } else {
+
+            gc.setAlpha(0x80);
+
+            gc.fillGradientRectangle(
+                  devXStart,
+                  devYBottom,
+                  devXEnd - devXStart,
+                  devYTop - devYBottom,
+                  true);
+         }
 
          gc.setAlpha(0xff);
       }
@@ -5918,12 +6005,12 @@ public class ChartComponentGraph extends Canvas {
 //      colorTxt.dispose();
    }
 
-   private void drawSync_430_XMarker(final GC gc) {
+   private void drawSync_430_XValueMarker(final GC gc) {
 
       final Display display = getDisplay();
       final Color colorXMarker = new Color(255, 153, 0);
 
-      final int devDraggingDiff = _devXMarkerDraggedPos - _devXMarkerDraggedStartPos;
+      final int devDraggingDiff = _devXValueMarker_DraggedPos - _devXValueMarker_DraggedStartPos;
 
       // draw x-marker for each graph
       for (final GraphDrawingData drawingData : _allGraphDrawingData) {
@@ -5933,8 +6020,8 @@ public class ChartComponentGraph extends Canvas {
          final double scaleX = drawingData.getScaleX();
          final double valueDraggingDiff = devDraggingDiff / scaleX;
 
-         final int synchStartIndex = xData.getSynchMarkerStartIndex();
-         final int synchEndIndex = xData.getSynchMarkerEndIndex();
+         final int synchStartIndex = xData.getXValueMarker_StartIndex();
+         final int synchEndIndex = xData.getXValueMarker_EndIndex();
 
          final double[] xValues = xData.getHighValuesDouble()[0];
          final double valueXStart = xValues[synchStartIndex];
@@ -5948,31 +6035,31 @@ public class ChartComponentGraph extends Canvas {
          final double valueXStartWithOffset = valueXStart + valueDraggingDiff;
          final double valueXEndWithOffset = valueXEnd + valueDraggingDiff;
 
-         _movedXMarkerStartValueIndex = computeXMarkerValue(
+         _movedXValueMarker_StartValueIndex = computeXMarkerValue(
                xValues,
                synchStartIndex,
                valueDraggingDiff,
                valueXStartWithOffset);
 
-         _movedXMarkerEndValueIndex = computeXMarkerValue(
+         _movedXValueMarker_EndValueIndex = computeXMarkerValue(
                xValues,
                synchEndIndex,
                valueDraggingDiff,
                valueXEndWithOffset);
 
-         devMovedXStart = (int) (scaleX * xValues[_movedXMarkerStartValueIndex] - _xxDevViewPortLeftBorder);
-         devMovedXEnd = (int) (scaleX * xValues[_movedXMarkerEndValueIndex] - _xxDevViewPortLeftBorder);
+         devMovedXStart = (int) (scaleX * xValues[_movedXValueMarker_StartValueIndex] - _xxDevViewPortLeftBorder);
+         devMovedXEnd = (int) (scaleX * xValues[_movedXValueMarker_EndValueIndex] - _xxDevViewPortLeftBorder);
 
          /*
           * when the moved x-marker is on the right or the left border, make sure that the x-markers
           * don't get too small
           */
-         final double valueMovedDiff = xValues[_movedXMarkerEndValueIndex] - xValues[_movedXMarkerStartValueIndex];
+         final double valueMovedDiff = xValues[_movedXValueMarker_EndValueIndex] - xValues[_movedXValueMarker_StartValueIndex];
 
          /*
           * adjust start and end position
           */
-         if (_movedXMarkerStartValueIndex == 0 && valueMovedDiff < _xMarkerValueDiff) {
+         if (_movedXValueMarker_StartValueIndex == 0 && valueMovedDiff < _xValueMarker_ValueDiff) {
 
             /*
              * the x-marker is moved to the left, the most left x-marker is on the first position
@@ -5981,21 +6068,21 @@ public class ChartComponentGraph extends Canvas {
             int valueIndex;
 
             for (valueIndex = 0; valueIndex < xValues.length; valueIndex++) {
-               if (xValues[valueIndex] >= _xMarkerValueDiff) {
+               if (xValues[valueIndex] >= _xValueMarker_ValueDiff) {
                   break;
                }
             }
 
-            _movedXMarkerEndValueIndex = valueIndex;
+            _movedXValueMarker_EndValueIndex = valueIndex;
 
-         } else if (_movedXMarkerEndValueIndex == xValues.length - 1 && valueMovedDiff < _xMarkerValueDiff) {
+         } else if (_movedXValueMarker_EndValueIndex == xValues.length - 1 && valueMovedDiff < _xValueMarker_ValueDiff) {
 
             /*
              * the x-marker is moved to the right, the most right x-marker is on the last position
              */
 
             int valueIndex;
-            final double valueFirstIndex = xValues[xValues.length - 1] - _xMarkerValueDiff;
+            final double valueFirstIndex = xValues[xValues.length - 1] - _xValueMarker_ValueDiff;
 
             for (valueIndex = xValues.length - 1; valueIndex > 0; valueIndex--) {
                if (xValues[valueIndex] <= valueFirstIndex) {
@@ -6003,33 +6090,33 @@ public class ChartComponentGraph extends Canvas {
                }
             }
 
-            _movedXMarkerStartValueIndex = valueIndex;
+            _movedXValueMarker_StartValueIndex = valueIndex;
          }
 
-         if (valueMovedDiff > _xMarkerValueDiff) {
+         if (valueMovedDiff > _xValueMarker_ValueDiff) {
 
             /*
              * force the value diff for the x-marker, the moved value diff can't be wider then one
              * value index
              */
 
-            final double valueStart = xValues[_movedXMarkerStartValueIndex];
+            final double valueStart = xValues[_movedXValueMarker_StartValueIndex];
             int valueIndex;
-            for (valueIndex = _movedXMarkerEndValueIndex - 0; valueIndex >= 0; valueIndex--) {
-               if (xValues[valueIndex] - valueStart < _xMarkerValueDiff) {
+            for (valueIndex = _movedXValueMarker_EndValueIndex - 0; valueIndex >= 0; valueIndex--) {
+               if (xValues[valueIndex] - valueStart < _xValueMarker_ValueDiff) {
                   valueIndex++;
                   break;
                }
             }
             valueIndex = Math.min(valueIndex, xValues.length - 1);
 
-            _movedXMarkerEndValueIndex = valueIndex;
+            _movedXValueMarker_EndValueIndex = valueIndex;
          }
 
-         _movedXMarkerEndValueIndex = Math.min(_movedXMarkerEndValueIndex, xValues.length - 1);
+         _movedXValueMarker_EndValueIndex = Math.min(_movedXValueMarker_EndValueIndex, xValues.length - 1);
 
-         devMovedXStart = (int) (scaleX * xValues[_movedXMarkerStartValueIndex] - _xxDevViewPortLeftBorder);
-         devMovedXEnd = (int) (scaleX * xValues[_movedXMarkerEndValueIndex] - _xxDevViewPortLeftBorder);
+         devMovedXStart = (int) (scaleX * xValues[_movedXValueMarker_StartValueIndex] - _xxDevViewPortLeftBorder);
+         devMovedXEnd = (int) (scaleX * xValues[_movedXValueMarker_EndValueIndex] - _xxDevViewPortLeftBorder);
 
          final int devYTop = drawingData.getDevYBottom() - drawingData.devGraphHeight;
          final int devYBottom = drawingData.getDevYBottom();
@@ -6082,17 +6169,17 @@ public class ChartComponentGraph extends Canvas {
    private void drawSync_444_BarSelection(final GC gc, final GraphDrawingData drawingData) {
 
       // check if multiple bars are selected
-      boolean drawSelection = false;
+      boolean isDrawSelection = false;
       int selectedIndex = 0;
       if (_selectedBarItems != null) {
          int selectionIndex = 0;
          for (final boolean isBarSelected : _selectedBarItems) {
             if (isBarSelected) {
-               if (drawSelection == false) {
-                  drawSelection = true;
+               if (isDrawSelection == false) {
+                  isDrawSelection = true;
                   selectedIndex = selectionIndex;
                } else {
-                  drawSelection = false;
+                  isDrawSelection = false;
                   return;
                }
             }
@@ -6100,12 +6187,12 @@ public class ChartComponentGraph extends Canvas {
          }
       }
 
-      if (drawSelection == false) {
+      if (isDrawSelection == false) {
          return;
       }
 
       /*
-       * a bar is selected
+       * A bar is selected
        */
 
       // get the chart data
@@ -6118,7 +6205,7 @@ public class ChartComponentGraph extends Canvas {
       final RGB[] rgbBright = yData.getRgbBar_Gradient_Bright();
 
       final int devYBottom = drawingData.getDevYBottom();
-//      final int devYBottom = drawingData.devGraphHeight;
+      final int devYTop = drawingData.getDevYTop();
 
       final Rectangle[][] barRectangeleSeries = drawingData.getBarRectangles();
 
@@ -6147,16 +6234,16 @@ public class ChartComponentGraph extends Canvas {
          }
 
          /*
-          * current bar is selected, draw the selected bar
+          * Current bar is selected, draw the selected bar
           */
 
-         final Rectangle barShapeSelected = new Rectangle(
+         final Rectangle barOutline_Selected = new Rectangle(
                (barRectangle.x - markerWidth2),
                (barRectangle.y - markerWidth2),
                (barRectangle.width + markerWidth),
                (barRectangle.height + markerWidth));
 
-         final Rectangle barBarSelected = new Rectangle(
+         final Rectangle barLine_Selected = new Rectangle(
                barRectangle.x - 1,
                barRectangle.y - barThickness,
                barRectangle.width + barThickness,
@@ -6171,11 +6258,8 @@ public class ChartComponentGraph extends Canvas {
          final Color colorDarkSelected = getColor(rgbDarkDef);
          final Color colorLineSelected = getColor(rgbLineDef);
 
-         // do't write into the x-axis units which also contains the
-         // selection marker
-         if (barShapeSelected.y + barShapeSelected.height > devYBottom) {
-            barShapeSelected.height = devYBottom - barShapeSelected.y;
-         }
+         // don't write above the top or below the bottom of the graph canvas
+         gc.setClipping(0, devYTop, _clientArea.width, devYBottom - devYTop);
 
          // draw the selection darker when the focus is set
          if (_isFocusActive) {
@@ -6188,48 +6272,65 @@ public class ChartComponentGraph extends Canvas {
          gc.setForeground(colorDarkSelected);
          gc.setBackground(colorBrightSelected);
 
-         if (barShapeSelected.height < 0) {
+         if (barOutline_Selected.y > devYBottom) {
 
-            // bar is below the x-axis, just draw a simple line
+            // bar is below the x-axis, just draw a thicker line
 
-            gc.setForeground(colorLineSelected);
-            gc.drawLine(//
-                  barShapeSelected.x,
-                  devYBottom + 1,
-                  barShapeSelected.x + barShapeSelected.width,
-                  devYBottom + 1);
+            gc.setBackground(colorLineSelected);
+            gc.fillRectangle(
+                  barOutline_Selected.x,
+                  devYBottom - 4,
+                  barOutline_Selected.width,
+                  3);
+
+         } else if (barOutline_Selected.y + barOutline_Selected.height < devYTop) {
+
+            // bar is above the x-axis, just draw a thicker line
+
+            gc.setBackground(colorLineSelected);
+            gc.fillRectangle(
+                  barOutline_Selected.x,
+                  devYTop + 2,
+                  barOutline_Selected.width,
+                  3);
+
          } else {
 
+            // bar is in the visible clipping area
+
             gc.fillGradientRectangle(
-                  barShapeSelected.x + 1,
-                  barShapeSelected.y + 1,
-                  barShapeSelected.width - 1,
-                  barShapeSelected.height - 1,
+                  barOutline_Selected.x + 1,
+                  barOutline_Selected.y + 1,
+                  barOutline_Selected.width - 1,
+                  barOutline_Selected.height - 1,
                   true);
 
-            // draw bar border
+            // draw bar outline
             gc.setForeground(colorLineSelected);
             gc.drawRoundRectangle(
-                  barShapeSelected.x,
-                  barShapeSelected.y,
-                  barShapeSelected.width,
-                  barShapeSelected.height,
+                  barOutline_Selected.x,
+                  barOutline_Selected.y,
+                  barOutline_Selected.width,
+                  barOutline_Selected.height,
                   4,
                   4);
 
             // draw bar thicker
             gc.setBackground(colorDarkSelected);
-            gc.fillRoundRectangle(//
-                  barBarSelected.x,
-                  barBarSelected.y,
-                  barBarSelected.width,
-                  barBarSelected.height,
+            gc.fillRoundRectangle(
+                  barLine_Selected.x,
+                  barLine_Selected.y,
+                  barLine_Selected.width,
+                  barLine_Selected.height,
                   2,
                   2);
          }
 
+         // reset clipping
+         gc.setClipping((Rectangle) null);
+
          /*
-          * draw a marker below the x-axis to make the selection more visible
+          * Draw a marker below the x-axis to make the selection more visible
           */
          if (_isFocusActive) {
 
@@ -6284,15 +6385,18 @@ public class ChartComponentGraph extends Canvas {
          final RGB[] rgbDark = yData.getRgbBar_Gradient_Dark();
          final RGB[] rgbBright = yData.getRgbBar_Gradient_Bright();
 
-         final int devYBottom = drawingData.getDevYBottom();
-//         final int devYBottom = drawingData.devGraphHeight;
-
          final Rectangle[][] barRectangeleSeries = drawingData.getBarRectangles();
 
          if (barRectangeleSeries == null) {
             // this occurred
             continue;
          }
+
+         final int devYBottom = drawingData.getDevYBottom();
+         final int devYTop = drawingData.getDevYTop();
+
+         // do't write into the x-axis units which also contains the selection marker
+         gcOverlay.setClipping(0, devYTop, _clientArea.width, devYBottom - devYTop);
 
          final int markerWidth = BAR_MARKER_WIDTH;
          final int markerWidth2 = markerWidth / 2;
@@ -6330,12 +6434,6 @@ public class ChartComponentGraph extends Canvas {
                   (hoveredRectangle.width + markerWidth),
                   (hoveredRectangle.height + markerWidth));
 
-            // do't write into the x-axis units which also contains the
-            // selection marker
-            if (hoveredBarShape.y + hoveredBarShape.height > devYBottom) {
-               hoveredBarShape.height = devYBottom - hoveredBarShape.y;
-            }
-
             // fill bar background
             gcOverlay.setForeground(colorDark);
             gcOverlay.setBackground(colorBright);
@@ -6360,6 +6458,9 @@ public class ChartComponentGraph extends Canvas {
       }
 
       gcOverlay.setAlpha(0xff);
+
+      // reset clipping
+      gcOverlay.setClipping((Rectangle) null);
    }
 
    private void drawSync_460_HoveredLine(final GC gcOverlay) {
@@ -6915,6 +7016,7 @@ public class ChartComponentGraph extends Canvas {
          }
 
          final int serieLength = barFocusRectangles.length;
+         final int devYBottom = drawingData.getDevYBottom();
 
          // find the rectangle which is hovered by the mouse
          for (int serieIndex = 0; serieIndex < serieLength; serieIndex++) {
@@ -6932,7 +7034,18 @@ public class ChartComponentGraph extends Canvas {
                   _hoveredBarSerieIndex = serieIndex;
                   _hoveredBarValueIndex = valueIndex;
 
-                  _hoveredBar_ToolTip.open(barFocusRectangle, serieIndex, valueIndex);
+                  final Rectangle barTooltipRectangle = new Rectangle(
+
+                        barFocusRectangle.x,
+                        barFocusRectangle.y,
+                        barFocusRectangle.width,
+                        barFocusRectangle.height);
+
+                  // ensure the tooltip position is not below the chart
+                  if (barFocusRectangle.y + barFocusRectangle.height > devYBottom) {
+                     barTooltipRectangle.height = devYBottom - barFocusRectangle.y;
+                  }
+                  _hoveredBar_ToolTip.open(barTooltipRectangle, serieIndex, valueIndex);
 
                   isBarHit = true;
                   break;
@@ -7018,8 +7131,8 @@ public class ChartComponentGraph extends Canvas {
          return false;
       }
 
-      final int synchMarkerStartIndex = xData.getSynchMarkerStartIndex();
-      final int synchMarkerEndIndex = xData.getSynchMarkerEndIndex();
+      final int synchMarkerStartIndex = xData.getXValueMarker_StartIndex();
+      final int synchMarkerEndIndex = xData.getXValueMarker_EndIndex();
 
       if (synchMarkerStartIndex == -1) {
          // synch marker is not set
@@ -7235,19 +7348,22 @@ public class ChartComponentGraph extends Canvas {
     * @param xxDevSliderLinePos
     *           x coordinate for the slider line within the graph, this can be outside of the
     *           visible graph
+    * @return Returns <code>true</code> when the slider position has changed
     */
-   private void moveXSlider(final ChartXSlider xSlider, final long devXSliderLinePos) {
+   private boolean moveXSlider(final ChartXSlider xSlider, final long devXSliderLinePos) {
 
       long xxDevSliderLinePos = _xxDevViewPortLeftBorder + devXSliderLinePos;
 
       /*
-       * adjust the line position the the min/max width of the graph image
+       * Adjust the line position the the min/max width of the graph image
        */
       xxDevSliderLinePos = Math.min(_xxDevGraphWidth, Math.max(0, xxDevSliderLinePos));
 
       // set new slider line position
-      setXSliderValue_FromHoveredValuePoint(xSlider);
+      final boolean isSliderPositionModified = setXSliderValue_FromHoveredValuePoint(xSlider);
       xSlider.moveToXXDevPosition(xxDevSliderLinePos, true, true, false);
+
+      return isSliderPositionModified;
    }
 
    /**
@@ -7649,19 +7765,19 @@ public class ChartComponentGraph extends Canvas {
 
             actionSelectBars();
 
-         } else if (_chart._draggingListenerXMarker != null && isSynchMarkerHit(devXMouse)) {
+         } else if (_chart.xValueMarker_DraggingListener != null && isSynchMarkerHit(devXMouse)) {
 
             /*
              * start to move the x-marker, when a dragging listener and the x-marker was hit
              */
 
-            _isXMarkerMoved = getXData().getSynchMarkerStartIndex() != -1;
+            _isXValueMarkerMoved = getXData().getXValueMarker_StartIndex() != -1;
 
-            if (_isXMarkerMoved) {
+            if (_isXValueMarkerMoved) {
 
-               _devXMarkerDraggedStartPos = devXMouse;
-               _devXMarkerDraggedPos = devXMouse;
-               _xMarkerValueDiff = _chart._draggingListenerXMarker.getXMarkerValueDiff();
+               _devXValueMarker_DraggedStartPos = devXMouse;
+               _devXValueMarker_DraggedPos = devXMouse;
+               _xValueMarker_ValueDiff = _chart.xValueMarker_DraggingListener.getXValueDifference();
 
                _isSliderDirty = true;
                redraw();
@@ -7851,6 +7967,7 @@ public class ChartComponentGraph extends Canvas {
 
       boolean isRedraw = false;
       boolean canShowHoveredValueTooltip = false;
+      boolean isSliderPositionModified = false;
 
       /**
        * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<br>
@@ -7892,7 +8009,7 @@ public class ChartComponentGraph extends Canvas {
             // autoscroll could be active, disable it
             _isAutoScroll = false;
 
-            moveXSlider(_xSliderDragged, devXMouse);
+            isSliderPositionModified = moveXSlider(_xSliderDragged, devXMouse);
 
             _isSliderDirty = true;
             isRedraw = true;
@@ -7933,11 +8050,11 @@ public class ChartComponentGraph extends Canvas {
          _isSliderDirty = true;
          isRedraw = true;
 
-      } else if (_isXMarkerMoved) {
+      } else if (_isXValueMarkerMoved) {
 
          // X-Marker is dragged
 
-         _devXMarkerDraggedPos = devXMouse;
+         _devXValueMarker_DraggedPos = devXMouse;
 
          _isSliderDirty = true;
          isRedraw = true;
@@ -8005,7 +8122,7 @@ public class ChartComponentGraph extends Canvas {
 
                canShowHoveredValueTooltip = true;
 
-            } else if (_chart._draggingListenerXMarker != null && isSynchMarkerHit(devXMouse)) {
+            } else if (_chart.xValueMarker_DraggingListener != null && isSynchMarkerHit(devXMouse)) {
 
                setCursor(_cursorDragged);
 
@@ -8034,7 +8151,16 @@ public class ChartComponentGraph extends Canvas {
       setHoveredLineValue();
 
       // fire event for the current hovered value point
-      if (_hoveredValuePointIndex != -1) {
+      if (_hoveredValuePointIndex != -1
+
+            /*
+             * This reduces flickering when the slider is dragged, it's not prefect but better and
+             * it depends on the zoom level in the map and chart
+             */
+            && (isSliderPositionModified || _isSliderDirty == false)
+
+      ) {
+
          _chart.fireEvent_HoveredValue(_hoveredValuePointIndex);
       }
 
@@ -8321,16 +8447,16 @@ public class ChartComponentGraph extends Canvas {
 
          adjustYSlider();
 
-      } else if (_isXMarkerMoved) {
+      } else if (_isXValueMarkerMoved) {
 
-         _isXMarkerMoved = false;
+         _isXValueMarkerMoved = false;
 
          _isSliderDirty = true;
          redraw();
 
          // call the listener which is registered for dragged x-marker
-         if (_chart._draggingListenerXMarker != null) {
-            _chart._draggingListenerXMarker.xMarkerMoved(_movedXMarkerStartValueIndex, _movedXMarkerEndValueIndex);
+         if (_chart.xValueMarker_DraggingListener != null) {
+            _chart.xValueMarker_DraggingListener.xValueMarkerIsMoved(_movedXValueMarker_StartValueIndex, _movedXValueMarker_EndValueIndex);
          }
 
       } else if (_isChartDragged || _isChartDraggedStarted) {
@@ -8362,15 +8488,31 @@ public class ChartComponentGraph extends Canvas {
          // mouse mode: move slider
 
          /**
-          * when a slider in a graph is moved with the mouse wheel the direction is the same as when
+          * When a slider in a graph is moved with the mouse wheel the direction is the same as when
           * the mouse wheel is scrolling in the tour editor:
           * <p>
-          * wheel up -> tour editor up
+          * Wheel up -> Tour editor up
           */
-         if (event.count < 0) {
-            event.keyCode |= SWT.ARROW_RIGHT;
+         final MouseWheel2KeyTranslation mouseKeyTranslation = (MouseWheel2KeyTranslation) net.tourbook.common.util.Util.getEnumValue(
+
+               ChartActivator.getPrefStore().getString(IChartPreferences.GRAPH_MOUSE_KEY_TRANSLATION),
+               MouseWheel2KeyTranslation.Up_Left);
+
+         if (mouseKeyTranslation.equals(MouseWheel2KeyTranslation.Up_Left)) {
+
+            if (event.count < 0) {
+               event.keyCode |= SWT.ARROW_RIGHT;
+            } else {
+               event.keyCode |= SWT.ARROW_LEFT;
+            }
+
          } else {
-            event.keyCode |= SWT.ARROW_LEFT;
+
+            if (event.count < 0) {
+               event.keyCode |= SWT.ARROW_LEFT;
+            } else {
+               event.keyCode |= SWT.ARROW_RIGHT;
+            }
          }
 
          /*
@@ -8513,6 +8655,7 @@ public class ChartComponentGraph extends Canvas {
       }
 
       _isSelectionDirty = true;
+
       redraw();
    }
 
@@ -9371,13 +9514,16 @@ public class ChartComponentGraph extends Canvas {
          // set focus to first bar item
 
          if (_allGraphDrawingData.isEmpty()) {
+
             _selectedBarItems = null;
+
          } else {
 
             final GraphDrawingData graphDrawingData = _allGraphDrawingData.get(0);
             final ChartDataXSerie xData = graphDrawingData.getXData();
+            final int numBars = xData._highValuesDouble[0].length;
 
-            _selectedBarItems = new boolean[xData._highValuesDouble[0].length];
+            _selectedBarItems = new boolean[numBars];
          }
 
       } else {
@@ -9419,20 +9565,21 @@ public class ChartComponentGraph extends Canvas {
     * Set the value index in the X-slider for the hovered position.
     *
     * @param xSlider
+    * @return Returns <code>true</code> when the slider position has changed
     */
-   void setXSliderValue_FromHoveredValuePoint(final ChartXSlider xSlider) {
+   boolean setXSliderValue_FromHoveredValuePoint(final ChartXSlider xSlider) {
 
       final ChartDataXSerie xData = getXData();
 
       if (xData == null) {
-         return;
+         return false;
       }
 
       final double[][] xValueSerie = xData.getHighValuesDouble();
 
       if (xValueSerie.length == 0) {
          // data are not available
-         return;
+         return false;
       }
 
       final double[] xDataValues = xValueSerie[0];
@@ -9441,10 +9588,12 @@ public class ChartComponentGraph extends Canvas {
 
          // this happens when a new tour is displayed
 
-         return;
+         return false;
       }
 
-      xSlider.setValueIndex(_hoveredValuePointIndex);
+      final boolean isValueModified = xSlider.setValueIndex(_hoveredValuePointIndex);
+
+      return isValueModified;
    }
 
    /**
@@ -10088,6 +10237,7 @@ public class ChartComponentGraph extends Canvas {
 
          // compute only value point labels
 
+         final int numLabels = allValuePointLabels.size();
          int labelIndex = 0;
 
          if (allTopLabels != null) {
@@ -10095,7 +10245,7 @@ public class ChartComponentGraph extends Canvas {
             for (final ChartXSliderLabel topLabel : allTopLabels) {
 
                // fixed java.lang.IndexOutOfBoundsException
-               if (labelIndex >= allValuePointLabels.size()) {
+               if (labelIndex >= numLabels) {
                   break;
                }
 
@@ -10122,6 +10272,11 @@ public class ChartComponentGraph extends Canvas {
             labelIndex = 0;
 
             for (final ChartXSliderLabel topLabel : allBottomLabels) {
+
+               // fixed java.lang.IndexOutOfBoundsException
+               if (labelIndex >= numLabels) {
+                  break;
+               }
 
                final ChartXSliderLabel valuePointLabel = allValuePointLabels.get(labelIndex);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2021 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -86,102 +86,101 @@ import org.eclipse.swt.widgets.ScrollBar;
 
 public class CalendarGraph extends Canvas implements ITourProviderAll {
 
-   private static final int                  MIN_SCROLLABLE_WEEKS  = 12;
+   private static final int           MIN_SCROLLABLE_WEEKS  = 12;
    //
-   private final TourDoubleClickState        _tourDoubleClickState = new TourDoubleClickState();
+   private final TourDoubleClickState _tourDoubleClickState = new TourDoubleClickState();
    //
-   private ColorCacheSWT                     _colorCache           = new ColorCacheSWT();
+   private ColorCacheSWT              _colorCache           = new ColorCacheSWT();
    //
-   private ArrayList<RGB>                    _rgbBright;
-   private ArrayList<RGB>                    _rgbDark;
-   private ArrayList<RGB>                    _rgbLine;
-   private ArrayList<RGB>                    _rgbText;
+   private ArrayList<RGB>             _rgbBright;
+   private ArrayList<RGB>             _rgbDark;
+   private ArrayList<RGB>             _rgbLine;
+   private ArrayList<RGB>             _rgbText;
    //
-   private int                               _lastDayOfWeekToGoTo  = -1;
-   private long                              _lastFiredTourId      = -1;
+   private int                        _lastDayOfWeekToGoTo  = -1;
+   private long                       _lastFiredTourId      = -1;
    //
-   private List<FocusItem>                   _allDayFocusItems     = new ArrayList<>();
-   private List<FocusItem>                   _allTourFocusItems    = new ArrayList<>();
-   private boolean                           _isGraphDirty         = true;
-   private boolean                           _isHoveredModified;
-   private boolean                           _isHoveredPainted;
-   private boolean                           _isFocusGained;
+   private List<FocusItem>            _allDayFocusItems     = new ArrayList<>();
+   private List<FocusItem>            _allTourFocusItems    = new ArrayList<>();
+   private boolean                    _isGraphDirty         = true;
+   private boolean                    _isHoveredModified;
+   private boolean                    _isHoveredPainted;
+   private boolean                    _isFocusGained;
    //
-   private CalendarSelectItem                _emptyItem            = new CalendarSelectItem(-1, ItemType.EMPTY);
-   private CalendarSelectItem                _hoveredItem          = _emptyItem;
-   private CalendarSelectItem                _selectedItem         = _emptyItem;
-   private CalendarSelectItem                _lastSelectedItem     = _emptyItem;
-   private CalendarSelectItem                _hoveredTour;
+   private CalendarSelectItem         _emptyItem            = new CalendarSelectItem(-1, ItemType.EMPTY);
+   private CalendarSelectItem         _hoveredItem          = _emptyItem;
+   private CalendarSelectItem         _selectedItem         = _emptyItem;
+   private CalendarSelectItem         _lastSelectedItem     = _emptyItem;
+   private CalendarSelectItem         _hoveredTour;
    //
-   private Rectangle                         _calendarCanvas;
-   private final Rectangle                   _nullRec              = null;
+   private Rectangle                  _calendarCanvas;
+   private final Rectangle            _nullRec              = null;
    //
-   private CalendarView                      _calendarView;
-   private CalendarTourDataProvider          _dataProvider;
-   private CalendarYearMonthContributionItem _calendarYearMonthContributor;
+   private CalendarView               _calendarView;
+   private CalendarTourDataProvider   _dataProvider;
    //
    /**
     * Displayed weeks in the calendar which are before the first calendar tour or after today
     * (which is the last calendar tour). When the displayed weeks are within the first/last tour
     * then this is 0.
     */
-   private int                               _scrollBar_OutsideWeeks;
-   private int                               _scrollBar_LastSelection;
+   private int                        _scrollBar_OutsideWeeks;
+   private int                        _scrollBar_LastSelection;
    //
    /** Visible weeks in one column */
-   private int                               _numWeeksInOneColumn;
-   private int                               _numYearColumns;
+   private int                        _numWeeksInOneColumn;
+   private int                        _numYearColumns;
    //
-   private boolean                           _isScrollbarInitialized;
-   private boolean                           _isInUpdateScrollbar;
+   private boolean                    _isScrollbarInitialized;
+   private boolean                    _isInUpdateScrollbar;
    /**
     * This rectangle contains all visible days except week no and week info area.
     */
-   private Rectangle[]                       _calendarAllDaysRectangle;
+   private Rectangle[]                _calendarAllDaysRectangle;
 
    /**
     * Contains the area for the current day date label
     */
-   private Rectangle                         _dayDateLabelRect;
+   private Rectangle                  _dayDateLabelRect;
 
-   private int                               _fontHeight_DateColumn;
-   private int                               _fontHeight_DayHeader;
-   private int                               _fontHeight_TourContent;
-   private int                               _fontHeight_TourTitle;
-   private int                               _fontHeight_TourValue;
-   private int                               _fontHeight_WeekValue;
-   private int                               _fontHeight_YearHeader;
+   private int                        _fontHeight_DateColumn;
+   private int                        _fontHeight_DayHeader;
+   private int                        _fontHeight_TourContent;
+   private int                        _fontHeight_TourTitle;
+   private int                        _fontHeight_TourValue;
+   private int                        _fontHeight_WeekValue;
+   private int                        _fontHeight_YearHeader;
    //
    /**
     * First day which is visible in the calendar.
     * <p>
     * Date/time is necessary otherwise {@link Duration} will NOT work !!!
     */
-   private LocalDateTime                     _firstVisibleDay      = LocalDateTime
+   private LocalDateTime              _firstVisibleDay      = LocalDateTime
          .now()
          .with(getFirstDayOfWeek_SameOrPrevious());
 
-   private LocalDateTime                     _yearColumn_FirstYear = LocalDateTime
+   private LocalDateTime              _yearColumn_FirstYear = LocalDateTime
          .now()
          .withMonth(1)
          .withDayOfMonth(1);
    //
-   private LocalDateTime                     _yearColumn_CurrentYear;
-   private LocalDateTime                     _yearColumn_NextYear;
-   private LocalDate                         _yearColumn_FirstDay;
-   private LocalDate                         _yearColumn_LastDay;
-   private LocalDate                         _calendarFirstDay;
-   private LocalDate                         _calendarLastDay;
-   private int                               _nextWeekDateYPos;
-   private int                               _lastWeekDateYear;
+   private LocalDateTime              _yearColumn_CurrentYear;
+   private LocalDateTime              _yearColumn_NextYear;
+   private LocalDate                  _yearColumn_FirstDay;
+   private LocalDate                  _yearColumn_LastDay;
+   private LocalDate                  _calendarFirstDay;
+   private LocalDate                  _calendarLastDay;
+   private int                        _nextWeekDateYPos;
+   private int                        _lastWeekDateYear;
    //
-   private CalendarProfile                   _currentProfile;
+   private CalendarProfile            _currentProfile;
    //
-   private TextWrapPainter                   _textWrapPainter;
-   private CalendarItemTransfer              _calendarItemTransfer = new CalendarItemTransfer();
+   private TextWrapPainter            _textWrapPainter;
+   private CalendarItemTransfer       _calendarItemTransfer = new CalendarItemTransfer();
    //
-   private int                               _dndLastOperation;
-   private LocalDate                         _dragOverDate;
+   private int                        _dndLastOperation;
+   private LocalDate                  _dragOverDate;
    //
    /*
     * UI controls
@@ -3583,11 +3582,6 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       _calendarBgColor = _colorCache.getColor(_currentProfile.calendarBackgroundRGB);
    }
 
-   void setYearMonthContributor(final CalendarYearMonthContributionItem calendarYearMonthContribuor) {
-
-      _calendarYearMonthContributor = calendarYearMonthContribuor;
-   }
-
    void updateTourTypeColors() {
 
       _rgbBright.clear();
@@ -3693,54 +3687,35 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
        * specific month we ensure that the first day of the month is displayed in the first line,
        * meaning the first day in calendar normally contains a day of the *previous* month
        */
-      _calendarYearMonthContributor.setDate(_calendarFirstDay.plusWeeks(1), _currentProfile);
+      _calendarView.setDate(_calendarFirstDay.plusWeeks(1), _currentProfile);
    }
 
    private LocalDateTime yearColumn_getFirstDayOfMonth(final LocalDateTime currentFirstDay) {
 
       final LocalDateTime firstDayOfMonth = currentFirstDay.with(TemporalAdjusters.firstDayOfMonth());
 
+// SET_FORMATTING_OFF
+
       switch (_currentProfile.yearColumnsStart) {
 
-      case JAN:
-         return firstDayOfMonth.withMonth(Month.JANUARY.getValue());
-
-      case FEB:
-         return firstDayOfMonth.withMonth(Month.FEBRUARY.getValue());
-
-      case MAR:
-         return firstDayOfMonth.withMonth(Month.MARCH.getValue());
-
-      case APR:
-         return firstDayOfMonth.withMonth(Month.APRIL.getValue());
-
-      case MAY:
-         return firstDayOfMonth.withMonth(Month.MAY.getValue());
-
-      case JUN:
-         return firstDayOfMonth.withMonth(Month.JUNE.getValue());
-
-      case JUL:
-         return firstDayOfMonth.withMonth(Month.JULY.getValue());
-
-      case AUG:
-         return firstDayOfMonth.withMonth(Month.AUGUST.getValue());
-
-      case SEP:
-         return firstDayOfMonth.withMonth(Month.SEPTEMBER.getValue());
-
-      case OCT:
-         return firstDayOfMonth.withMonth(Month.OCTOBER.getValue());
-
-      case NOV:
-         return firstDayOfMonth.withMonth(Month.NOVEMBER.getValue());
-
-      case DEC:
-         return firstDayOfMonth.withMonth(Month.DECEMBER.getValue());
+      case JAN: return firstDayOfMonth.withMonth(Month.JANUARY.getValue());
+      case FEB: return firstDayOfMonth.withMonth(Month.FEBRUARY.getValue());
+      case MAR: return firstDayOfMonth.withMonth(Month.MARCH.getValue());
+      case APR: return firstDayOfMonth.withMonth(Month.APRIL.getValue());
+      case MAY: return firstDayOfMonth.withMonth(Month.MAY.getValue());
+      case JUN: return firstDayOfMonth.withMonth(Month.JUNE.getValue());
+      case JUL: return firstDayOfMonth.withMonth(Month.JULY.getValue());
+      case AUG: return firstDayOfMonth.withMonth(Month.AUGUST.getValue());
+      case SEP: return firstDayOfMonth.withMonth(Month.SEPTEMBER.getValue());
+      case OCT: return firstDayOfMonth.withMonth(Month.OCTOBER.getValue());
+      case NOV: return firstDayOfMonth.withMonth(Month.NOVEMBER.getValue());
+      case DEC: return firstDayOfMonth.withMonth(Month.DECEMBER.getValue());
 
       default:
          break;
       }
+
+// SET_FORMATTING_ON
 
       // this is used for continuously column start
       return currentFirstDay;

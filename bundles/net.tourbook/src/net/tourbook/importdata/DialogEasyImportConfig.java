@@ -94,8 +94,6 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -989,7 +987,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
                   final Table filterTable = _icViewer.getTable();
 
                   /*
-                   * check if drag was startet from this filter, remove the filter item before
+                   * check if drag was started from this filter, remove the filter item before
                    * the new filter is inserted
                    */
                   if (LocalSelectionTransfer.getTransfer().getSelectionSetTime() == _dragStart) {
@@ -1634,7 +1632,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
                   final Table filterTable = _ilViewer.getTable();
 
                   /*
-                   * check if drag was startet from this filter, remove the filter item before
+                   * check if drag was started from this filter, remove the filter item before
                    * the new filter is inserted
                    */
                   if (LocalSelectionTransfer.getTransfer().getSelectionSetTime() == _dragStart) {
@@ -1837,12 +1835,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
 
    private void createUI_550_IL_TourType(final Composite parent) {
 
-      final SelectionAdapter ttListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelect_IL_TourType();
-         }
-      };
+      final SelectionListener ttListener = widgetSelectedAdapter(selectionEvent -> onSelect_IL_TourType());
 
       /*
        * Checkbox: Set tour type

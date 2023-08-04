@@ -119,10 +119,10 @@ import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.action.ActionSplitTour;
 import net.tourbook.ui.tourChart.ChartLabelMarker;
 import net.tourbook.ui.tourChart.TourChart;
-import net.tourbook.ui.views.tourCatalog.SelectionTourCatalogView;
-import net.tourbook.ui.views.tourCatalog.TVICatalogComparedTour;
-import net.tourbook.ui.views.tourCatalog.TVICatalogRefTourItem;
-import net.tourbook.ui.views.tourCatalog.TVICompareResultComparedTour;
+import net.tourbook.ui.views.referenceTour.SelectionReferenceTourView;
+import net.tourbook.ui.views.referenceTour.TVIElevationCompareResult_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_RefTourItem;
 import net.tourbook.ui.views.tourSegmenter.SelectedTourSegmenterSegments;
 
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter;
@@ -175,7 +175,6 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -418,7 +417,7 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
    private SelectionListener                  _selectionListener;
    private SelectionListener                  _selectionListener_Temperature;
    private SelectionListener                  _columnSortListener;
-   private SelectionAdapter                   _tourTimeListener;
+   private SelectionListener                  _tourTimeListener;
    private ModifyListener                     _verifyFloatValue;
    private ModifyListener                     _verifyIntValue;
    //
@@ -3157,20 +3156,17 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       /*
        * listener for elapsed/moving/paused time
        */
-      _tourTimeListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent event) {
+      _tourTimeListener = widgetSelectedAdapter(selectionEvent -> {
 
-            if (_isSetField || _isSavingInProgress) {
-               return;
-            }
-
-            updateModel_FromUI();
-            setTourDirty();
-
-            updateUI_Time(event.widget);
+         if (_isSetField || _isSavingInProgress) {
+            return;
          }
-      };
+
+         updateModel_FromUI();
+         setTourDirty();
+
+         updateUI_Time(selectionEvent.widget);
+      });
 
       _verifyFloatValue = modifyEvent -> {
 
@@ -6846,38 +6842,40 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
          Color backgroundColor = null;
          Color foregroundColor = null;
 
+         final boolean isDarkTheme = UI.IS_DARK_THEME;
+
          switch (index) {
 
          case 1: // Good - green
 
-            backgroundColor = new Color(0, 128, 0);
-            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(203, 255, 203);
+            backgroundColor = isDarkTheme ? new Color(0, 175, 0) : new Color(0, 175, 0);
+            foregroundColor = isDarkTheme ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
 
             break;
 
          case 2: // Fair - yellow
 
-            backgroundColor = new Color(255, 255, 0);
-            foregroundColor = UI.IS_DARK_THEME ? new Color(46, 46, 0) : new Color(46, 46, 0);
+            backgroundColor = isDarkTheme ? new Color(170, 170, 0) : new Color(255, 255, 0);
+            foregroundColor = isDarkTheme ? UI.SYS_COLOR_WHITE : new Color(0, 0, 0);
 
             break;
 
-         case 3: // Moderate - dark yellow
+         case 3: // Moderate - orange
 
-            backgroundColor = new Color(128, 128, 0);
-            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 255, 165);
+            backgroundColor = isDarkTheme ? new Color(255, 128, 0) : new Color(255, 128, 0);
+            foregroundColor = isDarkTheme ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
             break;
 
-         case 4: // Poor - dark red
+         case 4: // Poor - red
 
-            backgroundColor = new Color(128, 0, 0);
-            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 170, 170);
+            backgroundColor = isDarkTheme ? new Color(230, 0, 0) : new Color(230, 0, 0);
+            foregroundColor = isDarkTheme ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
             break;
 
-         case 5: // Very poor - dark grey
+         case 5: // Very poor - pink
 
-            backgroundColor = new Color(128, 128, 128);
-            foregroundColor = UI.IS_DARK_THEME ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
+            backgroundColor = isDarkTheme ? new Color(227, 0, 227) : new Color(227, 0, 227);
+            foregroundColor = isDarkTheme ? UI.SYS_COLOR_WHITE : new Color(255, 255, 255);
             break;
 
          default:
@@ -7943,11 +7941,11 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          displayTour(((SelectionTourMarker) selection).getTourData());
 
-      } else if (selection instanceof SelectionTourCatalogView) {
+      } else if (selection instanceof SelectionReferenceTourView) {
 
-         final SelectionTourCatalogView tourCatalogSelection = (SelectionTourCatalogView) selection;
+         final SelectionReferenceTourView tourCatalogSelection = (SelectionReferenceTourView) selection;
 
-         final TVICatalogRefTourItem refItem = tourCatalogSelection.getRefItem();
+         final TVIRefTour_RefTourItem refItem = tourCatalogSelection.getRefItem();
          if (refItem != null) {
             displayTour(refItem.getTourId());
          }
@@ -7986,13 +7984,13 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
       } else if (selection instanceof StructuredSelection) {
 
          final Object firstElement = ((StructuredSelection) selection).getFirstElement();
-         if (firstElement instanceof TVICatalogComparedTour) {
+         if (firstElement instanceof TVIRefTour_ComparedTour) {
 
-            displayTour(((TVICatalogComparedTour) firstElement).getTourId());
+            displayTour(((TVIRefTour_ComparedTour) firstElement).getTourId());
 
-         } else if (firstElement instanceof TVICompareResultComparedTour) {
+         } else if (firstElement instanceof TVIElevationCompareResult_ComparedTour) {
 
-            displayTour(((TVICompareResultComparedTour) firstElement).getTourId());
+            displayTour(((TVIElevationCompareResult_ComparedTour) firstElement).getTourId());
          }
       }
    }
@@ -8141,15 +8139,15 @@ public class TourDataEditorView extends ViewPart implements ISaveablePart, ISave
 
          final Object firstElement = ((StructuredSelection) selection).getFirstElement();
 
-         if (firstElement instanceof TVICatalogComparedTour) {
-            _selectionTourId = ((TVICatalogComparedTour) firstElement).getTourId();
+         if (firstElement instanceof TVIRefTour_ComparedTour) {
+            _selectionTourId = ((TVIRefTour_ComparedTour) firstElement).getTourId();
             if (currentTourId == _selectionTourId) {
                isCurrentTourSelected = true;
             }
 
-         } else if (firstElement instanceof TVICompareResultComparedTour) {
+         } else if (firstElement instanceof TVIElevationCompareResult_ComparedTour) {
 
-            final long comparedTourTourId = ((TVICompareResultComparedTour) firstElement).getTourId();
+            final long comparedTourTourId = ((TVIElevationCompareResult_ComparedTour) firstElement).getTourId();
 
             _selectionTourId = comparedTourTourId;
             if (currentTourId == _selectionTourId) {

@@ -59,6 +59,11 @@ public class TourCompared {
    private float tourSpeed;
 
    /**
+    * @since Db version 51
+    */
+   private float tourPace;
+
+   /**
     * This field is read with sql statements
     */
    @SuppressWarnings("unused")
@@ -68,6 +73,20 @@ public class TourCompared {
     * @since Db version 28
     */
    private float avgPulse;
+
+   /**
+    * @since Db version 50
+    */
+   private float maxPulse;
+
+   /**
+    * @since Db version 50
+    */
+   private float avgAltimeter;
+
+   public float getAvgAltimeter() {
+      return avgAltimeter;
+   }
 
    public float getAvgPulse() {
       return avgPulse;
@@ -79,6 +98,10 @@ public class TourCompared {
 
    public int getEndIndex() {
       return endIndex;
+   }
+
+   public float getMaxPulse() {
+      return maxPulse;
    }
 
    public long getRefTourId() {
@@ -101,8 +124,16 @@ public class TourCompared {
       return tourId;
    }
 
+   public float getTourPace() {
+      return tourPace;
+   }
+
    public float getTourSpeed() {
       return tourSpeed;
+   }
+
+   public void setAvgAltimeter(final float avgAltimeter) {
+      this.avgAltimeter = avgAltimeter;
    }
 
    public void setAvgPulse(final float avgPulse) {
@@ -111,6 +142,10 @@ public class TourCompared {
 
    public void setEndIndex(final int endIndex) {
       this.endIndex = endIndex;
+   }
+
+   public void setMaxPulse(final float maxPulse) {
+      this.maxPulse = maxPulse;
    }
 
    public void setRefTourId(final long refTourId) {
@@ -135,6 +170,10 @@ public class TourCompared {
 
    public void setTourId(final long tourId) {
       this.tourId = tourId;
+   }
+
+   public void setTourPace(final float tourPace) {
+      this.tourPace = tourPace;
    }
 
    public void setTourSpeed(final float speed) {
