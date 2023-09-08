@@ -30,6 +30,10 @@ public class Messages extends NLS {
 
    public static String        App_Error_NotSupportedValueFormatter;
 
+   public static String        App_Size_Large;
+   public static String        App_Size_Medium;
+   public static String        App_Size_Small;
+
    public static String        App_Theme_BackgroundColor_Light_Tooltip;
    public static String        App_Theme_BackgroundColor_Dark_Tooltip;
    public static String        App_Theme_BrightTheme;
@@ -43,6 +47,7 @@ public class Messages extends NLS {
 
    public static String        Action_App_CustomizeColumnsAndProfiles;
    public static String        Action_App_RestartApp_Tooltip;
+   public static String        Action_App_ScrambleData_Tooltip;
    public static String        Action_App_SizeAllColumnsToFit;
 
    public static String        Action_ColumnManager_Column_Info;

@@ -24,7 +24,6 @@ import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorDefinition;
 import net.tourbook.common.color.ColorSelectorExtended;
@@ -48,7 +47,6 @@ import net.tourbook.tourType.TourTypeManager.TourTypeColorData;
 import net.tourbook.tourType.TourTypeManager.TourTypeLayoutData;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -105,7 +103,6 @@ public class PrefPageTourTypes extends PreferencePage implements IWorkbenchPrefe
 
    private static final String[]              SORT_PROPERTY          = new String[] { "this property is needed for sorting !!!" }; //$NON-NLS-1$
 
-   private static final IDialogSettings       _state                 = CommonActivator.getState(ID);
    private final IPreferenceStore             _prefStore             = TourbookPlugin.getPrefStore();
 
    private GraphColorPainter                  _graphColorPainter;
@@ -958,8 +955,6 @@ public class PrefPageTourTypes extends PreferencePage implements IWorkbenchPrefe
 
          TourManager.getInstance().clearTourDataCache();
 
-         _colorSelector.saveCustomColors(_state);
-
          // fire modify event
          _prefStore.setValue(ITourbookPreferences.TOUR_TYPE_LIST_IS_MODIFIED, Math.random());
 
@@ -1492,8 +1487,6 @@ public class PrefPageTourTypes extends PreferencePage implements IWorkbenchPrefe
       _comboFillColor1.select(TourTypeManager.getTourTypeColorIndex(imageConfig.imageColor1));
       _comboFillColor2.select(TourTypeManager.getTourTypeColorIndex(imageConfig.imageColor2));
       _comboFillLayout.select(TourTypeManager.getTourTypeLayoutIndex(imageConfig.imageLayout));
-
-      _colorSelector.restoreCustomColors(_state);
 
       enableLayoutControls();
    }

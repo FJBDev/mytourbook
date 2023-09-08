@@ -23,6 +23,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -180,6 +182,7 @@ public class UI {
    public static final String       SYMBOL_ARROW_UP_DOWN_II              = "\u21c5";                                    //$NON-NLS-1$
    public static final String       SYMBOL_AVERAGE                       = "\u00f8";                                    //$NON-NLS-1$
    public static final String       SYMBOL_AVERAGE_WITH_SPACE            = "\u00f8 ";                                   //$NON-NLS-1$
+   public static final String       SYMBOL_BLACK_LARGE_CIRCLE            = "\u2B24";                                    //$NON-NLS-1$
    public static final String       SYMBOL_BOX                           = "\u25a0";                                    //$NON-NLS-1$
    public static final String       SYMBOL_BULLET                        = "\u2022";                                    //$NON-NLS-1$
    public static final String       SYMBOL_DASH                          = "\u2212";                                    //$NON-NLS-1$
@@ -2066,6 +2069,19 @@ public class UI {
       return false;
    }
 
+   public static boolean isShiftKey(final Event event) {
+
+      boolean isShiftKey;
+
+      if (IS_OSX) {
+         isShiftKey = (event.stateMask & SWT.MOD3) > 0;
+      } else {
+         isShiftKey = (event.stateMask & SWT.MOD2) > 0;
+      }
+
+      return isShiftKey;
+   }
+
    public static boolean isShiftKey(final KeyEvent keyEvent) {
 
       boolean isShiftKey;
@@ -2079,14 +2095,14 @@ public class UI {
       return isShiftKey;
    }
 
-   public static boolean isShiftKey(final MouseEvent event) {
+   public static boolean isShiftKey(final MouseEvent mouseEvent) {
 
       boolean isShiftKey;
 
       if (IS_OSX) {
-         isShiftKey = (event.stateMask & SWT.MOD3) > 0;
+         isShiftKey = (mouseEvent.stateMask & SWT.MOD3) > 0;
       } else {
-         isShiftKey = (event.stateMask & SWT.MOD2) > 0;
+         isShiftKey = (mouseEvent.stateMask & SWT.MOD2) > 0;
       }
 
       return isShiftKey;
@@ -2734,6 +2750,11 @@ public class UI {
       IS_BRIGHT_THEME = isDarkThemeSelected == false;
    }
 
+   public static void setIsScrambleData(final boolean isScrambleData) {
+
+      IS_SCRAMBLE_DATA = isScrambleData;
+   }
+
    /**
     * Set the themed image descriptor for a {@link UIElement} with images from the
     * {@link TourbookPlugin} plugin
@@ -3021,6 +3042,29 @@ public class UI {
          // deny tab access
          control.setVisible(false);
       }
+   }
+
+   public static void showSQLException(final SQLException ex) {
+
+      Display.getDefault().asyncExec(() -> {
+
+         SQLException e = ex;
+
+         while (e != null) {
+
+            final String sqlExceptionText = Util.getSQLExceptionText(e);
+
+            // log also the stacktrace
+            StatusUtil.logError(sqlExceptionText + Util.getStackTrace(e));
+
+            MessageDialog.openError(
+                  Display.getDefault().getActiveShell(),
+                  "SQL Error", //$NON-NLS-1$
+                  sqlExceptionText);
+
+            e = e.getNextException();
+         }
+      });
    }
 
    /**

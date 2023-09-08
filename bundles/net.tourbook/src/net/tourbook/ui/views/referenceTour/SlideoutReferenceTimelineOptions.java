@@ -28,20 +28,22 @@ import static net.tourbook.ui.views.referenceTour.ReferenceTimelineView.STATE_SH
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import net.tourbook.Messages;
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionResetToDefaults;
 import net.tourbook.common.action.IActionResetToDefault;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.tooltip.ToolbarSlideout;
 import net.tourbook.common.util.Util;
+import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.ui.ChartOptions_Grid;
 
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -54,27 +56,28 @@ import org.eclipse.swt.widgets.ToolBar;
 
 public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements IActionResetToDefault {
 
-   private ReferenceTimelineView _refTour_StatisticView;
+   private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+   private IDialogSettings               _state;
 
-   private ActionResetToDefaults _actionRestoreDefaults;
+   private ReferenceTimelineView         _refTour_StatisticView;
 
-   private ChartOptions_Grid     _gridUI;
+   private ActionResetToDefaults         _actionRestoreDefaults;
 
-   private IDialogSettings       _state;
+   private ChartOptions_Grid             _gridUI;
 
-   private MouseWheelListener    _defaultMouseWheelListener;
-   private SelectionListener     _defaultSelectionListener;
+   private SelectionListener             _defaultSelectionListener;
 
    /*
     * UI controls
     */
+   private Button  _chkInvertPaceGraph;
    private Button  _chkShowAltimeter_Avg;
    private Button  _chkShowPulse_Avg;
    private Button  _chkShowPulse_AvgMax;
    private Button  _chkShowPace_Avg;
    private Button  _chkShowSpeed_Avg;
 
-   private Spinner _spinnerBarHeight;
+   private Spinner _spinnerSymbolSize;
 
    public SlideoutReferenceTimelineOptions(final ReferenceTimelineView refTour_YearStatistic_View,
                                            final Control ownerControl,
@@ -108,6 +111,8 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
       final Composite ui = createUI(parent);
 
       restoreState();
+
+      enableControls();
 
       return ui;
    }
@@ -194,6 +199,21 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
             _chkShowPace_Avg.setText(Messages.Slideout_RefTour_Checkbox_Pace_Avg);
             _chkShowPace_Avg.addSelectionListener(_defaultSelectionListener);
             gd.applyTo(_chkShowPace_Avg);
+
+            {
+               /*
+                * Invert pace graph
+                */
+               _chkInvertPaceGraph = new Button(group, SWT.CHECK);
+               _chkInvertPaceGraph.setText(Messages.Slideout_TourChartOptions_Checkbox_InvertPaceGraph);
+               _chkInvertPaceGraph.setToolTipText(Messages.Slideout_TourChartOptions_Checkbox_InvertPaceGraph_Tooltip);
+               _chkInvertPaceGraph.addSelectionListener(_defaultSelectionListener);
+               GridDataFactory.fillDefaults()
+                     .grab(true, false)
+                     .indent(16, 0)
+                     .span(2, 1)
+                     .applyTo(_chkInvertPaceGraph);
+            }
          }
          {
             /*
@@ -224,44 +244,51 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
          }
          {
             /*
-             * Bar size
+             * Symbol size
              */
-            final String tooltip = Messages.Slideout_RefTour_Spinner_BarSize_Tooltip;
+
+            // Relative height of the bar graph
 
             final Label label = new Label(group, SWT.NONE);
-            label.setText(Messages.Slideout_RefTour_Label_BarSize);
-            label.setToolTipText(tooltip);
+            label.setText(Messages.Slideout_RefTour_Label_SymbolSize);
             GridDataFactory.fillDefaults()
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
 
-            _spinnerBarHeight = new Spinner(group, SWT.BORDER);
-            _spinnerBarHeight.setMinimum(1);
-            _spinnerBarHeight.setMaximum(100);
-            _spinnerBarHeight.setIncrement(1);
-            _spinnerBarHeight.setPageIncrement(10);
-            _spinnerBarHeight.setToolTipText(tooltip);
-            _spinnerBarHeight.addMouseWheelListener(_defaultMouseWheelListener);
-            _spinnerBarHeight.addSelectionListener(_defaultSelectionListener);
+            _spinnerSymbolSize = new Spinner(group, SWT.BORDER);
+            _spinnerSymbolSize.setMinimum(1);
+            _spinnerSymbolSize.setMaximum(100);
+            _spinnerSymbolSize.setIncrement(1);
+            _spinnerSymbolSize.setPageIncrement(10);
+            _spinnerSymbolSize.addSelectionListener(_defaultSelectionListener);
+            _spinnerSymbolSize.addMouseWheelListener(mouseEvent -> {
+               UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+               onChangeUI();
+            });
+
             GridDataFactory.fillDefaults()
                   .align(SWT.BEGINNING, SWT.FILL)
-                  .applyTo(_spinnerBarHeight);
+                  .applyTo(_spinnerSymbolSize);
          }
       }
+   }
+
+   private void enableControls() {
+
+      final boolean isPaceSelected = _chkShowPace_Avg.getSelection();
+
+      _chkInvertPaceGraph.setEnabled(isPaceSelected);
    }
 
    private void initUI() {
 
       _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onChangeUI());
 
-      _defaultMouseWheelListener = mouseEvent -> {
-
-         UI.adjustSpinnerValueOnMouseScroll(mouseEvent, 10);
-         onChangeUI();
-      };
    }
 
    private void onChangeUI() {
+
+      enableControls();
 
       // update chart async that the UI is updated immediately
 
@@ -269,12 +296,14 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
 
          saveState();
 
-         _refTour_StatisticView.updateUI_YearChart_WithCurrentGeoData();
+         _refTour_StatisticView.updateUI_TimelineChart_WithCurrentGeoData();
       });
    }
 
    @Override
    public void resetToDefaults() {
+
+      _chkInvertPaceGraph.setSelection(_prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED));
 
 // SET_FORMATTING_OFF
 
@@ -287,7 +316,7 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
       _chkShowPulse_AvgMax    .setSelection(STATE_SHOW_PULSE_AVG_MAX_DEFAULT);
       _chkShowSpeed_Avg       .setSelection(STATE_SHOW_SPEED_AVG_DEFAULT);
 
-      _spinnerBarHeight       .setSelection(ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT_DEFAULT);
+      _spinnerSymbolSize      .setSelection(ReferenceTimelineView.STATE_SYMBOL_SIZE_DEFAULT);
 
 // SET_FORMATTING_ON
 
@@ -297,6 +326,8 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
    private void restoreState() {
 
       _gridUI.restoreState();
+
+      _chkInvertPaceGraph.setSelection(_prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED));
 
 // SET_FORMATTING_OFF
 
@@ -308,18 +339,21 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
 
 // SET_FORMATTING_ON
 
-      _spinnerBarHeight.setSelection(Util.getStateInt(_state,
-            ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT,
-            ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT_DEFAULT,
-            ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT_MIN,
-            ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT_MAX));
+      _spinnerSymbolSize.setSelection(Util.getStateInt(_state,
+            ReferenceTimelineView.STATE_SYMBOL_SIZE,
+            ReferenceTimelineView.STATE_SYMBOL_SIZE_DEFAULT,
+            ReferenceTimelineView.STATE_SYMBOL_SIZE_MIN,
+            ReferenceTimelineView.STATE_SYMBOL_SIZE_MAX));
    }
 
    private void saveState() {
 
       _gridUI.saveState();
 
+      _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SHOW_PACE_GRAPH_INVERTED, _chkInvertPaceGraph.getSelection());
+
 // SET_FORMATTING_OFF
+
 
       _state.put(STATE_SHOW_ALTIMETER_AVG,   _chkShowAltimeter_Avg   .getSelection());
       _state.put(STATE_SHOW_PACE_AVG,        _chkShowPace_Avg        .getSelection());
@@ -327,7 +361,7 @@ public class SlideoutReferenceTimelineOptions extends ToolbarSlideout implements
       _state.put(STATE_SHOW_PULSE_AVG_MAX,   _chkShowPulse_AvgMax    .getSelection());
       _state.put(STATE_SHOW_SPEED_AVG,       _chkShowSpeed_Avg       .getSelection());
 
-      _state.put(ReferenceTimelineView.STATE_RELATIVE_BAR_HEIGHT,  _spinnerBarHeight       .getSelection());
+      _state.put(ReferenceTimelineView.STATE_SYMBOL_SIZE,  _spinnerSymbolSize       .getSelection());
 
 // SET_FORMATTING_ON
    }

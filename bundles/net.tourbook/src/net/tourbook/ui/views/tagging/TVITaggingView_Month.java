@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,19 +21,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.ui.SQLFilter;
-import net.tourbook.ui.UI;
 
-public class TVITagView_Month extends TVITagViewItem {
+import org.eclipse.jface.viewers.TreeViewer;
 
-   private final TVITagView_Year _yearItem;
+public class TVITaggingView_Month extends TVITaggingView_Item {
 
-   private final int             _year;
-   private final int             _month;
+   private final TVITaggingView_Year _yearItem;
 
-   public TVITagView_Month(final TVITagView_Year parentItem, final int dbYear, final int dbMonth) {
+   private final int                 _year;
+   private final int                 _month;
+
+   public TVITaggingView_Month(final TVITaggingView_Year parentItem,
+                               final int dbYear,
+                               final int dbMonth,
+                               final TreeViewer treeViewer) {
+
+      super(treeViewer);
 
       setParentItem(parentItem);
 
@@ -43,12 +50,12 @@ public class TVITagView_Month extends TVITagViewItem {
    }
 
    /**
-    * Compare two instances of {@link TVITagView_Month}
+    * Compare two instances of {@link TVITaggingView_Month}
     *
     * @param otherMonthItem
     * @return
     */
-   public int compareTo(final TVITagView_Month otherMonthItem) {
+   public int compareTo(final TVITaggingView_Month otherMonthItem) {
 
       if (this == otherMonthItem) {
          return 0;
@@ -78,29 +85,40 @@ public class TVITagView_Month extends TVITagViewItem {
 
    @Override
    public boolean equals(final Object obj) {
+
       if (this == obj) {
          return true;
       }
+
       if (obj == null) {
          return false;
       }
+
       if (getClass() != obj.getClass()) {
          return false;
       }
-      final TVITagView_Month other = (TVITagView_Month) obj;
+
+      final TVITaggingView_Month other = (TVITaggingView_Month) obj;
+
       if (_month != other._month) {
          return false;
       }
+
       if (_year != other._year) {
          return false;
       }
+
       if (_yearItem == null) {
+
          if (other._yearItem != null) {
             return false;
          }
+
       } else if (!_yearItem.equals(other._yearItem)) {
+
          return false;
       }
+
       return true;
    }
 
@@ -108,7 +126,7 @@ public class TVITagView_Month extends TVITagViewItem {
    protected void fetchChildren() {
 
       /*
-       * set tour children for the month
+       * Set tour children for the month
        */
       final ArrayList<TreeViewerItem> children = new ArrayList<>();
       setChildren(children);
@@ -116,43 +134,45 @@ public class TVITagView_Month extends TVITagViewItem {
       try (Connection conn = TourDatabase.getInstance().getConnection()) {
 
          /*
-          * get all tours for the current month
+          * Get all tours for the current month
           */
-         final StringBuilder sb = new StringBuilder();
          final SQLFilter sqlFilter = new SQLFilter();
 
-         sb.append("SELECT"); //$NON-NLS-1$
+         final String sql = UI.EMPTY_STRING
 
-         sb.append(" tourID,"); //						1	//$NON-NLS-1$
-         sb.append(" jTdataTtag2.TourTag_tagId,");//		2 //$NON-NLS-1$
-         //
-         sb.append(TVITagView_Tour.SQL_TOUR_COLUMNS); //	3
+               + "SELECT" + NL //                                 //$NON-NLS-1$
 
-         sb.append(" FROM " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag"); //$NON-NLS-1$ //$NON-NLS-2$
+               + " tourID," + NL //                //				1	//$NON-NLS-1$
+               + " jTdataTtag2.TourTag_tagId," + NL //         2  //$NON-NLS-1$
 
-         // get all tours for current tag and year/month
-         sb.append(" LEFT OUTER JOIN " + TourDatabase.TABLE_TOUR_DATA + " TourData"); //$NON-NLS-1$ //$NON-NLS-2$
-         sb.append(" ON jTdataTtag.TourData_tourId=TourData.tourId "); //$NON-NLS-1$
+               + TVITaggingView_Tour.SQL_TOUR_COLUMNS + NL //  3
 
-         // get all tag id's for one tour
-         sb.append(" LEFT OUTER JOIN " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag2"); //$NON-NLS-1$ //$NON-NLS-2$
-         sb.append(" ON TourData.tourID = jTdataTtag2.TourData_tourId"); //$NON-NLS-1$
+               + " FROM " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag" + NL //                  //$NON-NLS-1$ //$NON-NLS-2$
 
-         sb.append(" WHERE jTdataTtag.TourTag_TagId=?"); //$NON-NLS-1$
-         sb.append(" AND startYear=?"); //$NON-NLS-1$
-         sb.append(" AND startMonth=?"); //$NON-NLS-1$
-         sb.append(sqlFilter.getWhereClause());
+               // get all tours for current tag and year/month
+               + " LEFT OUTER JOIN " + TourDatabase.TABLE_TOUR_DATA + " TourData" + NL //                      //$NON-NLS-1$ //$NON-NLS-2$
+               + " ON jTdataTtag.TourData_tourId=TourData.tourId " + NL //                                     //$NON-NLS-1$
 
-         sb.append(" ORDER BY startDay, startHour, startMinute"); //$NON-NLS-1$
+               // get all tag id's for one tour
+               + " LEFT OUTER JOIN " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jTdataTtag2" + NL //      //$NON-NLS-1$ //$NON-NLS-2$
+               + " ON TourData.tourID = jTdataTtag2.TourData_tourId" + NL //                                   //$NON-NLS-1$
 
-         final PreparedStatement statement = conn.prepareStatement(sb.toString());
+               + " WHERE jTdataTtag.TourTag_TagId=?" + NL //                                                   //$NON-NLS-1$
+               + " AND startYear=?" + NL //                                                                    //$NON-NLS-1$
+               + " AND startMonth=?" + NL //                                                                   //$NON-NLS-1$
+               + sqlFilter.getWhereClause() + NL
+
+               + " ORDER BY startDay, startHour, startMinute" + NL //                                          //$NON-NLS-1$
+         ;
+
+         final PreparedStatement statement = conn.prepareStatement(sql);
          statement.setLong(1, _yearItem.getTagId());
          statement.setInt(2, _year);
          statement.setInt(3, _month);
          sqlFilter.setParameters(statement, 4);
 
          long lastTourId = -1;
-         TVITagView_Tour tourItem = null;
+         TVITaggingView_Tour tourItem = null;
 
          final ResultSet result = statement.executeQuery();
          while (result.next()) {
@@ -171,14 +191,19 @@ public class TVITagView_Month extends TVITagViewItem {
             } else {
 
                // new tour is in the resultset
-               tourItem = new TVITagView_Tour(this);
+               tourItem = new TVITaggingView_Tour(this, getTagViewer());
 
                children.add(tourItem);
 
                tourItem.tourId = tourId;
                tourItem.getTourColumnData(result, resultTagId, 3);
 
-               tourItem.treeColumn = Integer.toString(tourItem.tourDay);
+               tourItem.firstColumn = Integer.toString(tourItem.tourDay);
+
+               if (UI.IS_SCRAMBLE_DATA) {
+                  tourItem.firstColumn = UI.scrambleText(tourItem.firstColumn);
+               }
+
             }
 
             lastTourId = tourId;
@@ -192,7 +217,7 @@ public class TVITagView_Month extends TVITagViewItem {
       return _month;
    }
 
-   public TVITagView_Year getYearItem() {
+   public TVITaggingView_Year getYearItem() {
       return _yearItem;
    }
 
@@ -208,8 +233,21 @@ public class TVITagView_Month extends TVITagViewItem {
 
    @Override
    public String toString() {
-      return "TVITagView_Month " + System.identityHashCode(this) //$NON-NLS-1$
 
-            + " [_year=" + _year + ", _month=" + _month + ", _yearItem=" + _yearItem + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      return UI.EMPTY_STRING
+
+            + "TVITagView_Month " + System.identityHashCode(this) + NL //     //$NON-NLS-1$
+
+            + "[" + NL //                                                     //$NON-NLS-1$
+
+            + "  _year         = " + _year + NL //                            //$NON-NLS-1$
+            + "  _month        = " + _month + NL //                           //$NON-NLS-1$
+            + "  _yearItem     = " + _yearItem + NL //                        //$NON-NLS-1$
+
+            + "  numTours          = " + numTours + NL //                     //$NON-NLS-1$
+            + "  numTags_NoTours   = " + numTags_NoTours + NL //              //$NON-NLS-1$
+
+            + "]" + NL //                                                     //$NON-NLS-1$
+      ;
    }
 }

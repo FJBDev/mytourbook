@@ -982,7 +982,7 @@ public class ReferenceTourView extends ViewPart implements
                final TVIRefTour_RefTourItem refItem = (TVIRefTour_RefTourItem) element;
 
                final StyledString styledString = new StyledString();
-               styledString.append(refItem.label, net.tourbook.ui.UI.TAG_STYLER);
+               styledString.append(refItem.label, net.tourbook.ui.UI.CONTENT_SUB_CATEGORY_STYLER);
 
                cell.setText(styledString.getString());
                cell.setStyleRanges(styledString.getStyleRanges());
@@ -993,7 +993,7 @@ public class ReferenceTourView extends ViewPart implements
 
                final TVIRefTour_YearItem yearItem = (TVIRefTour_YearItem) element;
                final StyledString styledString = new StyledString();
-               styledString.append(Integer.toString(yearItem.year), net.tourbook.ui.UI.TAG_SUB_STYLER);
+               styledString.append(Integer.toString(yearItem.year), net.tourbook.ui.UI.DATE_CATEGORY_STYLER);
                styledString.append("   " + yearItem.numTours, StyledString.QUALIFIER_STYLER); //$NON-NLS-1$
 
                cell.setText(styledString.getString());
@@ -1154,13 +1154,20 @@ public class ReferenceTourView extends ViewPart implements
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
-            if (element instanceof TVIRefTour_RefTourItem) {
 
-               final boolean hasGeoData = ((TVIRefTour_RefTourItem) element).hasGeoData;
-               if (hasGeoData) {
+            if (element instanceof final TVIRefTour_RefTourItem refTourItem) {
+
+               if (refTourItem.hasGeoData) {
                   cell.setText(UI.SYMBOL_FULL_BLOCK);
                }
+
+            } else if (element instanceof final TVIRefTour_ComparedTour comparedTourItem) {
+
+               if (comparedTourItem.hasGeoData) {
+                  cell.setText(UI.SYMBOL_BLACK_LARGE_CIRCLE);
+               }
             }
+
          }
       });
    }
@@ -1179,6 +1186,7 @@ public class ReferenceTourView extends ViewPart implements
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
+
             if (element instanceof TVIRefTour_ComparedTour) {
 
                final float value = ((TVIRefTour_ComparedTour) element).maxPulse;
@@ -1785,10 +1793,18 @@ public class ReferenceTourView extends ViewPart implements
 
       final Object itemData = event.item.getData();
 
-      if (itemData instanceof TVIRefTour_ComparedTour) {
+      long tourTypeId = -1;
 
-         final TVIRefTour_ComparedTour tviItem = (TVIRefTour_ComparedTour) itemData;
-         final long tourTypeId = tviItem.tourTypeId;
+      if (itemData instanceof final TVIRefTour_ComparedTour tviItem) {
+
+         tourTypeId = tviItem.tourTypeId;
+
+      } else if (itemData instanceof final TVIRefTour_RefTourItem tviItem) {
+
+         tourTypeId = tviItem.tourTypeId;
+      }
+
+      if (tourTypeId >= 0) {
 
          final Image image = TourTypeImage.getTourTypeImage(tourTypeId);
          if (image != null) {
@@ -1963,11 +1979,6 @@ public class ReferenceTourView extends ViewPart implements
        */
       UI.activateView(this, ID);
 
-      onTourViewer_Selection_FireSelection(selectionChangedEvent);
-   }
-
-   private void onTourViewer_Selection_FireSelection(final SelectionChangedEvent selectionChangedEvent) {
-
       final TreeSelection treeSelection = (TreeSelection) selectionChangedEvent.getSelection();
 
       boolean isCategorySelected = false;
@@ -2014,15 +2025,12 @@ public class ReferenceTourView extends ViewPart implements
       }
 
       // category is selected, expand/collapse category items
+      if (isCategorySelected
 
-      if (_isSelectedWithKeyboard == false) {
+            // do not expand/collapse when keyboard is used -> unusable
+            && _isSelectedWithKeyboard == false) {
 
-         // do not expand/collapse when keyboard is used -> unusable
-
-         if (isCategorySelected) {
-
-            onSelect_CategoryItem(treeSelection);
-         }
+         onSelect_CategoryItem(treeSelection);
       }
 
       // reset state

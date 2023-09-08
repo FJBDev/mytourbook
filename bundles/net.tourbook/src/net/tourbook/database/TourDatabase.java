@@ -1769,7 +1769,7 @@ public class TourDatabase {
       try (Connection conn = getInstance().getConnection()) {
 
          // get app filter without geo location
-         final SQLFilter appFilter = new SQLFilter(SQLFilter.FAST_APP_FILTER);
+         final SQLFilter appFilter = new SQLFilter(SQLFilter.ONLY_FAST_APP_FILTERS);
 
          final String sql = UI.EMPTY_STRING
 
@@ -2306,7 +2306,14 @@ public class TourDatabase {
          sb.append(tagName);
       }
 
-      return sb.toString();
+      String tagNamesText = sb.toString();
+
+      if (net.tourbook.common.UI.IS_SCRAMBLE_DATA) {
+
+         tagNamesText = net.tourbook.common.UI.scrambleText(tagNamesText);
+      }
+
+      return tagNamesText;
    }
 
    public static String getTagNamesText(final Set<Long> alltagIds, final boolean isVertical) {
@@ -2782,9 +2789,7 @@ public class TourDatabase {
             final List<?> resultList = emQuery.getResultList();
             for (final Object result : resultList) {
 
-               if (result instanceof TourTag) {
-
-                  final TourTag tourTag = (TourTag) result;
+               if (result instanceof final TourTag tourTag) {
 
                   allTourTags_ByTagId.put(tourTag.getTagId(), tourTag);
                   allTourTags_ByTagName.put(tourTag.getTagName().toUpperCase(), tourTag);
@@ -4562,7 +4567,7 @@ public class TourDatabase {
             + "   isRoot                     INTEGER,                                  " + NL //$NON-NLS-1$
             + "   name                       VARCHAR(" + TourTag.DB_LENGTH_NAME + "),  " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
-            // version 38 start              
+            // version 38 start
 
             + "   notes                      VARCHAR(" + TourTag.DB_LENGTH_NOTES + ")  " + NL //$NON-NLS-1$ //$NON-NLS-2$
 

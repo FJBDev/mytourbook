@@ -22,7 +22,7 @@ import net.tourbook.data.TourTagCategory;
 import net.tourbook.database.TourDatabase;
 
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Tree;
 
 import jakarta.persistence.EntityManager;
 
@@ -46,35 +46,40 @@ public class TVIPrefTagCategory extends TVIPrefTagItem {
          return;
       }
 
+      final TreeViewer tagViewer = getTagViewer();
+      final Tree tree = tagViewer.getTree();
+
       final TourTagCategory tourTagCategory = em.find(TourTagCategory.class, _tourTagCategory.getCategoryId());
 
       // create tag items
       final Set<TourTag> lazyTourTags = tourTagCategory.getTourTags();
       for (final TourTag tourTag : lazyTourTags) {
-         addChild(new TVIPrefTag(getTagViewer(), tourTag));
+         addChild(new TVIPrefTag(tagViewer, tourTag));
       }
 
       // create category items
       final Set<TourTagCategory> lazyTourTagCategories = tourTagCategory.getTagCategories();
       for (final TourTagCategory tagCategory : lazyTourTagCategories) {
-         addChild(new TVIPrefTagCategory(getTagViewer(), tagCategory));
+         addChild(new TVIPrefTagCategory(tagViewer, tagCategory));
       }
 
       // update number of categories/tags
-      _tourTagCategory.setTagCounter(lazyTourTags.size());
-      _tourTagCategory.setCategoryCounter(lazyTourTagCategories.size());
+      _tourTagCategory.setNumberOfTags(lazyTourTags.size());
+      _tourTagCategory.setNumberOfCategories(lazyTourTagCategories.size());
 
       em.close();
 
       /*
-       * show number of tags/categories in the viewer, this must be done after the viewer task is
+       * Show number of tags/categories in the viewer, this must be done after the viewer task is
        * finished
        */
-      Display.getCurrent().asyncExec(new Runnable() {
-         @Override
-         public void run() {
-            getTagViewer().update(TVIPrefTagCategory.this, null);
+      tree.getDisplay().asyncExec(() -> {
+
+         if (tree.isDisposed()) {
+            return;
          }
+
+         tagViewer.update(TVIPrefTagCategory.this, null);
       });
    }
 

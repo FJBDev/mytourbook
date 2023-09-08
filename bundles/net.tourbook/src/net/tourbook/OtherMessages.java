@@ -31,6 +31,10 @@ public class OtherMessages {
    public static final String APP_ACTION_CLOSE_TOOLTIP                   = net.tourbook.common.Messages.App_Action_Close_Tooltip;
    public static final String APP_ACTION_RESTORE_DEFAULT                 = net.tourbook.common.Messages.App_Action_RestoreDefault;
 
+   public static final String APP_SIZE_LARGE                             = net.tourbook.common.Messages.App_Size_Large;
+   public static final String APP_SIZE_MEDIUM                            = net.tourbook.common.Messages.App_Size_Medium;
+   public static final String APP_SIZE_SMALL                             = net.tourbook.common.Messages.App_Size_Small;
+
    public static final String APP_THEME_BACKGROUND_COLOR_DARK_TOOLTIP    = net.tourbook.common.Messages.App_Theme_BackgroundColor_Dark_Tooltip;
    public static final String APP_THEME_BACKGROUND_COLOR_LIGHT_TOOLTIP   = net.tourbook.common.Messages.App_Theme_BackgroundColor_Light_Tooltip;
    public static final String APP_THEME_BRIGHT_THEME                     = net.tourbook.common.Messages.App_Theme_BrightTheme;
@@ -168,6 +172,7 @@ public class OtherMessages {
    public static final String VALUE_UNIT_K_CALORIES                       = net.tourbook.ui.Messages.Value_Unit_KCalories;
    public static final String VALUE_UNIT_PULSE                            = net.tourbook.ui.Messages.Value_Unit_Pulse;
 
+   public static final String APP_UNIT_HHMMSS                             = net.tourbook.Messages.App_Unit_HHMMSS;
    public static final String APP_UNIT_SECONDS_SMALL                      = net.tourbook.Messages.App_Unit_Seconds_Small;
 
    public static final String THEME_FONT_LOGGING_PREVIEW_TEXT             = de.byteholder.geoclipse.preferences.Messages.Theme_Font_Logging_PREVIEW_TEXT;
