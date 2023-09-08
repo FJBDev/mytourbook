@@ -13,7 +13,7 @@ Require-Bundle: net.tourbook,
  junit-jupiter-api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- hibernate-core-6.2.2.Final.jar,
+ hibernate-core-6.3.0.Final.jar,
  jsonassert-1.5.1.jar,
  xmlunit-core-2.9.1.jar,
  HttpClientMock-1.0.0.jar,
