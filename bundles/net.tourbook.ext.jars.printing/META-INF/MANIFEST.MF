@@ -6,19 +6,26 @@ Bundle-Version: 23.8.0.qualifier
 Bundle-Vendor: MyTourbook
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: 
- batik-all-1.15.jar,
+ batik-all-1.17.jar,
  fop-2.8.jar,
- xmlgraphics-commons-2.8.jar,
- commons-io-2.11.0.jar,
+ xmlgraphics-commons-2.9.jar,
+ commons-io-2.13.0.jar,
  commons-logging-1.2.jar,
- jaxb-core-4.0.1.jar,
- jaxb-runtime-4.0.1.jar,
- istack-commons-runtime-4.1.1.jar,
+ jaxb-core-4.0.3.jar,
+ jaxb-runtime-4.0.3.jar,
+ istack-commons-runtime-4.2.0.jar,
  activation-1.1.1.jar
 Export-Package: com.sun.istack,
  javax.activation,
  org.apache.commons.io,
  org.apache.commons.logging,
  org.apache.fop.apps,
- org.apache.xmlgraphics.util
+ org.apache.xmlgraphics.util,
+ org.glassfish.jaxb.core.v2,
+ org.glassfish.jaxb.core.v2.model.annotation,
+ org.glassfish.jaxb.core.v2.model.core,
+ org.glassfish.jaxb.core.v2.model.impl,
+ org.glassfish.jaxb.core,
+ org.glassfish.jaxb.core.unmarshaller,
+ org.glassfish.jaxb.core.api
 Automatic-Module-Name: net.tourbook.ext.jars.printing
