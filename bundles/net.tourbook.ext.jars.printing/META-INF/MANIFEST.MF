@@ -12,20 +12,27 @@ Bundle-ClassPath:
  commons-io-2.13.0.jar,
  commons-logging-1.2.jar,
  jaxb-core-4.0.3.jar,
- jaxb-runtime-4.0.3.jar,
  istack-commons-runtime-4.2.0.jar,
- activation-1.1.1.jar
+ activation-1.1.1.jar,
+ jakarta.activation-2.0.1.jar
 Export-Package: com.sun.istack,
  javax.activation,
+ jakarta.activation,
  org.apache.commons.io,
  org.apache.commons.logging,
  org.apache.fop.apps,
  org.apache.xmlgraphics.util,
  org.glassfish.jaxb.core.v2,
+ org.glassfish.jaxb.core.annotation,
  org.glassfish.jaxb.core.v2.model.annotation,
  org.glassfish.jaxb.core.v2.model.core,
  org.glassfish.jaxb.core.v2.model.impl,
  org.glassfish.jaxb.core,
  org.glassfish.jaxb.core.unmarshaller,
- org.glassfish.jaxb.core.api
+ org.glassfish.jaxb.core.marshaller,
+ org.glassfish.jaxb.core.api,
+ org.glassfish.jaxb.core.api.impl,
+ org.glassfish.jaxb.core.v2.runtime,
+ org.glassfish.jaxb.core.v2.util,
+ org.glassfish.jaxb.core.v2.model.nav
 Automatic-Module-Name: net.tourbook.ext.jars.printing
