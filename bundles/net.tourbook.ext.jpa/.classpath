@@ -4,11 +4,11 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="log4j-core-2.20.0.jar" sourcepath="C:/E/java-resources/apache/logging-log4j-1.2.14.zip"/> <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime-4.10.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/byte-buddy-1.14.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/byte-buddy-1.14.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/classmate-1.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-commons-annotations-6.0.6.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-core-6.3.0.Final.jar"/> <!--  https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
-	<classpathentry exported="true" kind="lib" path="lib/jandex-3.0.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jandex-3.1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.inject-api-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.persistence-api-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.transaction-api-2.0.1.jar"/>
