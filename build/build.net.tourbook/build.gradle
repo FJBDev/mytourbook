@@ -54,10 +54,10 @@ sonarqube {
     property 'sonar.sources',                        'bundles/'
     property 'sonar.tests',                          'bundles/'
     // Include test subdirectories in test scope
-    property 'sonar.test.inclusions',                'bundles/*tests/**/*.*, bundles/**/src-test/**/*.*,bundles/net.tourbook/src-test/net/tourbook/weather/WeatherUtilsTests.java'
+    property 'sonar.test.inclusions',                'bundles/*tests/**/*.*, bundles/**/src-test/**/*.*, bundles/net.tourbook/src-test/net/tourbook/weather/WeatherUtilsTests.java'
     // Exclude test subdirectories from source scope
     property 'sonar.exclusions',                     'bundles/*tests/**/*.*, bundles/**/src-test/**/*.*, bundles/net.tourbook.ext.jars*/**/*, bundles/net.tourbook.model/map-models/**/*.*,bundles/net.tourbook/src-test/net/tourbook/weather/WeatherUtilsTests.java'
-    property 'sonar.coverage.exclusions',            'bundles/net.tourbook.*tests/**/*.*, bundles/**/src-test/**/*.*, bundles/net.tourbook.p2/**/*.*, bundles/**/Slideout*.java, bundles/**/*_DISABLED.java, bundles/**/*_TEMPLATE_*.java, bundles/net.tourbook/src/net/tourbook/update/**/*.*, bundles/net.tourbook/src/net/tourbook/map3/**/*.*, bundles/**/AbstractRRShell.java, bundles/net.tourbook.cloud/src/net/tourbook/cloud/dropbox/**/*.*, bundles/**/Action_Property_*.java'
+    property 'sonar.coverage.exclusions',            'bundles/*tests/**/*.*, bundles/**/src-test/**/*.*, bundles/net.tourbook.p2/**/*.*, bundles/**/Slideout*.java, bundles/**/*_DISABLED.java, bundles/**/*_TEMPLATE_*.java, bundles/net.tourbook/src/net/tourbook/update/**/*.*, bundles/net.tourbook/src/net/tourbook/map3/**/*.*, bundles/**/AbstractRRShell.java, bundles/net.tourbook.cloud/src/net/tourbook/cloud/dropbox/**/*.*, bundles/**/Action_Property_*.java'
     property 'sonar.java.binaries',                  '.'
     property 'sonar.java.libraries',                 'bundles/**/*.jar'
     property 'sonar.java.source',                    '17'
