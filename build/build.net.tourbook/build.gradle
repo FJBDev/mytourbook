@@ -46,7 +46,7 @@ mt_0_Build.dependsOn(
 )
 
 sonar {
-// doc https://docs.sonarsource.com/sonarqube/latest/project-administration/analysis-scope/#code-coverage-exclusion
+  // doc https://docs.sonarsource.com/sonarqube/latest/project-administration/analysis-scope/#code-coverage-exclusion
   properties {
     property 'sonar.projectKey',                     'wolfgang-ch_mytourbook'
     property 'sonar.organization',                   'wolfgang-ch'
