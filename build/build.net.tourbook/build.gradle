@@ -45,7 +45,7 @@ mt_0_Build.dependsOn(
    'mt_70_CopyReleaseNotes',
 )
 
-sonar {
+sonarqube {
   // doc https://docs.sonarsource.com/sonarqube/latest/project-administration/analysis-scope/#code-coverage-exclusion
   properties {
     property 'sonar.projectKey',                     'wolfgang-ch_mytourbook'
