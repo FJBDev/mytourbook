@@ -51,8 +51,8 @@ sonarqube {
     property 'sonar.projectKey',                     'wolfgang-ch_mytourbook'
     property 'sonar.organization',                   'wolfgang-ch'
     property 'sonar.host.url',                       'https://sonarcloud.io'
-    property 'sonar.sources',                        'bundles'
-    property 'sonar.tests',                          'bundles'
+    property 'sonar.sources',                        'bundles/'
+    property 'sonar.tests',                          'bundles/'
     // Include test subdirectories in test scope
     property 'sonar.test.inclusions',                'bundles/net.tourbook.*tests/**/*.*, bundles/**/src-test/**/*.*'
     // Exclude test subdirectories from source scope
