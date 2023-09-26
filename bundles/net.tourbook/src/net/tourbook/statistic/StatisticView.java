@@ -29,6 +29,7 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.CommonImages;
+import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.ActionToolbarSlideout;
 import net.tourbook.common.tooltip.ToolbarSlideout;
@@ -50,7 +51,6 @@ import net.tourbook.ui.ChartUtils;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.SQLFilter;
 import net.tourbook.ui.TourTypeFilter;
-import net.tourbook.ui.UI;
 import net.tourbook.ui.views.sensors.SelectionRecordingDeviceBattery;
 
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
@@ -333,13 +333,13 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       _tourEventListener = (part, tourEventId, eventData) -> {
 
-         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof final TourEvent tourEventData) {
 
             if (part == StatisticView.this) {
                return;
             }
 
-            if (((TourEvent) eventData).isTourModified) {
+            if (tourEventData.isTourModified) {
                /*
                 * ignore edit changes because the statistics show data only from saved data
                 */
@@ -363,9 +363,9 @@ public class StatisticView extends ViewPart implements ITourProvider {
             updateStatistic();
 
          } else if (tourEventId == TourEventId.SELECTION_RECORDING_DEVICE_BATTERY
-               && eventData instanceof SelectionRecordingDeviceBattery) {
+               && eventData instanceof final SelectionRecordingDeviceBattery selectionRecordingDeviceBattery) {
 
-            selectBatterySoCStatistic((SelectionRecordingDeviceBattery) eventData);
+            selectBatterySoCStatistic(selectionRecordingDeviceBattery);
          }
       };
       TourManager.getInstance().addTourEventListener(_tourEventListener);

@@ -22,11 +22,11 @@ import java.io.IOException;
 import java.util.List;
 
 import net.tourbook.Messages;
+import net.tourbook.common.UI;
 import net.tourbook.importdata.ExternalDevice;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.importdata.SerialParameters;
 import net.tourbook.importdata.TourbookDevice;
-import net.tourbook.ui.UI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -40,7 +40,7 @@ public abstract class SimpleSerialDevice extends ExternalDevice {
    private final ByteArrayOutputStream _rawDataBuffer = new ByteArrayOutputStream();
    private List<File>                  _receivedFiles;
 
-   public SimpleSerialDevice() {
+   protected SimpleSerialDevice() {
       tourbookDevice = getTourbookDevice();
    }
 
@@ -63,28 +63,24 @@ public abstract class SimpleSerialDevice extends ExternalDevice {
 
       _receivedFiles = receivedFiles;
 
-      return new IRunnableWithProgress() {
-         @Override
-         public void run(final IProgressMonitor monitor) {
+      return monitor -> {
 
-            final SerialParameters portParameters = tourbookDevice.getPortParameters(portName);
+         final SerialParameters portParameters = tourbookDevice.getPortParameters(portName);
 
-            if (portParameters == null) {
-               return;
-            }
-
-            final String msg = NLS.bind(Messages.Import_Wizard_Monitor_task_msg,
-                  new Object[] {
-                        visibleName,
-                        portName,
-                        portParameters.getBaudRate() });
-
-            monitor.beginTask(msg, tourbookDevice.getTransferDataSize());
-
-            readDeviceData(monitor, portName);
-            saveReceivedData();
+         if (portParameters == null) {
+            return;
          }
 
+         final String msg = NLS.bind(Messages.Import_Wizard_Monitor_task_msg,
+               new Object[] {
+                     visibleName,
+                     portName,
+                     portParameters.getBaudRate() });
+
+         monitor.beginTask(msg, tourbookDevice.getTransferDataSize());
+
+         readDeviceData(monitor, portName);
+         saveReceivedData();
       };
    }
 
@@ -134,6 +130,7 @@ public abstract class SimpleSerialDevice extends ExternalDevice {
             Thread.sleep(100);
          } catch (final InterruptedException e2) {
             e2.printStackTrace();
+            Thread.currentThread().interrupt();
          }
 
          if (isReceivingStarted == false) {
@@ -201,6 +198,7 @@ public abstract class SimpleSerialDevice extends ExternalDevice {
          portThread.join();
       } catch (final InterruptedException e) {
          e.printStackTrace();
+         Thread.currentThread().interrupt();
       }
    }
 

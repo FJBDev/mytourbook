@@ -38,12 +38,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.training.TrainingManager;
-import net.tourbook.ui.UI;
 
 import org.hibernate.annotations.Cascade;
 
@@ -253,9 +253,7 @@ public class TourPerson implements Comparable<Object>, Serializable {
 
       // compare by last + first name
 
-      if (o instanceof TourPerson) {
-
-         final TourPerson otherPerson = (TourPerson) o;
+      if (o instanceof final TourPerson otherPerson) {
 
          final int compareLastName = lastName.compareTo(otherPerson.getLastName());
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -331,9 +331,8 @@ public class FTSearchManager {
 
    public static void closeIndexReaderSuggester() {
 
-      if (_suggester instanceof AnalyzingInfixSuggester) {
+      if (_suggester instanceof final AnalyzingInfixSuggester suggester) {
          try {
-            final AnalyzingInfixSuggester suggester = (AnalyzingInfixSuggester) _suggester;
             suggester.close();
          } catch (final IOException e) {
             StatusUtil.showStatus(e);
@@ -524,7 +523,7 @@ public class FTSearchManager {
     */
    private static int[] createMaxPassages(final int numQueryFields) {
 
-      final int allMaxPassages[] = new int[numQueryFields];
+      final int[] allMaxPassages = new int[numQueryFields];
 
       Arrays.fill(allMaxPassages, 1);
 
@@ -1179,7 +1178,7 @@ public class FTSearchManager {
          }
 
          final int numSearchResultItems = docEndIndex - docStartIndex + 1;
-         final int allDocIds[] = new int[numSearchResultItems];
+         final int[] allDocIds = new int[numSearchResultItems];
 
          for (int docIndex = 0; docIndex < numSearchResultItems; docIndex++) {
             allDocIds[docIndex] = allScoreDocs[docStartIndex + docIndex].doc;
@@ -1377,7 +1376,7 @@ public class FTSearchManager {
 
    /**
     * Creating the result is complicated because the highlights are listed by field and not by hit,
-    * therefor the structure must be inverted.
+    * therefore the structure must be inverted.
     *
     * @param highlights
     * @param indexReader
@@ -1623,6 +1622,7 @@ public class FTSearchManager {
 
          } catch (final InvocationTargetException | InterruptedException e) {
             StatusUtil.log(e);
+            Thread.currentThread().interrupt();
          }
       });
    }
@@ -1686,7 +1686,7 @@ public class FTSearchManager {
          return null;
       }
 
-      final Lookup suggester[] = new FreeTextSuggester[1];
+      final Lookup[] suggester = new FreeTextSuggester[1];
 
       Display.getDefault().syncExec(() -> BusyIndicator.showWhile(Display.getDefault(), () -> {
 
@@ -1827,6 +1827,7 @@ public class FTSearchManager {
                } catch (final InvocationTargetException | InterruptedException e) {
 
                   StatusUtil.showStatus(e);
+                  Thread.currentThread().interrupt();
                }
             });
          }

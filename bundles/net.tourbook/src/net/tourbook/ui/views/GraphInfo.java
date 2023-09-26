@@ -17,7 +17,7 @@ package net.tourbook.ui.views;
 
 import net.tourbook.chart.ChartDataSerie;
 import net.tourbook.chart.ChartDataYSerie;
-import net.tourbook.ui.UI;
+import net.tourbook.common.UI;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,9 +17,9 @@ package net.tourbook.device.daum.ergobike;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.UI;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.ui.UI;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -27,8 +27,6 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -71,12 +69,7 @@ public class PrefPageDaumErgoBike extends FieldEditorPreferencePage implements I
          _chkUseCustomFormat.fillIntoGrid(_groupDecimalFormat, 2);
          _chkUseCustomFormat.setPreferenceStore(_prefStore);
          _chkUseCustomFormat.load();
-         _chkUseCustomFormat.setPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent event) {
-               enableControls();
-            }
-         });
+         _chkUseCustomFormat.setPropertyChangeListener(propertyChangeEvent -> enableControls());
 
          // text: group separator
          _txtGroupSep = new StringFieldEditor(
@@ -90,12 +83,7 @@ public class PrefPageDaumErgoBike extends FieldEditorPreferencePage implements I
          _txtGroupSep.setTextLimit(1);
          _txtGroupSep.setPreferenceStore(_prefStore);
          _txtGroupSep.load();
-         _txtGroupSep.setPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent event) {
-               setExampleValue();
-            }
-         });
+         _txtGroupSep.setPropertyChangeListener(propertyChangeEvent -> setExampleValue());
 
          // text: decimal separator
          _txtDecimalSep = new StringFieldEditor(
@@ -109,12 +97,7 @@ public class PrefPageDaumErgoBike extends FieldEditorPreferencePage implements I
          _txtDecimalSep.setTextLimit(1);
          _txtDecimalSep.setPreferenceStore(_prefStore);
          _txtDecimalSep.load();
-         _txtDecimalSep.setPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent event) {
-               setExampleValue();
-            }
-         });
+         _txtDecimalSep.setPropertyChangeListener(propertyChangeEvent -> setExampleValue());
 
          // label: value example
          _lblExample = new Label(_groupDecimalFormat, SWT.NONE);
@@ -159,7 +142,7 @@ public class PrefPageDaumErgoBike extends FieldEditorPreferencePage implements I
 
          /*
           * property change listener does not work when the checkbox is defined as a field in the
-          * pref page, therefor storing the value is done manually
+          * pref page, therefore storing the value is done manually
           */
          _chkUseCustomFormat.store();
          _txtDecimalSep.store();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Map;
 
+import net.tourbook.common.UI;
 import net.tourbook.data.DataUtil;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
@@ -37,7 +38,6 @@ import net.tourbook.importdata.ImportState_Process;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.importdata.SerialParameters;
 import net.tourbook.importdata.TourbookDevice;
-import net.tourbook.ui.UI;
 
 public class HAC4DeviceReader extends TourbookDevice {
 
@@ -102,16 +102,16 @@ public class HAC4DeviceReader extends TourbookDevice {
       /*
        * check if the first 4 bytes are set to AFRO
        */
-      if (byteIndex == 0 & newByte == 'A') {
+      if (byteIndex == 0 && newByte == 'A') {
          return true;
       }
-      if (byteIndex == 1 & newByte == 'F') {
+      if (byteIndex == 1 && newByte == 'F') {
          return true;
       }
-      if (byteIndex == 2 & newByte == 'R') {
+      if (byteIndex == 2 && newByte == 'R') {
          return true;
       }
-      if (byteIndex == 3 & newByte == 'O') {
+      if (byteIndex == 3 && newByte == 'O') {
          return true;
       }
 
