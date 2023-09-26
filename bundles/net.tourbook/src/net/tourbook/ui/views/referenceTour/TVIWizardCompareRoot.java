@@ -64,7 +64,7 @@ public class TVIWizardCompareRoot extends TVIWizardCompareItem {
       ;
 
       try (Connection conn = TourDatabase.getInstance().getConnection();
-            final PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
 
          // app filter parameters
          if (isUseAppFilter) {

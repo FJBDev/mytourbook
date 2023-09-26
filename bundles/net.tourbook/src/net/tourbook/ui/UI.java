@@ -96,15 +96,10 @@ public class UI {
    public static final String            EMPTY_STRING                    = "";                                //$NON-NLS-1$
    public static final String            SPACE                           = " ";                               //$NON-NLS-1$
    public static final String            SPACE2                          = "  ";                              //$NON-NLS-1$
-   public static final String            SPACE4                          = "    ";                            //$NON-NLS-1$
    public static final String            COLON_SPACE                     = ": ";                              //$NON-NLS-1$
    public static final String            COMMA_SPACE                     = ", ";                              //$NON-NLS-1$
-   public static final String            UNDERSCORE                      = "_";                               //$NON-NLS-1$
    public static final String            DASH                            = "-";                               //$NON-NLS-1$
-   public static final String            DASH_WITH_SPACE                 = " - ";                             //$NON-NLS-1$
    public static final String            DASH_WITH_DOUBLE_SPACE          = "   -   ";                         //$NON-NLS-1$
-   public static final String            SLASH_WITH_SPACE                = " / ";                             //$NON-NLS-1$
-   public static final String            EMPTY_STRING_FORMAT             = "%s";                              //$NON-NLS-1$
 
    /**
     * contains a new line
