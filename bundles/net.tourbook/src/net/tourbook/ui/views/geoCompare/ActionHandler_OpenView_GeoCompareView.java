@@ -18,8 +18,8 @@ package net.tourbook.ui.views.geoCompare;
 import java.util.Map;
 
 import net.tourbook.Images;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
-import net.tourbook.ui.UI;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

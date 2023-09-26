@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.ui.UI;
 
 /**
  * Contains a reference tour tree item
@@ -154,9 +154,9 @@ public class TVIRefTour_RefTourItem extends TVIRefTour_TourItem {
             + " ORDER BY TourCompared.tourDate" + NL //                                                  //$NON-NLS-1$
       ;
 
-      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+      try (Connection conn = TourDatabase.getInstance().getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql)) {
 
-         final PreparedStatement statement = conn.prepareStatement(sql);
          statement.setLong(1, refId);
 
          if (isWithYear) {
@@ -290,9 +290,9 @@ public class TVIRefTour_RefTourItem extends TVIRefTour_TourItem {
             + " GROUP BY startYear" + NL //                          //$NON-NLS-1$
       ;
 
-      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+      try (Connection conn = TourDatabase.getInstance().getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql)) {
 
-         final PreparedStatement statement = conn.prepareStatement(sql);
          statement.setLong(1, refId);
 
          final ResultSet result = statement.executeQuery();
