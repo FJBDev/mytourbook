@@ -134,7 +134,7 @@ public class UI {
    public static final String            VIEW_COLOR_CONTENT_CATEGORY     = "VIEW_COLOR_CONTENT_CATEGORY";     //$NON-NLS-1$
 
    /**
-    * Cntent subcategory e.g. tag
+    * Content subcategory e.g. tag
     */
    public static final String            VIEW_COLOR_CONTENT_SUB_CATEGORY = "VIEW_COLOR_CONTENT_SUB_CATEGORY"; //$NON-NLS-1$
 
