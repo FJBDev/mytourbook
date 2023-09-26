@@ -20,7 +20,7 @@ import java.util.Map;
 import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.ui.UI;
+import net.tourbook.common.UI;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;

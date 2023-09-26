@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,9 +18,9 @@ package net.tourbook.tour.photo;
 import java.util.Map;
 
 import net.tourbook.Images;
+import net.tourbook.common.UI;
 import net.tourbook.photo.PhotosWithExifSelection;
 import net.tourbook.photo.PicDirView;
-import net.tourbook.ui.UI;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -37,9 +37,8 @@ public class ActionHandlerLinkPhotoWithTourInGallerySelected extends AbstractHan
 
       final IWorkbenchPart activePart = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 
-      if (activePart instanceof PicDirView) {
+      if (activePart instanceof final PicDirView picDirView) {
 
-         final PicDirView picDirView = (PicDirView) activePart;
          final PhotosWithExifSelection selectedPhotosWithExif = picDirView.getSelectedPhotosWithExif(false);
 
          if (selectedPhotosWithExif != null) {

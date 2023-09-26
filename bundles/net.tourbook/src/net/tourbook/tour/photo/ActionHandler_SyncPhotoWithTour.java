@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,9 +18,9 @@ package net.tourbook.tour.photo;
 import java.util.Map;
 
 import net.tourbook.Images;
+import net.tourbook.common.UI;
 import net.tourbook.photo.PhotosWithExifSelection;
 import net.tourbook.photo.PicDirView;
-import net.tourbook.ui.UI;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
@@ -60,9 +60,7 @@ public class ActionHandler_SyncPhotoWithTour extends AbstractHandler implements 
 //      // TODO remove SYSTEM.OUT.PRINTLN
 //
       final IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-      if (activePart instanceof PicDirView) {
-
-         final PicDirView picDirView = (PicDirView) activePart;
+      if (activePart instanceof final PicDirView picDirView) {
 
          picDirView.setSelectionConverter(_isSyncPhotoWithTour ? _syncSelectionProvider : null);
 
@@ -134,8 +132,8 @@ public class ActionHandler_SyncPhotoWithTour extends AbstractHandler implements 
             for (final IViewReference viewRef : wbPage.getViewReferences()) {
                if (viewRef.getId().equals(PicDirView.ID)) {
                   final IViewPart viewPart = viewRef.getView(false);
-                  if (viewPart instanceof PicDirView) {
-                     picDirView = (PicDirView) viewPart;
+                  if (viewPart instanceof final PicDirView currentPicDirView) {
+                     picDirView = currentPicDirView;
                      break;
                   }
                }
