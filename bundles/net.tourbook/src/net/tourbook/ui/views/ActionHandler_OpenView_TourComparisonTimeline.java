@@ -18,8 +18,8 @@ package net.tourbook.ui.views;
 import java.util.Map;
 
 import net.tourbook.Images;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
-import net.tourbook.ui.UI;
 import net.tourbook.ui.views.referenceTour.ReferenceTimelineView;
 
 import org.eclipse.core.commands.AbstractHandler;
