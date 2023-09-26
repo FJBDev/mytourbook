@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,9 +34,9 @@ import java.util.Collections;
 import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
-import net.tourbook.ui.UI;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -91,7 +91,7 @@ public class DefaultProxySelector extends ProxySelector {
          this.policyName = policyName;
       }
 
-      static public ProxyPolicy fromName(String policyName) {
+      public static ProxyPolicy fromName(String policyName) {
          if (policyName == null) {
             return null;
          }
