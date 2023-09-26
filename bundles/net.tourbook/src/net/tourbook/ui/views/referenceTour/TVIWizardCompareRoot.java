@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,10 +21,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.ui.SQLFilter;
-import net.tourbook.ui.UI;
 
 public class TVIWizardCompareRoot extends TVIWizardCompareItem {
 
@@ -42,30 +42,29 @@ public class TVIWizardCompareRoot extends TVIWizardCompareItem {
       final ArrayList<TreeViewerItem> children = new ArrayList<>();
       setChildren(children);
 
-      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+      // use fast app filter
+      final SQLFilter appFilter = new SQLFilter(SQLFilter.ONLY_FAST_APP_FILTERS);
 
-         // use fast app filter
-         final SQLFilter appFilter = new SQLFilter(SQLFilter.ONLY_FAST_APP_FILTERS);
+      String sqlWhere = UI.EMPTY_STRING;
 
-         String sqlWhere = UI.EMPTY_STRING;
+      if (isUseAppFilter) {
+         sqlWhere = " WHERE 1=1 " + appFilter.getWhereClause() + NL;//      //$NON-NLS-1$
+      }
 
-         if (isUseAppFilter) {
-            sqlWhere = " WHERE 1=1 " + appFilter.getWhereClause() + NL;//      //$NON-NLS-1$
-         }
+      final String sql = UI.EMPTY_STRING
 
-         final String sql = UI.EMPTY_STRING
+            + "SELECT" + NL //                                 //$NON-NLS-1$
 
-               + "SELECT" + NL //                                 //$NON-NLS-1$
+            + " startYear " + NL //                            //$NON-NLS-1$
 
-               + " startYear " + NL //                            //$NON-NLS-1$
+            + " FROM " + TourDatabase.TABLE_TOUR_DATA + NL //  //$NON-NLS-1$
+            + sqlWhere
+            + " GROUP BY startYear" + NL //                    //$NON-NLS-1$
+            + " ORDER BY startYear" + NL //                    //$NON-NLS-1$
+      ;
 
-               + " FROM " + TourDatabase.TABLE_TOUR_DATA + NL //  //$NON-NLS-1$
-               + sqlWhere
-               + " GROUP BY startYear" + NL //                    //$NON-NLS-1$
-               + " ORDER BY startYear" + NL //                    //$NON-NLS-1$
-         ;
-
-         final PreparedStatement stmt = conn.prepareStatement(sql);
+      try (Connection conn = TourDatabase.getInstance().getConnection();
+            final PreparedStatement stmt = conn.prepareStatement(sql)) {
 
          // app filter parameters
          if (isUseAppFilter) {
