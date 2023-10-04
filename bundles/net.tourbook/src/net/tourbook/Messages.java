@@ -1545,6 +1545,7 @@ public class Messages extends NLS {
    public static String        Pref_DisplayFormat_Label_Info;
    public static String        Pref_DisplayFormat_Label_Power;
    public static String        Pref_DisplayFormat_Label_Pulse;
+   public static String        Pref_DisplayFormat_Label_Relative;
    public static String        Pref_DisplayFormat_Label_Speed;
    public static String        Pref_DisplayFormat_Label_Temperature;
    public static String        Pref_DisplayFormat_Tab_MultipleTours;
@@ -1862,7 +1863,7 @@ public class Messages extends NLS {
    public static String        Reference_Timeline_Page_SelectReferenceTour;
 
    public static String        RefTour_Action_CreateLeftMarker;
-   public static String        RefTour_Action_CreaateMarker;
+   public static String        RefTour_Action_CreateMarker;
    public static String        RefTour_Action_CreateReferenceTour;
    public static String        RefTour_Action_CreateRightMarker;
    public static String        RefTour_Action_DeleteTours;
@@ -2990,8 +2991,8 @@ public class Messages extends NLS {
    public static String        Tour_Editor_Link_RemoveTimeZone_Tooltip;
    public static String        Tour_Editor_Link_RetrieveWeather;
    public static String        Tour_Editor_Link_RetrieveWeather_Tooltip;
-   public static String        Tour_Editor_Link_SetDefautTimeZone;
-   public static String        Tour_Editor_Link_SetDefautTimeZone_Tooltip;
+   public static String        Tour_Editor_Link_SetDefaultTimeZone;
+   public static String        Tour_Editor_Link_SetDefaultTimeZone_Tooltip;
    public static String        Tour_Editor_Link_SetGeoTimeZone;
    public static String        Tour_Editor_Link_SetGeoTimeZone_Tooltip;
    public static String        tour_editor_message_person_is_required;
@@ -3160,13 +3161,20 @@ public class Messages extends NLS {
    public static String        Tour_Segmenter_Action_ExportViewCSV_Tooltip;
    public static String        Tour_Segmenter_Action_ShowHideSegmentsInTourChart_Tooltip;
    public static String        Tour_Segmenter_Button_SaveTour_Tooltip;
+   public static String        Tour_Segmenter_Combo_MouseWheelIncrementer_DP_Tooltip;
+   public static String        Tour_Segmenter_Combo_MouseWheelIncrementer_Gradient_Tooltip;
    public static String        tour_segmenter_button_updateAltitude;
    public static String        Tour_Segmenter_Label_AltitudeUpDown_Tooltip;
    public static String        tour_segmenter_label_createSegmentsWith;
    public static String        Tour_Segmenter_Label_DPTolerance;
    public static String        Tour_Segmenter_Label_DPTolerance_Tooltip;
+   public static String        Tour_Segmenter_Label_FlatGradient;
+   public static String        Tour_Segmenter_Label_FlatGradient_Tooltip;
    public static String        Tour_Segmenter_Label_no_chart;
    public static String        Tour_Segmenter_Label_NumberOfSegments_Tooltip;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Ascent;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Descent;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Flat;
    public static String        tour_segmenter_segType_byDistance_defaultDistance;
    public static String        tour_segmenter_segType_byDistance_label;
    public static String        tour_segmenter_segType_byUpDownAlti_label;
@@ -3197,6 +3205,7 @@ public class Messages extends NLS {
    public static String        Tour_Segmenter_Type_ByAltitude_Marker;
    public static String        Tour_Segmenter_Type_ByAltitude_Merged;
    public static String        Tour_Segmenter_Type_ByBreakTime;
+   public static String        Tour_Segmenter_Type_ByElevation_FlatGainLoss;
    public static String        tour_segmenter_type_byComputedAltiUpDown;
    public static String        tour_segmenter_type_byDistance;
    public static String        tour_segmenter_type_byMarker;

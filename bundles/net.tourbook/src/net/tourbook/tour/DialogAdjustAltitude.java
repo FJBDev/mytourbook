@@ -29,7 +29,7 @@ import net.tourbook.chart.MouseAdapter;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
-import net.tourbook.data.ElevationGainLoss;
+import net.tourbook.data.FlatGainLoss;
 import net.tourbook.data.SplineData;
 import net.tourbook.data.TourData;
 import net.tourbook.math.CubicSpline;
@@ -530,13 +530,13 @@ public class DialogAdjustAltitude extends TitleAreaDialog implements I2ndAltiLay
       /*
        * Update UI up/down values
        */
-      final ElevationGainLoss adjustedElevationUpDown = _tourData.computeAltitudeUpDown(metric_AdjustedElevationSerie);
+      final FlatGainLoss adjustedElevationUpDown = _tourData.computeAltitudeUpDown(metric_AdjustedElevationSerie);
 
       final float measurementSystem_TourElevationUp = _tourData.getTourAltUp() / UI.UNIT_VALUE_ELEVATION;
       final float measurementSystem_TourElevationDown = _tourData.getTourAltDown() / UI.UNIT_VALUE_ELEVATION;
 
-      final float adjustedElevationUp = adjustedElevationUpDown.getElevationGain() / UI.UNIT_VALUE_ELEVATION;
-      final float adjustedElevationDown = adjustedElevationUpDown.getElevationLoss() / UI.UNIT_VALUE_ELEVATION;
+      final float adjustedElevationUp = adjustedElevationUpDown.elevationGain / UI.UNIT_VALUE_ELEVATION;
+      final float adjustedElevationDown = adjustedElevationUpDown.elevationLoss / UI.UNIT_VALUE_ELEVATION;
 
       final float tourElevationUp_Diff = adjustedElevationUp - measurementSystem_TourElevationUp;
       final float tourElevationDown_Diff = adjustedElevationDown - measurementSystem_TourElevationDown;
@@ -554,7 +554,7 @@ public class DialogAdjustAltitude extends TitleAreaDialog implements I2ndAltiLay
    /**
     * Adjust start and max at the same time
     * <p>
-    * it took me several days to figure out this algorithim, 10.4.2007 Wolfgang
+    * it took me several days to figure out this algorithm, 10.4.2007 Wolfgang
     */
    private void computeElevation_StartAndMax(final float[] altiSrc,
                                              final float[] altiDest,
@@ -1499,7 +1499,7 @@ public class DialogAdjustAltitude extends TitleAreaDialog implements I2ndAltiLay
    }
 
    /**
-    * @return the adjustment type which is selected in the combox
+    * @return the adjustment type which is selected in the combobox
     */
    private AdjustmentType getSelectedAdjustmentType() {
 
@@ -1621,7 +1621,7 @@ public class DialogAdjustAltitude extends TitleAreaDialog implements I2ndAltiLay
 
    private void onChangeAltitude() {
 
-      // calcuate new altitude values
+      // calculate new altitude values
       computeElevation_WithoutSRTM();
 
       enableFieldsWithoutSRTM();
@@ -2521,7 +2521,7 @@ public class DialogAdjustAltitude extends TitleAreaDialog implements I2ndAltiLay
       final float dev1Y = (float) (_firstTimeSlice_ElevationDiff * scaleY);
 
       /*
-       * Creat a new points
+       * Create a new point
        */
       final float posXRelative = dev1X == 0 ? 0 : (newPoint_DevX - dev0X) / (dev1X - dev0X);
       final float posYRelative = dev1Y == 0 ? 0 : newPoint_DevY / dev1Y;

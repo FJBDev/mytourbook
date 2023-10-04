@@ -45,7 +45,7 @@ import utils.Utils;
 public class TourBookViewTests extends UITest {
 
    @Test
-   void adustTourValues_RetrieveWeatherData_OpenWeatherMap() {
+   void adjustTourValues_RetrieveWeatherData_OpenWeatherMap() {
 
       // Select OpenWeatherMap to make sure the air quality is retrieved
 
@@ -76,7 +76,7 @@ public class TourBookViewTests extends UITest {
    }
 
    @Test
-   void adustTourValues_SetTimeZone_AllChoices() {
+   void adjustTourValues_SetTimeZone_AllChoices() {
 
       //Select a tour
       SWTBotTreeItem tour = bot.tree().getTreeItem("2015   1").expand() //$NON-NLS-1$
@@ -252,7 +252,7 @@ public class TourBookViewTests extends UITest {
       SWTBotTreeItem tour = Utils.getTourWithSRTM(bot);
 
       //Check the original elevation value
-      assertEquals("2,578", tour.cell(tourBookView_ElevationGain_Column_Index)); //$NON-NLS-1$
+      assertEquals("2,577", tour.cell(tourBookView_ElevationGain_Column_Index)); //$NON-NLS-1$
 
       //Set elevation from SRTM
       tour.contextMenu(Messages.Tour_Action_AdjustTourValues)
