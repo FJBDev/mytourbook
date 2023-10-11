@@ -81,6 +81,7 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
@@ -131,6 +132,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 public class UI {
 
    public static final String       SYSTEM_NEW_LINE                      = System.lineSeparator();
+   public static final String       SYSTEM_NEW_LINE2                     = SYSTEM_NEW_LINE + SYSTEM_NEW_LINE;
 
    public static final int          SHELL_MARGIN                         = 5;
 
@@ -2133,6 +2135,11 @@ public class UI {
    public static boolean isCtrlKey(final MouseEvent event) {
 
       return (event.stateMask & SWT.MOD1) > 0;
+   }
+
+   public static boolean isCtrlKey(final SelectionEvent selectionEvent) {
+
+      return (selectionEvent.stateMask & SWT.MOD1) > 0;
    }
 
    /**

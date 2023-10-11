@@ -1,18 +1,6 @@
 23.10.0                                                 ?. October 2023
 
 
-TODO's
-======               
-
-* TRANSLATION
-
-  - Inform translators to update the Messages editor by using the install procedure from
-    https://mytourbook.sourceforge.io/mytourbook/index.php/development/translation/install-resource-editor
-  - The internal newline char is now forced to Unix that different translators create the same output
-  - The headerline shows the used messages editor and version
-  - I'm using this https://github.com/mytourbook/eclipse-rbe messages editor which is faster when many languages are edited but it has the major disadvantage that new texts are not displayed in the "Problems" view
-
-
 Improvements
 ============
 
@@ -49,6 +37,10 @@ Improvements
     https://github.com/mytourbook/mytourbook/issues/1126#issuecomment-1732513808
   - Added the average elevation (Frederic)
   
+* Tour Editor
+  - Append or replace the weather description
+    https://github.com/mytourbook/mytourbook/discussions/1069  
+
 * Tour Blog
   - Detect http links in the tour description to make them clickable
     https://github.com/mytourbook/mytourbook/issues/1102
@@ -79,6 +71,9 @@ Changes
 
 * Reference Tours
   - Reference tours are now filtered by the selected person and tour type in the app toolbar
+
+* Statistics
+  - The year in the week start date are now displayed with 4 digits instead of 2 when the statistic values are copied into the clipboard
 
 * Tour Segmenter
   - The tour segmenter color for total values is used for the foreground color and not for the background color
@@ -116,8 +111,8 @@ Translation
 System   
 ======
 
-* MyTourbook Milestone 23.?   https://github.com/mytourbook/mytourbook/milestone/12?closed=1
+* MyTourbook Milestone 23.10  https://github.com/mytourbook/mytourbook/milestone/12?closed=1
 * Eclipse 2023-06 (4.28)
 * NatTable 2.10               https://www.eclipse.org/nattable/download.php
-* FIT SDK 21.120.2
+* FIT SDK 21.120.2			  https://forums.garmin.com/developer/fit-sdk/b/news-announcements
 * WorldWind 2.2.1             https://github.com/NASAWorldWind/WorldWindJava/releases/tag/v2.2.1

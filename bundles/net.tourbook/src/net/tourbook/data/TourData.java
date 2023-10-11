@@ -2052,6 +2052,37 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    /**
+    * Append or replace weather description
+    *
+    * @param weatherDescription
+    */
+   public void appendOrReplaceWeather(final String weatherDescription) {
+
+      final boolean isAppendWeatherDescription = _prefStore.getBoolean(ITourbookPreferences.WEATHER_IS_APPEND_WEATHER_DESCRIPTION);
+
+      if (isAppendWeatherDescription && StringUtils.hasContent(weather)) {
+
+         // append weather
+
+         weather +=
+
+//             THIS DO NOT WORK IN THE TOUR EDITOR, it will not wrap the text in Win
+//
+//             UI.NEW_LINE
+
+               UI.SYSTEM_NEW_LINE
+
+                     + weatherDescription;
+
+      } else {
+
+         // replace weather description
+
+         weather = weatherDescription;
+      }
+   }
+
+   /**
     * Removed data series when the sum of all values is 0.
     */
    public void cleanupDataSeries() {
@@ -2853,6 +2884,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param isElevationFromDevice
     *           When <code>true</code> then device values are used ohterwise SRTM elevation values
+    *
     * @return Returns <code>true</code> when altitude was computed otherwise <code>false</code>
     */
    public boolean computeAltitudeUpDown(final boolean isElevationFromDevice) {
@@ -2906,6 +2938,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * Compute elevation up/down for an elevation serie with the current Douglas Peucker tolerance.
     *
     * @param elevationSerie
+    *
     * @return
     */
    public FlatGainLoss computeAltitudeUpDown(final float[] elevationSerie) {
@@ -2953,6 +2986,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *           The index of the range start
     * @param endIndex
     *           The index of the range end
+    *
     * @return Returns an <code>AltitudeUpDown</code> when altitude was computed otherwise
     *         <code>null</code>
     */
@@ -3009,6 +3043,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *           <p>
     *           <code>-1</code> will ignore this and will put all values into the gain or loss
     *           values
+    *
     * @return Returns <code>null</code> when elevation gain/loss cannot be computed
     */
    private FlatGainLoss computeAltitudeUpDown_20_Algorithm_DP(final int dataSerieStartIndex,
@@ -3210,6 +3245,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *           segments are created for each gradient alternation when segmentSerie is not
     *           <code>null</code>
     * @param minAltiDiff
+    *
     * @return Returns <code>null</code> when altitude up/down cannot be computed
     */
    private FlatGainLoss computeAltitudeUpDown_30_Algorithm_9_08(final ArrayList<AltitudeUpDownSegment> segmentSerie,
@@ -3756,6 +3792,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * @param firstIndex
     * @param lastIndex
+    *
     * @return Returns the average pulse or 0 when not available.
     */
    public float computeAvg_PulseSegment(final int firstIndex, final int lastIndex) {
@@ -3945,6 +3982,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * @param minSlices
     *           A break will occur when the distance will not change within the minimum number of
     *           time slices.
+    *
     * @return Returns the number of slices which can be ignored
     */
    private void computeBreakTimeFixed(int minSlices) {
@@ -3975,6 +4013,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param endIndex
     * @param btConfig
+    *
     * @return Returns break time for the whole tour.
     */
    private int computeBreakTimeVariable(final BreakTimeTool btConfig) {
@@ -4650,6 +4689,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param startIndex
     * @param endIndex
+    *
     * @return Returns geo min/max positions when data are available, otherwise <code>null</code>.
     */
    public Set<GeoPosition> computeGeo_Bounds(final int startIndex, final int endIndex) {
@@ -4748,6 +4788,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * @param indexStart
     * @param indexEnd
     *           Last index + 1
+    *
     * @return Returns all geo partitions or <code>null</code> when geo data are not available.
     */
    private int[] computeGeo_Grid(final double[] partLatitude,
@@ -4823,6 +4864,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * @param firstIndex
     * @param lastIndex
+    *
     * @return Returns the geo partitions or <code>null</code> when geo data are not available
     */
    public int[] computeGeo_Grid(final int firstIndex, final int lastIndex) {
@@ -6533,6 +6575,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param breakTimeConfig
     * @param flatGainLoss_Gradient
+    *
     * @return
     */
    public ArrayList<TourSegment> createSegmenterSegments(final BreakTimeTool breakTimeConfig) {
@@ -7832,6 +7875,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param uniqueKeySuffix
     *           Unique key to identify a tour, this <b>MUST</b> be an {@link Integer} value.
+    *
     * @return
     */
    public Long createTourId(final String uniqueKeySuffix) {
@@ -8225,6 +8269,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    /**
     * @param isForceSmoothing
+    *
     * @return Returns smoothed altitude values (according to the measurement system) when they are
     *         set to be smoothed otherwise it returns normal altitude values or <code>null</code>
     *         when altitude is not available.
@@ -8372,6 +8417,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * @param startIndex
     * @param endIndex
     * @param breakTimeTool
+    *
     * @return Returns the break time in seconds
     */
    public int getBreakTime(final int startIndex, final int endIndex, final BreakTimeTool breakTimeTool) {
@@ -8710,6 +8756,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    /**
     * @param values
+    *
     * @return Returns first value which is not 0
     */
    private short getFirstNot0Value(final short[] values) {
@@ -9163,6 +9210,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * @param geoAccuracy
     * @param distanceAccuracy
+    *
     * @return Returns tour lat/lon data multiplied by {@link #NORMALIZED_GEO_DATA_FACTOR} and
     *         normalized (removed duplicates), or <code>null</code> when not available
     */
@@ -9321,6 +9369,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param tourStartIndex
     * @param tourEndIndex
+    *
     * @return Returns the paused time in seconds
     */
    public int getPausedTime(final int tourStartIndex, final int tourEndIndex) {
@@ -10298,6 +10347,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    /**
     * @param isUseSRTM1Values
+    *
     * @return Returns SRTM metric or imperial data serie depending on the active measurement or
     *         <code>null</code> when SRTM data serie is not available
     */
@@ -10337,6 +10387,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    /**
     * @param isUseSRTM1Values
+    *
     * @return Returned SRTM values:
     *         <p>
     *         metric <br>
@@ -11007,6 +11058,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * @param zoomLevel
     * @param projectionHash
+    *
     * @return Returns the world position for the supplied zoom level and projection id
     */
    public Point[] getWorldPositionForTour(final int projectionHash, final int zoomLevel) {
@@ -11017,6 +11069,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * @param zoomLevel
     * @param projectionHash
+    *
     * @return Returns the world position for way points
     */
    public IntObjectHashMap<Point> getWorldPositionForWayPoints(final int projectionHash, final int zoomLevel) {
@@ -11075,6 +11128,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    /**
     * @param dataSerie
+    *
     * @return Returns <code>true</code> when the data serie contains at least one value which is > 0
     */
    private boolean isDataSerieWithContent(final int[] dataSerie) {
@@ -12820,6 +12874,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     *
     * @param timeDataSerie
     * @param isAbsoluteData
+    *
     * @return Returns <code>true</code> when values are available in the data serie and
     *         {@link #altitudeSerie} has valid start values.
     */
