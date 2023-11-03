@@ -737,6 +737,7 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
             TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE,
             TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE_DEFAULT);
 
+      //todo fb here
       _segmenterState.put(
             ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING,
             ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DEFAULT);
