@@ -40,6 +40,7 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -59,6 +60,8 @@ import org.eclipse.swt.widgets.ToolBar;
 public class SlideoutGraphBackground extends ToolbarSlideout implements IActionResetToDefault {
 
    private static final IPreferenceStore _prefStore                   = TourbookPlugin.getPrefStore();
+
+   private IPropertyChangeListener       _prefChangeListener;
 
    /**
     * Contains all {@link GraphBgSourceType}s which can be displayed for the current tour
@@ -92,6 +95,21 @@ public class SlideoutGraphBackground extends ToolbarSlideout implements IActionR
       super(ownerControl, toolBar);
 
       _tourChart = tourChart;
+   }
+
+   private void addPrefListener(final Composite parent) {
+
+      _prefChangeListener = propertyChangeEvent -> {
+
+         final String property = propertyChangeEvent.getProperty();
+
+         if (property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING)) {
+
+            restoreState();
+         }
+      };
+
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
    }
 
    private void createActions() {
@@ -363,7 +381,7 @@ public class SlideoutGraphBackground extends ToolbarSlideout implements IActionR
 
    @Override
    protected void onDispose() {
-
+      _prefStore.removePropertyChangeListener(_prefChangeListener);
    }
 
    @Override

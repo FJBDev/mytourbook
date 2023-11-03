@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tourSegmenter;
 
+import static org.eclipse.swt.events.MouseTrackListener.mouseExitAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import net.tourbook.Messages;
@@ -42,8 +43,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -147,7 +146,7 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 
       _tourSegmenterView = tourSegmenterView;
 
-      addListener(ownerControl, toolBar);
+      addListener(toolBar);
 
       setToolTipCreateStyle(AnimatedToolTipShell.TOOLTIP_STYLE_KEEP_CONTENT);
       setBehaviourOnMouseOver(AnimatedToolTipShell.MOUSE_OVER_BEHAVIOUR_IGNORE_OWNER);
@@ -158,16 +157,13 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
       setFadeOutDelaySteps(1);
    }
 
-   private void addListener(final Control ownerControl, final ToolBar toolBar) {
+   private void addListener(final ToolBar toolBar) {
 
-      toolBar.addMouseTrackListener(new MouseTrackAdapter() {
-         @Override
-         public void mouseExit(final MouseEvent e) {
+      toolBar.addMouseTrackListener(mouseExitAdapter(mouseEvent -> {
 
-            // prevent to open the tooltip
-            _canOpenToolTip = false;
-         }
-      });
+         // prevent to open the tooltip
+         _canOpenToolTip = false;
+      }));
    }
 
    private void addPrefListener(final Composite parent) {
@@ -902,7 +898,8 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_TOOLTIP,         _chkShowSegmentTooltip.getSelection());
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE,           _chkShowSegmentValue.getSelection());
 
-		_segmenterState.put(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING,  UI.transformOpacity_WhenSaved(graphOpacity));
+		 _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DARK,     UI.transformOpacity_WhenSaved(graphOpacity));
+
 		_segmenterState.put(TourSegmenterView.STATE_STACKED_VISIBLE_VALUES,   _spinVisibleValuesStacked.getSelection());
 
 // SET_FORMATTING_ON
