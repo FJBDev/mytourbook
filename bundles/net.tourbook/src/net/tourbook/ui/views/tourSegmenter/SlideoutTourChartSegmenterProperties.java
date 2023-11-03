@@ -877,6 +877,7 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_TOOLTIP,         _chkShowSegmentTooltip.getSelection());
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE,           _chkShowSegmentValue.getSelection());
 
+		//todo fb ici
 		_segmenterState.put(TourSegmenterView.STATE_GRAPH_OPACITY,            UI.transformOpacity_WhenSaved(graphOpacity));
 		_segmenterState.put(TourSegmenterView.STATE_STACKED_VISIBLE_VALUES,   _spinVisibleValuesStacked.getSelection());
 

@@ -430,6 +430,7 @@ public class SlideoutGraphBackground extends ToolbarSlideout implements IActionR
       final int graphFillingOpacity_Transformed_Light = UI.transformOpacity_WhenSaved(graphFillingOpacity_Light);
 
       _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DARK,  graphFillingOpacity_Transformed_Dark);
+      //todo fb ca se passe ici
       _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING,       graphFillingOpacity_Transformed_Light);
 
 		final GraphBgSourceType graphBgSourceType 	= _availableGraphBgSourceTypes.get(_comboGraphBgSource.getSelectionIndex());
