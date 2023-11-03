@@ -2562,8 +2562,9 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
 
       final int graphOpacity = Util.getStateInt(
             _tourSegmenterState,
-            TourSegmenterView.STATE_GRAPH_OPACITY,
-            TourSegmenterView.STATE_GRAPH_OPACITY_DEFAULT);
+            ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING,
+            //todo fb
+            70);
 
       final double[] xDataSerie = _tcc.isShowTimeOnXAxis
             ? _tourData.getTimeSerieDouble()

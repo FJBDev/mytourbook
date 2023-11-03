@@ -170,6 +170,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
       store.setDefault(ITourbookPreferences.GRAPH_ANTIALIASING, true);
       store.setDefault(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE, 0xff);
+      store.setDefault(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DEFAULT, 70);
       store.setDefault(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING, 70);
       store.setDefault(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DARK, 20);
 

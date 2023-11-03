@@ -230,6 +230,7 @@ public interface ITourbookPreferences {
    public static final String GRAPH_MOVE_SLIDERS_WHEN_ZOOMED        = "graphs.move-sliders-when-zoomed";       //$NON-NLS-1$
    public static final String GRAPH_SPEED_PACE_DISTANCE_INTERVAL    = "GRAPH_SPEED_PACE_DISTANCE_INTERVAL";    //$NON-NLS-1$
    public static final String GRAPH_TRANSPARENCY_FILLING            = "Graph_Transparency_Filling";            //$NON-NLS-1$
+   public static final String GRAPH_TRANSPARENCY_FILLING_DEFAULT    = "Graph_Transparency_Filling_Default";    //$NON-NLS-1$
    public static final String GRAPH_TRANSPARENCY_FILLING_DARK       = "GRAPH_TRANSPARENCY_FILLING_DARK";       //$NON-NLS-1$
    public static final String GRAPH_TRANSPARENCY_LINE               = "Graph_Transparency_Line";               //$NON-NLS-1$
    public static final String GRAPH_X_AXIS                          = "graphs.x-axis";                         //$NON-NLS-1$
