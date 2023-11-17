@@ -122,8 +122,25 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
    }
 
    @Override
+   public void postStartup() {
+       super.postStartup();
+
+//  filterPreferencePages();
+//       filterWizards();
+//
+//       if (!application.isDistributed()) {
+       startVersionChecker();
+//       }
+   }
+
+   @Override
    public boolean preShutdown() {
 
       return TourManager.getInstance().saveTours();
    }
+
+   private void startVersionChecker() {
+      final DBeaverVersionChecker checker = new DBeaverVersionChecker(false);
+      checker.schedule(3000);
+  }
 }
