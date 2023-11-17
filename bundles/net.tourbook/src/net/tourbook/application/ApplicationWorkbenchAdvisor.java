@@ -115,7 +115,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
       }
 
       /**
-       * Ensure the derby database is shutted down to fix
+       * Ensure the derby database is shut down to fix
        * https://github.com/mytourbook/mytourbook/pull/1091#issuecomment-1559732337
        */
       TourDatabase.getInstance().shutdownDatabaseServer();
@@ -140,7 +140,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
    }
 
    private void startVersionChecker() {
-      final DBeaverVersionChecker checker = new DBeaverVersionChecker(false);
-      checker.schedule(3000);
+      // final DBeaverVersionChecker checker = new DBeaverVersionChecker(false);
+      // checker.schedule(3000);
   }
 }
