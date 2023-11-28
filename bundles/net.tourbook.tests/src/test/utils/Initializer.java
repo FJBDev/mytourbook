@@ -39,7 +39,7 @@ import net.tourbook.device.gpx.GPXDeviceDataReader;
 import net.tourbook.importdata.ImportState_File;
 import net.tourbook.importdata.ImportState_Process;
 
-import javax.persistence.Persistence;
+import jakarta.persistence.Persistence;
 
 public class Initializer {
 
