@@ -24,13 +24,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.SelectionChartXSliderPosition;
+import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ThemeUtil;
+import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.tooltip.ActionToolbarSlideout;
 import net.tourbook.common.tooltip.ToolbarSlideout;
@@ -130,15 +133,20 @@ public class TourBlogView extends ViewPart {
       HREF_SHOW_MARKER = HREF_TOKEN + ACTION_SHOW_MARKER + HREF_TOKEN;
    }
 
-   private static final String           HREF_MARKER_ITEM = "#MarkerItem";                //$NON-NLS-1$
+   private static final String           HREF_MARKER_ITEM  = "#MarkerItem";                                                    //$NON-NLS-1$
 
-   private static final IPreferenceStore _prefStore       = TourbookPlugin.getPrefStore();
-   private static final IDialogSettings  _state           = TourbookPlugin.getState(ID);
-   private static final IDialogSettings  _state_WEB       = WEB.getState();
+   private static final Pattern          HTTP_PATTERN      = Pattern.compile("(http|https|ftp):\\/\\/(\\S*)", Pattern.DOTALL); //$NON-NLS-1$
+   private static final String           HTTP_REPLACEMENT  = "<a href=\"$1://$2\">$1://$2</a>";                                //$NON-NLS-1$
+
+   private static final IPreferenceStore _prefStore        = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore_Common = CommonActivator.getPrefStore();
+   private static final IDialogSettings  _state            = TourbookPlugin.getState(ID);
+   private static final IDialogSettings  _state_WEB        = WEB.getState();
 
    private PostSelectionProvider         _postSelectionProvider;
    private ISelectionListener            _postSelectionListener;
    private IPropertyChangeListener       _prefChangeListener;
+   private IPropertyChangeListener       _prefChangeListener_Common;
    private ITourEventListener            _tourEventListener;
    private IPartListener2                _partListener;
 
@@ -227,7 +235,20 @@ public class TourBlogView extends ViewPart {
          }
       };
 
+      _prefChangeListener_Common = propertyChangeEvent -> {
+
+         final String property = propertyChangeEvent.getProperty();
+
+         if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+
+            // measurement system has changed
+
+            updateUI();
+         }
+      };
+
       _prefStore.addPropertyChangeListener(_prefChangeListener);
+      _prefStore_Common.addPropertyChangeListener(_prefChangeListener_Common);
    }
 
    /**
@@ -467,6 +488,8 @@ public class TourBlogView extends ViewPart {
                 * Description
                 */
                if (isDescription) {
+
+                  tourDescription = HTTP_PATTERN.matcher(tourDescription).replaceAll(HTTP_REPLACEMENT);
 
                   if (UI.IS_SCRAMBLE_DATA) {
                      tourDescription = UI.scrambleText(tourDescription);
@@ -738,6 +761,7 @@ public class TourBlogView extends ViewPart {
       getViewSite().getPage().removePartListener(_partListener);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
+      _prefStore_Common.removePropertyChangeListener(_prefChangeListener_Common);
 
       super.dispose();
    }
@@ -1064,7 +1088,12 @@ public class TourBlogView extends ViewPart {
 
       final boolean isTourAvailable = (tourId >= 0) && (_tourData != null);
       if (isTourAvailable && _browser != null) {
+
          updateUI();
+
+      } else if (_tourData == null) {
+
+         clearView();
       }
    }
 

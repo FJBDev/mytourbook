@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,7 @@ package dialogs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import net.tourbook.Messages;
-import net.tourbook.ui.UI;
+import net.tourbook.common.UI;
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.junit.jupiter.api.Test;
@@ -58,16 +58,16 @@ public class DialogDatabaseTests extends UITest {
             "✓" + UI.SPACE2 + "USER.TOURCOMPARED" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURBIKE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURGEOPARTS" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DEVICESENSOR" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DEVICESENSORVALUE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.DBVERSION" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DB_VERSION_DATA" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURDATA_TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
             "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAGCATEGORY" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURWAYPOINT" + UI.NEW_LINE; //$NON-NLS-1$ //$NON-NLS-2$
+            "✓" + UI.SPACE2 + "USER.TOURWAYPOINT" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
+            "✓" + UI.SPACE2 + "USER.DB_VERSION_DATA" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
+            "✓" + UI.SPACE2 + "USER.DEVICESENSOR" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
+            "✓" + UI.SPACE2 + "USER.DEVICESENSORVALUE" + UI.NEW_LINE; //$NON-NLS-1$ //$NON-NLS-2$
 
       assertEquals(message, shell.bot().label(message).getText());
 

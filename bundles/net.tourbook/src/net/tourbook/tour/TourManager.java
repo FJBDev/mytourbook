@@ -79,6 +79,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageViews;
 import net.tourbook.srtm.IPreferences;
 import net.tourbook.srtm.PrefPageSRTMData;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.ITourProviderAll;
 import net.tourbook.ui.action.ActionEditQuick;
@@ -167,7 +168,7 @@ public class TourManager {
    public static final String  CUSTOM_DATA_POWER                               = "power";                                                       //$NON-NLS-1$
    public static final String  CUSTOM_DATA_PULSE                               = "pulse";                                                       //$NON-NLS-1$
    public static final String  CUSTOM_DATA_SPEED                               = "speed";                                                       //$NON-NLS-1$
-   public static final String  CUSTOM_DATA_SPEED_INTERVAL                      = "speed-interval";                                              //$NON-NLS-1$
+   private static final String CUSTOM_DATA_SPEED_INTERVAL                      = "speed-interval";                                              //$NON-NLS-1$
    public static final String  CUSTOM_DATA_SPEED_SUMMARIZED                    = "speed-summarized";                                            //$NON-NLS-1$
    public static final String  CUSTOM_DATA_TEMPERATURE                         = "temperature";                                                 //$NON-NLS-1$
    private static final String CUSTOM_DATA_TIME                                = "time";                                                        //$NON-NLS-1$
@@ -384,8 +385,8 @@ public class TourManager {
           * VERY IMPORTANT
           * <p>
           * When cache size is 0, each time when the same tour is requested from the tour manager, a
-          * new TourData entity is created. So each opened view gets a new tourdata for the same
-          * tour which causes LOTs of troubles.
+          * new TourData entity is created. So each opened view gets a new {@link TourData} for the
+          * same tour which causes LOTs of troubles.
           */
          _tourDataCache = new TourDataCache(10);
       }
@@ -411,6 +412,7 @@ public class TourManager {
    /**
     * @param tourData
     * @param avgTemperature
+    *
     * @return Returns <code>true</code> when the tour is modified, otherwise <code>false</code>.
     */
    public static boolean adjustTemperature(final TourData tourData, final int durationTime) {
@@ -500,7 +502,9 @@ public class TourManager {
     *
     * @param tourData1
     * @param tourData2
+    *
     * @return Returns <code>true</code> when they are the same, otherwise this is an internal error
+    *
     * @throws MyTourbookException
     *            throws an exception when {@link TourData} are corrupted
     */
@@ -539,8 +543,10 @@ public class TourManager {
     *
     * @param conn
     * @param selectedTours
+    *
     * @return Returns <code>true</code> when values are computed or <code>false</code> when nothing
     *         was done.
+    *
     * @throws SQLException
     */
    public static boolean computeCadenceZonesTimes(final Connection conn,
@@ -595,6 +601,7 @@ public class TourManager {
     * Computes distance values from geo position.
     *
     * @param tourDataList
+    *
     * @return Returns <code>true</code> when distance values are computed and {@link TourData} are
     *         updated but not yet saved.
     */
@@ -684,6 +691,7 @@ public class TourManager {
     * @param tourData
     * @param startIndex
     * @param endIndex
+    *
     * @return Returns the elapsed time
     */
    public static int computeTourDeviceTime_Elapsed(final TourData tourData, final int startIndex, final int endIndex) {
@@ -706,6 +714,7 @@ public class TourManager {
     * @param tourData
     * @param startIndex
     * @param endIndex
+    *
     * @return Returns the metric pace or 0 when not available.
     */
    public static float computeTourPace(final TourData tourData, final int startIndex, final int endIndex) {
@@ -738,6 +747,7 @@ public class TourManager {
     * @param tourData
     * @param startIndex
     * @param endIndex
+    *
     * @return Returns the metric speed or 0 when not available.
     */
    public static float computeTourSpeed(final TourData tourData, final int startIndex, final int endIndex) {
@@ -764,6 +774,7 @@ public class TourManager {
     * Create a tour chart configuration by reading the settings from the pref store.
     *
     * @param state
+    *
     * @return Returns a new tour chart configuration.
     */
    public static TourChartConfiguration createDefaultTourChartConfig(final IDialogSettings state) {
@@ -796,6 +807,7 @@ public class TourManager {
     * Create one {@link TourData} for multiple tours.
     *
     * @param tourIds
+    *
     * @return
     */
    public static TourData createJoinedTourData(final List<Long> tourIds) {
@@ -1425,6 +1437,7 @@ public class TourManager {
     *           The time spent (in seconds) in the "slow" cadence zone.
     * @param cadenceZoneFastTime
     *           The time spent (in seconds) in the "fast" cadence zone.
+    *
     * @return Returns a string of this format : "33 - 64"
     */
    public static String generateCadenceZones_TimePercentages(final int cadenceZoneSlowTime, final int cadenceZoneFastTime) {
@@ -1447,6 +1460,7 @@ public class TourManager {
     * Try to get the tour chart and/or editor from the active part.
     *
     * @param tourData
+    *
     * @return Returns the {@link TourChart} for the requested {@link TourData}
     */
    public static TourChart getActiveTourChart(final TourData tourData) {
@@ -1456,12 +1470,12 @@ public class TourManager {
          for (final IWorkbenchPage wbPage : wbWindow.getPages()) {
 
             final IEditorPart activeEditor = wbPage.getActiveEditor();
-            if (activeEditor instanceof TourEditor) {
+            if (activeEditor instanceof final TourEditor tourEditor) {
 
                /*
                 * check if the tour data in the editor is the same
                 */
-               final TourChart tourChart = ((TourEditor) activeEditor).getTourChart();
+               final TourChart tourChart = tourEditor.getTourChart();
                final TourData tourChartTourData = tourChart.getTourData();
                if (tourChartTourData == tourData) {
 
@@ -1483,9 +1497,7 @@ public class TourManager {
             if (viewRef != null) {
 
                final IViewPart view = viewRef.getView(false);
-               if (view instanceof TourChartView) {
-
-                  final TourChartView tourChartView = ((TourChartView) view);
+               if (view instanceof final TourChartView tourChartView) {
 
                   /*
                    * check if the tour data in the tour chart is the same
@@ -1524,6 +1536,7 @@ public class TourManager {
     *           {@link GraphColorManager#PREF_COLOR_LINE_LIGHT}<br>
     *           {@link GraphColorManager#PREF_COLOR_MAPPING}<br>
     *           {@link GraphColorManager#PREF_COLOR_TEXT_LIGHT}.
+    *
     * @return
     */
    public static RGB getGraphColor(final String graphName, final String colorProfileName) {
@@ -1566,6 +1579,7 @@ public class TourManager {
     * @param isOnlyGeoTour
     *           When <code>true</code> then only tours with latitude/longitude will be returned,
     *           otherwise all tours will be returned.
+    *
     * @return
     */
    public static ArrayList<TourData> getSelectedTours(final boolean isOnlyGeoTour) {
@@ -1664,6 +1678,7 @@ public class TourManager {
     * This is a shortcut for {@link TourManager.getInstance().getTourData(tourId)}.
     *
     * @param requestedTourId
+    *
     * @return Returns the tour data for the tour id or <code>null</code> when tour is not in the
     *         database.
     */
@@ -1775,6 +1790,7 @@ public class TourManager {
 
    /**
     * @param tourData
+    *
     * @return Returns the tour title for multiple tours
     */
    public static String getTourTitleMultiple(final TourData tourData) {
@@ -1815,6 +1831,7 @@ public class TourManager {
     * Checks if {@link TourData} can be painted
     *
     * @param tourData
+    *
     * @return <code>true</code> when {@link TourData} contains a tour which can be painted in the
     *         map
     */
@@ -1905,6 +1922,7 @@ public class TourManager {
     *
     * @param isOpenEditor
     *           When <code>true</code> then the tour editor is displayed.
+    *
     * @return Returns <code>true</code> when the tour is modified in the {@link TourDataEditorView}
     */
    public static boolean isTourEditorModified(final boolean isOpenEditor) {
@@ -1928,6 +1946,18 @@ public class TourManager {
       return false;
    }
 
+   public static boolean isTourModified() {
+
+      final TourDataEditorView tourDataEditor = getTourDataEditor();
+
+      if (tourDataEditor != null && tourDataEditor.isDirty()) {
+
+         return true;
+      }
+
+      return false;
+   }
+
    /**
     * @return Returns <code>true</code> when a weather provider has been selected
     *         and properly configured.
@@ -1941,8 +1971,10 @@ public class TourManager {
       case IWeatherProvider.WEATHER_PROVIDER_OPENWEATHERMAP_ID:
       case IWeatherProvider.WEATHER_PROVIDER_WEATHERAPI_ID:
          return true;
+
       case IWeatherProvider.WEATHER_PROVIDER_WORLDWEATHERONLINE_ID:
          return StringUtils.hasContent(_prefStore.getString(ITourbookPreferences.WEATHER_API_KEY));
+
       case IWeatherProvider.Pref_Weather_Provider_None:
       default:
          return false;
@@ -1958,6 +1990,7 @@ public class TourManager {
     * @param isCheckLatLon
     *           When <code>true</code> only tours with lat/lon will be returned, otherwise all tours
     *           will be returned.
+    *
     * @return Returns a unique key for all {@link TourData}.
     */
    public static long loadTourData(final List<Long> allTourIds,
@@ -2210,6 +2243,7 @@ public class TourManager {
 
    /**
     * @param isActive
+    *
     * @return
     */
    public static TourDataEditorView openTourEditor(final boolean isActive) {
@@ -2230,9 +2264,9 @@ public class TourManager {
 
             final IViewPart viewPart = page.showView(TourDataEditorView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 
-            if (viewPart instanceof TourDataEditorView) {
+            if (viewPart instanceof final TourDataEditorView tourDataEditorViewPart) {
 
-               tourDataEditorView[0] = (TourDataEditorView) viewPart;
+               tourDataEditorView[0] = tourDataEditorViewPart;
 
                if (isActive) {
 
@@ -2772,13 +2806,14 @@ public class TourManager {
 
    /**
     * @param allTourData
+    *
     * @return Returns a list of all modified tours
     */
    public static List<TourData> retrieveWeatherData(final List<TourData> allTourData) {
 
       final List<TourData> allModifiedTours = new ArrayList<>();
 
-      if (allTourData == null || allTourData.size() == 0) {
+      if (allTourData == null || allTourData.isEmpty()) {
          return allModifiedTours;
       }
 
@@ -2786,7 +2821,7 @@ public class TourManager {
 
       final String weatherProvider = _prefStore.getString(ITourbookPreferences.WEATHER_WEATHER_PROVIDER_ID);
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.DOWNLOAD_SOMETHING);
       TourLogManager.subLog_INFO(NLS.bind(LOG_RETRIEVE_WEATHER_DATA_001_START, weatherProvider));
 
       final int numTours = allTourData.size();
@@ -2835,6 +2870,7 @@ public class TourManager {
          } catch (InvocationTargetException | InterruptedException e) {
 
             TourLogManager.log_EXCEPTION_WithStacktrace(e);
+            Thread.currentThread().interrupt();
          }
       }
 
@@ -2881,6 +2917,7 @@ public class TourManager {
     *
     * @param tourData
     *           modified tour
+    *
     * @return Returns the persisted {@link TourData}
     */
    public static TourData saveModifiedTour(final TourData tourData) {
@@ -2891,6 +2928,7 @@ public class TourManager {
     * @param tourData
     * @param isFireNotification
     *           When <code>true</code>, a notification is fired when the data are saved
+    *
     * @return Returns the saved {@link TourData} or <code>null</code> when saving fails
     */
    public static TourData saveModifiedTour(final TourData tourData, final boolean isFireNotification) {
@@ -2916,6 +2954,7 @@ public class TourManager {
     *
     * @param modifiedTours
     *           modified tours
+    *
     * @return Returns a list with all persisted {@link TourData}
     */
    public static ArrayList<TourData> saveModifiedTours(final List<TourData> modifiedTours) {
@@ -2933,6 +2972,7 @@ public class TourManager {
     *           modified tours
     * @param canFireNotification
     *           when <code>true</code>, a notification is fired when the data are saved
+    *
     * @return a list with all persisted {@link TourData}
     */
    private static ArrayList<TourData> saveModifiedTours(final List<TourData> modifiedTours,
@@ -3140,7 +3180,7 @@ public class TourManager {
          return false;
       }
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.TOUR_ADJUSTMENTS);
 
       TourLogManager.addLog(
             TourLogState.DEFAULT,
@@ -3786,12 +3826,14 @@ public class TourManager {
 
             final TourData tourData = (TourData) chartModel.getCustomData(CUSTOM_DATA_TOUR_DATA);
 
-            return tourData.computeAvg_Altitude(valueIndexLeft, valueIndexRight);
+            final float averageAltitude = tourData.computeAvg_Altitude(valueIndexLeft, valueIndexRight);
+
+            return averageAltitude / UI.UNIT_VALUE_ELEVATION;
          }
       };
 
       /*
-       * Compute the average altimeter speed between the two sliders
+       * Compute the average gradient between the two sliders
        */
       _computeAvg_Gradient = new ComputeChartValue() {
 
@@ -3807,10 +3849,10 @@ public class TourManager {
             final float[] altitudeValues = ((ChartDataYSerie) (customDataAltitude)).getHighValuesFloat()[0];
             final double[] distanceValues = ((ChartDataXSerie) (customDataDistance)).getHighValuesDouble()[0];
 
-            final float leftAltitude = altitudeValues[valueIndexLeft];
-            final float rightAltitude = altitudeValues[valueIndexRight];
-            final double leftDistance = distanceValues[valueIndexLeft];
-            final double rightDistance = distanceValues[valueIndexRight];
+            final float leftAltitude = altitudeValues[valueIndexLeft] * UI.UNIT_VALUE_ELEVATION;
+            final float rightAltitude = altitudeValues[valueIndexRight] * UI.UNIT_VALUE_ELEVATION;
+            final double leftDistance = distanceValues[valueIndexLeft] * UI.UNIT_VALUE_DISTANCE;
+            final double rightDistance = distanceValues[valueIndexRight] * UI.UNIT_VALUE_DISTANCE;
 
             if (leftDistance == rightDistance) {
                // left and right slider are at the same position
@@ -3941,6 +3983,7 @@ public class TourManager {
     * @param tourData
     *           data which contains the tour data
     * @param tourChartProperty
+    *
     * @return
     */
    public ChartDataModel createChartDataModel(final TourData tourData, final TourChartConfiguration tcc) {
@@ -4079,7 +4122,7 @@ public class TourManager {
       }
 
       /*
-       * Don't draw a (visible) line when a break occures, break time can be minutes, hours or days.
+       * Don't draw a (visible) line when a break occurs, break time can be minutes, hours or days.
        * This feature prevents to draw triangles between 2 value points
        */
       xDataTime.setNoLine(tourData.getBreakTimeSerie());
@@ -4392,6 +4435,7 @@ public class TourManager {
     *
     * @param dataSerie
     * @param chartType
+    *
     * @return
     */
    private ChartDataYSerie createChartDataSerieNoZero(final float[] dataSerie, final ChartType chartType) {
@@ -4403,6 +4447,7 @@ public class TourManager {
     *
     * @param dataSerie
     * @param chartType
+    *
     * @return
     */
    private ChartDataYSerie createChartDataSerieNoZero(final float[][] dataSerie, final ChartType chartType) {
@@ -4899,7 +4944,7 @@ public class TourManager {
 
                   } else if (xAxisRRTime > xAxisTime) {
 
-                     // this occured when bpm < 60
+                     // this occurred when bpm < 60
 
                      while (rrIndex < numRRTimes // check array bounds
 
@@ -5728,7 +5773,7 @@ public class TourManager {
             yDataTemperature.setGraphFillMethod(ChartDataYSerie.FILL_METHOD_FILL_BOTTOM);
          }
 
-         setGraphColors(yDataTemperature, GraphColorManager.PREF_GRAPH_TEMPTERATURE);
+         setGraphColors(yDataTemperature, GraphColorManager.PREF_GRAPH_TEMPERATURE);
          chartDataModel.addXyData(yDataTemperature);
 
          // adjust min/max values when it's defined in the pref store
@@ -5811,6 +5856,7 @@ public class TourManager {
 
    /**
     * @param tourIds
+    *
     * @return Returns a list with {@link TourData} for all tour ids. <code>Null</code> is returned
     *         when {@link TourData} are not available.
     */
@@ -5846,6 +5892,7 @@ public class TourManager {
     * creates always a new instance.
     *
     * @param requestedTourId
+    *
     * @return Returns the tour data for the tour id or <code>null</code> when tour is not in the
     *         database.
     */
@@ -5910,6 +5957,7 @@ public class TourManager {
     * Get a tour from the database and keep it in the cache
     *
     * @param tourId
+    *
     * @return Returns the tour data for the tour id or <code>null</code> when the tour is not in the
     *         database
     */
