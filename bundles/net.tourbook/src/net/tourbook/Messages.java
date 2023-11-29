@@ -328,6 +328,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_Value_ShowNothing;
    public static String        Calendar_Profile_Value_Speed;
    public static String        Calendar_Profile_Value_Title;
+   public static String        Calendar_Profile_Value_TrainingStress_Tss;
    public static String        Calendar_Profile_Value_WeatherIcon;
    public static String        Calendar_View_Action_Back;
    public static String        Calendar_View_Action_Back_Tooltip;
@@ -1445,7 +1446,6 @@ public class Messages extends NLS {
    public static String        PrefPageTourTypeFilterList_Pref_TourTypeFilter_button_down;
    public static String        PrefPageTourTypeFilterList_Pref_TourTypeFilter_button_up;
 
-   public static String        PrefPage_Import_Checkbox_AutoOpenTourLogView;
    public static String        PrefPage_Import_Checkbox_CreateTourIdWithTime;
    public static String        PrefPage_Import_Checkbox_CreateTourIdWithTime_Tooltip;
    public static String        PrefPage_Import_Checkbox_IgnoreInvalidFiles;
@@ -1514,6 +1514,8 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Group_Theme;
    public static String        Pref_Appearance_Label_AutoOpenTaggingDelay;
    public static String        Pref_Appearance_Label_AutoOpenTagging_Tooltip;
+   public static String        Pref_Appearance_Label_NotificationMessagesDuration;
+   public static String        Pref_Appearance_Label_NotificationMessagesDuration_Tooltip;
    public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption;
    public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption_Tooltip;
    public static String        Pref_Appearance_Label_Theme;
@@ -1545,6 +1547,7 @@ public class Messages extends NLS {
    public static String        Pref_DisplayFormat_Label_Info;
    public static String        Pref_DisplayFormat_Label_Power;
    public static String        Pref_DisplayFormat_Label_Pulse;
+   public static String        Pref_DisplayFormat_Label_Relative;
    public static String        Pref_DisplayFormat_Label_Speed;
    public static String        Pref_DisplayFormat_Label_Temperature;
    public static String        Pref_DisplayFormat_Tab_MultipleTours;
@@ -1854,6 +1857,8 @@ public class Messages extends NLS {
    public static String        Pref_Weather_Label_WorldWeatherOnline_ApiKey_Tooltip;
    public static String        Pref_Weather_Link_ApiSignup;
    public static String        Pref_Weather_Provider_None;
+   public static String        Pref_Weather_Radio_WeatherDescription_Append;
+   public static String        Pref_Weather_Radio_WeatherDescription_Replace;
 
    public static String        Reference_Timeline_Action_ShowAllValues_Tooltip;
    public static String        Reference_Timeline_Action_SyncMinMaxValues_Tooltip;
@@ -1862,7 +1867,7 @@ public class Messages extends NLS {
    public static String        Reference_Timeline_Page_SelectReferenceTour;
 
    public static String        RefTour_Action_CreateLeftMarker;
-   public static String        RefTour_Action_CreaateMarker;
+   public static String        RefTour_Action_CreateMarker;
    public static String        RefTour_Action_CreateReferenceTour;
    public static String        RefTour_Action_CreateRightMarker;
    public static String        RefTour_Action_DeleteTours;
@@ -2409,8 +2414,12 @@ public class Messages extends NLS {
    public static String        Slideout_TourEditor_Checkbox_KeepTime_Tooltip;
    public static String        Slideout_TourEditor_Checkbox_RecomputeElevationUpDown;
    public static String        Slideout_TourEditor_Checkbox_RecomputeElevationUpDown_Tooltip;
+   public static String        Slideout_TourEditor_Checkbox_ScrollFieldContent;
+   public static String        Slideout_TourEditor_Checkbox_ScrollFieldContent_Tooltip;
    public static String        Slideout_TourEditor_Combo_ElevationFromDevice;
    public static String        Slideout_TourEditor_Combo_ElevationFromSRTM;
+   public static String        Slideout_TourEditor_Combo_ScrollFieldContent_WhenFocused;
+   public static String        Slideout_TourEditor_Combo_ScrollFieldContent_WhenHovered;
    public static String        Slideout_TourEditor_Group_Tags;
    public static String        Slideout_TourEditor_Label_DeleteTimeSlices;
    public static String        Slideout_TourEditor_Label_LatLonDigits;
@@ -2502,6 +2511,20 @@ public class Messages extends NLS {
    public static String        Slideout_TourInfoOptions_Label_TooltipDelay;
    public static String        Slideout_TourInfoOptions_Label_TooltipDelaySimple_Tooltip;
    public static String        Slideout_TourInfoOptions_Label_TooltipDelay_Tooltip;
+
+   public static String        Slideout_TourLogOptions_Checkbox_Event_DeleteSomething;
+   public static String        Slideout_TourLogOptions_Checkbox_Event_DownloadSomething;
+   public static String        Slideout_TourLogOptions_Checkbox_Event_ImportTour;
+   public static String        Slideout_TourLogOptions_Checkbox_Event_SaveSomething;
+   public static String        Slideout_TourLogOptions_Checkbox_Event_TourAdjustments;
+   public static String        Slideout_TourLogOptions_Checkbox_Event_TourUpload;
+   public static String        Slideout_TourLogOptions_Label_AutoOpenLogView;
+
+   public static String        Slideout_TourLogOptions_Label_AutoOpenLogView_MoreInfo;
+   public static String        Slideout_TourLogOptions_Label_Title;
+   public static String        Slideout_TourLogOptions_Radio_OpenLog_AllEvents;
+   public static String        Slideout_TourLogOptions_Radio_OpenLog_Never;
+   public static String        Slideout_TourLogOptions_Radio_OpenLog_SelectedEvents;
 
    public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits;
    public static String        Slideout_TourMarkerFilter_Checkbox_IsReduceLatLonDigits_Tooltip;
@@ -2989,9 +3012,10 @@ public class Messages extends NLS {
    public static String        Tour_Editor_Link_RemoveTimeZone;
    public static String        Tour_Editor_Link_RemoveTimeZone_Tooltip;
    public static String        Tour_Editor_Link_RetrieveWeather;
-   public static String        Tour_Editor_Link_RetrieveWeather_Tooltip;
-   public static String        Tour_Editor_Link_SetDefautTimeZone;
-   public static String        Tour_Editor_Link_SetDefautTimeZone_Tooltip;
+   public static String        Tour_Editor_Link_RetrieveWeatherAndAppend_Tooltip;
+   public static String        Tour_Editor_Link_RetrieveWeatherAndReplace_Tooltip;
+   public static String        Tour_Editor_Link_SetDefaultTimeZone;
+   public static String        Tour_Editor_Link_SetDefaultTimeZone_Tooltip;
    public static String        Tour_Editor_Link_SetGeoTimeZone;
    public static String        Tour_Editor_Link_SetGeoTimeZone_Tooltip;
    public static String        tour_editor_message_person_is_required;
@@ -3019,6 +3043,7 @@ public class Messages extends NLS {
    public static String        Tour_Filter_Field_ManualTour;
    public static String        Tour_Filter_Field_Photos;
    public static String        Tour_Filter_Field_Season;
+   public static String        Tour_Filter_Field_AirQuality;
    public static String        Tour_Filter_Field_Temperature;
    public static String        Tour_Filter_Field_Temperature_FromDevice;
    public static String        Tour_Filter_Field_TourDate;
@@ -3160,13 +3185,20 @@ public class Messages extends NLS {
    public static String        Tour_Segmenter_Action_ExportViewCSV_Tooltip;
    public static String        Tour_Segmenter_Action_ShowHideSegmentsInTourChart_Tooltip;
    public static String        Tour_Segmenter_Button_SaveTour_Tooltip;
+   public static String        Tour_Segmenter_Combo_MouseWheelIncrementer_DP_Tooltip;
+   public static String        Tour_Segmenter_Combo_MouseWheelIncrementer_Gradient_Tooltip;
    public static String        tour_segmenter_button_updateAltitude;
    public static String        Tour_Segmenter_Label_AltitudeUpDown_Tooltip;
    public static String        tour_segmenter_label_createSegmentsWith;
    public static String        Tour_Segmenter_Label_DPTolerance;
    public static String        Tour_Segmenter_Label_DPTolerance_Tooltip;
+   public static String        Tour_Segmenter_Label_FlatGradient;
+   public static String        Tour_Segmenter_Label_FlatGradient_Tooltip;
    public static String        Tour_Segmenter_Label_no_chart;
    public static String        Tour_Segmenter_Label_NumberOfSegments_Tooltip;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Ascent;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Descent;
+   public static String        Tour_Segmenter_Label_VerticalSpeed_Flat;
    public static String        tour_segmenter_segType_byDistance_defaultDistance;
    public static String        tour_segmenter_segType_byDistance_label;
    public static String        tour_segmenter_segType_byUpDownAlti_label;
@@ -3197,6 +3229,7 @@ public class Messages extends NLS {
    public static String        Tour_Segmenter_Type_ByAltitude_Marker;
    public static String        Tour_Segmenter_Type_ByAltitude_Merged;
    public static String        Tour_Segmenter_Type_ByBreakTime;
+   public static String        Tour_Segmenter_Type_ByElevation_FlatGainLoss;
    public static String        tour_segmenter_type_byComputedAltiUpDown;
    public static String        tour_segmenter_type_byDistance;
    public static String        tour_segmenter_type_byMarker;

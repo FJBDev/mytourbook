@@ -63,6 +63,7 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
     * Codes : https://openweathermap.org/weather-conditions#Icon-list
     *
     * @param weatherIcon
+    *
     * @return
     */
    public static String convertWeatherIconToMTWeatherClouds(final String weatherIcon) {
@@ -279,6 +280,7 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
     * Determines if the tour start time is within the current hour
     *
     * @param tourStartTime
+    *
     * @return
     */
    private boolean isTourStartTimeCurrent(final long tourStartTime, final String tourTimeZoneId) {
@@ -349,6 +351,7 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
          if (isTourStartWithinTheCurrentHour && currentWeather != null) {
 
             setTourWeatherWithCurrentWeather(currentWeather);
+
             return true;
          }
 
@@ -414,14 +417,14 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
 
       final int airQualityIndexAverage = airPollutionResult.getAirQualityIndexAverage();
 
-      tour.setWeather_AirQuality(IWeather.airQualityTexts[airQualityIndexAverage]);
+      tour.setWeather_AirQuality(IWeather.airQualityIds[airQualityIndexAverage]);
    }
 
    private void setTourWeatherWithCurrentWeather(final Current currentWeather) {
 
 // SET_FORMATTING_OFF
 
-      tour.setWeather(                       currentWeather.getWeatherDescription());
+      tour.appendOrReplaceWeather(           currentWeather.getWeatherDescription());
       tour.setWeather_Clouds(                currentWeather.getWeatherClouds());
       tour.setWeather_Temperature_Average(   currentWeather.getTemp());
       tour.setWeather_Humidity((short)       currentWeather.getHumidity());
@@ -441,7 +444,7 @@ public class OpenWeatherMapRetriever extends HistoricalWeatherRetriever {
 
       //We look for the weather data in the middle of the tour to populate the weather conditions
       timeMachineResult.findMiddleHourly(    tourMiddleTime);
-      tour.setWeather(                       timeMachineResult.getWeatherDescription());
+      tour.appendOrReplaceWeather(           timeMachineResult.getWeatherDescription());
       tour.setWeather_Clouds(                timeMachineResult.getWeatherClouds());
 
       tour.setWeather_Temperature_Average(   timeMachineResult.getTemperatureAverage());

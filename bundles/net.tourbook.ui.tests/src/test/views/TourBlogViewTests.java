@@ -23,14 +23,28 @@ import utils.Utils;
 
 public class TourBlogViewTests extends UITest {
 
+   private SWTBotView getTourBlogView() {
+
+      Utils.showViewFromMenu(bot, "Tour", Utils.VIEW_NAME_TOURBLOG); //$NON-NLS-1$
+      return Utils.showView(bot, Utils.VIEW_NAME_TOURBLOG);
+   }
+
    @Test
-   void openTourBlogView() {
+   void testBlogView_Basic() {
 
       Utils.getTour(bot);
 
-      bot.menu("Tour").menu("Tour Blog").click(); //$NON-NLS-1$ //$NON-NLS-2$
-      final SWTBotView tourBlogView = bot.viewByTitle("Tour Blog"); //$NON-NLS-1$
-
+      final SWTBotView tourBlogView = getTourBlogView();
       tourBlogView.show();
+
+      //Change the measurement system to imperial
+      Utils.changeMeasurementSystem(bot, net.tourbook.common.Messages.Measurement_System_Profile_Imperial);
+
+      bot.sleep(5000);
+
+      //Change back the measurement system to metric
+      Utils.changeMeasurementSystem(bot, net.tourbook.common.Messages.Measurement_System_Profile_Metric);
+
+      tourBlogView.close();
    }
 }

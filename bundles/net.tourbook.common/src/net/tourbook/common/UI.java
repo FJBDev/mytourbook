@@ -57,6 +57,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.notifications.NotificationPopup;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -81,6 +82,7 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
@@ -131,6 +133,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 public class UI {
 
    public static final String       SYSTEM_NEW_LINE                      = System.lineSeparator();
+   public static final String       SYSTEM_NEW_LINE2                     = SYSTEM_NEW_LINE + SYSTEM_NEW_LINE;
 
    public static final int          SHELL_MARGIN                         = 5;
 
@@ -254,6 +257,12 @@ public class UI {
     */
    public static final String       ELLIPSIS                             = "...";                                       //$NON-NLS-1$
    public static final String       ELLIPSIS_WITH_SPACE                  = " ... ";                                     //$NON-NLS-1$
+
+   public static final String       INCREMENTER_0_1                      = "0.1";                                       //$NON-NLS-1$
+   public static final String       INCREMENTER_0_01                     = "0.01";                                      //$NON-NLS-1$
+   public static final String       INCREMENTER_1                        = "1";                                         //$NON-NLS-1$
+   public static final String       INCREMENTER_10                       = "10";                                        //$NON-NLS-1$
+   public static final String       INCREMENTER_100                      = "100";                                       //$NON-NLS-1$
 
    private static final char[]      INVALID_FILENAME_CHARS               = new char[] {
          '\\',
@@ -523,6 +532,10 @@ public class UI {
    public static String       UNIT_LABEL_DISTANCE;
    public static String       UNIT_LABEL_DISTANCE_M_OR_YD;
    public static String       UNIT_LABEL_DISTANCE_MM_OR_INCH;
+
+   /**
+    * m (meter) or ft (feet)
+    */
    public static String       UNIT_LABEL_ELEVATION;
    public static String       UNIT_LABEL_PRESSURE_MBAR_OR_INHG;
    public static String       UNIT_LABEL_TEMPERATURE;
@@ -930,6 +943,7 @@ public class UI {
     * @param event
     * @param isDirectionUp
     *           Is <code>true</code> when direction is up, right or forward
+    *
     * @return Returns <code>true</code> when the scale value was adjusted, otherwise
     *         <code>false</code>
     */
@@ -1060,6 +1074,7 @@ public class UI {
     * @param heightInches
     *           The second part of the user's height in inches if the measurement
     *           system is in inches.
+    *
     * @return The BMI value.
     */
    public static float computeBodyMassIndex(double weight, double height, final int heightInches) {
@@ -1087,6 +1102,7 @@ public class UI {
    /**
     * @param averageElevationChange
     *           In m/km
+    *
     * @return Returns the average elevation change in the current measurement system.
     */
    public static float convertAverageElevationChangeFromMetric(final float averageElevationChange) {
@@ -1118,6 +1134,7 @@ public class UI {
 
    /**
     * @param bodyWeight
+    *
     * @return Returns the weight in the current measurement system.
     */
    public static float convertBodyWeightFromMetric(final float bodyWeight) {
@@ -1131,6 +1148,7 @@ public class UI {
 
    /**
     * @param weight
+    *
     * @return Returns the weight from the current measurement system converted into metric
     *         system.
     */
@@ -1158,7 +1176,9 @@ public class UI {
     *           used in performing the conversion
     * @param dlus
     *           the number of horizontal dialog units
+    *
     * @return the number of pixels
+    *
     * @since 2.0
     */
    private static int convertHorizontalDLUsToPixels(final FontMetrics fontMetrics, final int dlus) {
@@ -1179,6 +1199,7 @@ public class UI {
     *
     * @param dlus
     *           the number of horizontal dialog units
+    *
     * @return the number of pixels
     */
    private static int convertHorizontalDLUsToPixels(final int dlus) {
@@ -1195,6 +1216,7 @@ public class UI {
    /**
     * @param precipitation
     *           in mm or inch
+    *
     * @return Returns the precipitation amount in the current measurement system.
     */
    public static float convertPrecipitation_FromMetric(final float precipitation) {
@@ -1209,6 +1231,7 @@ public class UI {
    /**
     * @param precipitation
     *           in mm or inch
+    *
     * @return Returns the precipitation amount in the current measurement system.
     */
    public static float convertPrecipitation_ToMetric(final float precipitation) {
@@ -1222,6 +1245,7 @@ public class UI {
 
    /**
     * @param weatherPressure
+    *
     * @return Returns the atmospheric pressure value in the current measurement system.
     */
    public static float convertPressure_FromMetric(final float weatherPressure) {
@@ -1235,6 +1259,7 @@ public class UI {
 
    /**
     * @param weatherPressure
+    *
     * @return Returns the atmospheric pressure value in the current measurement system.
     */
    public static float convertPressure_ToMetric(final float weatherPressure) {
@@ -1248,6 +1273,7 @@ public class UI {
 
    /**
     * @param speed
+    *
     * @return Returns the speed value in the current measurement system.
     */
    public static float convertSpeed_FromMetric(final float speed) {
@@ -1269,6 +1295,7 @@ public class UI {
     * Convert a speed value from km/h to m/s
     *
     * @param speed
+    *
     * @return Returns the speed value in m/s.
     */
    public static float convertSpeed_KmhToMs(final float speed) {
@@ -1278,6 +1305,7 @@ public class UI {
 
    /**
     * @param speed
+    *
     * @return Returns the speed value from the current measurement system into metric
     */
    public static float convertSpeed_ToMetric(final float speed) {
@@ -1297,6 +1325,7 @@ public class UI {
 
    /**
     * @param temperature
+    *
     * @return Returns the temperature in the current measurement system.
     */
    public static float convertTemperatureFromMetric(final float temperature) {
@@ -1310,6 +1339,7 @@ public class UI {
 
    /**
     * @param temperature
+    *
     * @return Returns the temperature from the current measurement system converted into metric
     *         system.
     */
@@ -1326,6 +1356,7 @@ public class UI {
     * Converts a hexadecimal Unicode into its surrogate string
     *
     * @param hexUnicode
+    *
     * @return
     */
    public static String convertUnicodeCodepointToSurrogate(final String hexUnicode) {
@@ -1373,6 +1404,7 @@ public class UI {
     * Create a cursor resource from an image descriptor. Cursor must be disposed.
     *
     * @param imageName
+    *
     * @return
     */
    public static Cursor createCursorFromImage(final ImageDescriptor imageDescriptor) {
@@ -1413,11 +1445,31 @@ public class UI {
     *
     * @param parent
     * @param text
+    *
     * @return
     */
    public static Label createLabel(final Composite parent, final String text) {
 
       final Label label = new Label(parent, SWT.NONE);
+
+      label.setText(text);
+
+      return label;
+   }
+
+   /**
+    * Creates a {@link Label} with text and style
+    *
+    * @param parent
+    * @param text
+    * @param style
+    *
+    * @return
+    */
+   public static Label createLabel(final Composite parent, final String text, final int style) {
+
+      final Label label = new Label(parent, style);
+
       label.setText(text);
 
       return label;
@@ -1479,6 +1531,7 @@ public class UI {
     * @param imageHeight
     * @param existingImage
     * @param gcPainter
+    *
     * @return Returns create image or reused image
     */
    public static Image createTransparentImage(final int imageWidth,
@@ -1559,6 +1612,7 @@ public class UI {
     * Disposes an image resource
     *
     * @param image
+    *
     * @return
     */
    public static Image disposeResource(final Image resource) {
@@ -1612,6 +1666,7 @@ public class UI {
     * single '&' to be displayed."
     *
     * @param text
+    *
     * @return
     */
    public static String escapeAmpersand(final String text) {
@@ -1647,6 +1702,7 @@ public class UI {
     *
     * @param time
     *           in seconds
+    *
     * @return
     */
    public static String format_hh_mm_ss(final long time) {
@@ -1687,6 +1743,7 @@ public class UI {
     *
     * @param time
     *           in seconds
+    *
     * @return
     */
    public static String format_hhh_mm_ss(final long time) {
@@ -1722,6 +1779,7 @@ public class UI {
     * Format time with {@link #Format_TimeDuration_mmss}
     *
     * @param time
+    *
     * @return
     */
    public static String format_mm_ss_WithSign(final long time) {
@@ -1763,7 +1821,7 @@ public class UI {
       ).toString();
    }
 
-   public static String FormatDoubleMinMaxElevationMeter(final double value) {
+   public static String formatDoubleMinMaxElevationMeter(final double value) {
 
       if (value == -Double.MAX_VALUE) {
          return SYMBOL_INFINITY_MIN;
@@ -1779,6 +1837,7 @@ public class UI {
     *
     * @param time
     *           Time in seconds.
+    *
     * @return
     */
    public static String formatHhMmSs(long time) {
@@ -1826,12 +1885,42 @@ public class UI {
    }
 
    /**
+    * @param mouseEvent
+    * @param defaultAccelerator
+    *           Could be 10 to increase e.g. image size by 10 without pressing an accelerator key
+    *
+    * @return
+    */
+   public static int getAcceleratorFromMouseWheel(final MouseEvent mouseEvent, final int defaultAccelerator) {
+
+      boolean isCtrlKey;
+      boolean isShiftKey;
+
+      if (IS_OSX) {
+         isCtrlKey = (mouseEvent.stateMask & SWT.MOD1) > 0;
+         isShiftKey = (mouseEvent.stateMask & SWT.MOD3) > 0;
+      } else {
+         isCtrlKey = (mouseEvent.stateMask & SWT.MOD1) > 0;
+         isShiftKey = (mouseEvent.stateMask & SWT.MOD2) > 0;
+      }
+
+      // accelerate with Ctrl + Shift key
+      int accelerator = isCtrlKey ? 10 : 1;
+      accelerator *= isShiftKey ? 5 : 1;
+
+      accelerator *= defaultAccelerator;
+
+      return accelerator;
+   }
+
+   /**
     * Get best-fit size for an image drawn in an area of maxX, maxY
     *
     * @param imageWidth
     * @param imageHeight
     * @param canvasWidth
     * @param canvasHeight
+    *
     * @return
     */
    public static Point getBestFitCanvasSize(final int imageWidth,
@@ -1853,6 +1942,7 @@ public class UI {
    /**
     * @param degreeDirection
     *           The degree value, 0°...360°
+    *
     * @return Returns cardinal direction text
     */
    public static String getCardinalDirectionText(final int degreeDirection) {
@@ -1863,6 +1953,7 @@ public class UI {
    /**
     * @param degreeDirection
     *           The degree value, 0°...360°
+    *
     * @return Returns cardinal direction index for {@link IWeather#windDirectionText}
     */
    public static int getCardinalDirectionTextIndex(final int degreeDirection) {
@@ -1917,6 +2008,7 @@ public class UI {
    /**
     * @param allVisibleItems
     * @param allExpandedItems
+    *
     * @return Returns {@link TreePath}'s which are expanded and open (not hidden).
     */
    public static TreePath[] getExpandedOpenedItems(final Object[] allVisibleItems, final TreePath[] allExpandedItems) {
@@ -1976,6 +2068,7 @@ public class UI {
 
    /**
     * @param url
+    *
     * @return Returns the url with surrounding < a > tags which can be used for the {@link Link}
     *         control.
     */
@@ -2027,6 +2120,7 @@ public class UI {
 
    /**
     * @param event
+    *
     * @return Returns <code>true</code> when <Ctrl> key is pressed.
     */
    public static boolean isCtrlKey(final Event event) {
@@ -2042,6 +2136,11 @@ public class UI {
    public static boolean isCtrlKey(final MouseEvent event) {
 
       return (event.stateMask & SWT.MOD1) > 0;
+   }
+
+   public static boolean isCtrlKey(final SelectionEvent selectionEvent) {
+
+      return (selectionEvent.stateMask & SWT.MOD1) > 0;
    }
 
    /**
@@ -2116,6 +2215,7 @@ public class UI {
     * </code>
     *
     * @param rgb
+    *
     * @return
     */
    public static String logRGB(final RGB rgb) {
@@ -2230,6 +2330,24 @@ public class UI {
          contextMenu.setLocation(pt.x, pt.y);
          contextMenu.setVisible(true);
       }
+   }
+
+   /**
+    * Open a notification popup for the number of seconds configured by the user
+    *
+    * @param title
+    * @param text
+    */
+   public static void openNotificationPopup(final String title, final String text) {
+
+      final int delay = _prefStore_Common.getInt(ICommonPreferences.APPEARANCE_NOTIFICATION_MESSAGES_DURATION) * 1000;
+
+      final NotificationPopup notication = NotificationPopup.forDisplay(Display.getCurrent())
+            .title(title, false)
+            .text(text)
+            .delay(delay)
+            .build();
+      notication.open();
    }
 
    public static void paintImageCentered(final Event event, final Image image, final int availableWidth) {
@@ -2841,6 +2959,7 @@ public class UI {
     * @param text
     * @param width
     * @param isUseEllipses
+    *
     * @return
     */
    public static String shortenText(final GC gc, final String text, final int width, final boolean isUseEllipses) {
@@ -2884,7 +3003,9 @@ public class UI {
     *           the original string or <code>null</code>
     * @param control
     *           the control the string will be displayed on
+    *
     * @return the string to display, or <code>null</code> if null was passed in
+    *
     * @since 3.0
     */
    public static String shortenText(final String textValue, final Control control) {
@@ -3080,8 +3201,9 @@ public class UI {
 
          statusLineMgr.setMessage(statusMessage);
 
+         final int delay = _prefStore_Common.getInt(ICommonPreferences.APPEARANCE_NOTIFICATION_MESSAGES_DURATION) * 1000;
          // cleanup message
-         Display.getDefault().timerExec(3000, () -> statusLineMgr.setMessage(null));
+         Display.getDefault().timerExec(delay, () -> statusLineMgr.setMessage(null));
       }
    }
 
@@ -3123,6 +3245,7 @@ public class UI {
     * Converts {@link java.awt.Point} into {@link org.eclipse.swt.graphics.Point}
     *
     * @param awtPoint
+    *
     * @return
     */
    public static Point SWT_Point(final java.awt.Point awtPoint) {
@@ -3141,6 +3264,7 @@ public class UI {
     * Transform from 0...255 to {@link #TRANSFORM_OPACITY_MAX}
     *
     * @param opacity
+    *
     * @return
     */
    public static int transformOpacity_WhenRestored(final int opacity) {
@@ -3159,6 +3283,7 @@ public class UI {
     * Transform value from {@link #TRANSFORM_OPACITY_MAX} to 0...255
     *
     * @param opacity
+    *
     * @return
     */
    public static int transformOpacity_WhenSaved(final int opacity) {
