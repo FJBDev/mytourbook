@@ -39,6 +39,7 @@ import net.tourbook.device.gpx.GPXDeviceDataReader;
 import net.tourbook.importdata.ImportState_File;
 import net.tourbook.importdata.ImportState_Process;
 
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 public class Initializer {
@@ -147,7 +148,13 @@ public class Initializer {
 
    public static void initializeDatabase() {
 
-      Persistence.createEntityManagerFactory("tourdatabasetests").createEntityManager(); //$NON-NLS-1$
+      try (EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tourdatabasetests")) {
+
+         entityManagerFactory.createEntityManager();
+
+      } catch (final Exception e) {
+         // Nothing to do
+      }
    }
 
    public static HttpClientMock initializeHttpClientMock() {
