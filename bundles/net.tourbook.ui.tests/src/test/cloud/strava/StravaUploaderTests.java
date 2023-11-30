@@ -97,8 +97,6 @@ public class StravaUploaderTests extends UITest {
    @Test
    void testManualTourUpload() {
 
-      Utils.getTourWithSRTM(bot);
-
       final String stravaResponse = Utils.readFileContent(CLOUD_FILES_PATH
             + "ManualTour-StravaResponse.json"); //$NON-NLS-1$
       httpClientMock.onPost(
