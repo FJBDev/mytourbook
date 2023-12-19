@@ -45,6 +45,7 @@ import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
@@ -88,12 +89,23 @@ public class Utils {
    public static final String VIEW_NAME_WAYPOINTS              = PluginProperties.getText("View_Name_Waypoint");                  //$NON-NLS-1$
    public static final String WORKING_DIRECTORY                = System.getProperty("user.dir");                                  //$NON-NLS-1$
 
-   public static void changeMeasurementSystem(final SWTWorkbenchBot bot, final String measurementSystem) {
+   private static void changeMeasurementSystem(final SWTWorkbenchBot bot, final int measurementSystemIndex) {
 
       Utils.openPreferences(bot);
       bot.tree().getTreeItem("General").select(); //$NON-NLS-1$
       bot.cTabItem(Messages.Pref_general_system_measurement).activate();
-      bot.comboBox(0).setSelection(measurementSystem);
+
+      if (measurementSystemIndex > 0) {
+         bot.comboBox(0).setSelection(measurementSystemIndex);
+      } else {
+         // The above code doesn't work when selecting the metric system
+         // (measurementSystemIndex = 0) because, for a reason I can't explain nor
+         // solve, when selecting the "Metric" dropdown item, it saves it as an
+         // empty string in the preferences.
+         // As a result, we restore the default preferences for which metric is
+         // the selected measurement system
+         Utils.clickButton("Restore Defaults", bot);
+      }
       Utils.clickApplyAndCloseButton(bot);
    }
 
@@ -227,7 +239,7 @@ public class Utils {
 
       bot.sleep(1000);
 
-      final var currentShells = bot.shells();
+      final SWTBotShell[] currentShells = bot.shells();
       // The experimental dialog message only appears once
       if (Arrays.stream(currentShells).anyMatch(shell -> shell.getText().equals("Experimental Feature"))) { //$NON-NLS-1$
 
@@ -452,6 +464,21 @@ public class Utils {
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
          StatusUtil.log(e);
       }
+   }
+
+   public static void setMeasurementSystem_Imperial(final SWTWorkbenchBot bot) {
+
+      changeMeasurementSystem(bot, 1);
+   }
+
+   public static void setMeasurementSystem_Metric(final SWTWorkbenchBot bot) {
+
+      changeMeasurementSystem(bot, 0);
+   }
+
+   public static void setMeasurementSystem_Nautical(final SWTWorkbenchBot bot) {
+
+      changeMeasurementSystem(bot, 2);
    }
 
    public static SWTBotView showImportView(final SWTWorkbenchBot bot) {

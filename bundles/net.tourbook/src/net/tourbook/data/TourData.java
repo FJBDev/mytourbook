@@ -61,6 +61,7 @@ import net.tourbook.common.util.MtMath;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StreamUtils;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.database.FIELD_VALIDATION;
 import net.tourbook.database.TourDatabase;
@@ -80,6 +81,7 @@ import net.tourbook.tour.BreakTimeTool;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
+import net.tourbook.tour.location.TourLocationData;
 import net.tourbook.tour.photo.TourPhotoLink;
 import net.tourbook.tour.photo.TourPhotoManager;
 import net.tourbook.ui.tourChart.ChartLabelMarker;
@@ -148,14 +150,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public static final int               DB_LENGTH_TOUR_DESCRIPTION        = 4096;
    public static final int               DB_LENGTH_TOUR_DESCRIPTION_V10    = 32000;
    public static final int               DB_LENGTH_TOUR_START_PLACE        = 255;
+   public static final int               DB_LENGTH_TOUR_START_PLACE_V52    = 4096;
    public static final int               DB_LENGTH_TOUR_END_PLACE          = 255;
+   public static final int               DB_LENGTH_TOUR_END_PLACE_V52      = 4096;
    public static final int               DB_LENGTH_TOUR_IMPORT_FILE_PATH   = 255;
    public static final int               DB_LENGTH_TOUR_IMPORT_FILE_NAME   = 255;
    public static final int               DB_LENGTH_TIME_ZONE_ID            = 255;
 
    public static final int               DB_LENGTH_WEATHER                 = 1000;
-   public static final int               DB_LENGTH_WEATHER_AIRQUALITY      = 255;
    public static final int               DB_LENGTH_WEATHER_V48             = 32000;
+   public static final int               DB_LENGTH_WEATHER_AIRQUALITY      = 255;
    public static final int               DB_LENGTH_WEATHER_CLOUDS          = 255;
 
    public static final int               DB_LENGTH_POWER_DATA_SOURCE       = 255;
@@ -922,6 +926,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    @JsonProperty
    private short                 battery_Percentage_End        = -1;
 
+
    // ############################################# UNUSED FIELDS - START #############################################
    /**
     * ssss distance msw
@@ -959,6 +964,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    private int                      deviceWeight;
 
    // ############################################# UNUSED FIELDS - END #############################################
+
 
    /**
     * Number of time slices in {@link #timeSerie}
@@ -1049,6 +1055,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    @ManyToOne
    private TourBike                    tourBike;
+
+   @ManyToOne
+   private TourLocation                tourLocationStart;
+
+   @ManyToOne
+   private TourLocation                tourLocationEnd;
 
    /**
     * <br>
@@ -2032,6 +2044,18 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    @Transient
    public float         verticalSpeed_Down_Elevation;
 
+   /**
+    * Downloaded start location data
+    */
+   @Transient
+   public TourLocationData    tourLocationData_Start;
+
+   /**
+    * Downloaded end location data
+    */
+   @Transient
+   public TourLocationData    tourLocationData_End;
+
 
 // SET_FORMATTING_ON
 
@@ -2467,10 +2491,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       _rasterizedLatLon = null;
       geoGrid = null;
-//      latitudeMinE6 = 0;
-//      longitudeMinE6 = 0;
-//      latitudeMaxE6 = 0;
-//      longitudeMaxE6 = 0;
 
       _hrZones = null;
       _hrZoneContext = null;
@@ -4385,7 +4405,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       if (isElevationAvailable) {
 
-         final boolean isAltitudeSmoothed = _prefStore.getBoolean(//
+         final boolean isAltitudeSmoothed = _prefStore.getBoolean(
                ITourbookPreferences.GRAPH_JAMET_SMOOTHING_IS_ALTITUDE);
 
          // convert altitude into double
@@ -6168,39 +6188,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       for (final TourMarker tourMarker : tourMarkers) {
          tourMarker.updateDatabase_019_to_020();
       }
-   }
-
-   private double[] convertDataSeries_FromE6(final int[] dataSerieE6) {
-
-      if (dataSerieE6 == null || dataSerieE6.length == 0) {
-         return null;
-      }
-      final int serieSize = dataSerieE6.length;
-
-      final double[] doubleDataSerie = new double[serieSize];
-
-      for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
-         doubleDataSerie[serieIndex] = dataSerieE6[serieIndex] / 1E6;
-      }
-
-      return doubleDataSerie;
-   }
-
-   private int[] convertDataSeries_ToE6(final double[] dataSerieDouble) {
-
-      if (dataSerieDouble == null || dataSerieDouble.length == 0) {
-         return null;
-      }
-
-      final int serieSize = dataSerieDouble.length;
-
-      final int[] dataSerieE6 = new int[serieSize];
-
-      for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
-         dataSerieE6[serieIndex] = (int) (dataSerieDouble[serieIndex] * 1E6);
-      }
-
-      return dataSerieE6;
    }
 
    private float[] convertDataSeries_ToFloat(final int[] intDataSerie, final int scale) {
@@ -10812,6 +10799,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       return tourId;
    }
 
+   public TourLocation getTourLocationEnd() {
+      return tourLocationEnd;
+   }
+
+   public TourLocation getTourLocationStart() {
+      return tourLocationStart;
+   }
+
    /**
     * @return Returns a set with all {@link TourMarker} for the tour or an empty set when markers
     *         are not available.
@@ -11309,9 +11304,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public boolean isValidForSave() {
 
       /*
-       * check: tour title
+       * Check: Tour title
        */
-      FIELD_VALIDATION fieldValidation = TourDatabase.isFieldValidForSave(//
+      FIELD_VALIDATION fieldValidation = TourDatabase.isFieldValidForSave(
             tourTitle,
             DB_LENGTH_TOUR_TITLE,
             Messages.Db_Field_TourData_Title,
@@ -11324,7 +11319,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
 
       /*
-       * check: tour description
+       * Check: Tour description
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             tourDescription,
@@ -11339,37 +11334,37 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
 
       /*
-       * check: tour start location
+       * Check: Tour start location
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             tourStartPlace,
-            DB_LENGTH_TOUR_START_PLACE,
+            DB_LENGTH_TOUR_START_PLACE_V52,
             Messages.Db_Field_TourData_StartPlace,
             false);
 
       if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
          return false;
       } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         tourStartPlace = tourStartPlace.substring(0, DB_LENGTH_TOUR_START_PLACE);
+         tourStartPlace = tourStartPlace.substring(0, DB_LENGTH_TOUR_START_PLACE_V52);
       }
 
       /*
-       * check: tour end location
+       * Check: Tour end location
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             tourEndPlace,
-            DB_LENGTH_TOUR_END_PLACE,
+            DB_LENGTH_TOUR_END_PLACE_V52,
             Messages.Db_Field_TourData_EndPlace,
             false);
 
       if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
          return false;
       } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         tourEndPlace = tourEndPlace.substring(0, DB_LENGTH_TOUR_END_PLACE);
+         tourEndPlace = tourEndPlace.substring(0, DB_LENGTH_TOUR_END_PLACE_V52);
       }
 
       /*
-       * check: tour import file path
+       * Check: Tour import file path
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             tourImportFilePath,
@@ -11384,7 +11379,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
 
       /*
-       * check: tour import file name
+       * Check: Tour import file name
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             tourImportFileName,
@@ -11399,9 +11394,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
 
       /*
-       * check: weather
+       * Check: Weather
        */
-      fieldValidation = TourDatabase.isFieldValidForSave(//
+      fieldValidation = TourDatabase.isFieldValidForSave(
             weather,
             DB_LENGTH_WEATHER_V48,
             Messages.Db_Field_TourData_Weather,
@@ -11442,13 +11437,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          convertDataSeries();
       }
 
-      onPostLoadGetDataSeries();
+      onPostLoad_GetDataSeries();
    }
 
    /**
     * Move/convert serie data into tour data
     */
-   private void onPostLoadGetDataSeries() {
+   private void onPostLoad_GetDataSeries() {
 
       timeSerie = serieData.timeSerie;
 
@@ -11483,8 +11478,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          /*
           * Db version >= 43 contain lat/lon in E6 format
           */
-         latitudeSerie        = convertDataSeries_FromE6(serieData.latitudeE6);
-         longitudeSerie       = convertDataSeries_FromE6(serieData.longitudeE6);
+         latitudeSerie        = Util.convertDoubleSeries_FromE6(serieData.latitudeE6);
+         longitudeSerie       = Util.convertDoubleSeries_FromE6(serieData.longitudeE6);
       }
       computeGeo_Grid();
 
@@ -11526,6 +11521,17 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       battery_Time               = serieData.battery_Time;
 
 // SET_FORMATTING_ON
+
+      /*
+       * Set transient values for the tour locations
+       */
+      if (tourLocationStart != null) {
+         tourLocationStart.setTransientValues();
+      }
+
+      if (tourLocationEnd != null) {
+         tourLocationEnd.setTransientValues();
+      }
    }
 
    /**
@@ -11566,8 +11572,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          serieData.powerSerie20 = powerSerie;
       }
 
-      serieData.latitudeE6          = convertDataSeries_ToE6(latitudeSerie);
-      serieData.longitudeE6         = convertDataSeries_ToE6(longitudeSerie);
+      serieData.latitudeE6          = Util.convertDoubleSeries_ToE6(latitudeSerie);
+      serieData.longitudeE6         = Util.convertDoubleSeries_ToE6(longitudeSerie);
 
       serieData.gears               = gearSerie;
 
@@ -12425,7 +12431,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       this.serieData = serieData;
 
-      onPostLoadGetDataSeries();
+      onPostLoad_GetDataSeries();
    }
 
    private void setSpeed(final int serieIndex,
@@ -12639,6 +12645,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    public void setTourImportFilePath(final String tourImportFilePath) {
       this.tourImportFilePath = tourImportFilePath;
+   }
+
+   public void setTourLocationEnd(final TourLocation tourLocationEnd) {
+      this.tourLocationEnd = tourLocationEnd;
+   }
+
+   public void setTourLocationStart(final TourLocation tourLocationStart) {
+      this.tourLocationStart = tourLocationStart;
    }
 
    public void setTourMarkers(final Set<TourMarker> tourMarkers) {
