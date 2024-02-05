@@ -98,7 +98,7 @@ dependencies {
    api 'org.slf4j:slf4j-simple:2.0.5'
     
     // http logging
-   api 'com.squareup.okhttp3:logging-interceptor:3.14.1'
+   api 'com.squareup.okhttp3:logging-interceptor:3.14.9'
    
    // glTF loader
    api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
