@@ -9,7 +9,7 @@
 plugins {
 
    // osgi bundle support
-   id 'com.diffplug.osgi.bndmanifest' version '3.40.0'
+   id 'com.diffplug.osgi.bndmanifest' version '3.44.0'
 }
 
 apply plugin: 'java-library'
