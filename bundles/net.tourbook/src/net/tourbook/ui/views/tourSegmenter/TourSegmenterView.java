@@ -3697,6 +3697,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
       defineColumn_Body_AvgPulse();
       defineColumn_Body_AvgPulse_Difference();
+      defineColumn_Body_MaxPulse();
 
       defineColumn_Powertrain_AvgCadence();
       defineColumn_Powertrain_StrideLength();
@@ -4081,12 +4082,44 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
             if (segment.isTotal) {
                cell.setText(UI.EMPTY_STRING);
-            } else if (pulseDiff == Integer.MIN_VALUE) {
+            } else if (pulseDiff == Float.MIN_VALUE) {
                cell.setText(UI.EMPTY_STRING);
             } else if (pulseDiff == 0) {
                cell.setText(UI.DASH);
             } else {
                cell.setText(Integer.toString((int) pulseDiff));
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Body - Max pulse
+    */
+   private void defineColumn_Body_MaxPulse() {
+
+      final ColumnDefinition colDef;
+
+      colDef = TableColumnFactory.BODY_PULSE_MAX.createColumn(_columnManager, _pc);
+
+      colDef.setIsDefaultColumn();
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourSegment segment = (TourSegment) cell.getElement();
+
+            final float pulseMax = segment.pulse_Max;
+
+            if (segment.isTotal) {
+               cell.setText(UI.EMPTY_STRING);
+            } else if (pulseMax == Float.MIN_VALUE) {
+               cell.setText(UI.EMPTY_STRING);
+            } else if (pulseMax == 0) {
+               cell.setText(UI.DASH);
+            } else {
+               cell.setText(Integer.toString((int) pulseMax));
             }
          }
       });

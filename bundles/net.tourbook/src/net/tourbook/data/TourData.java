@@ -6854,9 +6854,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
             final float segmentAvgPulse = computeAvg_PulseSegment(segmentStartIndex, segmentEndIndex);
             segmentSerie_Pulse[segmentIndex] = segment.pulse = segmentAvgPulse;
             segment.pulse_Diff = segmentAvgPulse - avgPulse;
+            segment.pulse_Max = computeMax_PulseSegment(segmentStartIndex, segmentEndIndex);
          } else {
             // hide pulse in the view
             segment.pulse_Diff = Float.MIN_VALUE;
+            segment.pulse_Max = Float.MIN_VALUE;
          }
 
          if (isCadenceSerie) {
