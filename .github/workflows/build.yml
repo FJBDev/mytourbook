@@ -70,9 +70,9 @@ jobs:
           path: 'D:/a/mytourbook-BUILD-autocreated/core/**/target/surefire-reports/*.xml'
           reporter: java-junit
       - name: Test Report
-        uses: jwgmeligmeyling/spotbugs-github-action@master
+        uses: lcollins/spotbugs-github-action@v2.0.0
         with:
-          path: '**/spotbugsXml.xml'
+          path: 'D:/a/mytourbook-BUILD-autocreated/core/**/spotbugsXml.xml'
           
   check_date:
     runs-on: windows-latest
