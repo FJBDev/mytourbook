@@ -69,6 +69,7 @@ sonarqube {
     property 'sonar.issue.ignore.multicriteria.e3.resourceKey', 'bundles/**/UI.java'
     property 'sonar.issue.ignore.multicriteria.e4.ruleKey',     'java:S1444'
     property 'sonar.issue.ignore.multicriteria.e4.resourceKey', 'bundles/**/UI.java'
+    property 'sonar.java.spotbugs.reportPaths',                 '../../mytourbook-BUILD-autocreated/core/**/spotbugsXml.xml'
   }
 }
 
