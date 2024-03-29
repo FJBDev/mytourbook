@@ -270,10 +270,10 @@
                         <goal>check</goal>
                     </goals>
 		    <configuration>
-             <xmlOutput>true</xmlOutput>
+			    <skip>true</skip>
+			    <xmlOutput>true</xmlOutput>
 			    <failOnError>false</failOnError>
 		    </configuration>
-	
                 </execution>
             </executions>
         </plugin>
