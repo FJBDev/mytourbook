@@ -273,6 +273,7 @@
 			    <skip>true</skip>
 			    <xmlOutput>true</xmlOutput>
 			    <failOnError>false</failOnError>
+             <spotbugsXmlOutputDirectory>${project.build.sourceDirectory</spotbugsXmlOutputDirectory>
              <xmlOutputDirectory>${project.build.sourceDirectory}</xmlOutputDirectory>
 		    </configuration>
                 </execution>
