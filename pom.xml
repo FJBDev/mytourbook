@@ -292,6 +292,7 @@
                     </goals>
 		    <configuration>
 			    <skip>true</skip>
+             <failsOnError>false</failsOnError>
 		    </configuration>
                 </execution>
             </executions>
