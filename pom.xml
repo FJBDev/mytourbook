@@ -287,16 +287,15 @@
 	      <configuration>
 		      <!--<configLocation>checkstyle.xml</configLocation>-->
      <encoding>UTF-8</encoding>
-     <failsOnError>false</failsOnError>
+     <failOnViolation>false</failOnViolation>
 			    <skip>true</skip>
    </configuration>
 	   <executions>
      <execution>
-       <id>validate</id>
-       <phase>validate</phase>
-       <goals>
-         <goal>check</goal>
-       </goals>
+       <phase>verify</phase>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
      </execution>
    </executions>
         </plugin>
