@@ -63,7 +63,7 @@ jobs:
           path: |
             D:\a\mytourbook\mytourbook\mergedJaCoCoReport.exec
             D:\a\mytourbook-BUILD-autocreated\core\**\spotbugsXml.*
-            D:\a\mytourbook-BUILD-autocreated\core\**\checkstyle.*
+            D:\a\mytourbook-BUILD-autocreated\core\**\checkstyle-result.xml
           retention-days: 5
       - name: Test Report
         uses: dorny/test-reporter@v1
