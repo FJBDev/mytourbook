@@ -285,7 +285,7 @@
             <artifactId>maven-checkstyle-plugin</artifactId>
            <version>3.3.1</version>
 	      <configuration>
-     <configLocation>checkstyle.xml</configLocation>
+		      <!--<configLocation>checkstyle.xml</configLocation>-->
      <encoding>UTF-8</encoding>
      <failsOnError>false</failsOnError>
 			    <skip>true</skip>
