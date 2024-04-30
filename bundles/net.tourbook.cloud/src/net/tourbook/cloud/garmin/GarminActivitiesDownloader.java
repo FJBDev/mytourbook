@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -40,10 +40,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
-import net.tourbook.cloud.suunto.WorkoutDownload;
 import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
 import net.tourbook.common.UI;
@@ -81,7 +81,7 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
       super("GARMIN", //$NON-NLS-1$
             Messages.VendorName_Garmin_Activities,
             Messages.Garmin_Activities_Description,
-            Activator.getImageAbsoluteFilePath(Messages.Image__Garmin_Icon));
+            Activator.getImageAbsoluteFilePath(CloudImages.Cloud_Garmin_Logo));
    }
 
    private CompletableFuture<WorkoutDownload> downloadFile(final String workoutKey) {

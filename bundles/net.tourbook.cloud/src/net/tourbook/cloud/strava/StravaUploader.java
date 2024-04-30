@@ -23,7 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Paths;
@@ -52,7 +51,6 @@ import net.tourbook.data.TourData;
 import net.tourbook.export.TourExporter;
 import net.tourbook.extension.upload.TourbookCloudUploader;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
 import net.tourbook.tour.TourManager;
 import net.tourbook.weather.WeatherUtils;
 
@@ -70,17 +68,11 @@ import org.json.JSONObject;
 
 public class StravaUploader extends TourbookCloudUploader {
 
-   private static final String     ICON__CHECK                   = net.tourbook.cloud.Messages.Icon__Check;
-   private static final String     ICON__HOURGLASS               = net.tourbook.cloud.Messages.Icon__Hourglass;
-   private static final String     LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
-   private static final String     LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
    private static final String     STRAVA_BASE_URL   = "https://www.strava.com/api/v3";            //$NON-NLS-1$
 
-   private static final String     StravaBaseUrl                 = "https://www.strava.com/api/v3";                                      //$NON-NLS-1$
+   private static IPreferenceStore _prefStore        = Activator.getDefault().getPreferenceStore();
    private static TourExporter     _tourExporter     = new TourExporter("fit");                    //$NON-NLS-1$
 
-   private static HttpClient       _httpClient                   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
-   private static IPreferenceStore _prefStore                    = Activator.getDefault().getPreferenceStore();
    private static String           CLOUD_UPLOADER_ID = "Strava";                                   //$NON-NLS-1$
 
    // Source : https://developers.strava.com/docs/reference/#api-models-ActivityType
@@ -282,38 +274,6 @@ public class StravaUploader extends TourbookCloudUploader {
    }
 
    private boolean logUploadResult(final ActivityUpload activityUpload) {
-
-      boolean isTourUploaded = false;
-
-      if (StringUtils.hasContent(activityUpload.getError())) {
-
-         TourLogManager.logError(NLS.bind(Messages.Log_UploadToursToStrava_004_UploadError, activityUpload.getTourDate(), activityUpload.getError()));
-
-      } else {
-
-         isTourUploaded = true;
-
-         if (StringUtils.hasContent(activityUpload.getName())) {
-
-            TourLogManager.addLog(TourLogState.IMPORT_OK,
-                  NLS.bind(Messages.Log_UploadToursToStrava_003_ActivityLink,
-                        activityUpload.getTourDate(),
-                        activityUpload.getId()));
-         } else {
-
-            TourLogManager.addLog(TourLogState.IMPORT_OK,
-                  NLS.bind(Messages.Log_UploadToursToStrava_003_UploadStatus,
-                        new Object[] {
-                              activityUpload.getTourDate(),
-                              activityUpload.getId(),
-                              activityUpload.getStatus() }));
-         }
-      }
-
-      return isTourUploaded;
-   }
-
-   private String mapTourType(final TourData manualTour) {
 
       boolean isTourUploaded = false;
 

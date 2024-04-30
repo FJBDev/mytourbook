@@ -52,8 +52,6 @@ public class Messages extends NLS {
    public static String PrefPage_CloudConnectivity_Dropbox_AccessToken_Tooltip;
 
    //GARMIN
-   public static String Image__Garmin_Icon;
-
    public static String Pref_AccountInformation_GarminConnect_WebPage_Link;
    public static String Garmin_Activities_Description;
    public static String VendorName_Garmin_Activities;
