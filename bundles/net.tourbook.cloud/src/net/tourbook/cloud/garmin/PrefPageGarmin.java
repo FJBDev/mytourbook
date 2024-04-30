@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,7 +35,7 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
-import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
@@ -322,7 +321,7 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
 
       final HttpRequest request = HttpRequest.newBuilder()
             .GET()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/request_token"))//$NON-NLS-1$
+            .uri(OAuth2Utils.createOAuthPasseurUri("/garmin/request_token"))//$NON-NLS-1$
             .build();
 
       GarminTokens garminTokens = null;

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -43,7 +42,7 @@ import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
-import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
 import net.tourbook.common.UI;
@@ -93,7 +92,7 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
       body.put("uploadEndTimeInSeconds", "1613500314"); //$NON-NLS-1$
 
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/wellness/activities" + workoutKey))//$NON-NLS-1$
+            .uri(OAuth2Utils.createOAuthPasseurUri("/garmin/wellness/activities" + workoutKey))//$NON-NLS-1$
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
             .build();
 
@@ -291,7 +290,7 @@ public class GarminActivitiesDownloader extends TourbookCloudDownloader {
       parameterBuilder.append(sinceDateFilter + 86400);
 
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/garmin/wellness/activities?" + parameterBuilder.toString()))//$NON-NLS-1$
+            .uri(OAuth2Utils.createOAuthPasseurUri("/garmin/wellness/activities?" + parameterBuilder.toString()))//$NON-NLS-1$
             .GET()
             .build();
 
