@@ -219,8 +219,8 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
       {
          {
             _labelDownloadFolder = new Label(container, SWT.NONE);
-            _labelDownloadFolder.setText(Messages.Pref_Combo_Workouts_Label_FolderPath);
-            _labelDownloadFolder.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
+            //    _labelDownloadFolder.setText(Messages.Pref_Combo_Workouts_Label_FolderPath);
+            //   _labelDownloadFolder.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
             GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(_labelDownloadFolder);
 
             /*
@@ -228,12 +228,12 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
              */
             _comboDownloadFolderPath = new Combo(container, SWT.SINGLE | SWT.BORDER);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboDownloadFolderPath);
-            _comboDownloadFolderPath.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
+            // _comboDownloadFolderPath.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
             _comboDownloadFolderPath.setEnabled(false);
 
             _btnSelectFolder = new Button(container, SWT.PUSH);
             _btnSelectFolder.setText(APP_BTN_BROWSE);
-            _btnSelectFolder.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
+            //   _btnSelectFolder.setToolTipText(Messages.Pref_Combo_Workouts_FolderPath_Combo_Tooltip);
             _btnSelectFolder.addSelectionListener(new SelectionAdapter() {
                @Override
                public void widgetSelected(final SelectionEvent e) {
@@ -248,8 +248,8 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
              * Checkbox: Use a "since" date filter
              */
             _chkUseDateFilter = new Button(container, SWT.CHECK);
-            _chkUseDateFilter.setText(Messages.Pref_Checkbox_Use_SinceDateFilter);
-            _chkUseDateFilter.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
+            // _chkUseDateFilter.setText(Messages.Pref_Checkbox_Use_SinceDateFilter);
+            //  _chkUseDateFilter.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
             GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(_chkUseDateFilter);
             _chkUseDateFilter.addSelectionListener(new SelectionAdapter() {
                @Override
@@ -259,7 +259,7 @@ public class PrefPageGarmin extends FieldEditorPreferencePage implements IWorkbe
             });
 
             _dtFilterSince = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
-            _dtFilterSince.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
+            //  _dtFilterSince.setToolTipText(Messages.Pref_Checkbox_Use_SinceDateFilter_Tooltip);
             GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(_dtFilterSince);
          }
       }
