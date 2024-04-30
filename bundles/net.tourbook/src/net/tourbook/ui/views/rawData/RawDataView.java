@@ -479,8 +479,6 @@ public class RawDataView extends ViewPart implements
    private HashMap<String, Integer>      _configImageHash            = new HashMap<>();
    //
    private boolean                       _isBrowserCompleted;
-   private boolean                       _isInUIStartup;
-   private boolean                       _isNewUI;
    private boolean                       _isInFancyUIStartup;
    private boolean                       _isInUpdate;
    //
@@ -501,9 +499,6 @@ public class RawDataView extends ViewPart implements
    private String                        _imageUrl_Device_TurnOff;
    private String                        _imageUrl_Device_TurnOn;
    private String                        _imageUrl_DeviceFolder_OK;
-   private String                        _imageUrl_DeviceFolder_Disabled;
-   private String                        _imageUrl_DeviceFolder_NotAvailable;
-   private String                        _imageUrl_DeviceFolder_NotChecked;
    private String                        _imageUrl_DeviceFolder_Off;
    private String                        _imageUrl_DeviceFolder_Error;
    private String                        _imageUrl_DeviceFolder_IsChecking;
@@ -522,6 +517,7 @@ public class RawDataView extends ViewPart implements
    //
    private PixelConverter                _pc;
    private List<TourbookCloudDownloader> _cloudDownloadersList       = CloudDownloaderManager.getCloudDownloaderList();
+   //
    private DialogEasyImportConfig        _dialogImportConfig;
 
    /*
@@ -547,18 +543,12 @@ public class RawDataView extends ViewPart implements
    /*
     * UI controls
     */
-   private PageBook  _topPageBook;
-   private Composite _topPage_Dashboard;
-   private Composite _topPage_OldUI;
+   private Browser   _browser;
 
-   private PageBook  _dashboard_PageBook;
-   private Composite _dashboardPage_NoBrowser;
-   private Composite _dashboardPage_WithBrowser;
    private PageBook  _topPage_PageBook;
    private Composite _topPage_ImportViewer;
    private Composite _topPage_Startup;
 
-   private Composite _viewerContainer;
    private Composite _topPage_ImportUI_EasyImport_Fancy;
    private Composite _topPage_ImportUI_EasyImport_Simple;
    private Composite _topPage_ImportUI_FossilUI;
@@ -571,10 +561,8 @@ public class RawDataView extends ViewPart implements
    private Composite _tourViewer_Container;
    private Composite _simpleUI_ViewerContainer;
 
-   private Browser   _browser;
    private Combo     _comboSimpleUI_Config;
 
-   private Menu      _tableContextMenu;
    private Label     _lblSimpleUI_EasyImportTitle;
    private Label     _lblSimpleUI_NumNotImportedFiles;
 
