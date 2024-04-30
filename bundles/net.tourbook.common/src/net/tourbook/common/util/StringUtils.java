@@ -26,7 +26,6 @@ public final class StringUtils {
     * Tests if a given string is not <code>null</code> and not empty.
     *
     * @param text
-    *
     * @return <code>true</code> when text is not <code>null</code> and is not empty
     */
    public static boolean hasContent(final String text) {
@@ -37,7 +36,6 @@ public final class StringUtils {
     * Tests if a given string is null or empty.
     *
     * @param string
-    *
     * @return <code>true</code> if null or empty, false otherwise.
     */
    public static boolean isNullOrEmpty(final String string) {
@@ -48,7 +46,6 @@ public final class StringUtils {
    /**
     * @param stringArray
     * @param separator
-    *
     * @return Join a strings with a separator.
     */
    public static String join(final String[] stringArray, final String separator) {
@@ -73,7 +70,6 @@ public final class StringUtils {
     *
     * @param fileName
     *           The string of a given file name
-    *
     * @return
     *         The sanitized file name
     */
