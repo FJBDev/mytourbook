@@ -16,17 +16,13 @@
 package net.tourbook.cloud.garmin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
@@ -34,12 +30,9 @@ import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.Tokens;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
-import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.json.JSONObject;
 
@@ -85,33 +78,33 @@ public class GarminTokensRetrievalHandler extends TokensRetrievalHandler {
       return null;
    }
 
-   @Override
-   public Tokens handleGetRequest(final HttpExchange httpExchange) {
-
-      final char[] separators = { '#', '&', '?' };
-
-      final String response = httpExchange.getRequestURI().toString();
-
-      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
-      final Optional<NameValuePair> optionalOauthToken = params
-            .stream()
-            .filter(param -> param.getName().equals("oauth_token")).findAny();
-
-      final Optional<NameValuePair> optionalOauthVerifier = params
-            .stream()
-            .filter(param -> param.getName().equals("oauth_verifier")).findAny();
-
-      String oauthToken = UI.EMPTY_STRING;
-      String oauthVerifier = UI.EMPTY_STRING;
-      if (optionalOauthToken.isPresent()) {
-         oauthToken = optionalOauthToken.get().getValue();
-      }
-      if (optionalOauthVerifier.isPresent()) {
-         oauthVerifier = optionalOauthVerifier.get().getValue();
-      }
-
-      return getTokens(oauthToken, oauthVerifier);
-   }
+//   @Override
+//   public Tokens handleGetRequest(final HttpExchange httpExchange) {
+//
+//      final char[] separators = { '#', '&', '?' };
+//
+//      final String response = httpExchange.getRequestURI().toString();
+//
+//      final List<NameValuePair> params = URLEncodedUtils.parse(response, StandardCharsets.UTF_8, separators);
+//      final Optional<NameValuePair> optionalOauthToken = params
+//            .stream()
+//            .filter(param -> param.getName().equals("oauth_token")).findAny();
+//
+//      final Optional<NameValuePair> optionalOauthVerifier = params
+//            .stream()
+//            .filter(param -> param.getName().equals("oauth_verifier")).findAny();
+//
+//      String oauthToken = UI.EMPTY_STRING;
+//      String oauthVerifier = UI.EMPTY_STRING;
+//      if (optionalOauthToken.isPresent()) {
+//         oauthToken = optionalOauthToken.get().getValue();
+//      }
+//      if (optionalOauthVerifier.isPresent()) {
+//         oauthVerifier = optionalOauthVerifier.get().getValue();
+//      }
+//
+//      return getTokens(oauthToken, oauthVerifier);
+//   }
 
    public Tokens retrieveTokens() {
       return null;

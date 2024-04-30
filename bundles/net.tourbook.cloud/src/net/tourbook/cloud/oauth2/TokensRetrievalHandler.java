@@ -47,7 +47,7 @@ public abstract class TokensRetrievalHandler implements HttpHandler {
       saveTokensInPreferences(tokens);
    }
 
-   public Tokens handleGetRequest(final HttpExchange httpExchange) {
+   private Tokens handleGetRequest(final HttpExchange httpExchange) {
 
       String authorizationCode = UI.EMPTY_STRING;
 
