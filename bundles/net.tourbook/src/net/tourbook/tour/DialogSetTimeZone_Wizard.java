@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.ui.ITourProvider2;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
@@ -89,7 +90,7 @@ public class DialogSetTimeZone_Wizard extends Wizard {
 
       final long start = System.currentTimeMillis();
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.TOUR_ADJUSTMENTS);
 
       try {
 
@@ -99,7 +100,7 @@ public class DialogSetTimeZone_Wizard extends Wizard {
          StatusUtil.log(e);
       }
 
-      TourLogManager.logDefault(String.format(//
+      TourLogManager.log_DEFAULT(String.format(
             LOG_SET_TIMEZONE_002_END,
             (System.currentTimeMillis() - start) / 1000.0));
 
@@ -141,7 +142,7 @@ public class DialogSetTimeZone_Wizard extends Wizard {
          break;
       }
 
-      TourLogManager.addLog(TourLogState.DEFAULT, startLogMessage);
+      TourLogManager.log_DEFAULT(startLogMessage);
 
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 
@@ -178,9 +179,7 @@ public class DialogSetTimeZone_Wizard extends Wizard {
 
                   tourData.setTimeZoneId(selectedzoneId.getId());
 
-                  TourLogManager.addLog(
-                        TourLogState.INFO,
-                        NLS.bind(LOG_SET_TIMEZONE_010_SET_SELECTED, tourDateTime));
+                  TourLogManager.log_INFO(NLS.bind(LOG_SET_TIMEZONE_010_SET_SELECTED, tourDateTime));
 
                   break;
 
@@ -199,15 +198,14 @@ public class DialogSetTimeZone_Wizard extends Wizard {
 
                      tourData.setTimeZoneId(zoneId.getId());
 
-                     TourLogManager.addLog(
-                           TourLogState.INFO,
-                           NLS.bind(LOG_SET_TIMEZONE_011_SET_FROM_GEO, zoneId.getId(), tourDateTime));
+                     TourLogManager.log_INFO(NLS.bind(
+                           LOG_SET_TIMEZONE_011_SET_FROM_GEO,
+                           zoneId.getId(),
+                           tourDateTime));
 
                   } else {
 
-                     TourLogManager.addLog(
-                           TourLogState.IMPORT_ERROR,
-                           NLS.bind(LOG_SET_TIMEZONE_012_NO_GEO, tourDateTime));
+                     TourLogManager.log_ERROR(NLS.bind(LOG_SET_TIMEZONE_012_NO_GEO, tourDateTime));
                   }
 
                   break;
@@ -218,9 +216,7 @@ public class DialogSetTimeZone_Wizard extends Wizard {
 
                   tourData.setTimeZoneId(null);
 
-                  TourLogManager.addLog(
-                        TourLogState.INFO,
-                        NLS.bind(LOG_SET_TIMEZONE_013_REMOVED, tourDateTime));
+                  TourLogManager.log_INFO(NLS.bind(LOG_SET_TIMEZONE_013_REMOVED, tourDateTime));
 
                   break;
 
@@ -231,8 +227,8 @@ public class DialogSetTimeZone_Wizard extends Wizard {
                   final ZonedDateTime tourStartTime_FromLatLon = tourData.getTourStartTime();
                   tourData.setTourStartTime_YYMMDD(tourStartTime_FromLatLon);
 
-                  TourLogManager.subLog_Info(NLS.bind(LOG_SET_TIMEZONE_014_TOUR_START_ADJUSTED, tourDateTime));
-                  
+                  TourLogManager.subLog_INFO(NLS.bind(LOG_SET_TIMEZONE_014_TOUR_START_ADJUSTED, tourDateTime));
+
                   break;
 
                default:

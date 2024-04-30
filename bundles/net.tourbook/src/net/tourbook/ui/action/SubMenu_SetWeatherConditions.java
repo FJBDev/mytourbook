@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2020, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import net.tourbook.Messages;
 import net.tourbook.common.UI;
+import net.tourbook.common.ui.SubMenu;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 import net.tourbook.tour.TourManager;
@@ -28,19 +29,12 @@ import net.tourbook.ui.ITourProvider2;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-public class SubMenu_SetWeatherConditions extends Action implements IMenuCreator {
-
-   private Menu                             _menu;
+public class SubMenu_SetWeatherConditions extends SubMenu {
 
    private final ITourProvider2             _tourProvider;
 
@@ -52,7 +46,7 @@ public class SubMenu_SetWeatherConditions extends Action implements IMenuCreator
 
       public ActionSetWeatherConditions(final String text, final String weatherId) {
 
-         super(text, AS_PUSH_BUTTON);
+         super(text, AS_CHECK_BOX);
 
          _weatherId = weatherId;
          setImageDescriptor(UI.IMAGE_REGISTRY.getDescriptor(_weatherId));
@@ -68,63 +62,34 @@ public class SubMenu_SetWeatherConditions extends Action implements IMenuCreator
 
       super(Messages.Tour_Action_SetWeatherConditions, AS_DROP_DOWN_MENU);
 
-      setMenuCreator(this);
-
       _tourProvider = tourProvider;
 
-      for (int index = 0; index < IWeather.cloudText.length; ++index) {
+      for (int index = 0; index < IWeather.CLOUD_TEXT.length; ++index) {
 
-         _actionsSetWeatherConditions.add(new ActionSetWeatherConditions(IWeather.cloudText[index],
-               IWeather.cloudIcon[index]));
+         _actionsSetWeatherConditions.add(new ActionSetWeatherConditions(IWeather.CLOUD_TEXT[index],
+               IWeather.CLOUD_ICON[index]));
       }
    }
 
    @Override
-   public void dispose() {
+   public void enableActions() {
 
-      if (_menu == null) {
-         return;
+      _actionsSetWeatherConditions.forEach(actionsSetWeatherConditions -> actionsSetWeatherConditions.setChecked(false));
+
+      final ArrayList<TourData> selectedTours = _tourProvider.getSelectedTours();
+      if (selectedTours.size() == 1) {
+
+         final int currentWeatherIndex = selectedTours.get(0).getWeatherIndex();
+         _actionsSetWeatherConditions.get(currentWeatherIndex).setChecked(true);
       }
-
-      _menu.dispose();
-      _menu = null;
-
    }
 
-   private void fillMenu(final Menu menu) {
+   @Override
+   public void fillMenu(final Menu menu) {
 
       for (final ActionSetWeatherConditions actionSetWeatherConditions : _actionsSetWeatherConditions) {
          new ActionContributionItem(actionSetWeatherConditions).fill(menu, -1);
       }
-   }
-
-   @Override
-   public Menu getMenu(final Control arg0) {
-      return null;
-   }
-
-   @Override
-   public Menu getMenu(final Menu parent) {
-
-      dispose();
-
-      _menu = new Menu(parent);
-
-      // Add listener to re-populate the menu each time
-      _menu.addMenuListener(new MenuAdapter() {
-         @Override
-         public void menuShown(final MenuEvent e) {
-
-            // dispose old menu items
-            for (final MenuItem menuItem : ((Menu) e.widget).getItems()) {
-               menuItem.dispose();
-            }
-
-            fillMenu(_menu);
-         }
-      });
-
-      return _menu;
    }
 
    public void setWeatherConditions(final String weatherDescription) {
@@ -151,13 +116,13 @@ public class SubMenu_SetWeatherConditions extends Action implements IMenuCreator
 
       for (final TourData tourData : selectedTours) {
 
-         if (Objects.equals(tourData.getWeatherClouds(), weatherDescription)) {
+         if (Objects.equals(tourData.getWeather_Clouds(), weatherDescription)) {
             continue;
          }
 
          // Weather description is not the same
 
-         tourData.setWeatherClouds(weatherDescription);
+         tourData.setWeather_Clouds(weatherDescription);
 
          modifiedTours.add(tourData);
       }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,9 +18,14 @@ package net.tourbook.tour;
 import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.data.TourData;
+import net.tourbook.data.TourLocation;
 import net.tourbook.tag.ChangedTags;
 import net.tourbook.ui.tourChart.HoveredValueData;
+import net.tourbook.ui.views.sensors.SelectionRecordingDeviceBattery;
+import net.tourbook.ui.views.sensors.SelectionSensor;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
+
+import org.eclipse.jface.viewers.ISelection;
 
 public enum TourEventId {
 
@@ -83,6 +88,11 @@ public enum TourEventId {
    TAG_STRUCTURE_CHANGED,
 
    /**
+    * Tag content has changed, e.g. tag image size
+    */
+   TAG_CONTENT_CHANGED,
+
+   /**
     * Sliders in the tour chart moved. Property data contains {@link SelectionChartInfo} or
     * {@link SelectionChartXSliderPosition} with the position of the sliders.
     */
@@ -111,6 +121,26 @@ public enum TourEventId {
    MARKER_SELECTION,
 
    /**
+    * A tour pause is selected, event data contain a {@link SelectionTourPause}.
+    */
+   PAUSE_SELECTION,
+
+   /**
+    * A sensor is selected, event data contains a {@link SelectionSensor}
+    */
+   SELECTION_SENSOR,
+
+   /**
+    * A sensor is selected, event data contains a {@link SelectionRecordingDeviceBattery}
+    */
+   SELECTION_RECORDING_DEVICE_BATTERY,
+
+   /**
+    * Something is selected in the map, event data contains a {@link ISelection}
+    */
+   MAP_SELECTION,
+
+   /**
     * Show geo grid in the map, event data contains {@link TourGeoFilterItem}
     */
    MAP_SHOW_GEO_GRID,
@@ -120,4 +150,15 @@ public enum TourEventId {
     * {@link Selection_StatisticValues}.
     */
    STATISTIC_VALUES,
+
+   /**
+    * Common locations are selected, event data contains a list with all {@link TourLocation}
+    */
+   COMMON_LOCATION_SELECTION,
+
+   /**
+    * Tour locations are selected, event data contains a list with all {@link TourLocation}
+    */
+   TOUR_LOCATION_SELECTION,
+
 }

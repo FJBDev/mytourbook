@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,18 +15,25 @@
  *******************************************************************************/
 package net.tourbook.commands;
 
-import net.tourbook.ui.views.tagging.TourTags_View;
+import java.util.Map;
+
+import net.tourbook.Images;
+import net.tourbook.application.TourbookPlugin;
+import net.tourbook.tour.TourManager;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.ISaveablePart;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.menus.UIElement;
 
-public class RestoreTour_Handler extends AbstractHandler {
+public class RestoreTour_Handler extends AbstractHandler implements IElementUpdater {
+
+   private static final ImageDescriptor _iconRestoreTour          = TourbookPlugin.getThemedImageDescriptor(Images.RestoreTour);
+   private static final ImageDescriptor _iconRestoreTour_Disabled = TourbookPlugin.getThemedImageDescriptor(Images.RestoreTour_Disabled);
 
    @Override
    public Object execute(final ExecutionEvent event) throws ExecutionException {
@@ -44,28 +51,23 @@ public class RestoreTour_Handler extends AbstractHandler {
    @Override
    public boolean isEnabled() {
 
-      final IWorkbenchWindow wbWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-      if (wbWindow == null) {
-         return false;
-      }
-
-      final IWorkbenchPart activePart = wbWindow.getActivePage().getActivePart();
-
-      if (activePart instanceof TourTags_View) {
-
-         /*
-          * Save/restore actions are always enabled in the tour tags view, this is necessary,
-          * otherwise tags must be modified that the save/restore actions are enabled
-          */
-
-         return true;
-      }
-
-      if (activePart instanceof ISaveablePart) {
-         return ((ISaveablePart) activePart).isDirty();
-      }
-
-      return false;
+      return TourManager.isTourModified();
    }
 
+   @SuppressWarnings("rawtypes")
+   @Override
+   public void updateElement(final UIElement uiElement, final Map parameters) {
+
+      /**
+       * Show command icon depending on the active part.
+       * <p>
+       * This method will be called from partActivated() with
+       * org.eclipse.ui.commands.ICommandService.refreshElements(..)
+       * <p>
+       * -> Higly complicated
+       */
+
+      uiElement.setDisabledIcon(_iconRestoreTour_Disabled);
+      uiElement.setIcon(_iconRestoreTour);
+   }
 }

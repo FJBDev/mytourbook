@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,7 +34,6 @@ import java.net.MalformedURLException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -183,9 +182,9 @@ public class MapProviderManager {
    private static final String PART_TYPE_HTML                                = "HTML";               //$NON-NLS-1$
    private static final String PART_TYPE_RANDOM_INTEGER                      = "RANDOM_INTEGER";     //$NON-NLS-1$
    private static final String PART_TYPE_RANDOM_ALPHA                        = "RANDOM_ALPHA";       //$NON-NLS-1$
-   private static final String PART_TYPE_X                                   = "X";                  //$NON-NLS-1$;
-   private static final String PART_TYPE_Y                                   = "Y";                  //$NON-NLS-1$;
-   private static final String PART_TYPE_ZOOM                                = "ZOOM";               //$NON-NLS-1$;
+   private static final String PART_TYPE_X                                   = "X";                  //$NON-NLS-1$
+   private static final String PART_TYPE_Y                                   = "Y";                  //$NON-NLS-1$
+   private static final String PART_TYPE_ZOOM                                = "ZOOM";               //$NON-NLS-1$
 
    /*
     * WMS map provider
@@ -328,7 +327,7 @@ public class MapProviderManager {
          public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
             final String capsUrlFinal = mpWms == null ? //
-            capsUrl
+                  capsUrl
                   : mpWms.getCapabilitiesUrl();
 
             monitor.beginTask(Messages.MP_Manager_Task_GetWms, 1);
@@ -451,7 +450,7 @@ public class MapProviderManager {
             public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
                final String taskName = isDeletePartImages ? //
-               Messages.MP_Manager_DeletedOfflineImagesParts_TaskNameParts
+                     Messages.MP_Manager_DeletedOfflineImagesParts_TaskNameParts
                      : Messages.MP_Manager_DeletedOfflineImagesParts_TaskName;
 
                monitor.beginTask(taskName, IProgressMonitor.UNKNOWN);
@@ -981,7 +980,7 @@ public class MapProviderManager {
                }
 
                StatusUtil.log(
-                     NLS.bind(Messages.DBG001_Error_Wms_LatLonBboxIsNotDefined, layerName, wmsName),
+                     NLS.bind(Messages.Error_Wms_LatLonBboxIsNotDefined_DBG001, layerName, wmsName),
                      new Exception());
                continue;
             }
@@ -1001,7 +1000,7 @@ public class MapProviderManager {
          MessageDialog.openError(
                Display.getCurrent().getActiveShell(),
                Messages.MP_Error_DialogTitle_Wms,
-               Messages.DBG002_Error_Wms_DialogMessage_InvalidLayers);
+               Messages.Error_Wms_DialogMessage_InvalidLayers_DBG002);
          return null;
       }
 
@@ -1015,7 +1014,7 @@ public class MapProviderManager {
          updatedWmsMapProvider = oldWmsMapProvider;
       }
 
-      // inizialize map provider by setting none UI data
+      // initialize map provider by setting none UI data
       updatedWmsMapProvider.initializeWms(wmsServer, wmsCaps, loadedMtLayers);
 
       /*
@@ -1230,7 +1229,7 @@ public class MapProviderManager {
 
                StatusUtil.showStatus(
                      NLS.bind(
-                           Messages.DBG003_Error_InvalidFactoryId,
+                           Messages.Error__InvalidFactoryId_DBG003,
                            new Object[] { pluginFactoryId, pluginMp.getName(), checkedMapProvider.getName() //
                            }),
                      new Exception());
@@ -1247,7 +1246,7 @@ public class MapProviderManager {
                   && checkedOfflineFolder.equalsIgnoreCase(pluginOfflineFolder)) {
 
                StatusUtil.showStatus(
-                     NLS.bind(Messages.DBG004_Error_InvalidOfflineFolder,
+                     NLS.bind(Messages.Error__InvalidOfflineFolder_DBG004,
                            new Object[] {
                                  pluginOfflineFolder,
                                  pluginMp.getName(),
@@ -1294,7 +1293,7 @@ public class MapProviderManager {
       for (final MP mp : importedMapProviders) {
 
          /*
-          * ignore plugin map providers, they should be already in the list but can occure in the
+          * ignore plugin map providers, they should be already in the list but can occur in the
           * import file as a map profile wrapper
           */
          if ((mp instanceof MPPlugin) == false) {
@@ -1525,14 +1524,14 @@ public class MapProviderManager {
          return PART_TYPE.RANDOM_ALPHA;
       }
 
-      StatusUtil.showStatus(NLS.bind(Messages.DBG006_Error_Custom_InvalidPartType, partTypeText), new Exception());
+      StatusUtil.showStatus(NLS.bind(Messages.Error__Custom_InvalidPartType_DBG006, partTypeText), new Exception());
       return null;
    }
 
    /**
     * @param importFilePath
     * @return Returns the imported map providers or <code>null</code> when an import error
-    *         occured<br>
+    *         occurred<br>
     *         <br>
     *         Multiple map providers are returned when a map profile contains map providers which
     *         do not yet exists
@@ -1584,7 +1583,7 @@ public class MapProviderManager {
          if (inputFile.exists() == false) {
 
             if (isShowExistError) {
-               logError(Messages.DBG007_Error_FileIsNotAvailable, new Exception());
+               logError(Messages.Error__FileIsNotAvailable_DBG007, new Exception());
             }
 
             return validMapProviders;
@@ -1597,7 +1596,7 @@ public class MapProviderManager {
          if (isMpImport) {
             final Boolean isExport = mementoRoot.getBoolean(ATTR_ROOT_IS_MANUAL_EXPORT);
             if (isExport == null || isExport == false) {
-               logError(Messages.DBG039_Error_FileIsNotExported, new Exception());
+               logError(Messages.Error__FileIsNotExported_DBG039, new Exception());
 
                return validMapProviders;
             }
@@ -1613,13 +1612,7 @@ public class MapProviderManager {
          logError(e.getMessage(), e);
       } finally {
 
-         if (reader != null) {
-            try {
-               reader.close();
-            } catch (final IOException e) {
-               e.printStackTrace();
-            }
-         }
+         Util.close(reader);
 
          displayError(filename);
       }
@@ -1715,7 +1708,7 @@ public class MapProviderManager {
          if (xmlMapProviderId == null || xmlMapProviderName == null || xmlOfflineFolder == null || xmlMapProviderType == null) {
 
             logError(NLS.bind(//
-                  Messages.DBG008_Error_TagIsInvalid,
+                  Messages.Error_MapProvider_TagIsInvalid_DBG008,
                   xmlMapProviderId,
                   tagNameRootChildren), new Exception());
             continue;
@@ -1726,7 +1719,7 @@ public class MapProviderManager {
          for (final MP checkMapProvider : validMapProviders) {
             if (checkMapProvider.getId().equalsIgnoreCase(xmlMapProviderId)) {
                logError(NLS.bind(//
-                     Messages.DBG009_Error_MapProfileDuplicate,
+                     Messages.Error_MapProvider_MapProfileDuplicate_DBG009,
                      xmlMapProviderId), new Exception());
 
                isValid = false;
@@ -1752,7 +1745,7 @@ public class MapProviderManager {
 
             if (isValid == false) {
                logError(NLS.bind(//
-                     Messages.DBG027_ImportError_InvalidPlugin,
+                     Messages.Error_Import_InvalidPlugin_DBG027,
                      xmlMapProviderId), new Exception());
             }
 
@@ -1764,7 +1757,7 @@ public class MapProviderManager {
                && xmlMapProviderType.equals(MAP_PROVIDER_TYPE_WMS) == false
                && xmlMapProviderType.equals(MAP_PROVIDER_TYPE_MAP_PROFILE) == false) {
             logError(NLS.bind(//
-                  Messages.DBG010_Error_InvalidType,
+                  Messages.Error_MapProvider_InvalidType_DBG010,
                   xmlMapProviderId,
                   xmlMapProviderType), new Exception());
             continue;
@@ -1869,7 +1862,7 @@ public class MapProviderManager {
          // check tag attributes
          if (partTypeText == null || partPosition == null) {
             logError(
-                  NLS.bind(Messages.DBG011_Error_Custom_InvalidPropertied, mapProviderId, TAG_URL_PART),
+                  NLS.bind(Messages.Error_CustomMapProvider_InvalidPropertied_DBG011, mapProviderId, TAG_URL_PART),
                   new Exception());
          }
 
@@ -1919,12 +1912,7 @@ public class MapProviderManager {
       }
 
       // sort parts by position
-      Collections.sort(urlParts, new Comparator<UrlPart>() {
-         @Override
-         public int compare(final UrlPart p1, final UrlPart p2) {
-            return p1.getPosition() - p2.getPosition();
-         }
-      });
+      Collections.sort(urlParts, (urlPart1, urlPart2) -> urlPart1.getPosition() - urlPart2.getPosition());
 
       /*
        * update model
@@ -1982,7 +1970,7 @@ public class MapProviderManager {
          // validate fields
          if (mpId == null || mpType == null || positionIndex == null || isDisplayed == null) {
             logError(NLS.bind(
-                  Messages.DBG012_Error_Profile_InvalidAttributes,
+                  Messages.Error_MapProfile_InvalidAttributes_DBG012,
                   mapProviderId,
                   TAG_MAP_PROVIDER_WRAPPER), new Exception());
             continue;
@@ -1997,7 +1985,7 @@ public class MapProviderManager {
          }
          if (isIdValid == false) {
             logError(NLS.bind(//
-                  Messages.DBG013_Error_Profile_DuplicateMP,
+                  Messages.Error_MapProfile_DuplicateMP_DBG013,
                   new Object[] { mapProviderId, mpId, TAG_MAP_PROVIDER_WRAPPER }), new Exception());
             continue;
          }
@@ -2008,7 +1996,7 @@ public class MapProviderManager {
                && mpType.equals(MAP_PROVIDER_TYPE_MAP_PROFILE) == false
                && mpType.equals(MAP_PROVIDER_TYPE_PLUGIN) == false) {
 
-            logError(NLS.bind(Messages.DBG014_Error_Profile_InvalidMPType, mapProviderId, mpType), new Exception());
+            logError(NLS.bind(Messages.Error_MapProvider_InvalidMPType_DBG014, mapProviderId, mpType), new Exception());
 
             continue;
          }
@@ -2050,7 +2038,7 @@ public class MapProviderManager {
                // validate properties
                if (layerName == null || layerTitle == null || layerIsDisplayed == null) {
                   logError(
-                        NLS.bind(Messages.DBG015_Error_Profile_LayerInvalidProperties,
+                        NLS.bind(Messages.Error_MapProfile_LayerInvalidProperties_DBG015,
                               new Object[] {
                                     mapProviderId,
                                     TAG_LAYER,
@@ -2065,7 +2053,7 @@ public class MapProviderManager {
                   for (final LayerOfflineData layerOfflineData : wmsOfflineLayers) {
                      if (layerOfflineData.name.equalsIgnoreCase(layerName)) {
                         logError(NLS.bind(
-                              Messages.DBG016_Error_Profile_OfflineLayerInvalidProperties,
+                              Messages.Error_MapProfile_OfflineLayerInvalidProperties_DBG016,
                               new Object[] { mapProviderId, TAG_LAYER, mapProviderId }), new Exception());
 
                         isLayerValid = false;
@@ -2075,7 +2063,7 @@ public class MapProviderManager {
                }
                if (isLayerValid == false) {
                   logError(
-                        NLS.bind(Messages.DBG017_Error_Profile_DuplicateLayer,
+                        NLS.bind(Messages.Error_MapProfile_DuplicateLayer_DBG017,
                               new Object[] {
                                     mapProviderId,
                                     layerName,
@@ -2121,7 +2109,7 @@ public class MapProviderManager {
 
       if (capsUrl == null || mapUrl == null) {
          logError(
-               NLS.bind(Messages.DBG018_Error_Wms_InvalidAttributes, mapProviderId, tagNameRootChildren),
+               NLS.bind(Messages.Error_Wms_InvalidAttributes_DBG018, mapProviderId, tagNameRootChildren),
                new Exception());
          return null;
       }
@@ -2155,7 +2143,7 @@ public class MapProviderManager {
 
          // validate properties
          if (layerName == null || layerTitle == null || layerIsDisplayed == null) {
-            logError(NLS.bind(Messages.DBG019_Error_Wms_InvalidLayer, mapProviderId, TAG_LAYER), new Exception());
+            logError(NLS.bind(Messages.Error_Wms_InvalidLayer_DBG019, mapProviderId, TAG_LAYER), new Exception());
             continue;
          }
 
@@ -2165,7 +2153,7 @@ public class MapProviderManager {
             for (final LayerOfflineData layerOfflineData : offlineLayerList) {
                if (layerOfflineData.name.equalsIgnoreCase(layerName)) {
                   logError(
-                        NLS.bind(Messages.DBG020_Error_Wms_DuplicateLayer, mapProviderId, layerName),
+                        NLS.bind(Messages.Error_Wms_DuplicateLayer_DBG020, mapProviderId, layerName),
                         new Exception());
                   isLayerValid = false;
                   break;
@@ -2269,7 +2257,7 @@ public class MapProviderManager {
             MessageDialog.openError(
                   Display.getDefault().getActiveShell(),
                   Messages.Import_Error_Dialog_Title,
-                  NLS.bind(Messages.DBG021_Import_Error_DuplicateId, mp.getName() + UI.DASH_WITH_SPACE + mp.getId()));
+                  NLS.bind(Messages.Error_Import_DuplicateId_DBG021, mp.getName() + UI.DASH_WITH_SPACE + mp.getId()));
 
             return null;
          }
@@ -2281,7 +2269,7 @@ public class MapProviderManager {
             // duplicate folder
             MessageDialog.openError(Display.getDefault().getActiveShell(),
                   Messages.Import_Error_Dialog_Title,
-                  NLS.bind(Messages.DBG022_Import_Error_DuplicateOfflineFolder, mp.getId(), mp.getOfflineFolder()));
+                  NLS.bind(Messages.Error_Import_DuplicateOfflineFolder_DBG022, mp.getId(), mp.getOfflineFolder()));
 
             return null;
          }
@@ -2356,7 +2344,7 @@ public class MapProviderManager {
             // mp wrapper is not defined in the export file
             MessageDialog.openError(Display.getDefault().getActiveShell(), //
                   Messages.Import_Error_Dialog_Title,
-                  NLS.bind(Messages.DBG023_Import_Error_WrappedMpIsNotDefined,
+                  NLS.bind(Messages.Error_Import_WrappedMpIsNotDefined_DBG023,
                         new Object[] {
                               importedMP.getId(),
                               importedWrapper.getMapProviderId() }));
@@ -2409,7 +2397,7 @@ public class MapProviderManager {
                               Display.getDefault().getActiveShell(),
                               Messages.Import_Error_Dialog_Title,
                               NLS.bind(
-                                    Messages.DBG024_Import_Error_ProfileDuplicateOfflineFolder,
+                                    Messages.Error_Import_ProfileDuplicateOfflineFolder_DBG024,
                                     new Object[] {
                                           importedMP.getId(),
                                           wrappedMP.getId(),
@@ -2426,7 +2414,7 @@ public class MapProviderManager {
                   MessageDialog.openError(
                         Display.getDefault().getActiveShell(),
                         Messages.Import_Error_Dialog_Title,
-                        NLS.bind(Messages.DBG025_Import_Error_DifferentClass,
+                        NLS.bind(Messages.Error_Import_DifferentClass_DBG025,
                               new Object[] {
                                     importedMP.getId(),
                                     wrappedMP.getId(),
@@ -2449,7 +2437,7 @@ public class MapProviderManager {
                      Display.getDefault().getActiveShell(),
                      Messages.Import_Error_Dialog_Title,
                      NLS.bind(
-                           Messages.DBG040_Import_Error_PluginMPIsNotAvailable,
+                           Messages.Error_Import_PluginMPIsNotAvailable_DBG040,
                            new Object[] { importedMP.getId(), wrappedMP.getId() }));
 
                return null;
@@ -2468,7 +2456,7 @@ public class MapProviderManager {
                      MessageDialog.openError(
                            Display.getDefault().getActiveShell(),
                            Messages.Import_Error_Dialog_Title,
-                           NLS.bind(Messages.DBG026_Import_Error_ProfileDuplicateOfflineFolder,
+                           NLS.bind(Messages.Error_Import_ProfileDuplicateOfflineFolder_DBG026,
                                  new Object[] {
                                        importedMP.getId(),
                                        wrappedMP.getId(),

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2020 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,8 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.ui.views.calendar;
-
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +40,9 @@ import net.tourbook.tag.tour.filter.TourTagFilterManager;
 import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
 import net.tourbook.ui.SQLFilter;
 
-public class CalendarTourDataProvider {
+import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
+
+class CalendarTourDataProvider {
 
    private static final char                            NL                = UI.NEW_LINE;
 
@@ -54,18 +54,14 @@ public class CalendarTourDataProvider {
    private static ThreadPoolExecutor                    _weekLoadingExecutor;
    static {
 
-      final ThreadFactory threadFactoryFolder = new ThreadFactory() {
+      final ThreadFactory threadFactoryFolder = runnable -> {
 
-         @Override
-         public Thread newThread(final Runnable r) {
+         final Thread thread = new Thread(runnable, "LoadingCalendarData");//$NON-NLS-1$
 
-            final Thread thread = new Thread(r, "LoadingCalendarData");//$NON-NLS-1$
+         thread.setPriority(Thread.MIN_PRIORITY);
+         thread.setDaemon(true);
 
-            thread.setPriority(Thread.MIN_PRIORITY);
-            thread.setDaemon(true);
-
-            return thread;
-         }
+         return thread;
       };
 
       _weekLoadingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10, threadFactoryFolder);
@@ -161,7 +157,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -169,7 +165,7 @@ public class CalendarTourDataProvider {
       return dt;
    }
 
-   public CalendarTourData getCalendarWeekSummaryData(final LocalDate week1stDay, final CalendarView calendarView) {
+   CalendarTourData getCalendarWeekSummaryData(final LocalDate week1stDay) {
 
       final WeekFields cw = TimeTools.calendarWeek;
 
@@ -201,7 +197,7 @@ public class CalendarTourDataProvider {
 
          weekData = getCalendarWeekSummaryData_FromDb(week1stDay, year, week);
 
-         // update cached data otherwise an endless loop occures !!!
+         // update cached data otherwise an endless loop occurs !!!
          _weekCache.get(year)[week] = weekData;
 
       } else {
@@ -223,20 +219,17 @@ public class CalendarTourDataProvider {
 
       _weekWaitingQueue.add(new WeekLoader(week1stDay, year, week, weekData, _weekExecuterId.get()));
 
-      final Runnable executorTask = new Runnable() {
-         @Override
-         public void run() {
+      final Runnable executorTask = () -> {
 
-            // get last added loader item
-            final WeekLoader weekLoader = _weekWaitingQueue.pollFirst();
+         // get last added loader item
+         final WeekLoader weekLoader = _weekWaitingQueue.pollFirst();
 
-            if (weekLoader == null) {
-               return;
-            }
+         if (weekLoader == null) {
+            return;
+         }
 
-            if (loadFromDB_Week(weekLoader)) {
-               _calendarGraph.updateUI_AfterDataLoading();
-            }
+         if (loadFromDB_Week(weekLoader)) {
+            _calendarGraph.updateUI_AfterDataLoading();
          }
       };
 
@@ -306,7 +299,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
       }
 
@@ -362,7 +355,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(select);
+         StatusUtil.logError(select);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -426,9 +419,11 @@ public class CalendarTourDataProvider {
          ArrayList<Integer> dbTourDeviceTime_Recorded = null;
          ArrayList<Integer> dbTourMovingTime = null;
 
+         ArrayList<String> dbTourWeatherClouds = null;
+
          ArrayList<Integer> dbCalories = null;
-         TFloatArrayList dbPowerAvg = null;
-         TFloatArrayList dbPulseAvg = null;
+         FloatArrayList dbPowerAvg = null;
+         FloatArrayList dbPulseAvg = null;
 
          ArrayList<Long> dbTypeIds = null;
          ArrayList<Integer> dbTypeColorIndex = null;
@@ -442,7 +437,7 @@ public class CalendarTourDataProvider {
          long lastTourId = -1;
          ArrayList<Long> tagIds = null;
 
-         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.TAG_FILTER);
+         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
 
          final TourTagFilterSqlJoinBuilder tagFilterSqlJoinBuilder = new TourTagFilterSqlJoinBuilder();
 
@@ -472,7 +467,8 @@ public class CalendarTourDataProvider {
                + "   TourAltDown," + NL //                        18 //$NON-NLS-1$
                + "   AvgPulse," + NL //                           19 //$NON-NLS-1$
                + "   Power_Avg," + NL //                          20 //$NON-NLS-1$
-               + "   TourDeviceTime_Recorded" + NL //                    21 //$NON-NLS-1$
+               + "   TourDeviceTime_Recorded," + NL //            21 //$NON-NLS-1$
+               + "   weather_Clouds" + NL //                      22 //$NON-NLS-1$
 
                + NL
 
@@ -541,9 +537,11 @@ public class CalendarTourDataProvider {
                   dbTourDeviceTime_Recorded = new ArrayList<>();
                   dbTourMovingTime = new ArrayList<>();
 
+                  dbTourWeatherClouds = new ArrayList<>();
+
                   dbCalories = new ArrayList<>();
-                  dbPowerAvg = new TFloatArrayList();
-                  dbPulseAvg = new TFloatArrayList();
+                  dbPowerAvg = new FloatArrayList();
+                  dbPulseAvg = new FloatArrayList();
 
                   dbTypeIds = new ArrayList<>();
                   dbTypeColorIndex = new ArrayList<>();
@@ -608,10 +606,10 @@ public class CalendarTourDataProvider {
 
                   dbCalories.add(result.getInt(16));
 
-                  if (dbTagId instanceof Long) {
+                  if (dbTagId instanceof final Long tagId) {
 
                      tagIds = new ArrayList<>();
-                     tagIds.add((Long) dbTagId);
+                     tagIds.add(tagId);
 
                      dbTagIds.put(tourId, tagIds);
                   }
@@ -619,6 +617,8 @@ public class CalendarTourDataProvider {
                   dbElevationLoss.add(result.getInt(18));
                   dbPulseAvg.add(result.getFloat(19));
                   dbPowerAvg.add(result.getFloat(20));
+
+                  dbTourWeatherClouds.add(result.getString(22));
 
                   /*
                    * convert type id to the type index in the tour type array, this is also
@@ -673,7 +673,7 @@ public class CalendarTourDataProvider {
 
                data.distance = dbDistance.get(tourIndex);
                data.elevationGain = dbElevationGain.get(tourIndex);
-               data.elevationLoss = dbElevationGain.get(tourIndex);
+               data.elevationLoss = dbElevationLoss.get(tourIndex);
 
                data.elapsedTime = dbTourElapsedTime.get(tourIndex);
                data.recordedTime = dbTourDeviceTime_Recorded.get(tourIndex);
@@ -685,6 +685,8 @@ public class CalendarTourDataProvider {
 
                data.tourTitle = dbTourTitle.get(tourIndex);
                data.tourDescription = dbTourDescription.get(tourIndex);
+
+               data.weatherClouds = dbTourWeatherClouds.get(tourIndex);
 
                final LocalDate tourDate = LocalDate.of(year, month, data.day);
                data.tourDate = tourDate;
@@ -717,7 +719,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          net.tourbook.ui.UI.showSQLException(e);
 
       }
@@ -753,7 +755,7 @@ public class CalendarTourDataProvider {
          final int year = weekLoader.year;
          final int week = weekLoader.week;
 
-         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.TAG_FILTER);
+         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
 
          String sqlFromTourData;
 
@@ -782,7 +784,8 @@ public class CalendarTourDataProvider {
                   + "      calories," + NL //                                          //$NON-NLS-1$
                   + "      cadenceZone_SlowTime," + NL //                              //$NON-NLS-1$
                   + "      cadenceZone_FastTime," + NL //                              //$NON-NLS-1$
-                  + "      TourDeviceTime_Recorded" + NL //                            //$NON-NLS-1$
+                  + "      TourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
+                  + "      power_TrainingStressScore" + NL //                          //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                  //$NON-NLS-1$
 
@@ -827,7 +830,9 @@ public class CalendarTourDataProvider {
                + " SUM(cadenceZone_SlowTime)," + NL //                              8  //$NON-NLS-1$
                + " SUM(cadenceZone_FastTime)," + NL //                              9  //$NON-NLS-1$
 
-               + " SUM(TourDeviceTime_Recorded)" + NL //                            10 //$NON-NLS-1$
+               + " SUM(TourDeviceTime_Recorded)," + NL //                           10 //$NON-NLS-1$
+
+               + " SUM(power_TrainingStressScore)" + NL //                          11 //$NON-NLS-1$
 
                + sqlFromTourData;
 
@@ -865,6 +870,8 @@ public class CalendarTourDataProvider {
 
             weekData.recordedTime = result.getInt(10);
 
+            weekData.trainingLoad_Tss = result.getInt(11);
+
             if (UI.IS_SCRAMBLE_DATA) {
 
                weekData.elevationGain = UI.scrambleNumbers(weekData.elevationGain);
@@ -881,7 +888,7 @@ public class CalendarTourDataProvider {
 
       } catch (final SQLException e) {
 
-         StatusUtil.log(sql);
+         StatusUtil.logError(sql);
          net.tourbook.ui.UI.showSQLException(e);
 
       } finally {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,10 @@
  *******************************************************************************/
 package net.tourbook.common.tooltip;
 
+import static org.eclipse.swt.events.MouseTrackListener.mouseExitAdapter;
+
 import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.font.MTFont;
@@ -26,12 +29,8 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
@@ -82,7 +81,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_PUSH_BUTTON);
 
          setToolTipText(Messages.App_Action_Close_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(Messages.Image__App_Close_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Close));
       }
 
       @Override
@@ -98,7 +98,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_CHECK_BOX);
 
          setToolTipText(Messages.Slideout_Dialog_Action_PinSlideoutLocation_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(Messages.Image__Pin_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Pin));
       }
 
       @Override
@@ -114,7 +115,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
          super(null, Action.AS_CHECK_BOX);
 
          setToolTipText(Messages.Slideout_Dialog_Action_KeepSlideoutOpen_Tooltip);
-         setImageDescriptor(CommonActivator.getImageDescriptor(Messages.Image__BookOpen_Themed));
+
+         setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_KeepOpen));
       }
 
       @Override
@@ -167,14 +169,11 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
 
    private void addListener(final Control ownerControl) {
 
-      ownerControl.addMouseTrackListener(new MouseTrackAdapter() {
-         @Override
-         public void mouseExit(final MouseEvent e) {
+      ownerControl.addMouseTrackListener(mouseExitAdapter(mouseEvent -> {
 
-            // prevent to open the tooltip
-            _canOpenToolTip = false;
-         }
-      });
+         // prevent to open the tooltip
+         _canOpenToolTip = false;
+      }));
    }
 
    @Override
@@ -295,12 +294,7 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
             onMouseUp(e);
          }
       });
-      _labelDragSlideout.addMouseMoveListener(new MouseMoveListener() {
-         @Override
-         public void mouseMove(final MouseEvent e) {
-            onMouseMove(e);
-         }
-      });
+      _labelDragSlideout.addMouseMoveListener(mouseEvent -> onMouseMove(mouseEvent));
    }
 
    /**
@@ -339,9 +333,13 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
     */
    protected void fillHeaderToolbar(final ToolBarManager toolbarManager) {}
 
+   /**
+    * @return Return bounds of the parent widget which is used to locate the slideout accordingly.
+    */
    protected abstract Rectangle getParentBounds();
 
    protected SlideoutLocation getSlideoutLocation() {
+
       return _slideoutLocation;
    }
 
@@ -368,6 +366,8 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       final int devYBelow = devYParent + itemHeight;
 
       final Rectangle displayBounds = Display.getCurrent().getBounds();
+      final int displayWidth = displayBounds.width;
+      final int displayHeight = displayBounds.height;
 
       int devX;
       int devY;
@@ -404,8 +404,13 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       if (isCheckAbove && (devY < 0)) {
          devY = devYBelow;
       }
-      if (isCheckBelow & (devY + slideoutHeight > displayBounds.height)) {
+      if (isCheckBelow && (devY + slideoutHeight > displayHeight)) {
          devY = devYAbove;
+      }
+
+      // do not hide on the right side
+      if (devX > displayWidth - slideoutWidth) {
+         devX = displayWidth - slideoutWidth;
       }
 
       return new Point(devX, devY);
@@ -418,12 +423,7 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       _cursorResize = new Cursor(display, SWT.CURSOR_SIZEALL);
       _cursorHand = new Cursor(display, SWT.CURSOR_HAND);
 
-      ownerControl.addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose();
-         }
-      });
+      ownerControl.addDisposeListener(disposeEvent -> AdvancedSlideout.this.onDispose());
    }
 
    @Override
@@ -445,7 +445,7 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
       _cursorHand.dispose();
    }
 
-   abstract protected void onFocus();
+   protected abstract void onFocus();
 
    private void onMouseDown(final MouseEvent e) {
 
@@ -549,10 +549,12 @@ public abstract class AdvancedSlideout extends AdvancedSlideoutShell {
    }
 
    public void setSlideoutLocation(final SlideoutLocation slideoutLocation) {
+
       _slideoutLocation = slideoutLocation;
    }
 
    protected void setTitleText(final String titleText) {
+
       _titleText = titleText;
    }
 

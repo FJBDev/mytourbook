@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,24 +32,6 @@ import org.eclipse.swt.widgets.Display;
 public final class SQL {
 
    public static final String SQL_STRING_SEPARATOR = "'"; //$NON-NLS-1$
-
-   private static String addLineNumbers(final String text) {
-
-      final String[] lines = text.split("\r\n|\r|\n"); //$NON-NLS-1$
-
-      final StringBuilder sb = new StringBuilder();
-
-      for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
-
-         final String line = lines[lineNumber];
-
-         sb.append(String.format("%d   ", lineNumber + 1)); //$NON-NLS-1$
-         sb.append(line);
-         sb.append(UI.NEW_LINE);
-      }
-
-      return sb.toString();
-   }
 
    public static void close(final Connection conn) {
 
@@ -84,6 +66,28 @@ public final class SQL {
       }
    }
 
+   public static String createParameterList(final int numItems) {
+
+      final StringBuilder sb = new StringBuilder();
+
+      boolean isFirst = true;
+
+      for (int listIndex = 0; listIndex < numItems; listIndex++) {
+
+         if (isFirst) {
+
+            sb.append('?');
+
+            isFirst = false;
+
+         } else {
+            sb.append(", ?"); //$NON-NLS-1$
+         }
+      }
+
+      return sb.toString();
+   }
+
    /**
     * @param text
     * @return Returns a text with all removed string separators {@value #SQL_STRING_SEPARATOR}.
@@ -103,6 +107,23 @@ public final class SQL {
    public static String getSqlString(final String string) {
 
       return SQL.SQL_STRING_SEPARATOR + string + SQL.SQL_STRING_SEPARATOR;
+   }
+
+   public static void logException(SQLException exception) {
+
+      // log into the eclipse log file
+      StatusUtil.log(exception);
+
+      // log into the console
+      while (exception != null) {
+
+         final String sqlExceptionText = Util.getSQLExceptionText(exception);
+
+         System.out.println(sqlExceptionText);
+         exception.printStackTrace();
+
+         exception = exception.getNextException();
+      }
    }
 
    public static void logParameterMetaData(final PreparedStatement statement) {
@@ -134,6 +155,9 @@ public final class SQL {
 
    public static void showException(SQLException exception) {
 
+      // log into the eclipse log file
+      StatusUtil.log(exception);
+
       while (exception != null) {
 
          final String sqlExceptionText = Util.getSQLExceptionText(exception);
@@ -141,9 +165,7 @@ public final class SQL {
          System.out.println(sqlExceptionText);
          exception.printStackTrace();
 
-         MessageDialog.openError(Display.getCurrent().getActiveShell(), //
-               "SQL Error", //$NON-NLS-1$
-               sqlExceptionText);
+         MessageDialog.openError(Display.getCurrent().getActiveShell(), "SQL Error", sqlExceptionText); //$NON-NLS-1$
 
          exception = exception.getNextException();
       }
@@ -155,23 +177,20 @@ public final class SQL {
       System.out.println();
       System.out.println(sqlStatement);
 
-      final String sqlStatementWithNumber = addLineNumbers(sqlStatement);
+      // add line numbers
+      final String sqlStatementWithNumber = Util.addLineNumbers(sqlStatement);
 
-      Display.getDefault().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      final Display display = Display.getDefault();
+      display.asyncExec(() -> {
 
-            final String message = "SQL statement: " + UI.NEW_LINE2 // //$NON-NLS-1$
-                  + sqlStatementWithNumber + UI.NEW_LINE2
-                  + Util.getSQLExceptionText(exception);
+         final String message = "SQL statement: " + UI.NEW_LINE2 // //$NON-NLS-1$
+               + sqlStatementWithNumber + UI.NEW_LINE2
+               + Util.getSQLExceptionText(exception);
 
-            SQLMessageDialog.openError(Display.getDefault().getActiveShell(),
-                  "SQL Error", //$NON-NLS-1$
-                  message);
+         StatusUtil.logError(message);
+         StatusUtil.log(exception);
 
-            StatusUtil.log(message);
-            StatusUtil.log(exception);
-         }
+         SQLMessageDialog.openError(display.getActiveShell(), "SQL Error", message); //$NON-NLS-1$
       });
    }
 }

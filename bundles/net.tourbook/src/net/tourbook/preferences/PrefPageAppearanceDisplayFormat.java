@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import net.tourbook.Messages;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.formatter.FormatManager;
@@ -27,102 +29,109 @@ import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageAppearanceDisplayFormat extends PreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String     ID         = "net.tourbook.preferences.PrefPageAppearanceDisplayFormat"; //$NON-NLS-1$
+   public static final String     ID                = "net.tourbook.preferences.PrefPageAppearanceDisplayFormat"; //$NON-NLS-1$
 
-   private final IPreferenceStore _prefStore = CommonActivator.getPrefStore();
+   private final IPreferenceStore _prefStore_Common = CommonActivator.getPrefStore();
 
    private PixelConverter         _pc;
 
-   private SelectionAdapter       _defaultSelectionListener;
+   private SelectionListener      _defaultSelectionListener;
 
    /*
     * UI controls
     */
-   private TabFolder _tabFolder;
-   private TabItem   _tab1_OneTour;
-   private TabItem   _tab2_MultipleTours;
+   private CTabFolder _tabFolder;
+   private CTabItem   _tab1_OneTour;
+   private CTabItem   _tab2_MultipleTours;
 
-   private Button    _chkLiveUpdate;
+   private Button     _chkLiveUpdate;
 
-   private Button    _rdoCadence_1_0;
-   private Button    _rdoCadence_1_1;
-   private Button    _rdoCadence_1_2;
-   private Button    _rdoDistance_1_0;
-   private Button    _rdoDistance_1_1;
-   private Button    _rdoDistance_1_2;
-   private Button    _rdoDistance_1_3;
-   private Button    _rdoElevation_1_0;
-   private Button    _rdoElevation_1_1;
-   private Button    _rdoPower_1_0;
-   private Button    _rdoPower_1_1;
-   private Button    _rdoPulse_1_0;
-   private Button    _rdoPulse_1_1;
-   private Button    _rdoSpeed_1_0;
-   private Button    _rdoSpeed_1_1;
-   private Button    _rdoSpeed_1_2;
+   private Button     _rdoCadence_1_0;
+   private Button     _rdoCadence_1_1;
+   private Button     _rdoCadence_1_2;
+   private Button     _rdoDistance_1_0;
+   private Button     _rdoDistance_1_1;
+   private Button     _rdoDistance_1_2;
+   private Button     _rdoDistance_1_3;
+   private Button     _rdoElevation_1_0;
+   private Button     _rdoElevation_1_1;
+   private Button     _rdoPower_1_0;
+   private Button     _rdoPower_1_1;
+   private Button     _rdoPulse_1_0;
+   private Button     _rdoPulse_1_1;
+   private Button     _rdoSpeed_1_0;
+   private Button     _rdoSpeed_1_1;
+   private Button     _rdoSpeed_1_2;
+   private Button     _rdoTemperature_1_0;
+   private Button     _rdoTemperature_1_1;
+   private Button     _rdoTemperature_1_2;
 
-   private Button    _rdoTime_Elapsed_HH;
-   private Button    _rdoTime_Elapsed_HH_MM;
-   private Button    _rdoTime_Elapsed_HH_MM_SS;
-   private Button    _rdoTime_Recorded_HH;
-   private Button    _rdoTime_Recorded_HH_MM;
-   private Button    _rdoTime_Recorded_HH_MM_SS;
-   private Button    _rdoTime_Paused_HH;
-   private Button    _rdoTime_Paused_HH_MM;
-   private Button    _rdoTime_Paused_HH_MM_SS;
-   private Button    _rdoTime_Moving_HH;
-   private Button    _rdoTime_Moving_HH_MM;
-   private Button    _rdoTime_Moving_HH_MM_SS;
-   private Button    _rdoTime_Break_HH;
-   private Button    _rdoTime_Break_HH_MM;
-   private Button    _rdoTime_Break_HH_MM_SS;
+   private Button     _rdoTime_Elapsed_HH;
+   private Button     _rdoTime_Elapsed_HH_MM;
+   private Button     _rdoTime_Elapsed_HH_MM_SS;
+   private Button     _rdoTime_Recorded_HH;
+   private Button     _rdoTime_Recorded_HH_MM;
+   private Button     _rdoTime_Recorded_HH_MM_SS;
+   private Button     _rdoTime_Paused_HH;
+   private Button     _rdoTime_Paused_HH_MM;
+   private Button     _rdoTime_Paused_HH_MM_SS;
+   private Button     _rdoTime_Moving_HH;
+   private Button     _rdoTime_Moving_HH_MM;
+   private Button     _rdoTime_Moving_HH_MM_SS;
+   private Button     _rdoTime_Break_HH;
+   private Button     _rdoTime_Break_HH_MM;
+   private Button     _rdoTime_Break_HH_MM_SS;
 
-   private Button    _rdoCadence_1_0_Summary;
-   private Button    _rdoCadence_1_1_Summary;
-   private Button    _rdoCadence_1_2_Summary;
-   private Button    _rdoDistance_1_0_Summary;
-   private Button    _rdoDistance_1_1_Summary;
-   private Button    _rdoDistance_1_2_Summary;
-   private Button    _rdoDistance_1_3_Summary;
-   private Button    _rdoElevation_1_0_Summary;
-   private Button    _rdoElevation_1_1_Summary;
-   private Button    _rdoPower_1_0_Summary;
-   private Button    _rdoPower_1_1_Summary;
-   private Button    _rdoPulse_1_0_Summary;
-   private Button    _rdoPulse_1_1_Summary;
-   private Button    _rdoSpeed_1_0_Summary;
-   private Button    _rdoSpeed_1_1_Summary;
-   private Button    _rdoSpeed_1_2_Summary;
+   private Button     _rdoCadence_1_0_Summary;
+   private Button     _rdoCadence_1_1_Summary;
+   private Button     _rdoCadence_1_2_Summary;
+   private Button     _rdoDistance_1_0_Summary;
+   private Button     _rdoDistance_1_1_Summary;
+   private Button     _rdoDistance_1_2_Summary;
+   private Button     _rdoDistance_1_3_Summary;
+   private Button     _rdoElevation_1_0_Summary;
+   private Button     _rdoElevation_1_1_Summary;
+   private Button     _rdoPower_1_0_Summary;
+   private Button     _rdoPower_1_1_Summary;
+   private Button     _rdoPulse_1_0_Summary;
+   private Button     _rdoPulse_1_1_Summary;
+   private Button     _rdoRelative_1_0;
+   private Button     _rdoRelative_1_1;
+   private Button     _rdoSpeed_1_0_Summary;
+   private Button     _rdoSpeed_1_1_Summary;
+   private Button     _rdoSpeed_1_2_Summary;
+   private Button     _rdoTemperature_1_0_Summary;
+   private Button     _rdoTemperature_1_1_Summary;
+   private Button     _rdoTemperature_1_2_Summary;
 
-   private Button    _rdoTime_Elapsed_HH_Summary;
-   private Button    _rdoTime_Elapsed_HH_MM_Summary;
-   private Button    _rdoTime_Elapsed_HH_MM_SS_Summary;
-   private Button    _rdoTime_Recorded_HH_Summary;
-   private Button    _rdoTime_Recorded_HH_MM_Summary;
-   private Button    _rdoTime_Recorded_HH_MM_SS_Summary;
-   private Button    _rdoTime_Paused_HH_Summary;
-   private Button    _rdoTime_Paused_HH_MM_Summary;
-   private Button    _rdoTime_Paused_HH_MM_SS_Summary;
-   private Button    _rdoTime_Moving_HH_Summary;
-   private Button    _rdoTime_Moving_HH_MM_Summary;
-   private Button    _rdoTime_Moving_HH_MM_SS_Summary;
-   private Button    _rdoTime_Break_HH_Summary;
-   private Button    _rdoTime_Break_HH_MM_Summary;
-   private Button    _rdoTime_Break_HH_MM_SS_Summary;
+   private Button     _rdoTime_Elapsed_HH_Summary;
+   private Button     _rdoTime_Elapsed_HH_MM_Summary;
+   private Button     _rdoTime_Elapsed_HH_MM_SS_Summary;
+   private Button     _rdoTime_Recorded_HH_Summary;
+   private Button     _rdoTime_Recorded_HH_MM_Summary;
+   private Button     _rdoTime_Recorded_HH_MM_SS_Summary;
+   private Button     _rdoTime_Paused_HH_Summary;
+   private Button     _rdoTime_Paused_HH_MM_Summary;
+   private Button     _rdoTime_Paused_HH_MM_SS_Summary;
+   private Button     _rdoTime_Moving_HH_Summary;
+   private Button     _rdoTime_Moving_HH_MM_Summary;
+   private Button     _rdoTime_Moving_HH_MM_SS_Summary;
+   private Button     _rdoTime_Break_HH_Summary;
+   private Button     _rdoTime_Break_HH_MM_Summary;
+   private Button     _rdoTime_Break_HH_MM_SS_Summary;
 
    /*
     * UI controls
@@ -171,15 +180,15 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
                   .applyTo(label);
          }
 
-         _tabFolder = new TabFolder(container, SWT.NONE);
+         _tabFolder = new CTabFolder(container, SWT.NONE);
          _tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
          {
-            _tab1_OneTour = new TabItem(_tabFolder, SWT.NONE);
+            _tab1_OneTour = new CTabItem(_tabFolder, SWT.NONE);
             _tab1_OneTour.setText(Messages.Pref_DisplayFormat_Tab_OneTour);
             _tab1_OneTour.setToolTipText(Messages.Pref_DisplayFormat_Tab_OneTour_Tooltip);
             _tab1_OneTour.setControl(createUI_20_Formats_Tour(_tabFolder));
 
-            _tab2_MultipleTours = new TabItem(_tabFolder, SWT.NONE);
+            _tab2_MultipleTours = new CTabItem(_tabFolder, SWT.NONE);
             _tab2_MultipleTours.setText(Messages.Pref_DisplayFormat_Tab_MultipleTours);
             _tab2_MultipleTours.setToolTipText(Messages.Pref_DisplayFormat_Tab_MultipleTours_Tooltip);
             _tab2_MultipleTours.setControl(createUI_30_Formats_Summary(_tabFolder));
@@ -462,6 +471,30 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
       {
          /*
+          * Temperature: Celsius or Fahrenheit
+          */
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_DisplayFormat_Label_Temperature);
+
+         final Composite container = new Composite(parent, SWT.NONE);
+         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
+         {
+            _rdoTemperature_1_0 = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_0.setText(formatName_1_0);
+            _rdoTemperature_1_0.addSelectionListener(_defaultSelectionListener);
+
+            _rdoTemperature_1_1 = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_1.setText(formatName_1_1);
+            _rdoTemperature_1_1.addSelectionListener(_defaultSelectionListener);
+
+            _rdoTemperature_1_2 = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_2.setText(formatName_1_2);
+            _rdoTemperature_1_2.addSelectionListener(_defaultSelectionListener);
+         }
+      }
+
+      {
+         /*
           * Distance: # ... #.###
           */
 
@@ -488,6 +521,25 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
             _rdoDistance_1_3 = new Button(container, SWT.RADIO);
             _rdoDistance_1_3.setText(formatName_1_3);
             _rdoDistance_1_3.addSelectionListener(_defaultSelectionListener);
+         }
+      }
+      {
+         /*
+          * Relative %
+          */
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_DisplayFormat_Label_Relative);
+
+         final Composite container = new Composite(parent, SWT.NONE);
+         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+         {
+            _rdoRelative_1_0 = new Button(container, SWT.RADIO);
+            _rdoRelative_1_0.setText(formatName_1_0);
+            _rdoRelative_1_0.addSelectionListener(_defaultSelectionListener);
+
+            _rdoRelative_1_1 = new Button(container, SWT.RADIO);
+            _rdoRelative_1_1.setText(formatName_1_1);
+            _rdoRelative_1_1.addSelectionListener(_defaultSelectionListener);
          }
       }
    }
@@ -763,6 +815,30 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
       {
          /*
+          * Temperature: Celsius or Fahrenheit
+          */
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_DisplayFormat_Label_Temperature);
+
+         final Composite container = new Composite(parent, SWT.NONE);
+         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
+         {
+            _rdoTemperature_1_0_Summary = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_0_Summary.setText(formatName_1_0);
+            _rdoTemperature_1_0_Summary.addSelectionListener(_defaultSelectionListener);
+
+            _rdoTemperature_1_1_Summary = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_1_Summary.setText(formatName_1_1);
+            _rdoTemperature_1_1_Summary.addSelectionListener(_defaultSelectionListener);
+
+            _rdoTemperature_1_2_Summary = new Button(container, SWT.RADIO);
+            _rdoTemperature_1_2_Summary.setText(formatName_1_2);
+            _rdoTemperature_1_2_Summary.addSelectionListener(_defaultSelectionListener);
+         }
+      }
+
+      {
+         /*
           * Distance: # ... #.###
           */
 
@@ -820,19 +896,14 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
    @Override
    public void init(final IWorkbench workbench) {
-      setPreferenceStore(_prefStore);
+      setPreferenceStore(_prefStore_Common);
    }
 
    private void initUI(final Composite parent) {
 
       _pc = new PixelConverter(parent);
 
-      _defaultSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onSelection();
-         }
-      };
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onSelection());
    }
 
    @Override
@@ -869,31 +940,34 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
 // SET_FORMATTING_OFF
 
-      final String cadence                      = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_CADENCE);
-      final String distance                     = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE);
-      final String elevation                    = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE);
-      final String power                        = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_POWER);
-      final String pulse                        = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PULSE);
-      final String speed                        = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_SPEED);
+      final String cadence                      = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_CADENCE);
+      final String distance                     = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE);
+      final String elevation                    = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE);
+      final String power                        = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_POWER);
+      final String pulse                        = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PULSE);
+      final String relative                     = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_RELATIVE);
+      final String speed                        = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_SPEED);
+      final String temperature                  = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE);
 
-      final String elapsedTime                  = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME);
-      final String recordedTime                 = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME);
-      final String pausedTime                   = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME);
-      final String movingTime                   = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME);
-      final String breakTime                    = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME);
+      final String elapsedTime                  = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME);
+      final String recordedTime                 = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME);
+      final String pausedTime                   = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME);
+      final String movingTime                   = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME);
+      final String breakTime                    = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME);
 
-      final String cadence_Summary              = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY);
-      final String distance_Summary             = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY);
-      final String elevation_Summary            = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY);
-      final String power_Summary                = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY);
-      final String pulse_Summary                = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY);
-      final String speed_Summary                = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY);
+      final String cadence_Summary              = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY);
+      final String distance_Summary             = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY);
+      final String elevation_Summary            = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY);
+      final String power_Summary                = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY);
+      final String pulse_Summary                = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY);
+      final String speed_Summary                = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY);
+      final String temperature_Summary          = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE_SUMMARY);
 
-      final String elapsedTime_Summary          = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY);
-      final String recordedTime_Summary         = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY);
-      final String pausedTime_Summary           = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY);
-      final String movingTime_Summary           = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY);
-      final String breakTime_Summary            = _prefStore.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY);
+      final String elapsedTime_Summary          = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY);
+      final String recordedTime_Summary         = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY);
+      final String pausedTime_Summary           = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY);
+      final String movingTime_Summary           = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY);
+      final String breakTime_Summary            = _prefStore_Common.getDefaultString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY);
 
       final boolean isCadence_1_0               = ValueFormat.NUMBER_1_0.name()     .equals(cadence);
       final boolean isCadence_1_1               = ValueFormat.NUMBER_1_1.name()     .equals(cadence);
@@ -920,12 +994,21 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
       final boolean isPulse_1_0                 = ValueFormat.NUMBER_1_0.name()     .equals(pulse);
       final boolean isPulse_1_0_Summary         = ValueFormat.NUMBER_1_0.name()     .equals(pulse_Summary);
 
+      final boolean isRelative_1_0              = ValueFormat.NUMBER_1_0.name()     .equals(relative);
+
       final boolean isSpeed_1_0                 = ValueFormat.NUMBER_1_0.name()     .equals(speed);
       final boolean isSpeed_1_1                 = ValueFormat.NUMBER_1_1.name()     .equals(speed);
       final boolean isSpeed_1_2                 = ValueFormat.NUMBER_1_2.name()     .equals(speed);
       final boolean isSpeed_1_0_Summary         = ValueFormat.NUMBER_1_0.name()     .equals(speed_Summary);
       final boolean isSpeed_1_1_Summary         = ValueFormat.NUMBER_1_1.name()     .equals(speed_Summary);
       final boolean isSpeed_1_2_Summary         = ValueFormat.NUMBER_1_2.name()     .equals(speed_Summary);
+
+      final boolean isTemperature_1_0           = ValueFormat.NUMBER_1_0.name()     .equals(temperature);
+      final boolean isTemperature_1_1           = ValueFormat.NUMBER_1_1.name()     .equals(temperature);
+      final boolean isTemperature_1_2           = ValueFormat.NUMBER_1_2.name()     .equals(temperature);
+      final boolean isTemperature_1_0_Summary   = ValueFormat.NUMBER_1_0.name()     .equals(temperature_Summary);
+      final boolean isTemperature_1_1_Summary   = ValueFormat.NUMBER_1_1.name()     .equals(temperature_Summary);
+      final boolean isTemperature_1_2_Summary   = ValueFormat.NUMBER_1_2.name()     .equals(temperature_Summary);
 
       final boolean isElapsed_HH                = ValueFormat.TIME_HH.name()        .equals(elapsedTime);
       final boolean isElapsed_HH_MM             = ValueFormat.TIME_HH_MM.name()     .equals(elapsedTime);
@@ -986,9 +1069,16 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
          _rdoPulse_1_0                          .setSelection(isPulse_1_0);
          _rdoPulse_1_1                          .setSelection(!isPulse_1_0);
 
+         _rdoRelative_1_0                       .setSelection(isRelative_1_0);
+         _rdoRelative_1_1                       .setSelection(!isRelative_1_0);
+
          _rdoSpeed_1_0                          .setSelection(isSpeed_1_0);
          _rdoSpeed_1_1                          .setSelection(isSpeed_1_1);
          _rdoSpeed_1_2                          .setSelection(isSpeed_1_2);
+
+         _rdoTemperature_1_0                    .setSelection(isTemperature_1_0);
+         _rdoTemperature_1_1                    .setSelection(isTemperature_1_1);
+         _rdoTemperature_1_2                    .setSelection(isTemperature_1_2);
 
          _rdoTime_Elapsed_HH                    .setSelection(isElapsed_HH);
          _rdoTime_Elapsed_HH_MM                 .setSelection(isElapsed_HH_MM);
@@ -1037,6 +1127,10 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
          _rdoSpeed_1_1_Summary                  .setSelection(isSpeed_1_1_Summary);
          _rdoSpeed_1_2_Summary                  .setSelection(isSpeed_1_2_Summary);
 
+         _rdoTemperature_1_0_Summary            .setSelection(isTemperature_1_0_Summary);
+         _rdoTemperature_1_1_Summary            .setSelection(isTemperature_1_1_Summary);
+         _rdoTemperature_1_2_Summary            .setSelection(isTemperature_1_2_Summary);
+
          _rdoTime_Elapsed_HH_Summary            .setSelection(isElapsed_HH_Summary);
          _rdoTime_Elapsed_HH_MM_Summary         .setSelection(isElapsed_HH_MM_Summary);
          _rdoTime_Elapsed_HH_MM_SS_Summary      .setSelection(isElapsed_HH_MM_SS_Summary);
@@ -1060,7 +1154,7 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
 // SET_FORMATTING_ON
 
-      _chkLiveUpdate.setSelection(_prefStore.getDefaultBoolean(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE));
+      _chkLiveUpdate.setSelection(_prefStore_Common.getDefaultBoolean(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE));
 
       super.performDefaults();
 
@@ -1079,31 +1173,34 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
 // SET_FORMATTING_OFF
 
-      final String cadence                      = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_CADENCE);
-      final String distance                     = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE);
-      final String elevation                    = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE);
-      final String power                        = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_POWER);
-      final String pulse                        = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_PULSE);
-      final String speed                        = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_SPEED);
+      final String cadence                      = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_CADENCE);
+      final String distance                     = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE);
+      final String elevation                    = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE);
+      final String power                        = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_POWER);
+      final String pulse                        = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_PULSE);
+      final String relative                     = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_RELATIVE);
+      final String speed                        = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_SPEED);
+      final String temperature                  = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE);
 
-      final String elapsedTime                  = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME);
-      final String recordedTime                 = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME);
-      final String pausedTime                   = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME);
-      final String movingTime                   = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME);
-      final String breakTime                    = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME);
+      final String elapsedTime                  = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME);
+      final String recordedTime                 = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME);
+      final String pausedTime                   = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME);
+      final String movingTime                   = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME);
+      final String breakTime                    = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME);
 
-      final String cadence_Summary              = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY);
-      final String distance_Summary             = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY);
-      final String elevation_Summary            = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY);
-      final String power_Summary                = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY);
-      final String pulse_Summary                = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY);
-      final String speed_Summary                = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY);
+      final String cadence_Summary              = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY);
+      final String distance_Summary             = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY);
+      final String elevation_Summary            = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY);
+      final String power_Summary                = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY);
+      final String pulse_Summary                = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY);
+      final String speed_Summary                = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY);
+      final String temperature_Summary          = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE_SUMMARY);
 
-      final String elapsedTime_Summary          = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY);
-      final String recordedTime_Summary         = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY);
-      final String pausedTime_Summary           = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY);
-      final String movingTime_Summary           = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY);
-      final String breakTime_Summary            = _prefStore.getString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY);
+      final String elapsedTime_Summary          = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY);
+      final String recordedTime_Summary         = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY);
+      final String pausedTime_Summary           = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY);
+      final String movingTime_Summary           = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY);
+      final String breakTime_Summary            = _prefStore_Common.getString(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY);
 
       final boolean isCadence_1_0               = ValueFormat.NUMBER_1_0.name()     .equals(cadence);
       final boolean isCadence_1_1               = ValueFormat.NUMBER_1_1.name()     .equals(cadence);
@@ -1130,12 +1227,21 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
       final boolean isPulse_1_0                 = ValueFormat.NUMBER_1_0.name()     .equals(pulse);
       final boolean isPulse_1_0_Summary         = ValueFormat.NUMBER_1_0.name()     .equals(pulse_Summary);
 
+      final boolean isRelative_1_0              = ValueFormat.NUMBER_1_0.name()     .equals(relative);
+
       final boolean isSpeed_1_0                 = ValueFormat.NUMBER_1_0.name()     .equals(speed);
       final boolean isSpeed_1_1                 = ValueFormat.NUMBER_1_1.name()     .equals(speed);
       final boolean isSpeed_1_2                 = ValueFormat.NUMBER_1_2.name()     .equals(speed);
       final boolean isSpeed_1_0_Summary         = ValueFormat.NUMBER_1_0.name()     .equals(speed_Summary);
       final boolean isSpeed_1_1_Summary         = ValueFormat.NUMBER_1_1.name()     .equals(speed_Summary);
       final boolean isSpeed_1_2_Summary         = ValueFormat.NUMBER_1_2.name()     .equals(speed_Summary);
+
+      final boolean isTemperature_1_0           = ValueFormat.NUMBER_1_0.name()     .equals(temperature);
+      final boolean isTemperature_1_1           = ValueFormat.NUMBER_1_1.name()     .equals(temperature);
+      final boolean isTemperature_1_2           = ValueFormat.NUMBER_1_2.name()     .equals(temperature);
+      final boolean isTemperature_1_0_Summary   = ValueFormat.NUMBER_1_0.name()     .equals(temperature_Summary);
+      final boolean isTemperature_1_1_Summary   = ValueFormat.NUMBER_1_1.name()     .equals(temperature_Summary);
+      final boolean isTemperature_1_2_Summary   = ValueFormat.NUMBER_1_2.name()     .equals(temperature_Summary);
 
       final boolean isElapsed_HH                = ValueFormat.TIME_HH.name()        .equals(elapsedTime);
       final boolean isElapsed_HH_MM             = ValueFormat.TIME_HH_MM.name()     .equals(elapsedTime);
@@ -1203,12 +1309,22 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
       _rdoPulse_1_0_Summary                     .setSelection(isPulse_1_0_Summary);
       _rdoPulse_1_1_Summary                     .setSelection(!isPulse_1_0_Summary);
 
+      _rdoRelative_1_0                          .setSelection(isRelative_1_0);
+      _rdoRelative_1_1                          .setSelection(!isRelative_1_0);
+
       _rdoSpeed_1_0                             .setSelection(isSpeed_1_0);
       _rdoSpeed_1_1                             .setSelection(isSpeed_1_1);
       _rdoSpeed_1_2                             .setSelection(isSpeed_1_2);
       _rdoSpeed_1_0_Summary                     .setSelection(isSpeed_1_0_Summary);
       _rdoSpeed_1_1_Summary                     .setSelection(isSpeed_1_1_Summary);
       _rdoSpeed_1_2_Summary                     .setSelection(isSpeed_1_2_Summary);
+
+      _rdoTemperature_1_0                       .setSelection(isTemperature_1_0);
+      _rdoTemperature_1_1                       .setSelection(isTemperature_1_1);
+      _rdoTemperature_1_2                       .setSelection(isTemperature_1_2);
+      _rdoTemperature_1_0_Summary               .setSelection(isTemperature_1_0_Summary);
+      _rdoTemperature_1_1_Summary               .setSelection(isTemperature_1_1_Summary);
+      _rdoTemperature_1_2_Summary               .setSelection(isTemperature_1_2_Summary);
 
       _rdoTime_Elapsed_HH                       .setSelection(isElapsed_HH);
       _rdoTime_Elapsed_HH_MM                    .setSelection(isElapsed_HH_MM);
@@ -1248,10 +1364,10 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 // SET_FORMATTING_ON
 
       // live update
-      _chkLiveUpdate.setSelection(_prefStore.getBoolean(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE));
+      _chkLiveUpdate.setSelection(_prefStore_Common.getBoolean(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE));
 
       // folder
-      _tabFolder.setSelection(_prefStore.getInt(ICommonPreferences.DISPLAY_FORMAT_SELECTED_TAB));
+      _tabFolder.setSelection(_prefStore_Common.getInt(ICommonPreferences.DISPLAY_FORMAT_SELECTED_TAB));
    }
 
    private void saveState() {
@@ -1288,9 +1404,15 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
                   ? ValueFormat.NUMBER_1_1.name()
                   : ValueFormat.NUMBER_1_2.name();
 
+      final String temperatureFormat = _rdoTemperature_1_0.getSelection()
+            ? ValueFormat.NUMBER_1_0.name()
+            : _rdoTemperature_1_1.getSelection()
+                  ? ValueFormat.NUMBER_1_1.name()
+                  : ValueFormat.NUMBER_1_2.name();
+
       final String elapsedFormat = _rdoTime_Elapsed_HH.getSelection()
             ? ValueFormat.TIME_HH.name()
-            : _rdoTime_Moving_HH_MM.getSelection()
+            : _rdoTime_Elapsed_HH_MM.getSelection()
                   ? ValueFormat.TIME_HH_MM.name()
                   : ValueFormat.TIME_HH_MM_SS.name();
 
@@ -1348,9 +1470,19 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
             ? ValueFormat.NUMBER_1_0.name()
             : ValueFormat.NUMBER_1_1.name();
 
+      final String relativeFormat_Summary = _rdoRelative_1_0.getSelection()
+            ? ValueFormat.NUMBER_1_0.name()
+            : ValueFormat.NUMBER_1_1.name();
+
       final String speedFormat_Summary = _rdoSpeed_1_0_Summary.getSelection()
             ? ValueFormat.NUMBER_1_0.name()
             : _rdoSpeed_1_1_Summary.getSelection()
+                  ? ValueFormat.NUMBER_1_1.name()
+                  : ValueFormat.NUMBER_1_2.name();
+
+      final String temperatureFormat_Summary = _rdoTemperature_1_0_Summary.getSelection()
+            ? ValueFormat.NUMBER_1_0.name()
+            : _rdoTemperature_1_1_Summary.getSelection()
                   ? ValueFormat.NUMBER_1_1.name()
                   : ValueFormat.NUMBER_1_2.name();
 
@@ -1386,36 +1518,39 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
 
 // SET_FORMATTING_OFF
 
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_CADENCE,                cadenceFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_DISTANCE,               distanceFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE,               elevationFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_POWER,                  powerFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_PULSE,                  pulseFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_SPEED,                  speedFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_CADENCE,               cadenceFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_DISTANCE,              distanceFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE,              elevationFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_POWER,                 powerFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_PULSE,                 pulseFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_SPEED,                 speedFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE,           temperatureFormat);
 
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME,           elapsedFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME,          recordedFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME,            pausedFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME,            movingFormat);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME,             breakFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME,          elapsedFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME,         recordedFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME,           pausedFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME,           movingFormat);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME,            breakFormat);
 
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY,        cadenceFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY,       distanceFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY,       elevationFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY,          powerFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY,          pulseFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY,          speedFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_CADENCE_SUMMARY,       cadenceFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_DISTANCE_SUMMARY,      distanceFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_ALTITUDE_SUMMARY,      elevationFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_POWER_SUMMARY,         powerFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_PULSE_SUMMARY,         pulseFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_RELATIVE,              relativeFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_SPEED_SUMMARY,         speedFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_TEMPERATURE_SUMMARY,   temperatureFormat_Summary);
 
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY,   elapsedFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY,  recordedFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY,    pausedFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY,    movingFormat_Summary);
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY,     breakFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY,  elapsedFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_RECORDED_TIME_SUMMARY, recordedFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_PAUSED_TIME_SUMMARY,   pausedFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_MOVING_TIME_SUMMARY,   movingFormat_Summary);
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_BREAK_TIME_SUMMARY,    breakFormat_Summary);
 
 // SET_FORMATTING_ON
 
       // live update
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE, _chkLiveUpdate.getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_IS_LIVE_UPDATE, _chkLiveUpdate.getSelection());
 
       /*
        * Publish modifications
@@ -1423,7 +1558,7 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
       FormatManager.updateDisplayFormats();
 
       // fire one event for all modifications
-      _prefStore.setValue(ITourbookPreferences.VIEW_LAYOUT_CHANGED, Math.random());
+      _prefStore_Common.setValue(ITourbookPreferences.VIEW_LAYOUT_CHANGED, Math.random());
    }
 
    private void saveUIState() {
@@ -1432,6 +1567,6 @@ public class PrefPageAppearanceDisplayFormat extends PreferencePage implements I
          return;
       }
 
-      _prefStore.setValue(ICommonPreferences.DISPLAY_FORMAT_SELECTED_TAB, _tabFolder.getSelectionIndex());
+      _prefStore_Common.setValue(ICommonPreferences.DISPLAY_FORMAT_SELECTED_TAB, _tabFolder.getSelectionIndex());
    }
 }

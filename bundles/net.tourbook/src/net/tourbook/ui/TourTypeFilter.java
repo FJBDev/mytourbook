@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 
 package net.tourbook.ui;
+
+import static net.tourbook.common.UI.EMPTY_STRING;
 
 import java.util.ArrayList;
 
@@ -151,6 +153,20 @@ public class TourTypeFilter {
       return filterImageDescriptor;
    }
 
+   /**
+    * @return Returns <code>true</code> when the tour type filter allows {@link TourData}
+    *         <ul>
+    *         <br>
+    *         <li>Which has no {@link TourType}</li>
+    *         <li>When a tour type filter is set, which contains several tour types</li>
+    *         </ul>
+    *         These tours will be painted with the default color
+    */
+   public boolean containsMultipleTourTypes() {
+
+      return _filterType == FILTER_TYPE_SYSTEM || _filterType == FILTER_TYPE_TOURTYPE_SET;
+   }
+
    @Override
    public boolean equals(final Object obj) {
       if (this == obj) {
@@ -225,14 +241,14 @@ public class TourTypeFilter {
     */
    public TourTypeSQLData getSQLData() {
 
-      String sqlWhereClause = UI.EMPTY_STRING;
+      String sqlWhereClause = EMPTY_STRING;
       final ArrayList<Long> sqlTourTypes = new ArrayList<>();
 
       switch (_filterType) {
       case FILTER_TYPE_SYSTEM:
          if (_systemFilterId == SYSTEM_FILTER_ID_ALL) {
             // select all tour types also not defined tour types
-            sqlWhereClause = UI.EMPTY_STRING;
+            sqlWhereClause = EMPTY_STRING;
          } else {
             // select tour types which are not defined
             sqlWhereClause = " AND TourData.tourType_typeId IS NULL\n"; //$NON-NLS-1$
@@ -341,16 +357,6 @@ public class TourTypeFilter {
       default:
          break;
       }
-   }
-
-   /**
-    * @return Returns <code>true</code> when the filter allows {@link TourData} which has no
-    *         {@link TourType} OR when a tour type filter (contains several tour types) is set,
-    *         these tours will be painted with the default color
-    */
-   public boolean showUndefinedTourTypes() {
-      return _filterType == FILTER_TYPE_SYSTEM || _filterType == FILTER_TYPE_TOURTYPE_SET;
-
    }
 
    @Override

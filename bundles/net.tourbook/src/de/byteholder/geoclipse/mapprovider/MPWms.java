@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import de.byteholder.geoclipse.logging.GeoException;
 import de.byteholder.geoclipse.map.BoundingBoxEPSG4326;
 import de.byteholder.geoclipse.map.ITileLoader;
 import de.byteholder.geoclipse.map.Tile;
+import de.byteholder.geoclipse.map.MapUtils;
 import de.byteholder.geoclipse.util.Util;
 
 import java.io.IOException;
@@ -27,7 +28,6 @@ import java.io.InputStream;
 import java.net.NoRouteToHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -54,7 +54,7 @@ public class MPWms extends MP implements ITileLoader {
     */
 //	private static final String			SRS_EPSG_3857		= "EPSG:3857";				//$NON-NLS-1$
 
-   // this is depricated
+   // this is deprecated
 //	private static final String			SRS_EPSG_3785		= "EPSG:3785";				//$NON-NLS-1$
 //	private static final String			SRS_EPSG_900913		= "EPSG:900913";			//$NON-NLS-1$
 
@@ -64,7 +64,7 @@ public class MPWms extends MP implements ITileLoader {
 
    /**
     * wms server {@link #_wmsServer} and wms caps {@link #_wmsCaps} are set when a connection to
-    * the server was successfull, otherwise they are <code>null</code>
+    * the server was successful, otherwise they are <code>null</code>
     */
    private WebMapServer                _wmsServer;
 
@@ -98,19 +98,19 @@ public class MPWms extends MP implements ITileLoader {
 
       final MPWms clonedMp = (MPWms) super.clone();
 
-      clonedMp._mtLayers = cloneMtLayer(clonedMp, _mtLayers);
-      clonedMp._mtLayersReverse = cloneMtLayer(clonedMp, _mtLayersReverse);
+      clonedMp._mtLayers = cloneMtLayer(_mtLayers);
+      clonedMp._mtLayersReverse = cloneMtLayer(_mtLayersReverse);
 
 //		if (fMtLayers != null) {
 //			mapProvider.initializeLayers();
 //		}
 
-      clonedMp._offlineLayers = cloneOfflineLayer(clonedMp, _offlineLayers);
+      clonedMp._offlineLayers = cloneOfflineLayer(_offlineLayers);
 
       return clonedMp;
    }
 
-   private ArrayList<MtLayer> cloneMtLayer(final MPWms mapProvider, final ArrayList<MtLayer> allMtLayers)
+   private ArrayList<MtLayer> cloneMtLayer(final ArrayList<MtLayer> allMtLayers)
          throws CloneNotSupportedException {
 
       if (allMtLayers == null) {
@@ -127,8 +127,7 @@ public class MPWms extends MP implements ITileLoader {
       return newMtLayers;
    }
 
-   private ArrayList<LayerOfflineData> cloneOfflineLayer(final MPWms mapProvider,
-                                                         final ArrayList<LayerOfflineData> offlineDataList)
+   private ArrayList<LayerOfflineData> cloneOfflineLayer(final ArrayList<LayerOfflineData> offlineDataList)
          throws CloneNotSupportedException {
 
       if (offlineDataList == null) {
@@ -233,7 +232,7 @@ public class MPWms extends MP implements ITileLoader {
       }
 
       // remove invalid characters from the key
-      final String customTileKey = de.byteholder.geoclipse.map.UI.createIdFromName(sb.toString(), 150);
+      final String customTileKey = MapUtils.createIdFromName(sb.toString(), 150);
 
       return customTileKey;
    }
@@ -295,7 +294,7 @@ public class MPWms extends MP implements ITileLoader {
       }
 
       if (visibleLayers == 0) {
-         throw new GeoException(NLS.bind(Messages.DBG043_Wms_Server_Error_CannotConnectToServer, getId()));
+         throw new GeoException(NLS.bind(Messages.Error_WmsServer_CannotConnectToServer_DBG043, getId()));
       }
 
       final int imageSize = getTileSize();
@@ -326,25 +325,25 @@ public class MPWms extends MP implements ITileLoader {
 
       } catch (final NoRouteToHostException e) {
          throw new GeoException(NLS.bind(
-               Messages.DBG035_Wms_Server_Error_CannotConnectToServer,
+               Messages.Error_WmsServer_CannotConnectToServer_DBG035,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final IOException e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG036_Wms_Server_Error_IoExeption,
+               Messages.Error_WmsServer_IoException_DBG036,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final ServiceException e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG037_Wms_Server_Error_ServiceExeption,
+               Messages.Error_WmsServer_ServiceException_DBG037,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final Exception e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG038_Wms_Server_Error_CannotLoadImage,
+               Messages.Error_WmsServer_CannotLoadImage_DBG038,
                finalUrl), e);
       }
    }
@@ -395,42 +394,34 @@ public class MPWms extends MP implements ITileLoader {
       _mtLayersReverse.clear();
       _mtLayersReverse.addAll(_mtLayers);
 
-      Collections.sort(_mtLayersReverse, new Comparator<MtLayer>() {
+      Collections.sort(_mtLayersReverse, (mtLayer1, mtLayer2) -> {
 
-         @Override
-         public int compare(final MtLayer mt1, final MtLayer mt2) {
+         if (mtLayer1.getPositionIndex() == -1 || mtLayer2.getPositionIndex() == -1) {
 
-            if (mt1.getPositionIndex() == -1 || mt2.getPositionIndex() == -1) {
+            // sort by name
+            return mtLayer1.getGeoLayer().compareTo(mtLayer2.getGeoLayer());
 
-               // sort by name
-               return mt1.getGeoLayer().compareTo(mt2.getGeoLayer());
+         } else {
 
-            } else {
-
-               // sort by position
-               return -mt1.getPositionIndex() - -mt2.getPositionIndex();
-            }
+            // sort by position
+            return -mtLayer1.getPositionIndex() - -mtLayer2.getPositionIndex();
          }
       });
 
       /*
        * sort none reverse layers, this sorting is used when the custom tile key is created
        */
-      Collections.sort(_mtLayers, new Comparator<MtLayer>() {
+      Collections.sort(_mtLayers, (mtLayer1, mtLayer2) -> {
 
-         @Override
-         public int compare(final MtLayer mt1, final MtLayer mt2) {
+         if (mtLayer1.getPositionIndex() == -1 || mtLayer2.getPositionIndex() == -1) {
 
-            if (mt1.getPositionIndex() == -1 || mt2.getPositionIndex() == -1) {
+            // sort by name
+            return mtLayer1.getGeoLayer().compareTo(mtLayer2.getGeoLayer());
 
-               // sort by name
-               return mt1.getGeoLayer().compareTo(mt2.getGeoLayer());
+         } else {
 
-            } else {
-
-               // sort by position
-               return mt1.getPositionIndex() - mt2.getPositionIndex();
-            }
+            // sort by position
+            return mtLayer1.getPositionIndex() - mtLayer2.getPositionIndex();
          }
       });
    }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,12 +18,13 @@ package net.tourbook.ui.tourChart;
 import java.util.ArrayList;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.chart.ChartComponentGraph;
 import net.tourbook.chart.ColorCache;
 import net.tourbook.common.UI;
 import net.tourbook.common.formatter.FormatManager;
 import net.tourbook.common.tooltip.AnimatedToolTipShell;
-import net.tourbook.data.AltitudeUpDown;
+import net.tourbook.data.FlatGainLoss;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.tour.ActionOpenMarkerDialog;
@@ -38,7 +39,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -49,10 +49,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 
@@ -61,29 +60,25 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourProvider {
 
-   private static final String  GRAPH_LABEL_ALTITUDE = net.tourbook.common.Messages.Graph_Label_Altitude;
-   private static final String  GRAPH_LABEL_TIME     = net.tourbook.common.Messages.Graph_Label_Time;
-   private static final String  GRAPH_LABEL_DISTANCE = net.tourbook.common.Messages.Graph_Label_Distance;
-
-   private static final int     DEFAULT_TEXT_WIDTH   = 50;
-   private static final int     DEFAULT_TEXT_HEIGHT  = 20;
+   private static final int        DEFAULT_TEXT_WIDTH  = 50;
+   private static final int        DEFAULT_TEXT_HEIGHT = 20;
 
    /**
     * Visual position for marker tooltip, they must correspond to the position id
     * TOOLTIP_POSITION_*.
     */
-   public static final String[] TOOLTIP_POSITIONS;
+   protected static final String[] TOOLTIP_POSITIONS;
 
    static {
 
       TOOLTIP_POSITIONS = new String[] {
 
-            Messages.Tour_Marker_TooltipPosition_Left, //            0
-            Messages.Tour_Marker_TooltipPosition_Right, //           1
-            Messages.Tour_Marker_TooltipPosition_Top, //             2
-            Messages.Tour_Marker_TooltipPosition_Bottom, //          3
-            Messages.Tour_Marker_TooltipPosition_ChartTop, //        4
-            Messages.Tour_Marker_TooltipPosition_ChartBottom, //     5
+            Messages.Tooltip_Position_Left, //            0
+            Messages.Tooltip_Position_Right, //           1
+            Messages.Tooltip_Position_Top, //             2
+            Messages.Tooltip_Position_Bottom, //          3
+            Messages.Tooltip_Position_ChartTop, //        4
+            Messages.Tooltip_Position_ChartBottom, //     5
       };
    }
 
@@ -110,7 +105,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
    private TourChart                       _tourChart;
    private TourData                        _tourData;
 
-   private ChartLabel                      _hoveredLabel;
+   private ChartLabelMarker                _hoveredLabel;
    private TourMarker                      _hoveredTourMarker;
 
    /**
@@ -241,7 +236,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
        * tooltip when the mouse is hovered, which is not as it should be.
        */
       _shellContainer = new Composite(shell, SWT.NONE);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
 //            .spacing(0, 0)
 //            .numColumns(2)
             // set margin to draw the border
@@ -249,20 +244,15 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
             .applyTo(_shellContainer);
 //      _shellContainer.setForeground(_fgColor);
 //      _shellContainer.setBackground(_bgColor);
-      _shellContainer.addPaintListener(new PaintListener() {
-         @Override
-         public void paintControl(final PaintEvent e) {
-            onPaintShellContainer(e);
-         }
-      });
+      _shellContainer.addPaintListener(this::onPaintShellContainer);
       {
          _ttContainer = new Composite(_shellContainer, SWT.NONE);
-         GridLayoutFactory.fillDefaults()//
+         GridLayoutFactory.fillDefaults()
                .extendedMargins(2, 5, 2, 5)
                .numColumns(1)
                .applyTo(_ttContainer);
-         _ttContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-         _ttContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+//         _ttContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+//         _ttContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
          {
             createUI_20_TopContainer();
             createUI_40_Description(_ttContainer);
@@ -293,7 +283,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
           * Name
           */
          final Label lblName = new Label(topContainer, SWT.NONE);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
                .grab(true, false)
                .align(SWT.FILL, SWT.CENTER)
                .indent(3, 0)
@@ -301,7 +291,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
 
          lblName.setFont(_boldFont);
          lblName.setForeground(_titleColor);
-         lblName.setText(ttTitle);
+         lblName.setText(UI.escapeAmpersand(ttTitle));
 
          /*
           * Actions
@@ -344,7 +334,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
       if (markerDescription.length() > 0) {
 
          final Text txtDescription = new Text(parent, _textStyle);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
 //               .indent(-3, 0)
                .applyTo(txtDescription);
          txtDescription.setText(markerDescription);
@@ -369,14 +359,14 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
          valueIndex = _hoveredTourMarker.getSerieIndex();
       }
 
-      final var index = _tourData.getTourMarkersSorted().indexOf(_hoveredTourMarker);
+      final int index = _tourData.getTourMarkersSorted().indexOf(_hoveredTourMarker);
       TourMarker previousTourMarker = null;
       if (index > 0) {
          previousTourMarker = _tourData.getTourMarkersSorted().get(index - 1);
       }
 
       final Composite container = new Composite(parent, SWT.NONE);
-      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
       GridDataFactory.fillDefaults()
             .grab(true, false)
             .indent(3, 0)
@@ -392,7 +382,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
           */
          if (isShowElevation || isShowElevation_Diff) {
 
-            UI.createLabel(container, GRAPH_LABEL_ALTITUDE);
+            UI.createLabel(container, OtherMessages.GRAPH_LABEL_ALTITUDE);
 
             if (isShowElevation) {
                final boolean isAvailableAltitude = _tourData.getAltitudeSerie() != null;
@@ -414,11 +404,11 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
             if (isShowElevation_Diff) {
 
                final int startIndex = previousTourMarker != null ? previousTourMarker.getSerieIndex() : 0;
-               final AltitudeUpDown elevationGainLoss = _tourData.computeAltitudeUpDown(startIndex, _hoveredTourMarker.getSerieIndex());
+               final FlatGainLoss elevationGainLoss = _tourData.computeAltitudeUpDown(startIndex, _hoveredTourMarker.getSerieIndex());
 
                if (elevationGainLoss != null) {
 
-                  final float value = elevationGainLoss.getAltitudeUp() / UI.UNIT_VALUE_ELEVATION;
+                  final float value = elevationGainLoss.elevationGain / UI.UNIT_VALUE_ELEVATION;
 
                   createUI_72_ValueField(
                         container,
@@ -437,7 +427,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
           */
          if (isShowDistance || isShowDistance_Diff) {
 
-            UI.createLabel(container, GRAPH_LABEL_DISTANCE);
+            UI.createLabel(container, OtherMessages.GRAPH_LABEL_DISTANCE);
 
             if (isShowDistance) {
 
@@ -505,7 +495,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
           */
          if (isShowDuration || isShowDuration_Diff) {
 
-            UI.createLabel(container, GRAPH_LABEL_TIME);
+            UI.createLabel(container, OtherMessages.GRAPH_LABEL_TIME);
 
             if (isShowDuration) {
 
@@ -598,16 +588,11 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
       if (isText || isAddress) {
 
          final Link linkUrl = new Link(_ttContainer, SWT.NONE);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
                .indent(3, 0)
                .applyTo(linkUrl);
 
-         linkUrl.addListener(SWT.Selection, new Listener() {
-            @Override
-            public void handleEvent(final Event event) {
-               onSelectUrl(event.text);
-            }
-         });
+         linkUrl.addListener(SWT.Selection, event -> onSelectUrl(event.text));
 
          String linkText;
 
@@ -641,7 +626,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
    private Rectangle getHoveredRect() {
 
       final int hoverSize = _hoveredLabel.devHoverSize;
-      final int devMarkerPointSizeRaw = _hoveredLabel.devMarkerPointSize;
+      final int devMarkerPointSizeRaw = _hoveredLabel.devPointSize;
 
       Rectangle rectHovered = new Rectangle(_hoveredLabel.devXMarker, _hoveredLabel.devYMarker, 1, 1);
 
@@ -800,7 +785,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
          break;
       }
 
-      // ckeck if tooltip is left to the chart border
+      // check if tooltip is left to the chart border
       if (ttPosX + tipWidth < 0) {
 
          // set tooltip to the graph left border
@@ -969,7 +954,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
       hideNow();
    }
 
-   void open(final ChartLabel hoveredLabel) {
+   void open(final ChartLabelMarker hoveredLabel) {
 
       boolean isKeepOpened = false;
 
@@ -1015,9 +1000,25 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
 
       final Display display = container.getDisplay();
 
+      Color foregroundColor;
+      Color backgroundColor;
+
+      if (UI.isDarkTheme()) {
+
+         final Shell shell = _shellContainer.getShell();
+
+         foregroundColor = shell.getForeground();
+         backgroundColor = shell.getBackground();
+
+      } else {
+
+         foregroundColor = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND);
+         backgroundColor = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+      }
+
       UI.setColorForAllChildren(container,
-            display.getSystemColor(SWT.COLOR_INFO_FOREGROUND),
-            display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+            foregroundColor,
+            backgroundColor);
    }
 
    void setIsShowMarkerActions(final boolean isShowMarkerActions) {
@@ -1067,7 +1068,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
       txtControl.dispose();
 
       txtControl = new Text(parent, _textStyle | SWT.V_SCROLL);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .hint(widthHint, _defaultTextHeight)
             .applyTo(txtControl);
 

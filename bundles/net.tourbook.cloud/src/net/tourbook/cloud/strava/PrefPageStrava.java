@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,28 +15,28 @@
  *******************************************************************************/
 package net.tourbook.cloud.strava;
 
-import java.net.URISyntaxException;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.LocalHostServer;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
-import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -44,46 +44,51 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   //
-   private static final String PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL  = net.tourbook.cloud.Messages.Pref_CloudConnectivity_AccessToken_Label;
-   private static final String PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP = net.tourbook.cloud.Messages.Pref_CloudConnectivity_CloudAccount_Group;
-   private static final String PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL    = net.tourbook.cloud.Messages.Pref_CloudConnectivity_ExpiresAt_Label;
-   private static final String PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL = net.tourbook.cloud.Messages.Pref_CloudConnectivity_RefreshToken_Label;
-   //
+   public static final String      ID                      = "net.tourbook.cloud.PrefPageStrava";                                         //$NON-NLS-1$
+   private static final int        CALLBACK_PORT           = 4918;
 
-   public static final String      ID            = "net.tourbook.cloud.PrefPageStrava";        //$NON-NLS-1$
-   public static final int         CALLBACK_PORT = 4918;
+   private static final String     CLIENT_ID               = "55536";                                                                     //$NON-NLS-1$
 
-   public static final String      ClientId      = "55536";                                    //$NON-NLS-1$
-
-   private IPreferenceStore        _prefStore    = Activator.getDefault().getPreferenceStore();
+   private static final String     STRAVA_APP_WEBPAGE_LINK = "https://www.strava.com";                                                    //$NON-NLS-1$
+   private IPreferenceStore        _prefStore              = Activator.getDefault().getPreferenceStore();
    private IPropertyChangeListener _prefChangeListener;
-   private LocalHostServer         _server;
 
+   private LocalHostServer         _server;
    private String                  _athleteId;
+
    private long                    _accessTokenExpiresAt;
+
+   private Image                   _imageStravaConnect     = Activator.getImageDescriptor(CloudImages.Cloud_Strava_Connect).createImage();
 
    /*
     * UI controls
     */
-   private Label _labelAccessToken;
-   private Label _labelAccessToken_Value;
-   private Label _labelAthleteName;
-   private Label _labelAthleteName_Value;
-   private Label _labelAthleteWebPage;
-   private Label _labelExpiresAt;
-   private Label _labelExpiresAt_Value;
-   private Label _labelRefreshToken;
-   private Label _labelRefreshToken_Value;
+   private Button _btnCleanup;
+   private Button _chkAddWeatherIconInTitle;
+   private Button _chkSendDescription;
+   private Button _chkSendWeatherDataInDescription;
+   private Button _chkShowHideTokens;
 
-   private Link  _linkAthleteWebPage;
+   private Label  _labelAccessToken;
+   private Label  _labelAthleteName;
+   private Label  _labelAthleteName_Value;
+   private Label  _labelAthleteWebPage;
+   private Label  _labelExpiresAt;
+   private Label  _labelExpiresAt_Value;
+   private Label  _labelRefreshToken;
+   private Link   _linkAthleteWebPage;
+   private Link   _linkRevokeAccess;
+   private Text   _txtAccessToken_Value;
+   private Text   _txtRefreshToken_Value;
 
    private String constructAthleteWebPageLink(final String athleteId) {
+
       if (StringUtils.hasContent(athleteId)) {
          return "https://www.strava.com/athletes/" + athleteId; //$NON-NLS-1$
       }
@@ -92,15 +97,20 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    }
 
    private String constructAthleteWebPageLinkWithTags(final String athleteId) {
+
       return UI.LINK_TAG_START + constructAthleteWebPageLink(athleteId) + UI.LINK_TAG_END;
    }
 
    @Override
    protected void createFieldEditors() {
 
+      initUI();
+
       createUI();
 
       restoreState();
+
+      enableControls();
 
       _prefChangeListener = event -> {
 
@@ -110,8 +120,8 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
                if (!event.getOldValue().equals(event.getNewValue())) {
 
-                  _labelAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
-                  _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
+                  _txtAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
+                  _txtRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
                   _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
                   _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
 
@@ -119,10 +129,11 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
                   _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
                   _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
 
-                  updateTokensInformationGroup();
+                  enableControls();
                }
-
-               _server.stopCallBackServer();
+               if (_server != null) {
+                  _server.stopCallBackServer();
+               }
             });
          }
       };
@@ -132,9 +143,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final Composite parent = getFieldEditorParent();
       GridLayoutFactory.fillDefaults().applyTo(parent);
-
       createUI_10_Connect(parent);
       createUI_20_AccountInformation(parent);
+      createUI_30_TourUpload(parent);
+      createUI_100_AccountCleanup(parent);
    }
 
    private void createUI_10_Connect(final Composite parent) {
@@ -152,16 +164,26 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          // No variations or modifications are acceptable."
 
          final Button buttonConnect = new Button(container, SWT.NONE);
-         final Image imageConnect = Activator.getImageDescriptor(Messages.Image__Connect_With_Strava).createImage();
-         buttonConnect.setImage(imageConnect);
-         buttonConnect.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onClickAuthorize();
-            }
-         });
+         buttonConnect.setImage(_imageStravaConnect);
+         buttonConnect.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onClickAuthorize()));
          GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).grab(true, true).applyTo(buttonConnect);
+      }
+   }
+
+   private void createUI_100_AccountCleanup(final Composite parent) {
+
+      final Composite container = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
+      GridLayoutFactory.fillDefaults().applyTo(container);
+      {
+         /*
+          * Clean-up button
+          */
+         _btnCleanup = new Button(container, SWT.NONE);
+         _btnCleanup.setText(Messages.PrefPage_CloudConnectivity_Label_Cleanup);
+         _btnCleanup.setToolTipText(Messages.PrefPage_CloudConnectivity_Label_Cleanup_Tooltip);
+         _btnCleanup.addSelectionListener(widgetSelectedAdapter(selectionEvent -> performDefaults()));
+         GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).grab(true, true).applyTo(_btnCleanup);
       }
    }
 
@@ -169,57 +191,146 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
       final Group group = new Group(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
-      group.setText(PREF_CLOUDCONNECTIVITY_CLOUDACCOUNT_GROUP);
+      group.setText(Messages.PrefPage_CloudConnectivity_Group_CloudAccount);
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
       {
          {
-            _labelAthleteName = new Label(group, SWT.NONE);
-            _labelAthleteName.setText(Messages.PrefPage_Account_Information_Label_AthleteName);
+            final Label labelWebPage = UI.createLabel(group, Messages.PrefPage_CloudConnectivity_Label_WebPage);
+            GridDataFactory.fillDefaults().applyTo(labelWebPage);
+
+            final Link linkWebPage = new Link(group, SWT.NONE);
+            linkWebPage.setText(UI.LINK_TAG_START + STRAVA_APP_WEBPAGE_LINK + UI.LINK_TAG_END);
+            linkWebPage.setEnabled(true);
+            linkWebPage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> WEB.openUrl(
+                  STRAVA_APP_WEBPAGE_LINK)));
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
+         }
+         {
+            _labelAthleteName = UI.createLabel(group, Messages.PrefPage_AccountInformation_Label_AthleteName);
             GridDataFactory.fillDefaults().applyTo(_labelAthleteName);
 
-            _labelAthleteName_Value = new Label(group, SWT.NONE);
+            _labelAthleteName_Value = UI.createLabel(group);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAthleteName_Value);
          }
          {
-            _labelAthleteWebPage = new Label(group, SWT.NONE);
-            _labelAthleteWebPage.setText(Messages.PrefPage_Account_Information_Label_AthleteWebPage);
+            _labelAthleteWebPage = UI.createLabel(group, Messages.PrefPage_AccountInformation_Label_AthleteWebPage);
             GridDataFactory.fillDefaults().applyTo(_labelAthleteWebPage);
 
             _linkAthleteWebPage = new Link(group, SWT.NONE);
             _linkAthleteWebPage.setEnabled(true);
-            _linkAthleteWebPage.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  WEB.openUrl(constructAthleteWebPageLink(_athleteId));
-               }
-            });
+            _linkAthleteWebPage.addSelectionListener(widgetSelectedAdapter(
+                  selectionEvent -> WEB.openUrl(constructAthleteWebPageLink(_athleteId))));
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_linkAthleteWebPage);
          }
          {
-            _labelAccessToken = new Label(group, SWT.NONE);
-            _labelAccessToken.setText(PREF_CLOUDCONNECTIVITY_ACCESSTOKEN_LABEL);
+            _labelAccessToken = UI.createLabel(group, Messages.PrefPage_CloudConnectivity_Label_AccessToken);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
-            _labelAccessToken_Value = new Label(group, SWT.NONE);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelAccessToken_Value);
+            _txtAccessToken_Value = new Text(group, SWT.PASSWORD | SWT.READ_ONLY);
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(_txtAccessToken_Value);
          }
          {
-            _labelRefreshToken = new Label(group, SWT.NONE);
-            _labelRefreshToken.setText(PREF_CLOUDCONNECTIVITY_REFRESHTOKEN_LABEL);
+            _labelRefreshToken = UI.createLabel(group, Messages.PrefPage_CloudConnectivity_Label_RefreshToken);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
-            _labelRefreshToken_Value = new Label(group, SWT.NONE);
-            GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelRefreshToken_Value);
+            _txtRefreshToken_Value = new Text(group, SWT.PASSWORD | SWT.READ_ONLY);
+
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(_txtRefreshToken_Value);
          }
          {
-            _labelExpiresAt = new Label(group, SWT.NONE);
-            _labelExpiresAt.setText(PREF_CLOUDCONNECTIVITY_EXPIRESAT_LABEL);
+            _labelExpiresAt = UI.createLabel(group, Messages.PrefPage_CloudConnectivity_Label_ExpiresAt);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
-            _labelExpiresAt_Value = new Label(group, SWT.NONE);
+            _labelExpiresAt_Value = UI.createLabel(group);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
          }
+         {
+            _chkShowHideTokens = new Button(group, SWT.CHECK);
+            _chkShowHideTokens.setText(Messages.PrefPage_CloudConnectivity_Checkbox_ShowOrHideTokens);
+            _chkShowHideTokens.setToolTipText(Messages.PrefPage_CloudConnectivity_Checkbox_ShowOrHideTokens_Tooltip);
+            _chkShowHideTokens.addSelectionListener(widgetSelectedAdapter(selectionEvent -> showOrHideAllPasswords(_chkShowHideTokens
+                  .getSelection())));
+            GridDataFactory.fillDefaults().applyTo(_chkShowHideTokens);
+         }
+         {
+            _linkRevokeAccess = new Link(group, SWT.NONE);
+            _linkRevokeAccess.setText(Messages.PrefPage_CloudConnectivity_Label_RevokeAccess);
+            _linkRevokeAccess.addSelectionListener(widgetSelectedAdapter(
+                  selectionEvent -> WEB.openUrl("https://www.strava.com/settings/apps")));//$NON-NLS-1$
+            GridDataFactory.fillDefaults()
+                  .span(2, 1)
+                  .indent(0, 16)
+                  .applyTo(_linkRevokeAccess);
+         }
       }
+   }
+
+   private void createUI_30_TourUpload(final Composite parent) {
+
+      final Group group = new Group(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
+      group.setText(Messages.PrefPage_CloudConnectivity_Group_TourUpload);
+      GridLayoutFactory.swtDefaults().applyTo(group);
+      {
+         {
+            /*
+             * Checkbox: Add weather icon in tour title
+             */
+            _chkAddWeatherIconInTitle = new Button(group, SWT.CHECK);
+            GridDataFactory.fillDefaults().applyTo(_chkAddWeatherIconInTitle);
+
+            _chkAddWeatherIconInTitle.setText(Messages.PrefPage_UploadConfiguration_Button_AddWeatherIconInTitle);
+         }
+         {
+            /*
+             * Checkbox: Send the tour description
+             */
+            _chkSendDescription = new Button(group, SWT.CHECK);
+            GridDataFactory.fillDefaults().applyTo(_chkSendDescription);
+
+            _chkSendDescription.setText(Messages.PrefPage_UploadConfiguration_Button_SendDescription);
+         }
+         {
+            /*
+             * Checkbox: Send the weather data in the tour description
+             */
+            _chkSendWeatherDataInDescription = new Button(group, SWT.CHECK);
+            GridDataFactory.fillDefaults().applyTo(_chkSendWeatherDataInDescription);
+
+            _chkSendWeatherDataInDescription.setText(Messages.PrefPage_UploadConfiguration_Button_SendWeatherDataInDescription);
+            _chkSendWeatherDataInDescription.setToolTipText(Messages.PrefPage_UploadConfiguration_Button_SendWeatherDataInDescription_Tooltip);
+         }
+      }
+   }
+
+   @Override
+   public void dispose() {
+
+      UI.disposeResource(_imageStravaConnect);
+
+      super.dispose();
+   }
+
+   private void enableControls() {
+
+      final boolean isAuthorized = StringUtils.hasContent(_txtAccessToken_Value.getText()) &&
+            StringUtils.hasContent(_txtRefreshToken_Value.getText());
+
+      _labelAthleteName_Value.setEnabled(isAuthorized);
+      _labelAthleteWebPage.setEnabled(isAuthorized);
+      _linkAthleteWebPage.setEnabled(isAuthorized);
+      _labelAthleteName.setEnabled(isAuthorized);
+      _labelAccessToken.setEnabled(isAuthorized);
+      _labelRefreshToken.setEnabled(isAuthorized);
+      _txtRefreshToken_Value.setEnabled(isAuthorized);
+      _labelExpiresAt_Value.setEnabled(isAuthorized);
+      _labelExpiresAt.setEnabled(isAuthorized);
+      _linkRevokeAccess.setEnabled(isAuthorized);
+      _chkShowHideTokens.setEnabled(isAuthorized);
+      _chkAddWeatherIconInTitle.setEnabled(isAuthorized);
+      _chkSendDescription.setEnabled(isAuthorized);
+      _chkSendWeatherDataInDescription.setEnabled(isAuthorized);
+      _btnCleanup.setEnabled(isAuthorized);
    }
 
    private String getLocalExpireAtDateTime() {
@@ -230,6 +341,11 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    @Override
    public void init(final IWorkbench workbench) {
       //Not needed
+   }
+
+   private void initUI() {
+
+      noDefaultAndApplyButton();
    }
 
    @Override
@@ -249,6 +365,10 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
     */
    private void onClickAuthorize() {
 
+      if (_server != null) {
+         _server.stopCallBackServer();
+      }
+
       final StravaTokensRetrievalHandler tokensRetrievalHandler = new StravaTokensRetrievalHandler();
       _server = new LocalHostServer(CALLBACK_PORT, "Strava", _prefChangeListener); //$NON-NLS-1$
 
@@ -258,21 +378,18 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
          return;
       }
 
-      final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
-      authorizeUrlBuilder.setHost("www.strava.com"); //$NON-NLS-1$
-      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter("scope", "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$
-      try {
-         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+      final StringBuilder authorizeUrl = new StringBuilder(STRAVA_APP_WEBPAGE_LINK + "/oauth/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
+// SET_FORMATTING_OFF
+
+      authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + CLIENT_ID); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI +  "=" + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      authorizeUrl.append("&" + "scope" +                             "=" + "read,activity:write"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+// SET_FORMATTING_ON
+
+      Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }
 
    @Override
@@ -290,15 +407,19 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
    @Override
    protected void performDefaults() {
 
-      _labelAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_ACCESSTOKEN));
-      _labelRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_REFRESHTOKEN));
+      _txtAccessToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_ACCESSTOKEN));
+      _txtRefreshToken_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_REFRESHTOKEN));
       _labelAthleteName_Value.setText(_prefStore.getDefaultString(Preferences.STRAVA_ATHLETEFULLNAME));
       _athleteId = _prefStore.getDefaultString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getDefaultLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
       _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
 
-      updateTokensInformationGroup();
+      _chkAddWeatherIconInTitle.setSelection(_prefStore.getDefaultBoolean(Preferences.STRAVA_ADDWEATHERICON_IN_TITLE));
+      _chkSendDescription.setSelection(_prefStore.getDefaultBoolean(Preferences.STRAVA_SENDDESCRIPTION));
+      _chkSendWeatherDataInDescription.setSelection(_prefStore.getDefaultBoolean(Preferences.STRAVA_SENDWEATHERDATA_IN_DESCRIPTION));
+
+      enableControls();
 
       super.performDefaults();
    }
@@ -309,11 +430,15 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
       final boolean isOK = super.performOk();
 
       if (isOK) {
-         _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, _labelAccessToken_Value.getText());
-         _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, _labelRefreshToken_Value.getText());
+         _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN, _txtAccessToken_Value.getText());
+         _prefStore.setValue(Preferences.STRAVA_REFRESHTOKEN, _txtRefreshToken_Value.getText());
          _prefStore.setValue(Preferences.STRAVA_ATHLETEFULLNAME, _labelAthleteName_Value.getText());
          _prefStore.setValue(Preferences.STRAVA_ATHLETEID, _athleteId);
          _prefStore.setValue(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT, _accessTokenExpiresAt);
+
+         _prefStore.setValue(Preferences.STRAVA_ADDWEATHERICON_IN_TITLE, _chkAddWeatherIconInTitle.getSelection());
+         _prefStore.setValue(Preferences.STRAVA_SENDDESCRIPTION, _chkSendDescription.getSelection());
+         _prefStore.setValue(Preferences.STRAVA_SENDWEATHERDATA_IN_DESCRIPTION, _chkSendWeatherDataInDescription.getSelection());
 
          if (_server != null) {
             _server.stopCallBackServer();
@@ -325,30 +450,25 @@ public class PrefPageStrava extends FieldEditorPreferencePage implements IWorkbe
 
    private void restoreState() {
 
-      _labelAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
-      _labelRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
+      _txtAccessToken_Value.setText(_prefStore.getString(Preferences.STRAVA_ACCESSTOKEN));
+      _txtRefreshToken_Value.setText(_prefStore.getString(Preferences.STRAVA_REFRESHTOKEN));
       _labelAthleteName_Value.setText(_prefStore.getString(Preferences.STRAVA_ATHLETEFULLNAME));
       _athleteId = _prefStore.getString(Preferences.STRAVA_ATHLETEID);
       _linkAthleteWebPage.setText(constructAthleteWebPageLinkWithTags(_athleteId));
       _accessTokenExpiresAt = _prefStore.getLong(Preferences.STRAVA_ACCESSTOKEN_EXPIRES_AT);
       _labelExpiresAt_Value.setText(getLocalExpireAtDateTime());
 
-      updateTokensInformationGroup();
+      _chkAddWeatherIconInTitle.setSelection(_prefStore.getBoolean(Preferences.STRAVA_ADDWEATHERICON_IN_TITLE));
+      _chkSendDescription.setSelection(_prefStore.getBoolean(Preferences.STRAVA_SENDDESCRIPTION));
+      _chkSendWeatherDataInDescription.setSelection(_prefStore.getBoolean(Preferences.STRAVA_SENDWEATHERDATA_IN_DESCRIPTION));
    }
 
-   private void updateTokensInformationGroup() {
+   private void showOrHideAllPasswords(final boolean showPasswords) {
 
-      final boolean isAuthorized = StringUtils.hasContent(_labelAccessToken_Value.getText()) && StringUtils.hasContent(_labelRefreshToken_Value
-            .getText());
+      final List<Text> texts = new ArrayList<>();
+      texts.add(_txtAccessToken_Value);
+      texts.add(_txtRefreshToken_Value);
 
-      _labelAthleteName_Value.setEnabled(isAuthorized);
-      _labelAthleteWebPage.setEnabled(isAuthorized);
-      _linkAthleteWebPage.setEnabled(isAuthorized);
-      _labelAthleteName.setEnabled(isAuthorized);
-      _labelAccessToken.setEnabled(isAuthorized);
-      _labelRefreshToken.setEnabled(isAuthorized);
-      _labelRefreshToken_Value.setEnabled(isAuthorized);
-      _labelExpiresAt_Value.setEnabled(isAuthorized);
-      _labelExpiresAt.setEnabled(isAuthorized);
+      Preferences.showOrHidePasswords(texts, showPasswords);
    }
 }

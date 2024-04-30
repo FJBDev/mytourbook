@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,15 +34,15 @@ import java.util.Collections;
 import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
-import net.tourbook.ui.UI;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class DefaultProxySelector extends ProxySelector {
 
-   private static final String SYS_PROP__JAVA_NET_USE_SYSTEM_PROXIES = "java.net.useSystemProxies"; //$NON-NLS-1$
+   private static final String SYS_PROP__JAVA_NET_USE_SYSTEM_PROXIES = "java.net.useSystemProxies";                              //$NON-NLS-1$
 
    private static final String USE_SYSTEM_PROXIES                    = System.getProperty(SYS_PROP__JAVA_NET_USE_SYSTEM_PROXIES);
 
@@ -176,7 +176,7 @@ public class DefaultProxySelector extends ProxySelector {
 
       int port = parseProxyPortValue(prefStore.getString(IPreferences.PROXY_SERVER_PORT));
       String host = prefStore.getString(IPreferences.PROXY_SERVER_ADDRESS);
-      if (!StringUtils.isNullOrEmpty(host) && port > 0) {
+      if (StringUtils.hasContent(host) && port > 0) {
          httpProxySocketAddress = new InetSocketAddress(host, port);
       } else {
          httpProxySocketAddress = null;
@@ -189,7 +189,7 @@ public class DefaultProxySelector extends ProxySelector {
       port = parseProxyPortValue(prefStore.getString(IPreferences.SOCKS_PROXY_SERVER_PORT));
       host = prefStore.getString(IPreferences.SOCKS_PROXY_SERVER_ADDRESS);
 
-      if (!StringUtils.isNullOrEmpty(host) && port > 0) {
+      if (StringUtils.hasContent(host) && port > 0) {
          socksProxySocketAddress = new InetSocketAddress(host, port);
       } else {
          socksProxySocketAddress = null;
@@ -213,14 +213,17 @@ public class DefaultProxySelector extends ProxySelector {
          // delegate to the former proxy selector
          final List<Proxy> ret = delegate.select(uri);
          return ret;
+
       case NO_PROXY:
          return Collections.singletonList(Proxy.NO_PROXY);
+
       case USE_HTTP_PROXY:
          if (httpProxySocketAddress == null) {
             return Collections.singletonList(Proxy.NO_PROXY);
          }
          proxy = new Proxy(Type.HTTP, httpProxySocketAddress);
          return Collections.singletonList(proxy);
+
       case USE_SOCKS_PROXY:
          if (socksProxySocketAddress == null) {
             return Collections.singletonList(Proxy.NO_PROXY);

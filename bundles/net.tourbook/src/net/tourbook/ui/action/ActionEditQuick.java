@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2010  Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.ui.action;
 
 import java.util.ArrayList;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.data.TourData;
@@ -30,34 +31,60 @@ import org.eclipse.swt.widgets.Display;
 
 public class ActionEditQuick extends Action {
 
-	private final ITourProvider	_tourProvider;
+   /**
+    * Is <code>true</code> when start location is hovered, <code>false</code> when
+    * endlocation is hovered, <code>null</code> when a location is not hovered
+    */
+   private static Boolean      _tourLocationFocus;
 
-	public ActionEditQuick(final ITourProvider tourProvider) {
+   private final ITourProvider _tourProvider;
 
-		setText(Messages.app_action_quick_edit);
-		setImageDescriptor(TourbookPlugin.getImageDescriptor(Messages.Image__quick_edit));
+   public ActionEditQuick(final ITourProvider tourProvider) {
 
-		_tourProvider = tourProvider;
-	}
+      setText(Messages.app_action_quick_edit);
 
-	public static void doAction(final ITourProvider tourProvider) {
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit));
+      setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit_Disabled));
 
-		// check tour, make sure only one tour is selected
-		final ArrayList<TourData> selectedTours = tourProvider.getSelectedTours();
-		if (selectedTours == null || selectedTours.size() != 1) {
-			return;
-		}
+      _tourProvider = tourProvider;
+   }
 
-		if (new DialogQuickEdit(Display.getCurrent().getActiveShell(), selectedTours.get(0)).open() == Window.OK) {
+   public static void doAction(final ITourProvider tourProvider) {
 
-			// save all tours with the new tour type
-			TourManager.saveModifiedTours(selectedTours);
-		}
-	}
+      // check tour, make sure only one tour is selected
+      final ArrayList<TourData> selectedTours = tourProvider.getSelectedTours();
+      if (selectedTours == null || selectedTours.size() != 1) {
+         return;
+      }
 
-	@Override
-	public void run() {
-		doAction(_tourProvider);
-	}
+      final DialogQuickEdit dialogQuickEdit = new DialogQuickEdit(Display.getCurrent().getActiveShell(), selectedTours.get(0));
+
+      dialogQuickEdit.setTourLocationFocus(_tourLocationFocus);
+
+      // reset focus that the next quick edit dialog is ignoring it when it's not set
+      _tourLocationFocus = null;
+
+      if (dialogQuickEdit.open() == Window.OK) {
+
+         // save all tours with the new tour type
+         TourManager.saveModifiedTours(selectedTours);
+      }
+   }
+
+   /**
+    * @param tourLocationFocus
+    *
+    *           Is <code>true</code> when start location is hovered, <code>false</code> when
+    *           endlocation is hovered, <code>null</code> when a location is not hovered
+    */
+   public static void setTourLocationFocus(final Boolean tourLocationFocus) {
+
+      _tourLocationFocus = tourLocationFocus;
+   }
+
+   @Override
+   public void run() {
+      doAction(_tourProvider);
+   }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,6 +22,7 @@ import de.byteholder.geoclipse.preferences.IMappingPreferences;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,7 +76,7 @@ public class TileImageCache {
    private static final ReentrantLock                    CACHE_LOCK                 = new ReentrantLock();
 
    /**
-    * This display is used because {@link Display#getDefault()} is synchronized which propably
+    * This display is used because {@link Display#getDefault()} is synchronized which probably
     * causes the UI to be not smooth when images are loaded and the map is dragged at the same time
     */
    private Display                                       _display;
@@ -149,36 +150,55 @@ public class TileImageCache {
    /**
     * Dispose all cached images and clear the cache.
     */
-   public synchronized void dispose() {
+   public void dispose() {
 
-      final Collection<Image> allImages = _imageCache.values();
+      synchronized (_allImages) {
 
-      for (final Image image : allImages) {
-         if (image != null) {
-            try {
-               image.dispose();
-            } catch (final Exception e) {
-               // ignore, another thread can have set the image to null
+         final Collection<Image> allImages = _imageCache.values();
+
+         for (final Image image : allImages) {
+            if (image != null) {
+               try {
+                  image.dispose();
+               } catch (final Exception e) {
+                  // ignore, another thread can have set the image to null
+               }
             }
          }
-      }
 
-      for (final Image image : _allImages) {
-         if (image != null) {
+         for (int imageIndex = 0; imageIndex < _allImages.size(); imageIndex++) {
+
+            Image image = null;
+
             try {
-               image.dispose();
-            } catch (final Exception e) {}
+
+               // use imageIndex to prevent foreach loop !!!
+               @SuppressWarnings("unused")
+               final int dummy = imageIndex;
+
+               image = _allImages.get(imageIndex);
+
+            } catch (final ConcurrentModificationException e) {
+               // ignore
+            }
+
+            if (image != null) {
+               try {
+                  image.dispose();
+               } catch (final Exception e) {}
+            }
          }
+
+         _imageCache.clear();
+         _imageCacheFifo.clear();
+
+         _allImages.clear();
       }
-
-      _imageCache.clear();
-      _imageCacheFifo.clear();
-
-      _allImages.clear();
    }
 
    /**
     * @param tileImagePath
+    *
     * @return Returns the path for the offline image or <code>null</code> when the image is not
     *         available
     */
@@ -218,6 +238,7 @@ public class TileImageCache {
     * Loads the tile image from the offline image file
     *
     * @param tile
+    *
     * @return Returns image from offline image file or <code>null</code> when loading fails
     */
    Image getOfflineImage(final Tile tile) {
@@ -350,6 +371,7 @@ public class TileImageCache {
 
    /**
     * @param tile
+    *
     * @return Returns the tile image from the cache, returns <code>null</code> when the image is
     *         not available in the cache or is disposed
     */
@@ -374,6 +396,7 @@ public class TileImageCache {
 
    /**
     * @param tile
+    *
     * @return Returns the tile image os file path or <code>null</code> when the path is not
     *         available
     */
@@ -650,6 +673,7 @@ public class TileImageCache {
     * @param tileKey
     * @param isSaveImage
     * @param isChildError
+    *
     * @return
     */
    Image setupImage(final ImageData loadedImageData,
@@ -675,6 +699,7 @@ public class TileImageCache {
     *           tile key which is used to keep the image in the cache
     * @param loadedImageData
     * @param tileOfflineImage
+    *
     * @return
     */
    private Image setupImageInternal(final Tile tile,
@@ -682,65 +707,66 @@ public class TileImageCache {
                                     final ImageData loadedImageData,
                                     final Image tileOfflineImage) {
 
+      final Image tileImage = tileOfflineImage != null
+            ? tileOfflineImage
+            : new Image(_display, loadedImageData);
+
+      // cache tile image
+      putIntoImageCache(tileKey, tileImage);
+
       final MP mp = tile.getMP();
 
-      final int dimmingAlphaValue = mp.getDimLevel();
-      if (dimmingAlphaValue == 0xFF) {
+      if (mp.isDimMap()) {
 
-         // tile image is not dimmed
+         // tile image (map) is dimmed
 
-         final Image tileImage = tileOfflineImage != null ? //
-               tileOfflineImage
-               : new Image(_display, loadedImageData);
+         final int dimmingAlphaValue = mp.getDimLevel();
 
-         putIntoImageCache(tileKey, tileImage);
+         if (dimmingAlphaValue == 0xFF) {
 
-         return tileImage;
+            // tile image is not dimmed
 
-      } else {
+         } else {
 
-         // tile image is dimmed
+            // tile image is dimmed
 
-         final Image tileImage = tileOfflineImage != null ? //
-               tileOfflineImage
-               : new Image(_display, loadedImageData);
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //
+            // run in the UI thread
+            //
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            _display.asyncExec(() -> {
 
-         final Rectangle imageBounds = tileImage.getBounds();
-
-         final Image dimmedImage = new Image(_display, imageBounds);
-
-         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         //
-         // run in the UI thread
-         //
-         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         _display.syncExec(new Runnable() {
-            @Override
-            public void run() {
-
-               final GC gcTileImage = new GC(dimmedImage);
-               final Color dimColor = new Color(_display, mp.getDimColor());
-               {
-                  gcTileImage.setBackground(dimColor);
-                  gcTileImage.fillRectangle(imageBounds);
-
-                  gcTileImage.setAlpha(dimmingAlphaValue);
-                  {
-                     gcTileImage.drawImage(tileImage, 0, 0);
-                  }
-                  gcTileImage.setAlpha(0xff);
+               if (tileImage == null || tileImage.isDisposed()) {
+                  return;
                }
-               dimColor.dispose();
-               gcTileImage.dispose();
+
+               // create dimmed image
+               final Rectangle imageBounds = tileImage.getBounds();
+               final Image dimmedImage = new Image(_display, imageBounds);
+
+               final GC gcDimmedImage = new GC(dimmedImage);
+               {
+                  gcDimmedImage.setBackground(new Color(mp.getDimColor()));
+                  gcDimmedImage.fillRectangle(imageBounds);
+
+                  gcDimmedImage.setAlpha(dimmingAlphaValue);
+                  {
+                     gcDimmedImage.drawImage(tileImage, 0, 0);
+                  }
+                  gcDimmedImage.setAlpha(0xff);
+               }
+               gcDimmedImage.dispose();
 
                tileImage.dispose();
-            }
-         });
 
-         putIntoImageCache(tileKey, dimmedImage);
-
-         return dimmedImage;
+               // replace tile image with the dimmed image
+               putIntoImageCache(tileKey, dimmedImage);
+            });
+         }
       }
+
+      return tileImage;
    }
 
 }

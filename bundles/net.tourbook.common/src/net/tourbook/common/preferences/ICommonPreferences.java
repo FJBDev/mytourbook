@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2012, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,20 @@ package net.tourbook.common.preferences;
 public interface ICommonPreferences {
 
    /*
+    * Appearance, is mainly used for debugging purposes
+    */
+   public static final String APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP       = "APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP";       //$NON-NLS-1$
+   public static final String APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP   = "APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP";   //$NON-NLS-1$
+   public static final String APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP = "APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP"; //$NON-NLS-1$
+   public static final String APPEARANCE_NOTIFICATION_MESSAGES_DURATION      = "APPEARANCE_NOTIFICATION_MESSAGES_DURATION";      //$NON-NLS-1$
+
+   /*
+    * Theme
+    */
+   public static final String THEME_IS_THEME_MODIFIED             = "THEME_IS_THEME_MODIFIED";             //$NON-NLS-1$
+   public static final String THEME_IS_SHOW_THEME_SELECTOR_IN_APP = "THEME_IS_SHOW_THEME_SELECTOR_IN_APP"; //$NON-NLS-1$
+
+   /*
     * Measurement system
     */
    public static final String MEASUREMENT_SYSTEM            = "MEASUREMENT_SYSTEM";            //$NON-NLS-1$
@@ -33,7 +47,9 @@ public interface ICommonPreferences {
    public static final String DISPLAY_FORMAT_DISTANCE              = "DISPLAY_FORMAT_DISTANCE";              //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_POWER                 = "DISPLAY_FORMAT_POWER";                 //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_PULSE                 = "DISPLAY_FORMAT_PULSE";                 //$NON-NLS-1$
+   public static final String DISPLAY_FORMAT_RELATIVE              = "DISPLAY_FORMAT_RELATIVE";              //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_SPEED                 = "DISPLAY_FORMAT_SPEED";                 //$NON-NLS-1$
+   public static final String DISPLAY_FORMAT_TEMPERATURE           = "DISPLAY_FORMAT_TEMPERATURE";           //$NON-NLS-1$
 
    public static final String DISPLAY_FORMAT_ELAPSED_TIME          = "DISPLAY_FORMAT_ELAPSED_TIME";          //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_RECORDED_TIME         = "DISPLAY_FORMAT_RECORDED_TIME";         //$NON-NLS-1$
@@ -47,6 +63,7 @@ public interface ICommonPreferences {
    public static final String DISPLAY_FORMAT_POWER_SUMMARY         = "DISPLAY_FORMAT_POWER_SUMMARY";         //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_PULSE_SUMMARY         = "DISPLAY_FORMAT_PULSE_SUMMARY";         //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_SPEED_SUMMARY         = "DISPLAY_FORMAT_SPEED_SUMMARY";         //$NON-NLS-1$
+   public static final String DISPLAY_FORMAT_TEMPERATURE_SUMMARY   = "DISPLAY_FORMAT_TEMPERATURE_SUMMARY";   //$NON-NLS-1$
 
    public static final String DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY  = "DISPLAY_FORMAT_ELAPSED_TIME_SUMMARY";  //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_RECORDED_TIME_SUMMARY = "DISPLAY_FORMAT_RECORDED_TIME_SUMMARY"; //$NON-NLS-1$
@@ -74,5 +91,10 @@ public interface ICommonPreferences {
    /** MO=1 .. SO=7 */
    public static final String CALENDAR_WEEK_FIRST_DAY_OF_WEEK      = "CALENDAR_WEEK_FIRST_DAY_OF_WEEK";      //$NON-NLS-1$
    public static final String CALENDAR_WEEK_MIN_DAYS_IN_FIRST_WEEK = "CALENDAR_WEEK_MIN_DAYS_IN_FIRST_WEEK"; //$NON-NLS-1$
+
+   /*
+    * Transform values
+    */
+   public static final String TRANSFORM_VALUE_OPACITY_MAX = "TRANSFORM_VALUE_OPACITY_MAX"; //$NON-NLS-1$
 
 }

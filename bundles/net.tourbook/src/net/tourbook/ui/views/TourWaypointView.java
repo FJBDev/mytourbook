@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -41,32 +41,24 @@ import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.TableColumnFactory;
-import net.tourbook.ui.action.ActionModifyColumns;
-import net.tourbook.ui.views.tourCatalog.SelectionTourCatalogView;
-import net.tourbook.ui.views.tourCatalog.TVICatalogComparedTour;
-import net.tourbook.ui.views.tourCatalog.TVICatalogRefTourItem;
-import net.tourbook.ui.views.tourCatalog.TVICompareResultComparedTour;
+import net.tourbook.ui.views.referenceTour.SelectionReferenceTourView;
+import net.tourbook.ui.views.referenceTour.TVIElevationCompareResult_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_RefTourItem;
 
 import org.eclipse.e4.ui.di.PersistState;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -81,11 +73,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
@@ -112,21 +101,18 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
    private IPropertyChangeListener _prefChangeListener;
    private IPropertyChangeListener _prefChangeListener_Common;
    private ITourEventListener      _tourPropertyListener;
-   private IPartListener2          _partListener;
 
    private PixelConverter          _pc;
 
    /*
     * UI controls
     */
-   private PageBook            _pageBook;
+   private PageBook    _pageBook;
 
-   private TableViewer         _wpViewer;
+   private TableViewer _wpViewer;
 
-   private Composite           _pageNoData;
-   private Composite           _viewerContainer;
-
-   private ActionModifyColumns _actionModifyColumns;
+   private Composite   _pageNoData;
+   private Composite   _viewerContainer;
 
    /*
     * none UI
@@ -154,19 +140,15 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
          final TourWayPoint wp2 = (TourWayPoint) e2;
 
          /*
-          * sort by time
+          * Sort by time
           */
          final long wp1Time = wp1.getTime();
          final long wp2Time = wp2.getTime();
 
-         if (wp1Time != 0 && wp2Time != 0) {
-            return wp1Time > wp2Time ? 1 : -1;
-         }
-
-         return wp1Time != 0 ? 1 : -1;
+         return (int) (wp1Time - wp2Time);
 
 //			/*
-//			 * sort by creation sequence
+//			 * Sort by creation sequence
 //			 */
 //			final long wp1CreateId = wp1.getCreateId();
 //			final long wp2CreateId = wp2.getCreateId();
@@ -218,76 +200,34 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
       super();
    }
 
-   private void addPartListener() {
-
-      _partListener = new IPartListener2() {
-
-         @Override
-         public void partActivated(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partClosed(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partDeactivated(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partHidden(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partInputChanged(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partOpened(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partVisible(final IWorkbenchPartReference partRef) {}
-      };
-      getViewSite().getPage().addPartListener(_partListener);
-   }
-
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
+         if (property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
 
-               _wpViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
-               _wpViewer.refresh();
-
-               /*
-                * the tree must be redrawn because the styled text does not show with the new color
-                */
-               _wpViewer.getTable().redraw();
-            }
+            _wpViewer.getTable().setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
+            _wpViewer.refresh();
          }
       };
 
-      _prefChangeListener_Common = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener_Common = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+         if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
 
-               // measurement system has changed
+            // measurement system has changed
 
-               updateInternalUnitValues();
+            updateInternalUnitValues();
 
-               _columnManager.saveState(_state);
-               _columnManager.clearColumns();
-               defineAllColumns(_viewerContainer);
+            _columnManager.saveState(_state);
+            _columnManager.clearColumns();
+            defineAllColumns(_viewerContainer);
 
-               _wpViewer = (TableViewer) recreateViewer(_wpViewer);
-            }
+            _wpViewer = (TableViewer) recreateViewer(_wpViewer);
          }
       };
 
@@ -300,52 +240,46 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
     */
    private void addSelectionListener() {
 
-      _postSelectionListener = new ISelectionListener() {
-         @Override
-         public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-            if (part == TourWaypointView.this) {
-               return;
-            }
-            onSelectionChanged(selection);
+      _postSelectionListener = (part, selection) -> {
+         if (part == TourWaypointView.this) {
+            return;
          }
+         onSelectionChanged(selection);
       };
       getViewSite().getPage().addPostSelectionListener(_postSelectionListener);
    }
 
    private void addTourEventListener() {
 
-      _tourPropertyListener = new ITourEventListener() {
-         @Override
-         public void tourChanged(final IWorkbenchPart part, final TourEventId eventId, final Object eventData) {
+      _tourPropertyListener = (part, eventId, eventData) -> {
 
-            if ((_tourData == null) || (part == TourWaypointView.this)) {
-               return;
-            }
+         if ((_tourData == null) || (part == TourWaypointView.this)) {
+            return;
+         }
 
-            if (eventId == TourEventId.TOUR_CHANGED || eventId == TourEventId.UPDATE_UI) {
+         if (eventId == TourEventId.TOUR_CHANGED || eventId == TourEventId.UPDATE_UI) {
 
-               // check if a tour must be updated
+            // check if a tour must be updated
 
-               final long viewTourId = _tourData.getTourId();
+            final long viewTourId = _tourData.getTourId();
 
-               if (net.tourbook.ui.UI.containsTourId(eventData, viewTourId) != null) {
+            if (net.tourbook.ui.UI.containsTourId(eventData, viewTourId) != null) {
 
-                  // reload tour data
-                  _tourData = TourManager.getInstance().getTourData(viewTourId);
+               // reload tour data
+               _tourData = TourManager.getInstance().getTourData(viewTourId);
 
-                  _wpViewer.setInput(new Object[0]);
+               _wpViewer.setInput(new Object[0]);
 
-                  // removed old tour data from the selection provider
-                  _postSelectionProvider.clearSelection();
+               // removed old tour data from the selection provider
+               _postSelectionProvider.clearSelection();
 
-               } else {
-                  clearView();
-               }
-
-            } else if (eventId == TourEventId.CLEAR_DISPLAYED_TOUR) {
-
+            } else {
                clearView();
             }
+
+         } else if (eventId == TourEventId.CLEAR_DISPLAYED_TOUR) {
+
+            clearView();
          }
       };
 
@@ -365,8 +299,6 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
 
    private void createActions() {
 
-      _actionModifyColumns = new ActionModifyColumns(this);
-
    }
 
    /**
@@ -376,12 +308,7 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
 
       final MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
       menuMgr.setRemoveAllWhenShown(true);
-      menuMgr.addMenuListener(new IMenuListener() {
-         @Override
-         public void menuAboutToShow(final IMenuManager manager) {
-            fillContextMenu(manager);
-         }
-      });
+      menuMgr.addMenuListener(manager -> fillContextMenu(manager));
 
       final Control viewerControl = _wpViewer.getControl();
       final Menu menu = menuMgr.createContextMenu(viewerControl);
@@ -412,7 +339,6 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
       addSelectionListener();
       addTourEventListener();
       addPrefListener();
-      addPartListener();
 
       // this part is a selection provider
       getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider(ID));
@@ -447,8 +373,7 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
 
       table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
       table.setHeaderVisible(true);
-//		table.setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
-      table.setLinesVisible(true);
+      table.setLinesVisible(_prefStore.getBoolean(ITourbookPreferences.VIEW_LAYOUT_DISPLAY_LINES));
 
       table.addKeyListener(new KeyAdapter() {
          @Override
@@ -481,31 +406,25 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
       _wpViewer.setContentProvider(new WaypointViewerContentProvider());
       _wpViewer.setComparator(new WayPointComparator());
 
-      _wpViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(final SelectionChangedEvent event) {
-            final StructuredSelection selection = (StructuredSelection) event.getSelection();
-            if (selection != null) {
-               fireWaypointPosition(selection);
-            }
+      _wpViewer.addSelectionChangedListener(selectionChangedEvent -> {
+         final StructuredSelection selection = (StructuredSelection) selectionChangedEvent.getSelection();
+         if (selection != null) {
+            fireWaypointPosition(selection);
          }
       });
 
-      _wpViewer.addDoubleClickListener(new IDoubleClickListener() {
-         @Override
-         public void doubleClick(final DoubleClickEvent event) {
+      _wpViewer.addDoubleClickListener(doubleClickEvent -> {
 
-            if (isTourInDb() == false) {
-               return;
-            }
+         if (isTourInDb() == false) {
+            return;
+         }
 
-            // edit selected marker
+         // edit selected marker
 //				final IStructuredSelection selection = (IStructuredSelection) _wpViewer.getSelection();
 //				if (selection.size() > 0) {
 //					_actionEditTourWaypoints.setSelectedMarker((TourMarker) selection.getFirstElement());
 //					_actionEditTourWaypoints.run();
 //				}
-         }
       });
 
       // the context menu must be created in this method otherwise it will not work when the viewer is recreated
@@ -798,7 +717,6 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
 
       TourManager.getInstance().removeTourEventListener(_tourPropertyListener);
       page.removePostSelectionListener(_postSelectionListener);
-      page.removePartListener(_partListener);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
       _prefStore_Common.removePropertyChangeListener(_prefChangeListener_Common);
@@ -830,10 +748,9 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
       /*
        * fill view menu
        */
-      final IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
-
-      menuMgr.add(new Separator());
-      menuMgr.add(_actionModifyColumns);
+//      final IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
+//
+//      menuMgr.add(new Separator());
    }
 
    /**
@@ -852,7 +769,10 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
    public ArrayList<TourData> getSelectedTours() {
 
       final ArrayList<TourData> selectedTours = new ArrayList<>();
-      selectedTours.add(_tourData);
+
+      if (_tourData != null) {
+         selectedTours.add(_tourData);
+      }
 
       return selectedTours;
    }
@@ -878,44 +798,41 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
 
       long tourId = TourDatabase.ENTITY_IS_NOT_SAVED;
 
-      if (selection instanceof SelectionTourData) {
+      if (selection instanceof final SelectionTourData tourDataSelection) {
 
          // a tour was selected, get the chart and update the waypoint viewer
 
-         final SelectionTourData tourDataSelection = (SelectionTourData) selection;
          _tourData = tourDataSelection.getTourData();
 
          if (_tourData != null) {
             tourId = _tourData.getTourId();
          }
 
-      } else if (selection instanceof SelectionTourId) {
+      } else if (selection instanceof final SelectionTourId selectionTourId) {
 
-         tourId = ((SelectionTourId) selection).getTourId();
+         tourId = selectionTourId.getTourId();
 
-      } else if (selection instanceof SelectionTourIds) {
+      } else if (selection instanceof final SelectionTourIds selectionTourIds) {
 
-         final ArrayList<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
+         final ArrayList<Long> tourIds = selectionTourIds.getTourIds();
          if ((tourIds != null) && (tourIds.size() > 0)) {
             tourId = tourIds.get(0);
          }
 
-      } else if (selection instanceof SelectionTourCatalogView) {
+      } else if (selection instanceof final SelectionReferenceTourView tourCatalogSelection) {
 
-         final SelectionTourCatalogView tourCatalogSelection = (SelectionTourCatalogView) selection;
-
-         final TVICatalogRefTourItem refItem = tourCatalogSelection.getRefItem();
+         final TVIRefTour_RefTourItem refItem = tourCatalogSelection.getRefItem();
          if (refItem != null) {
             tourId = refItem.getTourId();
          }
 
-      } else if (selection instanceof StructuredSelection) {
+      } else if (selection instanceof final StructuredSelection structuredSelection) {
 
-         final Object firstElement = ((StructuredSelection) selection).getFirstElement();
-         if (firstElement instanceof TVICatalogComparedTour) {
-            tourId = ((TVICatalogComparedTour) firstElement).getTourId();
-         } else if (firstElement instanceof TVICompareResultComparedTour) {
-            tourId = ((TVICompareResultComparedTour) firstElement).getComparedTourData().getTourId();
+         final Object firstElement = structuredSelection.getFirstElement();
+         if (firstElement instanceof final TVIRefTour_ComparedTour tviRefTour_ComparedTour) {
+            tourId = tviRefTour_ComparedTour.getTourId();
+         } else if (firstElement instanceof final TVIElevationCompareResult_ComparedTour tviElevationCompareResult_ComparedTour) {
+            tourId = tviElevationCompareResult_ComparedTour.getTourId();
          }
 
       } else if (selection instanceof SelectionDeletedTours) {
@@ -986,26 +903,23 @@ public class TourWaypointView extends ViewPart implements ITourProvider, ITourVi
       _pageBook.showPage(_pageNoData);
 
       // a tour is not displayed, find a tour provider which provides a tour
-      Display.getCurrent().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getCurrent().asyncExec(() -> {
 
-            // validate widget
-            if (_pageBook.isDisposed()) {
-               return;
-            }
+         // validate widget
+         if (_pageBook.isDisposed()) {
+            return;
+         }
 
-            /*
-             * check if tour was set from a selection provider
-             */
-            if (_tourData != null) {
-               return;
-            }
+         /*
+          * check if tour was set from a selection provider
+          */
+         if (_tourData != null) {
+            return;
+         }
 
-            final ArrayList<TourData> selectedTours = TourManager.getSelectedTours();
-            if ((selectedTours != null) && (selectedTours.size() > 0)) {
-               onSelectionChanged(new SelectionTourData(selectedTours.get(0)));
-            }
+         final ArrayList<TourData> selectedTours = TourManager.getSelectedTours();
+         if ((selectedTours != null) && (selectedTours.size() > 0)) {
+            onSelectionChanged(new SelectionTourData(selectedTours.get(0)));
          }
       });
    }

@@ -2,10 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MyTourbook Commons
 Bundle-SymbolicName: net.tourbook.common;singleton:=true
-Bundle-Version: 20.12.1.qualifier
+Bundle-Version: 24.5.0.qualifier
 Bundle-Activator: net.tourbook.common.CommonActivator
 Bundle-Vendor: MyTourbook
 Export-Package: cop.swt.widgets.viewers.table.celleditors,
+ net.sf.swtaddons.autocomplete,
+ net.sf.swtaddons.autocomplete.combo,
+ net.sf.swtaddons.autocomplete.text,
  net.tourbook.common,
  net.tourbook.common.action,
  net.tourbook.common.color,
@@ -25,22 +28,31 @@ Export-Package: cop.swt.widgets.viewers.table.celleditors,
  net.tourbook.common.util,
  net.tourbook.common.weather,
  net.tourbook.common.widgets,
- net.tourbook.opengl
+ net.tourbook.opengl,
+ org.eclipse.nebula.widgets.opal.duallist.mt
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.e4.core.contexts,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.commands,
+ org.eclipse.e4.ui.css.swt.theme,
  org.eclipse.e4.ui.di,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.services,
+ org.eclipse.swt,
  org.eclipse.nebula.widgets.nattable.core,
+ org.eclipse.nebula.widgets.opal.commons,
  net.tourbook.ext.jars,
- net.tourbook.ext.worldwind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ net.tourbook.ext.worldwind,
+ org.opentest4j
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.skedgo.converter,
- javax.inject;version="1.0.0",
- org.eclipse.e4.core.services.log
+ javax.inject,
+ org.eclipse.collections.impl.list.mutable.primitive,
+ org.eclipse.collections.impl.map.mutable.primitive,
+ org.eclipse.e4.core.services.log,
+ org.eclipse.jface.notifications,
+ org.eclipse.ui.forms.widgets
 Automatic-Module-Name: net.tourbook.common

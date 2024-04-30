@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2021, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,19 +15,11 @@
  *******************************************************************************/
 package net.tourbook.cloud.suunto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 
 import net.tourbook.cloud.Activator;
 import net.tourbook.cloud.Preferences;
-import net.tourbook.cloud.oauth2.OAuth2Constants;
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.Tokens;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
@@ -36,71 +28,128 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.json.JSONObject;
 
 public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
-   private static HttpClient       _httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
-
    private static IPreferenceStore _prefStore  = Activator.getDefault().getPreferenceStore();
 
-   protected SuuntoTokensRetrievalHandler() {}
+   private String                  _selectedPersonId;
 
-   public static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+   public SuuntoTokensRetrievalHandler(final String selectedPersonId) {
 
-      final JSONObject body = new JSONObject();
-      String grantType;
-      if (isRefreshToken) {
-         body.put(OAuth2Constants.PARAM_REFRESH_TOKEN, refreshToken);
-         grantType = OAuth2Constants.PARAM_REFRESH_TOKEN;
-      } else {
-         body.put(OAuth2Constants.PARAM_CODE, authorizationCode);
-         grantType = OAuth2Constants.PARAM_AUTHORIZATION_CODE;
-      }
-
-      body.put(OAuth2Constants.PARAM_GRANT_TYPE, grantType);
-      final HttpRequest request = HttpRequest.newBuilder()
-            .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
-            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/token"))//$NON-NLS-1$
-            .build();
-
-      try {
-         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-         if (response.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(response.body())) {
-            final SuuntoTokens token = new ObjectMapper().readValue(response.body(), SuuntoTokens.class);
-
-            return token;
-         }
-      } catch (IOException | InterruptedException e) {
-         StatusUtil.log(e);
-         Thread.currentThread().interrupt();
-      }
-
-      return null;
+      _selectedPersonId = selectedPersonId;
    }
 
-   public static boolean getValidTokens() {
+   static String getAccessToken_ActivePerson() {
 
-      if (!OAuth2Utils.isAccessTokenExpired(
-            _prefStore.getLong(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME) + _prefStore.getInt(
-                  Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN) * 1000)) {
+      return _prefStore.getString(Preferences.getSuuntoAccessToken_Active_Person_String());
+   }
+
+   static String getAccessToken_AllPeople() {
+
+      return _prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(UI.EMPTY_STRING));
+   }
+
+   static String getDownloadFolder_ActivePerson() {
+
+      return _prefStore.getString(Preferences.getSuuntoWorkoutDownloadFolder_Active_Person_String());
+   }
+
+   static String getDownloadFolder_AllPeople() {
+
+      return _prefStore.getString(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(UI.EMPTY_STRING));
+   }
+
+   static String getRefreshToken_ActivePerson() {
+
+      return _prefStore.getString(Preferences.getSuuntoRefreshToken_Active_Person_String());
+   }
+
+   static String getRefreshToken_AllPeople() {
+
+      return _prefStore.getString(Preferences.getPerson_SuuntoRefreshToken_String(UI.EMPTY_STRING));
+   }
+
+   private static SuuntoTokens getTokens(final String authorizationCode, final boolean isRefreshToken, final String refreshToken) {
+
+      final String responseBody = OAuth2Utils.getTokens(
+            authorizationCode,
+            isRefreshToken,
+            refreshToken,
+            OAuth2Utils.createOAuthPasseurUri("/suunto/token")); //$NON-NLS-1$
+
+      SuuntoTokens suuntoTokens = null;
+      try {
+         suuntoTokens = new ObjectMapper().readValue(responseBody, SuuntoTokens.class);
+      } catch (final IllegalArgumentException | JsonProcessingException e) {
+         StatusUtil.log(e);
+      }
+
+      return suuntoTokens;
+   }
+
+   static boolean getValidTokens(final boolean useActivePerson, final boolean useAllPeople) {
+
+      if (!useActivePerson && !useAllPeople) {
+         return false;
+      }
+
+      String suuntoAccessTokenIssueDateTime = Preferences.getSuuntoAccessTokenIssueDateTime_Active_Person_String();
+      String suuntoAccessTokenExpiresIn = Preferences.getSuuntoAccessTokenExpiresIn_Active_Person_String();
+      String suuntoRefreshToken = Preferences.getSuuntoRefreshToken_Active_Person_String();
+      String suuntoAccessToken = Preferences.getSuuntoAccessToken_Active_Person_String();
+
+      if (useAllPeople) {
+         suuntoAccessTokenIssueDateTime = Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(UI.EMPTY_STRING);
+         suuntoAccessTokenExpiresIn = Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(UI.EMPTY_STRING);
+         suuntoRefreshToken = Preferences.getPerson_SuuntoRefreshToken_String(UI.EMPTY_STRING);
+         suuntoAccessToken = Preferences.getPerson_SuuntoAccessToken_String(UI.EMPTY_STRING);
+      }
+
+      //if active person has no tokens and all people has, take the tokens from all people
+      if (OAuth2Utils.isAccessTokenValid(
+            _prefStore.getLong(suuntoAccessTokenIssueDateTime) +
+                  _prefStore.getLong(suuntoAccessTokenExpiresIn) * 1000)) {
          return true;
       }
 
-      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(Preferences.SUUNTO_REFRESHTOKEN));
+      final SuuntoTokens newTokens = getTokens(UI.EMPTY_STRING, true, _prefStore.getString(suuntoRefreshToken));
 
       boolean isTokenValid = false;
       if (newTokens != null) {
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, newTokens.getExpires_in());
-         _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, newTokens.getRefresh_token());
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
-         _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, newTokens.getAccess_token());
+
+         _prefStore.setValue(suuntoAccessTokenExpiresIn, newTokens.getExpires_in());
+         _prefStore.setValue(suuntoRefreshToken, newTokens.getRefresh_token());
+         _prefStore.setValue(suuntoAccessTokenIssueDateTime, System.currentTimeMillis());
+         _prefStore.setValue(suuntoAccessToken, newTokens.getAccess_token());
          isTokenValid = true;
       }
 
       return isTokenValid;
+   }
+
+   static boolean isDownloadReady_ActivePerson() {
+
+      return isReady_ActivePerson() &&
+            StringUtils.hasContent(getDownloadFolder_ActivePerson());
+   }
+
+   static boolean isDownloadReady_AllPeople() {
+
+      return isReady_AllPeople() &&
+            StringUtils.hasContent(getDownloadFolder_AllPeople());
+   }
+
+   static boolean isReady_ActivePerson() {
+
+      return StringUtils.hasContent(getAccessToken_ActivePerson()) &&
+            StringUtils.hasContent(getRefreshToken_ActivePerson());
+   }
+
+   static boolean isReady_AllPeople() {
+
+      return StringUtils.hasContent(getAccessToken_AllPeople()) &&
+            StringUtils.hasContent(getRefreshToken_AllPeople());
    }
 
    @Override
@@ -118,8 +167,8 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       if (!(tokens instanceof SuuntoTokens) || StringUtils.isNullOrEmpty(tokens.getAccess_token())) {
 
-         final String currentAccessToken = _prefStore.getString(Preferences.SUUNTO_ACCESSTOKEN);
-         _prefStore.firePropertyChangeEvent(Preferences.SUUNTO_ACCESSTOKEN,
+         final String currentAccessToken = _prefStore.getString(Preferences.getPerson_SuuntoAccessToken_String(_selectedPersonId));
+         _prefStore.firePropertyChangeEvent(Preferences.getPerson_SuuntoAccessToken_String(_selectedPersonId),
                currentAccessToken,
                currentAccessToken);
          return;
@@ -127,11 +176,11 @@ public class SuuntoTokensRetrievalHandler extends TokensRetrievalHandler {
 
       final SuuntoTokens suuntoTokens = (SuuntoTokens) tokens;
 
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_EXPIRES_IN, suuntoTokens.getExpires_in());
-      _prefStore.setValue(Preferences.SUUNTO_REFRESHTOKEN, suuntoTokens.getRefresh_token());
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN_ISSUE_DATETIME, System.currentTimeMillis());
+      _prefStore.setValue(Preferences.getPerson_SuuntoAccessTokenExpiresIn_String(_selectedPersonId), suuntoTokens.getExpires_in());
+      _prefStore.setValue(Preferences.getPerson_SuuntoRefreshToken_String(_selectedPersonId), suuntoTokens.getRefresh_token());
+      _prefStore.setValue(Preferences.getPerson_SuuntoAccessTokenIssueDateTime_String(_selectedPersonId), System.currentTimeMillis());
 
       //Setting it last so that we trigger the preference change when everything is ready
-      _prefStore.setValue(Preferences.SUUNTO_ACCESSTOKEN, suuntoTokens.getAccess_token());
+      _prefStore.setValue(Preferences.getPerson_SuuntoAccessToken_String(_selectedPersonId), suuntoTokens.getAccess_token());
    }
 }

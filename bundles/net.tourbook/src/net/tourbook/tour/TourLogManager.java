@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,42 +15,65 @@
  *******************************************************************************/
 package net.tourbook.tour;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import net.tourbook.Messages;
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.web.WEB;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Display;
 
 public class TourLogManager {
 
-   public static final String                         LOG_TOUR_DELETE_TOURS    = Messages.Log_Tour_DeleteTours;
-   public static final String                         LOG_TOUR_SAVE_TOURS      = Messages.Log_Tour_SaveTours;
-   public static final String                         LOG_TOUR_SAVE_TOURS_FILE = Messages.Log_Tour_SaveTours_File;
+   static final String                                ID                     = "net.tourbook.tour.TourLogManager"; //$NON-NLS-1$
 
-   private static final CopyOnWriteArrayList<TourLog> _tourLogs                = new CopyOnWriteArrayList<>();
+   private static final String                        STATE_AUTO_OPEN_WHEN   = "STATE_AUTO_OPEN_WHEN";             //$NON-NLS-1$
+   private static final String                        STATE_AUTO_OPEN_EVENTS = "STATE_AUTO_OPEN_EVENTS";           //$NON-NLS-1$
+
+   private static final IDialogSettings               _state                 = TourbookPlugin.getState(ID);
+
+   private static final CopyOnWriteArrayList<TourLog> _allTourLogs           = new CopyOnWriteArrayList<>();
 
    private static TourLogView                         _logView;
+
+   private static AutoOpenWhen                        _autoOpenWhen;
+   private static Set<AutoOpenEvent>                  _autoOpenEvents;
+
+   public enum AutoOpenEvent {
+
+      EXCEPTION, //
+
+      DELETE_SOMETHING, //
+      DOWNLOAD_SOMETHING, //
+      SAVE_SOMETHING, //
+
+      TOUR_ADJUSTMENTS, //
+      TOUR_IMPORT, //
+      TOUR_UPLOAD, //
+   }
+
+   public enum AutoOpenWhen {
+
+      NEVER, //
+      ALL_EVENTS, //
+      SELECTED_EVENTS
+   }
 
    private static void addLog(final TourLog tourLog) {
 
       // update model
-      _tourLogs.add(tourLog);
+      _allTourLogs.add(tourLog);
 
       // update UI
       if (isTourLogOpen()) {
          _logView.addLog(tourLog);
       }
-   }
-
-   public static void addLog(final TourLogState logState, final String message) {
-
-      final TourLog tourLog = new TourLog(logState, message);
-
-      addLog(tourLog);
    }
 
    public static void addLog(final TourLogState logState, final String message, final String css) {
@@ -73,13 +96,36 @@ public class TourLogManager {
 
    public static void clear() {
 
-      _logView.clear();
-      _tourLogs.clear();
+      if (_logView != null) {
+         _logView.clear();
+      }
+
+      _allTourLogs.clear();
+
+      TourLog.clear();
+   }
+
+   static Set<AutoOpenEvent> getAutoOpenEvents() {
+
+      if (_autoOpenEvents == null) {
+         restoreState();
+      }
+
+      return _autoOpenEvents;
+   }
+
+   static AutoOpenWhen getAutoOpenWhen() {
+
+      if (_autoOpenWhen == null) {
+         restoreState();
+      }
+
+      return _autoOpenWhen;
    }
 
    public static CopyOnWriteArrayList<TourLog> getLogs() {
 
-      return _tourLogs;
+      return _allTourLogs;
    }
 
    private static boolean isTourLogOpen() {
@@ -89,7 +135,12 @@ public class TourLogManager {
       return isLogViewOpen;
    }
 
-   public static void logDefault(final String message) {
+   /**
+    * Log message and do not show an icon
+    *
+    * @param message
+    */
+   public static void log_DEFAULT(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
@@ -98,52 +149,49 @@ public class TourLogManager {
       addLog(tourLog);
    }
 
-   public static void logError(final String message) {
+   public static void log_ERROR(final String message) {
 
-      final TourLog tourLog = new TourLog(TourLogState.IMPORT_ERROR, message);
+      final TourLog tourLog = new TourLog(TourLogState.ERROR, message);
+
+      Display.getDefault().syncExec(() -> TourLogManager.showLogView(AutoOpenEvent.EXCEPTION));
 
       addLog(tourLog);
    }
 
-   public static void logError_CannotReadDataFile(final String importFilePath, final Exception e) {
+   public static void log_ERROR_CannotReadDataFile(final String importFilePath, final Exception e) {
 
-      logEx(String.format("Could not read data file '%s'", importFilePath), e); //$NON-NLS-1$
+      log_EXCEPTION_WithStacktrace(String.format("Could not read data file '%s'", importFilePath), e); //$NON-NLS-1$
    }
 
-   public static void logEx(final Exception e) {
-
-      final String stackTrace = Util.getStackTrace(e);
-
-      logException(stackTrace, e);
-   }
-
-   public static void logEx(final String message, final Exception e) {
-
-      final String stackTrace = Util.getStackTrace(e);
-
-      logException(message + UI.NEW_LINE + stackTrace, e);
-   }
-
-   private static void logException(final String message, final Exception e) {
+   private static void log_EXCEPTION(final String message, final Exception e) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
-      final TourLog tourLog = new TourLog(TourLogState.IMPORT_EXCEPTION, logMessage);
+      final TourLog tourLog = new TourLog(TourLogState.EXCEPTION, logMessage);
 
       addLog(tourLog);
 
-      Display.getDefault().syncExec(new Runnable() {
-         @Override
-         public void run() {
-            showLogView();
-         }
-      });
+      Display.getDefault().syncExec(() -> TourLogManager.showLogView(AutoOpenEvent.EXCEPTION));
 
       // ensure it is logged when crashing
       StatusUtil.log(e);
    }
 
-   public static void logInfo(final String message) {
+   public static void log_EXCEPTION_WithStacktrace(final Exception e) {
+
+      final String stackTrace = Util.getStackTrace(e);
+
+      log_EXCEPTION(stackTrace, e);
+   }
+
+   public static void log_EXCEPTION_WithStacktrace(final String message, final Exception e) {
+
+      final String stackTrace = Util.getStackTrace(e);
+
+      log_EXCEPTION(message + UI.NEW_LINE + stackTrace, e);
+   }
+
+   public static void log_INFO(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
@@ -154,7 +202,21 @@ public class TourLogManager {
       addLog(tourLog);
    }
 
-   public static void logTitle(final String message) {
+   /**
+    * Log message and show OK icon
+    *
+    * @param message
+    */
+   public static void log_OK(final String message) {
+
+      final String logMessage = WEB.convertHTML_LineBreaks(message);
+
+      final TourLog tourLog = new TourLog(TourLogState.OK, logMessage);
+
+      addLog(tourLog);
+   }
+
+   public static void log_TITLE(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
@@ -165,18 +227,64 @@ public class TourLogManager {
       addLog(tourLog);
    }
 
+   private static void restoreState() {
+
+      _autoOpenWhen = (AutoOpenWhen) Util.getStateEnum(_state,
+            STATE_AUTO_OPEN_WHEN,
+            AutoOpenWhen.NEVER);
+
+      final ArrayList<AutoOpenEvent> openEventDefaultValues = new ArrayList<>();
+      for (final AutoOpenEvent autoOpenEvent : AutoOpenEvent.values()) {
+         openEventDefaultValues.add(autoOpenEvent);
+      }
+
+      final ArrayList<AutoOpenEvent> autoOpenEvents = Util.getStateEnumList(_state, STATE_AUTO_OPEN_EVENTS, openEventDefaultValues);
+
+      _autoOpenEvents = new HashSet<>();
+      _autoOpenEvents.addAll(autoOpenEvents);
+   }
+
+   static void saveState_AutoOpenValues(final AutoOpenWhen autoOpenWhen,
+                                        final ArrayList<AutoOpenEvent> allOpenEvents) {
+
+      _autoOpenWhen = autoOpenWhen;
+
+      _autoOpenEvents.clear();
+      _autoOpenEvents.addAll(allOpenEvents);
+
+      Util.setStateEnum(_state, STATE_AUTO_OPEN_WHEN, autoOpenWhen);
+      Util.setStateEnum(_state, STATE_AUTO_OPEN_EVENTS, allOpenEvents);
+   }
+
    public static void setLogView(final TourLogView tourLogView) {
 
       _logView = tourLogView;
    }
 
-   public static void showLogView() {
+   public static void showLogView(final AutoOpenEvent autoOpenEvent) {
 
-      _logView = (TourLogView) Util.showView(TourLogView.ID,
+      final AutoOpenWhen autoOpenWhen = getAutoOpenWhen();
 
-            // !!! log view MUST NOT be activated, otherwise events (e.g. deletion) are NOT fired from the source view !!!
+      if (autoOpenWhen.equals(AutoOpenWhen.NEVER) && autoOpenEvent.equals(AutoOpenEvent.EXCEPTION) == false) {
+         return;
+      }
 
-            false);
+      final Set<AutoOpenEvent> allAutoOpenEvents = getAutoOpenEvents();
+
+      if (false
+
+            || autoOpenWhen.equals(AutoOpenWhen.ALL_EVENTS)
+            || autoOpenWhen.equals(AutoOpenWhen.SELECTED_EVENTS) && allAutoOpenEvents.contains(autoOpenEvent)
+
+            // ensure that exceptions are always displayed
+            || autoOpenEvent.equals(AutoOpenEvent.EXCEPTION)) {
+
+         _logView = (TourLogView) Util.showView(TourLogView.ID,
+
+               // !!! log view MUST NOT be activated, otherwise events (e.g. deletion) are NOT fired from the source view !!!
+
+               false);
+      }
    }
 
    /**
@@ -184,7 +292,7 @@ public class TourLogManager {
     *
     * @param message
     */
-   public static void subLog_Default(final String message) {
+   public static void subLog_DEFAULT(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
@@ -199,11 +307,11 @@ public class TourLogManager {
     *
     * @param message
     */
-   public static void subLog_Error(final String message) {
+   public static void subLog_ERROR(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
-      final TourLog tourLog = new TourLog(TourLogState.IMPORT_ERROR, logMessage);
+      final TourLog tourLog = new TourLog(TourLogState.ERROR, logMessage);
       tourLog.isSubLogItem = true;
 
       addLog(tourLog);
@@ -214,7 +322,7 @@ public class TourLogManager {
     *
     * @param message
     */
-   public static void subLog_Info(final String message) {
+   public static void subLog_INFO(final String message) {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
@@ -235,7 +343,7 @@ public class TourLogManager {
 
       final String logMessage = WEB.convertHTML_LineBreaks(message);
 
-      final TourLog tourLog = new TourLog(TourLogState.IMPORT_OK, logMessage);
+      final TourLog tourLog = new TourLog(TourLogState.OK, logMessage);
       tourLog.isSubLogItem = true;
 
       addLog(tourLog);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,9 +15,11 @@
  *******************************************************************************/
 package de.byteholder.geoclipse.mapprovider;
 
+import static org.eclipse.swt.events.FocusListener.focusGainedAdapter;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import de.byteholder.geoclipse.Messages;
 import de.byteholder.geoclipse.map.Tile;
-import de.byteholder.geoclipse.map.UI;
 import de.byteholder.geoclipse.map.event.ITileListener;
 import de.byteholder.geoclipse.map.event.TileEventId;
 import de.byteholder.geoclipse.preferences.PrefPage_Map2_Providers;
@@ -31,6 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
@@ -44,12 +47,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -72,7 +71,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
 
    private static final int    MAX_RANDOM                             = 9999;
 
-   private static final int    UI_MAX_ZOOM_LEVEL                      = 20;
+   private static final int    UI_MAX_ZOOM_LEVEL                      = 23;
    private static final int    UI_MIN_ZOOM_LEVEL                      = 1;
    private static final int    MAP_MAX_ZOOM_LEVEL                     = UI_MAX_ZOOM_LEVEL
          - UI_MIN_ZOOM_LEVEL;
@@ -309,18 +308,21 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
 
    @Override
    public void actionZoomIn() {
+
       _map.setZoom(_map.getZoom() + 1);
       _map.paint();
    }
 
    @Override
    public void actionZoomOut() {
+
       _map.setZoom(_map.getZoom() - 1);
       _map.paint();
    }
 
    @Override
    public void actionZoomOutToMinZoom() {
+
       _map.setZoom(_map.getMapProvider().getMinimumZoomLevel());
       _map.paint();
    }
@@ -486,24 +488,21 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
       // combo: parameter item type
       final Combo combo = new Combo(container, SWT.READ_ONLY);
       combo.setVisibleItemCount(10);
-      combo.addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
+      combo.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
-            if (_isInitUI) {
-               return;
-            }
-
-            final Combo combo = (Combo) e.widget;
-
-            /*
-             * show page according to the selected item in the combobox
-             */
-            final Map<WIDGET_KEY, Widget> rowWidgets = PART_ROWS.get(row).rowWidgets;
-
-            onSelectPart(combo, rowWidgets);
+         if (_isInitUI) {
+            return;
          }
-      });
+
+         final Combo widgetCombo = (Combo) selectionEvent.widget;
+
+         /*
+          * show page according to the selected item in the combobox
+          */
+         final Map<WIDGET_KEY, Widget> rowWidgets = PART_ROWS.get(row).rowWidgets;
+
+         onSelectPart(widgetCombo, rowWidgets);
+      }));
 
       // fill combo
       for (final PartUIItem paraItem : PART_ITEMS) {
@@ -621,15 +620,12 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             fromSpinner.setMaximum(MAX_RANDOM);
             fromSpinner.setSelection(0);
             fromSpinner.addMouseWheelListener(mouseWheelListener);
-            fromSpinner.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isInitUI) {
-                     return;
-                  }
-                  onSelectRandomSpinnerMin(paraWidgets);
+            fromSpinner.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+               if (_isInitUI) {
+                  return;
                }
-            });
+               onSelectRandomSpinnerMin(paraWidgets);
+            }));
             fromSpinner.addModifyListener(event -> {
                if (_isInitUI) {
                   return;
@@ -648,15 +644,13 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             toSpinner.setMaximum(MAX_RANDOM);
             toSpinner.setSelection(1);
             toSpinner.addMouseWheelListener(mouseWheelListener);
-            toSpinner.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isInitUI) {
-                     return;
-                  }
-                  onSelectRandomSpinnerMax(paraWidgets);
+            toSpinner.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+
+               if (_isInitUI) {
+                  return;
                }
-            });
+               onSelectRandomSpinnerMax(paraWidgets);
+            }));
             toSpinner.addModifyListener(event -> onSelectRandomSpinnerMax(paraWidgets));
 
             paraWidgets.put(WIDGET_KEY.SPINNER_RANDOM_END, toSpinner);
@@ -729,15 +723,13 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             _spinMinZoom.setMaximum(UI_MAX_ZOOM_LEVEL);
             _spinMinZoom.setSelection(1);
             _spinMinZoom.addMouseWheelListener(mouseWheelListener);
-            _spinMinZoom.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isInitUI) {
-                     return;
-                  }
-                  onSelectZoomSpinnerMin();
+            _spinMinZoom.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+
+               if (_isInitUI) {
+                  return;
                }
-            });
+               onSelectZoomSpinnerMin();
+            }));
             _spinMinZoom.addModifyListener(modifyEvent -> {
                if (_isInitUI) {
                   return;
@@ -759,15 +751,13 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             _spinMaxZoom.setMaximum(UI_MAX_ZOOM_LEVEL);
             _spinMaxZoom.setSelection(1);
             _spinMaxZoom.addMouseWheelListener(mouseWheelListener);
-            _spinMaxZoom.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  if (_isInitUI) {
-                     return;
-                  }
-                  onSelectZoomSpinnerMax();
+            _spinMaxZoom.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+
+               if (_isInitUI) {
+                  return;
                }
-            });
+               onSelectZoomSpinnerMax();
+            }));
             _spinMaxZoom.addModifyListener(event -> {
                if (_isInitUI) {
                   return;
@@ -779,6 +769,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
             label = new Label(container, SWT.NONE);
             GridDataFactory.fillDefaults().grab(false, true).align(SWT.FILL, SWT.CENTER).applyTo(label);
             label.setText(Messages.Dialog_CustomConfig_Label_UserAgent);
+            label.setToolTipText(Messages.Dialog_CustomConfig_Label_UserAgent_Tooltip);
 
             // label: image format value
             _txtUserAgent = new Text(container, SWT.BORDER);
@@ -805,13 +796,11 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
                .applyTo(_chkShowTileInfo);
 
          _chkShowTileInfo.setText(Messages.Dialog_MapConfig_Button_ShowTileInfo);
-         _chkShowTileInfo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               final boolean isTileInfo = _chkShowTileInfo.getSelection();
-               _map.setShowDebugInfo(isTileInfo, isTileInfo);
-            }
-         });
+         _chkShowTileInfo.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+
+            final boolean isTileInfo = _chkShowTileInfo.getSelection();
+            _map.setShowDebugInfo(isTileInfo, isTileInfo);
+         }));
 
          // ############################################################
 
@@ -821,12 +810,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
                .applyTo(_chkShowTileImageLog);
          _chkShowTileImageLog.setText(Messages.Dialog_MapConfig_Button_ShowTileLog);
          _chkShowTileImageLog.setToolTipText(Messages.Dialog_MapConfig_Button_ShowTileLog_Tooltip);
-         _chkShowTileImageLog.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               enableControls();
-            }
-         });
+         _chkShowTileImageLog.addSelectionListener(widgetSelectedAdapter(selectionEvent -> enableControls()));
       }
    }
 
@@ -840,12 +824,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
          _btnShowMap = new Button(toolbarContainer, SWT.NONE);
          _btnShowMap.setText(Messages.Dialog_CustomConfig_Button_UpdateMap);
          _btnShowMap.setToolTipText(Messages.Dialog_CustomConfig_Button_UpdateMap_Tooltip);
-         _btnShowMap.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectCustomMap();
-            }
-         });
+         _btnShowMap.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectCustomMap()));
 
          // ############################################################
 
@@ -853,12 +832,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
          final Button btnShowOsmMap = new Button(toolbarContainer, SWT.NONE);
          btnShowOsmMap.setText(Messages.Dialog_MapConfig_Button_ShowOsmMap);
          btnShowOsmMap.setToolTipText(Messages.Dialog_MapConfig_Button_ShowOsmMap_Tooltip);
-         btnShowOsmMap.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectOsmMap();
-            }
-         });
+         btnShowOsmMap.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectOsmMap()));
 
          // ############################################################
 
@@ -869,7 +843,7 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
                .applyTo(_toolbar);
       }
 
-      _map = new de.byteholder.geoclipse.map.Map(parent, SWT.BORDER | SWT.FLAT, _dialogSettings);
+      _map = new de.byteholder.geoclipse.map.Map2(parent, SWT.BORDER | SWT.FLAT, _dialogSettings);
       GridDataFactory.fillDefaults()//
             .grab(true, true)
             .applyTo(_map);
@@ -955,17 +929,11 @@ public class DialogMPCustom extends DialogMP implements ITileListener, IMapDefau
          _txtExampleUrl = new Text(container, SWT.BORDER);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_txtExampleUrl);
          _txtExampleUrl.setToolTipText(Messages.Dialog_MapConfig_Label_ExampleUrl_Tooltip);
-         _txtExampleUrl.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(final FocusEvent e) {
-               if (e.widget instanceof Text) {
-                  ((Text) e.widget).selectAll();
-               }
+         _txtExampleUrl.addFocusListener(focusGainedAdapter(focusEvent -> {
+            if (focusEvent.widget instanceof Text) {
+               ((Text) focusEvent.widget).selectAll();
             }
-
-            @Override
-            public void focusLost(final FocusEvent e) {}
-         });
+         }));
 
          // ############################################################
 

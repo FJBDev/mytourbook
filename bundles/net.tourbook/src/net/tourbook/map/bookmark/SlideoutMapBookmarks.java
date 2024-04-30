@@ -265,7 +265,7 @@ public class SlideoutMapBookmarks extends ToolbarSlideout {
                final MapBookmark bookmark = (MapBookmark) cell.getElement();
                final MapPosition mapPos = bookmark.getMapPosition();
 
-               cell.setText(Integer.toString(mapPos.zoomLevel));
+               cell.setText(Integer.toString(mapPos.zoomLevel + 1));
             }
          });
          tableLayout.setColumnData(tc, new ColumnPixelData(_pc.convertWidthInCharsToPixels(5), true));
@@ -276,7 +276,7 @@ public class SlideoutMapBookmarks extends ToolbarSlideout {
          tvc = new TableViewerColumn(_bookmarkViewer, SWT.TRAIL);
          tc = tvc.getColumn();
          tc.setText(Messages.Map_Bookmark_Column_Latitude);
-         tc.setToolTipText(Messages.Map_Bookmark_Column_Latitude_Tooltip);
+         tc.setToolTipText(Messages.Map_Bookmark_Column_Latitude_Tooltip2);
          tvc.setLabelProvider(new CellLabelProvider() {
             @Override
             public void update(final ViewerCell cell) {
@@ -295,7 +295,7 @@ public class SlideoutMapBookmarks extends ToolbarSlideout {
          tvc = new TableViewerColumn(_bookmarkViewer, SWT.TRAIL);
          tc = tvc.getColumn();
          tc.setText(Messages.Map_Bookmark_Column_Longitude);
-         tc.setToolTipText(Messages.Map_Bookmark_Column_Longitude_Tooltip);
+         tc.setToolTipText(Messages.Map_Bookmark_Column_Longitude_Tooltip2);
          tvc.setLabelProvider(new CellLabelProvider() {
             @Override
             public void update(final ViewerCell cell) {
@@ -541,6 +541,9 @@ public class SlideoutMapBookmarks extends ToolbarSlideout {
          addDialog.open();
       }
       setIsAnotherDialogOpened(false);
+
+      // set focus back to the viewer
+      _bookmarkViewer.getTable().setFocus();
 
       if (addDialog.getReturnCode() != Window.OK) {
          return;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,5 +30,21 @@ public enum ChartType {
    LINE_WITH_BARS,
 
    XY_SCATTER,
+
+   /**
+    * R-R intervals can contain multiple values (>100) in one time slice -> x-axis must be
+    * calculated differently
+    */
+   VARIABLE_X_AXIS,
+
+   /**
+    *
+    */
+   VARIABLE_X_AXIS_WITH_2ND_LINE,
+
+   /**
+    * Show a symbol at the x/y position
+    */
+   SYMBOL,
 
 }

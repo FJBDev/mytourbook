@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -28,157 +28,177 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 public abstract class ToolbarSlideout extends AnimatedToolTipShell {
 
-	// initialize with default values which are (should) never be used
-	private Rectangle		_toolTipItemBounds	= new Rectangle(0, 0, 50, 50);
+   // initialize with default values which are (should) never be used
+   private Rectangle       _toolTipItemBounds = new Rectangle(0, 0, 50, 50);
 
-	private final WaitTimer	_waitTimer			= new WaitTimer();
+   private final WaitTimer _waitTimer         = new WaitTimer();
 
-	private boolean			_isWaitTimerStarted;
-	private boolean			_canOpenToolTip;
+   private boolean         _isWaitTimerStarted;
+   private boolean         _canOpenToolTip;
 
-	private final class WaitTimer implements Runnable {
-		@Override
-		public void run() {
-			open_Runnable();
-		}
-	}
+   private final class WaitTimer implements Runnable {
+      @Override
+      public void run() {
+         open_Runnable();
+      }
+   }
 
-	public ToolbarSlideout(final Control ownerControl, final ToolBar toolBar) {
+   public ToolbarSlideout(final Control ownerControl, final ToolBar toolBar) {
 
-		super(ownerControl);
+      super(ownerControl);
 
-		addListener(ownerControl, toolBar);
+      addListener(ownerControl, toolBar);
 
-		setToolTipCreateStyle(AnimatedToolTipShell.TOOLTIP_STYLE_KEEP_CONTENT);
-		setBehaviourOnMouseOver(AnimatedToolTipShell.MOUSE_OVER_BEHAVIOUR_IGNORE_OWNER);
-		setIsKeepShellOpenWhenMoved(false);
+      setToolTipCreateStyle(AnimatedToolTipShell.TOOLTIP_STYLE_KEEP_CONTENT);
+      setBehaviourOnMouseOver(AnimatedToolTipShell.MOUSE_OVER_BEHAVIOUR_IGNORE_OWNER);
+      setIsKeepShellOpenWhenMoved(false);
 
-		setFadeInSteps(1);
-		setFadeOutSteps(10);
-		setFadeOutDelaySteps(1);
-	}
+      setFadeInSteps(1);
+      setFadeOutSteps(10);
+      setFadeOutDelaySteps(1);
+   }
 
-	private void addListener(final Control ownerControl, final ToolBar toolBar) {
+   private void addListener(final Control ownerControl, final ToolBar toolBar) {
 
-		toolBar.addMouseTrackListener(new MouseTrackAdapter() {
-			@Override
-			public void mouseExit(final MouseEvent e) {
+      toolBar.addMouseTrackListener(new MouseTrackAdapter() {
+         @Override
+         public void mouseExit(final MouseEvent e) {
 
-				// prevent to open the tooltip
-				_canOpenToolTip = false;
-			}
-		});
-	}
+            // prevent to open the tooltip
+            _canOpenToolTip = false;
+         }
+      });
+   }
 
-	@Override
-	protected boolean canShowToolTip() {
-		return true;
-	}
+   @Override
+   protected boolean canShowToolTip() {
+      return true;
+   }
 
-	@Override
-	protected boolean closeShellAfterHidden() {
+   @Override
+   protected boolean closeShellAfterHidden() {
 
-		/*
-		 * Close the tooltip that the state is saved.
-		 */
+      /*
+       * Close the tooltip that the state is saved.
+       */
 
-		return true;
-	}
+      return true;
+   }
 
-	@Override
-	public Point getToolTipLocation(final Point tipSize) {
+   @Override
+   public Point getToolTipLocation(final Point tipSize) {
 
-		final int tipWidth = tipSize.x;
-		final int tipHeight = tipSize.y;
+      final int tipWidth = tipSize.x;
+      final int tipHeight = tipSize.y;
 
-		final int itemWidth = _toolTipItemBounds.width;
-		final int itemHeight = _toolTipItemBounds.height;
+      final int itemWidth = _toolTipItemBounds.width;
+      final int itemHeight = _toolTipItemBounds.height;
 
-		// center horizontally
+      int devX = _toolTipItemBounds.x;
 
-		int devX = _toolTipItemBounds.x;
+      if (isCenterHorizontal()) {
 
-		if (isCenterHorizontal()) {
-			devX += itemWidth / 2 - tipWidth / 2;
-		}
+         // center horizontally
 
-		int devY = _toolTipItemBounds.y + itemHeight + 0;
+         devX += itemWidth / 2 - tipWidth / 2;
 
-		final Rectangle displayBounds = Display.getCurrent().getBounds();
+      } else if (isAlignLeft()) {
 
-		if (devY + tipHeight > displayBounds.height) {
+         // align left
 
-			// slideout is below bottom, show it above the action button
+         devX += itemWidth - tipWidth;
+      }
 
-			devY = _toolTipItemBounds.y - tipHeight;
-		}
+      int devY = _toolTipItemBounds.y + itemHeight + 0;
 
-		return new Point(devX, devY);
-	}
+      final Rectangle displayBounds = Display.getCurrent().getBounds();
 
-	/**
-	 * @return Returns <code>true</code> to center the slideout horizontally, otherwise it is
-	 *         displayed to the right of the action button.
-	 */
-	protected boolean isCenterHorizontal() {
-		return false;
-	}
+      if (devY + tipHeight > displayBounds.height) {
 
-	@Override
-	protected Rectangle noHideOnMouseMove() {
+         // slideout is below bottom, show it above the action button
 
-		return _toolTipItemBounds;
-	}
+         devY = _toolTipItemBounds.y - tipHeight;
+      }
 
-	/**
-	 * @param toolTipItemBounds
-	 * @param isOpenDelayed
-	 */
-	public void open(final Rectangle toolTipItemBounds, final boolean isOpenDelayed) {
+      return new Point(devX, devY);
+   }
 
-		if (isToolTipVisible()) {
-			return;
-		}
+   /**
+    * @return When <code>true</code> is returned, then the slideout is aligned to the left of the
+    *         action button.
+    *         <p>
+    *         {@link ToolbarSlideout#isCenterHorizontal()} must return <code>false</code> because
+    *         it has historically a higher priority.
+    */
+   protected boolean isAlignLeft() {
 
-		if (isOpenDelayed == false) {
+      return false;
+   }
 
-			if (toolTipItemBounds != null) {
+   /**
+    * @return Returns <code>true</code> to center the slideout horizontally, otherwise it is
+    *         displayed to the right of the action button.
+    */
+   protected boolean isCenterHorizontal() {
 
-				_toolTipItemBounds = toolTipItemBounds;
+      return false;
+   }
 
-				showToolTip();
-			}
+   @Override
+   protected Rectangle noHideOnMouseMove() {
 
-		} else {
+      return _toolTipItemBounds;
+   }
 
-			if (toolTipItemBounds == null) {
+   /**
+    * @param toolTipItemBounds
+    * @param isOpenDelayed
+    */
+   public void open(final Rectangle toolTipItemBounds, final boolean isOpenDelayed) {
 
-				// item is not hovered any more
+      if (isToolTipVisible()) {
+         return;
+      }
 
-				_canOpenToolTip = false;
+      if (isOpenDelayed == false) {
 
-				return;
-			}
+         if (toolTipItemBounds != null) {
 
-			_toolTipItemBounds = toolTipItemBounds;
-			_canOpenToolTip = true;
+            _toolTipItemBounds = toolTipItemBounds;
 
-			if (_isWaitTimerStarted == false) {
+            showToolTip();
+         }
 
-				_isWaitTimerStarted = true;
+      } else {
 
-				Display.getCurrent().timerExec(50, _waitTimer);
-			}
-		}
-	}
+         if (toolTipItemBounds == null) {
 
-	private void open_Runnable() {
+            // item is not hovered any more
 
-		_isWaitTimerStarted = false;
+            _canOpenToolTip = false;
 
-		if (_canOpenToolTip) {
-			showToolTip();
-		}
-	}
+            return;
+         }
+
+         _toolTipItemBounds = toolTipItemBounds;
+         _canOpenToolTip = true;
+
+         if (_isWaitTimerStarted == false) {
+
+            _isWaitTimerStarted = true;
+
+            Display.getCurrent().timerExec(50, _waitTimer);
+         }
+      }
+   }
+
+   private void open_Runnable() {
+
+      _isWaitTimerStarted = false;
+
+      if (_canOpenToolTip) {
+         showToolTip();
+      }
+   }
 
 }

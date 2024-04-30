@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2021, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.map2.view;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +24,7 @@ import java.util.List;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.FileUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.map2.Messages;
 import net.tourbook.ui.FileCollisionBehavior;
@@ -39,8 +42,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
@@ -51,11 +53,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -99,7 +99,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    private FileCollisionBehavior _exportState_FileCollisionBehavior;
 
    private ModifyListener        _filePathModifyListener;
-   private SelectionAdapter      _selectionAdapter;
+   private SelectionListener     _selectionListener;
 
    /*
     * UI controls
@@ -143,23 +143,20 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       super.configureShell(shell);
 
-      shell.addListener(SWT.Resize, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      shell.addListener(SWT.Resize, event -> {
 
-            // allow resizing the width but not the height
+         // allow resizing the width but not the height
 
-            if (_shellDefaultSize == null) {
-               _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            }
-
-            final Point shellSize = shell.getSize();
-
-            shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
-            shellSize.y = _shellDefaultSize.y;
-
-            shell.setSize(shellSize);
+         if (_shellDefaultSize == null) {
+            _shellDefaultSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
          }
+
+         final Point shellSize = shell.getSize();
+
+         shellSize.x = shellSize.x < _shellDefaultSize.x ? _shellDefaultSize.x : shellSize.x;
+         shellSize.y = _shellDefaultSize.y;
+
+         shell.setSize(shellSize);
       });
    }
 
@@ -193,12 +190,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       _filePathModifyListener = modifyEvent -> validateFields();
 
-      _selectionAdapter = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            validateFields();
-         }
-      };
+      _selectionListener = widgetSelectedAdapter(selectionEvent -> validateFields());
 
       _inputContainer = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(_inputContainer);
@@ -215,7 +207,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
        * group: Image format
        */
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Dialog_ExportImage_Group_Format);
+      group.setText(Messages.Dialog_ExportImage_Group_Image);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
@@ -231,14 +223,11 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
              */
             _comboImageFormat = new Combo(group, SWT.READ_ONLY | SWT.BORDER);
             _comboImageFormat.setVisibleItemCount(3);
-            _comboImageFormat.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  updateQualityScale();
-                  validateFields();
-               }
+            _comboImageFormat.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+               updateQualityScale();
+               validateFields();
+            }));
 
-            });
             GridDataFactory
                   .fillDefaults()
                   .align(SWT.BEGINNING, SWT.CENTER)
@@ -262,13 +251,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
             _scaleImageQuality.setMaximum(100);
             _scaleImageQuality.setIncrement(1);
             _scaleImageQuality.setPageIncrement(10);
-            _scaleImageQuality.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  updateJpegQualityLabel(String.valueOf(_scaleImageQuality.getSelection()));
-               }
-
-            });
+            _scaleImageQuality.addSelectionListener(widgetSelectedAdapter(selectionEvent -> updateJpegQualityLabel(String.valueOf(_scaleImageQuality
+                  .getSelection()))));
             _scaleImageQuality.setToolTipText(Messages.Dialog_ExportImage_Label_ImageQuality_Tooltip);
             GridDataFactory
                   .fillDefaults()
@@ -316,20 +300,17 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          _comboFile.setVisibleItemCount(20);
          _comboFile.addVerifyListener(UI.verifyFilenameInput());
          _comboFile.addModifyListener(_filePathModifyListener);
-         _comboFile.addSelectionListener(_selectionAdapter);
+         _comboFile.addSelectionListener(_selectionListener);
 
          /*
           * button: browse
           */
          final Button btnSelectFile = new Button(group, SWT.PUSH);
          btnSelectFile.setText(APP_BTN_BROWSE);
-         btnSelectFile.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectBrowseFile();
-               validateFields();
-            }
-         });
+         btnSelectFile.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            onSelectBrowseFile();
+            validateFields();
+         }));
          setButtonLayoutData(btnSelectFile);
 
          // -----------------------------------------------------------------------------
@@ -347,20 +328,17 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
          GridDataFactory.fillDefaults().grab(true, false).applyTo(_comboPath);
          _comboPath.setVisibleItemCount(20);
          _comboPath.addModifyListener(_filePathModifyListener);
-         _comboPath.addSelectionListener(_selectionAdapter);
+         _comboPath.addSelectionListener(_selectionListener);
 
          /*
           * button: browse
           */
          final Button btnSelectDirectory = new Button(group, SWT.PUSH);
          btnSelectDirectory.setText(APP_BTN_BROWSE);
-         btnSelectDirectory.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectBrowseDirectory();
-               validateFields();
-            }
-         });
+         btnSelectDirectory.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            onSelectBrowseDirectory();
+            validateFields();
+         }));
          setButtonLayoutData(btnSelectDirectory);
 
          // -----------------------------------------------------------------------------
@@ -397,6 +375,10 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
    }
 
    private void doExport() {
+
+      // disable buttons
+      getButton(IDialogConstants.OK_ID).setEnabled(false);
+      getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
 
       final String exportFileName = _txtFilePath.getText();
 
@@ -452,7 +434,13 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
    private String getFileExtension() {
 
-      return _comboImageFormat.getSelectionIndex() == 0 ? "jpg" : _comboImageFormat.getText().toLowerCase();
+      return _comboImageFormat.getSelectionIndex() == 0
+
+            // JPEG format
+            ? "jpg"//$NON-NLS-1$
+
+            // other formats
+            : _comboImageFormat.getText().toLowerCase();
    }
 
    private int getSwtImageType() {
@@ -481,6 +469,8 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
       BusyIndicator.showWhile(Display.getCurrent(), this::doExport);
 
       if (_exportState_FileCollisionBehavior.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {
+         getButton(IDialogConstants.OK_ID).setEnabled(true);
+         getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
          return;
       }
 
@@ -605,11 +595,7 @@ public class DialogMap2ExportViewImage extends TitleAreaDialog {
 
       String fileName = getExportFileName();
 
-      // remove extensions
-      final int extPos = fileName.indexOf('.');
-      if (extPos != -1) {
-         fileName = fileName.substring(0, extPos);
-      }
+      fileName = FileUtils.removeExtensions(fileName);
 
       // build file path with extension
       filePath = filePath

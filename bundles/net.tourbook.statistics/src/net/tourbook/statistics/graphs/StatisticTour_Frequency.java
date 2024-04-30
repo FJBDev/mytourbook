@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -231,19 +231,18 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    }
 
    /**
-    * calculate data for all statistics
+    * Compute data for all statistics
     *
     * @param statData_Day
     */
    private void createStatisticData(final TourStatisticData_Day statData_Day) {
 
-      int colorOffset = 0;
-      if (_stat_ActiveTourTypeFilter.showUndefinedTourTypes()) {
-         colorOffset = StatisticServices.TOUR_TYPE_COLOR_INDEX_OFFSET;
-      }
-
       final ArrayList<TourType> tourTypeList = TourDatabase.getActiveTourTypes();
-      final int numColors = colorOffset + tourTypeList.size();
+
+      int numColors = tourTypeList.size();
+      if (numColors == 0) {
+         numColors = 1;
+      }
 
       final TourStatisticData_Frequency statData = _statisticData_Frequency;
 
@@ -283,7 +282,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          final int typeColorIndex = statData_Day.allTypeColorIndices[tourIndex];
 
          final int diffDistance = (int) ((statData_Day.allDistance_High[tourIndex] - statData_Day.allDistance_Low[tourIndex] + 500) / 1000);
-         final int diffElevation = (int) (statData_Day.allElevationUp_High[tourIndex] - statData_Day.allElevationUp_Low[tourIndex]);
+         final int diffElevationUp = (int) (statData_Day.allElevationUp_High[tourIndex] - statData_Day.allElevationUp_Low[tourIndex]);
          final int diffDurationTime = (int) (statData_Day.getDurationHighFloat()[tourIndex] - statData_Day.getDurationLowFloat()[tourIndex]);
 
          // distance
@@ -296,9 +295,9 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          _statDistance_NumTours_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
          _statDistance_Sum_ColorIndex[typeColorIndex][groupIndex] = typeColorIndex;
 
-         // elevation
+         // elevation up
          groupIndex = createTourStatData(
-               diffElevation,
+               diffElevationUp,
                _statElevation_GroupValues,
                _statElevation_NumTours_High[typeColorIndex],
                _statElevation_Sum_High[typeColorIndex]);
@@ -589,8 +588,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
 
       chartDataModel.addYData(yData);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE, _stat_ActiveTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
       yData.setColorIndex(colorIndex);
 
       createToolTipProvider_Distance(chartDataModel);
@@ -638,8 +636,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
 
       chartDataModel.addYData(yData);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE, _stat_ActiveTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
       yData.setColorIndex(colorIndex);
 
       createToolTipProvider_Elevation(chartDataModel);
@@ -688,8 +685,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
 
       chartDataModel.addYData(yData);
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TIME);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TIME, _stat_ActiveTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TIME);
       yData.setColorIndex(colorIndex);
 
       createToolTipProvider_TimeDuration(chartDataModel);
@@ -760,7 +756,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
             _statElevation_NumTours_High,
             _statElevation_NumTours_ColorIndex,
             Messages.NUMBERS_UNIT,
-            Messages.LABEL_GRAPH_ALTITUDE);
+            Messages.LABEL_GRAPH_ELEVATION_UP);
 
       updateChartElevation(
             _chartElevation_Values,
@@ -769,7 +765,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
             _statElevation_Sum_High,
             _statElevation_Sum_ColorIndex,
             UI.UNIT_LABEL_ELEVATION,
-            Messages.LABEL_GRAPH_ALTITUDE);
+            Messages.LABEL_GRAPH_ELEVATION_UP);
 
       updateChartTime(
             _chartDuration_NumTours,

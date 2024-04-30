@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,7 +27,10 @@ import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.ChartYDataMinMaxKeeper;
 import net.tourbook.common.util.Util;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.tour.TourPauseUI;
+import net.tourbook.tour.filter.TourFilterFieldOperator;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
@@ -135,6 +138,12 @@ public class TourChartConfiguration {
    public boolean                 isSRTMDataVisible       = false;
 
    /**
+    * When <code>true</code> then SRTM 1 values are displayed, when they are available, otherwise
+    * SRTM 3 values are displayed
+    */
+   public boolean                 isShowSrtm1Values;
+
+   /**
     * when <code>true</code> the SRTM data are visible in the altitude graph
     */
    public boolean                 canShowSRTMData;
@@ -142,12 +151,7 @@ public class TourChartConfiguration {
    /**
     * Is <code>true</code> when tour markers are displayed.
     */
-   public Boolean                 isShowTourMarker        = true;
-
-   /**
-    * Is <code>true</code> when tour pauses are displayed.
-    */
-   public Boolean                 isShowTourPauses        = true;
+   public boolean                 isShowTourMarker        = true;
 
    /**
     * When <code>true</code>, hidden markers are also visible.
@@ -178,9 +182,23 @@ public class TourChartConfiguration {
    public boolean                 isShowTooltipData_DistanceDifference;
    public boolean                 isShowTooltipData_DurationDifference;
 
+   /**
+    * Is <code>true</code> when tour pauses are displayed.
+    */
+   public boolean                 isShowTourPauses        = true;
+   public boolean                 isShowPauseTooltip;
+   public boolean                 isFilterTourPauses;
+   public boolean                 isFilterPauseDuration;
+   public boolean                 isShowAutoPauses;
+   public boolean                 isShowUserPauses;
+   public long                    pauseDuration;
+   public TourFilterFieldOperator pauseDurationOperator;
+
    public boolean                 isShowAbsoluteValues;
 
    public int                     markerTooltipPosition   = ChartMarkerToolTip.DEFAULT_TOOLTIP_POSITION;
+
+   public int                     pauseTooltipPosition    = ChartPauseToolTip.DEFAULT_TOOLTIP_POSITION;
 
    public boolean                 isShowMarkerPoint;
    public boolean                 isShowSignImage;
@@ -205,17 +223,20 @@ public class TourChartConfiguration {
    /**
     * Color for the tour marker point and label.
     */
-   public RGB                     markerColorDefault;
+   public RGB                     markerColorDefault_Light;
+   public RGB                     markerColorDefault_Dark;
 
    /**
     * Color for the tour marker point which is created by the device and not with the marker editor.
     */
-   public RGB                     markerColorDevice;
+   public RGB                     markerColorDevice_Light;
+   public RGB                     markerColorDevice_Dark;
 
    /**
     * Color for tour markers which are hidden, visibility is false.
     */
-   public RGB                     markerColorHidden;
+   public RGB                     markerColorHidden_Light;
+   public RGB                     markerColorHidden_Dark;
 
    /**
     * Is <code>true</code> when graph values are displayed when they are recorded when a break time
@@ -248,11 +269,18 @@ public class TourChartConfiguration {
     * available .
     */
    public boolean               canShowBackground_SwimStyle = false;
+
+   /**
+    * When <code>true</code> then night sections are displayed when tour time is between sunset and
+    * sunrise
+    */
+   public boolean               isShowNightSections;
+
    /*
     * Tour photos
     */
-   public boolean               isShowTourPhotos            = true;
-   public boolean               isShowTourPhotoTooltip      = true;
+   public boolean isShowTourPhotos       = true;
+   public boolean isShowTourPhotoTooltip = true;
 
    /*
     * Tour info
@@ -277,9 +305,14 @@ public class TourChartConfiguration {
    public boolean    canUseGeoCompareTool;
 
    /**
-    * Is <code>true</code> to show geo diff unit in compared tour chart
+    * Is <code>true</code> to show geo diff unit in the "Compared Tour" chart
     */
-   public boolean    isGeoCompareDiff;
+   public boolean    isGeoCompare;
+
+   /**
+    * Show/hide value point value label when mouse is hovering a graph
+    */
+   public boolean    isShowValuePointValue;
 
    @SuppressWarnings("unused")
    private TourChartConfiguration() {}
@@ -287,14 +320,26 @@ public class TourChartConfiguration {
    /**
     * @param keepMinMaxValues
     *           set <code>true</code> to keep min/max values when tour data will change
+    * @param state
     */
-   public TourChartConfiguration(final boolean keepMinMaxValues) {
+   public TourChartConfiguration(final IDialogSettings state) {
 
-      if (keepMinMaxValues) {
-         setMinMaxKeeper(true);
-      }
+      setMinMaxKeeper();
 
 // SET_FORMATTING_OFF
+
+      isSRTMDataVisible             = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SRTM_VISIBLE);
+      isShowSrtm1Values             = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_SRTM_1_VALUES);
+
+      isGraphOverlapped             = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_GRAPH_OVERLAPPED);
+
+      isShowTourPhotos              = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_TOUR_PHOTO_VISIBLE);
+      isShowTourPhotoTooltip        = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_TOUR_PHOTO_TOOLTIP_VISIBLE);
+
+      isShowBreaktimeValues         = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_BREAKTIME_VALUES_VISIBLE);
+      isShowValuePointValue         = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_VALUE_POINT_VALUE);
+
+      isShowNightSections           = _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS);
 
       /*
        * Initialize tour marker settings from the pref store
@@ -325,14 +370,19 @@ public class TourChartConfiguration {
       isShowTooltipData_DistanceDifference      = _prefStore.getBoolean(ITourbookPreferences.GRAPH_MARKER_IS_SHOW_TOOLTIP_DATA_DISTANCE_DIFFERENCE);
       isShowTooltipData_DurationDifference      = _prefStore.getBoolean(ITourbookPreferences.GRAPH_MARKER_IS_SHOW_TOOLTIP_DATA_DURATION_DIFFERENCE);
 
-      markerColorDefault            = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEFAULT);
-      markerColorDevice             = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEVICE);
-      markerColorHidden             = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_HIDDEN);
+      markerColorDefault_Light      = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEFAULT);
+      markerColorDefault_Dark       = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEFAULT_DARK);
+      markerColorDevice_Light       = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEVICE);
+      markerColorDevice_Dark        = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_DEVICE_DARK);
+      markerColorHidden_Light       = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_HIDDEN);
+      markerColorHidden_Dark        = PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_MARKER_COLOR_HIDDEN_DARK);
 
       /*
        * Tour pauses
        */
       isShowTourPauses              = _prefStore.getBoolean(ITourbookPreferences.GRAPH_ARE_PAUSES_VISIBLE);
+      isShowPauseTooltip            = _prefStore.getBoolean(ITourbookPreferences.GRAPH_PAUSES_IS_SHOW_PAUSE_TOOLTIP);
+      pauseTooltipPosition          = _prefStore.getInt(ITourbookPreferences.GRAPH_PAUSES_TOOLTIP_POSITION);
 
       /*
        * Tour info
@@ -341,17 +391,17 @@ public class TourChartConfiguration {
       isShowInfoTitle               = _prefStore.getBoolean(ITourbookPreferences.GRAPH_TOUR_INFO_IS_TITLE_VISIBLE);
       isShowInfoTooltip             = _prefStore.getBoolean(ITourbookPreferences.GRAPH_TOUR_INFO_IS_TOOLTIP_VISIBLE);
       isShowInfoTourSeparator       = _prefStore.getBoolean(ITourbookPreferences.GRAPH_TOUR_INFO_IS_TOUR_SEPARATOR_VISIBLE);
-      tourInfoTooltipDelay          = _prefStore.getInt(ITourbookPreferences.GRAPH_TOUR_INFO_TOOLTIP_DELAY);
+      tourInfoTooltipDelay          = _prefStore.getInt(    ITourbookPreferences.GRAPH_TOUR_INFO_TOOLTIP_DELAY);
 
       /*
        * Pulse values
        */
-      pulseGraph = (PulseGraph) Util.getEnumValue(
-            _prefStore.getString(ITourbookPreferences.GRAPH_PULSE_GRAPH_VALUES),
-            TourChart.PULSE_GRAPH_DEFAULT
-      );
+      pulseGraph                    = (PulseGraph) Util.getEnumValue(_prefStore.getString(ITourbookPreferences.GRAPH_PULSE_GRAPH_VALUES), TourChart.PULSE_GRAPH_DEFAULT);
+
 
 // SET_FORMATTING_ON
+
+      updateStateValues(state);
    }
 
    public void addVisibleGraph(final int visibleGraph) {
@@ -403,21 +453,23 @@ public class TourChartConfiguration {
       this.isShowTimeOnXAxis = isShowTimeOnXAxisBackup = isShowTimeOnXAxis;
    }
 
-   /**
-    * <code>true</code> indicates to keep the min/max values in the chart configuration when the
-    * data model was changed, this has the higher priority than keeping the min/max values in the
-    * chart widget
-    *
-    * @param keepMinMaxValues
-    *           the keepMinMaxValues to set
-    */
-   public void setMinMaxKeeper(final boolean keepMinMaxValues) {
+   public void setMinMaxKeeper() {
 
-      if (keepMinMaxValues) {
-         _minMaxKeeper = new ChartYDataMinMaxKeeper();
-      } else {
-         _minMaxKeeper = null;
-      }
+      _minMaxKeeper = new ChartYDataMinMaxKeeper();
+   }
+
+   public void updateStateValues(final IDialogSettings state) {
+
+// SET_FORMATTING_OFF
+
+      isFilterTourPauses    = Util.getStateBoolean(   state, TourPauseUI.STATE_IS_FILTER_TOUR_PAUSES,       TourPauseUI.STATE_IS_FILTER_TOUR_PAUSES_DEFAULT);
+      isFilterPauseDuration = Util.getStateBoolean(   state, TourPauseUI.STATE_IS_FILTER_PAUSE_DURATION,    TourPauseUI.STATE_IS_FILTER_PAUSE_DURATION_DEFAULT);
+      isShowAutoPauses      = Util.getStateBoolean(   state, TourPauseUI.STATE_IS_SHOW_AUTO_PAUSES,         TourPauseUI.STATE_IS_SHOW_AUTO_PAUSES_DEFAULT);
+      isShowUserPauses      = Util.getStateBoolean(   state, TourPauseUI.STATE_IS_SHOW_USER_PAUSES,         TourPauseUI.STATE_IS_SHOW_USER_PAUSES_DEFAULT);
+      pauseDuration         = Util.getStateLong(      state, TourPauseUI.STATE_DURATION_FILTER_SUMMARIZED,  0);
+      pauseDurationOperator = (TourFilterFieldOperator) Util.getStateEnum(state, TourPauseUI.STATE_DURATION_OPERATOR, TourPauseUI.STATE_DURATION_OPERATOR_DEFAULT);
+
+// SET_FORMATTING_ON
    }
 
    /**

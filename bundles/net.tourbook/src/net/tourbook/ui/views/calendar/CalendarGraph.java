@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2020 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,6 +14,8 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.ui.views.calendar;
+
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -63,20 +65,11 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -89,107 +82,105 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 
 public class CalendarGraph extends Canvas implements ITourProviderAll {
 
-   private static final int                  MIN_SCROLLABLE_WEEKS  = 12;
+   private static final int           MIN_SCROLLABLE_WEEKS  = 12;
    //
-   private final TourDoubleClickState        _tourDoubleClickState = new TourDoubleClickState();
+   private final TourDoubleClickState _tourDoubleClickState = new TourDoubleClickState();
    //
-   private ColorCacheSWT                     _colorCache           = new ColorCacheSWT();
+   private ColorCacheSWT              _colorCache           = new ColorCacheSWT();
    //
-   private ArrayList<RGB>                    _rgbBright;
-   private ArrayList<RGB>                    _rgbDark;
-   private ArrayList<RGB>                    _rgbLine;
-   private ArrayList<RGB>                    _rgbText;
+   private ArrayList<RGB>             _rgbBright;
+   private ArrayList<RGB>             _rgbDark;
+   private ArrayList<RGB>             _rgbLine;
+   private ArrayList<RGB>             _rgbText;
    //
-   private int                               _lastDayOfWeekToGoTo  = -1;
-   private long                              _lastFiredTourId      = -1;
+   private int                        _lastDayOfWeekToGoTo  = -1;
+   private long                       _lastFiredTourId      = -1;
    //
-   private List<FocusItem>                   _allDayFocusItems     = new ArrayList<>();
-   private List<FocusItem>                   _allTourFocusItems    = new ArrayList<>();
-   private boolean                           _isGraphDirty         = true;
-   private boolean                           _isHoveredModified;
-   private boolean                           _isHoveredPainted;
-   private boolean                           _isFocusGained;
+   private List<FocusItem>            _allDayFocusItems     = new ArrayList<>();
+   private List<FocusItem>            _allTourFocusItems    = new ArrayList<>();
+   private boolean                    _isGraphDirty         = true;
+   private boolean                    _isHoveredModified;
+   private boolean                    _isHoveredPainted;
+   private boolean                    _isFocusGained;
    //
-   private CalendarSelectItem                _emptyItem            = new CalendarSelectItem(-1, ItemType.EMPTY);
-   private CalendarSelectItem                _hoveredItem          = _emptyItem;
-   private CalendarSelectItem                _selectedItem         = _emptyItem;
-   private CalendarSelectItem                _lastSelectedItem     = _emptyItem;
-   private CalendarSelectItem                _hoveredTour;
+   private CalendarSelectItem         _emptyItem            = new CalendarSelectItem(-1, ItemType.EMPTY);
+   private CalendarSelectItem         _hoveredItem          = _emptyItem;
+   private CalendarSelectItem         _selectedItem         = _emptyItem;
+   private CalendarSelectItem         _lastSelectedItem     = _emptyItem;
+   private CalendarSelectItem         _hoveredTour;
    //
-   private Rectangle                         _calendarCanvas;
-   final private Rectangle                   _nullRec              = null;
+   private Rectangle                  _calendarCanvas;
+   private final Rectangle            _nullRec              = null;
    //
-   private CalendarView                      _calendarView;
-   private CalendarTourDataProvider          _dataProvider;
-   private CalendarYearMonthContributionItem _calendarYearMonthContributor;
+   private CalendarView               _calendarView;
+   private CalendarTourDataProvider   _dataProvider;
    //
    /**
     * Displayed weeks in the calendar which are before the first calendar tour or after today
     * (which is the last calendar tour). When the displayed weeks are within the first/last tour
     * then this is 0.
     */
-   private int                               _scrollBar_OutsideWeeks;
-   private int                               _scrollBar_LastSelection;
+   private int                        _scrollBar_OutsideWeeks;
+   private int                        _scrollBar_LastSelection;
    //
    /** Visible weeks in one column */
-   private int                               _numWeeksInOneColumn;
-   private int                               _numYearColumns;
+   private int                        _numWeeksInOneColumn;
+   private int                        _numYearColumns;
    //
-   private boolean                           _isScrollbarInitialized;
-   private boolean                           _isInUpdateScrollbar;
+   private boolean                    _isScrollbarInitialized;
+   private boolean                    _isInUpdateScrollbar;
    /**
     * This rectangle contains all visible days except week no and week info area.
     */
-   private Rectangle[]                       _calendarAllDaysRectangle;
+   private Rectangle[]                _calendarAllDaysRectangle;
 
    /**
     * Contains the area for the current day date label
     */
-   private Rectangle                         _dayDateLabelRect;
+   private Rectangle                  _dayDateLabelRect;
 
-   private int                               _fontHeight_DateColumn;
-   private int                               _fontHeight_DayHeader;
-   private int                               _fontHeight_TourContent;
-   private int                               _fontHeight_TourTitle;
-   private int                               _fontHeight_TourValue;
-   private int                               _fontHeight_WeekValue;
-   private int                               _fontHeight_YearHeader;
+   private int                        _fontHeight_DateColumn;
+   private int                        _fontHeight_DayHeader;
+   private int                        _fontHeight_TourContent;
+   private int                        _fontHeight_TourTitle;
+   private int                        _fontHeight_TourValue;
+   private int                        _fontHeight_WeekValue;
+   private int                        _fontHeight_YearHeader;
    //
    /**
     * First day which is visible in the calendar.
     * <p>
     * Date/time is necessary otherwise {@link Duration} will NOT work !!!
     */
-   private LocalDateTime                     _firstVisibleDay      = LocalDateTime
+   private LocalDateTime              _firstVisibleDay      = LocalDateTime
          .now()
          .with(getFirstDayOfWeek_SameOrPrevious());
 
-   private LocalDateTime                     _yearColumn_FirstYear = LocalDateTime
+   private LocalDateTime              _yearColumn_FirstYear = LocalDateTime
          .now()
          .withMonth(1)
          .withDayOfMonth(1);
    //
-   private LocalDateTime                     _yearColumn_CurrentYear;
-   private LocalDateTime                     _yearColumn_NextYear;
-   private LocalDate                         _yearColumn_FirstDay;
-   private LocalDate                         _yearColumn_LastDay;
-   private LocalDate                         _calendarFirstDay;
-   private LocalDate                         _calendarLastDay;
-   private int                               _nextWeekDateYPos;
-   private int                               _lastWeekDateYear;
+   private LocalDateTime              _yearColumn_CurrentYear;
+   private LocalDateTime              _yearColumn_NextYear;
+   private LocalDate                  _yearColumn_FirstDay;
+   private LocalDate                  _yearColumn_LastDay;
+   private LocalDate                  _calendarFirstDay;
+   private LocalDate                  _calendarLastDay;
+   private int                        _nextWeekDateYPos;
+   private int                        _lastWeekDateYear;
    //
-   private CalendarProfile                   _currentProfile;
+   private CalendarProfile            _currentProfile;
    //
-   private TextWrapPainter                   _textWrapPainter;
-   private CalendarItemTransfer              _calendarItemTransfer = new CalendarItemTransfer();
+   private TextWrapPainter            _textWrapPainter;
+   private CalendarItemTransfer       _calendarItemTransfer = new CalendarItemTransfer();
    //
-   private int                               _dndLastOperation;
-   private LocalDate                         _dragOverDate;
+   private int                        _dndLastOperation;
+   private LocalDate                  _dragOverDate;
    //
    /*
     * UI controls
@@ -610,19 +601,16 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
    private void addListener() {
 
-      addPaintListener(new PaintListener() {
-         @Override
-         public void paintControl(final PaintEvent event) {
+      addPaintListener(paintEvent -> {
 
-            drawCalendar(event.gc);
+         drawCalendar(paintEvent.gc);
 
-            // fix problem that the scrollbar is initially not correctly setup
-            if (!_isScrollbarInitialized) {
+         // fix problem that the scrollbar is initially not correctly setup
+         if (!_isScrollbarInitialized) {
 
-               _isScrollbarInitialized = true;
+            _isScrollbarInitialized = true;
 
-               scrollBar_updateScrollbar();
-            }
+            scrollBar_updateScrollbar();
          }
       });
 
@@ -653,157 +641,145 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
             redraw();
          }
       });
-      addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            onDispose();
-         }
-      });
+      addDisposeListener(disposeEvent -> onDispose());
    }
 
    private void addListener_Key() {
 
-      addTraverseListener(new TraverseListener() {
+      addTraverseListener(traverseEvent -> {
 
-         @Override
-         public void keyTraversed(final TraverseEvent e) {
+         switch (traverseEvent.detail) {
 
-            switch (e.detail) {
+         case SWT.TRAVERSE_RETURN:
 
-            case SWT.TRAVERSE_RETURN:
+            if (_selectedItem.isTour()) {
+               _tourDoubleClickState.canEditTour = true;
+               _tourDoubleClickState.canOpenTour = true;
+               _tourDoubleClickState.canQuickEditTour = true;
+               _tourDoubleClickState.canEditMarker = true;
+               _tourDoubleClickState.canAdjustAltitude = true;
+               TourManager.getInstance().tourDoubleClickAction(CalendarGraph.this, _tourDoubleClickState);
 
-               if (_selectedItem.isTour()) {
-                  _tourDoubleClickState.canEditTour = true;
-                  _tourDoubleClickState.canOpenTour = true;
-                  _tourDoubleClickState.canQuickEditTour = true;
-                  _tourDoubleClickState.canEditMarker = true;
-                  _tourDoubleClickState.canAdjustAltitude = true;
-                  TourManager.getInstance().tourDoubleClickAction(CalendarGraph.this, _tourDoubleClickState);
-
-               } else {
-                  scroll_Tour(1);
-               }
-
-               break;
-
-            case SWT.TRAVERSE_ESCAPE:
-
-               _selectedItem = _emptyItem;
-               redraw();
-               break;
-
-            case SWT.TRAVERSE_PAGE_NEXT:
-            case SWT.TRAVERSE_PAGE_PREVIOUS:
-            case SWT.TRAVERSE_TAB_NEXT:
-            case SWT.TRAVERSE_TAB_PREVIOUS:
-               e.doit = true;
-               break;
+            } else {
+               scroll_Tour(1);
             }
+
+            break;
+
+         case SWT.TRAVERSE_ESCAPE:
+
+            _selectedItem = _emptyItem;
+            redraw();
+            break;
+
+         case SWT.TRAVERSE_PAGE_NEXT:
+         case SWT.TRAVERSE_PAGE_PREVIOUS:
+         case SWT.TRAVERSE_TAB_NEXT:
+         case SWT.TRAVERSE_TAB_PREVIOUS:
+            traverseEvent.doit = true;
+            break;
          }
       });
 
-      addListener(SWT.KeyDown, new Listener() {
-         @Override
-         public void handleEvent(final Event event) {
+      addListener(SWT.KeyDown, event -> {
 
-            final int keyCode = event.keyCode;
+         final int keyCode = event.keyCode;
 
-            switch (keyCode) {
+         switch (keyCode) {
 
-            /*
-             * Next/previous tour
-             */
-            case SWT.ARROW_LEFT:
-            case 'h':
-               scroll_Tour(-1);
-               break;
+         /*
+          * Next/previous tour
+          */
+         case SWT.ARROW_LEFT:
+         case 'h':
+            scroll_Tour(-1);
+            break;
 
-            case SWT.ARROW_RIGHT:
-            case 'l':
-               scroll_Tour(1);
-               break;
+         case SWT.ARROW_RIGHT:
+         case 'l':
+            scroll_Tour(1);
+            break;
 
-            /*
-             * Up/down tour/day
-             */
-            case SWT.ARROW_UP:
-            case 'k':
-               if (_selectedItem.isTour()) {
-                  gotoTour_SameWeekday(-1);
-               } else {
-                  scroll_ByDate_WithKeys(-1);
-               }
-               break;
-
-            case SWT.ARROW_DOWN:
-            case 'j':
-               if (_selectedItem.isTour()) {
-                  gotoTour_SameWeekday(1);
-               } else {
-                  scroll_ByDate_WithKeys(1);
-               }
-               break;
-
-            case SWT.PAGE_UP:
-            case 'p':
-               scroll_WithKey_Screen(-1);
-               break;
-
-            case SWT.PAGE_DOWN:
-            case 'n':
-               scroll_WithKey_Screen(1);
-               break;
-
-            case SWT.HOME:
-            case ',':
-               gotoTour_First();
-               break;
-
-            case SWT.END:
-            case '.':
-               gotoDate_Today();
-               break;
-
-            case ' ':
-               if (_selectedItem.isTour()) {
-                  _selectedItem = _emptyItem;
-                  redraw();
-               } else {
-                  scroll_Tour(1);
-               }
-               break;
-
-            /*
-             * Zoom
-             */
-            case '+':
-            case '-':
-            case SWT.KEYPAD_ADD:
-            case SWT.KEYPAD_SUBTRACT:
-
-               if (UI.isCtrlKey(event)) {
-
-                  int direction;
-
-                  if (keyCode == '+' || keyCode == SWT.KEYPAD_ADD) {
-                     direction = 1;
-                  } else {
-                     direction = -1;
-                  }
-
-                  zoom(event, direction);
-               }
-               break;
-
-            case '0':
-            case SWT.KEYPAD_0:
-               if (UI.isCtrlKey(event)) {
-
-                  zoom_ToDefault();
-               }
-
-               break;
+         /*
+          * Up/down tour/day
+          */
+         case SWT.ARROW_UP:
+         case 'k':
+            if (_selectedItem.isTour()) {
+               gotoTour_SameWeekday(-1);
+            } else {
+               scroll_ByDate_WithKeys(-1);
             }
+            break;
+
+         case SWT.ARROW_DOWN:
+         case 'j':
+            if (_selectedItem.isTour()) {
+               gotoTour_SameWeekday(1);
+            } else {
+               scroll_ByDate_WithKeys(1);
+            }
+            break;
+
+         case SWT.PAGE_UP:
+         case 'p':
+            scroll_WithKey_Screen(-1);
+            break;
+
+         case SWT.PAGE_DOWN:
+         case 'n':
+            scroll_WithKey_Screen(1);
+            break;
+
+         case SWT.HOME:
+         case ',':
+            gotoTour_First();
+            break;
+
+         case SWT.END:
+         case '.':
+            gotoDate_Today();
+            break;
+
+         case ' ':
+            if (_selectedItem.isTour()) {
+               _selectedItem = _emptyItem;
+               redraw();
+            } else {
+               scroll_Tour(1);
+            }
+            break;
+
+         /*
+          * Zoom
+          */
+         case '+':
+         case '-':
+         case SWT.KEYPAD_ADD:
+         case SWT.KEYPAD_SUBTRACT:
+
+            if (UI.isCtrlKey(event)) {
+
+               int direction;
+
+               if (keyCode == '+' || keyCode == SWT.KEYPAD_ADD) {
+                  direction = 1;
+               } else {
+                  direction = -1;
+               }
+
+               zoom(event, direction);
+            }
+            break;
+
+         case '0':
+         case SWT.KEYPAD_0:
+            if (UI.isCtrlKey(event)) {
+
+               zoom_ToDefault();
+            }
+
+            break;
          }
       });
    }
@@ -823,46 +799,28 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
          }
       });
 
-      addMouseMoveListener(new MouseMoveListener() {
-         @Override
-         public void mouseMove(final MouseEvent e) {
-            onMouse_Move(e);
-         }
-      });
+      addMouseMoveListener(this::onMouse_Move);
 
-      addMouseTrackListener(new MouseTrackAdapter() {
+      addMouseTrackListener(MouseTrackListener.mouseExitAdapter(mouseEvent -> onMouse_Exit()));
 
-         @Override
-         public void mouseExit(final MouseEvent e) {
-            onMouse_Exit();
-         }
-      });
+      addListener(SWT.MouseVerticalWheel, this::onMouse_Wheel);
 
-      addListener(SWT.MouseVerticalWheel, new Listener() {
-
-         @Override
-         public void handleEvent(final Event event) {
-            onMouse_Wheel(event);
-         }
-      });
-
-      _parent.getVerticalBar().addSelectionListener(new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent event) {
-            scrollBar_onScroll(event);
-         }
-      });
+      _parent.getVerticalBar().addSelectionListener(widgetSelectedAdapter(selectionEvent -> scrollBar_onScroll()));
    }
 
    private void disposeFonts() {
 
-      _fontDateColumn = UI.disposeResource(_fontDateColumn);
-      _fontDayHeader = UI.disposeResource(_fontDayHeader);
-      _fontTourContent = UI.disposeResource(_fontTourContent);
-      _fontTourTitle = UI.disposeResource(_fontTourTitle);
-      _fontTourValue = UI.disposeResource(_fontTourValue);
-      _fontWeekValue = UI.disposeResource(_fontWeekValue);
-      _fontYearHeader = UI.disposeResource(_fontYearHeader);
+// SET_FORMATTING_OFF
+
+      _fontDateColumn   = UI.disposeResource(_fontDateColumn);
+      _fontDayHeader    = UI.disposeResource(_fontDayHeader);
+      _fontTourContent  = UI.disposeResource(_fontTourContent);
+      _fontTourTitle    = UI.disposeResource(_fontTourTitle);
+      _fontTourValue    = UI.disposeResource(_fontTourValue);
+      _fontWeekValue    = UI.disposeResource(_fontWeekValue);
+      _fontYearHeader   = UI.disposeResource(_fontYearHeader);
+
+// SET_FORMATTING_ON
    }
 
    void draw() {
@@ -1198,8 +1156,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                      currentDate,
                      rowTop,
                      calendarColumnOffset,
-                     _currentProfile.dateColumnContent,
-                     rowIndex == 0);
+                     _currentProfile.dateColumnContent);
             }
 
             for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -1398,8 +1355,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                final Rectangle weekRec = new Rectangle(devX, rowTop, summaryColumnWidth, weekHeight);
 
                final CalendarTourData weekSummary = _dataProvider.getCalendarWeekSummaryData(
-                     week1stDay,
-                     _calendarView);
+                     week1stDay);
 
                if (weekSummary.loadingState == LoadingState.IS_LOADED && weekSummary.numTours > 0) {
                   drawWeek_Summary(gc, weekSummary, weekRec);
@@ -1408,6 +1364,8 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
          }
       }
+
+      gc.dispose();
 
       // draw the selection on top of our calendar graph image so we can reuse that image
       final Image selectedImage = new Image(getDisplay(), canvasWidth, canvasHeight);
@@ -1426,14 +1384,9 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
       if (_isGraphDirty) {
 
-         // graph is dirty again, this can occure when data are loaded -> rescedule a new update
+         // graph is dirty again, this can occur when data are loaded -> reschedule a new update
 
-         getDisplay().timerExec(5, new Runnable() {
-            @Override
-            public void run() {
-               redraw();
-            }
-         });
+         getDisplay().timerExec(5, this::redraw);
       }
    }
 
@@ -1529,12 +1482,9 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       final int cellWidth = tourRect.width;
       final int cellHeight = tourRect.height;
 
-      final int devXRight = devX + cellWidth - 1;
-      final int devYBottom = devY + cellHeight - 1;
-
-      drawDay_TourBackground(gc, calendarTourData, devX, devY, cellWidth, cellHeight, devXRight, devYBottom);
-      drawDay_TourBorder(gc, calendarTourData, devX, devY, cellWidth, cellHeight, devXRight, devYBottom);
-      drawDay_TourConent(gc, tourRect, calendarTourData);
+      drawDay_TourBackground(gc, calendarTourData, devX, devY, cellWidth, cellHeight);
+      drawDay_TourBorder(gc, calendarTourData, devX, devY, cellWidth, cellHeight);
+      drawDay_TourContent(gc, tourRect, calendarTourData);
    }
 
    /**
@@ -1548,9 +1498,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                                        final int devX,
                                        final int devY,
                                        final int cellWidth,
-                                       final int cellHeight,
-                                       final int devXRight,
-                                       final int devYBottom) {
+                                       final int cellHeight) {
 
       final int tourBackgroundWidth = _currentProfile.tourBackgroundWidth;
 
@@ -1656,9 +1604,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                                    final int devX,
                                    final int devY,
                                    final int cellWidth,
-                                   final int cellHeight,
-                                   final int devXRight,
-                                   final int devYBottom) {
+                                   final int cellHeight) {
 
       final RGB tourBorderRGB = getColor_Graph(
             data,
@@ -1755,9 +1701,9 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       }
    }
 
-   private void drawDay_TourConent(final GC gc,
-                                   final Rectangle tourRect,
-                                   final CalendarTourData calendarTourData) {
+   private void drawDay_TourContent(final GC gc,
+                                    final Rectangle tourRect,
+                                    final CalendarTourData calendarTourData) {
 
       if (!_currentProfile.isShowTourContent) {
          return;
@@ -1825,7 +1771,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
             // skip 1st painted line
             if (lastHeight > -1) {
 
-               // adjust y position accoring which was painted before and which is painted now
+               // adjust y position according which was painted before and which is painted now
 
                if (isTextValue && wasTextValue == false) {
                   valuePosY = lastPaintedY + lastHeight;
@@ -2052,18 +1998,15 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             // fire ONLY tours
 
-            this.getDisplay().asyncExec(new Runnable() {
-               @Override
-               public void run() {
+            this.getDisplay().asyncExec(() -> {
 
-                  final long tourId = _selectedItem.id;
+               final long tourId = _selectedItem.id;
 
-                  if (tourId != _lastFiredTourId) {
+               if (tourId != _lastFiredTourId) {
 
-                     _lastFiredTourId = tourId;
+                  _lastFiredTourId = tourId;
 
-                     _calendarView.fireSelection(tourId);
-                  }
+                  _calendarView.fireSelection(tourId);
                }
             });
          }
@@ -2129,8 +2072,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                                     final LocalDate currentDate,
                                     final int rowTop,
                                     final int calendarColumnOffset,
-                                    final DateColumnContent dateColumnContent,
-                                    final boolean isFirstRow) {
+                                    final DateColumnContent dateColumnContent) {
 
       gc.setForeground(_calendarFgColor);
       gc.setFont(getFont_DateColumn());
@@ -2632,7 +2574,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 //					gc.stringExtent(TimeTools.Formatter_Day.format(currentDate)),
          };
 
-         // Find a format for the day header which fits into the rectangle available;
+         // Find a format for the day header which fits into the rectangle available
          int headerSizeIndex = 0;
          while (headerSizeIndex < headerDateSizes.length //
                && headerDateSizes[headerSizeIndex].x > (cellWidth - dayLabelXOffset)) {
@@ -2941,6 +2883,10 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
    private void onDispose() {
 
+      if (_calendarImage != null) {
+         _calendarImage.dispose();
+      }
+
       _colorCache.dispose();
 
       _dragSource.dispose();
@@ -2977,7 +2923,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             TourManager.saveModifiedTour(dragedTourData);
 
-            TourLogManager.logDefault(
+            TourLogManager.log_DEFAULT(
                   NLS.bind(
                         Messages.Log_Tour_MoveTour,
                         TimeTools.Formatter_Date_M.format(tourStartTime),
@@ -2989,7 +2935,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             try {
 
-               final TourData tourDataCopy = (TourData) dragedTourData.clone();
+               final TourData tourDataCopy = (TourData) dragedTourData.clonePartly();
 
                // set tour start date/time AFTER tour is copied !!!
                tourDataCopy.setTourStartTime(newTourStartTime);
@@ -2999,7 +2945,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
                TourManager.saveModifiedTour(tourDataCopy);
 
-               TourLogManager.logDefault(
+               TourLogManager.log_DEFAULT(
                      NLS.bind(
                            Messages.Log_Tour_CopyTour,
                            TimeTools.Formatter_Date_M.format(tourStartTime),
@@ -3189,8 +3135,6 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
          redraw();
       }
-
-      return;
    }
 
    private void onMouse_Wheel(final Event event) {
@@ -3211,10 +3155,13 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
          boolean isInDayArea = false;
 
          // check if mouse is in the areas which contains the days
-         for (final Rectangle dateRectangle : _calendarAllDaysRectangle) {
-            if (dateRectangle.contains(mousePosition)) {
-               isInDayArea = true;
-               break;
+         if (_calendarAllDaysRectangle != null) {
+
+            for (final Rectangle dateRectangle : _calendarAllDaysRectangle) {
+               if (dateRectangle.contains(mousePosition)) {
+                  isInDayArea = true;
+                  break;
+               }
             }
          }
 
@@ -3440,7 +3387,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
     *
     * @param event
     */
-   private void scrollBar_onScroll(final SelectionEvent event) {
+   private void scrollBar_onScroll() {
 
       if (_isInUpdateScrollbar) {
 
@@ -3508,7 +3455,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       _scrollBar_LastSelection = scrollbar.getSelection();
 
       // goto the selected week
-      _firstVisibleDay = scrollBar_getStartOfTours().atStartOfDay().plusDays(currentSelection * 7);
+      _firstVisibleDay = scrollBar_getStartOfTours().atStartOfDay().plusDays(currentSelection * 7L);
 
       _yearColumn_FirstYear = _firstVisibleDay;
 
@@ -3539,7 +3486,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
          // shift negative
 
          _scrollBar_OutsideWeeks = (int) ((firstViewportDay - scrollStartEpochDay) / 7);
-         scrollbarSelection = 1;//1;
+         scrollbarSelection = 1;
 
       } else if (firstViewportDay > scrollEndEpochDay) {
 
@@ -3635,11 +3582,6 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       _calendarBgColor = _colorCache.getColor(_currentProfile.calendarBackgroundRGB);
    }
 
-   void setYearMonthContributor(final CalendarYearMonthContributionItem calendarYearMonthContribuor) {
-
-      _calendarYearMonthContributor = calendarYearMonthContribuor;
-   }
-
    void updateTourTypeColors() {
 
       _rgbBright.clear();
@@ -3659,10 +3601,10 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       final ArrayList<TourType> tourTypes = TourDatabase.getAllTourTypes();
       for (final TourType tourType : tourTypes) {
 
-         _rgbBright.add(tourType.getRGBBright());
-         _rgbDark.add(tourType.getRGBDark());
-         _rgbLine.add(tourType.getRGBLine());
-         _rgbText.add(tourType.getRGBText());
+         _rgbBright.add(tourType.getRGB_Gradient_Bright());
+         _rgbDark.add(tourType.getRGB_Gradient_Dark());
+         _rgbLine.add(tourType.getRGB_Line_LightTheme());
+         _rgbText.add(tourType.getRGB_Text_LightTheme());
       }
    }
 
@@ -3685,16 +3627,13 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       _isGraphDirty = true;
 
       // run async that the calendar is drawn first which sets some fields
-      getDisplay().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      getDisplay().asyncExec(() -> {
 
-            if (CalendarGraph.this.isDisposed()) {
-               return;
-            }
-
-            scrollBar_updateScrollbar();
+         if (CalendarGraph.this.isDisposed()) {
+            return;
          }
+
+         scrollBar_updateScrollbar();
       });
    }
 
@@ -3708,17 +3647,14 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       _isGraphDirty = true;
 
       // update UI
-      Display.getDefault().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getDefault().asyncExec(() -> {
 
-            if (CalendarGraph.this.isDisposed()) {
-               return;
-            }
-
-            // invalidate layout
-            updateUI();
+         if (CalendarGraph.this.isDisposed()) {
+            return;
          }
+
+         // invalidate layout
+         updateUI();
       });
 
    }
@@ -3751,54 +3687,35 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
        * specific month we ensure that the first day of the month is displayed in the first line,
        * meaning the first day in calendar normally contains a day of the *previous* month
        */
-      _calendarYearMonthContributor.setDate(_calendarFirstDay.plusWeeks(1), _currentProfile);
+      _calendarView.setDate(_calendarFirstDay.plusWeeks(1), _currentProfile);
    }
 
    private LocalDateTime yearColumn_getFirstDayOfMonth(final LocalDateTime currentFirstDay) {
 
       final LocalDateTime firstDayOfMonth = currentFirstDay.with(TemporalAdjusters.firstDayOfMonth());
 
+// SET_FORMATTING_OFF
+
       switch (_currentProfile.yearColumnsStart) {
 
-      case JAN:
-         return firstDayOfMonth.withMonth(Month.JANUARY.getValue());
-
-      case FEB:
-         return firstDayOfMonth.withMonth(Month.FEBRUARY.getValue());
-
-      case MAR:
-         return firstDayOfMonth.withMonth(Month.MARCH.getValue());
-
-      case APR:
-         return firstDayOfMonth.withMonth(Month.APRIL.getValue());
-
-      case MAY:
-         return firstDayOfMonth.withMonth(Month.MAY.getValue());
-
-      case JUN:
-         return firstDayOfMonth.withMonth(Month.JUNE.getValue());
-
-      case JUL:
-         return firstDayOfMonth.withMonth(Month.JULY.getValue());
-
-      case AUG:
-         return firstDayOfMonth.withMonth(Month.AUGUST.getValue());
-
-      case SEP:
-         return firstDayOfMonth.withMonth(Month.SEPTEMBER.getValue());
-
-      case OCT:
-         return firstDayOfMonth.withMonth(Month.OCTOBER.getValue());
-
-      case NOV:
-         return firstDayOfMonth.withMonth(Month.NOVEMBER.getValue());
-
-      case DEC:
-         return firstDayOfMonth.withMonth(Month.DECEMBER.getValue());
+      case JAN: return firstDayOfMonth.withMonth(Month.JANUARY.getValue());
+      case FEB: return firstDayOfMonth.withMonth(Month.FEBRUARY.getValue());
+      case MAR: return firstDayOfMonth.withMonth(Month.MARCH.getValue());
+      case APR: return firstDayOfMonth.withMonth(Month.APRIL.getValue());
+      case MAY: return firstDayOfMonth.withMonth(Month.MAY.getValue());
+      case JUN: return firstDayOfMonth.withMonth(Month.JUNE.getValue());
+      case JUL: return firstDayOfMonth.withMonth(Month.JULY.getValue());
+      case AUG: return firstDayOfMonth.withMonth(Month.AUGUST.getValue());
+      case SEP: return firstDayOfMonth.withMonth(Month.SEPTEMBER.getValue());
+      case OCT: return firstDayOfMonth.withMonth(Month.OCTOBER.getValue());
+      case NOV: return firstDayOfMonth.withMonth(Month.NOVEMBER.getValue());
+      case DEC: return firstDayOfMonth.withMonth(Month.DECEMBER.getValue());
 
       default:
          break;
       }
+
+// SET_FORMATTING_ON
 
       // this is used for continuously column start
       return currentFirstDay;

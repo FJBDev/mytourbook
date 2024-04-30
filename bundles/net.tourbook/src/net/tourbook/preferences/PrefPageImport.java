@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.util.Util;
@@ -29,8 +31,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -51,13 +52,12 @@ public class PrefPageImport extends PreferencePage implements IWorkbenchPreferen
    private RawDataManager        _rawDataMgr      = RawDataManager.getInstance();
 
    private PixelConverter        _pc;
-   private SelectionAdapter      _defaultSelectionListener;
+   private SelectionListener     _defaultSelectionListener;
    private int                   _checkboxIndent;
 
    /*
     * UI controls
     */
-   private Button             _chkAutoOpenImportLog;
    private Button             _chkCreateTourIdWithTime;
    private Button             _chkIgnoreInvalidFile;
    private Button             _chkSetBodyWeight;
@@ -107,19 +107,6 @@ public class PrefPageImport extends PreferencePage implements IWorkbenchPreferen
             label.setText(Messages.PrefPage_Import_Label_Info);
             GridDataFactory.fillDefaults().applyTo(label);
          }
-
-         {
-            /*
-             * Checkbox: Open import log
-             */
-            _chkAutoOpenImportLog = new Button(container, SWT.CHECK);
-            _chkAutoOpenImportLog.setText(Messages.PrefPage_Import_Checkbox_AutoOpenTourLogView);
-            _chkAutoOpenImportLog.addSelectionListener(_defaultSelectionListener);
-            GridDataFactory.fillDefaults()
-                  .indent(0, VERTICAL_SPACING)
-                  .applyTo(_chkAutoOpenImportLog);
-         }
-
          {
             {
                /*
@@ -252,12 +239,7 @@ public class PrefPageImport extends PreferencePage implements IWorkbenchPreferen
 
       _checkboxIndent = _pc.convertHorizontalDLUsToPixels(10);
 
-      _defaultSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> enableControls());
    }
 
    @Override
@@ -292,13 +274,7 @@ public class PrefPageImport extends PreferencePage implements IWorkbenchPreferen
             RawDataView.STATE_IS_CREATE_TOUR_ID_WITH_TIME,
             RawDataView.STATE_IS_CREATE_TOUR_ID_WITH_TIME_DEFAULT);
 
-      final boolean isOpenImportLog = Util.getStateBoolean(
-            _state,
-            RawDataView.STATE_IS_AUTO_OPEN_IMPORT_LOG_VIEW,
-            RawDataView.STATE_IS_AUTO_OPEN_IMPORT_LOG_VIEW_DEFAULT);
-
       _chkCreateTourIdWithTime.setSelection(isCreateTourIdWithTime);
-      _chkAutoOpenImportLog.setSelection(isOpenImportLog);
 
       final boolean isIgnoreInvalidFile = Util.getStateBoolean(
             _state,
@@ -322,19 +298,16 @@ public class PrefPageImport extends PreferencePage implements IWorkbenchPreferen
    private void saveState() {
 
       final boolean isCreateTourIdWithTime = _chkCreateTourIdWithTime.getSelection();
-      final boolean isOpenImportLog = _chkAutoOpenImportLog.getSelection();
       final boolean isIgnoreInvalidFile = _chkIgnoreInvalidFile.getSelection();
       final boolean isSetBodyWeight = _chkSetBodyWeight.getSelection();
       final CadenceMultiplier defaultCadenceMultiplier = _comboDefaultCadence.getSelectedCadence();
 
       _state.put(RawDataView.STATE_IS_CREATE_TOUR_ID_WITH_TIME, isCreateTourIdWithTime);
-      _state.put(RawDataView.STATE_IS_AUTO_OPEN_IMPORT_LOG_VIEW, isOpenImportLog);
       _state.put(RawDataView.STATE_IS_IGNORE_INVALID_FILE, isIgnoreInvalidFile);
       _state.put(RawDataView.STATE_IS_SET_BODY_WEIGHT, isSetBodyWeight);
       Util.setStateEnum(_state, RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER, defaultCadenceMultiplier);
 
       _rawDataMgr.setState_CreateTourIdWithTime(isCreateTourIdWithTime);
-      _rawDataMgr.setState_IsOpenImportLogView(isOpenImportLog);
       _rawDataMgr.setState_IsIgnoreInvalidFile(isIgnoreInvalidFile);
       _rawDataMgr.setState_IsSetBodyWeight(isSetBodyWeight);
       _rawDataMgr.setState_DefaultCadenceMultiplier(defaultCadenceMultiplier);

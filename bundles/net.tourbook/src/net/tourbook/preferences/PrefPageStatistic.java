@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,9 +15,10 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 import net.tourbook.Messages;
@@ -33,10 +34,8 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
@@ -44,8 +43,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -73,40 +70,43 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    private Button                                _btnSortByTime;
 
 //   <attribute name="category-data" use="required">
-//      <annotation>
-//         <documentation>
+//   <annotation>
+//      <documentation>
 //
-//         </documentation>
-//      </annotation>
-//      <simpleType>
-//         <restriction base="string">
-//            <enumeration value="Other"/>
-//            <enumeration value="Summary"/>
-//            <enumeration value="Altitude"/>
-//            <enumeration value="Distance"/>
-//            <enumeration value="Time"/>
-//            <enumeration value="HR"/>
-//            <enumeration value="Training"/>
-//         </restriction>
-//      </simpleType>
-//   </attribute>
-
-//   <attribute name="category-time" use="required">
-//      <annotation>
-//         <documentation>
+//      </documentation>
+//   </annotation>
+//   <simpleType>
+//      <restriction base="string">
+//         <enumeration value="Other"/>
+//         <enumeration value="Altitude"/>
+//         <enumeration value="AthleteData"/>
+//         <enumeration value="Battery"/>
+//         <enumeration value="Distance"/>
+//         <enumeration value="HR"/>
+//         <enumeration value="Sensor"/>
+//         <enumeration value="Summary"/>
+//         <enumeration value="Time"/>
+//         <enumeration value="Training"/>
+//      </restriction>
+//   </simpleType>
+//</attribute>
+//<attribute name="category-time" use="required">
+//   <annotation>
+//      <documentation>
 //
-//         </documentation>
-//      </annotation>
-//      <simpleType>
-//         <restriction base="string">
-//            <enumeration value="Other"/>
-//            <enumeration value="Day"/>
-//            <enumeration value="Week"/>
-//            <enumeration value="Month"/>
-//            <enumeration value="Year"/>
-//         </restriction>
-//      </simpleType>
-//   </attribute>
+//      </documentation>
+//   </annotation>
+//   <simpleType>
+//      <restriction base="string">
+//         <enumeration value="Other"/>
+//         <enumeration value="Day"/>
+//         <enumeration value="Week"/>
+//         <enumeration value="Month"/>
+//         <enumeration value="Year"/>
+//         </enumeration>
+//      </restriction>
+//   </simpleType>
+//</attribute>
 
 // SET_FORMATTING_OFF
    {
@@ -115,7 +115,10 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
       _sortingByCategoryData.put("Training",    3); //$NON-NLS-1$
       _sortingByCategoryData.put("Time",        20); //$NON-NLS-1$
       _sortingByCategoryData.put("Distance",    21); //$NON-NLS-1$
-      _sortingByCategoryData.put("Altitude",    22); //$NON-NLS-1$
+      _sortingByCategoryData.put("Elevation",   22); //$NON-NLS-1$
+      _sortingByCategoryData.put("AthleteData", 30); //$NON-NLS-1$
+      _sortingByCategoryData.put("Battery",     40); //$NON-NLS-1$
+      _sortingByCategoryData.put("Sensor",      42); //$NON-NLS-1$
       _sortingByCategoryData.put("Other",       99); //$NON-NLS-1$
    }
    {
@@ -170,7 +173,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    private Composite createUI(final Composite parent) {
 
       final Label label = new Label(parent, SWT.NONE);
-      label.setText(Messages.pref_statistic_lbl_info);
+      label.setText(Messages.Pref_Statistic_Label_Info);
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
@@ -237,12 +240,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
        * create table viewer
        */
       _statViewer.setContentProvider(new StatContentProvider());
-      _statViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(final SelectionChangedEvent event) {
-            enableActions();
-         }
-      });
+      _statViewer.addSelectionChangedListener(selectionChangedEvent -> enableActions());
    }
 
    private void createUI_20_Actions(final Composite parent) {
@@ -256,12 +254,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             _btnMoveUp = new Button(container, SWT.NONE);
             _btnMoveUp.setText(Messages.app_action_button_up);
             setButtonLayoutData(_btnMoveUp);
-            _btnMoveUp.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onMoveUp();
-               }
-            });
+            _btnMoveUp.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onMoveUp()));
          }
 
          {
@@ -269,12 +262,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             _btnMoveDown = new Button(container, SWT.NONE);
             _btnMoveDown.setText(Messages.app_action_button_down);
             setButtonLayoutData(_btnMoveDown);
-            _btnMoveDown.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onMoveDown();
-               }
-            });
+            _btnMoveDown.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onMoveDown()));
          }
 
          {
@@ -282,12 +270,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             _btnSortByData = new Button(container, SWT.NONE);
             _btnSortByData.setText(Messages.Pref_Statistic_Action_SortByData);
             setButtonLayoutData(_btnSortByData);
-            _btnSortByData.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onSortByData();
-               }
-            });
+            _btnSortByData.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByData()));
          }
 
          {
@@ -295,12 +278,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             _btnSortByTime = new Button(container, SWT.NONE);
             _btnSortByTime.setText(Messages.Pref_Statistic_Action_SortByTime);
             setButtonLayoutData(_btnSortByTime);
-            _btnSortByTime.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onSortByTime();
-               }
-            });
+            _btnSortByTime.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByTime()));
          }
       }
    }
@@ -377,16 +355,12 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
    private void onSortByData() {
 
-      Collections.sort(_visibleStatistics, new Comparator<TourbookStatistic>() {
+      Collections.sort(_visibleStatistics, (stat1, stat2) -> {
 
-         @Override
-         public int compare(final TourbookStatistic stat1, final TourbookStatistic stat2) {
+         final int stat1Sorting = _sortingByCategoryData.get(stat1.plugin_Category_Data);
+         final int stat2Sorting = _sortingByCategoryData.get(stat2.plugin_Category_Data);
 
-            final int stat1Sorting = _sortingByCategoryData.get(stat1.plugin_Category_Data);
-            final int stat2Sorting = _sortingByCategoryData.get(stat2.plugin_Category_Data);
-
-            return stat1Sorting - stat2Sorting;
-         }
+         return stat1Sorting - stat2Sorting;
       });
 
       updateUI_WithReselection();
@@ -394,16 +368,12 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
    private void onSortByTime() {
 
-      Collections.sort(_visibleStatistics, new Comparator<TourbookStatistic>() {
+      Collections.sort(_visibleStatistics, (stat1, stat2) -> {
 
-         @Override
-         public int compare(final TourbookStatistic stat1, final TourbookStatistic stat2) {
+         final int stat1Sorting = _sortingByCategoryTime.get(stat1.plugin_Category_Time);
+         final int stat2Sorting = _sortingByCategoryTime.get(stat2.plugin_Category_Time);
 
-            final int stat1Sorting = _sortingByCategoryTime.get(stat1.plugin_Category_Time);
-            final int stat2Sorting = _sortingByCategoryTime.get(stat2.plugin_Category_Time);
-
-            return stat1Sorting - stat2Sorting;
-         }
+         return stat1Sorting - stat2Sorting;
       });
 
       updateUI_WithReselection();

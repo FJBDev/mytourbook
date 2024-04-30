@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,7 +33,7 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
-import net.tourbook.tour.TourLogState;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
@@ -95,7 +95,7 @@ public class Dialog_SaveTags_Wizard extends Wizard {
 
       final long start = System.currentTimeMillis();
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.SAVE_SOMETHING);
 
       try {
 
@@ -105,7 +105,7 @@ public class Dialog_SaveTags_Wizard extends Wizard {
          StatusUtil.log(e);
       }
 
-      TourLogManager.logDefault(String.format(//
+      TourLogManager.log_DEFAULT(String.format(
             LOG_SAVE_TAGS_END,
             (System.currentTimeMillis() - start) / 1000.0));
 
@@ -145,12 +145,12 @@ public class Dialog_SaveTags_Wizard extends Wizard {
          break;
       }
 
-      TourLogManager.addLog(TourLogState.INFO, startLogMessage);
+      TourLogManager.log_INFO(startLogMessage);
 
       // log selected tags
       if (_allCheckedTagIds.size() > 0) {
          final String tagNamesText = TourDatabase.getTagNamesText(_allCheckedTagIds, false);
-         TourLogManager.subLog_Default(tagNamesText);
+         TourLogManager.subLog_DEFAULT(tagNamesText);
       }
 
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
@@ -282,7 +282,7 @@ public class Dialog_SaveTags_Wizard extends Wizard {
 
                      savedTours.add(savedTourData);
 
-                     TourLogManager.subLog_Default(logMessage);
+                     TourLogManager.subLog_DEFAULT(logMessage);
                   }
                }
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.tourbook.cloud.Activator;
-import net.tourbook.cloud.Messages;
+import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.common.TourbookFileSystem;
 import net.tourbook.common.UI;
@@ -100,7 +100,7 @@ public class DropboxFileSystem extends TourbookFileSystem {
    @Override
    protected File copyFileLocally(final String dropboxFilePath) {
 
-      final Path localFilePath = DropboxClient.CopyLocally(dropboxFilePath);
+      final Path localFilePath = DropboxClient.copyLocally(dropboxFilePath);
 
       return localFilePath != null ? localFilePath.toFile() : null;
    }
@@ -166,13 +166,14 @@ public class DropboxFileSystem extends TourbookFileSystem {
 
    @Override
    public ImageDescriptor getFileSystemImageDescriptor() {
-      return Activator.getImageDescriptor(Messages.Image__Dropbox_Logo);
+      return Activator.getImageDescriptor(CloudImages.Cloud_Dropbox_Logo);
    }
 
    /**
     * Get the Dropbox {@link Path} of a given filename
     *
     * @param fileName
+    *
     * @return
     */
    @Override
@@ -213,7 +214,7 @@ public class DropboxFileSystem extends TourbookFileSystem {
       if (folderChooserResult[0] == Window.OK) {
 
          final String selectedFolder = dropboxFolderChooser[0].getSelectedFolder();
-         if (!StringUtils.isNullOrEmpty(selectedFolder)) {
+         if (StringUtils.hasContent(selectedFolder)) {
             FILE_SYSTEM_FOLDER = selectedFolder;
 
             return getDisplayId() + selectedFolder;

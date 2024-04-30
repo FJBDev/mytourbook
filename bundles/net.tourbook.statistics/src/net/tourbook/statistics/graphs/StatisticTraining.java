@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -186,6 +186,9 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       _chart.setShowZoomActions(true);
       _chart.setToolBarManager(viewSite.getActionBars().getToolBarManager(), false);
 
+// antialias looks ugly
+//      _chart.graphAntialiasing = SWT.ON;
+
       // set tour info icon into the left axis
       _tourToolTip = new StatisticTourToolTip(_chart.getToolTipControl());
       _tourToolTip.addToolTipProvider(_tourInfoToolTipProvider);
@@ -193,7 +196,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
          @Override
          public void afterHideToolTip(final Event event) {
             // hide hovered image
-            _chart.getToolTipControl().afterHideToolTip(event);
+            _chart.getToolTipControl().afterHideToolTip();
          }
       });
 
@@ -342,30 +345,6 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       chartModel.setXData(xData);
    }
 
-   /**
-    * Altitude
-    */
-   void createYData_Altitude(final ChartDataModel chartModel, final ChartType chartType) {
-
-      final ChartDataYSerie yData = new ChartDataYSerie(
-            chartType,
-            _statisticData_Training.allElevationUp_Low,
-            _statisticData_Training.allElevationUp_High);
-
-      yData.setYTitle(Messages.LABEL_GRAPH_ALTITUDE);
-      yData.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
-      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
-      yData.setAllValueColors(0);
-      yData.setShowYSlider(true);
-      yData.setVisibleMinValue(0);
-      yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
-
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE, _activeTourTypeFilter);
-
-      chartModel.addYData(yData);
-   }
-
    void createYData_AvgPace(final ChartDataModel chartDataModel, final ChartType chartType) {
 
       final ChartDataYSerie yData = new ChartDataYSerie(
@@ -381,8 +360,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_PACE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PACE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PACE);
 
       chartDataModel.addYData(yData);
    }
@@ -402,8 +380,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_SPEED);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_SPEED, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_SPEED);
 
       chartDataModel.addYData(yData);
    }
@@ -427,8 +404,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       yData.setValueDivisor(1000);
       yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_DISTANCE);
 
       chartModel.addYData(yData);
    }
@@ -451,10 +427,60 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       _yData_Duration.setVisibleMinValue(0);
       _yData_Duration.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME);
-      StatisticServices.setTourTypeColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(_yData_Duration, GraphColorManager.PREF_GRAPH_TIME);
 
       chartModel.addYData(_yData_Duration);
+   }
+
+   /**
+    * Elevation loss
+    */
+   void createYData_ElevationDown(final ChartDataModel chartModel, final ChartType chartType) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            chartType,
+            _statisticData_Training.allElevationDown_Low,
+            _statisticData_Training.allElevationDown_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_ELEVATION_DOWN);
+      yData.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setAllValueColors(0);
+      yData.setShowYSlider(true);
+      yData.setYAxisDirection(false);
+      yData.setVisibleMinValue(0);
+      yData.setGraphFillMethod(ChartDataYSerie.FILL_METHOD_FILL_ZERO);
+
+      yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
+
+      chartModel.addYData(yData);
+   }
+
+   /**
+    * Elevation gain
+    */
+   void createYData_ElevationUp(final ChartDataModel chartModel, final ChartType chartType) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            chartType,
+            _statisticData_Training.allElevationUp_Low,
+            _statisticData_Training.allElevationUp_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_ELEVATION_UP);
+      yData.setUnitLabel(UI.UNIT_LABEL_ELEVATION);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setAllValueColors(0);
+      yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+      yData.setGraphFillMethod(ChartDataYSerie.FILL_METHOD_FILL_ZERO);
+
+      yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_ALTITUDE);
+
+      chartModel.addYData(yData);
    }
 
    /**
@@ -474,8 +500,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_AEROB);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_AEROB, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_AEROB);
 
       chartModel.addYData(yData);
    }
@@ -497,8 +522,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       yData.setVisibleMinValue(0);
       yData.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_ANAEROB);
-      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_ANAEROB, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_EFFECT_ANAEROB);
 
       chartModel.addYData(yData);
    }
@@ -520,8 +544,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
       _yData_TrainingPerformance.setVisibleMinValue(0);
       _yData_TrainingPerformance.setColorIndex(new int[][] { _statisticData_Training.allTypeColorIndices });
 
-      StatisticServices.setDefaultColors(_yData_TrainingPerformance, GraphColorManager.PREF_GRAPH_TRAINING_PERFORMANCE);
-      StatisticServices.setTourTypeColors(_yData_TrainingPerformance, GraphColorManager.PREF_GRAPH_TRAINING_PERFORMANCE, _activeTourTypeFilter);
+      StatisticServices.setTourTypeColors(_yData_TrainingPerformance, GraphColorManager.PREF_GRAPH_TRAINING_PERFORMANCE);
 
       chartModel.addYData(_yData_TrainingPerformance);
    }
@@ -623,7 +646,7 @@ public abstract class StatisticTraining extends TourbookStatistic implements IBa
    public boolean selectTour(final Long tourId) {
 
       final long[] tourIds = _statisticData_Training.allTourIds;
-      final boolean selectedItems[] = new boolean[tourIds.length];
+      final boolean[] selectedItems = new boolean[tourIds.length];
       boolean isSelected = false;
 
       // find the tour which has the same tourId as the selected tour

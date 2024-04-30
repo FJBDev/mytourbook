@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,41 +23,70 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * This entity contains the data for a tour which is compared with a reference tour
+ * This entity contains the data for a tour {@link TourData} which is compared with a reference tour
+ * {@link TourReference}
  */
 @Entity
 public class TourCompared {
 
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private long comparedId;
+   private long  comparedId;
 
    /**
-    * ref tour id which is compared with the tour contained in the tourId
+    * Ref tour id which is compared with the tour contained in the tourId
     */
-   private long refTourId;
+   private long  refTourId;
 
    /**
-    * tourId which is compared with the refTourId
+    * TourId which is compared with the refTourId
     */
-   private long tourId;
+   private long  tourId;
 
-   /*
-    * start/end index for the reference tour in the compared tour
+   /**
+    * Start index for the reference tour in the compared tour
     */
    private int   startIndex = -1;
+
+   /**
+    * End index for the reference tour in the compared tour
+    */
    private int   endIndex   = -1;
 
    private Date  tourDate;
    private int   startYear;
 
    private float tourSpeed;
+
+   /**
+    * @since Db version 51
+    */
+   private float tourPace;
+
+   /**
+    * This field is read with sql statements
+    */
+   @SuppressWarnings("unused")
    private int   tourDeviceTime_Elapsed;
 
    /**
     * @since Db version 28
     */
    private float avgPulse;
+
+   /**
+    * @since Db version 50
+    */
+   private float maxPulse;
+
+   /**
+    * @since Db version 50
+    */
+   private float avgAltimeter;
+
+   public float getAvgAltimeter() {
+      return avgAltimeter;
+   }
 
    public float getAvgPulse() {
       return avgPulse;
@@ -69,6 +98,10 @@ public class TourCompared {
 
    public int getEndIndex() {
       return endIndex;
+   }
+
+   public float getMaxPulse() {
+      return maxPulse;
    }
 
    public long getRefTourId() {
@@ -91,8 +124,16 @@ public class TourCompared {
       return tourId;
    }
 
+   public float getTourPace() {
+      return tourPace;
+   }
+
    public float getTourSpeed() {
       return tourSpeed;
+   }
+
+   public void setAvgAltimeter(final float avgAltimeter) {
+      this.avgAltimeter = avgAltimeter;
    }
 
    public void setAvgPulse(final float avgPulse) {
@@ -101,6 +142,10 @@ public class TourCompared {
 
    public void setEndIndex(final int endIndex) {
       this.endIndex = endIndex;
+   }
+
+   public void setMaxPulse(final float maxPulse) {
+      this.maxPulse = maxPulse;
    }
 
    public void setRefTourId(final long refTourId) {
@@ -125,6 +170,10 @@ public class TourCompared {
 
    public void setTourId(final long tourId) {
       this.tourId = tourId;
+   }
+
+   public void setTourPace(final float tourPace) {
+      this.tourPace = tourPace;
    }
 
    public void setTourSpeed(final float speed) {

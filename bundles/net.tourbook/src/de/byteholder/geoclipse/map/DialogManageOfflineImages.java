@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -229,7 +231,7 @@ public class DialogManageOfflineImages extends TitleAreaDialog implements ITileL
 
       final Composite container = (Composite) super.createDialogArea(parent);
 
-      _imageRefresh = TourbookPlugin.getImageDescriptor(Messages.Image__Refresh).createImage();
+      _imageRefresh = TourbookPlugin.getImageDescriptor(Images.App_Refresh).createImage();
 
       // create ui
       createUI(container);
@@ -368,7 +370,6 @@ public class DialogManageOfflineImages extends TitleAreaDialog implements ITileL
 
       table.setLayout(new TableLayout());
       table.setHeaderVisible(true);
-      table.setLinesVisible(true);
 
       _partViewer = new TableViewer(table);
 

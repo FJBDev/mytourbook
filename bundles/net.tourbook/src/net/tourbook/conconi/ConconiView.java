@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,13 +15,14 @@
  *******************************************************************************/
 package net.tourbook.conconi;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.Chart;
 import net.tourbook.chart.ChartDataModel;
@@ -46,6 +47,7 @@ import net.tourbook.tour.SelectionTourIds;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
 
+import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList;
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -55,15 +57,8 @@ import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -73,10 +68,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
@@ -108,10 +100,9 @@ public class ConconiView extends ViewPart {
 // SET_FORMATTING_ON
 
    private final IPreferenceStore  _prefStore              = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore  _commonPrefStore        = CommonActivator.getPrefStore();
+   private final IPreferenceStore  _prefStore_Common       = CommonActivator.getPrefStore();
    private final IDialogSettings   _state                  = TourbookPlugin.getState(ID);
 
-   private IPartListener2          _partListener;
    private ISelectionListener      _postSelectionListener;
    private IPropertyChangeListener _prefChangeListener;
    private ITourEventListener      _tourEventListener;
@@ -119,7 +110,7 @@ public class ConconiView extends ViewPart {
    private ChartDataYSerie         _yDataPulse;
    private ConconiData             _conconiDataForSelectedTour;
 
-   protected boolean               _isUpdateUI             = false;
+   private boolean                 _isUpdateUI             = false;
    private boolean                 _isSelectionDisabled    = true;
    private boolean                 _isSaving;
 
@@ -149,8 +140,8 @@ public class ConconiView extends ViewPart {
 
    private Combo                 _comboTests;
    private Scale                 _scaleDeflection;
-   private Label                 _lblDeflactionPulse;
-   private Label                 _lblDeflactionPower;
+   private Label                 _lblDeflectionPulse;
+   private Label                 _lblDeflectionPower;
 
    private Button                _chkExtendedScaling;
    private Label                 _lblFactor;
@@ -165,58 +156,24 @@ public class ConconiView extends ViewPart {
       }
    }
 
-   private void addPartListener() {
-
-      _partListener = new IPartListener2() {
-
-         @Override
-         public void partActivated(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partClosed(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partDeactivated(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partHidden(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partInputChanged(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partOpened(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partVisible(final IWorkbenchPartReference partRef) {}
-      };
-      getViewSite().getPage().addPartListener(_partListener);
-   }
-
    private void addPrefListener() {
 
-      _prefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _prefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            /*
-             * set a new chart configuration when the preferences has changed
-             */
-            if (property.equals(GRID_HORIZONTAL_DISTANCE)
-                  || property.equals(GRID_VERTICAL_DISTANCE)
-                  || property.equals(GRID_IS_SHOW_HORIZONTAL_GRIDLINES)
-                  || property.equals(GRID_IS_SHOW_VERTICAL_GRIDLINES)
-            //
-            ) {
+         /*
+          * set a new chart configuration when the preferences has changed
+          */
+         if (property.equals(GRID_HORIZONTAL_DISTANCE)
+               || property.equals(GRID_VERTICAL_DISTANCE)
+               || property.equals(GRID_IS_SHOW_HORIZONTAL_GRIDLINES)
+               || property.equals(GRID_IS_SHOW_VERTICAL_GRIDLINES)
+         //
+         ) {
 
-               // grid has changed, update chart
-               updateChartProperties();
-            }
+            // grid has changed, update chart
+            updateChartProperties();
          }
       };
 
@@ -228,35 +185,28 @@ public class ConconiView extends ViewPart {
     */
    private void addSelectionListener() {
 
-      _postSelectionListener = new ISelectionListener() {
-         @Override
-         public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
+      _postSelectionListener = (part, selection) -> {
 
-            if (part == ConconiView.this) {
-               return;
-            }
-
-            onSelectionChanged(selection);
+         if (part == ConconiView.this) {
+            return;
          }
+
+         onSelectionChanged(selection);
       };
       getSite().getPage().addPostSelectionListener(_postSelectionListener);
    }
 
    private void addTourEventListener() {
 
-      _tourEventListener = new ITourEventListener() {
+      _tourEventListener = (part, eventId, eventData) -> {
 
-         @Override
-         public void tourChanged(final IWorkbenchPart part, final TourEventId eventId, final Object eventData) {
+         if (part == ConconiView.this) {
+            return;
+         }
 
-            if (part == ConconiView.this) {
-               return;
-            }
+         if (eventId == TourEventId.TOUR_SELECTION && eventData instanceof final ISelection selection) {
 
-            if (eventId == TourEventId.TOUR_SELECTION && eventData instanceof ISelection) {
-
-               onSelectionChanged((ISelection) eventData);
-            }
+            onSelectionChanged(selection);
          }
       };
 
@@ -288,6 +238,7 @@ public class ConconiView extends ViewPart {
     * @param markedTour
     *           contains tour which should be marked in the chart, when <code>null</code> the first
     *           tour will be marked
+    *
     * @return
     */
    private ChartDataModel createChartDataModelConconiTest(final List<TourData> conconiTours, TourData markedTour) {
@@ -338,30 +289,33 @@ public class ConconiView extends ViewPart {
 
       final String prefGraphName = ICommonPreferences.GRAPH_COLORS + GraphColorManager.PREF_GRAPH_HEARTBEAT + UI.SYMBOL_DOT;
 
-      final RGB rgbPrefLine = PreferenceConverter.getColor(//
-            _commonPrefStore,
-            prefGraphName + GraphColorManager.PREF_COLOR_LINE);
+      final String prefColorLine = UI.IS_DARK_THEME
+            ? GraphColorManager.PREF_COLOR_LINE_DARK
+            : GraphColorManager.PREF_COLOR_LINE_LIGHT;
 
-      final RGB rgbPrefDark = PreferenceConverter.getColor(//
-            _commonPrefStore,
-            prefGraphName + GraphColorManager.PREF_COLOR_DARK);
+      final String prefColorText = UI.IS_DARK_THEME
+            ? GraphColorManager.PREF_COLOR_TEXT_DARK
+            : GraphColorManager.PREF_COLOR_TEXT_LIGHT;
 
-      final RGB rgbPrefBright = PreferenceConverter.getColor(//
-            _commonPrefStore,
-            prefGraphName + GraphColorManager.PREF_COLOR_BRIGHT);
+      // get colors from common pref store
+      final RGB rgbGradient_Bright = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + GraphColorManager.PREF_COLOR_GRADIENT_BRIGHT);
+      final RGB rgbGradient_Dark = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + GraphColorManager.PREF_COLOR_GRADIENT_DARK);
+      final RGB rgbLineColor = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + prefColorLine);
+      final RGB rgbTextColor = PreferenceConverter.getColor(_prefStore_Common, prefGraphName + prefColorText);
 
       final double[][] powerSerie = new double[validDataLength][];
       final double[][] pulseSerie = new double[validDataLength][];
-      final RGB[] rgbLine = new RGB[validDataLength];
-      final RGB[] rgbDark = new RGB[validDataLength];
-      final RGB[] rgbBright = new RGB[validDataLength];
+
+      final RGB[] allRgbLine = new RGB[validDataLength];
+      final RGB[] allRgbGradient_Dark = new RGB[validDataLength];
+      final RGB[] allRgbGradient_Bright = new RGB[validDataLength];
 
       final TourData[] validTours = validTourList.toArray(new TourData[validTourList.size()]);
       int markedIndex = 0;
       float maxXValue = 0;
 
       /*
-       * create data series which contain valid data, reduce data that the highes value for an x
+       * create data series which contain valid data, reduce data that the highest value for an x
        * value is displayed
        */
       for (int tourIndex = 0; tourIndex < validDataLength; tourIndex++) {
@@ -377,8 +331,8 @@ public class ConconiView extends ViewPart {
                && tourPulseSerie != null
                && tourPulseSerie.length != 0) {
 
-            final TDoubleArrayList maxXValues = new TDoubleArrayList();
-            final TDoubleArrayList maxYValues = new TDoubleArrayList();
+            final DoubleArrayList maxXValues = new DoubleArrayList();
+            final DoubleArrayList maxYValues = new DoubleArrayList();
 
             float lastMaxY = Float.MIN_VALUE;
             float currentXValue = tourPowerSerie[0];
@@ -434,15 +388,15 @@ public class ConconiView extends ViewPart {
                // get index of marked tour
                markedIndex = tourIndex;
 
-               rgbLine[tourIndex] = rgbPrefLine;
-               rgbDark[tourIndex] = rgbPrefDark;
-               rgbBright[tourIndex] = rgbPrefBright;
+               allRgbLine[tourIndex] = rgbLineColor;
+               allRgbGradient_Dark[tourIndex] = rgbGradient_Dark;
+               allRgbGradient_Bright[tourIndex] = rgbGradient_Bright;
 
             } else {
 
-               rgbLine[tourIndex] = DEFAULT_RGB;
-               rgbDark[tourIndex] = DEFAULT_RGB;
-               rgbBright[tourIndex] = DEFAULT_RGB;
+               allRgbLine[tourIndex] = DEFAULT_RGB;
+               allRgbGradient_Dark[tourIndex] = DEFAULT_RGB;
+               allRgbGradient_Bright[tourIndex] = DEFAULT_RGB;
             }
          }
       }
@@ -453,28 +407,28 @@ public class ConconiView extends ViewPart {
        */
       final double[] markedPowerSerie = powerSerie[markedIndex];
       final double[] markedPulseSerie = pulseSerie[markedIndex];
-      final RGB markedRgbLine = rgbLine[markedIndex];
-      final RGB markedRgbDark = rgbDark[markedIndex];
-      final RGB markedRgbBright = rgbBright[markedIndex];
+      final RGB markedRgbLine = allRgbLine[markedIndex];
+      final RGB markedRgbDark = allRgbGradient_Dark[markedIndex];
+      final RGB markedRgbBright = allRgbGradient_Bright[markedIndex];
 
       powerSerie[markedIndex] = powerSerie[lastTourIndex];
       pulseSerie[markedIndex] = pulseSerie[lastTourIndex];
-      rgbLine[markedIndex] = rgbLine[lastTourIndex];
-      rgbDark[markedIndex] = rgbDark[lastTourIndex];
-      rgbBright[markedIndex] = rgbBright[lastTourIndex];
+      allRgbLine[markedIndex] = allRgbLine[lastTourIndex];
+      allRgbGradient_Dark[markedIndex] = allRgbGradient_Dark[lastTourIndex];
+      allRgbGradient_Bright[markedIndex] = allRgbGradient_Bright[lastTourIndex];
 
       powerSerie[lastTourIndex] = markedPowerSerie;
       pulseSerie[lastTourIndex] = markedPulseSerie;
-      rgbLine[lastTourIndex] = markedRgbLine;
-      rgbDark[lastTourIndex] = markedRgbDark;
-      rgbBright[lastTourIndex] = markedRgbBright;
+      allRgbLine[lastTourIndex] = markedRgbLine;
+      allRgbGradient_Dark[lastTourIndex] = markedRgbDark;
+      allRgbGradient_Bright[lastTourIndex] = markedRgbBright;
 
       /*
        * power
        */
       final ChartDataXSerie xDataPower = new ChartDataXSerie(powerSerie);
-      xDataPower.setLabel(net.tourbook.common.Messages.Graph_Label_Power);
-      xDataPower.setUnitLabel(net.tourbook.common.Messages.Graph_Label_Power_Unit);
+      xDataPower.setLabel(OtherMessages.GRAPH_LABEL_POWER);
+      xDataPower.setUnitLabel(OtherMessages.GRAPH_LABEL_POWER_UNIT);
 
       /*
        * double is not yet supported for the y-axis
@@ -485,12 +439,13 @@ public class ConconiView extends ViewPart {
        * pulse
        */
       _yDataPulse = new ChartDataYSerie(ChartType.XY_SCATTER, pulseSerieFloat);
-      _yDataPulse.setYTitle(net.tourbook.common.Messages.Graph_Label_Heartbeat);
-      _yDataPulse.setUnitLabel(net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit);
-      _yDataPulse.setDefaultRGB(rgbPrefLine);
-      _yDataPulse.setRgbLine(rgbLine);
-      _yDataPulse.setRgbDark(rgbDark);
-      _yDataPulse.setRgbBright(rgbBright);
+      _yDataPulse.setYTitle(OtherMessages.GRAPH_LABEL_HEARTBEAT);
+      _yDataPulse.setUnitLabel(OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT);
+      _yDataPulse.setRgbBar_Gradient_Dark(allRgbGradient_Dark);
+      _yDataPulse.setRgbBar_Gradient_Bright(allRgbGradient_Bright);
+      _yDataPulse.setRgbBar_Line(allRgbLine);
+
+      _yDataPulse.setRgbGraph_Text(rgbTextColor);
 
 // check x-data visible min value
       //adjust min/max values that the chart do not stick to a border
@@ -508,13 +463,14 @@ public class ConconiView extends ViewPart {
       _conconiDataForSelectedTour = createConconiData(powerSerie[lastTourIndex], pulseSerie[lastTourIndex]);
 
       if (_chkExtendedScaling.getSelection()) {
-         xDataPower.setScalingFactors(//
+
+         xDataPower.setScalingFactors(
                (double) _spinFactor.getSelection() / 10,
                maxXValue + ADJUST_MAX_POWER_VALUE);
       }
 
       /*
-       * updata layer for regression lines
+       * update layer for regression lines
        */
       final ArrayList<IChartLayer> chartCustomLayers = new ArrayList<>();
       chartCustomLayers.add(_conconiLayer);
@@ -527,8 +483,8 @@ public class ConconiView extends ViewPart {
 
    private ConconiData createConconiData(final double[] powerSerie, final double[] pulseSerie) {
 
-      final TDoubleArrayList maxXValues = new TDoubleArrayList();
-      final TDoubleArrayList maxYValues = new TDoubleArrayList();
+      final DoubleArrayList maxXValues = new DoubleArrayList();
+      final DoubleArrayList maxYValues = new DoubleArrayList();
 
       double lastMaxY = Double.MIN_VALUE;
       double currentXValue = powerSerie[0];
@@ -589,7 +545,6 @@ public class ConconiView extends ViewPart {
       addPrefListener();
       addTourEventListener();
       addSelectionListener();
-      addPartListener();
 
       // show conconi chart from selection service
       onSelectionChanged(getSite().getWorkbenchWindow().getSelectionService().getSelection());
@@ -606,7 +561,7 @@ public class ConconiView extends ViewPart {
 
       _pageBook = new PageBook(parent, SWT.NONE);
 
-      _page_NoTour = net.tourbook.ui.UI.createPage(_tk, _pageBook, Messages.UI_Label_TourIsNotSelected);
+      _page_NoTour = UI.createPage(_tk, _pageBook, Messages.UI_Label_TourIsNotSelected);
 
       createUI_10_ConconiTest(_pageBook);
    }
@@ -663,18 +618,13 @@ public class ConconiView extends ViewPart {
                .grab(true, false)
                .applyTo(_comboTests);
          _comboTests.setVisibleItemCount(20);
-         _comboTests.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               onSelectTour();
-            }
-         });
+         _comboTests.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTour()));
 
          /*
-          * label: deflaction point
+          * label: deflection point
           */
          label = new Label(container, SWT.NONE);
-         label.setText(Messages.Conconi_Chart_DeflactionPoint);
+         label.setText(Messages.Conconi_Chart_DeflectionPoint);
 
          final Composite deflContainer = new Composite(container, SWT.NONE);
          GridDataFactory.fillDefaults().grab(true, false).applyTo(deflContainer);
@@ -686,12 +636,7 @@ public class ConconiView extends ViewPart {
              */
             _scaleDeflection = new Scale(deflContainer, SWT.HORIZONTAL);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_scaleDeflection);
-            _scaleDeflection.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onSelectDeflection();
-               }
-            });
+            _scaleDeflection.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectDeflection()));
 
             final Composite containerValues = new Composite(deflContainer, SWT.NONE);
             GridDataFactory.fillDefaults().grab(false, false).align(SWT.FILL, SWT.CENTER).applyTo(containerValues);
@@ -699,25 +644,25 @@ public class ConconiView extends ViewPart {
             //		container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
             {
                // label: heartbeat value
-               _lblDeflactionPulse = new Label(containerValues, SWT.TRAIL);
+               _lblDeflectionPulse = new Label(containerValues, SWT.TRAIL);
                GridDataFactory
                      .fillDefaults()
                      .align(SWT.FILL, SWT.CENTER)
                      .hint(_pc.convertWidthInCharsToPixels(4), SWT.DEFAULT)
-                     .applyTo(_lblDeflactionPulse);
+                     .applyTo(_lblDeflectionPulse);
 
                // label: heartbeat unit
                label = new Label(containerValues, SWT.NONE);
                GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
-               label.setText(net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit);
+               label.setText(OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT);
 
                // label: power value
-               _lblDeflactionPower = new Label(containerValues, SWT.TRAIL);
+               _lblDeflectionPower = new Label(containerValues, SWT.TRAIL);
                GridDataFactory
                      .fillDefaults()
                      .align(SWT.FILL, SWT.CENTER)
                      .hint(_pc.convertWidthInCharsToPixels(4), SWT.DEFAULT)
-                     .applyTo(_lblDeflactionPower);
+                     .applyTo(_lblDeflectionPower);
 
                // label: power unit
                label = new Label(containerValues, SWT.NONE);
@@ -745,13 +690,10 @@ public class ConconiView extends ViewPart {
                .applyTo(_chkExtendedScaling);
          _chkExtendedScaling.setText(Messages.Conconi_Chart_Chk_LogScaling);
          _chkExtendedScaling.setToolTipText(Messages.Conconi_Chart_Chk_LogScaling_Tooltip);
-         _chkExtendedScaling.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               enableControls();
-               updateChart_30_NewTour(_selectedTour);
-            }
-         });
+         _chkExtendedScaling.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            enableControls();
+            updateChart_30_NewTour(_selectedTour);
+         }));
 
          /*
           * label: factor
@@ -775,33 +717,24 @@ public class ConconiView extends ViewPart {
          _spinFactor.setMaximum(100);
          _spinFactor.setDigits(1);
 
-         _spinFactor.addModifyListener(new ModifyListener() {
-            @Override
-            public void modifyText(final ModifyEvent e) {
-               if (_isUpdateUI) {
-                  return;
-               }
-               updateChart_30_NewTour(_selectedTour);
+         _spinFactor.addModifyListener(modifyEvent -> {
+            if (_isUpdateUI) {
+               return;
             }
+            updateChart_30_NewTour(_selectedTour);
          });
-         _spinFactor.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-               if (_isUpdateUI) {
-                  return;
-               }
-               updateChart_30_NewTour(_selectedTour);
+         _spinFactor.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
+            if (_isUpdateUI) {
+               return;
             }
-         });
-         _spinFactor.addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseScrolled(final MouseEvent event) {
-               Util.adjustSpinnerValueOnMouseScroll(event);
-               if (_isUpdateUI) {
-                  return;
-               }
-               updateChart_30_NewTour(_selectedTour);
+            updateChart_30_NewTour(_selectedTour);
+         }));
+         _spinFactor.addMouseWheelListener(mouseEvent -> {
+            Util.adjustSpinnerValueOnMouseScroll(mouseEvent);
+            if (_isUpdateUI) {
+               return;
             }
+            updateChart_30_NewTour(_selectedTour);
          });
 
       }
@@ -824,7 +757,6 @@ public class ConconiView extends ViewPart {
    @Override
    public void dispose() {
 
-      getViewSite().getPage().removePartListener(_partListener);
       getSite().getPage().removeSelectionListener(_postSelectionListener);
       TourManager.getInstance().removeTourEventListener(_tourEventListener);
       _prefStore.removePropertyChangeListener(_prefChangeListener);
@@ -882,24 +814,22 @@ public class ConconiView extends ViewPart {
          return;
       }
 
-      if (selection instanceof SelectionTourData) {
+      if (selection instanceof final SelectionTourData selectionTourData) {
 
-         final TourData tourData = ((SelectionTourData) selection).getTourData();
+         final TourData tourData = selectionTourData.getTourData();
          if (tourData != null) {
             updateChart_20(tourData);
          }
 
-      } else if (selection instanceof SelectionTourIds) {
+      } else if (selection instanceof final SelectionTourIds selectionTourId) {
 
-         final SelectionTourIds selectionTourId = (SelectionTourIds) selection;
          final ArrayList<Long> tourIds = selectionTourId.getTourIds();
          if (tourIds != null && tourIds.size() > 0) {
             updateChart_12(tourIds);
          }
 
-      } else if (selection instanceof SelectionTourId) {
+      } else if (selection instanceof final SelectionTourId selectionTourId) {
 
-         final SelectionTourId selectionTourId = (SelectionTourId) selection;
          final Long tourId = selectionTourId.getTourId();
 
          updateChart_10(tourId);
@@ -993,26 +923,23 @@ public class ConconiView extends ViewPart {
       _pageBook.showPage(_page_NoTour);
 
       // a tour is not displayed, find a tour provider which provides a tour
-      Display.getCurrent().asyncExec(new Runnable() {
-         @Override
-         public void run() {
+      Display.getCurrent().asyncExec(() -> {
 
-            // validate widget
-            if (_pageBook.isDisposed()) {
-               return;
-            }
+         // validate widget
+         if (_pageBook.isDisposed()) {
+            return;
+         }
 
-            /*
-             * check if tour was set from a selection provider
-             */
-            if (_conconiTours != null) {
-               return;
-            }
+         /*
+          * check if tour was set from a selection provider
+          */
+         if (_conconiTours != null) {
+            return;
+         }
 
-            final ArrayList<TourData> selectedTours = TourManager.getSelectedTours();
-            if (selectedTours != null && selectedTours.size() > 0) {
-               updateChart_22(selectedTours);
-            }
+         final ArrayList<TourData> selectedTours = TourManager.getSelectedTours();
+         if (selectedTours != null && selectedTours.size() > 0) {
+            updateChart_22(selectedTours);
          }
       });
    }
@@ -1026,6 +953,7 @@ public class ConconiView extends ViewPart {
    }
 
    private void updateChart_12(final ArrayList<Long> tourIds) {
+
       updateChart_22(TourManager.getInstance().getTourData(tourIds));
    }
 
@@ -1130,8 +1058,14 @@ public class ConconiView extends ViewPart {
       _scaleDeflection.setEnabled(true);
       _scaleDeflection.setMaximum(maxDeflection > 0 ? lastXIndex : 0);
 
-      // ensure that too much scale ticks are displayed
-      final int pageIncrement = maxDeflection < 20 ? 1 : maxDeflection < 100 ? 5 : maxDeflection < 1000 ? 50 : 100;
+      // ensure that not too much scale ticks are displayed
+      final int pageIncrement = maxDeflection < 20
+            ? 1
+            : maxDeflection < 100
+                  ? 5
+                  : maxDeflection < 1000
+                        ? 50
+                        : 100;
 
       _scaleDeflection.setPageIncrement(pageIncrement);
 
@@ -1161,13 +1095,13 @@ public class ConconiView extends ViewPart {
          return;
       }
 
-      // deflation values
+      // deflection values
       final int scaleIndex = _scaleDeflection.getSelection();
       final int pulseValue = (int) _conconiDataForSelectedTour.maxYValues.get(scaleIndex);
       final int powerValue = (int) _conconiDataForSelectedTour.maxXValues.get(scaleIndex);
 
-      _lblDeflactionPulse.setText(Integer.toString(pulseValue));
-      _lblDeflactionPower.setText(Integer.toString(powerValue));
+      _lblDeflectionPulse.setText(Integer.toString(pulseValue));
+      _lblDeflectionPower.setText(Integer.toString(powerValue));
 
       // update conconi layer
       _chartConconiTest.updateCustomLayers();
