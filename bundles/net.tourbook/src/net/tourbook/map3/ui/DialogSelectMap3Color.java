@@ -167,11 +167,8 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
       _graphId = graphId;
       _map3View = map3View;
 
-<<<<<<< HEAD
-=======
       _state = map3View.getState();
 
->>>>>>> refs/remotes/Wolfgang/main
       addListener(toolBar);
 
       setToolTipCreateStyle(AnimatedToolTipShell.TOOLTIP_STYLE_KEEP_CONTENT);
@@ -350,24 +347,16 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
          final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
          final Color bgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
 
-<<<<<<< HEAD
       _shellContainer.addDisposeListener(disposeEvent -> onDispose());
-=======
          UI.setChildColors(shellContainer, fgColor, bgColor);
-      }
-
-      shellContainer.addDisposeListener(disposeEvent -> onDispose());
->>>>>>> refs/remotes/Wolfgang/main
 
       return shellContainer;
    }
 
    private void createUI_10_Title(final Composite parent) {
 
-<<<<<<< HEAD
       final List<Map3GradientColorProvider> colorProviders = Map3GradientColorManager
             .getColorProviders(_graphId);
-=======
       {
          /*
           * Label: Title
@@ -385,7 +374,6 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
    private void createUI_20_ColorViewer(final Composite parent) {
 
       final List<Map3GradientColorProvider> colorProviders = Map3GradientColorManager.getColorProviders(_graphId);
->>>>>>> refs/remotes/Wolfgang/main
 
       int tableStyle;
       if (colorProviders.size() > _numVisibleRows) {
@@ -494,27 +482,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
       _colorViewer.addSelectionChangedListener(selectionChangedEvent -> onViewerSelectColor());
 
-<<<<<<< HEAD
-            @Override
-            public boolean isChecked(final Object element) {
-               return onViewerIsChecked(element);
-            }
-
-            @Override
-            public boolean isGrayed(final Object element) {
-               return onViewerIsGrayed(element);
-            }
-         });
-
-         _colorViewer.addCheckStateListener(this::onViewerCheckStateChange);
-
-         _colorViewer.addSelectionChangedListener(selectionChangedEvent -> onViewerSelectColor());
-
-         _colorViewer.addDoubleClickListener(doubleClickEvent -> actionEditSelectedColor());
-      }
-=======
       _colorViewer.addDoubleClickListener(doubleClickEvent -> actionEditSelectedColor());
->>>>>>> refs/remotes/Wolfgang/main
    }
 
    private void createUI_30_Options(final Composite parent) {
