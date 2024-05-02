@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.tour.filter.geo;
 
-
 import de.byteholder.geoclipse.map.MapGridData;
 
 import java.sql.Connection;
