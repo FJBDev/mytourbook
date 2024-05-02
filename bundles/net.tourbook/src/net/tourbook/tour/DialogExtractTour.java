@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,6 +26,7 @@ import java.util.Set;
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
@@ -39,9 +40,9 @@ import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.tag.TagManager;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.ui.ITourProvider2;
-import net.tourbook.ui.UI;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
@@ -109,7 +110,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
          Messages.Dialog_SplitTour_ComboText_TourTitleFromTour,
          Messages.Dialog_SplitTour_ComboText_TourTitleFromFirstMarker,
-         Messages.Dialog_SplitTour_ComboText_TourTileCustom,
+         Messages.Dialog_SplitTour_ComboText_TourTitleCustom,
    };
 
    /**
@@ -187,7 +188,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
    private ActionOpenPrefDialog  _actionOpenTourTypePrefs;
 
    private TourPerson[]          _people;
-   protected Point               _shellDefaultSize;
+   private Point                 _shellDefaultSize;
    private TagMenuManager        _tagMenuMgr;
 
    /*
@@ -1029,7 +1030,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       // check if time slices should be removed
       if (getStateSplitMethod().equals(STATE_EXTRACT_METHOD_REMOVE)) {
 
-         TourManager.removeTimeSlices(_tourDataSource, _extractStartIndex, _extractEndIndex, true, false);
+         TourManager.removeTimeSlices(_tourDataSource, _extractStartIndex, _extractEndIndex, true, true, false);
 
          _tourDataEditor.updateUI(_tourDataSource, true);
 
@@ -1387,8 +1388,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
    private void updateUITourTypeTags() {
 
       // tour type/tags
-      UI.updateUI_TourType(_tourDataTarget, _lblTourType, true);
-      UI.updateUI_Tags(_tourDataTarget, _lblTourTags);
+      net.tourbook.ui.UI.updateUI_TourType(_tourDataTarget, _lblTourType, true);
+      TagManager.updateUI_Tags(_tourDataTarget, _lblTourTags);
 
       // reflow layout that the tags are aligned correctly
       _dlgInnerContainer.layout(true);

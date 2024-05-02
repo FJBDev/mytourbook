@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -60,7 +60,7 @@ public class GraphColorManager {
    public static final String  PREF_GRAPH_POWER                        = "power";                      //$NON-NLS-1$
    public static final String  PREF_GRAPH_SENSOR                       = "Sensor";                     //$NON-NLS-1$
    public static final String  PREF_GRAPH_SPEED                        = "speed";                      //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TEMPTERATURE                 = "tempterature";               //$NON-NLS-1$
+   public static final String  PREF_GRAPH_TEMPERATURE                  = "tempterature";               //$NON-NLS-1$
    public static final String  PREF_GRAPH_TIME                         = "duration";                   //$NON-NLS-1$
    public static final String  PREF_GRAPH_TOUR                         = "tour";                       //$NON-NLS-1$
    public static final String  PREF_GRAPH_TOUR_COMPARE                 = "tourCompare";                //$NON-NLS-1$
@@ -130,6 +130,7 @@ public class GraphColorManager {
    private static final Map2ColorProfile MAP_COLOR_ELEVATION;
    private static final Map2ColorProfile MAP_COLOR_GRADIENT;
    private static final Map2ColorProfile MAP_COLOR_PACE;
+   private static final Map2ColorProfile MAP_COLOR_POWER;
    private static final Map2ColorProfile MAP_COLOR_PULSE;
    private static final Map2ColorProfile MAP_COLOR_SPEED;
    private static final Map2ColorProfile MAP_COLOR_RUN_DYN_STEP_LENGTH;
@@ -154,6 +155,28 @@ public class GraphColorManager {
             0,
             MapColorProfile.BRIGHTNESS_DEFAULT,
             5);
+
+      MAP_COLOR_POWER = new Map2ColorProfile(
+
+            new ColorValue[] {
+
+                  new ColorValue(10, 0, 40, 255),
+                  new ColorValue(50, 0, 182, 7),
+                  new ColorValue(100, 228, 235, 0),
+                  new ColorValue(150, 216, 102, 0),
+                  new ColorValue(190, 146, 2, 0)
+            },
+
+            MapColorProfile.BRIGHTNESS_DEFAULT,
+            8,
+            MapColorProfile.BRIGHTNESS_DIMMING,
+            48,
+
+            // overwrite min/max values
+            true,
+            0,
+            true,
+            800);
 
       MAP_COLOR_PULSE = new Map2ColorProfile(
 
@@ -271,8 +294,6 @@ public class GraphColorManager {
 
    private static ColorDefinition[] _allGraphColorDefinitions;
 
-   public GraphColorManager() {}
-
    /**
     * Create graph default colors
     *
@@ -365,9 +386,9 @@ public class GraphColorManager {
             new RGB(0xdd, 0x0, 0x8a),
             new RGB(0xff, 0x0, 0x9f),
 
-            null));
+            MAP_COLOR_POWER));
 
-      allColorDef.add(new ColorDefinition(PREF_GRAPH_TEMPTERATURE,
+      allColorDef.add(new ColorDefinition(PREF_GRAPH_TEMPERATURE,
             Messages.Graph_Label_Temperature,
 
             new RGB(0xc1, 0xf9, 0xff),
@@ -983,6 +1004,9 @@ public class GraphColorManager {
 
       case Pace:
          return getGraphColorDefinition(PREF_GRAPH_PACE);
+
+      case Power:
+         return getGraphColorDefinition(PREF_GRAPH_POWER);
 
       case Pulse:
          return getGraphColorDefinition(PREF_GRAPH_HEARTBEAT);

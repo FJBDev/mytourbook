@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,18 +27,32 @@ public class CommonImages {
    public static final String App_Copy_Disabled            = "app-copy-disabled.png";                     //$NON-NLS-1$
    public static final String App_CollapseAll              = "collapseall.png";                           //$NON-NLS-1$
    public static final String App_CollapseAll_Disabled     = "collapseall-disabled.png";                  //$NON-NLS-1$
+   public static final String App_Download                 = "app-download.png";                          //$NON-NLS-1$
+   public static final String App_Download_Disabled        = "app-download-disabled.png";                 //$NON-NLS-1$
    public static final String App_EmptyIcon_Placeholder    = "_empty16.png";                              //$NON-NLS-1$
    public static final String App_ExpandAll                = "expandall.png";                             //$NON-NLS-1$
    public static final String App_ExpandAll_Disabled       = "expandall-disabled.png";                    //$NON-NLS-1$
    public static final String App_Filter                   = "app-filter.png";                            //$NON-NLS-1$
    public static final String App_Filter_Disabled          = "app-filter-disabled.png";                   //$NON-NLS-1$
    public static final String App_KeepOpen                 = "app-keep-open.png";                         //$NON-NLS-1$
+   public static final String App_Move_Left                = "app-move-left.png";                         //$NON-NLS-1$
+   public static final String App_Move_Left_2x             = "app-move-left-2x.png";                      //$NON-NLS-1$
+   public static final String App_Move_Right               = "app-move-right.png";                        //$NON-NLS-1$
+   public static final String App_Move_Right_2x            = "app-move-right-2x.png";                     //$NON-NLS-1$
+   public static final String App_Move_Up                  = "app-move-up.png";                           //$NON-NLS-1$
+   public static final String App_Move_Up_2x               = "app-move-up-2x.png";                        //$NON-NLS-1$
+   public static final String App_Move_Down                = "app-move-down.png";                         //$NON-NLS-1$
+   public static final String App_Move_Down_2x             = "app-move-down-2x.png";                      //$NON-NLS-1$
    public static final String App_Options                  = "options.png";                               //$NON-NLS-1$
    public static final String App_Options_Disabled         = "options-disabled.png";                      //$NON-NLS-1$
    public static final String App_Pin                      = "app-pin.png";                               //$NON-NLS-1$
    public static final String App_ResetToDefault           = "app-default.png";                           //$NON-NLS-1$
+   public static final String App_ReStart                  = "app-restart.png";                           //$NON-NLS-1$
    public static final String App_Save                     = "app-save.png";                              //$NON-NLS-1$
    public static final String App_Save_Disabled            = "app-save-disabled.png";                     //$NON-NLS-1$
+   public static final String App_SaveAndNext              = "app-save-and-next.png";                     //$NON-NLS-1$
+   public static final String App_SaveAndNext_Disabled     = "app-save-and-next-disabled.png";            //$NON-NLS-1$
+   public static final String App_ScrambleData             = "app-scramble-data.png";                     //$NON-NLS-1$
    public static final String App_Turn_On                  = "app-turn-on.png";                           //$NON-NLS-1$
    public static final String App_Turn_Off                 = "app-turn-off.png";                          //$NON-NLS-1$
    public static final String App_Undo                     = "app-undo.png";                              //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,6 @@ import net.tourbook.map25.Map25ConfigManager;
 import net.tourbook.map25.layer.tourtrack.Map25TrackConfig;
 import net.tourbook.map25.layer.tourtrack.TourTrack_Layer;
 
-import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList;
 import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.renderer.MapRenderer;
@@ -98,21 +97,31 @@ public class TourTrack_Bucket {
    ShortArrayList             directionArrow_ColorCoords;
 
    /**
-    * X/Y positions
-    *
-    * <pre>
-    * posX1    posY2
-    * posX2    posY2
-    * ...
-    * </pre>
+    * Indices for {@link #allVisible_PixelPositions} into the tour track data
     */
-   ShortArrayList             animatedPositions;
+   int[]                      allVisible_GeoLocationIndices;
+
+   /**
+    * Contains indices into all geo positions for all selected tours. They are optimized for a
+    * minimum distance, so they can be also outside of the clipper (visible) area -2048...2048
+    */
+   int[]                      allNotClipped_GeoLocationIndices;
+
+   double[]                   allProjectedPoints;
+
+   double[]                   allProjectedPoints_ReturnTrack;
+
+   /**
+    * Distance in pixel between the end and start point of the track for the current map scale
+    */
+   double                     trackEnd2StartPixelDistance;
+
+   int[]                      allTimeSeries;
+   float[]                    allDistanceSeries;
 
    public TourTrack_Bucket() {
 
       trackVertexData = new TourTrack_VertexData();
-
-      animatedPositions = new ShortArrayList();
 
       directionArrow_Vertices = new ShortArrayList();
       directionArrow_ColorCoords = new ShortArrayList();
@@ -123,34 +132,20 @@ public class TourTrack_Bucket {
     *
     * @param pixelPoints
     *           -2048 ... 2048
+    * @param index
     * @param numPoints
     * @param isCapClosed
     * @param pixelPointColors
     *           One {@link #pixelPointColors} has two {@link #pixelPoints}
     */
-   public void addLine(final float[] pixelPoints,
-                       final int numPoints,
-                       final boolean isCapClosed,
-                       final int[] pixelPointColors) {
+   void addLine(final float[] pixelPoints,
+                final int numPoints,
+                final boolean isCapClosed,
+                final int[] pixelPointColors) {
 
-      if (numPoints >= 4) {
-         addLine(pixelPoints, null, numPoints, isCapClosed, pixelPointColors);
+      if (numPoints < 4) {
+         return;
       }
-   }
-
-   /**
-    * @param pixelPoints
-    *           -2048 ... 2048
-    * @param index
-    * @param numPoints
-    * @param isCapClosed
-    * @param pixelPointColors
-    */
-   private void addLine(final float[] pixelPoints,
-                        final int[] index,
-                        final int numPoints,
-                        final boolean isCapClosed,
-                        final int[] pixelPointColors) {
 
       // test minimum distance
 //      _minimumDistance = testValue * 2.0f;
@@ -164,43 +159,19 @@ public class TourTrack_Bucket {
          isCapSquared = true;
       }
 
-      /*
-       * Note: just a hack to save some vertices, when there are
-       * more than 200 lines per type. Fixme: make optional!
-       */
-      if (isCapRounded && index != null) {
-         int cnt = 0;
-         for (int i = 0, n = index.length; i < n; i++, cnt++) {
-            if (index[i] < 0) {
-               break;
-            }
-            if (cnt > 400) {
-               isCapRounded = false;
-               break;
-            }
-         }
-      }
       this.isCapRounded = isCapRounded;
 
       int numIndices;
       int numLinePoints = 0;
 
-      if (index == null) {
-         numIndices = 1;
-         if (numPoints > 0) {
-            numLinePoints = numPoints;
-         } else {
-            numLinePoints = pixelPoints.length;
-         }
+      numIndices = 1;
+      if (numPoints > 0) {
+         numLinePoints = numPoints;
       } else {
-         numIndices = index.length;
+         numLinePoints = pixelPoints.length;
       }
 
       for (int indexIndex = 0, pos = 0; indexIndex < numIndices; indexIndex++) {
-
-         if (index != null) {
-            numLinePoints = index[indexIndex];
-         }
 
          /* check end-marker in indices */
          if (numLinePoints < 0) {
@@ -634,31 +605,22 @@ public class TourTrack_Bucket {
    /**
     * Creates direction arrow vertices from it's x/y position
     *
-    * @param allDirectionArrowPixelList
+    * @param allDirectionArrow_PixelList
     *           Contains the x/y pixel positions for the direction arrows
+    * @param allDirectionArrow_LocationIndices
+    *           Contains the indices into the tour track data, e.g geo location
     */
-   public void createArrowVertices(final FloatArrayList allDirectionArrowPixelList) {
-
-      // create new list to not update currently used list, otherwise a bound exception can occure !!!
-      animatedPositions.clear();
+   public void createArrowVertices(final float[] allDirectionArrowPixel) {
 
       directionArrow_Vertices.clear();
       directionArrow_ColorCoords.clear();
 
       // at least 2 positions are needed
-      if (allDirectionArrowPixelList.size() < 4) {
+      if (allDirectionArrowPixel.length < 4) {
          return;
       }
 
-      final float[] allDirectionArrowPixel = allDirectionArrowPixelList.toArray();
-
-      final Map25TrackConfig trackConfig = Map25ConfigManager.getActiveTourTrackConfig();
-
-      if (trackConfig.arrow_IsAnimate) {
-
-         createArrowVertices_200_Animated(allDirectionArrowPixel);
-
-      } else {
+      if (Map25ConfigManager.getActiveTourTrackConfig().isShowDirectionArrow) {
 
          createArrowVertices_100_NotAnimated(allDirectionArrowPixel);
       }
@@ -993,20 +955,6 @@ public class TourTrack_Bucket {
             (short) 0, (short) 0, (short) 1);
 
 // SET_FORMATTING_ON
-   }
-
-   private void createArrowVertices_200_Animated(final float[] allDirectionArrowPixel) {
-
-      for (int pixelIndex = 0; pixelIndex < allDirectionArrowPixel.length;) {
-
-         final float p2X = allDirectionArrowPixel[pixelIndex++];
-         final float p2Y = allDirectionArrowPixel[pixelIndex++];
-
-         final short p2X_scaled = (short) (p2X * COORD_SCALE);
-         final short p2Y_scaled = (short) (p2Y * COORD_SCALE);
-
-         animatedPositions.addAll(p2X_scaled, p2Y_scaled);
-      }
    }
 
 }

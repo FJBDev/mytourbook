@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,16 +20,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import net.tourbook.Messages;
+import net.tourbook.application.PluginProperties;
+import net.tourbook.common.util.FileUtils;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.tour.TourLogManager;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.nebula.widgets.nattable.viewport.command.ShowColumnInViewportCommand;
 import org.eclipse.swtbot.nebula.nattable.finder.widgets.SWTBotNatTable;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarToggleButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -37,156 +45,176 @@ import utils.Utils;
 
 public class TourBookViewTests extends UITest {
 
-   /**
-    * This test doesn't work because SWTBot doesn't support native dialogs
-    * https://wiki.eclipse.org/SWTBot/FAQ#How_do_I_use_SWTBot_to_test_native_dialogs_.28File_Dialogs.2C_Color_Dialogs.2C_etc.29.3F
-    */
-//   @Test
-//   void testExportTourBookView() {
-//
-//      Utils.showTourBookView(bot);
-//
-//      final SWTBotTreeItem tour = Utils.getTour(bot);
-//
-//      tour.contextMenu(Messages.App_Action_ExportViewCSV).click();
-//
-//      bot.button("Save").click();
-//
-//      final Path csvFilePath = Paths.get(Utils.workingDirectory, "TourBook_2022-08-30_21-39-05.csv");
-//      assertTrue(Files.exists(csvFilePath));
-//
-//      FilesUtils.deleteIfExists(csvFilePath);
-//      assertTrue(!Files.exists(csvFilePath));
-//   }
+   @Test
+   void adjustTourValues_RetrieveWeatherData_OpenWeatherMap() {
+
+      // Select OpenWeatherMap to make sure the air quality is retrieved
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("Weather").select(); //$NON-NLS-1$
+
+      bot.comboBox().setSelection(1);
+
+      // Select to display the full weather information
+      bot.checkBox(Messages.Pref_Weather_Check_DisplayFullLog).click();
+
+      Utils.clickApplyAndCloseButton(bot);
+
+      // Select a tour
+      Utils.showTourBookView(bot);
+      final SWTBotTreeItem tour = Utils.getTour(bot);
+      tour.contextMenu(Messages.Tour_Action_AdjustTourValues)
+            .menu(Messages.tour_editor_section_weather)
+            .menu(Messages.Tour_Action_RetrieveWeatherData).click();
+
+      bot.sleep(5000);
+
+      final List<?> logs = TourLogManager.getLogs();
+      assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
+            "Data retrieved in ")));//$NON-NLS-1$
+      assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
+            "1/31/2021, 7:15 AM:")));//$NON-NLS-1$
+      assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
+            "air quality Fair")));//$NON-NLS-1$
+   }
+
+   @Test
+   void adjustTourValues_SetTimeZone_AllChoices() {
+
+      SWTBotTreeItem tour = Utils.duplicateAndGetTour(bot);
+      assertEquals("11:00 AM", tour.cell(tourBookView_StartTime_Column_Index)); //$NON-NLS-1$
+      assertEquals("America/Los_Angeles", tour.cell(tourBookView_TimeZone_Column_Index)); //$NON-NLS-1$
+
+      //Adjust the tour time zone
+      tour.contextMenu(Messages.Tour_Action_AdjustTourValues).menu(Messages.Tour_Action_SetTimeZone).click();
+      bot.comboBox().setSelection("-07:00    -06:00    US/Mountain   -   DST - 1 h - N"); //$NON-NLS-1$
+      bot.button(Messages.Dialog_SetTimeZone_Button_AdjustTimeZone).click();
+
+      //Assert
+      tour = Utils.selectDuplicatedTour(bot);
+      assertEquals("12:00 PM", tour.cell(tourBookView_StartTime_Column_Index)); //$NON-NLS-1$
+      assertEquals("US/Mountain", tour.cell(tourBookView_TimeZone_Column_Index)); //$NON-NLS-1$
+
+      //Adjust the tour time zone to the default value set in the preferences
+      tour.contextMenu(Messages.Tour_Action_AdjustTourValues).menu(Messages.Tour_Action_SetTimeZone).click();
+      bot.link(0).click();
+      bot.button(Messages.Dialog_SetTimeZone_Button_AdjustTimeZone).click();
+
+      //Assert
+      tour = Utils.selectDuplicatedTour(bot);
+      assertEquals("8:00 PM", tour.cell(tourBookView_StartTime_Column_Index)); //$NON-NLS-1$
+      assertEquals("Europe/Paris", tour.cell(tourBookView_TimeZone_Column_Index)); //$NON-NLS-1$
+
+      Utils.deleteTour(bot, tour);
+   }
+
+   @BeforeEach
+   void setUp() {
+
+      tourBookView = Utils.showTourBookView(bot);
+   }
 
    @Test
    void testComputeTourDistance() {
 
-      Utils.showTourBookView(bot);
+      SWTBotTreeItem tour = Utils.duplicateAndGetTour(bot);
 
       //Check the original distance
-      SWTBotTreeItem tour = Utils.getTour(bot);
-      assertEquals("0.542", tour.cell(tourBookView_Distance_Column_Index)); //$NON-NLS-1$
+      assertEquals("19.377", tour.cell(tourBookView_Distance_Column_Index)); //$NON-NLS-1$
 
       //Compute the tour distance
       tour.contextMenu(Messages.Tour_Action_AdjustTourValues).menu(Messages.TourEditor_Action_ComputeDistanceValuesFromGeoPosition).click();
       Utils.clickOkButton(bot);
 
       //Check the new computed distance
-      tour = Utils.getTour(bot);
-      assertEquals("0.551", tour.cell(tourBookView_Distance_Column_Index)); //$NON-NLS-1$
+      tour = Utils.selectDuplicatedTour(bot);
+      assertEquals("19.379", tour.cell(tourBookView_Distance_Column_Index)); //$NON-NLS-1$
+
+      Utils.deleteTour(bot, tour);
    }
 
+   /**
+    * This test doesn't work because SWTBot doesn't support native dialogs
+    * https://wiki.eclipse.org/SWTBot/FAQ#How_do_I_use_SWTBot_to_test_native_dialogs_.28File_Dialogs.2C_Color_Dialogs.2C_etc.29.3F
+    */
+   @Disabled
    @Test
-   void testDuplicateAndDeleteTour() {
+   void testExportTourBookView() {
 
-      Utils.showTourBookView(bot);
+      final SWTBotTreeItem tour = Utils.getTour(bot);
 
-      bot.viewByTitle("Tour Book").show(); //$NON-NLS-1$
+      tour.contextMenu(Messages.App_Action_ExportViewCSV).click();
 
-      // Get a tour that can be duplicated
-      SWTBotTreeItem tour = bot.tree().getTreeItem("2014   1").expand() //$NON-NLS-1$
-            .getNode("Jan   1").expand().select().getNode("1").select(); //$NON-NLS-1$ //$NON-NLS-2$
+      bot.button("Save").click(); //$NON-NLS-1$
 
-      // Duplicate the tour
-      tour.contextMenu("Duplicate Tour...").click(); //$NON-NLS-1$
+      final Path csvFilePath = Paths.get(Utils.WORKING_DIRECTORY, "TourBook_2022-08-30_21-39-05.csv"); //$NON-NLS-1$
+      assertTrue(Files.exists(csvFilePath));
 
-      // Set a different date than today's date
-      bot.dateTime(0).setDate(new Date(1420117200000L));
-      // Set a different time than the current's time
-      bot.dateTime(1).setDate(new Date(1420117200000L));
-
-      //Save the tour
-      bot.toolbarButtonWithTooltip(Utils.SAVE_MODIFIED_TOUR).click();
-
-      tour = bot.tree().getTreeItem("2015   2").expand() //$NON-NLS-1$
-            .getNode("Jan   1").expand().select().getNode("1").select(); //$NON-NLS-1$ //$NON-NLS-2$
-      assertNotNull(tour);
-
-      //Delete the tour
-      tour.contextMenu(Messages.Tour_Book_Action_delete_selected_tours_menu).menu(Messages.Tour_Book_Action_delete_selected_tours_menu).menu(
-            Messages.Tour_Book_Action_delete_selected_tours).click();
-      Utils.clickOkButton(bot);
-      Utils.clickOkButton(bot);
-
-      final List<?> logs = TourLogManager.getLogs();
-      assertTrue(logs.stream().map(Object::toString).anyMatch(log -> log.contains(
-            "1/1/15, 1:00 PM")));//$NON-NLS-1$
-
-      //Check that the tour was successfully deleted
-      final SWTBotTreeItem[] allItems = bot.tree().getAllItems();
-      assertEquals("2015   1", allItems[2].getText()); //$NON-NLS-1$
+      FileUtils.deleteIfExists(csvFilePath);
+      assertTrue(!Files.exists(csvFilePath));
    }
 
    @Test
    void testMultiplyTourCalories() {
 
-      Utils.showTourBookView(bot);
-
       //Select a tour that contains a calories value
-      SWTBotTreeItem tour = bot.tree().getTreeItem("2020   3").expand() //$NON-NLS-1$
-            .getNode("May   2").expand().select().getNode("23").select(); //$NON-NLS-1$ //$NON-NLS-2$
-      assertNotNull(tour);
+      SWTBotTreeItem tour = Utils.duplicateAndGetTour(bot);
 
       //Check the original calories value
-      assertEquals("1,073", tour.cell(tourBookView_Temperature_Column_Index)); //$NON-NLS-1$
+      assertEquals("2", tour.cell(tourBookView_Calories_Column_Index)); //$NON-NLS-1$
 
       //Multiply the calories by 1000
       tour.contextMenu(Messages.Tour_Action_AdjustTourValues).menu(Messages.Tour_Action_MultiplyCaloriesBy1000).click();
       bot.button(Messages.Tour_Action_MultiplyCaloriesBy1000_Apply).click();
 
       //Check the new calories value
-      tour = bot.tree().getTreeItem("2020   3").expand() //$NON-NLS-1$
-            .getNode("May   2").expand().select().getNode("23").select(); //$NON-NLS-1$ //$NON-NLS-2$
-      assertNotNull(tour);
-      assertEquals("1,073,000", tour.cell(tourBookView_Temperature_Column_Index)); //$NON-NLS-1$
+      tour = Utils.selectDuplicatedTour(bot);
+      assertEquals("2,336", tour.cell(tourBookView_Calories_Column_Index)); //$NON-NLS-1$
+
+      Utils.deleteTour(bot, tour);
    }
 
    @Test
    void testNatTable() {
 
-      final SWTBotView tourBookView = Utils.showTourBookView(bot);
-
       //Activating the NatTable
       bot.toolbarButtonWithTooltip(Messages.Tour_Book_Action_ToggleViewLayout_Tooltip).click();
       bot.toolbarButtonWithTooltip(Messages.Tour_Book_Action_ToggleViewLayout_Tooltip).click();
 
+      // NatTable is slow to appear so we wait a bit otherwise the test will fail
+      bot.sleep(3000);
+
       final SWTBotNatTable botNatTable = new SWTBotNatTable(
             tourBookView.bot().widget(widgetOfType(NatTable.class)));
-      assertEquals(9, botNatTable.rowCount());
+      assertTrue(botNatTable.rowCount() > 0);
 
-      botNatTable.click(1, 0);
-      botNatTable.click(2, 0);
-      //TODO FB org.opentest4j.AssertionFailedError: expected: <0:10> but was: <>
-      //assertEquals("0:10", botNatTable.getCellDataValueByPosition(2, 4)); //$NON-NLS-1$
+      assertTrue(StringUtils.hasContent(botNatTable.getCellDataValueByPosition(2, 4)));
+
+      final int numberVisibleColumns = 4;
+      int visibleColumnIndex = 1;
+      for (int columnIndex = 1; columnIndex < 92; ++columnIndex, ++visibleColumnIndex) {
+
+         if (visibleColumnIndex == numberVisibleColumns) {
+
+            // Scrolling the NatTable horizontally
+            botNatTable.widget.doCommand(new ShowColumnInViewportCommand(columnIndex + numberVisibleColumns));
+            visibleColumnIndex = 1;
+         }
+
+         botNatTable.click(1, visibleColumnIndex);
+      }
 
       //Deactivating the NatTable
       bot.toolbarButtonWithTooltip(Messages.Tour_Book_Action_ToggleViewLayout_Tooltip).click();
    }
 
    @Test
-   void testRetrieveWeatherData() {
-
-      Utils.showTourBookView(bot);
-      final SWTBotTreeItem tour = Utils.getTour(bot);
-
-      tour.contextMenu(Messages.Tour_Action_AdjustTourValues)
-            .menu(Messages.tour_editor_section_weather)
-            .menu(Messages.Tour_Action_RetrieveWeatherData).click();
-
-      final List<?> logs = TourLogManager.getLogs();
-      assertTrue(logs.stream().map(Object::toString).anyMatch(log -> log.contains(
-            "1/31/21, 7:15 AM -> Error while retrieving the weather data: \"{\"cod\":\"400\",\"message\":\"requested time is out of allowed range of 5 days back\"}\"")));//$NON-NLS-1$
-   }
-
-   @Test
    void testSetElevationValuesFromSRTM() {
 
-      Utils.showTourBookView(bot);
-      SWTBotTreeItem tour = Utils.getTourWithSRTM(bot);
+      SWTBotTreeItem tour = Utils.duplicateAndGetTour(bot);
 
       //Check the original elevation value
-      assertEquals("2,578", tour.cell(tourBookView_ElevationGain_Column_Index)); //$NON-NLS-1$
+      assertEquals("658", tour.cell(tourBookView_ElevationGain_Column_Index)); //$NON-NLS-1$
 
       //Set elevation from SRTM
       tour.contextMenu(Messages.Tour_Action_AdjustTourValues)
@@ -196,7 +224,46 @@ public class TourBookViewTests extends UITest {
       Utils.clickOkButton(bot);
 
       //Check the new elevation value
-      tour = Utils.getTourWithSRTM(bot);
+      tour = Utils.selectDuplicatedTour(bot);
       assertEquals("1,008", tour.cell(tourBookView_ElevationGain_Column_Index)); //$NON-NLS-1$
+
+      Utils.deleteTour(bot, tour);
+   }
+
+   @Test
+   void testTourFilters() {
+
+      // Activate the tour filter
+      final SWTBotToolbarToggleButton tourFilterButton = bot.toolbarToggleButtonWithTooltip(Messages.Tour_Filter_Action_Tooltip);
+      assertNotNull(tourFilterButton);
+      tourFilterButton.click();
+
+      // Deactivate the tour filter
+      tourFilterButton.click();
+
+      // Activate the tour geo filter
+      final SWTBotToolbarToggleButton tourGeoFilterButton = bot.toolbarToggleButtonWithTooltip(Messages.Tour_GeoFilter_Action_Tooltip);
+      assertNotNull(tourGeoFilterButton);
+      tourGeoFilterButton.click();
+
+      // Deactivate the tour geo filter
+      tourGeoFilterButton.click();
+
+      // Activate the tour tag filter
+      final SWTBotToolbarToggleButton tourTagFilterButton = bot.toolbarToggleButtonWithTooltip(Messages.Tour_Tag_Filter_Action_Tooltip);
+      assertNotNull(tourTagFilterButton);
+      tourTagFilterButton.click();
+
+      // Deactivate the tour tag filter
+      tourTagFilterButton.click();
+
+      // Activate the tour photo filter
+      final SWTBotToolbarToggleButton tourPhotoFilterButton = bot.toolbarToggleButtonWithTooltip(PluginProperties.getText(
+            "Action_TourPhotoFilter_Tooltip")); //$NON-NLS-1$
+      assertNotNull(tourPhotoFilterButton);
+      tourPhotoFilterButton.click();
+
+      // Deactivate the tour photo filter
+      tourPhotoFilterButton.click();
    }
 }

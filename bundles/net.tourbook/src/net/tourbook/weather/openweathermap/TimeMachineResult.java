@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,54 +17,57 @@ package net.tourbook.weather.openweathermap;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
-import net.tourbook.common.weather.IWeather;
+import net.tourbook.common.UI;
 import net.tourbook.weather.WeatherUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TimeMachineResult {
+class TimeMachineResult {
 
-   private List<Hourly> hourly;
+   /*
+    * Datapoints coming from the API response
+    */
+   private List<WeatherData> data;
 
-   private Hourly       middleHourly;
-
-   private int          averageWindSpeed;
-   private int          averageWindDirection;
+   /*
+    * Internal properties
+    */
+   private int         averageWindSpeed;
+   private int         averageWindDirection;
+   private WeatherData middleWeatherData;
 
    public TimeMachineResult() {
-      hourly = new ArrayList<>();
+      data = new ArrayList<>();
    }
 
    /**
-    * This adds new hourly data manually to ensure only new data is added to the
+    * This adds new data manually to ensure only new data is added to the
     * current dataset.
     *
-    * @param newHourly
+    * @param newData
     */
-   public void addAllHourly(final List<Hourly> newHourly) {
+   void addAllData(final List<WeatherData> newData) {
 
-      for (final Hourly currentHourly : newHourly) {
-         if (!hourly.contains(currentHourly)) {
-            hourly.add(currentHourly);
+      for (final WeatherData currentData : newData) {
+         if (!data.contains(currentData)) {
+            data.add(currentData);
          }
       }
    }
 
-   public void computeAverageWindSpeedAndDirection() {
+   void computeAverageWindSpeedAndDirection() {
 
-      final double[] windSpeeds = hourly
+      final double[] windSpeeds = data
             .stream()
-            .mapToDouble(Hourly::getWind_speedKmph)
+            .mapToDouble(h -> h.getWind_speedKmph())
             .toArray();
 
-      final int[] windDirections = hourly
+      final int[] windDirections = data
             .stream()
-            .mapToInt(Hourly::getWind_deg)
+            .mapToInt(h -> h.wind_deg())
             .toArray();
 
       final int[] averageWindSpeedAndDirection =
@@ -79,44 +82,44 @@ public class TimeMachineResult {
     *
     * @return
     */
-   public boolean filterHourlyData(final long tourStartTime, final long tourEndTime) {
+   boolean filterWeatherData(final long tourStartTime, final long tourEndTime) {
 
-      final List<Hourly> filteredHourlyData = new ArrayList<>();
+      final List<WeatherData> filteredWeatherData = new ArrayList<>();
 
-      for (final Hourly currentHourly : hourly) {
+      for (final WeatherData currentData : data) {
 
          //The current data is not kept if its measured time is:
          // - more than 30 mins before the tour start time
          // OR
          // - more than 30 mins after the tour end time
 
-         if (currentHourly.getDt() < tourStartTime - WeatherUtils.SECONDS_PER_THIRTY_MINUTE ||
-               currentHourly.getDt() > tourEndTime + WeatherUtils.SECONDS_PER_THIRTY_MINUTE) {
+         if (currentData.dt() < tourStartTime - WeatherUtils.SECONDS_PER_THIRTY_MINUTE ||
+               currentData.dt() > tourEndTime + WeatherUtils.SECONDS_PER_THIRTY_MINUTE) {
             continue;
          }
 
-         filteredHourlyData.add(currentHourly);
+         filteredWeatherData.add(currentData);
       }
 
-      hourly = filteredHourlyData;
+      data = filteredWeatherData;
 
-      return hourly.size() > 0;
+      return data.size() > 0;
    }
 
    /**
-    * Finds the hourly that is closest to the middle of the tour. This will be used
+    * Finds the data that is closest to the middle of the tour. This will be used
     * to determine the weather description of the tour.
     */
-   public void findMiddleHourly(final long tourMiddleTime) {
+   void findMiddleWeatherData(final long tourMiddleTime) {
 
-      middleHourly = null;
+      middleWeatherData = null;
 
       long timeDifference = Long.MAX_VALUE;
-      for (final Hourly currentHourly : hourly) {
+      for (final WeatherData currentData : data) {
 
-         final long currentTimeDifference = Math.abs(currentHourly.getDt() - tourMiddleTime);
+         final long currentTimeDifference = Math.abs(currentData.dt() - tourMiddleTime);
          if (currentTimeDifference < timeDifference) {
-            middleHourly = currentHourly;
+            middleWeatherData = currentData;
             timeDifference = currentTimeDifference;
          }
       }
@@ -126,7 +129,7 @@ public class TimeMachineResult {
    public float getAverageHumidity() {
 
       final OptionalDouble averageHumidity =
-            hourly.stream().mapToDouble(Hourly::getHumidity).average();
+            data.stream().mapToDouble(h -> h.humidity()).average();
 
       if (averageHumidity.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(averageHumidity.getAsDouble());
@@ -138,7 +141,7 @@ public class TimeMachineResult {
    public float getAveragePressure() {
 
       final OptionalDouble averagePressure =
-            hourly.stream().mapToDouble(Hourly::getPressure).average();
+            data.stream().mapToDouble(h -> h.pressure()).average();
 
       if (averagePressure.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(averagePressure.getAsDouble());
@@ -150,7 +153,7 @@ public class TimeMachineResult {
    public float getAverageWindChill() {
 
       final OptionalDouble averageWindChill =
-            hourly.stream().mapToDouble(Hourly::getFeels_like).average();
+            data.stream().mapToDouble(h -> h.feels_like()).average();
 
       if (averageWindChill.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(averageWindChill.getAsDouble());
@@ -169,24 +172,24 @@ public class TimeMachineResult {
       return averageWindSpeed;
    }
 
-   private Weather getCurrentWeather() {
+   public List<WeatherData> getData() {
+      return data;
+   }
 
-      final List<Weather> currentWeather = middleHourly.getWeather();
-      if (currentWeather == null || currentWeather.isEmpty()) {
+   private Weather getMiddleWeatherData() {
+
+      final List<Weather> middleWeather = middleWeatherData.weather();
+      if (middleWeather == null || middleWeather.isEmpty()) {
          return null;
       }
 
-      return currentWeather.get(0);
-   }
-
-   public List<Hourly> getHourly() {
-      return hourly;
+      return middleWeather.get(0);
    }
 
    public float getTemperatureAverage() {
 
       final OptionalDouble averageTemperature =
-            hourly.stream().mapToDouble(Hourly::getTemp).average();
+            data.stream().mapToDouble(h -> h.temp()).average();
 
       if (averageTemperature.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(averageTemperature.getAsDouble());
@@ -198,7 +201,7 @@ public class TimeMachineResult {
    public float getTemperatureMax() {
 
       final OptionalDouble maxTemperature =
-            hourly.stream().mapToDouble(Hourly::getTemp).max();
+            data.stream().mapToDouble(h -> h.temp()).max();
 
       if (maxTemperature.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(maxTemperature.getAsDouble());
@@ -210,7 +213,7 @@ public class TimeMachineResult {
    public float getTemperatureMin() {
 
       final OptionalDouble minTemperature =
-            hourly.stream().mapToDouble(Hourly::getTemp).min();
+            data.stream().mapToDouble(h -> h.temp()).min();
 
       if (minTemperature.isPresent()) {
          return WeatherUtils.roundDoubleToFloat(minTemperature.getAsDouble());
@@ -221,61 +224,35 @@ public class TimeMachineResult {
 
    public float getTotalPrecipitation() {
 
-      return WeatherUtils.roundDoubleToFloat(hourly.stream().mapToDouble(Hourly::getRain).sum());
+      return WeatherUtils.roundDoubleToFloat(data.stream().mapToDouble(h -> h.getRain()).sum());
    }
 
    public float getTotalSnowfall() {
 
-      return WeatherUtils.roundDoubleToFloat(hourly.stream().mapToDouble(Hourly::getSnow).sum());
+      return WeatherUtils.roundDoubleToFloat(data.stream().mapToDouble(h -> h.getSnow()).sum());
+   }
+
+   public String getWeatherClouds() {
+
+      final String weatherType = UI.EMPTY_STRING;
+
+      final Weather middleWeather = getMiddleWeatherData();
+      if (middleWeather == null) {
+         return weatherType;
+      }
+
+      return OpenWeatherMapRetriever.convertWeatherIconToMTWeatherClouds(middleWeather.icon());
    }
 
    public String getWeatherDescription() {
 
       final String weatherDescription = UI.EMPTY_STRING;
 
-      final Weather currentWeather = getCurrentWeather();
-      if (currentWeather == null) {
+      final Weather middleWeather = getMiddleWeatherData();
+      if (middleWeather == null) {
          return weatherDescription;
       }
 
-      return currentWeather.getDescription();
-   }
-
-   public String getWeatherType() {
-
-      String weatherType = UI.EMPTY_STRING;
-
-      final Weather currentWeather = getCurrentWeather();
-      if (currentWeather == null) {
-         return weatherType;
-      }
-
-      // Codes : https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
-
-      final int currentWeatherId = currentWeather.getId();
-
-      if (currentWeatherId >= 200 && currentWeatherId < 300) {
-         weatherType = IWeather.WEATHER_ID_LIGHTNING;
-      } else if (currentWeatherId >= 300 && currentWeatherId < 313) {
-         weatherType = IWeather.WEATHER_ID_DRIZZLE;
-      } else if ((currentWeatherId >= 313 && currentWeatherId < 400) ||
-            (currentWeatherId >= 520 && currentWeatherId < 600)) {
-         weatherType = IWeather.WEATHER_ID_SCATTERED_SHOWERS;
-      } else if (currentWeatherId >= 500 && currentWeatherId < 520) {
-         weatherType = IWeather.WEATHER_ID_RAIN;
-      } else if (currentWeatherId >= 600 && currentWeatherId < 700) {
-         weatherType = IWeather.WEATHER_ID_SNOW;
-      } else if (currentWeatherId == 800) {
-         weatherType = IWeather.WEATHER_ID_CLEAR;
-      } else if (currentWeatherId == 801 || currentWeatherId == 802) {
-         weatherType = IWeather.WEATHER_ID_PART_CLOUDS;
-      } else if (currentWeatherId == 803 || currentWeatherId == 804) {
-         weatherType = IWeather.WEATHER_ID_OVERCAST;
-      } else if (currentWeatherId == 711 || currentWeatherId == 762 ||
-            currentWeatherId == 771 || currentWeatherId == 781) {
-         weatherType = IWeather.WEATHER_ID_SEVERE_WEATHER_ALERT;
-      }
-
-      return weatherType;
+      return middleWeather.description();
    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,7 @@
  *******************************************************************************/
 package net.tourbook.application;
 
-import net.tourbook.ui.UI;
+import net.tourbook.common.UI;
 
 import org.osgi.framework.Version;
 
@@ -24,22 +24,22 @@ public class ApplicationVersion {
    /**
     * Copyright year which is displayed in the splash screen.
     */
-   public static final String SPLASH_COPYRIGHT_YEAR = "2022"; //$NON-NLS-1$
+   static final String SPLASH_COPYRIGHT_YEAR = "2024"; //$NON-NLS-1$
 
 // X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X
-   private static final String DEVELOPMENT_VERSION_TEXT = UI.EMPTY_STRING;
+   private static final String DEVELOPMENT_VERSION_TEXT = "DEV";          //$NON-NLS-1$
    private static final String DEV_WINDOW_TITLE         = UI.EMPTY_STRING;
    private static String       _subVersion              = UI.EMPTY_STRING;
 
 //// X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X
-//   private static final String   DEVELOPMENT_VERSION_TEXT   = "DEVELOPMENT";                           //$NON-NLS-1$
-//   private static final String   DEV_WINDOW_TITLE         = UI.DASH_WITH_SPACE + DEVELOPMENT_VERSION_TEXT;
-//   private static String      _subVersion               = " improvements";                           //$NON-NLS-1$
+//   private static final String DEVELOPMENT_VERSION_TEXT   = "DEVELOPMENT";                           //$NON-NLS-1$
+//   private static final String DEV_WINDOW_TITLE           = UI.DASH_WITH_SPACE + DEVELOPMENT_VERSION_TEXT;
+//   private static String       _subVersion                = " improvements";                           //$NON-NLS-1$
 
 // X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X
-//   private static final String   DEVELOPMENT_VERSION_TEXT   = "WEB 2.0";                              //$NON-NLS-1$
-//   private static final String   DEV_WINDOW_TITLE         = UI.DASH_WITH_SPACE + DEVELOPMENT_VERSION_TEXT;
-//   private static String      _subVersion               = UI.EMPTY_STRING;
+//   private static final String DEVELOPMENT_VERSION_TEXT   = "WEB 2.0";                              //$NON-NLS-1$
+//   private static final String DEV_WINDOW_TITLE           = UI.DASH_WITH_SPACE + DEVELOPMENT_VERSION_TEXT;
+//   private static String       _subVersion                = UI.EMPTY_STRING;
 
    private static String  _versionFull;
    private static String  _versionSimple;
@@ -54,20 +54,19 @@ public class ApplicationVersion {
 
       _isDev = qualifier.contains("qualifier"); //$NON-NLS-1$
 
-      _qualifierText = _isDev ? //
-      //
-      // this text is used to identify development versions
-            DEVELOPMENT_VERSION_TEXT
-            //
+      _qualifierText = _isDev
+
+            // this text is used to identify development versions
+            ? DEVELOPMENT_VERSION_TEXT
+
             : qualifier;
 
       _qualifierText += _subVersion;
 
       _versionSimple = UI.EMPTY_STRING
-            + version.getMajor()
-            + UI.SYMBOL_DOT
-            + version.getMinor()
-            + UI.SYMBOL_DOT
+
+            + version.getMajor() + UI.SYMBOL_DOT
+            + version.getMinor() + UI.SYMBOL_DOT
             + version.getMicro();
 
       _versionFull = _versionSimple + UI.SYMBOL_DOT + _qualifierText;

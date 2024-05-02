@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,17 +17,61 @@ package preferences;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import net.tourbook.Messages;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
+import utils.Utils;
 
 public class PrefPagePeopleTests extends UITest {
 
+   @AfterAll
+   static void cleanUp() {
+      Utils.setMeasurementSystem_Metric(bot);
+   }
+
    @Test
+   void addHRZones() {
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("People").select(); //$NON-NLS-1$
+      bot.cTabItem(Messages.Pref_People_Tab_HRZone).activate();
+
+      bot.comboBox(1).setSelection(1);
+      bot.button(Messages.Dialog_HRZone_Button_EditHrZones).click();
+      Utils.clickOkButton(bot);
+      Utils.clickApplyAndCloseButton(bot);
+      Utils.clickYesButton(bot);
+      Utils.clickOkButton(bot);
+   }
+
+   @Test
+   void openPeoplePage() {
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("People").select(); //$NON-NLS-1$
+
+      bot.cTabItem(Messages.Pref_People_Tab_Person).activate();
+      bot.cTabItem(Messages.Pref_People_Tab_HRZone).activate();
+      bot.cTabItem(Messages.Pref_People_Tab_DataTransfer).activate();
+
+      Utils.clickApplyAndCloseButton(bot);
+   }
+
+   @Test
+   @DisplayName("Verify the BMI")
    void testPeopleBmi() {
 
-      bot.toolbarButtonWithTooltip("Preferences (Ctrl+Shift+P)").click(); //$NON-NLS-1$
+      //Metric system
+      Utils.setMeasurementSystem_Metric(bot);
+
+      Utils.openPreferences(bot);
       bot.tree().getTreeItem("People").select(); //$NON-NLS-1$
+
+      bot.cTabItem(Messages.Pref_People_Tab_Person).activate();
 
       //70kg
       bot.spinner(0).setSelection(700);
@@ -40,6 +84,30 @@ public class PrefPagePeopleTests extends UITest {
 //      bot.cTabItem(Messages.Pref_People_Tab_HRZone).activate();
 //      bot.cTabItem(Messages.Pref_People_Tab_DataTransfer).activate();
 
-      bot.button("Apply and Close").click(); //$NON-NLS-1$
+      Utils.clickApplyAndCloseButton(bot);
+
+      // Imperial system
+      Utils.setMeasurementSystem_Imperial(bot);
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("People").select(); //$NON-NLS-1$
+
+      bot.cTabItem(Messages.Pref_People_Tab_Person).activate();
+      //22.9 BMI
+      assertEquals("21.6", bot.text(3).getText()); //$NON-NLS-1$
+
+      Utils.clickApplyAndCloseButton(bot);
+
+      // Nautical mile system
+      Utils.setMeasurementSystem_Nautical(bot);
+
+      Utils.openPreferences(bot);
+      bot.tree().getTreeItem("People").select(); //$NON-NLS-1$
+
+      bot.cTabItem(Messages.Pref_People_Tab_Person).activate();
+      //21.6 BMI
+      assertEquals("21.6", bot.text(3).getText()); //$NON-NLS-1$
+
+      Utils.clickApplyAndCloseButton(bot);
    }
 }

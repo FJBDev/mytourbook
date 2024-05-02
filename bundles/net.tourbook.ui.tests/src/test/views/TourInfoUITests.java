@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,7 @@
  *******************************************************************************/
 package views;
 
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -23,13 +24,15 @@ import utils.Utils;
 public class TourInfoUITests extends UITest {
 
    @Test
-   void testTourTagsView() {
+   void openTourInfoView() {
 
-      Utils.showTourBookView(bot);
       Utils.getTour(bot);
 
       //Open the Tour Info UI view
-      bot.menu("Tour").menu("Tour Info").click();
-      bot.viewByTitle("Tour Info").show();
+      bot.menu("Tour").menu("Tour Info").click(); //$NON-NLS-1$ //$NON-NLS-2$
+      final SWTBotView tourInfoView = bot.viewByTitle("Tour Info"); //$NON-NLS-1$
+      tourInfoView.show();
+
+      tourInfoView.close();
    }
 }

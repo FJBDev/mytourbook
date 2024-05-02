@@ -156,10 +156,10 @@ Messages //
                this._showDialog();
             },
 
-            // show dialog when action button is hovered
-            onMouseOver : function() {
-               this._showDialog();
-            },
+//            // show dialog when action button is hovered
+//            onMouseOver : function() {
+//               this._showDialog();
+//            },
 
             _showDialog : function() {
 
@@ -190,7 +190,7 @@ Messages //
 
             // show dialog when button is pressed with the keyboard
             onClick : function() {
-               app._searchInput.startSearch();
+               app._searchInput.startSearch(true);
             }
 
          }, 'domAction_StartSearch');

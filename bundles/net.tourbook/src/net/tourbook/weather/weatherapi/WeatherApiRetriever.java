@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,8 +19,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,25 +29,104 @@ import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
-import net.tourbook.data.TourData;
+import net.tourbook.common.weather.IWeather;
 import net.tourbook.weather.HistoricalWeatherRetriever;
 import net.tourbook.weather.WeatherUtils;
 
-import org.apache.http.client.utils.URIBuilder;
-
 public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
-   private static final String baseApiUrl    = WeatherUtils.HEROKU_APP_URL + "/weatherapi"; //$NON-NLS-1$
+   private static final String BASE_API_URL    = WeatherUtils.OAUTH_PASSEUR_APP_URL + "/weatherapi"; //$NON-NLS-1$
 
    private HistoryResult       historyResult = null;
 
-   public WeatherApiRetriever(final TourData tourData) {
+   public static String convertWeatherCodeToMTWeatherClouds(final int weatherCode) {
 
-      super(tourData);
+      String weatherType;
+
+      // Weather Icons and Codes  : https://www.weatherapi.com/docs/#weather-icons
+      switch (weatherCode) {
+      case 1006:
+      case 1009:
+      case 1030:
+      case 1135:
+      case 1147:
+         weatherType = IWeather.WEATHER_ID_OVERCAST;
+         break;
+
+      case 1000:
+         weatherType = IWeather.WEATHER_ID_CLEAR;
+         break;
+
+      case 1003:
+         weatherType = IWeather.WEATHER_ID_PART_CLOUDS;
+         break;
+
+      case 1087:
+         weatherType = IWeather.WEATHER_ID_LIGHTNING;
+         break;
+
+      case 1192:
+      case 1195:
+      case 1201:
+      case 1207:
+      case 1243:
+      case 1246:
+      case 1252:
+      case 1276:
+         weatherType = IWeather.WEATHER_ID_RAIN;
+         break;
+
+      case 1066:
+      case 1069:
+      case 1114:
+      case 1117:
+      case 1210:
+      case 1213:
+      case 1216:
+      case 1219:
+      case 1222:
+      case 1225:
+      case 1237:
+      case 1255:
+      case 1258:
+      case 1261:
+      case 1264:
+      case 1279:
+      case 1282:
+         weatherType = IWeather.WEATHER_ID_SNOW;
+         break;
+
+      case 1063:
+      case 1186:
+      case 1189:
+      case 1204:
+      case 1240:
+      case 1249:
+      case 1273:
+         weatherType = IWeather.WEATHER_ID_SCATTERED_SHOWERS;
+         break;
+
+      case 1072:
+      case 1150:
+      case 1153:
+      case 1168:
+      case 1171:
+      case 1180:
+      case 1183:
+      case 1198:
+         weatherType = IWeather.WEATHER_ID_DRIZZLE;
+         break;
+
+      default:
+         weatherType = UI.EMPTY_STRING;
+         break;
+      }
+
+      return weatherType;
    }
 
    public static String getBaseApiUrl() {
-      return baseApiUrl;
+      return BASE_API_URL;
    }
 
    @Override
@@ -60,18 +137,24 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
       for (final Hour hour : historyResult.getHourList()) {
 
          final TourDateTime tourDateTime = TimeTools.createTourDateTime(
-               hour.getTime_epoch() * 1000L,
+               hour.time_epoch() * 1000L,
                tour.getTimeZoneId());
 
          final boolean isDisplayEmptyValues = !isCompressed;
          String fullWeatherData = WeatherUtils.buildFullWeatherDataString(
-               (float) hour.getTemp_c(),
-               (float) hour.getFeelslike_c(),
-               (float) hour.getWind_kph(),
-               hour.getWind_degree(),
-               hour.getHumidity(),
-               (int) hour.getPressure_mb(),
-               (float) hour.getPrecip_mm(),
+               (float) hour.temp_c(),
+               WeatherUtils.getWeatherIcon(
+                     WeatherUtils.getWeatherIndex(
+                           convertWeatherCodeToMTWeatherClouds(
+                                 hour.condition().code()))),
+               hour.condition().text(),
+               (float) hour.feelslike_c(),
+               (float) hour.wind_kph(),
+               hour.wind_degree(),
+               hour.humidity(),
+               (int) hour.pressure_mb(),
+               (float) hour.precip_mm(),
+               0,
                0,
                tourDateTime,
                isDisplayEmptyValues);
@@ -92,35 +175,23 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
    private String buildWeatherApiRequest(final LocalDate requestedDate) {
 
-      String weatherRequestWithParameters = UI.EMPTY_STRING;
+      final StringBuilder weatherRequestWithParameters = new StringBuilder(BASE_API_URL + UI.SYMBOL_QUESTION_MARK);
 
-      try {
-         final URI apiUri = new URI(baseApiUrl);
+// SET_FORMATTING_OFF
 
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(apiUri.getScheme())
-               .setHost(apiUri.getHost())
-               .setPath(apiUri.getPath());
+      weatherRequestWithParameters.append(      "lat"  + "=" + searchAreaCenter.getLatitude()); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("&" + "lon"  + "=" + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "lang" + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      weatherRequestWithParameters.append("&" + "dt"   + "=" + requestedDate.format(TimeTools.Formatter_YearMonthDay)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-         uriBuilder.setParameter("lat", String.valueOf(searchAreaCenter.getLatitude())); //$NON-NLS-1$
-         uriBuilder.setParameter("lon", String.valueOf(searchAreaCenter.getLongitude())); //$NON-NLS-1$
-         uriBuilder.setParameter("lang", Locale.getDefault().getLanguage()); //$NON-NLS-1$
+// SET_FORMATTING_ON
 
-         final String date = requestedDate.format(TimeTools.Formatter_YearMonthDay);
+      return weatherRequestWithParameters.toString();
+   }
 
-         uriBuilder.setParameter("dt", date); //$NON-NLS-1$
-         weatherRequestWithParameters = uriBuilder.build().toString();
-
-         return weatherRequestWithParameters;
-
-      } catch (final URISyntaxException e) {
-
-         StatusUtil.logError(
-               "WeatherApiRetriever.buildWeatherApiRequest : Error while " + //$NON-NLS-1$
-                     "building the historical weather request:" //$NON-NLS-1$
-                     + e.getMessage());
-         return UI.EMPTY_STRING;
-      }
+   @Override
+   public boolean canMakeRequest() {
+      return true;
    }
 
    private HistoryResult deserializeWeatherData(final String weatherDataResponse) {
@@ -146,6 +217,11 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
       }
 
       return newHistoryResult;
+   }
+
+   @Override
+   protected String getWeatherRetrievalFailureLogMessage() {
+      return UI.EMPTY_STRING;
    }
 
    @Override
@@ -176,9 +252,9 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
          historyResult.addHourList(newHistoryResult.getForecastdayHourList());
          final List<Hour> hourList = historyResult.getHourList();
 
-         final int lastWeatherDataHour = hourList.get(hourList.size() - 1).getTime_epoch();
+         final int lastWeatherDataHour = hourList.get(hourList.size() - 1).time_epoch();
          if (WeatherUtils.isTourWeatherDataComplete(
-               hourList.get(0).getTime_epoch(),
+               hourList.get(0).time_epoch(),
                lastWeatherDataHour,
                tourStartTime,
                tourEndTime)) {
@@ -199,19 +275,17 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
          }
       }
 
-// SET_FORMATTING_OFF
-
       final boolean hourlyDataExists = historyResult.filterHourData(tourStartTime, tourEndTime);
-      if(!hourlyDataExists)
-      {
+      if (!hourlyDataExists) {
          return false;
       }
 
-      tour.setIsWeatherDataFromProvider(true);
-
       //We look for the weather data in the middle of the tour to populate the weather conditions
       historyResult.findMiddleHour(tourMiddleTime);
-      tour.setWeather(                       historyResult.getWeatherDescription());
+
+// SET_FORMATTING_OFF
+
+      tour.appendOrReplaceWeather(           historyResult.getWeatherDescription());
       tour.setWeather_Clouds(                historyResult.getWeatherType());
 
       tour.setWeather_Temperature_Average(   historyResult.getTemperatureAverage());

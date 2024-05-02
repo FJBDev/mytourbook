@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
+import net.tourbook.web.WEB;
 
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
@@ -42,9 +43,7 @@ import org.eclipse.swt.graphics.PaletteData;
  */
 public class TileImageLoader implements Runnable {
 
-   private static final String HTTP_HEADER_USER_AGENT = "User-Agent"; //$NON-NLS-1$
-
-   private static int          _stackTraceCounter;
+   private static int _stackTraceCounter;
 
    /**
     * Loads a tile image from a map provider which is contained in the tile. Tiles are retrieved
@@ -69,7 +68,7 @@ public class TileImageLoader implements Runnable {
       tile.setLoading(false);
 
       if (isNotifyObserver) {
-         tile.notifyImageObservers();
+         tile.callTileImageLoaderCallback();
       }
 
       MP.fireTileEvent(TileEventId.TILE_END_LOADING, tile);
@@ -168,14 +167,14 @@ public class TileImageLoader implements Runnable {
                         final String userAgent = mp.getUserAgent();
 
                         if (StringUtils.hasContent(userAgent)) {
-                           connection.setRequestProperty(HTTP_HEADER_USER_AGENT, userAgent);
+                           connection.setRequestProperty(WEB.HTTP_HEADER_USER_AGENT, userAgent);
                         }
 
                         inputStream = connection.getInputStream();
 
                      } catch (final FileNotFoundException e) {
 
-                        loadingError = NLS.bind(Messages.DBG052_Loading_Error_FileNotFoundException, tile.getUrl(), e.getMessage());
+                        loadingError = NLS.bind(Messages.Error_Loading_FileNotFoundException_DBG052, tile.getUrl(), e.getMessage());
 
                         // this is hidden because it can happen very often
                         // StatusUtil.log(IMAGE_HAS_LOADING_ERROR, e);
@@ -183,7 +182,7 @@ public class TileImageLoader implements Runnable {
 
                      } catch (final UnknownHostException e) {
 
-                        loadingError = NLS.bind(Messages.DBG053_Loading_Error_UnknownHostException, tile.getUrl(), e.getMessage());
+                        loadingError = NLS.bind(Messages.Error_Loading_UnknownHostException_DBG053, tile.getUrl(), e.getMessage());
 
                         // this is hidden because it can happen very often
                         // StatusUtil.log(IMAGE_HAS_LOADING_ERROR, e);
@@ -191,7 +190,7 @@ public class TileImageLoader implements Runnable {
 
                      } catch (final Exception e) {
 
-                        loadingError = NLS.bind(Messages.DBG054_Loading_Error_FromUrl, tile.getUrl(), e.getMessage());
+                        loadingError = NLS.bind(Messages.Error_Loading_FromUrl_DBG054, tile.getUrl(), e.getMessage());
 
                         // this is hidden because it can happen very often
                         // StatusUtil.log(IMAGE_HAS_LOADING_ERROR, e);
@@ -278,7 +277,7 @@ public class TileImageLoader implements Runnable {
             // image data is empty, set error
 
             tile.setLoadingError(loadingError == null
-                  ? Messages.DBG051_Loading_Error_EmptyImageData
+                  ? Messages.Error_Loading_EmptyImageData_DBG051
                   : loadingError);
 
             isSetupImage = false;
@@ -314,7 +313,7 @@ public class TileImageLoader implements Runnable {
             if (parentImageStatus == null) {
 
                // set error into parent tile
-               parentTile.setLoadingError(Messages.DBG050_Loading_Error_CannotCreateParent);
+               parentTile.setLoadingError(Messages.Error_Loading_CannotCreateParent_DBG050);
 
             } else {
 
@@ -365,14 +364,14 @@ public class TileImageLoader implements Runnable {
             if (imageTile.setMapImage(tileImage) == false) {
 
                // set an error to prevent it loading a second time
-               tile.setLoadingError(Messages.DBG049_Loading_Error_ImageIsInvalid);
+               tile.setLoadingError(Messages.Error_Loading_ImageIsInvalid_DBG049);
             }
          }
 
       } catch (final Exception e) {
 
          // this should not happen
-         StatusUtil.log(NLS.bind(Messages.DBG048_Loading_Error_DefaultException, tile.getTileKey()), e);
+         StatusUtil.log(NLS.bind(Messages.Error_Loading_DefaultException_DBG048, tile.getTileKey()), e);
 
       } finally {
 
@@ -438,7 +437,7 @@ public class TileImageLoader implements Runnable {
 
       } catch (final Exception e) {
 
-         tile.setLoadingError(Messages.DBG045_Loading_Error_PaintingError + e.getMessage());
+         tile.setLoadingError(Messages.Error_Loading_PaintingError_DBG045 + e.getMessage());
 
          MP.fireTileEvent(TileEventId.SRTM_PAINTING_ERROR, tile);
 

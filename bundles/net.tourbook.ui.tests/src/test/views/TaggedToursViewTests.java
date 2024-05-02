@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,10 @@ package views;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import net.tourbook.Messages;
+
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.jupiter.api.Test;
 
@@ -34,16 +38,24 @@ public class TaggedToursViewTests extends UITest {
 
       //Open the Tagged Tours view
       Utils.openOtherMenu(bot);
-      bot.tree().getTreeItem("1. Tour Directories").expand().getNode("Tagged Tours").select(); //$NON-NLS-1$ //$NON-NLS-2$
+      bot.tree().getTreeItem(WorkbenchTests.TOUR_DIRECTORIES).expand().getNode(Utils.VIEW_NAME_TAGGEDTOURS).select();
       bot.button("Open").click(); //$NON-NLS-1$
 
       Utils.getTour(bot);
 
-      Utils.showView(bot, "Tagged Tours"); //$NON-NLS-1$
+      final SWTBotView taggedToursView = Utils.showView(bot, Utils.VIEW_NAME_TAGGEDTOURS);
 
-      final SWTBotTreeItem item = bot.tree(1).getTreeItem("Shoes 2   8").select(); //$NON-NLS-1$
+      final SWTBotTreeItem item = bot.tree(1).getTreeItem("Shoes 2   2").select(); //$NON-NLS-1$
       assertNotNull(item);
-      final SWTBotTreeItem node = item.getNode("5/31/15").select(); //$NON-NLS-1$
+      final SWTBotTreeItem node = item.getNode("5/31/2015").select(); //$NON-NLS-1$
       assertNotNull(node);
+
+      final SWTBotToolbarButton toggleTagFilterButton = Utils.getToolbarButton(taggedToursView, Messages.Tour_Tags_Action_ToggleTagFilter_Tooltip);
+      assertNotNull(toggleTagFilterButton);
+      toggleTagFilterButton.click();
+      toggleTagFilterButton.click();
+      toggleTagFilterButton.click();
+
+      taggedToursView.close();
    }
 }

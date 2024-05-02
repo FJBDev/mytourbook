@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,42 +34,42 @@ import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
  */
 public class SQLFilter {
 
-   private static final String            NL                 = UI.NEW_LINE;
-
-   private static final Set<SQLAppFilter> DEFAULT_APP_FILTER = new HashSet<>();
+   private static final char              NL                    = net.tourbook.common.UI.NEW_LINE;
 
    /**
-    * Contains all app tour filters which are performed very fast, e.g. person, tour type.
-    * <p>
-    * This filter do not contain e.g. geo compare or tag filters.
+    * Contains any available app filters
     */
-   public static final Set<SQLAppFilter>  FAST_APP_FILTER    = new HashSet<>();
+   public static final Set<SQLAppFilter>  ANY_APP_FILTERS       = new HashSet<>();
 
    /**
-    * Exclude all special app filter
+    * Contains mostly fast app filters
     */
-   public static final Set<SQLAppFilter>  NO_PHOTOS          = new HashSet<>();
+   private static final Set<SQLAppFilter> DEFAULT_APP_FILTERS   = new HashSet<>();
 
    /**
-    * Use sql app filter with {@link SQLAppFilter#Photo} and {@link SQLAppFilter#Tag}
+    * Contains only app filters which performed very fast
     */
-   public static final Set<SQLAppFilter>  TAG_FILTER         = new HashSet<>();
+   public static final Set<SQLAppFilter>  ONLY_FAST_APP_FILTERS = new HashSet<>();
+
+   /**
+    * Exclude all special app filters, so only default filters are applied, which are person, tour
+    * type and tour data
+    */
+   public static final Set<SQLAppFilter>  NO_PHOTOS             = new HashSet<>();
 
    static {
 
-      // default is using the photo filter
-      DEFAULT_APP_FILTER.add(SQLAppFilter.Photo);
-      DEFAULT_APP_FILTER.add(SQLAppFilter.GeoLocation);
+      ANY_APP_FILTERS.add(SQLAppFilter.Photo);
+      ANY_APP_FILTERS.add(SQLAppFilter.GeoLocation);
+      ANY_APP_FILTERS.add(SQLAppFilter.Tag);
 
-      FAST_APP_FILTER.add(SQLAppFilter.Photo);
+      DEFAULT_APP_FILTERS.add(SQLAppFilter.Photo);
+      DEFAULT_APP_FILTERS.add(SQLAppFilter.GeoLocation);
 
-      TAG_FILTER.add(SQLAppFilter.Photo);
-      TAG_FILTER.add(SQLAppFilter.GeoLocation);
-      TAG_FILTER.add(SQLAppFilter.Tag);
-
+      ONLY_FAST_APP_FILTERS.add(SQLAppFilter.Photo);
    }
 
-   private String            _sqlWhereClause = UI.EMPTY_STRING;
+   private String            _sqlWhereClause = net.tourbook.common.UI.EMPTY_STRING;
    private ArrayList<Object> _parameters     = new ArrayList<>();
 
    private boolean           _isTagFilterActive;
@@ -77,21 +77,29 @@ public class SQLFilter {
    private int               _lastParameterIndex;
 
    /**
-    * Create sql app filter with the photo filter
+    * Create sql app filter which contains the mostly fast app filters
     */
    public SQLFilter() {
-      this(DEFAULT_APP_FILTER);
+
+      this(DEFAULT_APP_FILTERS);
    }
 
    /**
     * Creates the WHERE statement for the selected app filters by appending an AND to an existing
     * sql statement.
+    * <p>
+    * Tours are always filtered by
+    * <p>
+    * <li>Person</li>
+    * <li>Tour Type</li>
+    * <li>Tour Data</li>
+    * <p>
     *
-    * @param appFilter
+    * @param additionalAppFilter
     */
-   public SQLFilter(final Set<SQLAppFilter> appFilter) {
+   public SQLFilter(final Set<SQLAppFilter> additionalAppFilter) {
 
-      final StringBuilder sb = new StringBuilder();
+      final StringBuilder sql = new StringBuilder();
 
       /*
        * App filter: Person
@@ -105,16 +113,17 @@ public class SQLFilter {
 
          // select only one person
 
-         sb.append(" AND TourData.tourPerson_personId = ?" + NL); //$NON-NLS-1$
+         sql.append(" AND TourData.tourPerson_personId = ?" + NL); //$NON-NLS-1$
+
          _parameters.add(activePerson.getPersonId());
       }
 
       /*
        * App filter: Photo
        */
-      if (appFilter.contains(SQLAppFilter.Photo) && TourbookPlugin.getActivePhotoFilter()) {
+      if (additionalAppFilter.contains(SQLAppFilter.Photo) && TourbookPlugin.getActivePhotoFilter()) {
 
-         sb.append(" AND TourData.NumberOfPhotos > 0" + NL); //$NON-NLS-1$
+         sql.append(" AND TourData.NumberOfPhotos > 0" + NL); //$NON-NLS-1$
       }
 
       /*
@@ -125,7 +134,8 @@ public class SQLFilter {
 
          final TourTypeSQLData sqlData = activeTourTypeFilter.getSQLData();
 
-         sb.append(sqlData.getWhereString());
+         sql.append(sqlData.getWhereString());
+
          _parameters.addAll(sqlData.getParameters());
       }
 
@@ -135,19 +145,22 @@ public class SQLFilter {
       final SQLData tourSqlData = TourFilterManager.getSQL();
       if (tourSqlData != null) {
 
-         sb.append(tourSqlData.getSqlString());
+         sql.append(tourSqlData.getSqlString());
+
          _parameters.addAll(tourSqlData.getParameters());
       }
 
       /*
        * App Filter: Tour geo location
        */
-      if (appFilter.contains(SQLAppFilter.GeoLocation)) {
+      if (additionalAppFilter.contains(SQLAppFilter.GeoLocation)) {
 
          final SQLData tourSqlGeoData = TourGeoFilter_Manager.getSQL();
+
          if (tourSqlGeoData != null) {
 
-            sb.append(tourSqlGeoData.getSqlString());
+            sql.append(tourSqlGeoData.getSqlString());
+
             _parameters.addAll(tourSqlGeoData.getParameters());
          }
       }
@@ -155,9 +168,7 @@ public class SQLFilter {
       /*
        * App Filter: Tour tags
        */
-      _isTagFilterActive = false;
-
-      if (appFilter.contains(SQLAppFilter.Tag)) {
+      if (additionalAppFilter.contains(SQLAppFilter.Tag)) {
 
          if (TourTagFilterManager.isTourTagFilterEnabled() && TourTagFilterManager.getSelectedProfile().isOrOperator) {
 
@@ -167,13 +178,64 @@ public class SQLFilter {
 
                _isTagFilterActive = true;
 
-               sb.append(tourTagSqlData.getSqlString());
+               sql.append(tourTagSqlData.getSqlString());
+
                _parameters.addAll(tourTagSqlData.getParameters());
             }
          }
       }
 
-      _sqlWhereClause = sb.toString();
+      _sqlWhereClause = sql.toString();
+   }
+
+   /**
+    * Creates the WHERE statement for the provided app filters
+    *
+    * @param appFilters
+    */
+   public SQLFilter(final SQLAppFilter... appFilters) {
+
+      final StringBuilder sql = new StringBuilder();
+
+      for (final SQLAppFilter appFilter : appFilters) {
+
+         if (SQLAppFilter.Person.equals(appFilter)) {
+
+            /*
+             * App filter: Person
+             */
+            final TourPerson activePerson = TourbookPlugin.getActivePerson();
+            if (activePerson == null) {
+
+               // select all people
+
+            } else {
+
+               // select only one person
+
+               sql.append(" AND TourData.tourPerson_personId = ?" + NL); //$NON-NLS-1$
+
+               _parameters.add(activePerson.getPersonId());
+            }
+
+         } else if (SQLAppFilter.TourType.equals(appFilter)) {
+
+            /*
+             * App filter: Tour type
+             */
+            final TourTypeFilter activeTourTypeFilter = TourbookPlugin.getActiveTourTypeFilter();
+            if (activeTourTypeFilter != null) {
+
+               final TourTypeSQLData sqlData = activeTourTypeFilter.getSQLData();
+
+               sql.append(sqlData.getWhereString());
+
+               _parameters.addAll(sqlData.getParameters());
+            }
+         }
+      }
+
+      _sqlWhereClause = sql.toString();
    }
 
    /**
@@ -181,6 +243,7 @@ public class SQLFilter {
     *         {@link #setParameters(PreparedStatement, int)}
     */
    public int getLastParameterIndex() {
+
       return _lastParameterIndex;
    }
 
@@ -193,6 +256,7 @@ public class SQLFilter {
     *         ...
     */
    public String getWhereClause() {
+
       return _sqlWhereClause;
    }
 
@@ -201,6 +265,7 @@ public class SQLFilter {
     *         least 1 tag
     */
    public boolean isTagFilterActive() {
+
       return _isTagFilterActive;
    }
 
@@ -212,7 +277,9 @@ public class SQLFilter {
     * @param statement
     * @param startIndex
     *           Sets the parameter start index, the first parameter is 1
+    *
     * @return Returns the last parameter index +1 which was used for setting parameters
+    *
     * @throws SQLException
     */
    public int setParameters(final PreparedStatement statement, final int startIndex) throws SQLException {
@@ -259,6 +326,7 @@ public class SQLFilter {
 
    @Override
    public String toString() {
+
       return _sqlWhereClause;
    }
 }

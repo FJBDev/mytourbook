@@ -4,7 +4,7 @@
 <product 
 
    name              ="MyTourbook Product" 
-   version           ="22.8.0.qualifier" 
+   version           ="24.5.0.qualifier" 
 
    id                ="net.tourbook.productWithoutJRE" 
    uid               ="net.tourbook.productWithoutJRE" 
@@ -51,7 +51,7 @@
 
    <launcherArgs>
       <!-- VERY IMPORTANT: vmArgs MUST BE IN ONE LINE otherwise they are wrongly formatted and DO NOT WORK !!! -->
-      <vmArgs>-Xmx8g --add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.desktop/sun.java2d=ALL-UNNAMED</vmArgs>
+      <vmArgs>-Xmx8g --add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=warn --add-opens=java.base/java.lang=ALL-UNNAMED</vmArgs>
       <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
@@ -118,6 +118,10 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator"   autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.update.configurator"          autoStart="true" startLevel="4" />
    </configurations>
+
+   <repositories>
+      <repository location="https://mytourbook.github.io/update-sites/latest/" enabled="true" />
+   </repositories>
 
    <preferencesInfo>
       <targetfile overwrite="false"/>

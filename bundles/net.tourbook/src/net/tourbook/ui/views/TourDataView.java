@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -51,14 +51,13 @@ import net.tourbook.tour.SelectionTourMarker;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.views.tourCatalog.SelectionTourCatalogView;
-import net.tourbook.ui.views.tourCatalog.TVICatalogComparedTour;
-import net.tourbook.ui.views.tourCatalog.TVICatalogRefTourItem;
-import net.tourbook.ui.views.tourCatalog.TVICompareResultComparedTour;
+import net.tourbook.ui.views.referenceTour.SelectionReferenceTourView;
+import net.tourbook.ui.views.referenceTour.TVIElevationCompareResult_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_ComparedTour;
+import net.tourbook.ui.views.referenceTour.TVIRefTour_RefTourItem;
 
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -69,12 +68,15 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -98,10 +100,14 @@ public class TourDataView extends ViewPart {
    private static final String            STATE_VIEW_SCROLL_POSITION = "STATE_VIEW_SCROLL_POSITION";         //$NON-NLS-1$
 
    private PostSelectionProvider          _postSelectionProvider;
+
    private ISelectionListener             _postSelectionListener;
    private IPropertyChangeListener        _prefChangeListener;
    private IPropertyChangeListener        _prefChangeListener_Common;
    private ITourEventListener             _tourEventListener;
+
+   private KeyListener                    _defaultKeyListener;
+   private MouseWheelListener             _defaultMouseWheelListener;
 
    private boolean                        _isUIRestored;
 
@@ -120,7 +126,7 @@ public class TourDataView extends ViewPart {
    /**
     * With a label, the content can easily be scrolled but cannot be selected
     */
-//   private Label             _lblAllFields;
+// private Label             _lblAllFields;
    private Text              _txtAllFields;
 
    private Text              _txtDateTimeCreated;
@@ -678,12 +684,13 @@ public class TourDataView extends ViewPart {
                   | SWT.BORDER);
 
       _txtAllFields.setFont(net.tourbook.ui.UI.getLogFont());
+      _txtAllFields.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+      _txtAllFields.addKeyListener(_defaultKeyListener);
+      _txtAllFields.addMouseWheelListener(_defaultMouseWheelListener);
 
       GridDataFactory.fillDefaults()
             .grab(true, true)
             .applyTo(_txtAllFields);
-
-      _txtAllFields.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 
    }
 
@@ -691,6 +698,9 @@ public class TourDataView extends ViewPart {
 
       final Text txtField = new Text(parent, SWT.READ_ONLY);
       txtField.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+      txtField.addKeyListener(_defaultKeyListener);
+      txtField.addMouseWheelListener(_defaultMouseWheelListener);
+
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtField);
 
       return txtField;
@@ -740,8 +750,17 @@ public class TourDataView extends ViewPart {
       return printAllFields(tourData);
    }
 
+   private int getLineHeight() {
+
+      final FontData logFont = net.tourbook.ui.UI.getLogFont().getFontData()[0];
+
+      return (int) (logFont.getHeight() * 1.2); // this value is roughly estimated
+   }
+
    private void initUI() {
 
+      _defaultKeyListener = KeyListener.keyPressedAdapter(keyEvent -> onTextField_Key(keyEvent));
+      _defaultMouseWheelListener = mouseEvent -> onTextField_MouseWheel(mouseEvent);
    }
 
    /**
@@ -753,28 +772,7 @@ public class TourDataView extends ViewPart {
 
       if (logText.length() > 0) {
 
-         final Display display = Display.getDefault();
-         final TextTransfer textTransfer = TextTransfer.getInstance();
-
-         final Clipboard clipBoard = new Clipboard(display);
-         {
-            clipBoard.setContents(
-
-                  new Object[] { logText },
-                  new Transfer[] { textTransfer });
-         }
-         clipBoard.dispose();
-
-         final IStatusLineManager statusLineMgr = UI.getStatusLineManager();
-         if (statusLineMgr != null) {
-
-            // show info that data are copied
-            // "Data were copied into the clipboard"
-            statusLineMgr.setMessage(Messages.App_Action_CopyDataIntoClipboard_CopyIsDone);
-
-            // cleanup message
-            display.timerExec(3000, () -> statusLineMgr.setMessage(null));
-         }
+         UI.copyTextIntoClipboard(logText, Messages.App_Action_CopyDataIntoClipboard_CopyIsDone);
       }
    }
 
@@ -811,11 +809,11 @@ public class TourDataView extends ViewPart {
             tourId = tourIds.get(0);
          }
 
-      } else if (selection instanceof SelectionTourCatalogView) {
+      } else if (selection instanceof SelectionReferenceTourView) {
 
-         final SelectionTourCatalogView tourCatalogSelection = (SelectionTourCatalogView) selection;
+         final SelectionReferenceTourView tourCatalogSelection = (SelectionReferenceTourView) selection;
 
-         final TVICatalogRefTourItem refItem = tourCatalogSelection.getRefItem();
+         final TVIRefTour_RefTourItem refItem = tourCatalogSelection.getRefItem();
          if (refItem != null) {
             tourId = refItem.getTourId();
          }
@@ -823,10 +821,10 @@ public class TourDataView extends ViewPart {
       } else if (selection instanceof StructuredSelection) {
 
          final Object firstElement = ((StructuredSelection) selection).getFirstElement();
-         if (firstElement instanceof TVICatalogComparedTour) {
-            tourId = ((TVICatalogComparedTour) firstElement).getTourId();
-         } else if (firstElement instanceof TVICompareResultComparedTour) {
-            tourId = ((TVICompareResultComparedTour) firstElement).getTourId();
+         if (firstElement instanceof TVIRefTour_ComparedTour) {
+            tourId = ((TVIRefTour_ComparedTour) firstElement).getTourId();
+         } else if (firstElement instanceof TVIElevationCompareResult_ComparedTour) {
+            tourId = ((TVIElevationCompareResult_ComparedTour) firstElement).getTourId();
          }
 
       } else if (selection instanceof SelectionDeletedTours) {
@@ -848,6 +846,53 @@ public class TourDataView extends ViewPart {
       }
 
       enableControls();
+   }
+
+   private void onTextField_Key(final KeyEvent keyEvent) {
+
+      final Rectangle containerBounds = _scrolledContainer.getBounds();
+
+      final int lineHeight = getLineHeight();
+      final int pageHeight = containerBounds.height / 3;
+
+      int verticalScoll = Integer.MIN_VALUE;
+
+// SET_FORMATTING_OFF
+
+      switch (keyEvent.keyCode) {
+      
+      case SWT.ARROW_UP ->    verticalScoll = -lineHeight;
+      case SWT.ARROW_DOWN ->  verticalScoll = lineHeight;
+
+      case SWT.PAGE_UP ->     verticalScoll = -pageHeight;
+      case SWT.PAGE_DOWN ->   verticalScoll = pageHeight;
+
+      }
+
+// SET_FORMATTING_ON
+
+      if (verticalScoll != Integer.MIN_VALUE) {
+
+         final Point scrolledOrigin = _scrolledContainer.getOrigin();
+
+         _scrolledContainer.setOrigin(
+               scrolledOrigin.x,
+               scrolledOrigin.y + verticalScoll);
+      }
+   }
+
+   private void onTextField_MouseWheel(final MouseEvent mouseEvent) {
+
+      final int lineHeight = getLineHeight();
+      final int mouseValue = mouseEvent.count * lineHeight;
+
+      final int diffY = UI.getAcceleratorFromMouseWheel(mouseEvent, mouseValue);
+
+      final Point scrolledOrigin = _scrolledContainer.getOrigin();
+
+      _scrolledContainer.setOrigin(
+            scrolledOrigin.x,
+            scrolledOrigin.y - diffY);
    }
 
    private void restoreState_UI() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.ui.views;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import net.tourbook.Messages;
 import net.tourbook.common.action.ActionResetToDefaults;
 import net.tourbook.common.action.IActionResetToDefault;
@@ -27,11 +29,10 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -42,7 +43,7 @@ import org.eclipse.swt.widgets.ToolBar;
 /**
  * Slideout for the tour blog options
  */
-public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionResetToDefault {
+class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionResetToDefault {
 
    private static final String          APP_WEB_LABEL_DEFAULT_FONT_SIZE         = net.tourbook.web.Messages.App_Web_Label_ContentFontSize;
    private static final String          APP_WEB_LABEL_DEFAULT_FONT_SIZE_TOOLTIP = net.tourbook.web.Messages.App_Web_Label_ContentFontSize_Tooltip;
@@ -55,13 +56,19 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
    private TourBlogView                 _tourBlogView;
 
    private MouseWheelListener           _defaultMouseWheelListener;
-   private SelectionAdapter             _defaultSelectionAdapter;
+   private SelectionListener            _defaultSelectionListener;
+
+   private GridDataFactory              _firstColumnLayoutData;
+
+   private PixelConverter               _pc;
 
    /*
     * UI controls
     */
    private Button  _chkDrawMarkerWithDefaultColor;
    private Button  _chkShowHiddenMarker;
+   private Button  _chkShowTourMarkers;
+   private Button  _chkShowTourTags;
 
    private Spinner _spinnerFontSize;
 
@@ -71,10 +78,10 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
     * @param tourBlogView
     * @param tourBlogState
     */
-   public SlideoutTourBlogOptions(final Control ownerControl,
-                                  final ToolBar toolBar,
-                                  final TourBlogView tourBlogView,
-                                  final IDialogSettings tourBlogState) {
+   SlideoutTourBlogOptions(final Control ownerControl,
+                           final ToolBar toolBar,
+                           final TourBlogView tourBlogView,
+                           final IDialogSettings tourBlogState) {
 
       super(ownerControl, toolBar);
 
@@ -90,14 +97,13 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
    @Override
    protected Composite createToolTipContentArea(final Composite parent) {
 
-      initUI();
+      initUI(parent);
 
       createActions();
 
       final Composite ui = createUI(parent);
 
       restoreState();
-      enableControls();
 
       return ui;
    }
@@ -159,13 +165,23 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
       {
          {
             /*
+             * Display the tour markers
+             */
+
+            _chkShowTourMarkers = new Button(container, SWT.CHECK);
+            _chkShowTourMarkers.setText(Messages.Slideout_TourBlogOptions_Checkbox_ShowTourMarkers);
+            _chkShowTourMarkers.addSelectionListener(_defaultSelectionListener);
+            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkShowTourMarkers);
+         }
+         {
+            /*
              * Show hidden marker
              */
 
             _chkShowHiddenMarker = new Button(container, SWT.CHECK);
             _chkShowHiddenMarker.setText(Messages.Slideout_ChartMarkerOptions_Checkbox_IsShowHiddenMarker);
-            _chkShowHiddenMarker.addSelectionListener(_defaultSelectionAdapter);
-            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkShowHiddenMarker);
+            _chkShowHiddenMarker.addSelectionListener(_defaultSelectionListener);
+            _firstColumnLayoutData.span(3, 1).applyTo(_chkShowHiddenMarker);
          }
          {
             /*
@@ -175,8 +191,20 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
             _chkDrawMarkerWithDefaultColor = new Button(container, SWT.CHECK);
             _chkDrawMarkerWithDefaultColor.setText(Messages.Slideout_ChartMarkerOptions_Checkbox_IsShowMarkerWithDefaultColor);
             _chkDrawMarkerWithDefaultColor.setToolTipText(Messages.Slideout_ChartMarkerOptions_Checkbox_IsShowMarkerWithDefaultColor_Tooltip);
-            _chkDrawMarkerWithDefaultColor.addSelectionListener(_defaultSelectionAdapter);
-            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkDrawMarkerWithDefaultColor);
+            _chkDrawMarkerWithDefaultColor.addSelectionListener(_defaultSelectionListener);
+            _firstColumnLayoutData.span(3, 1).applyTo(_chkDrawMarkerWithDefaultColor);
+
+         }
+         {
+            /*
+             * Display the tour tags
+             */
+
+            _chkShowTourTags = new Button(container, SWT.CHECK);
+            _chkShowTourTags.setText(Messages.Slideout_TourBlogOptions_Checkbox_ShowTourTags);
+            _chkShowTourTags.setToolTipText(Messages.Slideout_TourBlogOptions_Checkbox_ShowTourTags_Tooltip);
+            _chkShowTourTags.addSelectionListener(_defaultSelectionListener);
+            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkShowTourTags);
 
          }
          {
@@ -196,7 +224,7 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
             _spinnerFontSize.setMaximum(WEB.STATE_BODY_FONT_SIZE_MAX);
             _spinnerFontSize.setToolTipText(APP_WEB_LABEL_DEFAULT_FONT_SIZE_TOOLTIP);
             _spinnerFontSize.addMouseWheelListener(_defaultMouseWheelListener);
-            _spinnerFontSize.addSelectionListener(_defaultSelectionAdapter);
+            _spinnerFontSize.addSelectionListener(_defaultSelectionListener);
             GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.FILL).applyTo(_spinnerFontSize);
 
             // px
@@ -207,31 +235,37 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
       }
    }
 
-   private void enableControls() {
+   public void enableControls() {
 
+      final boolean isShowTourMarkers = _chkShowTourMarkers.getSelection();
+
+      _chkDrawMarkerWithDefaultColor.setEnabled(isShowTourMarkers);
+      _chkShowHiddenMarker.setEnabled(isShowTourMarkers);
    }
 
-   private void initUI() {
+   private void initUI(final Composite parent) {
 
-      _defaultSelectionAdapter = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            onChangeUI();
-         }
+      _pc = new PixelConverter(parent);
+
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> onChangeUI());
+
+      _defaultMouseWheelListener = mouseEvent -> {
+         net.tourbook.common.UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+         onChangeUI();
       };
 
-      _defaultMouseWheelListener = new MouseWheelListener() {
-         @Override
-         public void mouseScrolled(final MouseEvent event) {
-            net.tourbook.common.UI.adjustSpinnerValueOnMouseScroll(event);
-            onChangeUI();
-         }
-      };
+      final int firstColumnIndent = _pc.convertWidthInCharsToPixels(3);
+
+      _firstColumnLayoutData = GridDataFactory.fillDefaults()
+            .indent(firstColumnIndent, 0)
+            .align(SWT.FILL, SWT.CENTER);
    }
 
    private void onChangeUI() {
 
       saveState();
+
+      enableControls();
 
       _tourBlogView.updateUI();
    }
@@ -243,12 +277,16 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
 
       _chkDrawMarkerWithDefaultColor.setSelection(    TourBlogView.STATE_IS_DRAW_MARKER_WITH_DEFAULT_COLOR_DEFAULT);
       _chkShowHiddenMarker.setSelection(              TourBlogView.STATE_IS_SHOW_HIDDEN_MARKER_DEFAULT);
+      _chkShowTourMarkers.setSelection(               TourBlogView.STATE_IS_SHOW_TOUR_MARKERS_DEFAULT);
+      _chkShowTourTags.setSelection(                  TourBlogView.STATE_IS_SHOW_TOUR_TAGS_DEFAULT);
 
       _spinnerFontSize.setSelection(                  WEB.STATE_BODY_FONT_SIZE_DEFAULT);
 
 // SET_FORMATTING_ON
 
       onChangeUI();
+
+      enableControls();
    }
 
    private void restoreState() {
@@ -257,12 +295,16 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
 
       _chkDrawMarkerWithDefaultColor.setSelection(    Util.getStateBoolean(_state, TourBlogView.STATE_IS_DRAW_MARKER_WITH_DEFAULT_COLOR,  TourBlogView.STATE_IS_DRAW_MARKER_WITH_DEFAULT_COLOR_DEFAULT));
       _chkShowHiddenMarker.setSelection(              Util.getStateBoolean(_state, TourBlogView.STATE_IS_SHOW_HIDDEN_MARKER,              TourBlogView.STATE_IS_SHOW_HIDDEN_MARKER_DEFAULT));
+      _chkShowTourMarkers.setSelection(               Util.getStateBoolean(_state, TourBlogView.STATE_IS_SHOW_TOUR_MARKERS,               TourBlogView.STATE_IS_SHOW_TOUR_MARKERS_DEFAULT));
+      _chkShowTourTags.setSelection(                  Util.getStateBoolean(_state, TourBlogView.STATE_IS_SHOW_TOUR_TAGS,                  TourBlogView.STATE_IS_SHOW_TOUR_TAGS_DEFAULT));
 
       _spinnerFontSize.setSelection(                  Util.getStateInt(_state_WEB, WEB.STATE_BODY_FONT_SIZE, WEB.STATE_BODY_FONT_SIZE_DEFAULT));
 
 // SET_FORMATTING_ON
 
       onChangeUI();
+
+      enableControls();
    }
 
    private void saveState() {
@@ -272,6 +314,8 @@ public class SlideoutTourBlogOptions extends ToolbarSlideout implements IActionR
 
       _state.put(TourBlogView.STATE_IS_DRAW_MARKER_WITH_DEFAULT_COLOR,  _chkDrawMarkerWithDefaultColor.getSelection());
       _state.put(TourBlogView.STATE_IS_SHOW_HIDDEN_MARKER,              _chkShowHiddenMarker.getSelection());
+      _state.put(TourBlogView.STATE_IS_SHOW_TOUR_MARKERS,               _chkShowTourMarkers.getSelection());
+      _state.put(TourBlogView.STATE_IS_SHOW_TOUR_TAGS,                  _chkShowTourTags.getSelection());
 
       _state_WEB.put(WEB.STATE_BODY_FONT_SIZE,                          _spinnerFontSize.getSelection());
 

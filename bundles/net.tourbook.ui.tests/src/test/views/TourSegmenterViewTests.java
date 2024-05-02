@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,20 +32,24 @@ import utils.Utils;
 
 public class TourSegmenterViewTests extends UITest {
 
+   private SWTBotView getTourSegmenterView() {
+
+      Utils.showViewFromMenu(bot, Utils.TOOLS, Utils.VIEW_NAME_TOURSEGMENTER);
+      return Utils.showView(bot, Utils.VIEW_NAME_TOURSEGMENTER);
+   }
+
    @Test
    void testSegmenterAlgorithms_All() {
+
+      Utils.showView(bot, "Tour Chart"); //$NON-NLS-1$
 
       final SWTBotTreeItem tour = bot.tree().getTreeItem("2015   1").expand() //$NON-NLS-1$
             .getNode("May   1").expand().select().getNode("31").select(); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull(tour);
 
-      Utils.showViewFromMenu(bot, Utils.TOOLS, Utils.TOURSEGMENTER_VIEW_NAME);
-      final SWTBotView tourSegmenterView = Utils.showView(bot, Utils.TOURSEGMENTER_VIEW_NAME);
-      final SWTBot tourSegmenterViewBot = tourSegmenterView.bot();
-
-      final SWTBotTable tableSegments = tourSegmenterViewBot.table();
-
-      final SWTBotCombo segmenterMethodCombo = tourSegmenterViewBot.comboBox(0);
+      SWTBot tourSegmenterViewBot = getTourSegmenterView().bot();
+      SWTBotTable tableSegments = tourSegmenterViewBot.table();
+      SWTBotCombo segmenterMethodCombo = tourSegmenterViewBot.comboBox(0);
 
       segmenterMethodCombo.setSelection(Messages.tour_segmenter_type_byAltitude);
       assertEquals("0:06", tableSegments.cell(0, 0)); //$NON-NLS-1$
@@ -74,20 +78,38 @@ public class TourSegmenterViewTests extends UITest {
       segmenterMethodCombo.setSelection(Messages.tour_segmenter_type_byComputedAltiUpDown);
       assertEquals("0:07", tableSegments.cell(0, 0)); //$NON-NLS-1$
 
+      //Change the measurement system to imperial
+      Utils.setMeasurementSystem_Imperial(bot);
+
+      bot.sleep(5000);
+
+      //Change back the measurement system to metric
+      Utils.setMeasurementSystem_Metric(bot);
+
+      bot.sleep(5000);
+
+      final SWTBotView tourSegmenterView = getTourSegmenterView();
+      tourSegmenterViewBot = tourSegmenterView.bot();
+      tableSegments = tourSegmenterViewBot.table();
+
+      segmenterMethodCombo = tourSegmenterViewBot.comboBox(0);
       segmenterMethodCombo.setSelection(Messages.Tour_Segmenter_Type_Surfing);
       assertEquals("0:17", tableSegments.cell(0, 0)); //$NON-NLS-1$
+
       tourSegmenterView.close();
    }
 
    @Test
    void testSelectSegments() {
 
+      Utils.showView(bot, "Tour Chart"); //$NON-NLS-1$
+
       final SWTBotTreeItem tour = bot.tree().getTreeItem("2015   1").expand() //$NON-NLS-1$
             .getNode("May   1").expand().select().getNode("31").select(); //$NON-NLS-1$ //$NON-NLS-2$
       assertNotNull(tour);
 
-      Utils.showViewFromMenu(bot, Utils.TOOLS, Utils.TOURSEGMENTER_VIEW_NAME);
-      final SWTBotView tourSegmenterView = Utils.showView(bot, Utils.TOURSEGMENTER_VIEW_NAME);
+      Utils.showViewFromMenu(bot, Utils.TOOLS, Utils.VIEW_NAME_TOURSEGMENTER);
+      final SWTBotView tourSegmenterView = Utils.showView(bot, Utils.VIEW_NAME_TOURSEGMENTER);
 
       final SWTBotTable tableSegments = tourSegmenterView.bot().table();
       tableSegments.select(0);

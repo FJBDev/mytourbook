@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,7 +26,6 @@ import de.byteholder.geoclipse.map.Tile;
 import de.byteholder.geoclipse.map.TileCache;
 import de.byteholder.geoclipse.map.TileImageCache;
 import de.byteholder.geoclipse.map.TileImageLoader;
-import de.byteholder.geoclipse.map.UI;
 import de.byteholder.geoclipse.map.event.ITileListener;
 import de.byteholder.geoclipse.map.event.TileEventId;
 import de.byteholder.geoclipse.util.Util;
@@ -45,6 +44,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.map.CommonMapProvider;
 import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.time.TimeTools;
@@ -1049,7 +1049,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
       if (urlString == null) {
          final Exception e = new Exception();
          StatusUtil.log(NLS.bind(//
-               Messages.DBG041_Error_InvalidUrlNull,
+               Messages.Error__InvalidUrlNull_DBG041,
                this.getClass().getName() + UI.DASH_WITH_SPACE + tile.getTileKey()), e);
          throw e;
       }
@@ -1067,7 +1067,7 @@ public abstract class MP extends CommonMapProvider implements Cloneable, Compara
          url = new URL(encodedUrl);
 
       } catch (final MalformedURLException e) {
-         StatusUtil.log(NLS.bind(Messages.DBG042_Error_InvalidUrl, urlString, tile.getTileKey()), e);
+         StatusUtil.log(NLS.bind(Messages.Error__InvalidUrl_DBG042, urlString, tile.getTileKey()), e);
          throw e;
       }
 
