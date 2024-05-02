@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.map3.view;
 
+import de.byteholder.geoclipse.util.Images;
+
 import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -34,11 +36,13 @@ import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +79,6 @@ import net.tourbook.map.IMapSyncListener;
 import net.tourbook.map.IMapView;
 import net.tourbook.map.MapColorProvider;
 import net.tourbook.map.MapManager;
-import net.tourbook.map.MapUtils;
 import net.tourbook.map.bookmark.ActionMapBookmarks;
 import net.tourbook.map.bookmark.IMapBookmarkListener;
 import net.tourbook.map.bookmark.IMapBookmarks;
@@ -146,6 +149,7 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -293,6 +297,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
    /**
     * @param eyePosition
+    *
     * @return Returns altitude offset depending on the configuration settings.
     */
    public static double getAltitudeOffset(final Position eyePosition) {
@@ -818,6 +823,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
     *           View pitch.
     * @param altitudeMode
     *           Altitude mode of {@code eyePosition}.
+    *
     * @return The center position of the view.
     */
    protected Position computeCenterPosition(final Position eyePosition,
@@ -1414,6 +1420,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
    /**
     * @param allTours
+    *
     * @return Returns only tours which can be displayed in the map (which contains geo coordinates).
     */
    private ArrayList<TourData> getMapTours(final List<TourData> allTours) {
@@ -1441,11 +1448,27 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    @Override
    public Image getMapViewImage() {
 
-      return MapUtils.getMapViewImage(_mapContainer);
+      // Get the size of the WorldWindowGLCanvas
+      final int width = _wwCanvas.getWidth();
+      final int height = _wwCanvas.getHeight();
+
+      // Create a BufferedImage to hold the screenshot
+      final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+      // Get the screenshot
+      final Graphics graphics = image.getGraphics();
+      _wwCanvas.paint(graphics);
+
+      // Convert the BufferedImage to an SWT Image
+      final ImageData imageData = Images.convertToSWT(image);
+      final Image swtImage = new Image(Display.getDefault(), imageData);
+
+      return swtImage;
    }
 
    /**
     * @param trackSliderLayer
+    *
     * @return Returns {@link TourData} of the selected tour track or <code>null</code> when a tour
     *         is not selected.
     */
