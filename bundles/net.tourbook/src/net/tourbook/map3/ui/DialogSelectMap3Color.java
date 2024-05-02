@@ -341,8 +341,11 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
          final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
          final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
          final Color bgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
+
          UI.setChildColors(shellContainer, fgColor, bgColor);
       }
+
+      shellContainer.addDisposeListener(disposeEvent -> onDispose());
 
       return shellContainer;
    }
@@ -847,7 +850,6 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
    /**
     * @param image
-    *
     * @return Returns <code>true</code> when the image is valid, returns <code>false</code> when
     *         the profile image must be created,
     */
@@ -1071,7 +1073,6 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
    /**
     * @param selectedColorProvider
-    *
     * @return Returns <code>true</code> when a new color provider is set, otherwise
     *         <code>false</code>.
     */
