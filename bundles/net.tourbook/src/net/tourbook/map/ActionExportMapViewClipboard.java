@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.FileUtils;
 import net.tourbook.common.util.StatusUtil;
@@ -42,6 +44,7 @@ public class ActionExportMapViewClipboard extends Action {
    public ActionExportMapViewClipboard(final IMapView mapView) {
 
       super(Messages.Map_Action_Export_Map_View_Clipboard, AS_PUSH_BUTTON);
+      setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Copy));
 
       _mapView = mapView;
    }
@@ -65,7 +68,7 @@ public class ActionExportMapViewClipboard extends Action {
          try {
             final String absoluteFilePath = Files.createTempFile("map", ".png").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 
-            //We export the image to a file as a JPEG image
+            //We export the image to a file as a PNG image
             final ImageLoader loader = new ImageLoader();
             loader.data = new ImageData[] { mapViewImage.getImageData() };
             loader.save(absoluteFilePath, SWT.IMAGE_PNG);
