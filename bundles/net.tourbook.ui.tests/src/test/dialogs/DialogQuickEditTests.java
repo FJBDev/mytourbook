@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 package dialogs;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.jupiter.api.Test;
@@ -32,15 +33,18 @@ public class DialogQuickEditTests extends UITest {
 
       bot.toolbarButtonWithTooltip(Messages.App_Action_CollapseAll).click();
 
-      final SWTBotTreeItem tour = Utils.getTour(bot);
+      SWTBotTreeItem tour = Utils.duplicateAndGetTour(bot);
 
       tour.contextMenu(Messages.app_action_quick_edit).click();
-      bot.textWithLabel(Messages.Tour_Action_Weather).setText(net.tourbook.common.Messages.Weather_Clouds_Sunny);
+      bot.textWithLabel(Messages.Tour_Action_Weather).setText(OtherMessages.WEATHER_CLOUDS_SUNNY);
       bot.button(Messages.App_Action_Save).click();
 
       //Necessary otherwise the subsequent tests fail.
       //Not sure why but my hunch is that the window is not fully closed for the
       //subsequent tests.
       bot.sleep(3000);
+
+      tour = Utils.selectDuplicatedTour(bot);
+      Utils.deleteTour(bot, tour);
    }
 }

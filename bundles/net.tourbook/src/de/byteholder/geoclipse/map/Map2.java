@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -38,9 +38,6 @@
  */
 package de.byteholder.geoclipse.map;
 
-import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
-import static org.eclipse.swt.events.MouseTrackListener.mouseExitAdapter;
-
 import de.byteholder.geoclipse.Messages;
 import de.byteholder.geoclipse.map.event.IBreadcrumbListener;
 import de.byteholder.geoclipse.map.event.IGeoPositionListener;
@@ -69,8 +66,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -79,7 +74,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.tourbook.Images;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.DPITools;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorCacheSWT;
 import net.tourbook.common.color.ThemeUtil;
@@ -95,6 +92,7 @@ import net.tourbook.common.util.TourToolTip;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourWayPoint;
+import net.tourbook.map.location.MapLocationToolTip;
 import net.tourbook.map2.view.Map2View;
 import net.tourbook.map2.view.SelectionMapSelection;
 import net.tourbook.map2.view.WayPointToolTipProvider;
@@ -109,7 +107,7 @@ import net.tourbook.ui.IInfoToolTipProvider;
 import net.tourbook.ui.IMapToolTipProvider;
 import net.tourbook.ui.MTRectangle;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -132,11 +130,13 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.dnd.URLTransfer;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
@@ -148,7 +148,6 @@ import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -156,11 +155,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 
 public class Map2 extends Canvas {
-
-   private static final String          TOUR_TOOLTIP_LABEL_DISTANCE                    = net.tourbook.ui.Messages.Tour_Tooltip_Label_Distance;
-   private static final String          TOUR_TOOLTIP_LABEL_ELEVATION_UP                = net.tourbook.ui.Messages.Tour_Tooltip_Label_AltitudeUp;
-   private static final String          TOUR_TOOLTIP_LABEL_MOVING_TIME                 = net.tourbook.ui.Messages.Tour_Tooltip_Label_MovingTime;
-   private static final String          TOUR_TOOLTIP_LABEL_RECORDED_TIME               = net.tourbook.ui.Messages.Tour_Tooltip_Label_RecordedTime;
 
    private static final char            NL                                             = UI.NEW_LINE;
 
@@ -185,12 +179,12 @@ public class Map2 extends Canvas {
    public static final int              EXPANDED_HOVER_SIZE                            = 20;
    public static final int              EXPANDED_HOVER_SIZE2                           = EXPANDED_HOVER_SIZE / 2;
 
-   private static final String          DIRECTION_E                                    = "E";                                                     //$NON-NLS-1$
-   private static final String          DIRECTION_N                                    = "N";                                                     //$NON-NLS-1$
+   private static final String          DIRECTION_E                                    = "E";                             //$NON-NLS-1$
+   private static final String          DIRECTION_N                                    = "N";                             //$NON-NLS-1$
 
    private static final int             TEXT_MARGIN                                    = 6;
 
-   private static final String          GEO_GRID_ACTION_UPDATE_GEO_LOCATION_ZOOM_LEVEL = "\uE003";                                                //$NON-NLS-1$
+   private static final String          GEO_GRID_ACTION_UPDATE_GEO_LOCATION_ZOOM_LEVEL = "\uE003";                        //$NON-NLS-1$
 
    /*
     * Wikipedia data
@@ -281,31 +275,31 @@ public class Map2 extends Canvas {
     * Map zoom level which is currently be used to display tiles. Normally a value between around 0
     * and 20.
     */
-   private int                     _mapZoomLevel;
+   private int                           _mapZoomLevel;
 
-   private CenterMapBy             _centerMapBy;
+   private CenterMapBy                   _centerMapBy;
 
    /**
     * This image contains the map which is painted in the map viewport
     */
-   private Image                   _mapImage;
+   private Image                         _mapImage;
 
-   private Image                   _9PartImage;
-   private GC                      _9PartGC;
+   private Image                         _9PartImage;
+   private GC                            _9PartGC;
 
    /**
     * Indicates whether or not to draw the borders between tiles. Defaults to false. not very nice
     * looking, very much a product of testing Consider whether this should really be a property or
     * not.
     */
-   private boolean                 _isShowDebug_TileInfo;
-   private boolean                 _isShowDebug_TileBorder;
-   private boolean                 _isShowDebug_GeoGrid;
+   private boolean                       _isShowDebug_TileInfo;
+   private boolean                       _isShowDebug_TileBorder;
+   private boolean                       _isShowDebug_GeoGrid;
 
    /**
     * Factory used by this component to grab the tiles necessary for painting the map.
     */
-   private MP                      _mp;
+   private MP                            _mp;
 
    /**
     * The position in latitude/longitude of the "address" being mapped. This is a special coordinate
@@ -314,48 +308,48 @@ public class Map2 extends Canvas {
     * when panning or zooming. Whenever the addressLocation is changed, however, the map will be
     * repositioned.
     */
-   private GeoPosition             _addressLocation;
+   private GeoPosition                   _addressLocation;
 
    /**
     * The overlay to delegate to for painting the "foreground" of the map component. This would
     * include painting waypoints, day/night, etc. also receives mouse events.
     */
-   private final List<Map2Painter> _allMapPainter           = new ArrayList<>();
+   private final List<Map2Painter>       _allMapPainter           = new ArrayList<>();
 
-   private final TileLoadObserver  _tileImageLoadObserver   = new TileLoadObserver();
+   private final TileImageLoaderCallback _tileImageLoaderCallback = new TileImageLoaderCallback_ForTileImages();
 
-   private Cursor                  _currentCursor;
-   private final Cursor            _cursorCross;
-   private final Cursor            _cursorDefault;
-   private final Cursor            _cursorHand;
-   private final Cursor            _cursorPan;
-   private final Cursor            _cursorSearchTour;
-   private final Cursor            _cursorSearchTour_Scroll;
-   private final Cursor            _cursorSelect;
+   private Cursor                        _currentCursor;
+   private final Cursor                  _cursorCross;
+   private final Cursor                  _cursorDefault;
+   private final Cursor                  _cursorHand;
+   private final Cursor                  _cursorPan;
+   private final Cursor                  _cursorSearchTour;
+   private final Cursor                  _cursorSearchTour_Scroll;
+   private final Cursor                  _cursorSelect;
 
-   private final AtomicInteger     _redrawMapCounter        = new AtomicInteger();
-   private final AtomicInteger     _overlayRunnableCounter  = new AtomicInteger();
+   private final AtomicInteger           _redrawMapCounter        = new AtomicInteger();
+   private final AtomicInteger           _overlayRunnableCounter  = new AtomicInteger();
 
-   private boolean                 _isLeftMouseButtonPressed;
-   private boolean                 _isMapPanned;
+   private boolean                       _isLeftMouseButtonPressed;
+   private boolean                       _isMapPanned;
 
-   private Point                   _mouseDownPosition;
-   private GeoPosition             _mouseDown_ContextMenu_GeoPosition;
-   private int                     _mouseMove_DevPosition_X = Integer.MIN_VALUE;
-   private int                     _mouseMove_DevPosition_Y = Integer.MIN_VALUE;
-   private int                     _mouseMove_DevPosition_X_Last;
-   private int                     _mouseMove_DevPosition_Y_Last;
-   private GeoPosition             _mouseMove_GeoPosition;
+   private Point                         _mouseDownPosition;
+   private GeoPosition                   _mouseDown_ContextMenu_GeoPosition;
+   private int                           _mouseMove_DevPosition_X = Integer.MIN_VALUE;
+   private int                           _mouseMove_DevPosition_Y = Integer.MIN_VALUE;
+   private int                           _mouseMove_DevPosition_X_Last;
+   private int                           _mouseMove_DevPosition_Y_Last;
+   private GeoPosition                   _mouseMove_GeoPosition;
 
-   private Thread                  _overlayThread;
+   private Thread                        _overlayThread;
 
-   private long                    _nextOverlayRedrawTime;
+   private long                          _nextOverlayRedrawTime;
 
-   private final NumberFormat      _nf0;
-   private final NumberFormat      _nf1;
-   private final NumberFormat      _nf2;
-   private final NumberFormat      _nf3;
-   private final NumberFormat      _nfLatLon;
+   private final NumberFormat            _nf0;
+   private final NumberFormat            _nf1;
+   private final NumberFormat            _nf2;
+   private final NumberFormat            _nf3;
+   private final NumberFormat            _nfLatLon;
    {
       _nf0 = NumberFormat.getNumberInstance();
       _nf1 = NumberFormat.getNumberInstance();
@@ -375,6 +369,7 @@ public class Map2 extends Canvas {
       _nfLatLon.setMinimumFractionDigits(4);
       _nfLatLon.setMaximumFractionDigits(4);
    }
+
    private final TextWrapPainter                      _textWrapper               = new TextWrapPainter();
 
    /**
@@ -497,41 +492,51 @@ public class Map2 extends Canvas {
    /*
     * POI tooltip
     */
-   private PoiToolTip       _poi_Tooltip;
-   private final int        _poi_Tooltip_OffsetY               = 5;
-   private TourToolTip      _tour_ToolTip;
+   private PoiToolTip _poi_Tooltip;
+   private final int  _poi_Tooltip_OffsetY = 5;
+
+   /*
+    * Tour tooltip
+    */
+   private TourToolTip        _tourTooltip;
+   private HoveredAreaContext _tourTooltip_HoveredAreaContext;
+
+   /*
+    * Map locations
+    */
+   private MapLocationToolTip _mapLocation_Tooltip;
 
    /**
     * Hovered/selected tour
     */
-   private boolean          _isShowHoveredOrSelectedTour       = Map2View.STATE_IS_SHOW_HOVERED_SELECTED_TOUR_DEFAULT;
+   private boolean            _isShowHoveredOrSelectedTour       = Map2View.STATE_IS_SHOW_HOVERED_SELECTED_TOUR_DEFAULT;
 
-   private ArrayList<Point> _allHoveredDevPoints               = new ArrayList<>();
-   private ArrayList<Long>  _allHoveredTourIds                 = new ArrayList<>();
-   private IntArrayList     _allHoveredSerieIndices            = new IntArrayList();
+   private ArrayList<Point>   _allHoveredDevPoints               = new ArrayList<>();
+   private ArrayList<Long>    _allHoveredTourIds                 = new ArrayList<>();
+   private IntArrayList       _allHoveredSerieIndices            = new IntArrayList();
 
-   private long             _hovered_SelectedTourId            = -1;
-   private int              _hovered_SelectedSerieIndex_Front  = -1;
-   private int              _hovered_SelectedSerieIndex_Behind = -1;
+   private long               _hovered_SelectedTourId            = -1;
+   private int                _hovered_SelectedSerieIndex_Front  = -1;
+   private int                _hovered_SelectedSerieIndex_Behind = -1;
 
    /**
     * When <code>true</code> then a tour can be selected, otherwise a trackpoint (including tour)
     * can be selected
     */
-   private boolean          _hoveredSelectedTour_CanSelectTour;
-   private int              _hoveredSelectedTour_Hovered_Opacity;
-   private Color            _hoveredSelectedTour_Hovered_Color;
-   private int              _hoveredSelectedTour_HoveredAndSelected_Opacity;
-   private Color            _hoveredSelectedTour_HoveredAndSelected_Color;
-   private int              _hoveredSelectedTour_Selected_Opacity;
-   private Color            _hoveredSelectedTour_Selected_Color;
+   private boolean            _hoveredSelectedTour_CanSelectTour;
+   private int                _hoveredSelectedTour_Hovered_Opacity;
+   private Color              _hoveredSelectedTour_Hovered_Color;
+   private int                _hoveredSelectedTour_HoveredAndSelected_Opacity;
+   private Color              _hoveredSelectedTour_HoveredAndSelected_Color;
+   private int                _hoveredSelectedTour_Selected_Opacity;
+   private Color              _hoveredSelectedTour_Selected_Color;
 
    /**
     * When <code>true</code> the loading... image is not displayed
     */
-   private boolean          _isLiveView;
+   private boolean            _isLiveView;
 
-   private long             _lastMapDrawTime;
+   private long               _lastMapDrawTime;
 
    /*
     * All painted tiles in the map are within these 4 tile positions
@@ -566,7 +571,7 @@ public class Map2 extends Canvas {
    private Point                     _offline_WorldMouse_End;
    private Point                     _offline_WorldMouse_Move;
 
-   private IMapContextProvider       _mapContextProvider;
+   private IMapContextMenuProvider   _mapContextMenuProvider;
 
    /**
     * Is <code>true</code> when the map context menu can be displayed
@@ -576,8 +581,6 @@ public class Map2 extends Canvas {
    private DropTarget                _dropTarget;
 
    private boolean                   _isRedrawEnabled           = true;
-
-   private HoveredAreaContext        _hoveredAreaContext;
 
    private int                       _overlayAlpha              = 0xff;
 
@@ -650,27 +653,20 @@ public class Map2 extends Canvas {
    }
 
    /**
-    * This observer is called in the {@link Tile} when a tile image is set into the tile
+    * This callback is called when a tile image was loaded and is set into the tile
     */
-   private final class TileLoadObserver implements Observer {
+   final class TileImageLoaderCallback_ForTileImages implements TileImageLoaderCallback {
 
       @Override
-      public void update(final Observable observable, final Object arg) {
+      public void update(final Tile tile) {
 
-         if (observable instanceof Tile) {
+         if (tile.getZoom() == _mapZoomLevel) {
 
-            final Tile tile = (Tile) observable;
-
-            if (tile.getZoom() == _mapZoomLevel) {
-
-               /*
-                * Because we are not in the UI thread, we have to queue the call for redraw and
-                * cannot do it directly.
-                */
-               paint();
-
-               tile.deleteObserver(this);
-            }
+            /*
+             * Because we are not in the UI thread, we have to queue the call for redraw and
+             * cannot do it directly.
+             */
+            paint();
          }
       }
    }
@@ -698,16 +694,22 @@ public class Map2 extends Canvas {
 
       grid_UpdatePaintingStateData();
 
-      _cursorCross = new Cursor(_display, SWT.CURSOR_CROSS);
-      _cursorDefault = new Cursor(_display, SWT.CURSOR_ARROW);
-      _cursorHand = new Cursor(_display, SWT.CURSOR_HAND);
-      _cursorPan = new Cursor(_display, SWT.CURSOR_SIZEALL);
+// SET_FORMATTING_OFF
 
-      _cursorSearchTour = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation));
-      _cursorSearchTour_Scroll = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.SearchTours_ByLocation_Scroll));
-      _cursorSelect = UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(Images.Cursor_Select));
+      _cursorCross               = new Cursor(_display, SWT.CURSOR_CROSS);
+      _cursorDefault             = new Cursor(_display, SWT.CURSOR_ARROW);
+      _cursorHand                = new Cursor(_display, SWT.CURSOR_HAND);
+      _cursorPan                 = new Cursor(_display, SWT.CURSOR_SIZEALL);
+
+      _cursorSearchTour          = createCursorFromImage(Images.SearchTours_ByLocation);
+      _cursorSearchTour_Scroll   = createCursorFromImage(Images.SearchTours_ByLocation_Scroll);
+      _cursorSelect              = createCursorFromImage(Images.Cursor_Select);
+
+// SET_FORMATTING_ON
 
       _transparentColor = new Color(MAP_TRANSPARENT_RGB);
+
+      _mapLocation_Tooltip = new MapLocationToolTip(this);
 
       _poiImage = TourbookPlugin.getImageDescriptor(Images.POI_InMap).createImage();
       _poiImageBounds = _poiImage.getBounds();
@@ -801,8 +803,8 @@ public class Map2 extends Canvas {
 
    private void addAllListener() {
 
-      addPaintListener(this::onPaint);
-      addDisposeListener(this::onDispose);
+      addPaintListener(paintEvent -> onPaint(paintEvent));
+      addDisposeListener(disposeEvent -> onDispose(disposeEvent));
 
       addFocusListener(new FocusListener() {
          @Override
@@ -835,15 +837,15 @@ public class Map2 extends Canvas {
          }
       });
 
-      addMouseTrackListener(mouseExitAdapter(mouseEvent -> onMouse_Exit()));
-      addMouseMoveListener(this::onMouse_Move);
+      addMouseTrackListener(MouseTrackListener.mouseExitAdapter(mouseEvent -> onMouse_Exit()));
+      addMouseMoveListener(mouseEvent -> onMouse_Move(mouseEvent));
 
-      addListener(SWT.MouseHorizontalWheel, this::onMouse_Wheel);
-      addListener(SWT.MouseVerticalWheel, this::onMouse_Wheel);
+      addListener(SWT.MouseHorizontalWheel, event -> onMouse_Wheel(event));
+      addListener(SWT.MouseVerticalWheel, event -> onMouse_Wheel(event));
 
-      addListener(SWT.KeyDown, this::onKey_Down);
+      addListener(SWT.KeyDown, event -> onKey_Down(event));
 
-      addControlListener(controlResizedAdapter(controlEvent -> onResize()));
+      addControlListener(ControlListener.controlResizedAdapter(controlEvent -> onResize()));
 
       // enable traverse keys
       addTraverseListener(traverseEvent -> traverseEvent.doit = true);
@@ -927,6 +929,7 @@ public class Map2 extends Canvas {
     *
     * @param overlay
     *           the map overlay to use
+    *
     * @see org.jdesktop.swingx.painters.Painter
     */
    public void addOverlayPainter(final Map2Painter overlay) {
@@ -949,6 +952,7 @@ public class Map2 extends Canvas {
     *
     * @param newWidth
     * @param newHeight
+    *
     * @return
     */
    private boolean canReuseImage(final Image image, final Rectangle clientArea) {
@@ -991,8 +995,7 @@ public class Map2 extends Canvas {
       }
 
       // create 9 part image/gc
-      final ImageData transparentImageData = de.byteholder.geoclipse.map.UI.createTransparentImageData(
-            partedTileSize);
+      final ImageData transparentImageData = MapUtils.createTransparentImageData(partedTileSize);
 
       _9PartImage = new Image(_display, transparentImageData);
       _9PartGC = new GC(_9PartImage);
@@ -1002,6 +1005,7 @@ public class Map2 extends Canvas {
     * Checks validation of a world pixel by using the current zoom level and map tile size.
     *
     * @param newWorldPixelCenter
+    *
     * @return Returns adjusted world pixel when necessary.
     */
    private Point2D.Double checkWorldPixel(final Point2D newWorldPixelCenter) {
@@ -1083,12 +1087,19 @@ public class Map2 extends Canvas {
             return;
          }
 
-         if (_mapContextProvider != null) {
-            _mapContextProvider.fillContextMenu(menuManager, _actionManageOfflineImages);
+         if (_mapContextMenuProvider != null) {
+            _mapContextMenuProvider.fillContextMenu(menuManager, _actionManageOfflineImages);
          }
       });
 
       setMenu(menuMgr.createContextMenu(this));
+   }
+
+   private Cursor createCursorFromImage(final String imageName) {
+
+      final String imageName4k = DPITools.get4kImageName(imageName);
+
+      return UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(imageName4k));
    }
 
    /**
@@ -1098,6 +1109,7 @@ public class Map2 extends Canvas {
     * @param image
     *           image which will be disposed if the image is not null
     * @param clientArea
+    *
     * @return returns a new created image
     */
    private Image createMapImage(final Display display, final Image image, final Rectangle clientArea) {
@@ -1115,7 +1127,7 @@ public class Map2 extends Canvas {
       if (UI.isDarkTheme()) {
 
          /*
-          * It looks ugly when in the dark theme the default map background is white which occure
+          * It looks ugly when in the dark theme the default map background is white which occur
           * before the map tile images are painted
           */
 
@@ -1160,14 +1172,8 @@ public class Map2 extends Canvas {
       grid_UpdatePaintingStateData();
    }
 
-   private void disposeResource(final Resource resource) {
-
-      if ((resource != null) && !resource.isDisposed()) {
-         resource.dispose();
-      }
-   }
-
    public void disposeTiles() {
+
       _mp.disposeTiles();
    }
 
@@ -1286,14 +1292,6 @@ public class Map2 extends Canvas {
       }
    }
 
-   public GeoPosition get_mouseDown_GeoPosition() {
-      return _mouseDown_ContextMenu_GeoPosition;
-   }
-
-   public GeoPosition get_mouseMove_GeoPosition() {
-      return _mouseMove_GeoPosition;
-   }
-
    /**
     * Gets the current address location of the map. This property does not change when the user pans
     * the map. This property is bound.
@@ -1308,6 +1306,7 @@ public class Map2 extends Canvas {
     * Parse bounding box string.
     *
     * @param boundingBox
+    *
     * @return Returns a set with bounding box positions or <code>null</code> when boundingBox cannot
     *         be parsed.
     */
@@ -1357,6 +1356,11 @@ public class Map2 extends Canvas {
       return _centerMapBy;
    }
 
+   public PaintedMapLocation getHoveredMapLocation() {
+
+      return _directMapPainterContext.hoveredMapLocation;
+   }
+
    /**
     * Retrieve, if any, the current tour hovered by the user.
     *
@@ -1383,6 +1387,7 @@ public class Map2 extends Canvas {
     * @param allPainted_HoveredRectangle
     * @param allPainted_HoveredTourId
     * @param allPainted_HoveredSerieIndices
+    *
     * @return
     */
    private int getHoveredValuePointIndex(final Long hoveredTourId,
@@ -1475,6 +1480,11 @@ public class Map2 extends Canvas {
       return _mp.pixelToGeo(_worldPixel_MapCenter, _mapZoomLevel);
    }
 
+   public MapLocationToolTip getMapLocationTooltip() {
+
+      return _mapLocation_Tooltip;
+   }
+
    /**
     * @return Returns the overlay map painter which are defined as plugin extension
     */
@@ -1491,8 +1501,17 @@ public class Map2 extends Canvas {
       return _mp;
    }
 
+   public GeoPosition getMouseDown_GeoPosition() {
+      return _mouseDown_ContextMenu_GeoPosition;
+   }
+
+   public GeoPosition getMouseMove_GeoPosition() {
+      return _mouseMove_GeoPosition;
+   }
+
    /**
     * @param tileKey
+    *
     * @return Returns the key to identify overlay images in the image cache
     */
    private String getOverlayKey(final Tile tile) {
@@ -1504,6 +1523,7 @@ public class Map2 extends Canvas {
     * @param xOffset
     * @param yOffset
     * @param projectionId
+    *
     * @return
     */
    private String getOverlayKey(final Tile tile, final int xOffset, final int yOffset, final String projectionId) {
@@ -1521,6 +1541,7 @@ public class Map2 extends Canvas {
 
    /**
     * @param tourId
+    *
     * @return Return dev X/Y position of the hovered tour or <code>null</code>
     */
    private int[] getReducesTourPositions(final long tourId) {
@@ -1618,6 +1639,7 @@ public class Map2 extends Canvas {
     *           Geo positions
     * @param zoom
     *           Requested zoom level
+    *
     * @return Returns a rectangle in world positions which contains all geo positions for the given
     *         zoom level
     */
@@ -1662,6 +1684,7 @@ public class Map2 extends Canvas {
     * @param geo_Start
     * @param geo_End
     * @param mapGridData
+    *
     * @return
     */
    private void grid_Convert_StartEnd_2_TopLeft(GeoPosition geo_Start,
@@ -2038,7 +2061,8 @@ public class Map2 extends Canvas {
 
    /**
     * @param mouseEvent
-    * @return Returns mouse positon in the map border or <code>null</code> when the border is not
+    *
+    * @return Returns mouse position in the map border or <code>null</code> when the border is not
     *         hovered. The returned absolute values are higher when the mouse is closer to the
     *         border.
     */
@@ -2178,17 +2202,17 @@ public class Map2 extends Canvas {
 
    private void hideTourTooltipHoveredArea() {
 
-      if (_tour_ToolTip == null) {
+      if (_tourTooltip == null) {
          return;
       }
 
       // update tool tip because it has it's own mouse move listener for the map
-      _tour_ToolTip.hideHoveredArea();
+      _tourTooltip.hideHoveredArea();
 
-      if (_hoveredAreaContext != null) {
+      if (_tourTooltip_HoveredAreaContext != null) {
 
          // hide hovered area
-         _hoveredAreaContext = null;
+         _tourTooltip_HoveredAreaContext = null;
 
          redraw();
       }
@@ -2226,6 +2250,7 @@ public class Map2 extends Canvas {
     * @param srcXStart
     * @param srcYStart
     * @param tileSize
+    *
     * @return Returns <code>true</code> when a part is modified
     */
    private boolean isPartImageDataModified(final ImageData imageData9Parts,
@@ -2359,6 +2384,7 @@ public class Map2 extends Canvas {
     *
     * @param tilePosX
     * @param tilePosY
+    *
     * @return
     */
    private boolean isTileOnMap(final int tilePosX, final int tilePosY) {
@@ -2614,6 +2640,7 @@ public class Map2 extends Canvas {
     *
     * @param worldPosX
     * @param worldPosY
+    *
     * @return
     */
    private Point offline_GetDevGridGeoPosition(final int worldPosX, final int worldPosY) {
@@ -2719,19 +2746,19 @@ public class Map2 extends Canvas {
          _dropTarget.dispose();
       }
 
-      disposeResource(_mapImage);
-      disposeResource(_poiImage);
+      UI.disposeResource(_mapImage);
+      UI.disposeResource(_poiImage);
 
-      disposeResource(_9PartImage);
-      disposeResource(_9PartGC);
+      UI.disposeResource(_9PartImage);
+      UI.disposeResource(_9PartGC);
 
-      disposeResource(_cursorCross);
-      disposeResource(_cursorDefault);
-      disposeResource(_cursorHand);
-      disposeResource(_cursorPan);
-      disposeResource(_cursorSearchTour);
-      disposeResource(_cursorSearchTour_Scroll);
-      disposeResource(_cursorSelect);
+      UI.disposeResource(_cursorCross);
+      UI.disposeResource(_cursorDefault);
+      UI.disposeResource(_cursorHand);
+      UI.disposeResource(_cursorPan);
+      UI.disposeResource(_cursorSearchTour);
+      UI.disposeResource(_cursorSearchTour_Scroll);
+      UI.disposeResource(_cursorSelect);
 
       // dispose resources in the overlay plugins
       for (final Map2Painter overlay : _allMapPainter) {
@@ -2747,7 +2774,7 @@ public class Map2 extends Canvas {
 
       // dispose legend image
       if (_mapLegend != null) {
-         disposeResource(_mapLegend.getImage());
+         UI.disposeResource(_mapLegend.getImage());
       }
 
       if (_poi_Tooltip != null) {
@@ -2766,11 +2793,13 @@ public class Map2 extends Canvas {
 
       if (TextTransfer.getInstance().isSupportedType(transferDataType)) {
 
-         if (event.data instanceof String) {
-            isPOI = parseAndDisplayPOIText((String) event.data);
+         if (event.data instanceof final String eventData) {
+
+            isPOI = parseAndDisplayPOIText(eventData);
          }
 
       } else if (URLTransfer.getInstance().isSupportedType(transferDataType)) {
+
          isPOI = parseAndDisplayPOIText((String) event.data);
       }
 
@@ -2828,12 +2857,15 @@ public class Map2 extends Canvas {
       case SWT.ARROW_LEFT:
          xDiff = _isInInverseKeyboardPanning ? -offset : offset;
          break;
+
       case SWT.ARROW_RIGHT:
          xDiff = _isInInverseKeyboardPanning ? offset : -offset;
          break;
+
       case SWT.ARROW_UP:
          yDiff = _isInInverseKeyboardPanning ? -offset : offset;
          break;
+
       case SWT.ARROW_DOWN:
          yDiff = _isInInverseKeyboardPanning ? offset : -offset;
          break;
@@ -2843,6 +2875,7 @@ public class Map2 extends Canvas {
       case '+':
          zoomIn(CenterMapBy.Map);
          break;
+
       case '-':
          zoomOut(CenterMapBy.Map);
          break;
@@ -2946,7 +2979,10 @@ public class Map2 extends Canvas {
          redraw();
 
       } else if (_isShowHoveredOrSelectedTour
+
             && _isShowBreadcrumbs
+
+            // check if breadcrumb is hit
             && _tourBreadcrumb.onMouseDown(devMousePosition)) {
 
          // a crumb is selected
@@ -2972,7 +3008,7 @@ public class Map2 extends Canvas {
 
          } else {
 
-            // show bread crum tours in the map
+            // show bread crumb tours in the map
 
             final ArrayList<Long> crumbTourIds = _tourBreadcrumb.getHoveredCrumbedTours_WithReset();
 
@@ -3246,6 +3282,54 @@ public class Map2 extends Canvas {
          return;
       }
 
+      if (_directMapPainterContext.allPaintedMapLocations.size() > 0) {
+
+         // map locations are painted
+
+         final PaintedMapLocation oldHoveredMapLocation = _directMapPainterContext.hoveredMapLocation;
+         PaintedMapLocation newHoveredMapLocation = null;
+
+         _directMapPainterContext.hoveredMapLocation = null;
+
+         final List<PaintedMapLocation> allPaintedMapLocations = _directMapPainterContext.allPaintedMapLocations;
+
+         for (final PaintedMapLocation paintedLocation : allPaintedMapLocations) {
+
+            final Rectangle paintedRect = paintedLocation.locationRectangle;
+
+            if (true
+                  && (_mouseMove_DevPosition_X > paintedRect.x)
+                  && (_mouseMove_DevPosition_X < paintedRect.x + paintedRect.width)
+                  && (_mouseMove_DevPosition_Y > paintedRect.y)
+                  && (_mouseMove_DevPosition_Y < paintedRect.y + paintedRect.height)) {
+
+               // a map location is hovered
+
+               _directMapPainterContext.hoveredMapLocation = newHoveredMapLocation = paintedLocation;
+
+               break;
+            }
+         }
+
+         // repaint map when hovered state has changed
+         if (oldHoveredMapLocation == null && newHoveredMapLocation == null) {
+
+            // ignore
+
+         } else if (false
+
+               || oldHoveredMapLocation == null && newHoveredMapLocation != null
+               || oldHoveredMapLocation != null && newHoveredMapLocation == null
+
+               // now both should be NOT null
+               || oldHoveredMapLocation.tourLocationExtended.equals(newHoveredMapLocation.tourLocationExtended) == false) {
+
+            redraw();
+
+            return;
+         }
+      }
+
       if (_isLeftMouseButtonPressed) {
 
          // pan map
@@ -3257,21 +3341,21 @@ public class Map2 extends Canvas {
 
       // #######################################################################
 
-      if (_tour_ToolTip != null && _tour_ToolTip.isActive()) {
+      if (_tourTooltip != null && _tourTooltip.isActive()) {
 
          /*
           * check if the mouse is within a hovered area
           */
          boolean isContextValid = false;
-         if (_hoveredAreaContext != null) {
+         if (_tourTooltip_HoveredAreaContext != null) {
 
-            final int topLeftX = _hoveredAreaContext.hoveredTopLeftX;
-            final int topLeftY = _hoveredAreaContext.hoveredTopLeftY;
+            final int topLeftX = _tourTooltip_HoveredAreaContext.hoveredTopLeftX;
+            final int topLeftY = _tourTooltip_HoveredAreaContext.hoveredTopLeftY;
 
             if (_mouseMove_DevPosition_X >= topLeftX
-                  && _mouseMove_DevPosition_X < topLeftX + _hoveredAreaContext.hoveredWidth
+                  && _mouseMove_DevPosition_X < topLeftX + _tourTooltip_HoveredAreaContext.hoveredWidth
                   && _mouseMove_DevPosition_Y >= topLeftY
-                  && _mouseMove_DevPosition_Y < topLeftY + _hoveredAreaContext.hoveredHeight) {
+                  && _mouseMove_DevPosition_Y < topLeftY + _tourTooltip_HoveredAreaContext.hoveredHeight) {
 
                isContextValid = true;
             }
@@ -3531,63 +3615,73 @@ public class Map2 extends Canvas {
 
       // draw map image to the screen
 
-      if ((_mapImage != null) && !_mapImage.isDisposed()) {
+      if (_mapImage == null || _mapImage.isDisposed()) {
+         return;
+      }
 
-         final GC gc = event.gc;
+      final GC gc = event.gc;
 
-         gc.drawImage(_mapImage, 0, 0);
+//      final long start = System.nanoTime();
 
-         if (_directMapPainter != null) {
+      gc.drawImage(_mapImage, 0, 0);
 
-            // is drawing sliders in map/legend
+      if (_directMapPainter != null) {
 
-            _directMapPainterContext.gc = gc;
-            _directMapPainterContext.viewport = _worldPixel_TopLeft_Viewport;
+         // is drawing sliders in map/legend
 
-            _directMapPainter.paint(_directMapPainterContext);
-         }
+         _directMapPainterContext.gc = gc;
+         _directMapPainterContext.mapViewport = _worldPixel_TopLeft_Viewport;
 
-         if (_hoveredAreaContext != null) {
-            final Image hoveredImage = _hoveredAreaContext.hoveredImage;
-            if (hoveredImage != null) {
+         _directMapPainter.paint(_directMapPainterContext);
+      }
 
-               gc.drawImage(hoveredImage,
-                     _hoveredAreaContext.hoveredTopLeftX,
-                     _hoveredAreaContext.hoveredTopLeftY);
-            }
-         }
+      if (_tourTooltip_HoveredAreaContext != null) {
+         final Image hoveredImage = _tourTooltip_HoveredAreaContext.hoveredImage;
+         if (hoveredImage != null) {
 
-         if (_isPoiVisible && _poi_Tooltip != null) {
-            if (_isPoiPositionInViewport = updatePoiImageDevPosition()) {
-               gc.drawImage(_poiImage, _poiImageDevPosition.x, _poiImageDevPosition.y);
-            }
-         }
-
-         if (_offline_IsPaintOfflineArea) {
-            paint_OfflineArea(gc);
-         }
-
-         final boolean isPaintTourInfo = paint_HoveredTour(gc);
-
-         _geoGrid_Label_Outline = null;
-         _geoGrid_Action_Outline = null;
-         if (_geoGrid_Data_Selected != null) {
-            paint_GeoGrid_10_Selected(gc, _geoGrid_Data_Selected);
-         }
-         if (_geoGrid_Data_Hovered != null) {
-            paint_GeoGrid_20_Hovered(gc, _geoGrid_Data_Hovered);
-         }
-
-         // paint tooltip icon in the map
-         if (_tour_ToolTip != null) {
-            _tour_ToolTip.paint(gc, _clientArea);
-         }
-
-         // paint info AFTER hovered/selected tour
-         if (isPaintTourInfo) {
-            paint_HoveredTour_50_TourInfo(gc);
+            gc.drawImage(hoveredImage,
+                  _tourTooltip_HoveredAreaContext.hoveredTopLeftX,
+                  _tourTooltip_HoveredAreaContext.hoveredTopLeftY);
          }
       }
+
+      if (_isPoiVisible && _poi_Tooltip != null) {
+         if (_isPoiPositionInViewport = updatePoiImageDevPosition()) {
+            gc.drawImage(_poiImage, _poiImageDevPosition.x, _poiImageDevPosition.y);
+         }
+      }
+
+      if (_offline_IsPaintOfflineArea) {
+         paint_OfflineArea(gc);
+      }
+
+      final boolean isPaintTourInfo = paint_HoveredTour(gc);
+
+      _geoGrid_Label_Outline = null;
+      _geoGrid_Action_Outline = null;
+      if (_geoGrid_Data_Selected != null) {
+         paint_GeoGrid_10_Selected(gc, _geoGrid_Data_Selected);
+      }
+      if (_geoGrid_Data_Hovered != null) {
+         paint_GeoGrid_20_Hovered(gc, _geoGrid_Data_Hovered);
+      }
+
+      // paint tooltip icon in the map
+      if (_tourTooltip != null) {
+         _tourTooltip.paint(gc, _clientArea);
+      }
+
+      // paint info AFTER hovered/selected tour
+      if (isPaintTourInfo) {
+         paint_HoveredTour_50_TourInfo(gc);
+      }
+
+//      final long end = System.nanoTime();
+//
+//      System.out.println((UI.timeStampNano() + " " + this.getClass().getName() + " \t")
+//            + (((float) (end - start) / 1000000) + " ms")
+//            + " " + _mapImage.getBounds());
+//      // TODO remove SYSTEM.OUT.PRINTLN
    }
 
    private void onResize() {
@@ -3709,12 +3803,13 @@ public class Map2 extends Canvas {
 
       } catch (final Exception e) {
 
-         e.printStackTrace();
+         StatusUtil.log(e);
 
          // map image is corrupt
          _mapImage.dispose();
 
       } finally {
+
          if (gcMapImage != null) {
             gcMapImage.dispose();
          }
@@ -4111,6 +4206,7 @@ public class Map2 extends Canvas {
     * @param isPaintLastGridSelection
     *           When <code>true</code>, the last selected grid is painted, otherwise the currently
     *           selecting grid
+    *
     * @return Returns top/left box position in the viewport
     */
    private Point paint_GeoGrid_50_Outline(final GC gc,
@@ -4511,7 +4607,7 @@ public class Map2 extends Canvas {
 //         // paint hovered rectangle
 //         gc.setLineWidth(1);
 //
-//         for (final Point hoveredPoint : _allDevHoveredPoints) {
+//         for (final Point hoveredPoint : _allHoveredDevPoints) {
 //
 //            gc.setAlpha(0x60);
 //            gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
@@ -4597,20 +4693,20 @@ public class Map2 extends Canvas {
        * Tour values
        */
       final String text_TourMovingTime = String.format(Messages.Map2_TourTooltip_Time,
-            TOUR_TOOLTIP_LABEL_MOVING_TIME,
+            OtherMessages.TOUR_TOOLTIP_LABEL_MOVING_TIME,
             FormatManager.formatMovingTime(movingTime));
 
       final String text_TourRecordedTime = String.format(Messages.Map2_TourTooltip_Time,
-            TOUR_TOOLTIP_LABEL_RECORDED_TIME,
+            OtherMessages.TOUR_TOOLTIP_LABEL_RECORDED_TIME,
             FormatManager.formatMovingTime(recordedTime));
 
       final String text_TourDistance = String.format(Messages.Map2_TourTooltip_Distance,
-            TOUR_TOOLTIP_LABEL_DISTANCE,
+            OtherMessages.TOUR_TOOLTIP_LABEL_DISTANCE,
             FormatManager.formatDistance(distance / 1000.0),
             UI.UNIT_LABEL_DISTANCE);
 
       final String text_ElevationUp = String.format(Messages.Map2_TourTooltip_Elevation,
-            TOUR_TOOLTIP_LABEL_ELEVATION_UP,
+            OtherMessages.TOUR_TOOLTIP_LABEL_ELEVATION_UP,
             FormatManager.formatElevation(elevationUp),
             UI.UNIT_LABEL_ELEVATION);
 
@@ -4748,7 +4844,7 @@ public class Map2 extends Canvas {
           * Combine tour values
           */
          sb.append(NL);
-         sb.append(String.format("%s\t%s\t%s\t%s", //$NON-NLS-1$
+         sb.append(String.format("%s\t%s\t%8s\t%10s", //$NON-NLS-1$
                text_TourDateTime,
                text_TourMovingTime,
                text_TourDistance,
@@ -5324,7 +5420,7 @@ public class Map2 extends Canvas {
       boolean isOverlayPainted = false;
 
       // create 1 part image/gc
-      final ImageData transparentImageData = de.byteholder.geoclipse.map.UI.createTransparentImageData(_tilePixelSize);
+      final ImageData transparentImageData = MapUtils.createTransparentImageData(_tilePixelSize);
 
       final Image overlayImage = new Image(_display, transparentImageData);
       final GC gc1Part = new GC(overlayImage);
@@ -5671,6 +5767,7 @@ public class Map2 extends Canvas {
     * @param fgColor
     * @param bgColor
     * @param isAdjustToMousePosition
+    *
     * @return Returns outline of the painted text or <code>null</code> when text is not painted
     */
    private Rectangle paint_Text_Label(final GC gc,
@@ -5817,7 +5914,7 @@ public class Map2 extends Canvas {
    }
 
    /**
-    * draw the tile map image
+    * Draw the tile map image
     */
    private void paint_Tile_10_Image(final GC gcMapImage, final Tile tile, final Rectangle devTileViewport) {
 
@@ -5852,7 +5949,7 @@ public class Map2 extends Canvas {
        * image is available. Tile image loading is started, when the tile is retrieved from the tile
        * factory which is done in drawTile()
        */
-      tile.addObserver(_tileImageLoadObserver);
+      tile.setImageLoaderCallback(_tileImageLoaderCallback);
 
       if (_isLiveView == false) {
 
@@ -5867,7 +5964,7 @@ public class Map2 extends Canvas {
          } else {
 
             /*
-             * offline image is not availabe, show loading... message
+             * offline image is not available, show loading... message
              */
 
             gcMapImage.drawImage(_mp.getLoadingImage(), devTileViewport.x, devTileViewport.y);
@@ -6252,6 +6349,7 @@ public class Map2 extends Canvas {
 
    /**
     * @param text
+    *
     * @return Returns <code>true</code> when POI could be identified and it's displayed in the map
     */
    private boolean parseAndDisplayPOIText(String text) {
@@ -6263,7 +6361,7 @@ public class Map2 extends Canvas {
       }
 
       // linux has 2 lines: 1: url, 2. text
-      final String[] dndText = text.split(de.byteholder.geoclipse.map.UI.NEW_LINE);
+      final String[] dndText = text.split(UI.NEW_LINE1);
       if (dndText.length == 0) {
          return false;
       }
@@ -6733,7 +6831,10 @@ public class Map2 extends Canvas {
     * @param isDimMap
     * @param isBackgroundDark
     */
-   public void setDimLevel(final boolean isDimMap, final int mapDimLevel, final RGB dimColor, final boolean isBackgroundDark) {
+   public void setDimLevel(final boolean isDimMap,
+                           final int mapDimLevel,
+                           final RGB dimColor,
+                           final boolean isBackgroundDark) {
 
       _isMapBackgroundDark = isBackgroundDark;
 
@@ -6780,10 +6881,10 @@ public class Map2 extends Canvas {
     */
    public void setLegend(final MapLegend legend) {
 
-      if ((legend == null) && (_mapLegend != null)) {
+      if (legend == null && _mapLegend != null) {
 
          // dispose legend image
-         disposeResource(_mapLegend.getImage());
+         UI.disposeResource(_mapLegend.getImage());
       }
 
       _mapLegend = legend;
@@ -6860,8 +6961,8 @@ public class Map2 extends Canvas {
     *
     * @param mapContextProvider
     */
-   public void setMapContextProvider(final IMapContextProvider mapContextProvider) {
-      _mapContextProvider = mapContextProvider;
+   public void setMapContextProvider(final IMapContextMenuProvider mapContextProvider) {
+      _mapContextMenuProvider = mapContextProvider;
    }
 
    /**
@@ -7122,12 +7223,12 @@ public class Map2 extends Canvas {
             return;
          }
 
-         _hoveredAreaContext = hoveredContext;
+         _tourTooltip_HoveredAreaContext = hoveredContext;
 
          // update tool tip control
-         _tour_ToolTip.setHoveredContext(_hoveredAreaContext);
+         _tourTooltip.setHoveredContext(_tourTooltip_HoveredAreaContext);
 
-         _tour_ToolTip.show(new Point(_hoveredAreaContext.hoveredTopLeftX, _hoveredAreaContext.hoveredTopLeftY));
+         _tourTooltip.show(new Point(_tourTooltip_HoveredAreaContext.hoveredTopLeftX, _tourTooltip_HoveredAreaContext.hoveredTopLeftY));
 
          redraw();
       }
@@ -7235,12 +7336,12 @@ public class Map2 extends Canvas {
 
    public void setTourToolTip(final TourToolTip tourToolTip) {
 
-      _tour_ToolTip = tourToolTip;
+      _tourTooltip = tourToolTip;
 
       tourToolTip.addHideListener(event -> {
 
          // hide hovered area
-         _hoveredAreaContext = null;
+         _tourTooltip_HoveredAreaContext = null;
 
          redraw();
       });
@@ -7375,6 +7476,7 @@ public class Map2 extends Canvas {
 
    /**
     * @param boundingBox
+    *
     * @return Returns zoom level or -1 when bounding box is <code>null</code>.
     */
    public int setZoomToBoundingBox(final String boundingBox) {
@@ -7383,8 +7485,8 @@ public class Map2 extends Canvas {
          return -1;
       }
 
-      final Set<GeoPosition> positions = getBoundingBoxPositions(boundingBox);
-      if (positions == null) {
+      final Set<GeoPosition> latLonPositions = getBoundingBoxPositions(boundingBox);
+      if (latLonPositions == null) {
          return -1;
       }
 
@@ -7393,7 +7495,7 @@ public class Map2 extends Canvas {
       final int maximumZoomLevel = mp.getMaximumZoomLevel();
       int zoom = mp.getMinimumZoomLevel();
 
-      Rectangle positionRect = getWorldPixelFromGeoPositions(positions, zoom);
+      Rectangle positionRect = getWorldPixelFromGeoPositions(latLonPositions, zoom);
       Rectangle viewport = getWorldPixelViewport();
 
       // zoom in until bounding box is larger than the viewport
@@ -7415,7 +7517,7 @@ public class Map2 extends Canvas {
 
          setZoom(zoom);
 
-         positionRect = getWorldPixelFromGeoPositions(positions, zoom);
+         positionRect = getWorldPixelFromGeoPositions(latLonPositions, zoom);
          viewport = getWorldPixelViewport();
       }
 
@@ -7447,6 +7549,8 @@ public class Map2 extends Canvas {
          // hide geo grid
          _geoGrid_Data_Selected = null;
          _geoGrid_TourGeoFilter = null;
+
+         _isFastMapPainting_Active = false;
 
          redraw();
 
@@ -7664,7 +7768,7 @@ public class Map2 extends Canvas {
     */
    private void updateTourToolTip() {
 
-      if (_mp != null && _tour_ToolTip != null && _tour_ToolTip.isActive()) {
+      if (_mp != null && _tourTooltip != null && _tourTooltip.isActive()) {
 
          /*
           * redraw must be forced because the hovered area can be the same but can be at a different
@@ -7672,7 +7776,7 @@ public class Map2 extends Canvas {
           */
          updateTourToolTip_HoveredArea();
 
-         _tour_ToolTip.update();
+         _tourTooltip.update();
       }
    }
 
@@ -7684,10 +7788,10 @@ public class Map2 extends Canvas {
     */
    private void updateTourToolTip_HoveredArea() {
 
-      final HoveredAreaContext oldHoveredContext = _hoveredAreaContext;
+      final HoveredAreaContext oldHoveredContext = _tourTooltip_HoveredAreaContext;
       HoveredAreaContext newHoveredContext = null;
 
-      final ArrayList<ITourToolTipProvider> toolTipProvider = _tour_ToolTip.getToolTipProvider();
+      final ArrayList<ITourToolTipProvider> toolTipProvider = _tourTooltip.getToolTipProvider();
 
       /*
        * check tour info tool tip provider as first
@@ -7734,12 +7838,12 @@ public class Map2 extends Canvas {
          }
       }
 
-      _hoveredAreaContext = newHoveredContext;
+      _tourTooltip_HoveredAreaContext = newHoveredContext;
 
       // update tool tip control
-      _tour_ToolTip.setHoveredContext(_hoveredAreaContext);
+      _tourTooltip.setHoveredContext(_tourTooltip_HoveredAreaContext);
 
-      if (_hoveredAreaContext != null) {
+      if (_tourTooltip_HoveredAreaContext != null) {
          redraw();
       }
 
@@ -7747,10 +7851,10 @@ public class Map2 extends Canvas {
        * Hide hovered area, this must be done because when a tile do not contain a way point, the
        * hovered area can sill be displayed when another position is set with setMapCenter()
        */
-      if (oldHoveredContext != null && _hoveredAreaContext == null) {
+      if (oldHoveredContext != null && _tourTooltip_HoveredAreaContext == null) {
 
          // update tool tip because it has it's own mouse move listener for the map
-         _tour_ToolTip.hideHoveredArea();
+         _tourTooltip.hideHoveredArea();
 
          redraw();
       }

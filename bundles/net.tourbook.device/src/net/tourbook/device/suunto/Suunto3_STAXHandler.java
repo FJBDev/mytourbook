@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +36,7 @@ import javax.xml.transform.stream.StreamSource;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.Util;
+import net.tourbook.common.util.XmlUtils;
 import net.tourbook.data.TimeData;
 import net.tourbook.data.TourData;
 import net.tourbook.importdata.TourbookDevice;
@@ -51,7 +52,7 @@ import org.eclipse.swt.widgets.Display;
  * <a href="http://wiki.oldhu.com/doku.php?id=suunto_moveslink2_xml_file_format"
  * >http://wiki.oldhu.com/doku.php?id=suunto_moveslink2_xml_file_format</a>
  */
-public class Suunto3_STAXHandler {
+class Suunto3_STAXHandler {
 
    private static final double           RADIANT_TO_DEGREE     = 57.2957795131;
 
@@ -156,10 +157,10 @@ public class Suunto3_STAXHandler {
 
    private String              _tourDeviceName;
 
-   public Suunto3_STAXHandler(final TourbookDevice deviceDataReader,
-                              final String importFilePath,
-                              final Map<Long, TourData> alreadyImportedTours,
-                              final Map<Long, TourData> newlyImportedTours) throws XMLStreamException {
+   Suunto3_STAXHandler(final TourbookDevice deviceDataReader,
+                       final String importFilePath,
+                       final Map<Long, TourData> alreadyImportedTours,
+                       final Map<Long, TourData> newlyImportedTours) throws XMLStreamException {
 
       _device = deviceDataReader;
       _importFilePath = importFilePath;
@@ -169,7 +170,7 @@ public class Suunto3_STAXHandler {
       parseXML(importFilePath);
    }
 
-   public void dispose() {
+   void dispose() {
 
       _sampleList.clear();
       _gpsList.clear();
@@ -279,7 +280,8 @@ public class Suunto3_STAXHandler {
       tourData.setDeviceTimeInterval((short) -1);
       tourData.setImportFilePath(_importFilePath);
 
-      tourData.setCalories(_tourCalories);
+      // convert kcal -> cal
+      tourData.setCalories(_tourCalories * 1000);
 
       tourData.setBattery_Percentage_Start(_tourBatteryPercentageStart);
       tourData.setBattery_Percentage_End(_tourBatteryPercentageEnd);
@@ -348,7 +350,7 @@ public class Suunto3_STAXHandler {
 
    private void parseXML(final String importFilePath) throws FactoryConfigurationError, XMLStreamException {
 
-      final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+      final XMLInputFactory inputFactory = XmlUtils.initializeFactory();
       final XMLEventReader eventReader = inputFactory.createXMLEventReader(new StreamSource("file:" + importFilePath)); //$NON-NLS-1$
 
       while (eventReader.hasNext()) {

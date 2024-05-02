@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.ui;
 
+import net.tourbook.OtherMessages;
 import net.tourbook.common.UI;
 import net.tourbook.common.formatter.ValueFormat;
 import net.tourbook.common.formatter.ValueFormatSet;
@@ -26,12 +27,14 @@ import org.eclipse.swt.SWT;
 
 public abstract class TreeColumnFactory {
 
-   private static final String           APP_UNIT_SECONDS_SMALL      = net.tourbook.Messages.App_Unit_Seconds_Small;
-
    public static final TreeColumnFactory ALTITUDE_AVG_CHANGE;
    public static final TreeColumnFactory ALTITUDE_DOWN;
    public static final TreeColumnFactory ALTITUDE_UP;
    public static final TreeColumnFactory ALTITUDE_MAX;
+   public static final TreeColumnFactory ALTITUDE_ELEVATION_TOTAL_GAIN;
+   public static final String            ALTITUDE_ELEVATION_TOTAL_GAIN_ID = "ALTITUDE_ELEVATION_TOTAL_GAIN_ID"; //$NON-NLS-1$
+   public static final TreeColumnFactory ALTITUDE_ELEVATION_TOTAL_LOSS;
+   public static final String            ALTITUDE_ELEVATION_TOTAL_LOSS_ID = "ALTITUDE_ELEVATION_TOTAL_LOSS_ID"; //$NON-NLS-1$
 
    public static final TreeColumnFactory BODY_CALORIES;
    public static final TreeColumnFactory BODY_PERSON;
@@ -41,16 +44,18 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory BODY_WEIGHT;
 
    public static final TreeColumnFactory DATA_DP_TOLERANCE;
+   public static final TreeColumnFactory DATA_HAS_GEO_DATA;
    public static final TreeColumnFactory DATA_IMPORT_FILE_NAME;
    public static final TreeColumnFactory DATA_IMPORT_FILE_PATH;
    public static final TreeColumnFactory DATA_NUM_TIME_SLICES;
    public static final TreeColumnFactory DATA_NUM_TOURS;
    public static final TreeColumnFactory DATA_TIME_INTERVAL;
+   public static final TreeColumnFactory DATA_TOUR_ID;
 
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_END;
-   private static final String           DEVICE_BATTERY_SOC_END_ID   = "DEVICE_BATTERY_SOC_END_ID";                 //$NON-NLS-1$
+   public static final String            DEVICE_BATTERY_SOC_END_ID        = "DEVICE_BATTERY_SOC_END_ID";        //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_BATTERY_SOC_START;
-   private static final String           DEVICE_BATTERY_SOC_START_ID = "DEVICE_BATTERY_SOC_START_ID";               //$NON-NLS-1$
+   public static final String            DEVICE_BATTERY_SOC_START_ID      = "DEVICE_BATTERY_SOC_START_ID";      //$NON-NLS-1$
    public static final TreeColumnFactory DEVICE_DISTANCE;
    public static final TreeColumnFactory DEVICE_NAME;
 
@@ -59,6 +64,9 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory MOTION_DISTANCE;
    public static final TreeColumnFactory MOTION_MAX_SPEED;
    public static final TreeColumnFactory MOTION_NORMALIZED_PACE;
+
+   public static final TreeColumnFactory NUTRITION_NUM_PRODUCTS;
+   private static final String           NUTRITION_NUM_PRODUCTS_ID        = "NUTRITION_NUM_PRODUCTS";           //$NON-NLS-1$
 
    public static final TreeColumnFactory POWER_AVG;
    public static final TreeColumnFactory POWER_MAX;
@@ -117,14 +125,23 @@ public abstract class TreeColumnFactory {
 
    public static final TreeColumnFactory TOUR_COLLATE_EVENT;
    public static final TreeColumnFactory TOUR_COUNTER;
-   public static final TreeColumnFactory TOUR_LOCATION_END;
    public static final TreeColumnFactory TOUR_LOCATION_START;
+   public static final String            TOUR_LOCATION_START_ID           = "TOUR_LOCATION_START";              //$NON-NLS-1$
+   public static final TreeColumnFactory TOUR_LOCATION_END;
+   public static final String            TOUR_LOCATION_END_ID             = "TOUR_LOCATION_END";                //$NON-NLS-1$
+   public static final TreeColumnFactory TOUR_LOCATION_ID_START;
+   public static final String            TOUR_LOCATION_ID_START_ID        = "TOUR_LOCATION_ID_START_ID";        //$NON-NLS-1$
+   public static final TreeColumnFactory TOUR_LOCATION_ID_END;
+   public static final String            TOUR_LOCATION_ID_END_ID          = "TOUR_LOCATION_ID_END_ID";          //$NON-NLS-1$
    public static final TreeColumnFactory TOUR_NUM_MARKERS;
    public static final TreeColumnFactory TOUR_NUM_PHOTOS;
    public static final TreeColumnFactory TOUR_REFTOUR_TOUR;
    public static final TreeColumnFactory TOUR_TAG_AND_CATEGORY_NOTES;
+   public static final String            TOUR_TAG_AND_CATEGORY_NOTES_ID   = "TOUR_TAG_AND_CATEGORY_NOTES";      //$NON-NLS-1$
    public static final TreeColumnFactory TOUR_TAG_AND_TAGS;
    public static final TreeColumnFactory TOUR_TAG_ID;
+   public static final TreeColumnFactory TOUR_TAG_IMAGE_FILE_PATH;
+   public static final String            TOUR_TAG_IMAGE_FILE_PATH_ID      = "TOUR_TAG_IMAGE_FILE_PATH";         //$NON-NLS-1$
    public static final TreeColumnFactory TOUR_TAGS;
    public static final TreeColumnFactory TOUR_TITLE;
    public static final TreeColumnFactory TOUR_TYPE;
@@ -138,6 +155,8 @@ public abstract class TreeColumnFactory {
    public static final TreeColumnFactory TRAINING_TRAINING_EFFECT_ANAEROB;
    public static final TreeColumnFactory TRAINING_TRAINING_PERFORMANCE;
 
+   public static final TreeColumnFactory WEATHER_AIR_QUALITY;
+   public static final String            WEATHER_AIR_QUALITY_ID           = "WEATHER_AIR_QUALITY";              //$NON-NLS-1$
    public static final TreeColumnFactory WEATHER_CLOUDS;
    public static final TreeColumnFactory WEATHER_TEMPERATURE_AVG;
    public static final TreeColumnFactory WEATHER_TEMPERATURE_AVG_COMBINED;
@@ -247,6 +266,52 @@ public abstract class TreeColumnFactory {
          }
       };
 
+      ALTITUDE_ELEVATION_TOTAL_GAIN = new TreeColumnFactory() {
+
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, ALTITUDE_ELEVATION_TOTAL_GAIN_ID, SWT.TRAIL);
+
+            final String unitLabel = UI.SYMBOL_SUM_WITH_SPACE + UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_UP;
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Altitude);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Elevation_Gain_Tooltip);
+            colDef.setColumnHeaderText(         unitLabel);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Elevation_Gain_Tooltip);
+            colDef.setColumnUnit(               unitLabel);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(12));
+
+            return colDef;
+         }
+      };
+
+      ALTITUDE_ELEVATION_TOTAL_LOSS = new TreeColumnFactory() {
+
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, ALTITUDE_ELEVATION_TOTAL_LOSS_ID, SWT.TRAIL);
+
+            final String unitLabel = UI.SYMBOL_SUM_WITH_SPACE + UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_DOWN;
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Altitude);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Elevation_Loss_Tooltip);
+            colDef.setColumnHeaderText(         unitLabel);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Elevation_Loss_Tooltip);
+            colDef.setColumnUnit(               unitLabel);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(12));
+
+            return colDef;
+         }
+      };
+
       /*
        * Body
        */
@@ -335,6 +400,11 @@ public abstract class TreeColumnFactory {
             colDef.setColumnUnit(               Messages.ColumnFactory_max_pulse);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(9));
+            colDef.setValueFormats(
+                  ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_0,
+                  ValueFormat.NUMBER_1_0,
+                  columnManager);
 
             return colDef;
          }
@@ -398,6 +468,25 @@ public abstract class TreeColumnFactory {
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_DPTolerance_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(6));
+
+            return colDef;
+         }
+      };
+
+      DATA_HAS_GEO_DATA = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                  final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "DATA_HAS_GEO_DATA", SWT.CENTER); //$NON-NLS-1$
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Data);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_HasGeoData_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_HasGeoData_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_HasGeoData_Label);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
 
             return colDef;
          }
@@ -494,6 +583,24 @@ public abstract class TreeColumnFactory {
             colDef.setColumnUnit(               Messages.ColumnFactory_time_interval);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
+
+            return colDef;
+         }
+      };
+
+      DATA_TOUR_ID = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                  final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "DATA_TOUR_ID", SWT.LEAD); //$NON-NLS-1$
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Data);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TourId);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TourId);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(16));
 
             return colDef;
          }
@@ -709,6 +816,29 @@ public abstract class TreeColumnFactory {
             colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_Pace_Normalized_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(5));
+
+            return colDef;
+         }
+      };
+
+      /*
+       * Nutrition
+       */
+
+      NUTRITION_NUM_PRODUCTS = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, NUTRITION_NUM_PRODUCTS_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Nutrition);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_NumberOfProducts_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_NumberOfProducts_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_NumberOfProducts_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 
             return colDef;
          }
@@ -1010,10 +1140,10 @@ public abstract class TreeColumnFactory {
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Powertrain);
 
             colDef.setColumnLabel(              Messages.ColumnFactory_Power_LeftRightBalance_Label);
-            colDef.setColumnHeaderText(         Messages.ColumnFactory_Power_LeftRightBalance_Header);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Power_LeftRightBalance_Header2);
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Power_LeftRightBalance_Tooltip);
 
-            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(5));
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 
             return colDef;
          }
@@ -1606,7 +1736,7 @@ public abstract class TreeColumnFactory {
             colDef.setColumnLabel(              Messages.ColumnFactory_Surfing_MinTimeDuration_Label);
             colDef.setColumnHeaderText(         Messages.ColumnFactory_Surfing_MinTimeDuration_Header);
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Surfing_MinTimeDuration_Label);
-            colDef.setColumnUnit(               APP_UNIT_SECONDS_SMALL);
+            colDef.setColumnUnit(               OtherMessages.APP_UNIT_SECONDS_SMALL);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
 
@@ -1991,12 +2121,31 @@ public abstract class TreeColumnFactory {
          }
       };
 
+      TOUR_LOCATION_START = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                  final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, TOUR_LOCATION_START_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Tour_LocationStart_Title);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Tour_LocationStart_Title);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Tour_LocationStart_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+            return colDef;
+         }
+      };
+
       TOUR_LOCATION_END = new TreeColumnFactory() {
          @Override
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
                                                   final PixelConverter pixelConverter) {
 
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_LOCATION_END", SWT.LEAD); //$NON-NLS-1$
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, TOUR_LOCATION_END_ID, SWT.LEAD);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
 
@@ -2010,18 +2159,37 @@ public abstract class TreeColumnFactory {
          }
       };
 
-      TOUR_LOCATION_START = new TreeColumnFactory() {
+      TOUR_LOCATION_ID_START = new TreeColumnFactory() {
          @Override
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
                                                   final PixelConverter pixelConverter) {
 
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_LOCATION_START", SWT.LEAD); //$NON-NLS-1$
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, TOUR_LOCATION_ID_START_ID, SWT.TRAIL);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
 
-            colDef.setColumnLabel(              Messages.ColumnFactory_Tour_LocationStart_Title);
-            colDef.setColumnHeaderText(         Messages.ColumnFactory_Tour_LocationStart_Title);
-            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Tour_LocationStart_Tooltip);
+            colDef.setColumnLabel(              Messages.ColumnFactory_Location_Tour_LocationID_Start);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Location_Tour_LocationID_Start_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Location_Tour_LocationID_Start);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+            return colDef;
+         }
+      };
+
+      TOUR_LOCATION_ID_END = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                  final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, TOUR_LOCATION_ID_END_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Location_Tour_LocationID_End);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Location_Tour_LocationID_End_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Location_Tour_LocationID_End);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
 
@@ -2090,7 +2258,7 @@ public abstract class TreeColumnFactory {
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
                                                   final PixelConverter pixelConverter) {
 
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_TAG_AND_CATEGORY_NOTES", SWT.LEAD); //$NON-NLS-1$
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, TOUR_TAG_AND_CATEGORY_NOTES_ID, SWT.LEAD);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
 
@@ -2142,6 +2310,28 @@ public abstract class TreeColumnFactory {
          }
       };
 
+      TOUR_TAG_IMAGE_FILE_PATH = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                  final PixelConverter pixelConverter) {
+
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(
+                  columnManager,
+                  TOUR_TAG_IMAGE_FILE_PATH_ID,
+                  SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TagImageFilePath_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TagImageFilePath_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_TagImageFilePath_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(25));
+
+            return colDef;
+         }
+      };
+
       TOUR_TAGS = new TreeColumnFactory() {
          @Override
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
@@ -2185,7 +2375,7 @@ public abstract class TreeColumnFactory {
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
                                                   final PixelConverter pixelConverter) {
 
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_TYPE", SWT.LEAD); //$NON-NLS-1$
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "TOUR_TYPE", SWT.CENTER); //$NON-NLS-1$
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
 
@@ -2390,12 +2580,30 @@ public abstract class TreeColumnFactory {
        * Weather
        */
 
+      WEATHER_AIR_QUALITY = new TreeColumnFactory() {
+         @Override
+         public TreeColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, WEATHER_AIR_QUALITY_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Weather);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_AirQuality_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_AirQuality);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_AirQuality_Label);
+
+            colDef.setDefaultColumnWidth(       pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
       WEATHER_CLOUDS = new TreeColumnFactory() {
          @Override
          public TreeColumnDefinition createColumn(final ColumnManager columnManager,
                                                   final PixelConverter pixelConverter) {
 
-            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "WEATHER_CLOUDS", SWT.TRAIL); //$NON-NLS-1$
+            final TreeColumnDefinition colDef = new TreeColumnDefinition(columnManager, "WEATHER_CLOUDS", SWT.CENTER); //$NON-NLS-1$
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Weather);
 

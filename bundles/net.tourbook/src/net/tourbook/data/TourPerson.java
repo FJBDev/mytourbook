@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.data;
 
 import static javax.persistence.CascadeType.ALL;
 
+import java.io.Serializable;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -39,18 +40,20 @@ import javax.persistence.Transient;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.training.TrainingManager;
 import net.tourbook.trainingload.TrainingStressType;
-import net.tourbook.ui.UI;
 
 import org.hibernate.annotations.Cascade;
 
 @Entity
-public class TourPerson implements Comparable<Object>, ChangeListener {
+public class TourPerson implements Comparable<Object>, Serializable {
+
+   private static final long               serialVersionUID           = 1L;
 
    public static final ZonedDateTime DEFAULT_BIRTHDAY                          = ZonedDateTime.of(
          1977,
@@ -214,6 +217,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
    /**
     * @return Returns HR max depending on the HR max formula.
+    *
     * @param hrMaxFormulaKey
     * @param maxPulse
     * @param age
@@ -331,6 +335,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
    /**
     * @param dateTime
+    *
     * @return Returns age for this person at a specific day
     */
    private int getAge(final ZonedDateTime zonedBirthDay, final ZonedDateTime dateTime) {
@@ -410,6 +415,7 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
     * @param hrMaxPulse
     * @param dateTime
     *           Date when the HR zones should be computed, this is the tour date.
+    *
     * @return Returns HR zone min/max bpm values or <code>null</code> when hr zones are not
     *         defined.
     */
@@ -500,9 +506,10 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
     * @return Return the person first name and the last name when available.
     */
    public String getName() {
-      return firstName + //
-            (lastName.equals(UI.EMPTY_STRING) ? //
-                  UI.EMPTY_STRING
+
+      return firstName +
+            (StringUtils.isNullOrEmpty(lastName)
+                  ? UI.EMPTY_STRING
                   : UI.SPACE + lastName);
    }
 
@@ -690,12 +697,6 @@ public class TourPerson implements Comparable<Object>, ChangeListener {
 
    public void setWeight(final float weight) {
       this.weight = weight;
-   }
-
-   @Override
-   public void stateChanged(final ChangeEvent e) {
-      // TODO Auto-generated method stub
-
    }
 
    @Override

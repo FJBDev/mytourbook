@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -44,11 +44,6 @@ public class TVITourBookRoot extends TVITourBookItem {
    @Override
    protected void fetchChildren() {
 
-      getItemsHierarchical();
-   }
-
-   private void getItemsHierarchical() {
-
       String sql = null;
 
       try (Connection conn = TourDatabase.getInstance().getConnection()) {
@@ -59,8 +54,7 @@ public class TVITourBookRoot extends TVITourBookItem {
          final ArrayList<TreeViewerItem> children = new ArrayList<>();
          setChildren(children);
 
-         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.TAG_FILTER);
-         String sqlFromTourData;
+         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
 
          final String sqlFilterWhereClause = sqlAppFilter.getWhereClause().trim();
          final boolean isSqlWhereClause = sqlFilterWhereClause.length() > 0;
@@ -70,6 +64,8 @@ public class TVITourBookRoot extends TVITourBookItem {
                : UI.EMPTY_STRING;
 
          final TourTagFilterSqlJoinBuilder tagFilterSqlJoinBuilder = new TourTagFilterSqlJoinBuilder();
+
+         String sqlFromTourData;
 
          if (TourTagFilterManager.isTourTagFilterEnabled()) {
 
@@ -163,6 +159,13 @@ public class TVITourBookRoot extends TVITourBookItem {
 
                // add summary flag to the last row
                yearItem.isRowSummary = true;
+            }
+
+            if (UI.IS_SCRAMBLE_DATA) {
+
+               yearItem.scrambleData();
+
+               yearItem.treeColumn = UI.scrambleText(yearItem.treeColumn);
             }
 
             yearIndex++;

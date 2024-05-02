@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2012, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,20 @@ package net.tourbook.common.preferences;
 public interface ICommonPreferences {
 
    /*
+    * Appearance, is mainly used for debugging purposes
+    */
+   public static final String APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP       = "APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP";       //$NON-NLS-1$
+   public static final String APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP   = "APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP";   //$NON-NLS-1$
+   public static final String APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP = "APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP"; //$NON-NLS-1$
+   public static final String APPEARANCE_NOTIFICATION_MESSAGES_DURATION      = "APPEARANCE_NOTIFICATION_MESSAGES_DURATION";      //$NON-NLS-1$
+
+   /*
+    * Theme
+    */
+   public static final String THEME_IS_THEME_MODIFIED             = "THEME_IS_THEME_MODIFIED";             //$NON-NLS-1$
+   public static final String THEME_IS_SHOW_THEME_SELECTOR_IN_APP = "THEME_IS_SHOW_THEME_SELECTOR_IN_APP"; //$NON-NLS-1$
+
+   /*
     * Measurement system
     */
    public static final String MEASUREMENT_SYSTEM            = "MEASUREMENT_SYSTEM";            //$NON-NLS-1$
@@ -33,6 +47,7 @@ public interface ICommonPreferences {
    public static final String DISPLAY_FORMAT_DISTANCE              = "DISPLAY_FORMAT_DISTANCE";              //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_POWER                 = "DISPLAY_FORMAT_POWER";                 //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_PULSE                 = "DISPLAY_FORMAT_PULSE";                 //$NON-NLS-1$
+   public static final String DISPLAY_FORMAT_RELATIVE              = "DISPLAY_FORMAT_RELATIVE";              //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_SPEED                 = "DISPLAY_FORMAT_SPEED";                 //$NON-NLS-1$
    public static final String DISPLAY_FORMAT_TEMPERATURE           = "DISPLAY_FORMAT_TEMPERATURE";           //$NON-NLS-1$
 

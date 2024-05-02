@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2022 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,7 +17,6 @@ package net.tourbook.cloud.dropbox;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +36,6 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.web.WEB;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
@@ -57,15 +55,15 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-   public static final String      ID                    = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
+   static final String             ID                   = "net.tourbook.cloud.PrefPageDropbox";       //$NON-NLS-1$
 
-   public static final String      ClientId              = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
+   static final String             CLIENT_ID            = "vye6ci8xzzsuiao";                          //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT         = 4917;
+   static final int                CALLBACK_PORT        = 4917;
 
-   private static final String     _dropbox_WebPage_Link = "https://www.dropbox.com";                  //$NON-NLS-1$
+   private static final String     DROPBOX_WEBPAGE_LINK = "https://www.dropbox.com";                  //$NON-NLS-1$
 
-   private IPreferenceStore        _prefStore            = Activator.getDefault().getPreferenceStore();
+   private IPreferenceStore        _prefStore           = Activator.getDefault().getPreferenceStore();
    private IPropertyChangeListener _prefChangeListener;
    private LocalHostServer         _server;
    /*
@@ -174,23 +172,22 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_group);
       {
          {
-            final Label labelWebPage = new Label(_group, SWT.NONE);
-            labelWebPage.setText(Messages.PrefPage_CloudConnectivity_Label_WebPage);
+            final Label labelWebPage = UI.createLabel(_group, Messages.PrefPage_CloudConnectivity_Label_WebPage);
             GridDataFactory.fillDefaults().applyTo(labelWebPage);
 
             final Link linkWebPage = new Link(_group, SWT.NONE);
             linkWebPage.setText(UI.LINK_TAG_START +
-                  _dropbox_WebPage_Link +
+                  DROPBOX_WEBPAGE_LINK +
                   UI.LINK_TAG_END);
             linkWebPage.setEnabled(true);
             linkWebPage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> WEB.openUrl(
-                  _dropbox_WebPage_Link)));
+                  DROPBOX_WEBPAGE_LINK)));
             GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
          }
          {
-            _labelAccessToken = new Label(_group, SWT.NONE);
-            _labelAccessToken.setText(Messages.PrefPage_CloudConnectivity_Label_AccessToken);
-            _labelAccessToken.setToolTipText(Messages.PrefPage_CloudConnectivity_Dropbox_AccessToken_Tooltip);
+            _labelAccessToken = UI.createLabel(_group,
+                  Messages.PrefPage_CloudConnectivity_Label_AccessToken,
+                  Messages.PrefPage_CloudConnectivity_Dropbox_AccessToken_Tooltip);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _txtAccessToken_Value = new Text(_group, SWT.READ_ONLY | SWT.PASSWORD);
@@ -198,19 +195,17 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
             GridDataFactory.fillDefaults().hint(textWidth, SWT.DEFAULT).applyTo(_txtAccessToken_Value);
          }
          {
-            _labelRefreshToken = new Label(_group, SWT.NONE);
-            _labelRefreshToken.setText(Messages.PrefPage_CloudConnectivity_Label_RefreshToken);
+            _labelRefreshToken = UI.createLabel(_group, Messages.PrefPage_CloudConnectivity_Label_RefreshToken);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _txtRefreshToken_Value = new Text(_group, SWT.PASSWORD | SWT.READ_ONLY);
             GridDataFactory.fillDefaults().hint(textWidth, SWT.DEFAULT).applyTo(_txtRefreshToken_Value);
          }
          {
-            _labelExpiresAt = new Label(_group, SWT.NONE);
-            _labelExpiresAt.setText(Messages.PrefPage_CloudConnectivity_Label_ExpiresAt);
+            _labelExpiresAt = UI.createLabel(_group, Messages.PrefPage_CloudConnectivity_Label_ExpiresAt);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
-            _labelExpiresAt_Value = new Label(_group, SWT.NONE);
+            _labelExpiresAt_Value = UI.createLabel(_group);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
          }
          {
@@ -256,7 +251,7 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          messageDigest.update(bytes, 0, bytes.length);
          digest = messageDigest.digest();
       } catch (final NoSuchAlgorithmException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
 
       return digest == null ? null : Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
@@ -312,23 +307,20 @@ public class PrefPageDropbox extends FieldEditorPreferencePage implements IWorkb
          return;
       }
 
-      final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
-      authorizeUrlBuilder.setHost("www.dropbox.com"); //$NON-NLS-1$
-      authorizeUrlBuilder.setPath("/oauth2/authorize"); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_RESPONSE_TYPE, OAuth2Constants.PARAM_CODE);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_CLIENT_ID, ClientId);
-      authorizeUrlBuilder.addParameter(OAuth2Constants.PARAM_REDIRECT_URI, DropboxClient.DropboxCallbackUrl);
-      authorizeUrlBuilder.addParameter("code_challenge", codeChallenge); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter("code_challenge_method", "S256"); //$NON-NLS-1$ //$NON-NLS-2$
-      authorizeUrlBuilder.addParameter("token_access_type", "offline"); //$NON-NLS-1$ //$NON-NLS-2$
-      try {
-         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+      final StringBuilder authorizeUrl = new StringBuilder(DROPBOX_WEBPAGE_LINK + "/oauth2/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
+// SET_FORMATTING_OFF
+
+      authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + CLIENT_ID); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI +  "=" + DropboxClient.DROPBOX_CALLBACK_URL); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + "code_challenge" +                    "=" + codeChallenge); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      authorizeUrl.append("&" + "code_challenge_method" +             "=" + "S256"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      authorizeUrl.append("&" + "token_access_type" +                 "=" + "offline"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+// SET_FORMATTING_ON
+
+      Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }
 
    @Override

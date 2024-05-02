@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.SAXParser;
 
@@ -140,11 +139,11 @@ class FitLog_SAXHandler extends DefaultHandler {
       _weatherId.put("Clear",          IWeather.WEATHER_ID_CLEAR); //                     //$NON-NLS-1$
       _weatherId.put("ScatterClouds",  IWeather.WEATHER_ID_PART_CLOUDS); //         *)    //$NON-NLS-1$
       _weatherId.put("PartClouds",     IWeather.WEATHER_ID_PART_CLOUDS); //               //$NON-NLS-1$
-      _weatherId.put("Overcast",       IWeather.WEATHER_ID_OVERCAST); //            *)    //$NON-NLS-1$
+      _weatherId.put("Overcast",       IWeather.WEATHER_ID_OVERCAST); //                  //$NON-NLS-1$
       _weatherId.put("MostClouds",     IWeather.WEATHER_ID_OVERCAST); //            *)    //$NON-NLS-1$
       _weatherId.put("Clouds",         IWeather.WEATHER_ID_OVERCAST); //                  //$NON-NLS-1$
       _weatherId.put("ChanceRain",     IWeather.WEATHER_ID_DRIZZLE); //                   //$NON-NLS-1$
-      _weatherId.put("LightDrizzle",   IWeather.WEATHER_ID_SCATTERED_SHOWERS); //   *)    //$NON-NLS-1$
+      _weatherId.put("LightDrizzle",   IWeather.WEATHER_ID_DRIZZLE); //                   //$NON-NLS-1$
       _weatherId.put("LightRain",      IWeather.WEATHER_ID_SCATTERED_SHOWERS); //         //$NON-NLS-1$
       _weatherId.put("Rain",           IWeather.WEATHER_ID_RAIN); //                      //$NON-NLS-1$
       _weatherId.put("HeavyRain",      IWeather.WEATHER_ID_RAIN); //                *)    //$NON-NLS-1$
@@ -451,6 +450,7 @@ class FitLog_SAXHandler extends DefaultHandler {
     * Updates a given time based on the tour start's time zone
     *
     * @param epochTime
+    *
     * @return The adjusted time
     */
    private long adjustTime(final long epochTime) {
@@ -495,7 +495,7 @@ class FitLog_SAXHandler extends DefaultHandler {
       final List<String> finalZoneIds = Arrays.stream(ids)
             .distinct()
             .filter(ZoneId.getAvailableZoneIds()::contains)
-            .collect(Collectors.toList());
+            .toList();
       //We set the first found time zone that corresponds to the activity offset
       if (finalZoneIds.size() > 0) {
          tourData.setTimeZoneId(finalZoneIds.get(0));
@@ -722,19 +722,19 @@ class FitLog_SAXHandler extends DefaultHandler {
 
       if (_currentActivity.pauses.size() > 0) {
 
-         final List<Long> _pausedTime_Start = new ArrayList<>();
-         final List<Long> _pausedTime_End = new ArrayList<>();
+         final List<Long> pausedTime_Start = new ArrayList<>();
+         final List<Long> pausedTime_End = new ArrayList<>();
 
          for (final Pause element : _currentActivity.pauses) {
 
             element.startTime = adjustTime(element.startTime);
             element.endTime = adjustTime(element.endTime);
 
-            _pausedTime_Start.add(element.startTime);
-            _pausedTime_End.add(element.endTime);
+            pausedTime_Start.add(element.startTime);
+            pausedTime_End.add(element.endTime);
          }
 
-         tourData.finalizeTour_TimerPauses(_pausedTime_Start, _pausedTime_End, null);
+         tourData.finalizeTour_TimerPauses(pausedTime_Start, pausedTime_End, null);
       }
 
       adjustTourTimeZoneId(tourData, tourStartTime_FromImport);
@@ -815,8 +815,8 @@ class FitLog_SAXHandler extends DefaultHandler {
 
    private void finalizeTour_30_CreateMarkers(final TourData tourData) {
 
-      final List<Lap> _laps = _currentActivity.laps;
-      if (_laps.isEmpty()) {
+      final List<Lap> laps = _currentActivity.laps;
+      if (laps.isEmpty()) {
          return;
       }
 
@@ -834,7 +834,7 @@ class FitLog_SAXHandler extends DefaultHandler {
 
       int lapCounter = 1;
       final Set<TourMarker> tourMarkers = tourData.getTourMarkers();
-      for (final Lap lap : _laps) {
+      for (final Lap lap : laps) {
 
          lap.startTime = adjustTime(lap.startTime);
          lap.endTime = adjustTime(lap.endTime);
@@ -941,12 +941,15 @@ class FitLog_SAXHandler extends DefaultHandler {
       case TAG_ACTIVITY_NAME:
          _isInName = true;
          break;
+
       case TAG_ACTIVITY_NOTES:
          _isInNotes = true;
          break;
+
       case TAG_ACTIVITY_LOCATION:
          _currentActivity.location = attributes.getValue(ATTRIB_NAME);
          break;
+
       case TAG_ACTIVITY_CATEGORY:
          _currentActivity.categoryName = attributes.getValue(ATTRIB_NAME);
          break;
@@ -965,6 +968,7 @@ class FitLog_SAXHandler extends DefaultHandler {
          // Converting from Calories to calories
          _currentActivity.calories = Math.round(Util.parseFloat0(attributes, ATTRIB_TOTAL_CAL) * 1000f);
          break;
+
       case TAG_ACTIVITY_DURATION:
          //      <xs:element name="Duration">
          //         <xs:complexType>
@@ -973,6 +977,7 @@ class FitLog_SAXHandler extends DefaultHandler {
          //      </xs:element>
          _currentActivity.duration = Util.parseInt0(attributes, ATTRIB_TOTAL_SECONDS);
          break;
+
       case TAG_ACTIVITY_DISTANCE:
          //      <xs:element name="Distance">
          //         <xs:complexType>
@@ -981,6 +986,7 @@ class FitLog_SAXHandler extends DefaultHandler {
          //      </xs:element>
          _currentActivity.distance = Util.parseInt0(attributes, ATTRIB_TOTAL_METERS);
          break;
+
       case TAG_ACTIVITY_ELEVATION:
          //      <xs:element name="Elevation">
          //         <xs:complexType>
@@ -991,6 +997,7 @@ class FitLog_SAXHandler extends DefaultHandler {
          _currentActivity.elevationUp = Util.parseInt0(attributes, ATTRIB_ASCEND_METERS);
          _currentActivity.elevationDown = Util.parseInt0(attributes, ATTRIB_DESCEND_METERS);
          break;
+
       case TAG_ACTIVITY_HEART_RATE:
          //      <xs:element name="HeartRate">
          //         <xs:complexType>
@@ -1001,16 +1008,20 @@ class FitLog_SAXHandler extends DefaultHandler {
          _currentActivity.avgPulse = Util.parseInt0(attributes, ATTRIB_AVERAGE_BPM);
          _currentActivity.maxPulse = Util.parseInt0(attributes, ATTRIB_MAXIMUM_BPM);
          break;
+
       case TAG_ACTIVITY_POWER:
          _currentActivity.avgPower = Util.parseFloat0(attributes, ATTRIB_AVERAGE_WATTS);
          _currentActivity.maxPower = Util.parseFloat0(attributes, ATTRIB_MAXIMUM_WATTS);
          break;
+
       case TAG_ACTIVITY_TIMEZONE_UTC_OFFSET:
          _isInTimeZoneUtcOffset = true;
          break;
+
       case TAG_ACTIVITY_HAS_START_TIME:
          _isInHasStartTime = true;
          break;
+
       case TAG_ACTIVITY_CADENCE:
          //      <xs:element name="Cadence">
          //         <xs:complexType>
@@ -1022,11 +1033,13 @@ class FitLog_SAXHandler extends DefaultHandler {
 //   !!! not yet supported !!!
 //         _currentActivity.maxCadence = Util.parseInt0(attributes, ATTRIB_MAXIMUM_RPM);
          break;
+
       case TAG_ACTIVITY_WEATHER:
          _isInWeather = true;
          _currentActivity.weatherTemperature = Util.parseFloat(attributes, ATTRIB_WEATHER_TEMP);
          _currentActivity.weatherConditions = attributes.getValue(ATTRIB_WEATHER_CONDITIONS);
          break;
+
       default:
          return;
       }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -50,6 +50,7 @@ import net.tourbook.tag.TagManager;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.action.ActionCollapseAll;
 import net.tourbook.ui.action.ActionExpandSelection;
@@ -417,7 +418,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
                final Set<TourTag> lazyTourTags = parentTagCategoryEntity.getTourTags();
                lazyTourTags.add(tourTag);
 
-               parentTagCategory.setTagCounter(lazyTourTags.size());
+               parentTagCategory.setNumberOfTags(lazyTourTags.size());
             }
             em.close();
 
@@ -576,7 +577,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
 
       _tagViewer.addDoubleClickListener(doubleClickEvent -> onTagViewer_DoubleClick());
 
-      _tagViewer.addSelectionChangedListener(this::onTagViewer_Selection);
+      _tagViewer.addSelectionChangedListener(selectionChangedEvent -> onTagViewer_Selection(selectionChangedEvent));
 
       _tagViewer.addDragSupport(
             DND.DROP_MOVE,
@@ -747,7 +748,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
                      tagName = UI.scrambleText(tagName);
                   }
 
-                  styledString.append(tagName, net.tourbook.ui.UI.TAG_STYLER);
+                  styledString.append(tagName, net.tourbook.ui.UI.CONTENT_SUB_CATEGORY_STYLER);
                   cell.setImage(tourTag.isRoot() ? _imgTagRoot : _imgTag);
 
                } else if (element instanceof TVIPrefTagCategory) {
@@ -761,11 +762,11 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
                   if (UI.IS_SCRAMBLE_DATA) {
                      categoryName = UI.scrambleText(categoryName);
                   }
-                  styledString.append(categoryName, net.tourbook.ui.UI.TAG_CATEGORY_STYLER);
+                  styledString.append(categoryName, net.tourbook.ui.UI.CONTENT_CATEGORY_STYLER);
 
                   // get number of categories
-                  final int categoryCounter = tourTagCategory.getCategoryCounter();
-                  final int tagCounter = tourTagCategory.getTagCounter();
+                  final int categoryCounter = tourTagCategory.getNumberOfCategories();
+                  final int tagCounter = tourTagCategory.getNumberOfTags();
                   if (categoryCounter == -1 && tagCounter == -1) {
 
 //                  styledString.append("  ...", StyledString.COUNTER_STYLER);
@@ -819,6 +820,33 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
                final String shortedNotes = UI.shortenText(notes, 200, true);
 
                cell.setText(shortedNotes);
+            }
+         });
+         treeLayout.setColumnData(tvcColumn, new ColumnWeightData(80, true));
+      }
+      {
+         // column: image file name
+
+         tvc = new TreeViewerColumn(_tagViewer, SWT.LEAD);
+         tvcColumn = tvc.getColumn();
+         tvcColumn.setText(Messages.Pref_TourTag_Column_ImageFilePath);
+
+         tvc.setLabelProvider(new CellLabelProvider() {
+            @Override
+            public void update(final ViewerCell cell) {
+
+               String imageFilePath = UI.EMPTY_STRING;
+
+               final Object element = cell.getElement();
+               if (element instanceof TVIPrefTag) {
+
+                  final TourTag tourTag = ((TVIPrefTag) element).getTourTag();
+
+                  imageFilePath = tourTag.getImageFilePath();
+
+               }
+
+               cell.setText(imageFilePath);
             }
          });
          treeLayout.setColumnData(tvcColumn, new ColumnWeightData(80, true));
@@ -1178,7 +1206,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
             lazyTourTagCategories.add(savedNewCategory);
 
             // update number of categories
-            parentCategoryEntity.setCategoryCounter(lazyTourTagCategories.size());
+            parentCategoryEntity.setNumberOfCategories(lazyTourTagCategories.size());
 
             /*
              * Persist parent category
@@ -1270,7 +1298,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
 
       try (Connection conn = TourDatabase.getInstance().getConnection()) {
 
-         TourLogManager.showLogView();
+         TourLogManager.showLogView(AutoOpenEvent.DELETE_SOMETHING);
          TourLogManager.log_TITLE("RESET TAG STRUCTURE"); //$NON-NLS-1$
 
          {
@@ -1379,8 +1407,15 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
          if (_isSelectedWithKeyboard == false) {
 
             if (_tagViewer.getExpandedState(selectedItem)) {
+
+               // expanded -> collapsed
+
                _tagViewer.collapseToLevel(selectedItem, 1);
+
             } else {
+
+               // collapsed -> expanded
+
                _tagViewer.expandToLevel(selectedItem, 1);
             }
          }
@@ -1422,7 +1457,7 @@ public class PrefPageTags extends PreferencePage implements IWorkbenchPreference
       _tagViewer.getTree().setFocus();
    }
 
-   public void setIsModified() {
+   void setIsModified() {
       _isModified = true;
    }
 

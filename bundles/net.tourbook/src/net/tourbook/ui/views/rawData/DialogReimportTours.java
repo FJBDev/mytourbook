@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2022 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -46,6 +45,7 @@ import net.tourbook.importdata.RawDataManager.TourValueType;
 import net.tourbook.importdata.ReImportStatus;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -64,6 +64,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -87,10 +88,11 @@ class DialogReimportTours extends TitleAreaDialog {
    private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                       = "STATE_IS_IMPORT_ALL_TIME_SLICES";                       //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_ENTIRE_TOUR                           = "STATE_IS_IMPORT_ENTIRE_TOUR";                           //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TOUR__CALORIES                        = "STATE_IS_IMPORT_TOUR__CALORIES";                        //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                   = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                   //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__MARKERS                         = "STATE_IS_IMPORT_TOUR__MARKERS";                         //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__CALORIES                     = "STATE_IS_IMPORT_TOUR__CALORIES";                     //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__MARKERS                      = "STATE_IS_IMPORT_TOUR__MARKERS";                      //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE = "STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE"; //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__WEATHER                      = "STATE_IS_IMPORT_TOUR__WEATHER";                      //$NON-NLS-1$
 
    private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                   = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                   //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                   = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                   //$NON-NLS-1$
@@ -140,7 +142,7 @@ class DialogReimportTours extends TitleAreaDialog {
 
    private final ITourViewer3 _tourViewer;
 
-   private SelectionAdapter   _defaultListener;
+   private SelectionListener  _defaultListener;
 
    private PixelConverter     _pc;
 
@@ -173,6 +175,7 @@ class DialogReimportTours extends TitleAreaDialog {
    private Button    _chkData_Tour_Markers;
    private Button    _chkData_Tour_TrainingStress_Score;
    private Button    _chkData_TimeSlice_TourTimerPauses;
+   private Button    _chkData_Tour_Weather;
 
    private Button    _chkLogDetails;
    private Button    _chkSkipTours_With_ImportFile_NotFound;
@@ -188,9 +191,6 @@ class DialogReimportTours extends TitleAreaDialog {
 
    private Group     _groupTours;
 
-   /**
-    * @param parentShell
-    */
    DialogReimportTours(final Shell parentShell,
                        final ITourViewer3 tourViewer) {
 
@@ -256,7 +256,7 @@ class DialogReimportTours extends TitleAreaDialog {
       createUI(dlgContainer);
 
       // must be run async because the dark theme is overwriting colors after calling createDialogArea()
-      _parent.getDisplay().asyncExec(this::updateUI_LockUnlockButtons);
+      _parent.getDisplay().asyncExec(() -> updateUI_LockUnlockButtons());
 
       return dlgContainer;
    }
@@ -452,6 +452,14 @@ class DialogReimportTours extends TitleAreaDialog {
             _chkData_Tour_TrainingStress_Score.setText("Messages.Dialog_ModifyTours_Checkbox_TourTrainingStressScore");
             _chkData_Tour_TrainingStress_Score.addSelectionListener(_defaultListener);
             gridDataItem.applyTo(_chkData_Tour_TrainingStress_Score);
+
+            /*
+             * Weather (description and clouds)
+             */
+            _chkData_Tour_Weather = new Button(containerTour, SWT.CHECK);
+            _chkData_Tour_Weather.setText(Messages.Dialog_ModifyTours_Checkbox_WeatherValues);
+            _chkData_Tour_Weather.addSelectionListener(_defaultListener);
+            gridDataItem.applyTo(_chkData_Tour_Weather);
          }
       }
 
@@ -791,7 +799,7 @@ class DialogReimportTours extends TitleAreaDialog {
 
       final long start = System.currentTimeMillis();
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.TOUR_IMPORT);
 
       final RawDataManager rawDataManager = RawDataManager.getInstance();
 
@@ -884,7 +892,7 @@ class DialogReimportTours extends TitleAreaDialog {
          TourDatabase.saveTour_PostSaveActions_Concurrent_2_ForAllTours(
                allReimportedTourIds
                      .stream()
-                     .collect(Collectors.toList()));
+                     .toList());
       }
 
       if (reImportStatus.isAnyTourReImported.get()) {
@@ -892,7 +900,7 @@ class DialogReimportTours extends TitleAreaDialog {
          rawDataManager.updateTourData_InImportView_FromDb(null);
 
          // reselect tours, run in UI thread
-         Display.getDefault().asyncExec(_tourViewer::reloadViewer);
+         Display.getDefault().asyncExec(() -> _tourViewer.reloadViewer());
       }
 
       TourLogManager.log_DEFAULT(String.format(
@@ -985,40 +993,41 @@ class DialogReimportTours extends TitleAreaDialog {
 
       final boolean isTimeSlice = isPartOfATourSelected && isAllTimeSlicesSelected == false;
 
-      final boolean isTourSelected = false ||
+      final boolean isTourSelected = false
 
-            _rdoReimport_Tours_All.getSelection() ||
-            _rdoReimport_Tours_Selected.getSelection() ||
-            isTourBetweenDates;
+            || _rdoReimport_Tours_All.getSelection()
+            || _rdoReimport_Tours_Selected.getSelection()
+            || isTourBetweenDates;
 
-      final boolean isTimeSliceSelected = false ||
+      final boolean isTimeSliceSelected = false
 
-            _chkData_TimeSlice_Battery.getSelection() ||
-            _chkData_TimeSlice_Cadence.getSelection() ||
-            _chkData_TimeSlice_Elevation.getSelection() ||
-            _chkData_TimeSlice_Gear.getSelection() ||
-            _chkData_TimeSlice_PowerAndPulse.getSelection() ||
-            _chkData_TimeSlice_PowerAndSpeed.getSelection() ||
-            _chkData_TimeSlice_RunningDynamics.getSelection() ||
-            _chkData_TimeSlice_Swimming.getSelection() ||
-            _chkData_TimeSlice_TemperatureFromDevice.getSelection() ||
-            _chkData_TimeSlice_Training.getSelection() ||
-            _chkData_TimeSlice_TourTimerPauses.getSelection();
+            || _chkData_TimeSlice_Battery.getSelection()
+            || _chkData_TimeSlice_Cadence.getSelection()
+            || _chkData_TimeSlice_Elevation.getSelection()
+            || _chkData_TimeSlice_Gear.getSelection()
+            || _chkData_TimeSlice_PowerAndPulse.getSelection()
+            || _chkData_TimeSlice_PowerAndSpeed.getSelection()
+            || _chkData_TimeSlice_RunningDynamics.getSelection()
+            || _chkData_TimeSlice_Swimming.getSelection()
+            || _chkData_TimeSlice_TemperatureFromDevice.getSelection()
+            || _chkData_TimeSlice_Training.getSelection()
+            || _chkData_TimeSlice_TourTimerPauses.getSelection();
 
-      final boolean isTourDataSelected = false ||
+      final boolean isTourDataSelected = false
 
-            _chkData_Tour_Calories.getSelection() ||
-            _chkData_Tour_ImportFileLocation.getSelection() ||
-            _chkData_Tour_Markers.getSelection() ||
-            _chkData_Tour_TrainingStress_Score.getSelection();
+            || _chkData_Tour_Calories.getSelection()
+            || _chkData_Tour_ImportFileLocation.getSelection()
+            || _chkData_Tour_Markers.getSelection()
+            || _chkData_Tour_Weather.getSelection()
+   ||            _chkData_Tour_TrainingStress_Score.getSelection();
 
-      final boolean isDataSelected = false ||
+      final boolean isDataSelected = false
 
-            _rdoData_EntireTour.getSelection() ||
-            _chkData_AllTimeSlices.getSelection() ||
+            || _rdoData_EntireTour.getSelection()
+            || _chkData_AllTimeSlices.getSelection()
 
-            isTourDataSelected ||
-            isTimeSliceSelected;
+            || isTourDataSelected
+            || isTimeSliceSelected;
 
       _chkData_AllTimeSlices.setEnabled(isPartOfATourSelected);
 
@@ -1026,6 +1035,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _chkData_Tour_Markers.setEnabled(isPartOfATourSelected);
       _chkData_Tour_Calories.setEnabled(isPartOfATourSelected);
       _chkData_Tour_TrainingStress_Score.setEnabled(isPartOfATourSelected);
+      _chkData_Tour_Weather.setEnabled(isPartOfATourSelected);
 
       _chkData_TimeSlice_Battery.setEnabled(isTimeSlice);
       _chkData_TimeSlice_Cadence.setEnabled(isTimeSlice);
@@ -1063,12 +1073,7 @@ class DialogReimportTours extends TitleAreaDialog {
 
       _pc = new PixelConverter(_parent);
 
-      _defaultListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableControls();
-         }
-      };
+      _defaultListener = widgetSelectedAdapter(selectionEvent -> enableControls());
 
       _parent.addDisposeListener(disposeEvent -> {
          _imageLock_Closed.dispose();
@@ -1141,8 +1146,8 @@ class DialogReimportTours extends TitleAreaDialog {
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_Markers,            TourValueType.TOUR__MARKER,               tourValueTypes);
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_TrainingStress_Score,            TourValueType.TOUR__TRAINING_STRESS_SCORE,               tourValueTypes);
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_ImportFileLocation, TourValueType.TOUR__IMPORT_FILE_LOCATION, tourValueTypes);
+            DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_Weather,            TourValueType.TOUR__WEATHER,              tourValueTypes);
 
-// SET_FORMATTING_ON
          }
 
          doReimport(tourValueTypes);
@@ -1153,24 +1158,27 @@ class DialogReimportTours extends TitleAreaDialog {
 
    private void onDeselectAll_DataItems() {
 
-      _chkData_AllTimeSlices.setSelection(false);
-      _chkData_TimeSlice_Elevation.setSelection(false);
+      _chkData_AllTimeSlices                    .setSelection(false);
+      _chkData_TimeSlice_Elevation              .setSelection(false);
 
-      _chkData_Tour_Calories.setSelection(false);
-      _chkData_Tour_ImportFileLocation.setSelection(false);
-      _chkData_Tour_Markers.setSelection(false);
-      _chkData_Tour_TrainingStress_Score.setSelection(false);
+      _chkData_Tour_Calories                    .setSelection(false);
+      _chkData_Tour_ImportFileLocation          .setSelection(false);
+      _chkData_Tour_Markers                     .setSelection(false);
+      _chkData_Tour_TrainingStress_Score        .setSelection(false);
+      _chkData_Tour_Weather                     .setSelection(false);
 
-      _chkData_TimeSlice_Battery.setSelection(false);
-      _chkData_TimeSlice_Cadence.setSelection(false);
-      _chkData_TimeSlice_Gear.setSelection(false);
-      _chkData_TimeSlice_PowerAndPulse.setSelection(false);
-      _chkData_TimeSlice_PowerAndSpeed.setSelection(false);
-      _chkData_TimeSlice_RunningDynamics.setSelection(false);
-      _chkData_TimeSlice_Swimming.setSelection(false);
-      _chkData_TimeSlice_TemperatureFromDevice.setSelection(false);
-      _chkData_TimeSlice_TourTimerPauses.setSelection(false);
-      _chkData_TimeSlice_Training.setSelection(false);
+      _chkData_TimeSlice_Battery                .setSelection(false);
+      _chkData_TimeSlice_Cadence                .setSelection(false);
+      _chkData_TimeSlice_Gear                   .setSelection(false);
+      _chkData_TimeSlice_PowerAndPulse          .setSelection(false);
+      _chkData_TimeSlice_PowerAndSpeed          .setSelection(false);
+      _chkData_TimeSlice_RunningDynamics        .setSelection(false);
+      _chkData_TimeSlice_Swimming               .setSelection(false);
+      _chkData_TimeSlice_TemperatureFromDevice  .setSelection(false);
+      _chkData_TimeSlice_TourTimerPauses        .setSelection(false);
+      _chkData_TimeSlice_Training               .setSelection(false);
+
+// SET_FORMATTING_ON
 
       enableControls();
    }
@@ -1244,7 +1252,8 @@ class DialogReimportTours extends TitleAreaDialog {
       _chkData_Tour_Calories                  .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__CALORIES));
       _chkData_Tour_ImportFileLocation        .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__FILE_LOCATION));
       _chkData_Tour_Markers                   .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__MARKERS));
-      _chkData_Tour_TrainingStress_Score                   .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE));
+      _chkData_Tour_TrainingStress_Score      .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE));
+      _chkData_Tour_Weather                   .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__WEATHER));
 
       _chkData_TimeSlice_Battery              .setSelection(_state.getBoolean(STATE_IS_IMPORT_TIME_SLICE__BATTERY));
       _chkData_TimeSlice_Cadence              .setSelection(_state.getBoolean(STATE_IS_IMPORT_TIME_SLICE__CADENCE));
@@ -1286,6 +1295,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_TOUR__FILE_LOCATION,          _chkData_Tour_ImportFileLocation.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR__MARKERS,                _chkData_Tour_Markers.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE,                _chkData_Tour_TrainingStress_Score.getSelection());
+      _state.put(STATE_IS_IMPORT_TOUR__WEATHER,                _chkData_Tour_Weather.getSelection());
 
       _state.put(STATE_IS_IMPORT_ALL_TIME_SLICES,                    _chkData_AllTimeSlices.getSelection());
       _state.put(STATE_IS_IMPORT_TIME_SLICE__BATTERY,                _chkData_TimeSlice_Battery.getSelection());

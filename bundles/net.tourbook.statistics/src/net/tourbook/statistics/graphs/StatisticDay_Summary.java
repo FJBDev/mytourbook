@@ -29,11 +29,12 @@ public class StatisticDay_Summary extends StatisticDay {
 
    private IPropertyChangeListener _statDay_PrefChangeListener;
 
-   private boolean                 _isShowDistance;
-   private boolean                 _isShowAltitude;
-   private boolean                 _isShowDuration;
    private boolean                 _isShowAvgPace;
    private boolean                 _isShowAvgSpeed;
+   private boolean                 _isShowDistance;
+   private boolean                 _isShowDuration;
+   private boolean                 _isShowElevationDown;
+   private boolean                 _isShowElevationUp;
 
    private void addPrefListener(final Composite container) {
 
@@ -42,12 +43,14 @@ public class StatisticDay_Summary extends StatisticDay {
 
          final String property = propertyChangeEvent.getProperty();
 
-         // observe which data are displayed
-         if (property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ALTITUDE)
-               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
-               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
-               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
-               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
+            // observe which data are displayed
+            if (false
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN)
+                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP)
 
                || property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)
 
@@ -93,8 +96,11 @@ public class StatisticDay_Summary extends StatisticDay {
          createYDataDistance(chartDataModel);
       }
 
-      if (_isShowAltitude) {
-         createYDataAltitude(chartDataModel);
+      if (_isShowElevationUp) {
+         createYDataElevationUp(chartDataModel);
+      }
+      if (_isShowElevationDown) {
+         createYDataElevationDown(chartDataModel);
       }
 
       if (_isShowDuration) {
@@ -119,11 +125,12 @@ public class StatisticDay_Summary extends StatisticDay {
 
    private void getPreferences() {
 
-      _isShowAltitude = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_ALTITUDE);
       _isShowAvgPace = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE);
       _isShowAvgSpeed = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED);
       _isShowDistance = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE);
       _isShowDuration = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION);
+      _isShowElevationUp = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP);
+      _isShowElevationDown = _prefStore.getBoolean(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN);
    }
 
    @Override

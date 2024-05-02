@@ -18,9 +18,11 @@ AND REVIEW IT MANUALLY IN ALL MODIFIED FILES, subversions must not be modified e
  One Click build process (since 18.1)
 #####################################
 
+* Set java path in C:\Users\Wolfgang\.gradle\gradle.properties
 * Set version number in gradle.properties in the .git root
 * Set version number as described below (Build with POM)
-* Run "gradlew" in "C:\DAT\MT\mytourbook\build\build.net.tourbook" this will run the default task
+
+Run "gradlew" in "C:\DAT\MT\mytourbook\build\build.net.tourbook" this will run the default task
 
 
 Setup to run gradle:
@@ -32,7 +34,7 @@ Setup to run gradle:
 
 Setup the graddle wrapper in the build folder:
 
-   gradle wrapper --gradle-version 6.9
+   gradlew wrapper --gradle-version 8.2.1
 
 
 #################
@@ -40,11 +42,11 @@ Setup the graddle wrapper in the build folder:
 #################
 
    Setup Gradle environment
-   - Set "org.gradle.java.home=C:/Program Files/Eclipse Adoptium/jdk-11.0.13.8-hotspot"
+   - Set "org.gradle.java.home=C:/Program Files/Eclipse Adoptium/jdk-11.0.17.8-hotspot"
      in C:\Users\Wolfgang\.gradle\gradle.properties
    
 
-   Build plugin
+   Build VTM plugin for MT
    
    - Check versions in (gdxVersion)          /mytourbook/bundles/build.gradle 
    
@@ -53,38 +55,58 @@ Setup the graddle wrapper in the build folder:
       cd C:\DAT\MT\vtm-parent
       gradlew clean ass
       
+      
    - Update VTM plugin, run task assemble:   
      
      cd C:\DAT\MT\mytourbook\bundles\net.tourbook.ext.vtm
      gradle clean ass
- 
-    OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
-    
-      Update manifest.MF
-      - Select 'EGradle virtual root project' in 'Package Explorer'
-      - Select in the contextmenu 'Egradle/Refresh eclipse dependencies'  
-      
-      Build plugin
-      - Open 'Gradle Tasks' view
-      - Select 'net.tourbook.ext.vtm'
-      - Double click 'assemble'
-   
-   OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD 
 
+
+   TEST VTM
+   
+   - Run playground
+   
+      cd C:\DAT\MT\vtm-parent
+      run-playground.cmd
+
+
+   - Copy debug files
+   
+      cd C:\DAT\MT\vtm-parent
+      gradlew copyDebugFiles   
+
+
+   - Fat jar
+   
+      cd C:\DAT\MT\vtm-parent
+      gradlew :vtm-playground:fatJar
+
+
+   - Other VTM Tests
+   
+     https://github.com/mapsforge/vtm/blob/master/docs/desktop.md   
 
 
 ###########################
  Update Eclipse NL repo
 ###########################
 
-see "build\build.eclipse.4.14.nl.repo\How to update this p2 repo.txt"
+see "build\build.eclipse.4.23.nl.repo\How to update this p2 repo.txt"
+
+
+
+################################################################
+Create Dojo files, when web-UI in net.tourbook.web is modified
+################################################################
+
+   - Set "IS_DEBUG = false" in net.tourbook.web.WEB 
+   - 1. run script /build.net.tourbook.ant/build-files/Convert-i18-To-Dojo.xml
+   - 2. run script /net.tourbook.web/build-files/Create-Dojo-Bundle.xml
 
 
 
 ###########################
-
 Build with POM (since 16.4)
-
 ###########################
 
 
@@ -149,14 +171,6 @@ Remove debug code
      Enable   "<win32>config-win.ini</win32>"
 
 
-Create Dojo files, when web-UI in net.tourbook.web is modified
---------------------------------------------------------------
-
-   - Set "IS_DEBUG = false" in net.tourbook.web.WEB 
-   - 1. run script /net.tourbook.ant/build-files/Convert-i18-To-Dojo.xml
-   - 2. run script /net.tourbook.web/build-files/Create-Dojo-Bundle.xml
-
-
 Copy/Merge app files to build folder
 --------------------------
    Run ant script "CREATE_MT_BuildFiles.xml" in project "build.net.tourbook"
@@ -165,29 +179,37 @@ Copy/Merge app files to build folder
 Build Product
 --------------
    Open cmd
+   
       - Select folder "C:\DAT\MT\mytourbook"
+   
       - Run "mvn verify -P build-release"
-      - Run "mvn verify -P build-release -X --log-file ../log.txt" - this will log into a file
+   
+      - Run "mvn verify -P build-release -X --log-file ../log.txt"      this will log into a file
+
+        OR run "build-MT-with-log-file.cmd" in "C:\DAT\MT\mytourbook\build\build.net.tourbook"
 
 
-Build Update site
-------------------
+#################
+Build Update Site
+#################
 
-   BEFORE !!!
+   !!! BEFORE !!!
    
    1. Set version numbers like in this commit https://github.com/mytourbook/mytourbook/commit/4ad360673bea889647dfb54f7c754c8bb41984b0
    2. Run "CREATE_MT_BuildFiles.xml" BEFORE the following commands
 
-   Open cmd
-      - Select folder "C:\DAT\MT\mytourbook"
-      - Run "mvn verify -P build-update-site"
+   * WITH NL
+   
+      Open cmd
+         - Select folder      "cd C:\DAT\MT\mytourbook"
+         - Run                "mvn verify -P build-update-site"
 
 
-   * without NL
+   * WITHOUT NL
 
-   Open cmd
-      - Select folder "C:\DAT\MT\mytourbook"
-      - Run "mvn verify -P build-update-site-no-nl"
+      Open cmd
+         - Select folder      "cd C:\DAT\MT\mytourbook"
+         - Run                "mvn verify -P build-update-site-no-nl"
 
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,13 +15,18 @@
  *******************************************************************************/
 package net.tourbook.common.util;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,10 +44,13 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -54,15 +62,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.RGBA;
-import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
@@ -134,6 +141,7 @@ public class Util {
     * Prepend a line number to each text line.
     *
     * @param text
+    *
     * @return
     */
    public static String addLineNumbers(final String text) {
@@ -145,6 +153,7 @@ public class Util {
     * Prepend a line number to each text line.
     *
     * @param text
+    *
     * @return
     */
    public static String addLineNumbers(final String text, final int startLineNumer) {
@@ -165,17 +174,6 @@ public class Util {
       return sb.toString();
    }
 
-   public static int adjustScaleValueOnMouseScroll(final MouseEvent event) {
-
-      // accelerate with Ctrl + Shift key
-      final int accelerator = getKeyAccelerator(event);
-
-      final Scale scale = (Scale) event.widget;
-      final int newValueDiff = event.count > 0 ? accelerator : -accelerator;
-
-      return scale.getSelection() + newValueDiff;
-   }
-
    public static void adjustSpinnerValueOnMouseScroll(final MouseEvent event) {
 
       final int accelerator = getKeyAccelerator(event);
@@ -190,6 +188,7 @@ public class Util {
     * Reverse an array sort order.
     *
     * @param arr
+    *
     * @return
     */
    public static String[] arrayReverse(final String[] arr) {
@@ -258,6 +257,7 @@ public class Util {
 
    /**
     * @param os
+    *
     * @return Returns <code>false</code> when an exception occurs.
     */
    public static boolean close(final OutputStream os) {
@@ -331,6 +331,7 @@ public class Util {
 
    /**
     * @param text
+    *
     * @return Returns MD5 for the text or <code>null</code> when an error occurs.
     */
    public static String computeMD5(final String text) {
@@ -365,6 +366,7 @@ public class Util {
     *
     * @param firstValues
     * @param secondValues
+    *
     * @return
     */
    public static int[] concatInt(final int[] firstValues, final int[] secondValues) {
@@ -374,6 +376,45 @@ public class Util {
       System.arraycopy(secondValues, 0, concatenatedValues, firstValues.length, secondValues.length);
 
       return concatenatedValues;
+   }
+
+   public static int convertDouble_ToE6(final double doubleValue) {
+
+      return (int) (doubleValue * 1E6);
+   }
+
+   public static double[] convertDoubleSeries_FromE6(final int[] dataSerieE6) {
+
+      if (dataSerieE6 == null || dataSerieE6.length == 0) {
+         return null;
+      }
+
+      final int serieSize = dataSerieE6.length;
+
+      final double[] doubleSerie = new double[serieSize];
+
+      for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
+         doubleSerie[serieIndex] = dataSerieE6[serieIndex] / 1E6;
+      }
+
+      return doubleSerie;
+   }
+
+   public static int[] convertDoubleSeries_ToE6(final double[] doubleSerie) {
+
+      if (doubleSerie == null || doubleSerie.length == 0) {
+         return null;
+      }
+
+      final int serieSize = doubleSerie.length;
+
+      final int[] dataSerieE6 = new int[serieSize];
+
+      for (int serieIndex = 0; serieIndex < serieSize; serieIndex++) {
+         dataSerieE6[serieIndex] = (int) (doubleSerie[serieIndex] * 1E6);
+      }
+
+      return dataSerieE6;
    }
 
    public static float[][] convertDoubleToFloat(final double[][] doubleSeries) {
@@ -461,9 +502,22 @@ public class Util {
    }
 
    /**
+    * Convert Java newline into \n.
+    *
+    * @param text
+    *
+    * @return
+    */
+   public static String convertLineBreaks(final String text) {
+
+      return text.replaceAll("\\r\\n|\\r|\\n", "\\\n"); //$NON-NLS-1$ //$NON-NLS-2$
+   }
+
+   /**
     * Converts a list of strings into a comma-separated string.
     *
     * @param allTexts
+    *
     * @return
     */
    public static String convertListToString(final List<String> allTexts) {
@@ -516,6 +570,7 @@ public class Util {
     * Converts a comma-separated string into a list of strings.
     *
     * @param text
+    *
     * @return
     */
    public static ArrayList<String> convertStringToList(final String text) {
@@ -535,6 +590,7 @@ public class Util {
    /**
     * @param sourceString
     * @param lookFor
+    *
     * @return Returns the number of characters which are found in the string or -1 when the string
     *         is <code>null</code>
     */
@@ -560,6 +616,7 @@ public class Util {
     * creates a double array backup
     *
     * @param original
+    *
     * @return Returns a copy of a <code>double[]</code> or <code>null</code> when the original data
     *         is <code>null</code>.
     */
@@ -580,6 +637,7 @@ public class Util {
     * creates a float array backup
     *
     * @param original
+    *
     * @return Returns a copy of a <code>float[]</code> or <code>null</code> when the original data
     *         is <code>null</code>.
     */
@@ -600,6 +658,7 @@ public class Util {
     * creates a int array backup
     *
     * @param original
+    *
     * @return the backup array or <code>null</code> when the original data is <code>null</code>
     */
    public static int[] createIntegerCopy(final int[] original) {
@@ -640,11 +699,29 @@ public class Util {
       }
    }
 
-   public static Resource disposeResource(final Resource resource) {
-      if (resource != null && !resource.isDisposed()) {
-         resource.dispose();
+   /**
+    * @param objectStream
+    *
+    * @return
+    */
+   public static Object deserializeObject(final byte[] objectStream) {
+
+      Object object = null;
+
+      try {
+
+         final ByteArrayInputStream byteInputStream = new ByteArrayInputStream(objectStream);
+         final ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
+         {
+            object = objectInputStream.readObject();
+         }
+         objectInputStream.close();
+
+      } catch (final IOException | ClassNotFoundException e) {
+         StatusUtil.log(e);
       }
-      return null;
+
+      return object;
    }
 
    public static void dumpChildren(final Control parent, final int indent) {
@@ -733,6 +810,7 @@ public class Util {
    /**
     * @param enumName
     * @param defaultValue
+    *
     * @return Returns a enum value from a string or the default value when the enum value is
     *         invalid.
     */
@@ -834,6 +912,7 @@ public class Util {
    /**
     * @param unitValue
     * @param is24HourFormatting
+    *
     * @return Returns minUnitValue rounded to the number 60/30/20/10/5/2/1
     */
    public static long getMajorTimeValue(final long unitValue, final boolean is24HourFormatting) {
@@ -905,6 +984,7 @@ public class Util {
    /**
     * @param defaultUnitValue
     * @param is24HourFormatting
+    *
     * @return Returns minUnitValue rounded to the number 60/30/20/10/5/2/1
     */
    public static long getMajorTimeValue24(final long defaultUnitValue) {
@@ -962,9 +1042,9 @@ public class Util {
       return counter;
    }
 
-   public static boolean getPrefixPrefBoolean(final IPreferenceStore prefStore,
-                                              final String prefPrefix,
-                                              final String prefKey) {
+   public static boolean getPrefixPref_Boolean(final IPreferenceStore prefStore,
+                                               final String prefPrefix,
+                                               final String prefKey) {
 
       boolean prefValue;
 
@@ -977,9 +1057,9 @@ public class Util {
       return prefValue;
    }
 
-   public static int getPrefixPrefInt(final IPreferenceStore prefStore,
-                                      final String prefPrefix,
-                                      final String prefKey) {
+   public static int getPrefixPref_Int(final IPreferenceStore prefStore,
+                                       final String prefPrefix,
+                                       final String prefKey) {
 
       int prefValue;
 
@@ -998,9 +1078,11 @@ public class Util {
 
             + "SQLException" + NL //$NON-NLS-1$
             + NL
-            + "SQLState: " + e.getSQLState() + NL //$NON-NLS-1$
-            + "ErrorCode: " + e.getErrorCode() + NL //$NON-NLS-1$
-            + "Message: " + e.getMessage() + NL; //$NON-NLS-1$
+            + "SQLState:   " + e.getSQLState() + NL //$NON-NLS-1$
+            + "ErrorCode:  " + e.getErrorCode() + NL //$NON-NLS-1$
+            + "Message:    " + e.getMessage() + NL //$NON-NLS-1$
+            + "Cause:      " + e.getCause() + NL //$NON-NLS-1$
+      ;
 
       return text;
    }
@@ -1022,6 +1104,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a boolean value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1041,6 +1124,7 @@ public class Util {
     * @param combo
     * @param defaultComboIndex
     *           Combo default index when retrieved state index is too large.
+    *
     * @return
     */
    public static int getStateCombo(final IDialogSettings state,
@@ -1069,20 +1153,24 @@ public class Util {
 
    public static LocalDate getStateDate(final IDialogSettings state,
                                         final String stateKey,
-                                        final LocalDate defaultValue,
-                                        final DateTime dateTimeControl) {
-
-      final String value = state.get(stateKey);
-      LocalDate parsedValue;
+                                        final LocalDate defaultValue) {
 
       try {
 
-         parsedValue = LocalDate.parse(value);
+         return LocalDate.parse(state.get(stateKey));
 
       } catch (final Exception e) {
 
-         parsedValue = defaultValue;
+         return defaultValue;
       }
+   }
+
+   public static LocalDate getStateDate(final IDialogSettings state,
+                                        final String stateKey,
+                                        final LocalDate defaultValue,
+                                        final DateTime dateTimeControl) {
+
+      final LocalDate parsedValue = getStateDate(state, stateKey, defaultValue);
 
       dateTimeControl.setYear(parsedValue.getYear());
       dateTimeControl.setMonth(parsedValue.getMonthValue() - 1);
@@ -1095,6 +1183,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a float value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1115,6 +1204,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a string value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1146,6 +1236,7 @@ public class Util {
     * @param state
     * @param key
     * @param allDefaultValues
+    *
     * @return Returns a string value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1158,7 +1249,12 @@ public class Util {
       }
 
       final String[] allStateValues = state.getArray(key);
-      if (allStateValues == null || allStateValues.length == 0 || allDefaultValues == null || allDefaultValues.isEmpty()) {
+
+      if (allStateValues == null
+            || allStateValues.length == 0
+            || allDefaultValues == null
+            || allDefaultValues.isEmpty()) {
+
          return allDefaultValues;
       }
 
@@ -1186,6 +1282,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a float value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1210,6 +1307,7 @@ public class Util {
     *           array which contains all states
     * @param defaultState
     *           state when an item is not selected in the combo box
+    *
     * @return Returns the state which is selected in the combo box
     */
    public static String getStateFromCombo(final Combo combo, final String[] states, final String defaultState) {
@@ -1231,6 +1329,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns an integer value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1243,6 +1342,46 @@ public class Util {
       try {
          return state.get(key) == null ? defaultValue : state.getInt(key);
       } catch (final NumberFormatException e) {
+         return defaultValue;
+      }
+   }
+
+   /**
+    * @param state
+    * @param key
+    * @param defaultValue
+    * @param minValue
+    * @param maxValue
+    *
+    * @return Returns an integer value from {@link IDialogSettings}. When the key is not found, the
+    *         default value is returned.
+    */
+   public static int getStateInt(final IDialogSettings state,
+                                 final String key,
+                                 final int defaultValue,
+                                 final int minValue,
+                                 final int maxValue) {
+
+      if (state == null) {
+         return defaultValue;
+      }
+
+      try {
+
+         final int stateValue = state.get(key) == null ? defaultValue : state.getInt(key);
+
+         if (stateValue < minValue) {
+            return minValue;
+         }
+
+         if (stateValue > maxValue) {
+            return maxValue;
+         }
+
+         return stateValue;
+
+      } catch (final NumberFormatException e) {
+
          return defaultValue;
       }
    }
@@ -1287,6 +1426,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a long value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1356,6 +1496,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a string value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1374,6 +1515,7 @@ public class Util {
     * @param state
     * @param key
     * @param defaultValue
+    *
     * @return Returns a string value from {@link IDialogSettings}. When the key is not found, the
     *         default value is returned.
     */
@@ -1394,6 +1536,7 @@ public class Util {
     * @param allItems
     * @param newItem
     * @param maxItems
+    *
     * @return
     */
    public static String[] getUniqueItems(final String[] allItems, final String newItem, final int maxItems) {
@@ -1458,6 +1601,7 @@ public class Util {
 
    /**
     * @param viewId
+    *
     * @return Returns a view from it's ID or <code>null</code> when not found.
     */
    public static IViewPart getView(final String viewId) {
@@ -1525,6 +1669,7 @@ public class Util {
     * @param xmlMemento
     * @param key
     * @param defaultValue
+    *
     * @return Returns default value when not available.
     */
    public static double getXmlDouble(final XMLMemento xmlMemento, final String key, final double defaultValue) {
@@ -1554,6 +1699,7 @@ public class Util {
     * @param xml
     * @param attrName
     * @param defaultValue
+    *
     * @return
     */
    public static <E extends Enum<E>> Enum<E> getXmlEnum(final IMemento xml,
@@ -1595,6 +1741,7 @@ public class Util {
     *           Float min value.
     * @param maxValue
     *           Float max value.
+    *
     * @return
     */
    public static float getXmlFloatFloat(final XMLMemento xmlMemento,
@@ -1624,6 +1771,7 @@ public class Util {
     *           Integer min value.
     * @param maxValue
     *           Integer max value.
+    *
     * @return
     */
    public static float getXmlFloatInt(final IMemento xmlMemento,
@@ -1669,6 +1817,7 @@ public class Util {
     * @param defaultValue
     * @param minValue
     * @param maxValue
+    *
     * @return
     */
    public static int getXmlInteger(final IMemento xmlMemento,
@@ -1690,12 +1839,50 @@ public class Util {
       return value;
    }
 
-   public static int getXmlInteger(final IMemento xmlMemento, final String key, final Integer defaultValue) {
+   /**
+    * @param xmlMemento
+    * @param key
+    * @param defaultValue
+    *
+    * @return Supports <code>null</code> as return value, e.g. when
+    *         <code>defaultValue == null</code>
+    */
+   public static Integer getXmlInteger(final IMemento xmlMemento, final String key, final Integer defaultValue) {
 
       Integer value = xmlMemento.getInteger(key);
 
       if (value == null) {
          value = defaultValue;
+      }
+
+      return value;
+   }
+
+   /**
+    * @param xmlMemento
+    * @param key
+    * @param defaultValue
+    * @param minValue
+    *           min value
+    * @param maxValue
+    *           max value
+    *
+    * @return
+    */
+   public static int getXmlIntInt(final XMLMemento xmlMemento,
+                                  final String key,
+                                  final int defaultValue,
+                                  final int minValue,
+                                  final int maxValue) {
+
+      final int value = getXmlInteger(xmlMemento, key, defaultValue);
+
+      if (value < minValue) {
+         return minValue;
+      }
+
+      if (value > maxValue) {
+         return maxValue;
       }
 
       return value;
@@ -1720,6 +1907,7 @@ public class Util {
     *
     * @param memento
     * @param listKeyName
+    *
     * @return Returns an array with long values or an empty array when values are not available
     */
    public static long[] getXmlLongArray(final XMLMemento memento, final String listKeyName) {
@@ -1758,7 +1946,38 @@ public class Util {
 
    /**
     * @param xmlMemento
+    * @param key
     * @param defaultValue
+    * @param minValue
+    *           min value
+    * @param maxValue
+    *           max value
+    *
+    * @return
+    */
+   public static long getXmlLongLong(final XMLMemento xmlMemento,
+                                     final String key,
+                                     final long defaultValue,
+                                     final long minValue,
+                                     final long maxValue) {
+
+      final Long value = getXmlLong(xmlMemento, key, defaultValue);
+
+      if (value < minValue) {
+         return minValue;
+      }
+
+      if (value > maxValue) {
+         return maxValue;
+      }
+
+      return value;
+   }
+
+   /**
+    * @param xmlMemento
+    * @param defaultValue
+    *
     * @return Returns {@link RGB} from the attributes red, green and blue attributes.
     */
    public static RGB getXmlRgb(final IMemento xmlMemento, final RGB defaultValue) {
@@ -1776,6 +1995,7 @@ public class Util {
     * @param xmlConfig
     * @param childTagName
     * @param defaultRgb
+    *
     * @return
     */
    public static RGB getXmlRgb_AsParent(final XMLMemento xmlConfig, final String childTagName, final RGB defaultRgb) {
@@ -1797,6 +2017,7 @@ public class Util {
    /**
     * @param xmlMemento
     * @param defaultValue
+    *
     * @return Returns {@link RGBA} from the attributes red, green, blue and alpha attributes.
     */
    public static RGBA getXmlRgba(final IMemento xmlMemento, final RGBA defaultValue) {
@@ -1819,6 +2040,7 @@ public class Util {
     * @param xmlConfig
     * @param childTagName
     * @param defaultRgba
+    *
     * @return
     */
    public static RGBA getXmlRgba_AsParent(final XMLMemento xmlConfig, final String childTagName, final RGBA defaultRgba) {
@@ -1852,6 +2074,7 @@ public class Util {
     * found here: http://www.odi.ch/prog/design/datetime.php
     *
     * @param cal
+    *
     * @return
     */
    public static int getYearForWeek(final Calendar cal) {
@@ -1871,8 +2094,27 @@ public class Util {
       return year;
    }
 
+   public static String imageToBase64(final Image image) {
+
+      byte[] imageBytes = null;
+      final BufferedImage bufferedImage = ImageConverter.convertIntoAWT(image);
+
+      try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+         ImageIO.write(bufferedImage, "png", output); //$NON-NLS-1$
+         imageBytes = output.toByteArray();
+
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+
+      final byte[] encoded = Base64.getEncoder().encode(imageBytes);
+      return new String(encoded);
+   }
+
    /**
     * @param event
+    *
     * @return Returns <code>true</code> when the <Ctrl> or <Command> key is pressed.
     */
    public static boolean isCtrlKeyPressed(final SelectionEvent event) {
@@ -1890,6 +2132,7 @@ public class Util {
 
    /**
     * @param fileName
+    *
     * @return Returns <code>true</code> when fileName is a valid directory
     */
    public static boolean isDirectory(String fileName) {
@@ -1932,6 +2175,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns double value or {@link Double#MIN_VALUE} when attribute is not available or
     *         cannot be parsed.
     */
@@ -1950,6 +2194,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or {@link Double#MIN_VALUE} when not available
     */
    public static double parseDouble(final String textValue) {
@@ -1969,6 +2214,7 @@ public class Util {
    /**
     * @param textValue
     * @param defaultValue
+    *
     * @return Parsed value or default when not available
     */
    public static double parseDouble(final String textValue, final double defaultValue) {
@@ -1987,6 +2233,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or 0 when not available
     */
    public static double parseDouble_0(final String textValue) {
@@ -2008,6 +2255,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns float value or {@link Float#MIN_VALUE} when attribute is not available or
     *         cannot be parsed.
     */
@@ -2026,6 +2274,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or {@link Float#MIN_VALUE} when not available
     */
    public static float parseFloat(final String textValue) {
@@ -2045,6 +2294,7 @@ public class Util {
    /**
     * @param textValue
     * @param defaultValue
+    *
     * @return Parsed value or default when not available
     */
    public static float parseFloat(final String textValue, final float defaultValue) {
@@ -2063,6 +2313,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or 0 when not available
     */
    public static float parseFloat_0(final String textValue) {
@@ -2081,6 +2332,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or -1 when not available
     */
    public static float parseFloat_n1(final String textValue) {
@@ -2102,6 +2354,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns a float value or 0 when attribute is not available or cannot be parsed.
     */
    public static float parseFloat0(final Attributes attributes, final String attributeName) {
@@ -2122,6 +2375,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns integer value or {@link Integer#MIN_VALUE} when attribute is not available or
     *         cannot be parsed.
     */
@@ -2141,6 +2395,7 @@ public class Util {
    /**
     * @param textValue
     * @param defaultValue
+    *
     * @return Parsed value or defaultValue when not available
     */
    public static int parseInt(final String textValue, final int defaultValue) {
@@ -2162,6 +2417,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or 0 when not available
     */
    public static int parseInt_0(final String textValue) {
@@ -2183,6 +2439,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or -1 when not available
     */
    public static int parseInt_n1(final String textValue) {
@@ -2207,6 +2464,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns an integer value or 0 when attribute is not available or cannot be parsed.
     */
    public static int parseInt0(final Attributes attributes, final String attributeName) {
@@ -2230,6 +2488,7 @@ public class Util {
     *
     * @param attributes
     * @param attributeName
+    *
     * @return Returns long value or {@link Long#MIN_VALUE} when attribute is not available or cannot
     *         be parsed.
     */
@@ -2248,6 +2507,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or {@link Long#MIN_VALUE} when not available
     */
    public static long parseLong(final String textValue) {
@@ -2269,6 +2529,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or 0 when not available
     */
    public static long parseLong_0(final String textValue) {
@@ -2290,6 +2551,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or -1 when not available
     */
    public static long parseLong_n1(final String textValue) {
@@ -2311,6 +2573,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or 0 when not available
     */
    public static short parseShort_0(final String textValue) {
@@ -2332,6 +2595,7 @@ public class Util {
 
    /**
     * @param textValue
+    *
     * @return Parsed value or -1 when not available
     */
    public static short parseShort_n1(final String textValue) {
@@ -2355,6 +2619,7 @@ public class Util {
     * Load a text file.
     *
     * @param fileName
+    *
     * @return Returns the content from a text file
     */
    public static String readContentFromFile(final String fileName) {
@@ -2400,6 +2665,7 @@ public class Util {
 
    /**
     * @param unitValue
+    *
     * @return Returns unit value rounded to the number of .../50/20/10/5/2/1/...
     */
    public static double roundDecimalValue(final double unitValue) {
@@ -2442,6 +2708,7 @@ public class Util {
     *
     * @param graphValue
     * @param graphUnit
+    *
     * @return
     */
    public static long roundFloatToUnitInverse(final float graphValue, final float graphUnit) {
@@ -2477,6 +2744,7 @@ public class Util {
     * Round number of units to a 'month suitable' format.
     *
     * @param defaultUnitValue
+    *
     * @return
     */
    public static int roundMonthUnits(final int defaultUnitValue) {
@@ -2522,6 +2790,7 @@ public class Util {
 
    /**
     * @param defaultUnitValue
+    *
     * @return Returns unit rounded to the number 60/30/20/10/5/2/1
     */
    public static long roundTime24h(final long defaultUnitValue) {
@@ -2578,6 +2847,7 @@ public class Util {
    /**
     * @param defaultUnitValue
     * @param is24HourFormatting
+    *
     * @return Returns minUnitValue rounded to the number 60/30/20/10/5/2/1
     */
    public static float roundTimeValue(final float defaultUnitValue, final boolean is24HourFormatting) {
@@ -2695,6 +2965,7 @@ public class Util {
     *
     * @param graphValue
     * @param graphUnit
+    *
     * @return
     */
    public static double roundValueToUnit(final double graphValue, final double graphUnit, final boolean isMinValue) {
@@ -2778,23 +3049,75 @@ public class Util {
     * selected
     *
     * @param combo
-    * @param comboItems
+    * @param allItems
     * @param selectedItem
     *           Text which should be selected in the combo box
     */
-   public static void selectTextInCombo(final Combo combo, final String[] comboItems, final String selectedItem) {
+   public static void selectTextInCombo(final Combo combo,
+                                        final List<String> allItems,
+                                        final String selectedItem,
+                                        final int offset) {
+
+      if (selectedItem == null) {
+         return;
+      }
 
       int comboIndex = 0;
+      boolean isIndexAvailable = false;
 
-      for (final String comboStateValue : comboItems) {
+      for (final String comboStateValue : allItems) {
+
          if (selectedItem.equals(comboStateValue)) {
+
+            isIndexAvailable = true;
+
             break;
          }
 
          comboIndex++;
       }
 
-      combo.select(comboIndex);
+      if (isIndexAvailable) {
+
+         combo.select(offset + comboIndex);
+
+      } else {
+
+         combo.select(0);
+      }
+   }
+
+   /**
+    * Source: <a href=
+    * "https://stackoverflow.com/questions/3938122/how-to-get-amount-of-serialized-bytes-representing-a-java-object"
+    * >https://stackoverflow.com/questions/3938122/how-to-get-amount-of-serialized-bytes-representing-a-java-object</a>
+    *
+    * @param object
+    *
+    * @return
+    */
+   public static byte[] serializeObject(final Object object) {
+
+      byte[] byteArray = null;
+
+      try {
+
+         final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+
+         final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
+         {
+            objectOutputStream.writeObject(object);
+            objectOutputStream.flush();
+         }
+         objectOutputStream.close();
+
+         byteArray = byteOutputStream.toByteArray();
+
+      } catch (final IOException e) {
+         StatusUtil.log(e);
+      }
+
+      return byteArray;
    }
 
    /**
@@ -2936,6 +3259,7 @@ public class Util {
     * @param xmlColor
     * @param tagName
     * @param rgb
+    *
     * @return
     */
    public static IMemento setXmlRgb(final IMemento xmlColor, final String tagName, final RGB rgb) {
@@ -2956,6 +3280,7 @@ public class Util {
     * @param xmlColor
     * @param tagName
     * @param rgba
+    *
     * @return
     */
    public static IMemento setXmlRgba(final IMemento xmlColor, final String tagName, final RGBA rgba) {
@@ -2984,6 +3309,7 @@ public class Util {
     * @param viewId
     * @param isActivateView
     *           View is activated when <code>true</code>, otherwise it is only visible.
+    *
     * @return Returns the opened/activated view.
     */
    public static IViewPart showView(final String viewId, final boolean isActivateView) {
@@ -3043,6 +3369,18 @@ public class Util {
       });
 
       return returnValue[0];
+   }
+
+   /**
+    * @param object
+    *
+    * @return Returns the size of a serialized object
+    *
+    * @throws IOException
+    */
+   public static int sizeof(final Object object) {
+
+      return serializeObject(object).length;
    }
 
    /**

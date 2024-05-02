@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021, 2022 Frédéric Bard
+ * Copyright (C) 2021, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,7 +17,6 @@ package net.tourbook.cloud.suunto;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,12 +38,12 @@ import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
+import net.tourbook.common.util.Util;
 import net.tourbook.data.TourPerson;
 import net.tourbook.database.PersonManager;
 import net.tourbook.importdata.DialogEasyImportConfig;
 import net.tourbook.web.WEB;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -79,12 +78,12 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
    private static final String     DIALOG_EXPORT_DIR_DIALOG_TEXT    = net.tourbook.Messages.dialog_export_dir_dialog_text;
    private static final String     PARAMETER_TRAILING_CHAR          = "}";                                                   //$NON-NLS-1$
    private static final String     PARAMETER_LEADING_CHAR           = "{";                                                   //$NON-NLS-1$
-   private static final String     _suuntoApp_WebPage_Link          = "https://www.suunto.com/suunto-app/suunto-app/";       //$NON-NLS-1$
-   public static final String      ID                               = "net.tourbook.cloud.PrefPageSuunto";                   //$NON-NLS-1$
+   private static final String     SUUNTOAPP_WEBPAGE_LINK           = "https://www.suunto.com/suunto-app/suunto-app/";       //$NON-NLS-1$
+   static final String             ID                               = "net.tourbook.cloud.PrefPageSuunto";                   //$NON-NLS-1$
 
-   public static final String      ClientId                         = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                //$NON-NLS-1$
+   private static final String     CLIENTID                         = "d8f3e53f-6c20-4d17-9a4e-a4930c8667e8";                //$NON-NLS-1$
 
-   public static final int         CALLBACK_PORT                    = 4919;
+   private static final int        CALLBACK_PORT                    = 4919;
 
    private static final String     STATE_SUUNTO_CLOUD_SELECTED_TAB  = "suuntoCloud.selectedTab";                             //$NON-NLS-1$
 
@@ -313,9 +312,9 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(container);
       {
-         final Label labelPerson = new Label(container, SWT.NONE);
-         labelPerson.setText(Messages.PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount);
-         labelPerson.setToolTipText(Messages.PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount_Tooltip);
+         final Label labelPerson = UI.createLabel(container,
+               Messages.PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount,
+               Messages.PrefPage_CloudConnectivity_Label_PersonLinkedToCloudAccount_Tooltip);
          GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(labelPerson);
 
          /*
@@ -346,39 +345,36 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
       GridLayoutFactory.swtDefaults().numColumns(2).applyTo(_groupCloudAccount);
       {
          {
-            final Label labelWebPage = new Label(_groupCloudAccount, SWT.NONE);
-            labelWebPage.setText(Messages.PrefPage_CloudConnectivity_Label_WebPage);
+            final Label labelWebPage = UI.createLabel(_groupCloudAccount, Messages.PrefPage_CloudConnectivity_Label_WebPage);
             GridDataFactory.fillDefaults().applyTo(labelWebPage);
 
             final Link linkWebPage = new Link(_groupCloudAccount, SWT.NONE);
-            linkWebPage.setText(UI.LINK_TAG_START + _suuntoApp_WebPage_Link + UI.LINK_TAG_END);
+            linkWebPage.setText(UI.LINK_TAG_START + SUUNTOAPP_WEBPAGE_LINK + UI.LINK_TAG_END);
             linkWebPage.setEnabled(true);
             linkWebPage.addSelectionListener(widgetSelectedAdapter(selectionEvent -> WEB.openUrl(
-                  _suuntoApp_WebPage_Link)));
+                  SUUNTOAPP_WEBPAGE_LINK)));
             GridDataFactory.fillDefaults().grab(true, false).applyTo(linkWebPage);
          }
          {
-            _labelAccessToken = new Label(_groupCloudAccount, SWT.NONE);
-            _labelAccessToken.setText(Messages.PrefPage_CloudConnectivity_Label_AccessToken);
+            _labelAccessToken = UI.createLabel(_groupCloudAccount, Messages.PrefPage_CloudConnectivity_Label_AccessToken);
             GridDataFactory.fillDefaults().applyTo(_labelAccessToken);
 
             _txtAccessToken_Value = new Text(_groupCloudAccount, SWT.READ_ONLY | SWT.PASSWORD);
             GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_txtAccessToken_Value);
          }
          {
-            _labelRefreshToken = new Label(_groupCloudAccount, SWT.NONE);
-            _labelRefreshToken.setText(Messages.PrefPage_CloudConnectivity_Label_RefreshToken);
+            _labelRefreshToken = UI.createLabel(_groupCloudAccount, Messages.PrefPage_CloudConnectivity_Label_RefreshToken);
             GridDataFactory.fillDefaults().applyTo(_labelRefreshToken);
 
             _txtRefreshToken_Value = new Text(_groupCloudAccount, SWT.READ_ONLY | SWT.PASSWORD);
             GridDataFactory.fillDefaults().hint(pc.convertWidthInCharsToPixels(60), SWT.DEFAULT).applyTo(_txtRefreshToken_Value);
          }
          {
-            _labelExpiresAt = new Label(_groupCloudAccount, SWT.NONE);
+            _labelExpiresAt = UI.createLabel(_groupCloudAccount);
             _labelExpiresAt.setText(Messages.PrefPage_CloudConnectivity_Label_ExpiresAt);
             GridDataFactory.fillDefaults().applyTo(_labelExpiresAt);
 
-            _labelExpiresAt_Value = new Label(_groupCloudAccount, SWT.NONE);
+            _labelExpiresAt_Value = UI.createLabel(_groupCloudAccount);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(_labelExpiresAt_Value);
          }
          {
@@ -400,9 +396,9 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
       GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
       {
          {
-            _labelDownloadFolder = new Label(group, SWT.NONE);
-            _labelDownloadFolder.setText(Messages.PrefPage_SuuntoWorkouts_Label_FolderPath);
-            _labelDownloadFolder.setToolTipText(Messages.PrefPage_SuuntoWorkouts_FolderPath_Tooltip);
+            _labelDownloadFolder = UI.createLabel(group,
+                  Messages.PrefPage_SuuntoWorkouts_Label_FolderPath,
+                  Messages.PrefPage_SuuntoWorkouts_FolderPath_Tooltip);
             GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(_labelDownloadFolder);
 
             /*
@@ -478,9 +474,9 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
       GridLayoutFactory.swtDefaults().applyTo(container);
       {
          // Label: custom file name
-         final Label label = new Label(container, SWT.NONE);
-         label.setText(Messages.Dialog_DownloadWorkoutsFromSuunto_Label_CustomFilename);
-         label.setToolTipText(Messages.Dialog_DownloadWorkoutsFromSuunto_Label_CustomFilename_Tooltip);
+         final Label label = UI.createLabel(container,
+               Messages.Dialog_DownloadWorkoutsFromSuunto_Label_CustomFilename,
+               Messages.Dialog_DownloadWorkoutsFromSuunto_Label_CustomFilename_Tooltip);
          GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
 
          // Text: custom file name
@@ -557,7 +553,7 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
       paraWidgets.put(WIDGET_KEY.PAGEBOOK, bookParameter);
       {
          // Page: none
-         Label label = new Label(bookParameter, SWT.NONE);
+         Label label = UI.createLabel(bookParameter);
          paraWidgets.put(WIDGET_KEY.PAGE_NONE, label);
 
          /*
@@ -566,12 +562,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite suuntoFilenameContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(suuntoFilenameContainer);
          {
-            label = new Label(suuntoFilenameContainer, SWT.NONE);
+            label = UI.createLabel(suuntoFilenameContainer, createUI214Parameter(PART_TYPE.SUUNTO_FILE_NAME));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.SUUNTO_FILE_NAME));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_SUUNTO_FILE_NAME, suuntoFilenameContainer);
 
@@ -581,12 +576,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite fitExtensionContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(fitExtensionContainer);
          {
-            label = new Label(fitExtensionContainer, SWT.NONE);
+            label = UI.createLabel(fitExtensionContainer, createUI214Parameter(PART_TYPE.FIT_EXTENSION));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.FIT_EXTENSION));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_FIT_EXTENSION, fitExtensionContainer);
 
@@ -596,12 +590,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite workoutIdContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(workoutIdContainer);
          {
-            label = new Label(workoutIdContainer, SWT.NONE);
+            label = UI.createLabel(workoutIdContainer, createUI214Parameter(PART_TYPE.WORKOUT_ID));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.WORKOUT_ID));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_WORKOUT_ID, workoutIdContainer);
 
@@ -611,12 +604,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite activityTypeContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(activityTypeContainer);
          {
-            label = new Label(activityTypeContainer, SWT.NONE);
+            label = UI.createLabel(activityTypeContainer, createUI214Parameter(PART_TYPE.ACTIVITY_TYPE));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.ACTIVITY_TYPE));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_ACTIVITY_TYPE, activityTypeContainer);
 
@@ -626,12 +618,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite yearContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(yearContainer);
          {
-            label = new Label(yearContainer, SWT.NONE);
+            label = UI.createLabel(yearContainer, createUI214Parameter(PART_TYPE.YEAR));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.YEAR));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_YEAR, yearContainer);
 
@@ -641,12 +632,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite monthContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(monthContainer);
          {
-            label = new Label(monthContainer, SWT.NONE);
+            label = UI.createLabel(monthContainer, createUI214Parameter(PART_TYPE.MONTH));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.MONTH));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_MONTH, monthContainer);
 
@@ -656,12 +646,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite dayContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(dayContainer);
          {
-            label = new Label(dayContainer, SWT.NONE);
+            label = UI.createLabel(dayContainer, createUI214Parameter(PART_TYPE.DAY));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.DAY));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_DAY, dayContainer);
 
@@ -671,12 +660,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite hourContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(hourContainer);
          {
-            label = new Label(hourContainer, SWT.NONE);
+            label = UI.createLabel(hourContainer, createUI214Parameter(PART_TYPE.HOUR));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.HOUR));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_HOUR, hourContainer);
 
@@ -686,12 +674,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite minuteContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(minuteContainer);
          {
-            label = new Label(minuteContainer, SWT.NONE);
+            label = UI.createLabel(minuteContainer, createUI214Parameter(PART_TYPE.MINUTE));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.MINUTE));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_MINUTE, minuteContainer);
 
@@ -701,12 +688,11 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          final Composite userNameContainer = new Composite(bookParameter, SWT.NONE);
          GridLayoutFactory.fillDefaults().applyTo(userNameContainer);
          {
-            label = new Label(userNameContainer, SWT.NONE);
+            label = UI.createLabel(userNameContainer, createUI214Parameter(PART_TYPE.USER_NAME));
             GridDataFactory.fillDefaults()//
                   .grab(true, true)
                   .align(SWT.FILL, SWT.CENTER)
                   .applyTo(label);
-            label.setText(createUI214Parameter(PART_TYPE.USER_NAME));
          }
          paraWidgets.put(WIDGET_KEY.PAGE_USER_NAME, userNameContainer);
 
@@ -849,26 +835,17 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          return;
       }
 
-      final URIBuilder authorizeUrlBuilder = new URIBuilder();
-      authorizeUrlBuilder.setScheme("https"); //$NON-NLS-1$
-      authorizeUrlBuilder.setHost("cloudapi-oauth.suunto.com"); //$NON-NLS-1$
-      authorizeUrlBuilder.setPath("/oauth/authorize"); //$NON-NLS-1$
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_RESPONSE_TYPE,
-            OAuth2Constants.PARAM_CODE);
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_CLIENT_ID,
-            ClientId);
-      authorizeUrlBuilder.addParameter(
-            OAuth2Constants.PARAM_REDIRECT_URI,
-            "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$
-      try {
-         final String authorizeUrl = authorizeUrlBuilder.build().toString();
+      final StringBuilder authorizeUrl = new StringBuilder("https://cloudapi-oauth.suunto.com/oauth/authorize" + UI.SYMBOL_QUESTION_MARK); //$NON-NLS-1$
 
-         Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl));
-      } catch (final URISyntaxException e) {
-         StatusUtil.log(e);
-      }
+// SET_FORMATTING_OFF
+
+      authorizeUrl.append(      OAuth2Constants.PARAM_RESPONSE_TYPE + "=" + OAuth2Constants.PARAM_CODE); //$NON-NLS-1$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_CLIENT_ID +     "=" + CLIENTID); //$NON-NLS-1$ //$NON-NLS-2$
+      authorizeUrl.append("&" + OAuth2Constants.PARAM_REDIRECT_URI +  "=" + "http://localhost:" + CALLBACK_PORT); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+// SET_FORMATTING_ON
+
+      Display.getDefault().syncExec(() -> WEB.openUrl(authorizeUrl.toString()));
    }
 
    private void onSelectBrowseDirectory() {
@@ -1045,12 +1022,10 @@ public class PrefPageSuunto extends PreferencePage implements IWorkbenchPreferen
          _prefStore.setValue(Preferences.getPerson_SuuntoWorkoutDownloadFolder_String(personId), downloadFolder);
          if (StringUtils.hasContent(downloadFolder)) {
 
-            final String[] currentDeviceFolderHistoryItems = _state.getArray(
-                  DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS);
-            final List<String> stateDeviceFolderHistoryItems =
-                  currentDeviceFolderHistoryItems != null
-                        ? new ArrayList<>(Arrays.asList(currentDeviceFolderHistoryItems))
-                        : new ArrayList<>();
+            final String[] currentDeviceFolderHistoryItems = Util.getStateStringArray(_state,
+                  DialogEasyImportConfig.STATE_DEVICE_FOLDER_HISTORY_ITEMS,
+                  new String[0]);
+            final List<String> stateDeviceFolderHistoryItems = Arrays.asList(currentDeviceFolderHistoryItems);
 
             if (!stateDeviceFolderHistoryItems.contains(downloadFolder)) {
                stateDeviceFolderHistoryItems.add(downloadFolder);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,11 +15,13 @@
  *******************************************************************************/
 package views;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import net.tourbook.Messages;
 
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,9 @@ public class StatisticsViewTests extends UITest {
    @Test
    public void testStatisticsView() {
 
-      final SWTBot statisticsViewBot = Utils.showView(bot, Utils.STATISTICS_VIEW_NAME).bot();
+      bot.toolbarButtonWithTooltip("Statistics (Ctrl+Shift+S)").click(); //$NON-NLS-1$
+      final SWTBotView statisticsView = Utils.showView(bot, Utils.VIEW_NAME_STATISTICS);
+      final SWTBot statisticsViewBot = statisticsView.bot();
       bot.sleep(3000);
 
       final SWTBotCombo statisticsTypeComboBox = statisticsViewBot.comboBox(0);
@@ -41,17 +45,21 @@ public class StatisticsViewTests extends UITest {
       statisticsTypeComboBox.setSelection(0);
       assertEquals("Daytime", statisticsTypeComboBox.selection()); //$NON-NLS-1$
 
-      final SWTBotCombo yearComboBox = statisticsViewBot.comboBox(2);
-      assertNotNull(yearComboBox);
-      assertEquals(11, yearComboBox.itemCount());
-      yearComboBox.setSelection("9"); //$NON-NLS-1$
-      assertEquals("9", yearComboBox.selection()); //$NON-NLS-1$
+      final SWTBotCombo yearComboBox = statisticsViewBot.comboBox(1);
 
-      statisticsTypeComboBox.setSelection(Messages.Pref_Statistic_Group_DaySummary);
-      statisticsTypeComboBox.setSelection(Messages.Pref_Statistic_Group_WeekSummary);
-      statisticsTypeComboBox.setSelection(Messages.Pref_Statistic_Group_MonthSummary);
-      statisticsTypeComboBox.setSelection(Messages.Pref_Statistic_Group_YearSummary);
-      statisticsTypeComboBox.setSelection(Messages.Pref_Statistic_Group_TourFrequency);
+      final SWTBotCombo numYearComboBox = statisticsViewBot.comboBox(2);
+      assertAll(
+            () -> assertNotNull(numYearComboBox),
+            () -> assertEquals(yearComboBox.itemCount(), numYearComboBox.itemCount()));
+
+      numYearComboBox.setSelection("9"); //$NON-NLS-1$
+      assertEquals("9", numYearComboBox.selection()); //$NON-NLS-1$
+
+      statisticsTypeComboBox.setSelection(Messages.Slideout_StatisticOptions_Group_DaySummary);
+      statisticsTypeComboBox.setSelection(Messages.Slideout_StatisticOptions_Group_WeekSummary);
+      statisticsTypeComboBox.setSelection(Messages.Slideout_StatisticOptions_Group_MonthSummary);
+      statisticsTypeComboBox.setSelection(Messages.Slideout_StatisticOptions_Group_YearSummary);
+      statisticsTypeComboBox.setSelection(Messages.Slideout_StatisticOptions_Group_TourFrequency);
       statisticsTypeComboBox.setSelection("HR Zones - Week"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("HR Zones - Month"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Training - Line"); //$NON-NLS-1$
@@ -64,14 +72,20 @@ public class StatisticsViewTests extends UITest {
       statisticsTypeComboBox.setSelection("Distance - Week"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Distance - Month"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Distance - Year"); //$NON-NLS-1$
-      statisticsTypeComboBox.setSelection("Elevation - Day"); //$NON-NLS-1$
-      statisticsTypeComboBox.setSelection("Elevation - Week"); //$NON-NLS-1$
-      statisticsTypeComboBox.setSelection("Elevation - Month"); //$NON-NLS-1$
-      statisticsTypeComboBox.setSelection("Elevation - Year"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Gain - Day"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Gain - Week"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Gain - Month"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Gain - Year"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Loss - Day"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Loss - Week"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Loss - Month"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Elevation Loss - Year"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Day"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Week"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Month"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Year"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Battery SoC"); //$NON-NLS-1$
+
+      statisticsView.close();
    }
 }

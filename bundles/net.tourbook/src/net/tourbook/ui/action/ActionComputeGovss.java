@@ -26,6 +26,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
 
@@ -71,7 +72,7 @@ public class ActionComputeGovss extends Action {
 
       final long start = System.currentTimeMillis();
 
-      TourLogManager.showLogView();
+      TourLogManager.showLogView(AutoOpenEvent.TOUR_ADJUSTMENTS);
       TourLogManager.log_TITLE(NLS.bind(Messages.Log_ComputeGovss_001_Start, selectedTours.size()));
 
       Connection sqlConnection = null;

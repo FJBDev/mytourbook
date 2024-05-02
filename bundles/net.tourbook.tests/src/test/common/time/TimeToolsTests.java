@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -29,6 +29,7 @@ import net.tourbook.common.time.TimeZoneData;
 import net.tourbook.common.time.TourDateTime;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TimeToolsTests {
@@ -39,6 +40,7 @@ public class TimeToolsTests {
    private String parisZoneId    = "Europe/Paris"; //$NON-NLS-1$
 
    @Test
+   @DisplayName("Create Date Time from a string")
    void testCreateDateTimeFromYMDhms() {
 
       final ZonedDateTime testZonedDateTime = TimeTools.createDateTimeFromYMDhms(20220516165348L);
@@ -144,12 +146,6 @@ public class TimeToolsTests {
    }
 
    @Test
-   void testGetDefaultTimeZoneOffset() {
-
-      assertEquals("0 m", TimeTools.getDefaultTimeZoneOffset()); //$NON-NLS-1$
-   }
-
-   @Test
    void testGetFirstDayOfWeek() {
 
       assertEquals(DayOfWeek.MONDAY, TimeTools.getFirstDayOfWeek());
@@ -218,7 +214,7 @@ public class TimeToolsTests {
             0,
             0,
             0,
-            TimeTools.getDefaultTimeZone());
+            TimeTools.UTC);
 
       assertEquals(1652688000000L, TimeTools.toEpochMilli(testZonedDateTime));
    }

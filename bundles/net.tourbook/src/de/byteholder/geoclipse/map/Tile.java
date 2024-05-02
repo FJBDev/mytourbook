@@ -13,12 +13,11 @@ import de.byteholder.geoclipse.mapprovider.MP;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourWayPoint;
 
@@ -39,7 +38,7 @@ import org.eclipse.swt.graphics.Rectangle;
  * @author Wolfgang
  */
 
-public class Tile extends Observable {
+public class Tile {
 
 //   private static final double            MAX_LATITUDE_85_05112877   = 85.05112877;
 
@@ -208,6 +207,8 @@ public class Tile extends Observable {
     */
    public IntHashSet                       allPainted_Hash              = new IntHashSet();
 
+   private TileImageLoaderCallback         _tileImageLoaderCallback;
+
    /**
     * Create a new Tile at the specified tile point and zoom level
     *
@@ -326,11 +327,6 @@ public class Tile extends Observable {
       }
    }
 
-   @Override
-   public void addObserver(final Observer o) {
-      super.addObserver(o);
-   }
-
    /**
     * @param twp
     * @param twpBounds
@@ -398,6 +394,14 @@ public class Tile extends Observable {
       return true;
    }
 
+   public void callTileImageLoaderCallback() {
+
+      if (_tileImageLoaderCallback != null) {
+
+         _tileImageLoaderCallback.update(this);
+      }
+   }
+
    public synchronized Image createOverlayImage(final Device display) {
 
       if (_overlayImageDataResources == null) {
@@ -422,7 +426,7 @@ public class Tile extends Observable {
             }
 
             final int tileSize = _mp.getTileSize();
-            final ImageData finalImageData = UI.createTransparentImageData(tileSize);
+            final ImageData finalImageData = MapUtils.createTransparentImageData(tileSize);
 
             // draw neighbor first
             if (neighborImageData != null) {
@@ -737,13 +741,6 @@ public class Tile extends Observable {
       return _timeEndLoading;
    }
 
-//   /**
-//    * @return Returns <code>true</code> when this tile is a child of another tile
-//    */
-//   public boolean isChildTile() {
-//      return fParentTile != null;
-//   }
-
    public long getTimeIsQueued() {
       return _timeIsQueued;
    }
@@ -894,15 +891,6 @@ public class Tile extends Observable {
    }
 
    /**
-    * notify image observers that the image has changed
-    */
-   void notifyImageObservers() {
-
-      setChanged();
-      notifyObservers();
-   }
-
-   /**
     * reset overlay in this tile, by resetting the status state
     */
    public void resetOverlay() {
@@ -990,7 +978,13 @@ public class Tile extends Observable {
       _future = future;
    }
 
+   public void setImageLoaderCallback(final TileImageLoaderCallback tileImageLoaderCallback) {
+
+      _tileImageLoaderCallback = tileImageLoaderCallback;
+   }
+
    public void setIsOfflineImageAvailable(final boolean isOfflineImageAvailable) {
+
       _isOfflineImageAvailable = isOfflineImageAvailable;
    }
 

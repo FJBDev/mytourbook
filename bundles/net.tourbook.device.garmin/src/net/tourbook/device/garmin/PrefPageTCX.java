@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.device.garmin;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import net.tourbook.common.UI;
 import net.tourbook.common.preferences.BooleanFieldEditor2;
 
@@ -26,8 +28,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -43,7 +44,7 @@ public class PrefPageTCX extends FieldEditorPreferencePage implements IWorkbench
 
    private final IPreferenceStore _prefStore                  = Activator.getDefault().getPreferenceStore();
 
-   private SelectionAdapter       _defaultSelectionListener;
+   private SelectionListener      _defaultSelectionListener;
 
    private PixelConverter         _pc;
 
@@ -93,9 +94,8 @@ public class PrefPageTCX extends FieldEditorPreferencePage implements IWorkbench
       GridDataFactory.fillDefaults().grab(true, false).applyTo(_groupNotesImport);
       {
          // label: description
-         final Label label = new Label(_groupNotesImport, SWT.NONE);
+         final Label label = UI.createLabel(_groupNotesImport, Messages.PrefPage_TCX_Label_ImportNotes);
          GridDataFactory.fillDefaults().span(2, 1).applyTo(label);
-         label.setText(Messages.PrefPage_TCX_Label_ImportNotes);
 
          // check: import into title field
          _editBool_ImportIntoTitle = new BooleanFieldEditor2(
@@ -183,12 +183,11 @@ public class PrefPageTCX extends FieldEditorPreferencePage implements IWorkbench
       /*
        * Label: Info
        */
-      _lblIgnoreSpeed = new Label(parent, SWT.WRAP);
+      _lblIgnoreSpeed = UI.createLabel(parent, Messages.PrefPage_TCX_Label_IgnoreSpeedValues, SWT.WRAP);
       GridDataFactory.fillDefaults()//
             .indent(_pc.convertHorizontalDLUsToPixels(10), 0)
             .hint(_pc.convertWidthInCharsToPixels(40), SWT.DEFAULT)
             .applyTo(_lblIgnoreSpeed);
-      _lblIgnoreSpeed.setText(Messages.PrefPage_TCX_Label_IgnoreSpeedValues);
    }
 
    private void enableFields() {
@@ -213,12 +212,7 @@ public class PrefPageTCX extends FieldEditorPreferencePage implements IWorkbench
 
       _pc = new PixelConverter(parent);
 
-      _defaultSelectionListener = new SelectionAdapter() {
-         @Override
-         public void widgetSelected(final SelectionEvent e) {
-            enableFields();
-         }
-      };
+      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> enableFields());
    }
 
    @Override

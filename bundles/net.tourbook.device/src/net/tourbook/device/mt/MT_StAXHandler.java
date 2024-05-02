@@ -33,6 +33,7 @@ import javax.xml.transform.stream.StreamSource;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
+import net.tourbook.common.util.XmlUtils;
 import net.tourbook.data.DeviceSensor;
 import net.tourbook.data.DeviceSensorValue;
 import net.tourbook.data.SerieData;
@@ -127,7 +128,9 @@ class MT_StAXHandler {
       parseXML(importFilePath);
    }
 
-   void dispose() {}
+   void dispose() {
+
+   }
 
    private void finalizeTour() {
 
@@ -300,7 +303,7 @@ class MT_StAXHandler {
 
    private void parseXML(final String importFilePath) throws FactoryConfigurationError, XMLStreamException {
 
-      final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+      final XMLInputFactory inputFactory = XmlUtils.initializeFactory();
       final XMLEventReader eventReader = inputFactory.createXMLEventReader(new StreamSource("file:" + importFilePath)); //$NON-NLS-1$
 
       while (eventReader.hasNext()) {
@@ -1094,7 +1097,6 @@ class MT_StAXHandler {
       case "power_TotalWork":                      _tourData.setPower_TotalWork(                   Util.parseLong_0(value));     break; //$NON-NLS-1$
       case "power_TrainingStressScore":            _tourData.setTrainingStress_Device(         Util.parseFloat_0(value));    break; //$NON-NLS-1$
       case "trainingStress_Device":            _tourData.setTrainingStress_Device(         Util.parseFloat_0(value));    break; //$NON-NLS-1$
-
       case "rearShiftCount":                       _tourData.setRearShiftCount(                    Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "restPulse":                            _tourData.setRestPulse(                         Util.parseInt_0(value));      break; //$NON-NLS-1$
 
