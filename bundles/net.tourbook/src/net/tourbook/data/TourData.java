@@ -785,6 +785,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    // ############################################# TRAINING STRESS DATA #############################################
 
+   @JsonProperty
    private float              trainingStress_Device;
 
    /**
