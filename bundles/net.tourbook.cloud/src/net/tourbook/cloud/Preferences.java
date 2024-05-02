@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2023 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,6 +34,15 @@ public final class Preferences {
    public static final String DROPBOX_REFRESHTOKEN               = "DROPBOX_REFRESHTOKEN";               //$NON-NLS-1$
    public static final String DROPBOX_ACCESSTOKEN_EXPIRES_IN     = "DROPBOX_ACCESSTOKEN_EXPIRES_IN";     //$NON-NLS-1$
    public static final String DROPBOX_ACCESSTOKEN_ISSUE_DATETIME = "DROPBOX_ACCESSTOKEN_ISSUE_DATETIME"; //$NON-NLS-1$
+
+   /*
+    * Garmin preferences
+    */
+   public static final String GARMIN_ACCESSTOKEN                   = "GARMIN_ACCESSTOKEN";                   //$NON-NLS-1$
+   public static final String GARMIN_ACCESSTOKEN_SECRET            = "GARMIN_ACCESSTOKEN_SECRET";            //$NON-NLS-1$
+   public static final String GARMIN_ACTIVITY_DOWNLOAD_FOLDER      = "GARMIN_ACTIVITY_DOWNLOAD_FOLDER";      //$NON-NLS-1$
+   public static final String GARMIN_USE_WORKOUT_FILTER_SINCE_DATE = "GARMIN_USE_WORKOUT_FILTER_SINCE_DATE"; //$NON-NLS-1$
+   public static final String GARMIN_WORKOUT_FILTER_SINCE_DATE     = "GARMIN_WORKOUT_FILTER_SINCE_DATE";     //$NON-NLS-1$
 
    /*
     * Strava preferences

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2023 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -41,6 +41,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(Preferences.DROPBOX_REFRESHTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_EXPIRES_IN, 0);
       store.setDefault(Preferences.DROPBOX_ACCESSTOKEN_ISSUE_DATETIME, 0);
+
+      store.setDefault(Preferences.GARMIN_ACCESSTOKEN, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_ACCESSTOKEN_SECRET, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_ACTIVITY_DOWNLOAD_FOLDER, UI.EMPTY_STRING);
+      store.setDefault(Preferences.GARMIN_USE_WORKOUT_FILTER_SINCE_DATE, false);
+      store.setDefault(Preferences.GARMIN_WORKOUT_FILTER_SINCE_DATE, 1577836800000L);
 
       store.setDefault(Preferences.STRAVA_ACCESSTOKEN, UI.EMPTY_STRING);
       store.setDefault(Preferences.STRAVA_REFRESHTOKEN, UI.EMPTY_STRING);

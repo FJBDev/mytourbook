@@ -1,0 +1,345 @@
+/*******************************************************************************
+ * Copyright (C) 2024 Frédéric Bard
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+ *******************************************************************************/
+package net.tourbook.cloud.garmin;
+
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.tourbook.cloud.Activator;
+import net.tourbook.cloud.CloudImages;
+import net.tourbook.cloud.Messages;
+import net.tourbook.cloud.Preferences;
+import net.tourbook.common.UI;
+import net.tourbook.common.util.FileUtils;
+import net.tourbook.common.util.StringUtils;
+import net.tourbook.data.TourData;
+import net.tourbook.data.TourType;
+import net.tourbook.export.ExportTourGPX;
+import net.tourbook.export.TourExporter;
+import net.tourbook.ext.velocity.VelocityService;
+import net.tourbook.extension.upload.TourbookCloudUploader;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourManager;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+
+public class GarminCoursesUploader extends TourbookCloudUploader {
+
+   private static final String LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
+   private static final String LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
+
+   private static IPreferenceStore _prefStore                    = Activator.getDefault().getPreferenceStore();
+   private static TourExporter _tourExporter                 = new TourExporter(ExportTourGPX.GPX_1_0_TEMPLATE);
+
+   private static String       CLOUD_UPLOADER_ID             = "Garmin";                                                 //$NON-NLS-1$
+   private boolean             _useActivePerson;
+   private boolean             _useAllPeople;
+
+   public GarminCoursesUploader() {
+
+      super(CLOUD_UPLOADER_ID,
+            Messages.VendorName_Garmin_Courses,
+            Activator.getImageDescriptor(CloudImages.Cloud_Garmin_Logo));
+
+      _tourExporter.setUseDescription(true);
+
+      VelocityService.init();
+   }
+
+//   private RouteUpload convertResponseToUpload(final HttpResponse<String> routeUploadResponse, final String tourDate) {
+//
+//      final List<RouteUpload> items = new ArrayList<>();
+//      items.add(new RouteUpload());
+//      RouteUploads routeUploads = new RouteUploads(items);
+//
+//      final String routeUploadContent = routeUploadResponse.body();
+//      if (routeUploadResponse.statusCode() == HttpURLConnection.HTTP_CREATED && StringUtils.hasContent(routeUploadContent)) {
+//
+//         final ObjectMapper mapper = new ObjectMapper();
+//         try {
+//            routeUploads = mapper.readValue(routeUploadContent, RouteUploads.class);
+//
+//         } catch (final JsonProcessingException e) {
+//            StatusUtil.log(e);
+//         }
+//      } else {
+//         routeUploads.items().get(0).setError(routeUploadContent);
+//      }
+//
+//      routeUploads.items().get(0).setTourDate(tourDate);
+//
+//      return routeUploads.items().get(0);
+//   }
+
+   /**
+    * Activities by Suunto
+    * https://apimgmtstfbqznm5nc6zmvgx.blob.core.windows.net/content/MediaLibrary/docs/Suunto%20Watches-%20SuuntoApp%20-Movescount-FIT-Activities.pdf
+    *
+    * @param tourData
+    *
+    * @return
+    */
+   private String convertTourToGpx(final TourData tourData) {
+
+      final String absoluteTourFilePath = FileUtils.createTemporaryFile(String.valueOf(tourData.getTourId()), "gpx"); //$NON-NLS-1$
+
+      _tourExporter.useTourData(tourData);
+
+      final TourType tourType = tourData.getTourType();
+
+      boolean useActivityType = false;
+      String activityName = UI.EMPTY_STRING;
+      if (tourType != null) {
+         useActivityType = true;
+         activityName = tourType.getName();
+      }
+      _tourExporter.setUseActivityType(useActivityType);
+      _tourExporter.setActivityType(activityName);
+
+      if (tourData.timeSerie == null || tourData.timeSerie.length == 0 || tourData.getTourDeviceTime_Elapsed() == 0) {
+         _tourExporter.setIsCamouflageSpeed(true);
+         // 0.5 m/s => 1.8 km/h
+         _tourExporter.setCamouflageSpeed(0.5f);
+      } else {
+         _tourExporter.setIsCamouflageSpeed(false);
+      }
+
+      _tourExporter.export(absoluteTourFilePath);
+
+      final String tourGpx = FileUtils.readFileContentString(absoluteTourFilePath);
+
+      FileUtils.deleteIfExists(Paths.get(absoluteTourFilePath));
+
+      return tourGpx;
+   }
+
+   private String getAccessToken() {
+      return _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN);
+   }
+
+   private String getAccessTokenSecret() {
+      return _prefStore.getString(Preferences.GARMIN_ACCESSTOKEN_SECRET);
+   }
+
+   @Override
+   protected boolean isReady() {
+
+      return StringUtils.hasContent(getAccessToken()) && StringUtils.hasContent(getAccessTokenSecret());
+   }
+
+   private boolean isTourContainsGpsData(final TourData tourData) {
+
+      return tourData.latitudeSerie != null &&
+            tourData.latitudeSerie.length > 0 &&
+            tourData.longitudeSerie != null &&
+            tourData.longitudeSerie.length > 0;
+   }
+
+//   private boolean logUploadResult(final RouteUpload routeUpload) {
+//
+//      boolean isRouteUploaded = false;
+//
+//      if (StringUtils.hasContent(routeUpload.getError())) {
+//
+//         Display.getDefault().asyncExec(() -> TourLogManager.log_ERROR(NLS.bind(
+//               Messages.Log_UploadRoutesToSuunto_004_UploadError,
+//               routeUpload.getTourDate(),
+//               routeUpload.getError())));
+//
+//      } else {
+//
+//         isRouteUploaded = true;
+//
+//         Display.getDefault().asyncExec(() -> TourLogManager.log_OK(NLS.bind(
+//               Messages.Log_UploadRoutesToSuunto_003_UploadStatus,
+//               routeUpload.getTourDate(),
+//               routeUpload.getId())));
+//
+//      }
+//
+//      return isRouteUploaded;
+//   }
+//
+//   private CompletableFuture<RouteUpload> sendAsyncRequest(final String tourStartTime, final HttpRequest request) {
+//
+//      final CompletableFuture<RouteUpload> routeUpload = OAuth2Utils.httpClient.sendAsync(
+//            request,
+//            HttpResponse.BodyHandlers.ofString())
+//            .thenApply(routeUploadResponse -> convertResponseToUpload(routeUploadResponse, tourStartTime))
+//            .exceptionally(e -> {
+//               final RouteUpload errorUpload = new RouteUpload();
+//               errorUpload.setTourDate(tourStartTime);
+//               errorUpload.setError(e.getMessage());
+//               return errorUpload;
+//            });
+//
+//      return routeUpload;
+//   }
+
+//   private CompletableFuture<RouteUpload> uploadRoute(final String tourStartTime, final String tourGpx) {
+//
+//      //create a vm template just for that ?
+//      //https://apizone.suunto.com/route-description
+//      final JSONObject payload = new JSONObject();
+//      payload.put("gpxRoute", Base64.getEncoder().encodeToString(tourGpx.getBytes())); //$NON-NLS-1$
+//
+//      try {
+//         final HttpRequest request = HttpRequest.newBuilder()
+//               .uri(OAuth2Utils.createOAuthPasseurUri("/suunto/route/import"))//$NON-NLS-1$
+//               .header(OAuth2Constants.CONTENT_TYPE, "application/json") //$NON-NLS-1$
+//               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+//               .POST(BodyPublishers.ofString(payload.toString()))
+//               .build();
+//
+//         return sendAsyncRequest(tourStartTime, request);
+//
+//      } catch (final Exception e) {
+//         StatusUtil.log(e);
+//      }
+//
+//      return null;
+//   }
+
+//   private int uploadRoutes(final Map<String, String> toursWithGpsSeries, final IProgressMonitor monitor) {
+//
+//      final List<CompletableFuture<RouteUpload>> activityUploads = new ArrayList<>();
+//
+//      for (final Map.Entry<String, String> tourToUpload : toursWithGpsSeries.entrySet()) {
+//
+//         if (monitor.isCanceled()) {
+//            return 0;
+//         }
+//
+//         final String tourStartTime = tourToUpload.getKey();
+//         final String tourGpx = tourToUpload.getValue();
+//
+//         activityUploads.add(uploadRoute(tourStartTime, tourGpx));
+//      }
+//
+//      final int[] numberOfUploadedTours = new int[1];
+//      activityUploads.stream().map(completable -> completable.join()).forEach(activityUpload -> {
+//         if (monitor.isCanceled()) {
+//            return;
+//         } else if (logUploadResult(activityUpload)) {
+//            ++numberOfUploadedTours[0];
+//         }
+//      });
+//
+//      return numberOfUploadedTours[0];
+//   }
+
+   @Override
+   public void uploadTours(final List<TourData> selectedTours) {
+
+      final int numberOfTours = selectedTours.size();
+      final int[] numberOfUploadedTours = new int[1];
+      final String[] notificationText = new String[1];
+
+      final Job job = new Job(NLS.bind(Messages.Dialog_UploadRoutesToSuunto_Task, numberOfTours)) {
+
+         @Override
+         public IStatus run(final IProgressMonitor monitor) {
+
+            monitor.beginTask(UI.EMPTY_STRING, numberOfTours * 2);
+
+            monitor.subTask(Messages.Dialog_ValidatingSuuntoTokens_SubTask);
+
+            monitor.subTask(NLS.bind(Messages.Dialog_UploadRoutesToSuunto_SubTask, UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND, UI.EMPTY_STRING));
+
+            final Map<String, String> toursWithGpsSeries = new HashMap<>();
+            for (int index = 0; index < numberOfTours && !monitor.isCanceled(); ++index) {
+
+               final TourData tourData = selectedTours.get(index);
+               final String tourStartTime = TourManager.getTourDateTimeShort(tourData);
+
+               if (isTourContainsGpsData(tourData)) {
+
+                  toursWithGpsSeries.put(tourStartTime, convertTourToGpx(tourData));
+
+                  monitor.worked(1);
+               } else {
+
+                  final String errorMessage = NLS.bind(Messages.Log_UploadRoutesToSuunto_002_NoGpsCoordinate,
+                        tourStartTime);
+                  Display.getDefault().asyncExec(() -> TourLogManager.log_ERROR(errorMessage));
+
+                  monitor.worked(2);
+               }
+            }
+
+            monitor.subTask(NLS.bind(Messages.Dialog_UploadRoutesToSuunto_SubTask,
+                  UI.SYMBOL_WHITE_HEAVY_CHECK_MARK,
+                  UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND));
+
+            // numberOfUploadedTours[0] = uploadRoutes(toursWithGpsSeries, monitor);
+
+            monitor.worked(toursWithGpsSeries.size());
+
+            monitor.subTask(NLS.bind(Messages.Dialog_UploadRoutesToSuunto_SubTask,
+                  UI.SYMBOL_WHITE_HEAVY_CHECK_MARK,
+                  UI.SYMBOL_WHITE_HEAVY_CHECK_MARK));
+
+            monitor.worked(1);
+
+            monitor.done();
+
+            return Status.OK_STATUS;
+         }
+      };
+
+      final long start = System.currentTimeMillis();
+
+      TourLogManager.log_TITLE(NLS.bind(Messages.Log_UploadRoutesToSuunto_001_Start, numberOfTours));
+
+      job.setPriority(Job.INTERACTIVE);
+      job.schedule();
+
+      job.addJobChangeListener(new JobChangeAdapter() {
+         @Override
+         public void done(final IJobChangeEvent event) {
+
+            if (PlatformUI.isWorkbenchRunning()) {
+
+               PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+
+                  final String infoText = event.getResult().isOK()
+                        ? NLS.bind(Messages.Dialog_UploadRoutesToSuunto_Message,
+                              numberOfUploadedTours[0],
+                              numberOfTours - numberOfUploadedTours[0])
+                        : notificationText[0];
+
+                  TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+
+                  UI.openNotificationPopup(Messages.Dialog_UploadRoutesToSuunto_Title,
+                        Activator.getImageDescriptor(CloudImages.Cloud_Suunto_Logo_Small),
+                        infoText);
+               });
+            }
+         }
+      });
+   }
+}

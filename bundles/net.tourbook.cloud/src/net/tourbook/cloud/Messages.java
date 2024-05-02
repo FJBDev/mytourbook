@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2023 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -50,6 +50,11 @@ public class Messages extends NLS {
    public static String Dialog_DropboxBrowser_Text;
    public static String Dialog_DropboxBrowser_Title;
    public static String PrefPage_CloudConnectivity_Dropbox_AccessToken_Tooltip;
+
+   //GARMIN
+   public static String Pref_AccountInformation_GarminConnect_WebPage_Link;
+   public static String Garmin_Activities_Description;
+   public static String VendorName_Garmin_Activities;
 
    //STRAVA
    public static String Dialog_UploadToursToStrava_Message;
@@ -130,6 +135,7 @@ public class Messages extends NLS {
    public static String PrefPage_SuuntoWorkouts_FolderPath_Tooltip;
    public static String SuuntoCloud_Group_AccountInformation;
    public static String SuuntoCloud_Group_FileNameCustomization;
+   public static String VendorName_Garmin_Courses;
    public static String VendorName_Suunto;
    public static String VendorName_Suunto_Routes;
    public static String VendorName_Suunto_Workouts;
