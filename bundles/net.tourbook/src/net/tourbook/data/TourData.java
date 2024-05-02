@@ -659,8 +659,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    @JsonProperty
    private long                  power_TotalWork;
    @JsonProperty
-   private float                 power_TrainingStressScore;
-   @JsonProperty
    private float                 power_IntensityFactor;
 
    @JsonProperty
