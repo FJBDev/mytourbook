@@ -785,7 +785,7 @@ class CalendarTourDataProvider {
                   + "      cadenceZone_SlowTime," + NL //                              //$NON-NLS-1$
                   + "      cadenceZone_FastTime," + NL //                              //$NON-NLS-1$
                   + "      TourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
-                  + "      power_TrainingStressScore" + NL //                          //$NON-NLS-1$
+                  + "      trainingStress_Device" + NL //                          //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                  //$NON-NLS-1$
 
@@ -832,7 +832,7 @@ class CalendarTourDataProvider {
 
                + " SUM(TourDeviceTime_Recorded)," + NL //                           10 //$NON-NLS-1$
 
-               + " SUM(power_TrainingStressScore)" + NL //                          11 //$NON-NLS-1$
+               + " SUM(trainingStress_Device)" + NL //                          11 //$NON-NLS-1$
 
                + sqlFromTourData;
 
