@@ -43,9 +43,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 import net.tourbook.OtherMessages;
@@ -1458,6 +1461,14 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       // Get the screenshot
       final Graphics graphics = image.getGraphics();
       _wwCanvas.paint(graphics);
+
+      // Save the BufferedImage to a file
+      final File outputFile = new File("/home/frederic/Desktop/screenshot.png");
+      try {
+         ImageIO.write(image, "png", outputFile);
+      } catch (final IOException e) {
+         e.printStackTrace();
+      }
 
       // Convert the BufferedImage to an SWT Image
       final ImageData imageData = Images.convertToSWT(image);
