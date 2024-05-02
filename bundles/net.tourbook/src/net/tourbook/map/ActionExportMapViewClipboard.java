@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import net.tourbook.common.UI;
-import net.tourbook.common.util.FilesUtils;
+import net.tourbook.common.util.FileUtils;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.map2.Messages;
 
@@ -76,7 +76,7 @@ public class ActionExportMapViewClipboard extends Action {
                   new Transfer[] { ImageTransfer.getInstance() });
             image.dispose();
 
-            FilesUtils.deleteIfExists(Paths.get(absoluteFilePath));
+            FileUtils.deleteIfExists(Paths.get(absoluteFilePath));
          } catch (final IOException e) {
             StatusUtil.log(e);
          }

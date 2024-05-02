@@ -24,11 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-<<<<<<< HEAD
-import java.util.HashMap;
-=======
 import java.util.EnumMap;
->>>>>>> refs/remotes/Wolfgang/main
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -910,22 +906,8 @@ public class Map3GradientColorManager {
       if (xmlColorDefinitions == null) {
 
          // set only first default color profile as active
-<<<<<<< HEAD
          _map3ColorDefinitions.values().forEach(colorDef -> colorDef.getColorProviders().get(0).getMap3ColorProfile().setIsActiveColorProfile(
                true));
-=======
-         getColorDefinitions().values().forEach(colorDefinition -> {
-
-            final Map3GradientColorProvider firstColorProvider = colorDefinition.getColorProviders().get(0);
-            if (firstColorProvider == null) {
-               return;
-            }
-
-            firstColorProvider.getMap3ColorProfile().setIsActiveColorProfile(true);
-         }
->>>>>>> refs/remotes/Wolfgang/main
-
-         );
 
          return;
       }

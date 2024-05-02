@@ -15,10 +15,7 @@
  *******************************************************************************/
 package net.tourbook.map;
 
-<<<<<<< HEAD
-=======
 import java.util.ArrayList;
->>>>>>> refs/remotes/Wolfgang/main
 import java.util.List;
 
 import net.tourbook.common.UI;
