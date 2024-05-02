@@ -28,7 +28,6 @@ import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TimeZoneData;
 import net.tourbook.common.time.TourDateTime;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -181,13 +180,6 @@ public class TimeToolsTests {
       assertEquals(controlTimeZoneData.label, testTimeZoneData.label);
       assertEquals(controlTimeZoneData.zoneId, testTimeZoneData.zoneId);
       assertEquals(controlTimeZoneData.zoneOffsetSeconds, testTimeZoneData.zoneOffsetSeconds);
-   }
-
-   @Test
-   @Disabled
-   void testGetTimeZoneIndex_Default() {
-
-      assertEquals(596, TimeTools.getTimeZoneIndex_Default());
    }
 
    @Test
