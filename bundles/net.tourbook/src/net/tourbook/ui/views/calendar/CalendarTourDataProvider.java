@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2024 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -383,6 +383,7 @@ class CalendarTourDataProvider {
     * @param year
     * @param month
     * @param day
+    *
     * @return CalendarTourData
     */
    private CalendarTourData[][] loadFromDb_Month(final int year, final int month) {
@@ -558,8 +559,8 @@ class CalendarTourDataProvider {
                if (tourId == lastTourId) {
 
                   // get additional tags from outer join
-                  if (dbTagId instanceof Long) {
-                     tagIds.add((Long) dbTagId);
+                  if (dbTagId instanceof final Long dbTagIdLong) {
+                     tagIds.add(dbTagIdLong);
                   }
 
                } else {
