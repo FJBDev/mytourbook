@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2022, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1105,8 +1105,8 @@ class MT_StAXHandler {
       case "power_Normalized":                     _tourData.setPower_Normalized(                  Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "power_PedalLeftRightBalance":          _tourData.setPower_PedalLeftRightBalance(       Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "power_TotalWork":                      _tourData.setPower_TotalWork(                   Util.parseLong_0(value));     break; //$NON-NLS-1$
-      case "power_TrainingStressScore":            _tourData.setTrainingStress_Device(         Util.parseFloat_0(value));     //$NON-NLS-1$
-                _tourData.setTrainingStress_Device(         Util.parseFloat_0(value));    break;
+      case "power_TrainingStressScore":            _tourData.setTrainingStress_Device(             Util.parseFloat_0(value));     //$NON-NLS-1$
+                                                   _tourData.setTrainingStress_Device(             Util.parseFloat_0(value));    break;
       case "rearShiftCount":                       _tourData.setRearShiftCount(                    Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "restPulse":                            _tourData.setRestPulse(                         Util.parseInt_0(value));      break; //$NON-NLS-1$
 
