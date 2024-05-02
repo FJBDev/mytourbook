@@ -1979,7 +1979,7 @@ public class Map2View extends ViewPart implements
 
       } else if (mapColorProvider instanceof IDiscreteColorProvider) {
 
-         // return null image to hide the legend -> there is currenly no legend provider for a IDiscreteColorProvider
+         // return null image to hide the legend -> there is currently no legend provider for a IDiscreteColorProvider
 
 //         isDataAvailable = createLegendImage_20_SetProviderValues((IDiscreteColorProvider) mapColorProvider);
       }
