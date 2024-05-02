@@ -88,11 +88,11 @@ class DialogReimportTours extends TitleAreaDialog {
    private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                       = "STATE_IS_IMPORT_ALL_TIME_SLICES";                       //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_ENTIRE_TOUR                           = "STATE_IS_IMPORT_ENTIRE_TOUR";                           //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TOUR__CALORIES                     = "STATE_IS_IMPORT_TOUR__CALORIES";                     //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__MARKERS                      = "STATE_IS_IMPORT_TOUR__MARKERS";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__CALORIES                        = "STATE_IS_IMPORT_TOUR__CALORIES";                        //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                   = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__MARKERS                         = "STATE_IS_IMPORT_TOUR__MARKERS";                         //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE = "STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE"; //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__WEATHER                      = "STATE_IS_IMPORT_TOUR__WEATHER";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__WEATHER                         = "STATE_IS_IMPORT_TOUR__WEATHER";                         //$NON-NLS-1$
 
    private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                   = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                   //$NON-NLS-1$
    private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                   = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                   //$NON-NLS-1$
@@ -1019,7 +1019,7 @@ class DialogReimportTours extends TitleAreaDialog {
             || _chkData_Tour_ImportFileLocation.getSelection()
             || _chkData_Tour_Markers.getSelection()
             || _chkData_Tour_Weather.getSelection()
-   ||            _chkData_Tour_TrainingStress_Score.getSelection();
+            || _chkData_Tour_TrainingStress_Score.getSelection();
 
       final boolean isDataSelected = false
 

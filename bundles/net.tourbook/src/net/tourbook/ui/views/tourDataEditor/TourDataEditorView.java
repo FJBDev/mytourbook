@@ -712,15 +712,15 @@ public class TourDataEditorView extends ViewPart implements
    private Label                  _lblWeather_TemperatureUnit_Min_Device;
    private Label                  _lblWeather_TemperatureUnit_WindChill;
    //
-   private Link               _linkDefaultTimeZone;
-   private Link               _linkGeoTimeZone;
-   private Link               _linkBikeScore;
-   private Link               _linkGovss;
-   private Link               _linkSwimScore;
-   private Link               _linkRemoveTimeZone;
-   private Link               _linkTag;
-   private Link               _linkTourType;
-   private Link               _linkWeather;
+   private Link                   _linkDefaultTimeZone;
+   private Link                   _linkGeoTimeZone;
+   private Link                   _linkBikeScore;
+   private Link                   _linkGovss;
+   private Link                   _linkSwimScore;
+   private Link                   _linkRemoveTimeZone;
+   private Link                   _linkTag;
+   private Link                   _linkTourType;
+   private Link                   _linkWeather;
    //
    private Spinner                _spinPerson_BodyFat;
    private Spinner                _spinPerson_BodyWeight;
@@ -5347,7 +5347,6 @@ public class TourDataEditorView extends ViewPart implements
             createUI_Section_110_Tour(_tourContainer);
             createUI_Section_120_DateTime(_tourContainer);
             createUI_Section_130_Personal(_tourContainer);
-
 
             createUI_Section_140_TrainingStress(_tourContainer);
 
