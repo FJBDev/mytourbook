@@ -202,8 +202,6 @@ public class Map25View extends ViewPart implements
    //
    private boolean                       _isPartVisible;
    private boolean                       _isShowTour;
-   // private boolean                       _isInZoom;
-   private boolean                       _isShowPhoto;
    //
    private IPartListener2                _partListener;
    private ISelectionListener            _postSelectionListener;
@@ -604,11 +602,8 @@ public class Map25View extends ViewPart implements
       MapGraphId selectedActionGraphId = null;
       if (selectedAction instanceof ActionTrackColor) {
 
-         final Animator animator = map25.animator();
          selectedActionGraphId = ((ActionTrackColor) selectedAction)._graphId;
 
-         animator.cancel();
-         animator.animateZoom(500, _zoomFactor, 0, 0);
       } else if (selectedAction instanceof ActionTrackColor_HrZone) {
 
          selectedActionGraphId = ((ActionTrackColor_HrZone) selectedAction)._graphId;
@@ -906,18 +901,6 @@ public class Map25View extends ViewPart implements
 
    private void createActions() {
 
-      _actionExportMap_SubMenu = new Action_ExportMap_SubMenu(this);
-      _actionMapBookmarks = new ActionMapBookmarks(this._parent, this);
-      //_actionShowPhoto_WithOptions = new ActionShowPhoto_WithConfig();
-      _actionMapProvider = new ActionMap25_MapProvider();
-      _actionMapOptions = new ActionMap25_Options();
-      _actionShowEntireTour = new ActionShowEntireTour(this);
-      _actionSyncMap_WithOtherMap = new ActionSyncMap2WithOtherMap(this);
-      _actionSyncMap_WithTour = new ActionSynchMapWithTour(this);
-      _actionSyncMap_WithChartSlider = new ActionSynchMapWithChartSlider(this);
-      _actionZoom_In = new ActionZoomIn(this);
-      _actionZoom_Out = new ActionZoomOut(this);
-      //_actionShowPhoto = new ActionShowPhoto(this);
 // SET_FORMATTING_OFF
 
       _actionMapBookmarks              = new ActionMapBookmarks(this._parent, this);
@@ -2216,6 +2199,7 @@ public class Map25View extends ViewPart implements
     * Load tours from tour ID's
     *
     * @param allTourIds
+    *
     * @return
     */
    private void setMapTours_FromIds(final List<Long> allTourIds) {

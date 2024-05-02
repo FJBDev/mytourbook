@@ -22,7 +22,6 @@ import de.byteholder.geoclipse.map.IMapContextMenuProvider;
 import de.byteholder.geoclipse.map.Map2;
 import de.byteholder.geoclipse.map.MapGridData;
 import de.byteholder.geoclipse.map.MapLegend;
-import de.byteholder.geoclipse.map.event.IMapInfoListener;
 import de.byteholder.geoclipse.map.event.MapGeoPositionEvent;
 import de.byteholder.geoclipse.map.event.MapHoveredTourEvent;
 import de.byteholder.geoclipse.map.event.MapPOIEvent;
@@ -158,6 +157,7 @@ import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
 import net.tourbook.tour.location.CommonLocationManager;
 import net.tourbook.tour.location.TourLocationExtended;
 import net.tourbook.tour.location.TourLocationManager;
+import net.tourbook.tour.photo.IMapWithPhotos;
 import net.tourbook.tour.photo.TourPhotoLink;
 import net.tourbook.tour.photo.TourPhotoLinkSelection;
 import net.tourbook.ui.ValuePoint_ToolTip_UI;
@@ -216,8 +216,8 @@ public class Map2View extends ViewPart implements
       IMapBookmarks,
       IMapBookmarkListener,
       IMapSyncListener,
-      IMapInfoListener,
-      IMapView ,
+      IMapWithPhotos,
+      IMapView,
       IPhotoEventListener {
 
 // SET_FORMATTING_OFF
@@ -503,7 +503,7 @@ public class Map2View extends ViewPart implements
    private ActionCreateTourMarkerFromMap     _actionCreateTourMarkerFromMap;
    private Action_ExportMap_SubMenu          _actionExportMap_SubMenu;
    private ActionGotoLocation                _actionGotoLocation;
-   private ActionLookupCommonLocation       _actionLookupTourLocation;
+   private ActionLookupCommonLocation        _actionLookupTourLocation;
    private ActionManageMapProviders          _actionManageMapProvider;
    private ActionMapBookmarks                _actionMap2Slideout_Bookmarks;
    private ActionMap2Color                   _actionMap2Slideout_Color;

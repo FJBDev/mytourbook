@@ -687,8 +687,8 @@ public class PrefPageMap3Color extends PreferencePage implements IWorkbenchPrefe
                      .indent(20, 0)
                      .align(SWT.FILL, SWT.CENTER)
                      .applyTo(_lblNumberOfColors);
-               _lblNumberOfColors.setText(Messages.Pref_Map3Color_Label_NumberOfColors);
-               _lblNumberOfColors.setToolTipText(Messages.Pref_Map3Color_Label_NumberOfColors_Tooltip);
+//               _lblNumberOfColors.setText(Messages.Pref_Map3Color_Label_NumberOfColors);
+//               _lblNumberOfColors.setToolTipText(Messages.Pref_Map3Color_Label_NumberOfColors_Tooltip);
             }
 
             {
@@ -1121,7 +1121,7 @@ public class PrefPageMap3Color extends PreferencePage implements IWorkbenchPrefe
 
          final Image oldImage = _profileImages.put(colorProvider, image);
 
-         Util.disposeResource(oldImage);
+//         Util.disposeResource(oldImage);
 
          _oldImageWidth = imageWidth;
       }
@@ -1400,8 +1400,8 @@ public class PrefPageMap3Color extends PreferencePage implements IWorkbenchPrefe
       _chkShowColorSelector.setSelection(//
             _prefStore.getDefaultBoolean(ITourbookPreferences.MAP3_IS_COLOR_SELECTOR_DISPLAYED));
 
-      _spinNumberOfColors.setSelection(//
-            _prefStore.getDefaultInt(ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS));
+//      _spinNumberOfColors.setSelection(//
+//            _prefStore.getDefaultInt(ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS));
 
       enableControls();
 
@@ -1454,14 +1454,14 @@ public class PrefPageMap3Color extends PreferencePage implements IWorkbenchPrefe
 
       _chkShowColorSelector.setSelection(//
             _prefStore.getBoolean(ITourbookPreferences.MAP3_IS_COLOR_SELECTOR_DISPLAYED));
-
-      _spinNumberOfColors.setSelection(//
-            _prefStore.getInt(ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS));
+//
+//      _spinNumberOfColors.setSelection(//
+//            _prefStore.getInt(ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS));
    }
 
    private void restoreStateViewer() {
 
-      final String[] expandedColorDefIds = Util.getStateArray(_state, STATE_EXPANDED_COLOR_DEFINITIONS, null);
+      final String[] expandedColorDefIds = Util.getStateStringArray(_state, STATE_EXPANDED_COLOR_DEFINITIONS, null);
       if (expandedColorDefIds != null) {
 
          final ArrayList<Map3ColorDefinition> expandedColorDefs = new ArrayList<>();
@@ -1485,9 +1485,9 @@ public class PrefPageMap3Color extends PreferencePage implements IWorkbenchPrefe
             ITourbookPreferences.MAP3_IS_COLOR_SELECTOR_DISPLAYED,
             _chkShowColorSelector.getSelection());
 
-      _prefStore.setValue(//
-            ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS,
-            _spinNumberOfColors.getSelection());
+//      _prefStore.setValue(//
+//            ITourbookPreferences.MAP3_NUMBER_OF_COLOR_SELECTORS,
+//            _spinNumberOfColors.getSelection());
    }
 
    private void saveState() {

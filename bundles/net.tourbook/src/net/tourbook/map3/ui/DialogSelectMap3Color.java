@@ -68,11 +68,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-<<<<<<< HEAD
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-=======
->>>>>>> refs/remotes/Wolfgang/main
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -346,17 +341,14 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
          final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
          final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
          final Color bgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_BACKGROUND);
-
-      _shellContainer.addDisposeListener(disposeEvent -> onDispose());
          UI.setChildColors(shellContainer, fgColor, bgColor);
+      }
 
       return shellContainer;
    }
 
    private void createUI_10_Title(final Composite parent) {
 
-      final List<Map3GradientColorProvider> colorProviders = Map3GradientColorManager
-            .getColorProviders(_graphId);
       {
          /*
           * Label: Title
@@ -397,31 +389,14 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
       setUI_TableLayout(_tableContainer);
 
-<<<<<<< HEAD
-         /*
-          * NOTE: MeasureItem, PaintItem and EraseItem are called repeatedly. Therefore, it is
-          * critical for performance that these methods be as efficient as possible.
-          */
-         final Listener paintListener = event -> {
-=======
       /*
        * create table
        */
       final Table table = new Table(_tableContainer, tableStyle);
->>>>>>> refs/remotes/Wolfgang/main
 
-<<<<<<< HEAD
-            if (event.type == SWT.MeasureItem || event.type == SWT.PaintItem) {
-               onViewerPaint(event);
-            }
-         };
-         table.addListener(SWT.MeasureItem, paintListener);
-         table.addListener(SWT.PaintItem, paintListener);
-=======
       GridDataFactory.fillDefaults().grab(true, true).applyTo(table);
       table.setHeaderVisible(false);
       table.setLinesVisible(false);
->>>>>>> refs/remotes/Wolfgang/main
 
       /*
        * NOTE: MeasureItem, PaintItem and EraseItem are called repeatedly. Therefore, it is
@@ -872,6 +847,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
    /**
     * @param image
+    *
     * @return Returns <code>true</code> when the image is valid, returns <code>false</code> when
     *         the profile image must be created,
     */
@@ -1095,6 +1071,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
 
    /**
     * @param selectedColorProvider
+    *
     * @return Returns <code>true</code> when a new color provider is set, otherwise
     *         <code>false</code>.
     */
