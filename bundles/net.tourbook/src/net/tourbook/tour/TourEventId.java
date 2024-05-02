@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package net.tourbook.tour;
 import net.tourbook.chart.SelectionChartInfo;
 import net.tourbook.chart.SelectionChartXSliderPosition;
 import net.tourbook.data.TourData;
+import net.tourbook.data.TourLocation;
 import net.tourbook.tag.ChangedTags;
 import net.tourbook.ui.tourChart.HoveredValueData;
 import net.tourbook.ui.views.sensors.SelectionRecordingDeviceBattery;
@@ -87,6 +88,11 @@ public enum TourEventId {
    TAG_STRUCTURE_CHANGED,
 
    /**
+    * Tag content has changed, e.g. tag image size
+    */
+   TAG_CONTENT_CHANGED,
+
+   /**
     * Sliders in the tour chart moved. Property data contains {@link SelectionChartInfo} or
     * {@link SelectionChartXSliderPosition} with the position of the sliders.
     */
@@ -144,4 +150,15 @@ public enum TourEventId {
     * {@link Selection_StatisticValues}.
     */
    STATISTIC_VALUES,
+
+   /**
+    * Common locations are selected, event data contains a list with all {@link TourLocation}
+    */
+   COMMON_LOCATION_SELECTION,
+
+   /**
+    * Tour locations are selected, event data contains a list with all {@link TourLocation}
+    */
+   TOUR_LOCATION_SELECTION,
+
 }

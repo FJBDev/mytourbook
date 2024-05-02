@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019, 2022 Frédéric Bard
+ * Copyright (C) 2019, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,14 +22,13 @@ import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -37,13 +36,13 @@ import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
+import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.ui.views.calendar.CalendarProfile;
 import net.tourbook.weather.HistoricalWeatherRetriever;
 import net.tourbook.weather.WeatherUtils;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 
@@ -52,10 +51,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
 
-   private static final String  TOUR_TOOLTIP_FORMAT_DATEWEEKTIME = net.tourbook.ui.Messages.Tour_Tooltip_Format_DateWeekTime;
-
-   private static final String  SYS_PROP__LOG_WEATHER_DATA       = "logWeatherData";                                         //$NON-NLS-1$
-   private static final boolean _isLogWeatherData                = System.getProperty(SYS_PROP__LOG_WEATHER_DATA) != null;
+   private static final String  SYS_PROP__LOG_WEATHER_DATA = "logWeatherData";                                      //$NON-NLS-1$
+   private static final boolean _isLogWeatherData          = System.getProperty(SYS_PROP__LOG_WEATHER_DATA) != null;
 
    static {
 
@@ -66,35 +63,104 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
                "Weather data is logged"); //$NON-NLS-1$
       }
    }
-
-   private static final String    baseApiUrl   = "http://api.worldweatheronline.com/premium/v1/past-weather.ashx"; //$NON-NLS-1$
-   private static final String    keyParameter = "?key=";                                                          //$NON-NLS-1$
-
+   private static final String    BASE_API_URL  = "http://api.worldweatheronline.com/premium/v1/past-weather.ashx"; //$NON-NLS-1$
+   private static final String    KEY_PARAMETER = "?key=";                                                          //$NON-NLS-1$
    private String                 endDate;
+
    private String                 startDate;
+   private final IPreferenceStore prefStore     = TourbookPlugin.getPrefStore();
 
-   private final IPreferenceStore prefStore    = TourbookPlugin.getPrefStore();
-   private Data                   weatherData  = null;
+   private Data                   weatherData   = null;
 
-   /*
-    * @param tour
-    * The tour for which we need to retrieve the weather data.
-    */
-   public WorldWeatherOnlineRetriever(final TourData tourData) {
+   public static String convertWeatherCodeToMTWeatherClouds(final String weatherCode) {
 
-      super(tourData);
+      String weatherType;
 
-      startDate = TimeTools.Formatter_YearMonthDay.format(tour.getTourStartTime());
-      endDate = TimeTools.Formatter_YearMonthDay.format(tour.getTourStartTime()
-            .plusSeconds(tour.getTourDeviceTime_Elapsed()));
+      // Codes : http://www.worldweatheronline.com/feed/wwoConditionCodes.xml
+      //https://www.worldweatheronline.com/weather-api/api/docs/weather-icons.aspx
+      switch (weatherCode) {
+      case "122": //$NON-NLS-1$
+      case "119": //$NON-NLS-1$
+      case "143": //$NON-NLS-1$
+      case "248": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_OVERCAST;
+         break;
+
+      case "113": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_CLEAR;
+         break;
+
+      case "116": //$NON-NLS-1$
+      case "260": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_PART_CLOUDS;
+         break;
+
+      case "299": //$NON-NLS-1$
+      case "302": //$NON-NLS-1$
+      case "305": //$NON-NLS-1$
+      case "308": //$NON-NLS-1$
+      case "314": //$NON-NLS-1$
+      case "356": //$NON-NLS-1$
+      case "359": //$NON-NLS-1$
+      case "377": //$NON-NLS-1$
+      case "365": //$NON-NLS-1$
+      case "389": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_RAIN;
+         break;
+
+      case "332": //$NON-NLS-1$
+      case "335": //$NON-NLS-1$
+      case "338": //$NON-NLS-1$
+      case "329": //$NON-NLS-1$
+      case "326": //$NON-NLS-1$
+      case "323": //$NON-NLS-1$
+      case "320": //$NON-NLS-1$
+      case "371": //$NON-NLS-1$
+      case "368": //$NON-NLS-1$
+      case "230": //$NON-NLS-1$
+      case "227": //$NON-NLS-1$
+      case "179": //$NON-NLS-1$
+      case "392": //$NON-NLS-1$
+      case "395": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_SNOW;
+         break;
+
+      case "200": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_SEVERE_WEATHER_ALERT;
+         break;
+
+      case "374": //$NON-NLS-1$
+      case "362": //$NON-NLS-1$
+      case "350": //$NON-NLS-1$
+      case "317": //$NON-NLS-1$
+      case "182": //$NON-NLS-1$
+      case "176": //$NON-NLS-1$
+      case "386": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_SCATTERED_SHOWERS;
+         break;
+
+      case "311": //$NON-NLS-1$
+      case "353": //$NON-NLS-1$
+      case "185": //$NON-NLS-1$
+      case "263": //$NON-NLS-1$
+      case "266": //$NON-NLS-1$
+      case "281": //$NON-NLS-1$
+      case "284": //$NON-NLS-1$
+      case "293": //$NON-NLS-1$
+      case "296": //$NON-NLS-1$
+         weatherType = IWeather.WEATHER_ID_DRIZZLE;
+         break;
+
+      default:
+         weatherType = UI.EMPTY_STRING;
+         break;
+      }
+
+      return weatherType;
    }
 
    public static String getApiUrl() {
-      return baseApiUrl + keyParameter;
-   }
-
-   public static String getBaseApiUrl() {
-      return baseApiUrl;
+      return BASE_API_URL + KEY_PARAMETER;
    }
 
    @Override
@@ -112,12 +178,18 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
          final boolean isDisplayEmptyValues = !isCompressed;
          String fullWeatherData = WeatherUtils.buildFullWeatherDataString(
                hourly.getTempC(),
+               WeatherUtils.getWeatherIcon(
+                     WeatherUtils.getWeatherIndex(
+                           convertWeatherCodeToMTWeatherClouds(
+                                 hourly.weatherCode()))),
+               hourly.getWeatherDescription(),
                hourly.getFeelsLikeC(),
                hourly.getWindspeedKmph(),
                hourly.getWinddirDegree(),
-               hourly.getHumidity(),
+               hourly.humidity(),
                hourly.getPressure(),
                hourly.getPrecipMM(),
+               0,
                0,
                tourDateTime,
                isDisplayEmptyValues);
@@ -138,13 +210,13 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
             final NearestArea firstNearestArea = nearestArea.get(0);
 
             String weatherStationName = UI.EMPTY_STRING;
-            if (firstNearestArea.getAreaName() != null && firstNearestArea.getAreaName().size() > 0) {
-               weatherStationName = firstNearestArea.getAreaName().get(0).getValue();
+            if (firstNearestArea.areaName() != null && firstNearestArea.areaName().size() > 0) {
+               weatherStationName = firstNearestArea.areaName().get(0).value();
             }
 
             final LatLng weatherStationCoordinates = new LatLng(
-                  Double.valueOf(firstNearestArea.getLatitude()),
-                  Double.valueOf(firstNearestArea.getLongitude()));
+                  Double.valueOf(firstNearestArea.latitude()),
+                  Double.valueOf(firstNearestArea.longitude()));
 
             final float distanceFromTour = Math.round(
                   LatLngTool.distance(
@@ -154,8 +226,8 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
                         / UI.UNIT_VALUE_DISTANCE / 1000);
 
             String weatherStationLink = UI.EMPTY_STRING;
-            if (firstNearestArea.getWeatherUrl() != null && firstNearestArea.getWeatherUrl().size() > 0) {
-               weatherStationLink = firstNearestArea.getWeatherUrl().get(0).getValue();
+            if (firstNearestArea.weatherUrl() != null && firstNearestArea.weatherUrl().size() > 0) {
+               weatherStationLink = firstNearestArea.weatherUrl().get(0).value();
             }
 
             fullWeatherDataList.add(NLS.bind(
@@ -175,43 +247,33 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
 
    private String buildWeatherApiRequest() {
 
-      String weatherRequestWithParameters = UI.EMPTY_STRING;
+      final StringBuilder weatherRequestWithParameters = new StringBuilder(BASE_API_URL + UI.SYMBOL_QUESTION_MARK);
 
-      try {
-         final URI apiUri = new URI(baseApiUrl);
+   // SET_FORMATTING_OFF
 
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(apiUri.getScheme())
-               .setHost(apiUri.getHost())
-               .setPath(apiUri.getPath());
+      weatherRequestWithParameters.append(      "key"             + "=" + prefStore.getString(ITourbookPreferences.WEATHER_API_KEY).trim()); //$NON-NLS-1$ //$NON-NLS-2$
+      weatherRequestWithParameters.append("&" + "q"               + "=" + searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "date"            + "=" + startDate); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      //tp=1 : Specifies the weather forecast time interval in hours. Here, every 1 hour
+      weatherRequestWithParameters.append("&" + "tp"              + "=" + "1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "format"          + "=" + "json"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "includelocation" + "=" + "yes"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "extra"           + "=" + "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+      weatherRequestWithParameters.append("&" + "lang"            + "=" + Locale.getDefault().getLanguage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-         uriBuilder.setParameter("key", prefStore.getString(ITourbookPreferences.WEATHER_API_KEY)); //$NON-NLS-1$
-         uriBuilder.setParameter("q", searchAreaCenter.getLatitude() + "," + searchAreaCenter.getLongitude()); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("date", startDate); //$NON-NLS-1$
-         //tp=1 : Specifies the weather forecast time interval in hours. Here, every 1 hour
-         uriBuilder.setParameter("tp", "1"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("format", "json"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("includelocation", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("extra", "utcDateTime"); //$NON-NLS-1$ //$NON-NLS-2$
-         uriBuilder.setParameter("lang", Locale.getDefault().getLanguage()); //$NON-NLS-1$
+// SET_FORMATTING_ON
 
-         //If the tour finishes a different day, we need to specify the ending date
-         if (!endDate.equals(startDate)) {
-            uriBuilder.setParameter("enddate", endDate); //$NON-NLS-1$
-         }
-
-         weatherRequestWithParameters = uriBuilder.build().toString();
-
-         return weatherRequestWithParameters;
-
-      } catch (final URISyntaxException e) {
-
-         StatusUtil.logError(
-               "WorldWeatherOnlineRetriever.buildWeatherApiRequest : Error while " + //$NON-NLS-1$
-                     "building the historical weather request :" //$NON-NLS-1$
-                     + e.getMessage());
-         return UI.EMPTY_STRING;
+      //If the tour finishes a different day, we need to specify the ending date
+      if (!endDate.equals(startDate)) {
+         weatherRequestWithParameters.append("&" + "enddate" + "=" + endDate); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
+
+      return weatherRequestWithParameters.toString();
+   }
+
+   @Override
+   public boolean canMakeRequest() {
+      return true;
    }
 
    /**
@@ -219,6 +281,7 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
     *
     * @param weatherDataResponse
     *           A string containing a historical weather data JSON object.
+    *
     * @return The serialized weather data.
     */
    private Data deserializeWeatherData(final String weatherDataResponse) {
@@ -236,7 +299,7 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
             System.out.println(tourTitle);
          }
 
-         System.out.println(String.format(TOUR_TOOLTIP_FORMAT_DATEWEEKTIME,
+         System.out.println(String.format(OtherMessages.TOUR_TOOLTIP_FORMAT_DATE_WEEK_TIME,
                zdtTourStart.format(TimeTools.Formatter_Date_F),
                zdtTourStart.format(TimeTools.Formatter_Time_M),
                zdtTourEnd.format(TimeTools.Formatter_Time_M),
@@ -268,6 +331,11 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
    }
 
    @Override
+   protected String getWeatherRetrievalFailureLogMessage() {
+      return UI.EMPTY_STRING;
+   }
+
+   @Override
    public boolean retrieveHistoricalWeatherData() {
 
       final String weatherRequestWithParameters = buildWeatherApiRequest();
@@ -285,8 +353,8 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
       final List<Weather> weather = weatherData.getWeather();
       if (weather == null ||
             weather.isEmpty() ||
-            weather.get(0).getHourly() == null ||
-            weather.get(0).getHourly().isEmpty()) {
+            weather.get(0).hourly() == null ||
+            weather.get(0).hourly().isEmpty()) {
          return false;
       }
 
@@ -298,11 +366,9 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
          return false;
       }
 
-      tour.setIsWeatherDataFromProvider(true);
-
       //We look for the weather data in the middle of the tour to populate the weather conditions
       weatherData.findMiddleHourly(tourMiddleTime);
-      tour.setWeather(                       weatherData.getWeatherDescription());
+      tour.appendOrReplaceWeather(           weatherData.getWeatherDescription());
       tour.setWeather_Clouds(                weatherData.getWeatherType());
 
       tour.setWeather_Temperature_Average(   weatherData.getTemperatureAverage());
@@ -320,6 +386,16 @@ public class WorldWeatherOnlineRetriever extends HistoricalWeatherRetriever {
 // SET_FORMATTING_ON
 
       return true;
+   }
+
+   @Override
+   public void setTourData(final TourData tourData) {
+
+      super.setTourData(tourData);
+
+      startDate = TimeTools.Formatter_YearMonthDay.format(tour.getTourStartTime());
+      endDate = TimeTools.Formatter_YearMonthDay.format(tour.getTourStartTime()
+            .plusSeconds(tour.getTourDeviceTime_Elapsed()));
    }
 
 }

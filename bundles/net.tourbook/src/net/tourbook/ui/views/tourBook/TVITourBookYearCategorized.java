@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,14 +19,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import net.tourbook.common.UI;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
 import net.tourbook.ui.SQLFilter;
-import net.tourbook.ui.UI;
 
 public class TVITourBookYearCategorized extends TVITourBookItem {
 
-   private TourBookViewLayout _category;
+   private TourBookViewLayout _viewLayout;
 
    public TVITourBookYearCategorized(final TourBookView view,
                                      final TVITourBookItem parentItem,
@@ -34,7 +34,7 @@ public class TVITourBookYearCategorized extends TVITourBookItem {
 
       super(view);
 
-      _category = itemType;
+      _viewLayout = itemType;
 
       setParentItem(parentItem);
    }
@@ -51,7 +51,7 @@ public class TVITourBookYearCategorized extends TVITourBookItem {
       String sumYear = UI.EMPTY_STRING;
       String sumYearSub = UI.EMPTY_STRING;
 
-      if (_category == TourBookViewLayout.CATEGORY_WEEK) {
+      if (_viewLayout == TourBookViewLayout.CATEGORY_WEEK) {
 
          // categorize by week
 
@@ -66,7 +66,7 @@ public class TVITourBookYearCategorized extends TVITourBookItem {
          sumYearSub = "startMonth"; //$NON-NLS-1$
       }
 
-      final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.TAG_FILTER);
+      final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
 
       final TourTagFilterSqlJoinBuilder tagFilterSqlJoinBuilder = new TourTagFilterSqlJoinBuilder();
 
@@ -86,6 +86,10 @@ public class TVITourBookYearCategorized extends TVITourBookItem {
             // get marker id's
             + "LEFT OUTER JOIN " + TourDatabase.TABLE_TOUR_MARKER + " Tmarker" //   //$NON-NLS-1$ //$NON-NLS-2$
             + " ON TourData.tourId = Tmarker.TourData_tourId" + NL //               //$NON-NLS-1$
+
+            // get nutrition product ids
+            + "LEFT OUTER JOIN " + TourDatabase.TABLE_TOUR_NUTRITION_PRODUCT + " TNutritionProduct" //                  //$NON-NLS-1$ //$NON-NLS-2$
+            + " ON TourData.tourId = TNutritionProduct.TourData_tourId" + NL //                              //$NON-NLS-1$
 
             + "WHERE  " + sumYear + "=?" + NL //                                    //$NON-NLS-1$ //$NON-NLS-2$
             + "   AND " + sumYearSub + "=?" + NL //                                 //$NON-NLS-1$ //$NON-NLS-2$
@@ -120,7 +124,33 @@ public class TVITourBookYearCategorized extends TVITourBookItem {
    }
 
    public TourBookViewLayout getCategory() {
-      return _category;
+      return _viewLayout;
    }
 
+   @Override
+   public String toString() {
+
+      boolean isShortInfo = true;
+      isShortInfo = isShortInfo == true;
+
+      if (isShortInfo) {
+
+         return "TVITourBookYearCategorized  tourYearSub = " + tourYearSub; //$NON-NLS-1$
+
+      } else {
+
+         return NL
+
+               + "TVITourBookYearCategorized" + NL //             //$NON-NLS-1$
+
+               + "[" + NL //                                      //$NON-NLS-1$
+
+               + "tourYear    = " + tourYear + NL //              //$NON-NLS-1$
+               + "tourYearSub = " + tourYearSub + NL //           //$NON-NLS-1$
+               + "_viewLayout = " + _viewLayout + NL //           //$NON-NLS-1$
+
+               + "]" + NL //                                      //$NON-NLS-1$
+         ;
+      }
+   }
 }

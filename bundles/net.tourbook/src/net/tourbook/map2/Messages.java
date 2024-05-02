@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -75,7 +75,9 @@ public class Messages extends NLS {
    public static String Map_Action_Export_Map_View_Image;
    public static String Map_Action_Export_Map_View_Image_Tooltip;
    public static String Map_Action_GotoLocation;
+   public static String Map_Action_LookupCommonLocation;
    public static String Map_Action_ManageMapProviders;
+   public static String Map_Action_MapLocations_Tooltip;
    public static String Map_Action_PhotoFilter2_Tooltip;
    public static String Map_Action_POI;
    public static String Map_Action_POI_Tooltip;
@@ -88,6 +90,7 @@ public class Messages extends NLS {
    public static String Map_Action_ShowTourWeatherInMap;
    public static String Map_Action_ShowValuePoint;
    public static String Map_Action_ShowWayPoints;
+   public static String Map_Action_SynchWith_TourLocations;
    public static String Map_Action_SynchWith_ValuePoint;
    public static String Map_Action_SynchWithSlider_Centered;
    public static String Map_Action_SyncPhotoWithMap_Tooltip;
@@ -114,7 +117,8 @@ public class Messages extends NLS {
    public static String map_action_synch_with_tour;
    public static String map_action_tour_color_altitude_tooltip;
    public static String map_action_tour_color_gradient_tooltip;
-   public static String map_action_tour_color_pase_tooltip;
+   public static String map_action_tour_color_pace_tooltip;
+   public static String map_action_tour_color_power_tooltip;
    public static String map_action_tour_color_pulse_tooltip;
    public static String map_action_tour_color_speed_tooltip;
    public static String map_action_zoom_in;

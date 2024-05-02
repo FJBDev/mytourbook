@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,8 @@
  *******************************************************************************/
 package net.tourbook.ui;
 
+import static net.tourbook.common.UI.EMPTY_STRING;
+
 import de.byteholder.geoclipse.preferences.IMappingPreferences;
 
 import java.io.File;
@@ -26,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Formatter;
-import java.util.Set;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
@@ -36,11 +37,11 @@ import net.tourbook.common.color.MapGraphId;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
-import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.photo.IPhotoPreferences;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.PrefPageViewColors;
 import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.SelectionTourIds;
 import net.tourbook.tour.TourEvent;
@@ -53,9 +54,8 @@ import net.tourbook.web.WEB;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -80,187 +80,130 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.menus.UIElement;
 
 public class UI {
 
-   private static final String           ICONS_PATH                    = "/icons/";                    //$NON-NLS-1$
+   private static final String           ICONS_PATH                      = "/icons/";                         //$NON-NLS-1$
 
-   public static final String            EMPTY_STRING                  = "";                           //$NON-NLS-1$
-   public static final String            SPACE                         = " ";                          //$NON-NLS-1$
-   public static final String            SPACE2                        = "  ";                         //$NON-NLS-1$
-   public static final String            SPACE4                        = "    ";                       //$NON-NLS-1$
-   public static final String            COLON_SPACE                   = ": ";                         //$NON-NLS-1$
-   public static final String            COMMA_SPACE                   = ", ";                         //$NON-NLS-1$
-   public static final String            UNDERSCORE                    = "_";                          //$NON-NLS-1$
-   public static final String            DASH                          = "-";                          //$NON-NLS-1$
-   public static final String            DASH_WITH_SPACE               = " - ";                        //$NON-NLS-1$
-   public static final String            DASH_WITH_DOUBLE_SPACE        = "   -   ";                    //$NON-NLS-1$
-   public static final String            SLASH_WITH_SPACE              = " / ";                        //$NON-NLS-1$
-   public static final String            EMPTY_STRING_FORMAT           = "%s";                         //$NON-NLS-1$
-   public static final String            MNEMONIC                      = "&";                          //$NON-NLS-1$
+   public static final String            IS_NOT_INITIALIZED              = "IS NOT INITIALIZED";              //$NON-NLS-1$
+
+   public static final String            GRAPH_ALTIMETER                 = "GRAPH_ALTIMETER";                 //$NON-NLS-1$
+   public static final String            GRAPH_ALTITUDE                  = "GRAPH_ALTITUDE";                  //$NON-NLS-1$
+   public static final String            GRAPH_CADENCE                   = "GRAPH_CADENCE";                   //$NON-NLS-1$
+   public static final String            GRAPH_GRADIENT                  = "GRAPH_GRADIENT";                  //$NON-NLS-1$
+   public static final String            GRAPH_PACE                      = "GRAPH_PACE";                      //$NON-NLS-1$
+   public static final String            GRAPH_POWER                     = "GRAPH_POWER";                     //$NON-NLS-1$
+   public static final String            GRAPH_PULSE                     = "GRAPH_PULSE";                     //$NON-NLS-1$
+   public static final String            GRAPH_SPEED                     = "GRAPH_SPEED";                     //$NON-NLS-1$
+   public static final String            GRAPH_TEMPERATURE               = "GRAPH_TEMPERATURE";               //$NON-NLS-1$
 
    /**
-    * contains a new line
+    * Content category e.g. tag category
     */
-   public static final String            NEW_LINE                      = "\n";                         //$NON-NLS-1$
+   public static final String            VIEW_COLOR_CONTENT_CATEGORY     = "VIEW_COLOR_CONTENT_CATEGORY";     //$NON-NLS-1$
 
    /**
-    * contains 2 new lines
+    * Cntent subcategory e.g. tag
     */
-   public static final String            NEW_LINE2                     = "\n\n";                       //$NON-NLS-1$
+   public static final String            VIEW_COLOR_CONTENT_SUB_CATEGORY = "VIEW_COLOR_CONTENT_SUB_CATEGORY"; //$NON-NLS-1$
 
-   public static final String            IS_NOT_INITIALIZED            = "IS NOT INITIALIZED";         //$NON-NLS-1$
+   /**
+    * Date category e.g. year
+    */
+   public static final String            VIEW_COLOR_DATE_CATEGORY        = "VIEW_COLOR_DATE_CATEGORY";        //$NON-NLS-1$
 
-   public static final String            GRAPH_ALTIMETER               = "GRAPH_ALTIMETER";            //$NON-NLS-1$
-   public static final String            GRAPH_ALTITUDE                = "GRAPH_ALTITUDE";             //$NON-NLS-1$
-   public static final String            GRAPH_CADENCE                 = "GRAPH_CADENCE";              //$NON-NLS-1$
-   public static final String            GRAPH_GRADIENT                = "GRAPH_GRADIENT";             //$NON-NLS-1$
-   public static final String            GRAPH_PACE                    = "GRAPH_PACE";                 //$NON-NLS-1$
-   public static final String            GRAPH_POWER                   = "GRAPH_POWER";                //$NON-NLS-1$
-   public static final String            GRAPH_PULSE                   = "GRAPH_PULSE";                //$NON-NLS-1$
-   public static final String            GRAPH_SPEED                   = "GRAPH_SPEED";                //$NON-NLS-1$
-   public static final String            GRAPH_TEMPERATURE             = "GRAPH_TEMPERATURE";          //$NON-NLS-1$
+   /**
+    * Date subcategory, e.g. month
+    */
+   public static final String            VIEW_COLOR_DATE_SUB_CATEGORY    = "VIEW_COLOR_DATE_SUB_CATEGORY";    //$NON-NLS-1$
 
-   public static final String            VIEW_COLOR_CATEGORY           = "view.color.category";        //$NON-NLS-1$
-   public static final String            VIEW_COLOR_TITLE              = "view.color.title";           //$NON-NLS-1$
-   public static final String            VIEW_COLOR_SUB                = "view.color.sub";             //$NON-NLS-1$
-   public static final String            VIEW_COLOR_SUB_SUB            = "view.color.sub-sub";         //$NON-NLS-1$
-   public static final String            VIEW_COLOR_TOUR               = "view.color.tour";            //$NON-NLS-1$
-   public static final String            VIEW_COLOR_BG_HISTORY_TOUR    = "VIEW_COLOR_BG_HISTORY_TOUR"; //$NON-NLS-1$
+   /**
+    * Color for normal, not categorized tour values
+    */
+   public static final String            VIEW_COLOR_TOUR                 = "VIEW_COLOR_TOUR";                 //$NON-NLS-1$
 
-   public static final String            SYMBOL_AVERAGE                = "\u00f8";                     //$NON-NLS-1$
-   public static final String            SYMBOL_AVERAGE_WITH_SPACE     = "\u00f8 ";                    //$NON-NLS-1$
-   public static final String            SYMBOL_DASH                   = "-";                          //$NON-NLS-1$
-   public static final String            SYMBOL_DOUBLE_HORIZONTAL      = "\u2550";                     //$NON-NLS-1$
-   public static final String            SYMBOL_DOUBLE_VERTICAL        = "\u2551";                     //$NON-NLS-1$
-   public static final String            SYMBOL_DEGREE                 = "\u00B0";                     //$NON-NLS-1$
-   public static final String            SYMBOL_INFINITY               = "\u221E";                     //$NON-NLS-1$
-   public static final String            SYMBOL_SUM_WITH_SPACE         = "\u2211 ";                    //$NON-NLS-1$
-   public static final String            SYMBOL_TAU                    = "\u03c4";                     //$NON-NLS-1$
-
-   public static final String            SYMBOL_BRACKET_LEFT           = "(";                          //$NON-NLS-1$
-   public static final String            SYMBOL_BRACKET_RIGHT          = ")";                          //$NON-NLS-1$
-   public static final String            SYMBOL_COLON                  = ":";                          //$NON-NLS-1$
-   public static final String            SYMBOL_DOT                    = ".";                          //$NON-NLS-1$
-   public static final String            SYMBOL_EQUAL                  = "=";                          //$NON-NLS-1$
-   public static final String            SYMBOL_GREATER_THAN           = ">";                          //$NON-NLS-1$
-   public static final String            SYMBOL_LESS_THAN              = "<";                          //$NON-NLS-1$
-   public static final String            SYMBOL_PERCENTAGE             = "%";                          //$NON-NLS-1$
-   public static final String            SYMBOL_WIND_WITH_SPACE        = "W ";                         //$NON-NLS-1$
-   public static final String            SYMBOL_EXCLAMATION_POINT      = "!";                          //$NON-NLS-1$
+   /**
+    * Color for totals or number of ...
+    */
+   public static final String            VIEW_COLOR_TOTAL                = "VIEW_COLOR_TOTAL";                //$NON-NLS-1$
 
    public static final ImageRegistry     IMAGE_REGISTRY;
 
-   private static final String           PART_NAME_GRAPH_ID            = "graphId-";                   //$NON-NLS-1$
-   private static final String           PART_NAME_DISABLED            = "-disabled";                  //$NON-NLS-1$
+   private static final String           PART_NAME_GRAPH_ID              = "graphId-";                        //$NON-NLS-1$
+   private static final String           PART_NAME_DISABLED              = "-disabled";                       //$NON-NLS-1$
 
-   public static final String            IMAGE_TOUR_TYPE_FILTER        = "tourType-filter";            //$NON-NLS-1$
-   public static final String            IMAGE_TOUR_TYPE_FILTER_SYSTEM = "tourType-filter-system";     //$NON-NLS-1$
+   public static final String            IMAGE_TOUR_TYPE_FILTER          = "tourType-filter";                 //$NON-NLS-1$
+   public static final String            IMAGE_TOUR_TYPE_FILTER_SYSTEM   = "tourType-filter-system";          //$NON-NLS-1$
 
-   private static final IPreferenceStore _prefStore                    = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore                      = TourbookPlugin.getPrefStore();
 
-   private static StringBuilder          _formatterSB                  = new StringBuilder();
-   private static Formatter              _formatter                    = new Formatter(_formatterSB);
+   private static StringBuilder          _formatterSB                    = new StringBuilder();
+   private static Formatter              _formatter                      = new Formatter(_formatterSB);
 
    private static DateFormat             _dateFormatterShort;
    private static DateFormat             _timeFormatterShort;
 
-   public static Styler                  TAG_STYLER;
-   public static Styler                  TAG_CATEGORY_STYLER;
-   public static Styler                  TAG_SUB_STYLER;
+   public static Styler                  CONTENT_SUB_CATEGORY_STYLER;
+   public static Styler                  CONTENT_CATEGORY_STYLER;
+   public static Styler                  DATE_CATEGORY_STYLER;
+   public static Styler                  TOUR_STYLER;
+   public static Styler                  TOTAL_STYLER;
 
-   private static final String           DEFAULT_MONO_FONT             = "Courier";                    //$NON-NLS-1$
+   private static final String           DEFAULT_MONO_FONT               = "Courier";                         //$NON-NLS-1$
+
    private static Font                   _fontForLogging;
 
    static {
 
-      setViewColorsFromPrefStore();
+      setViewColorsFromState();
       setupFonts();
 
       /*
-       * load often used images into the image registry
+       * Load often used images into the image registry
        */
       IMAGE_REGISTRY = TourbookPlugin.getDefault().getImageRegistry();
+
+// SET_FORMATTING_OFF
 
       /*
        * Chart and map graphs.
        */
-      createGraphImageInRegistry(
-            MapGraphId.Altimeter,
-            Images.Graph_Altimeter,
-            Images.Graph_Altimeter_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Altitude,
-            Images.Graph_Elevation,
-            Images.Graph_Elevation_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Cadence,
-            Images.Graph_Cadence,
-            Images.Graph_Cadence_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Gradient,
-            Images.Graph_Gradient,
-            Images.Graph_Gradient_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.HrZone,
-            Images.PulseZones,
-            Images.PulseZones_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Pace,
-            Images.Graph_Pace,
-            Images.Graph_Pace_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Power,
-            Images.Graph_Power,
-            Images.Graph_Power_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Pulse,
-            Images.Graph_Heartbeat,
-            Images.Graph_Heartbeat_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Speed,
-            Images.Graph_Speed,
-            Images.Graph_Speed_Disabled);
-
-      createGraphImageInRegistry(
-            MapGraphId.Temperature,
-            Images.Graph_Temperature,
-            Images.Graph_Temperature_Disabled);
+      createGraphImageInRegistry(MapGraphId.Altimeter,   Images.Graph_Altimeter,    Images.Graph_Altimeter_Disabled);
+      createGraphImageInRegistry(MapGraphId.Altitude,    Images.Graph_Elevation,    Images.Graph_Elevation_Disabled);
+      createGraphImageInRegistry(MapGraphId.Cadence,     Images.Graph_Cadence,      Images.Graph_Cadence_Disabled);
+      createGraphImageInRegistry(MapGraphId.Gradient,    Images.Graph_Gradient,     Images.Graph_Gradient_Disabled);
+      createGraphImageInRegistry(MapGraphId.HrZone,      Images.PulseZones,         Images.PulseZones_Disabled);
+      createGraphImageInRegistry(MapGraphId.Pace,        Images.Graph_Pace,         Images.Graph_Pace_Disabled);
+      createGraphImageInRegistry(MapGraphId.Power,       Images.Graph_Power,        Images.Graph_Power_Disabled);
+      createGraphImageInRegistry(MapGraphId.Pulse,       Images.Graph_Heartbeat,    Images.Graph_Heartbeat_Disabled);
+      createGraphImageInRegistry(MapGraphId.Speed,       Images.Graph_Speed,        Images.Graph_Speed_Disabled);
+      createGraphImageInRegistry(MapGraphId.Temperature, Images.Graph_Temperature,  Images.Graph_Temperature_Disabled);
 
       // tour type images
-      IMAGE_REGISTRY.put(IMAGE_TOUR_TYPE_FILTER, TourbookPlugin.getThemedImageDescriptor(Images.TourType_Filter));
-      IMAGE_REGISTRY.put(IMAGE_TOUR_TYPE_FILTER_SYSTEM, TourbookPlugin.getThemedImageDescriptor(Images.TourType_Filter_System));
+      IMAGE_REGISTRY.put(IMAGE_TOUR_TYPE_FILTER,               TourbookPlugin.getThemedImageDescriptor(Images.TourType_Filter));
+      IMAGE_REGISTRY.put(IMAGE_TOUR_TYPE_FILTER_SYSTEM,        TourbookPlugin.getThemedImageDescriptor(Images.TourType_Filter_System));
 
       // photo
       IMAGE_REGISTRY.put(TourPhotoLinkView.IMAGE_PIC_DIR_VIEW, TourbookPlugin.getImageDescriptor(Images.PhotoDirectoryView));
-      IMAGE_REGISTRY.put(TourPhotoLinkView.IMAGE_PHOTO_PHOTO, TourbookPlugin.getImageDescriptor(Images.PhotoPhotos));
+      IMAGE_REGISTRY.put(TourPhotoLinkView.IMAGE_PHOTO_PHOTO,  TourbookPlugin.getImageDescriptor(Images.PhotoPhotos));
 
       /*
-       * set tag styler
+       * Set stylers for the view colors, the color is retrieved every time from the color registry
        */
-      TAG_CATEGORY_STYLER = StyledString.createColorRegistryStyler(VIEW_COLOR_CATEGORY, null);
-      TAG_STYLER = StyledString.createColorRegistryStyler(VIEW_COLOR_TITLE, null);
-      TAG_SUB_STYLER = StyledString.createColorRegistryStyler(VIEW_COLOR_SUB, null);
-   }
+      CONTENT_CATEGORY_STYLER       = StyledString.createColorRegistryStyler(VIEW_COLOR_CONTENT_CATEGORY,      null);
+      CONTENT_SUB_CATEGORY_STYLER   = StyledString.createColorRegistryStyler(VIEW_COLOR_CONTENT_SUB_CATEGORY,  null);
+      DATE_CATEGORY_STYLER          = StyledString.createColorRegistryStyler(VIEW_COLOR_DATE_CATEGORY,         null);
+      TOUR_STYLER                   = StyledString.createColorRegistryStyler(VIEW_COLOR_TOUR,                  null);
+      TOTAL_STYLER                  = StyledString.createColorRegistryStyler(VIEW_COLOR_TOTAL,                 null);
 
-   // pref store var cannot be set from a static field because it can be null !!!
-// private final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+// SET_FORMATTING_ON
+   }
 
    private UI() {}
 
@@ -301,6 +244,7 @@ public class UI {
 
    /**
     * @param file
+    *
     * @return Returns <code>true</code> when the file should be overwritten, otherwise
     *         <code>false</code>
     */
@@ -308,7 +252,7 @@ public class UI {
 
       final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
-      final MessageDialog dialog = new MessageDialog(//
+      final MessageDialog dialog = new MessageDialog(
             shell,
             Messages.app_dlg_confirmFileOverwrite_title,
             null,
@@ -340,7 +284,7 @@ public class UI {
          Display.getDefault().syncExec(() -> {
 
             final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-            final MessageDialog dialog = new MessageDialog(//
+            final MessageDialog dialog = new MessageDialog(
                   shell,
                   Messages.app_dlg_confirmFileOverwrite_title,
                   null,
@@ -396,6 +340,7 @@ public class UI {
     *
     * @param propertyData
     * @param checkedTourId
+    *
     * @return Returns the tour id when it is contained in the property data, otherwise it returns
     *         <code>null</code>
     */
@@ -441,6 +386,7 @@ public class UI {
     * Get text for the OK button.
     *
     * @param tourData
+    *
     * @return
     */
    public static String convertOKtoSaveUpdateButton(final TourData tourData) {
@@ -479,49 +425,6 @@ public class UI {
    }
 
    /**
-    * Creates a page with a static text.
-    *
-    * @param formToolkit
-    * @param parent
-    * @param labelText
-    * @return
-    */
-   public static Composite createPage(final Composite parent, final String labelText) {
-
-      final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.swtDefaults().numColumns(1).applyTo(container);
-      {
-         final Label label = new Label(container, SWT.WRAP);
-         label.setText(labelText);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
-      }
-
-      return container;
-   }
-
-   /**
-    * Creates a page with a static text by using a {@link FormToolkit}
-    *
-    * @param formToolkit
-    * @param parent
-    * @param labelText
-    * @return
-    */
-   public static Composite createPage(final FormToolkit formToolkit, final Composite parent, final String labelText) {
-
-      final Composite container = formToolkit.createComposite(parent);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.swtDefaults().numColumns(1).applyTo(container);
-      {
-         final Label label = formToolkit.createLabel(container, labelText, SWT.WRAP);
-         GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
-      }
-
-      return container;
-   }
-
-   /**
     * Disables all controls and their children
     */
    public static void disableAllControls(final Composite container) {
@@ -550,26 +453,28 @@ public class UI {
    public static String format_yyyymmdd_hhmmss(final TourData tourData) {
 
       if (tourData == null) {
-         return UI.EMPTY_STRING;
+         return EMPTY_STRING;
       }
 
       _formatterSB.setLength(0);
 
       final ZonedDateTime dt = tourData.getTourStartTime();
 
-      return _formatter
-            .format(//
-                  Messages.Format_yyyymmdd_hhmmss,
-                  dt.getYear(),
-                  dt.getMonthValue(),
-                  dt.getDayOfMonth(),
-                  dt.getHour(),
-                  dt.getMinute(),
-                  dt.getSecond())//
+      return _formatter.format(
+
+            Messages.Format_yyyymmdd_hhmmss,
+            dt.getYear(),
+            dt.getMonthValue(),
+            dt.getDayOfMonth(),
+            dt.getHour(),
+            dt.getMinute(),
+            dt.getSecond())
+
             .toString();
    }
 
    public static ColumnPixelData getColumnPixelWidth(final PixelConverter pixelConverter, final int width) {
+
       return new ColumnPixelData(pixelConverter.convertWidthInCharsToPixels(width), false);
    }
 
@@ -608,7 +513,7 @@ public class UI {
 
             // some short formats have only one M and d (e.g. ths US)
             if (oldPattern.indexOf("MM") == -1 && oldPattern.indexOf("dd") == -1) {//$NON-NLS-1$ //$NON-NLS-2$
-               String newPattern = UI.EMPTY_STRING;
+               String newPattern = EMPTY_STRING;
                for (int i = 0; i < oldPattern.length(); i++) {
                   if (oldPattern.charAt(i) == 'M') {
                      newPattern += "MM"; //$NON-NLS-1$
@@ -629,7 +534,7 @@ public class UI {
             // 4 digit year
             if (sdf.toPattern().indexOf("yyyy") == -1) { //$NON-NLS-1$
                oldPattern = sdf.toPattern();
-               String newPattern = UI.EMPTY_STRING;
+               String newPattern = EMPTY_STRING;
                for (int i = 0; i < oldPattern.length(); i++) {
                   if (oldPattern.charAt(i) == 'y') {
                      newPattern += "yy"; //$NON-NLS-1$
@@ -683,7 +588,7 @@ public class UI {
             // some short formats have only one h (e.g. ths US)
             if (oldPattern.indexOf("hh") == -1) {//$NON-NLS-1$
 
-               String newPattern = UI.EMPTY_STRING;
+               String newPattern = EMPTY_STRING;
 
                for (int i = 0; i < oldPattern.length(); i++) {
                   if (oldPattern.charAt(i) == 'h') {
@@ -705,6 +610,7 @@ public class UI {
 
    /**
     * @param graphId
+    *
     * @return Returns a graph image, this image <b>MUST</b> not be disposed.
     */
    public static Image getGraphImage(final MapGraphId graphId) {
@@ -714,6 +620,7 @@ public class UI {
 
    /**
     * @param graphId
+    *
     * @return Returns a graph image, this image <b>MUST</b> not be disposed.
     */
    public static Image getGraphImage_Disabled(final MapGraphId graphId) {
@@ -775,7 +682,9 @@ public class UI {
 
    /**
     * @param imageName
+    *
     * @return Returns the url for an icon image in the {@link TourbookPlugin} bundle.
+    *
     * @throws IOException
     */
    public static String getIconUrl(final String imageName) {
@@ -802,6 +711,7 @@ public class UI {
 
    /**
     * @param tourTypeId
+    *
     * @return Returns the {@link TourType} or <code>null</code>.
     */
    public static TourType getTourType(final long tourTypeId) {
@@ -817,17 +727,27 @@ public class UI {
 
    /**
     * @param tourTypeId
+    *
     * @return Returns the name of a {@link TourType}.
     */
    public static String getTourTypeLabel(final long tourTypeId) {
 
       for (final TourType tourType : TourDatabase.getAllTourTypes()) {
+
          if (tourType.getTypeId() == tourTypeId) {
-            return tourType.getName();
+
+            String tourTypeText = tourType.getName();
+
+            if (net.tourbook.common.UI.IS_SCRAMBLE_DATA) {
+
+               tourTypeText = net.tourbook.common.UI.scrambleText(tourTypeText);
+            }
+
+            return tourTypeText;
          }
       }
 
-      return UI.EMPTY_STRING;
+      return EMPTY_STRING;
    }
 
    public static ImageData rotate(final ImageData srcData, final int direction) {
@@ -852,12 +772,14 @@ public class UI {
                width = srcData.height;
                height = srcData.width;
                break;
+
             case SWT.RIGHT: // right 90 degrees
                destX = srcData.height - srcY - 1;
                destY = srcX;
                width = srcData.height;
                height = srcData.width;
                break;
+
             case SWT.DOWN: // 180 degrees
                destX = srcData.width - srcX - 1;
                destY = srcData.height - srcY - 1;
@@ -1030,35 +952,98 @@ public class UI {
    /**
     * Set tag colors in the JFace color registry from the pref store
     */
-   public static void setViewColorsFromPrefStore() {
-
-      // pref store var cannot be set from a static field because it can be null !!!
+   public static void setViewColorsFromState() {
 
       final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
+      final IDialogSettings state = TourbookPlugin.getState(PrefPageViewColors.ID);
 
-      colorRegistry.put(VIEW_COLOR_CATEGORY,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_CATEGORY));
-      colorRegistry.put(VIEW_COLOR_TITLE,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_TITLE));
+      final boolean isBrightTheme = net.tourbook.common.UI.IS_BRIGHT_THEME;
 
-      // year
-      colorRegistry.put(VIEW_COLOR_SUB,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB));
-      // month
-      colorRegistry.put(VIEW_COLOR_SUB_SUB,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_SUB_SUB));
+      // content category e.g. tag category
+      colorRegistry.put(VIEW_COLOR_CONTENT_CATEGORY,
 
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_CATEGORY_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_CATEGORY_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_CATEGORY_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_CATEGORY_DEFAULT_DARK));
+
+      // content subcategory e.g. tag
+      colorRegistry.put(VIEW_COLOR_CONTENT_SUB_CATEGORY,
+
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_SUB_CATEGORY_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_SUB_CATEGORY_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_SUB_CATEGORY_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_CONTENT_SUB_CATEGORY_DEFAULT_DARK));
+
+      // date category e.g. year
+      colorRegistry.put(VIEW_COLOR_DATE_CATEGORY,
+
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_CATEGORY_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_CATEGORY_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_CATEGORY_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_CATEGORY_DEFAULT_DARK));
+
+      // date subcategory, e.g. month
+      colorRegistry.put(VIEW_COLOR_DATE_SUB_CATEGORY,
+
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_SUB_CATEGORY_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_SUB_CATEGORY_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_SUB_CATEGORY_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_DATE_SUB_CATEGORY_DEFAULT_DARK));
+
+      // tour
       colorRegistry.put(VIEW_COLOR_TOUR,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_TOUR));
 
-      colorRegistry.put(VIEW_COLOR_BG_HISTORY_TOUR,
-            PreferenceConverter.getColor(_prefStore, ITourbookPreferences.VIEW_LAYOUT_COLOR_BG_HISTORY_TOUR));
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOUR_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOUR_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOUR_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOUR_DEFAULT_DARK));
+
+      // total
+      colorRegistry.put(VIEW_COLOR_TOTAL,
+
+            isBrightTheme
+
+                  ? Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOTAL_BRIGHT,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOTAL_DEFAULT_BRIGHT)
+
+                  : Util.getStateRGB(state,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOTAL_DARK,
+                        PrefPageViewColors.STATE_VIEW_COLOR_TOTAL_DEFAULT_DARK));
    }
 
    public static GridData setWidth(final Control control, final int width) {
+
       final GridData gd = new GridData();
       gd.widthHint = width;
       control.setLayoutData(gd);
+
       return gd;
    }
 
@@ -1069,25 +1054,11 @@ public class UI {
 
    public static void showSQLException(final SQLException ex) {
 
-      Display.getDefault().asyncExec(() -> {
-
-         SQLException e = ex;
-
-         while (e != null) {
-
-            final String sqlExceptionText = Util.getSQLExceptionText(e);
-
-            // log also the stacktrace
-            StatusUtil.logError(sqlExceptionText + Util.getStackTrace(e));
-
-            MessageDialog.openError(
-                  Display.getDefault().getActiveShell(),
-                  "SQL Error", //$NON-NLS-1$
-                  sqlExceptionText);
-
-            e = e.getNextException();
-         }
-      });
+      /**
+       * Redirect to common code, once upon when all old showSQLException are using this from the
+       * common code, this method should be deleted
+       */
+      net.tourbook.common.UI.showSQLException(ex);
    }
 
    /**
@@ -1105,46 +1076,17 @@ public class UI {
 
       chart.updateProperties(
 
-            Util.getPrefixPrefInt(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE),
-            Util.getPrefixPrefInt(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE),
+            Util.getPrefixPref_Int(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE),
+            Util.getPrefixPref_Int(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE),
 
-            Util.getPrefixPrefBoolean(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES),
-            Util.getPrefixPrefBoolean(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES),
+            Util.getPrefixPref_Boolean(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES),
+            Util.getPrefixPref_Boolean(_prefStore, gridPrefix, ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES),
 
             _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SEGMENT_ALTERNATE_COLOR),
             PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR),
             PreferenceConverter.getColor(_prefStore, ITourbookPreferences.GRAPH_SEGMENT_ALTERNATE_COLOR_DARK)
 
       );
-   }
-
-   public static void updateUI_Tags(final TourData tourData, final Label tourTagLabel) {
-
-      updateUI_Tags(tourData, tourTagLabel, false);
-   }
-
-   /**
-    * @param tourData
-    * @param tourTagLabel
-    * @param isVertical
-    *           When <code>true</code> the tags are displayed as a list, otherwise horizontally
-    */
-   public static void updateUI_Tags(final TourData tourData, final Label tourTagLabel, final boolean isVertical) {
-
-      // tour tags
-      final Set<TourTag> tourTags = tourData.getTourTags();
-
-      if (tourTags == null || tourTags.isEmpty()) {
-
-         tourTagLabel.setText(UI.EMPTY_STRING);
-
-      } else {
-
-         final String tagLabels = TourDatabase.getTagNames(tourTags, isVertical);
-
-         tourTagLabel.setText(tagLabels);
-         tourTagLabel.setToolTipText(tagLabels);
-      }
    }
 
    /**
@@ -1162,11 +1104,11 @@ public class UI {
 
       // tour type
       if (tourType == null) {
-         lblTourType.setText(UI.EMPTY_STRING);
+         lblTourType.setText(EMPTY_STRING);
          lblTourType.setImage(TourTypeImage.getTourTypeImage(TourDatabase.ENTITY_IS_NOT_SAVED));
       } else {
          lblTourType.setImage(TourTypeImage.getTourTypeImage(tourType.getTypeId()));
-         lblTourType.setText(isTextDisplayed ? tourType.getName() : UI.EMPTY_STRING);
+         lblTourType.setText(isTextDisplayed ? tourType.getName() : EMPTY_STRING);
       }
 
       lblTourType.pack(true);

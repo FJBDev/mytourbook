@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.CommonImages;
 import net.tourbook.common.UI;
-import net.tourbook.common.util.Util;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.ContributionItem;
@@ -83,7 +82,7 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
    public ActionToolbarSlideout() {
 
       _actionImage_Enabled = CommonActivator.getThemedImageDescriptor(CommonImages.TourOptions).createImage();
-      _actionImage_Disabled = CommonActivator.getImageDescriptor(CommonImages.TourOptions_Disabled).createImage();
+      _actionImage_Disabled = CommonActivator.getThemedImageDescriptor(CommonImages.TourOptions_Disabled).createImage();
    }
 
    public ActionToolbarSlideout(final Image graphImage, final Image graphImage_Disabled) {
@@ -102,6 +101,7 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
       if (actionImageDisabled == null) {
 
          if (_actionImage_Disabled != null) {
+
             _actionImage_Disabled.dispose();
             _actionImage_Disabled = null;
          }
@@ -128,12 +128,12 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
 
       if (_canDisposeActionImages) {
 
-         Util.disposeResource(_actionImage_Enabled);
-         Util.disposeResource(_actionImage_Disabled);
+         UI.disposeResource(_actionImage_Enabled);
+         UI.disposeResource(_actionImage_Disabled);
       }
 
       for (final Image image : _allOtherEnabledImages) {
-         Util.disposeResource(image);
+         UI.disposeResource(image);
       }
 
       _allOtherEnabledImages.clear();
@@ -206,7 +206,7 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
    }
 
    /**
-    * Is called before the slideout is opened, this allows to close other dialogs
+    * Is called before the slideout is opened, this allows to close other slideouts/dialogs
     */
    protected void onBeforeOpenSlideout() {
 
@@ -275,9 +275,16 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
 
       updateUI_Tooltip();
 
-      if (_toolbarSlideout.isToolTipVisible() == false) {
+      // toggle slideout visibility
+      if (_toolbarSlideout.isToolTipVisible()) {
 
-         // tooltip is hidden, open it
+         // tooltip is visible -> hide
+
+         _toolbarSlideout.close();
+
+      } else {
+
+         // tooltip is hidden -> open it
 
          final Rectangle itemBounds = _actionToolItem.getBounds();
 
@@ -287,10 +294,6 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
          itemBounds.y = itemDisplayPosition.y;
 
          openSlideout(itemBounds, false);
-
-      } else {
-
-         _toolbarSlideout.close();
       }
    }
 
@@ -331,7 +334,13 @@ public abstract class ActionToolbarSlideout extends ContributionItem implements 
       updateUI_Tooltip();
    }
 
+   public void setTooltip(final String object) {
+
+      _actionToolItem.setToolTipText(object);
+   }
+
    public void showDefaultEnabledImage() {
+
       _actionToolItem.setImage(_actionImage_Enabled);
    }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -105,32 +106,22 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String GRAPH_LABEL_HEARTBEAT_UNIT = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
-
-   public static final String  ID                         = "net.tourbook.preferences.PrefPagePeopleId";            //$NON-NLS-1$
-
+   public static final String     ID                        = "net.tourbook.preferences.PrefPagePeopleId"; //$NON-NLS-1$
    //
-   private static final String    STATE_SELECTED_PERSON               = "selectedPersonId";           //$NON-NLS-1$
-   private static final String    STATE_SELECTED_TAB_FOLDER           = "selectedTabFolder";          //$NON-NLS-1$
+   private static final String    STATE_SELECTED_PERSON     = "selectedPersonId";                          //$NON-NLS-1$
+   private static final String    STATE_SELECTED_TAB_FOLDER = "selectedTabFolder";                         //$NON-NLS-1$
 
-   public static final int        HEART_BEAT_MIN                      = 10;
-   public static final int        HEART_BEAT_MAX                      = 300;
+   private static final int       HEART_BEAT_MIN            = 10;
+   public static final int        HEART_BEAT_MAX            = 300;
 
    /**
     * Id to indicate that the hr zones should be displayed for the active person when the pref
     * dialog is opened
     */
-   public static final String     PREF_DATA_SELECT_HR_ZONES           = "SelectHrZones";              //$NON-NLS-1$
+   public static final String     PREF_DATA_SELECT_HR_ZONES = "SelectHrZones";                             //$NON-NLS-1$
 
-   /**
-    * Id to indicate that the person's information should be displayed for the active person when
-    * the pref
-    * dialog is opened
-    */
-   public static final String     PREF_DATA_SELECT_PERSON_INFORMATION = "SelectPersonInformation";    //$NON-NLS-1$
-
-   private final IPreferenceStore _prefStore                          = TourbookPlugin.getPrefStore();
-   private final IDialogSettings  _state                              = TourbookPlugin.getState(ID);
+   private final IPreferenceStore _prefStore                = TourbookPlugin.getPrefStore();
+   private final IDialogSettings  _state                    = TourbookPlugin.getState(ID);
 
    // REMOVED BIKES 30.4.2011
 
@@ -192,12 +183,13 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    private Text                 _txtBodyMassIndex;
    private Combo                _cboSportComputer;
    private Spinner              _spinnerWeight;
-   private Spinner              _spinnerHeight;
-   private Spinner              _spinnerHeightInches;         // If needed for imperial units
+   private Spinner              _spinnerHeight_MeterOrFeet;
+   private Spinner              _spinnerHeight_Inches;        // If needed for imperial units
    private Spinner              _spinnerRestingHR;
    private Spinner              _spinnerMaxHR;
    private Button               _rdoGenderMale;
    private Button               _rdoGenderFemale;
+   private Button               _rdoGenderDiverse;
 
    private ScrolledComposite    _hrZoneScrolledContainer;
    private Button               _btnModifyHrZones;
@@ -341,6 +333,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
    /**
     * @param isCheckPeople
+    *
     * @return Returns <code>true</code> when all tours has been updated and the update process was
     *         not canceled.
     */
@@ -652,19 +645,19 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    private Control createUI_50_Tab_Person(final Composite parent) {
 
       final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()
-//				.grab(true, false)
-            .applyTo(container);
-      GridLayoutFactory.swtDefaults().numColumns(3).extendedMargins(0, 0, 7, 0).applyTo(container);
+      GridDataFactory.fillDefaults().applyTo(container);
+      GridLayoutFactory.swtDefaults().numColumns(5).extendedMargins(0, 0, 7, 0).applyTo(container);
+//      container.setBackground(UI.SYS_COLOR_GREEN);
       {
-         createUI_51_Field_FirstName(container);
-         createUI_52_Field_LastName(container);
+         createUI_52_Field_FirstName(container);
+         createUI_53_Field_LastName(container);
 
-         createUI_53_Field_Birthday(container);
-         createUI_54_Field_Gender(container);
-         createUI_55_Field_Weight(container);
-         createUI_56_Field_Height(container);
-         createUI_57_Field_BodyMassIndex(container);
+         createUI_55_Field_Birthday(container);
+         createUI_56_Field_Weight(container);
+         createUI_57_Field_Height(container);
+         createUI_58_Field_BodyMassIndex(container);
+
+         createUI_59_Field_Gender(container);
       }
       container.layout(true, true);
 
@@ -672,9 +665,9 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    }
 
    /**
-    * field: first name
+    * Field: First name
     */
-   private void createUI_51_Field_FirstName(final Composite parent) {
+   private void createUI_52_Field_FirstName(final Composite parent) {
 
       final Label label = new Label(parent, SWT.NONE);
       label.setText(Messages.Pref_People_Label_first_name);
@@ -683,14 +676,14 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       _txtFirstName.addModifyListener(_defaultModifyListener);
       GridDataFactory.fillDefaults()
             .grab(true, false)
-            .span(2, 1)
+            .span(4, 1)
             .applyTo(_txtFirstName);
    }
 
    /**
-    * field: last name
+    * Field: Last name
     */
-   private void createUI_52_Field_LastName(final Composite parent) {
+   private void createUI_53_Field_LastName(final Composite parent) {
 
       final Label label = new Label(parent, SWT.NONE);
       label.setText(Messages.Pref_People_Label_last_name);
@@ -699,29 +692,28 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       _txtLastName.addModifyListener(_defaultModifyListener);
       GridDataFactory.fillDefaults()
             .grab(true, false)
-            .span(2, 1)
+            .span(4, 1)
             .applyTo(_txtLastName);
    }
 
    /**
-    * field: birthday
+    * Field: Birthday
     */
-   private void createUI_53_Field_Birthday(final Composite parent) {
+   private void createUI_55_Field_Birthday(final Composite parent) {
 
-      /*
-       * date-time: birthday
-       */
-      final Label label = new Label(parent, SWT.NONE);
-      label.setText(Messages.Pref_People_Label_Birthday);
-
-      final Composite container = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()
-            .span(2, 1)
-            .applyTo(container);
-      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
       {
+         /*
+          * Label
+          */
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_People_Label_Birthday);
+      }
+      {
+         /*
+          * Date
+          */
+         _dtBirthday = new DateTime(parent, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
 
-         _dtBirthday = new DateTime(container, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN | SWT.BORDER);
          _dtBirthday.addSelectionListener(widgetSelectedAdapter(selectionEvent -> {
 
             if (UI.isLinuxAsyncEvent(selectionEvent.widget)) {
@@ -730,6 +722,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
 
             updateUIOnModifiedHrZones();
          }));
+
          _dtBirthday.addKeyListener(new KeyListener() {
 
             @Override
@@ -745,59 +738,35 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
             }
          });
          GridDataFactory.fillDefaults()
-               .align(SWT.BEGINNING, SWT.FILL)
+               .align(SWT.FILL, SWT.FILL)
+               .span(3, 1)
                .applyTo(_dtBirthday);
-
+      }
+      {
          /*
-          * label: age
+          * Label: Age
           */
-         _lblAgePerson = new Label(container, SWT.NONE);
+         _lblAgePerson = new Label(parent, SWT.NONE);
          GridDataFactory.fillDefaults()
                .align(SWT.FILL, SWT.CENTER)
                .applyTo(_lblAgePerson);
       }
-   }
 
-   /**
-    * field: gender
-    */
-   private void createUI_54_Field_Gender(final Composite parent) {
-
-      // label
-      final Label label = new Label(parent, SWT.NONE);
-      label.setText(Messages.Pref_People_Label_Gender);
-
-      // radio
-      final Composite containerGender = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()
-            .span(2, 1)
-            .applyTo(containerGender);
-      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerGender);
-      {
-         _rdoGenderMale = new Button(containerGender, SWT.RADIO);
-         _rdoGenderMale.setText(Messages.Pref_People_Label_GenderMale);
-         _rdoGenderMale.addSelectionListener(_defaultSelectionListener);
-
-         _rdoGenderFemale = new Button(containerGender, SWT.RADIO);
-         _rdoGenderFemale.setText(Messages.Pref_People_Label_GenderFemale);
-         _rdoGenderFemale.addSelectionListener(_defaultSelectionListener);
-      }
+//      UI.createSpacer_Horizontal(parent, 1);
    }
 
    /**
     * field: weight
     */
-   private void createUI_55_Field_Weight(final Composite parent) {
+   private void createUI_56_Field_Weight(final Composite parent) {
 
-      Label label = new Label(parent, SWT.NONE);
-      label.setText(Messages.Pref_People_Label_weight);
-
-      final Composite containerWeight = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().applyTo(containerWeight);
-      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(containerWeight);
+      {
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_People_Label_weight);
+      }
       {
          // spinner: weight
-         _spinnerWeight = new Spinner(containerWeight, SWT.BORDER);
+         _spinnerWeight = new Spinner(parent, SWT.BORDER);
          _spinnerWeight.setDigits(1);
          _spinnerWeight.setMinimum(0);
          _spinnerWeight.setMaximum(6614); // 300.0 kg, 661.4 lbs
@@ -805,104 +774,139 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          _spinnerWeight.addMouseWheelListener(_defaultMouseWheelListener);
          GridDataFactory.fillDefaults()
                .align(SWT.BEGINNING, SWT.FILL)
-//					.hint(_spinnerWidth, SWT.DEFAULT)
                .applyTo(_spinnerWeight);
-
+      }
+      {
          // label: unit
-         label = new Label(containerWeight, SWT.NONE);
+         final Label label = new Label(parent, SWT.NONE);
          label.setText(UI.UNIT_LABEL_WEIGHT);
       }
 
-      // 3rd column filler
-      new Label(parent, SWT.NONE);
+      UI.createSpacer_Horizontal(parent, 2);
    }
 
    /**
     * field: height
     */
-   private void createUI_56_Field_Height(final Composite parent) {
+   private void createUI_57_Field_Height(final Composite parent) {
 
-      Label label = new Label(parent, SWT.NONE);
-      label.setText(Messages.Pref_People_Label_height);
-
-      final Composite containerHeight = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().applyTo(containerHeight);
-      GridLayoutFactory.fillDefaults().numColumns(4).applyTo(containerHeight);
       {
-         // spinner: height
-         _spinnerHeight = new Spinner(containerHeight, SWT.BORDER);
-         _spinnerHeight.addSelectionListener(_defaultSelectionListener);
-         _spinnerHeight.addMouseWheelListener(_defaultMouseWheelListener);
-         GridDataFactory.fillDefaults()
-               .align(SWT.BEGINNING, SWT.FILL)
-               .applyTo(_spinnerHeight);
+         // Label: Height
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_People_Label_height);
+      }
 
-         // label: unit
-         label = new Label(containerHeight, SWT.NONE);
-
-         _spinnerHeightInches = new Spinner(containerHeight, SWT.BORDER);
+      {
+         // Spinner: Height
+         _spinnerHeight_MeterOrFeet = new Spinner(parent, SWT.BORDER);
+         _spinnerHeight_MeterOrFeet.addSelectionListener(_defaultSelectionListener);
+         _spinnerHeight_MeterOrFeet.addMouseWheelListener(_defaultMouseWheelListener);
+         GridDataFactory.fillDefaults().applyTo(_spinnerHeight_MeterOrFeet);
+      }
+      {
+         // Unit
 
          if (UI.UNIT_IS_ELEVATION_METER) {
 
-            // Metric units
+            /*
+             * Metric unit
+             */
 
-            _spinnerHeight.setDigits(2);
-            _spinnerHeight.setMinimum(0);
-            _spinnerHeight.setMaximum(300); // 3.00 m
+            _spinnerHeight_MeterOrFeet.setDigits(2);
+            _spinnerHeight_MeterOrFeet.setMinimum(0);
+            _spinnerHeight_MeterOrFeet.setMaximum(300); // 3.00 m
 
-            _spinnerHeightInches.setVisible(false);
-
+            final Label label = new Label(parent, SWT.NONE);
             label.setText(UI.UNIT_METER);
+
+            // create dummy spinner
+            _spinnerHeight_Inches = new Spinner(parent, SWT.BORDER);
+            _spinnerHeight_Inches.setVisible(false);
+
+            UI.createSpacer_Horizontal(parent, 1);
 
          } else {
 
-            // Imperial units
+            /*
+             * Imperial units
+             */
 
-            _spinnerHeight.setDigits(0);
-            _spinnerHeight.setMinimum(0);
-            _spinnerHeight.setMaximum(10);
+            // Spinner: Feet
+            _spinnerHeight_MeterOrFeet.setDigits(0);
+            _spinnerHeight_MeterOrFeet.setMinimum(0);
+            _spinnerHeight_MeterOrFeet.setMaximum(10);
 
+            // Unit: Feet
+            Label label = new Label(parent, SWT.NONE);
             label.setText(UI.UNIT_HEIGHT_FT);
 
-            _spinnerHeightInches.addSelectionListener(_defaultSelectionListener);
-            _spinnerHeightInches.addMouseWheelListener(_defaultMouseWheelListener);
+            // Spinner: Inches
+            _spinnerHeight_Inches = new Spinner(parent, SWT.BORDER);
+            _spinnerHeight_Inches.setDigits(0);
+            _spinnerHeight_Inches.setMinimum(0);
+            _spinnerHeight_Inches.setMaximum(11);
+            _spinnerHeight_Inches.setVisible(true);
+            _spinnerHeight_Inches.addSelectionListener(_defaultSelectionListener);
+            _spinnerHeight_Inches.addMouseWheelListener(_defaultMouseWheelListener);
+            GridDataFactory.fillDefaults().applyTo(_spinnerHeight_Inches);
 
-            _spinnerHeightInches.setDigits(0);
-            _spinnerHeightInches.setMinimum(0);
-            _spinnerHeightInches.setMaximum(11);
-            _spinnerHeightInches.setVisible(true);
-
-            label = new Label(containerHeight, SWT.NONE);
+            // Label: Inch
+            label = new Label(parent, SWT.NONE);
             label.setText(UI.UNIT_HEIGHT_IN);
          }
       }
-
-      // filler
-      new Label(parent, SWT.NONE);
    }
 
    /**
     * field: BMI (Body Mass Index)
     */
-   private void createUI_57_Field_BodyMassIndex(final Composite parent) {
+   private void createUI_58_Field_BodyMassIndex(final Composite parent) {
 
-      final Label label = UI.createLabel(parent, Messages.Pref_People_Label_BodyMassIndex);
-      label.setToolTipText(Messages.Pref_People_Label_BodyMassIndex_Tooltip);
-
-      final Composite containerHeight = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().applyTo(containerHeight);
-      GridLayoutFactory.fillDefaults().applyTo(containerHeight);
+      {
+         final Label label = UI.createLabel(parent, Messages.Pref_People_Label_BodyMassIndex);
+         label.setToolTipText(Messages.Pref_People_Label_BodyMassIndex_Tooltip);
+      }
       {
          // text: BMI value
-         _txtBodyMassIndex = new Text(containerHeight, SWT.BORDER | SWT.READ_ONLY);
+         _txtBodyMassIndex = new Text(parent, /* SWT.BORDER | */ SWT.READ_ONLY);
          _txtBodyMassIndex.setToolTipText(Messages.Pref_People_Label_BodyMassIndex_Tooltip);
-         GridDataFactory.fillDefaults()
-               .align(SWT.BEGINNING, SWT.FILL)
-               .applyTo(_txtBodyMassIndex);
+         GridDataFactory.fillDefaults().applyTo(_txtBodyMassIndex);
       }
 
-      // filler
-      new Label(parent, SWT.NONE);
+      UI.createSpacer_Horizontal(parent, 3);
+   }
+
+   /**
+    * Field: Gender
+    */
+   private void createUI_59_Field_Gender(final Composite parent) {
+
+      {
+         // label
+         final Label label = new Label(parent, SWT.NONE);
+         label.setText(Messages.Pref_People_Label_Gender);
+      }
+      {
+         // male/female
+         final Composite containerGender = new Composite(parent, SWT.NONE);
+         GridDataFactory.fillDefaults()
+               .span(4, 1)
+               .applyTo(containerGender);
+         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(containerGender);
+         {
+            _rdoGenderMale = new Button(containerGender, SWT.RADIO);
+            _rdoGenderMale.setText(Messages.Pref_People_Label_GenderMale);
+            _rdoGenderMale.addSelectionListener(_defaultSelectionListener);
+
+            _rdoGenderFemale = new Button(containerGender, SWT.RADIO);
+            _rdoGenderFemale.setText(Messages.Pref_People_Label_GenderFemale);
+            _rdoGenderFemale.addSelectionListener(_defaultSelectionListener);
+
+            _rdoGenderDiverse = new Button(containerGender, SWT.RADIO);
+            _rdoGenderDiverse.setText(Messages.Pref_People_Label_GenderDiverse);
+            _rdoGenderDiverse.addSelectionListener(_defaultSelectionListener);
+         }
+      }
    }
 
    private Control createUI_60_Tab_HRZone(final Composite parent) {
@@ -917,7 +921,6 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          GridDataFactory.fillDefaults().grab(true, false).applyTo(containerHr);
          GridLayoutFactory.fillDefaults().numColumns(3).applyTo(containerHr);
          {
-//				createUI53FieldBirthday(containerHr);
             createUI_62_RestingHR(containerHr);
             createUI_64_MaxHR(containerHr);
          }
@@ -960,7 +963,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
                .applyTo(_spinnerRestingHR);
 
          // label: unit
-         UI.createLabel(container, GRAPH_LABEL_HEARTBEAT_UNIT);
+         UI.createLabel(container, OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT);
       }
 
       final Composite containerAge = new Composite(parent, SWT.NONE);
@@ -1025,7 +1028,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          /*
           * label: unit
           */
-         UI.createLabel(container, GRAPH_LABEL_HEARTBEAT_UNIT);
+         UI.createLabel(container, OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT);
 
          /*
           * combo: formula to compute hr max
@@ -1367,14 +1370,20 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
              * label: bpm
              */
             final Label label = new Label(parent, SWT.NONE);
-            label.setText(GRAPH_LABEL_HEARTBEAT_UNIT);
+            label.setText(OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT);
             label.addMouseListener(_hrZoneMouseListener);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
          }
       }
 
       // must be run async -> dark theme is overwriting it
-      parent.getDisplay().asyncExec(() -> {
+      final Display display = parent.getDisplay();
+
+      display.asyncExec(() -> {
+
+         if (display.isDisposed()) {
+            return;
+         }
 
          for (int zoneIndex = 0; zoneIndex < allHrZoneColorLabel.length; zoneIndex++) {
 
@@ -1562,13 +1571,23 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          @Override
          public void update(final ViewerCell cell) {
 
-            if (UI.UNIT_IS_ELEVATION_METER) {
-               final float height = ((TourPerson) cell.getElement()).getHeight();
-               cell.setText(_nf2.format(height));
-            } else {
-               final float bodyHeight = UI.convertBodyHeightFromMetric(((TourPerson) cell.getElement()).getHeight());
+            final TourPerson person = (TourPerson) cell.getElement();
+            
+            final float heightMetric = person.getHeight();
 
-               final String heightString = UI.EMPTY_STRING + (int) Math.floor(bodyHeight / 12) + "'" + (int) bodyHeight % 12 + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+            if (UI.UNIT_IS_ELEVATION_METER) {
+
+               cell.setText(_nf2.format(heightMetric));
+
+            } else {
+
+               final float heightInchRaw = Math.round(UI.convertBodyHeightFromMetric(heightMetric));
+               final float heightFeetRaw = heightInchRaw / 12;
+
+               final int heightFeet = (int) Math.floor(heightFeetRaw);
+               final int heightInch = (int) (heightInchRaw % 12);
+
+               final String heightString = UI.EMPTY_STRING + heightFeet + "'" + heightInch + "\""; //$NON-NLS-1$ //$NON-NLS-2$
 
                cell.setText(heightString);
             }
@@ -1631,7 +1650,9 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       _btnComputeHrZonesForAllTours.setEnabled(_isPersonModified == false);
 
       _txtBodyMassIndex.setText(String.valueOf(
-            UI.computeBodyMassIndex(_spinnerWeight.getSelection() / 10.0, _spinnerHeight.getSelection() / 100.0)));
+            UI.computeBodyMassIndex(_spinnerWeight.getSelection() / 10.0,
+                  _spinnerHeight_MeterOrFeet.getSelection(),
+                  _spinnerHeight_Inches.getSelection())));
    }
 
    private void fireModifyEvent() {
@@ -2026,6 +2047,7 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
    /**
     * @param isAskToSave
     * @param isRevert
+    *
     * @return Returns <code>false</code> when person is not saved, modifications will be reverted.
     */
    private boolean savePerson(final boolean isAskToSave, final boolean isRevert) {
@@ -2120,8 +2142,14 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       }
 
       /*
-       * update person
+       * Update person
        */
+      final int gender = _rdoGenderMale.getSelection() ? 0
+            : _rdoGenderFemale.getSelection() ? 1
+                  : _rdoGenderDiverse.getSelection() ? 2
+                        : 0 // default
+      ;
+
       person.setFirstName(_txtFirstName.getText());
       person.setLastName(_txtLastName.getText());
 
@@ -2130,10 +2158,12 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       final float bodyWeight = UI.convertBodyWeightToMetric(_spinnerWeight.getSelection());
       person.setWeight(bodyWeight / 10.0f);
 
-      final float bodyHeight = UI.convertBodyHeightToMetric(_spinnerHeight.getSelection(), _spinnerHeightInches.getSelection());
+      final float bodyHeight = UI.convertBodyHeightToMetric(
+            _spinnerHeight_MeterOrFeet.getSelection(),
+            _spinnerHeight_Inches.getSelection());
       person.setHeight(bodyHeight / 100.0f);
 
-      person.setGender(_rdoGenderMale.getSelection() ? 0 : 1);
+      person.setGender(gender);
       person.setRestPulse(_spinnerRestingHR.getSelection());
 
       person.setRawDataPath(_rawDataPathEditor.getStringValue());
@@ -2214,18 +2244,28 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
          final float bodyWeight = UI.convertBodyWeightFromMetric(person.getWeight());
          _spinnerWeight.setSelection((int) (bodyWeight * 10));
 
-         final float bodyHeight = UI.convertBodyHeightFromMetric(person.getHeight());
+         final float heightMetric = person.getHeight();
 
          if (UI.UNIT_IS_ELEVATION_METER) {
-            _spinnerHeight.setSelection(Math.round(bodyHeight * 100));
+
+            _spinnerHeight_MeterOrFeet.setSelection(Math.round(heightMetric * 100));
+
          } else {
-            _spinnerHeight.setSelection((int) Math.floor(bodyHeight / 12));
-            _spinnerHeightInches.setSelection((int) bodyHeight % 12);
+
+            final float heightInchRaw = Math.round(UI.convertBodyHeightFromMetric(heightMetric));
+            final float heightFeetRaw = heightInchRaw / 12;
+
+            final int heightFeet = (int) Math.floor(heightFeetRaw);
+            final int heightInch = (int) (heightInchRaw % 12);
+
+            _spinnerHeight_MeterOrFeet.setSelection(heightFeet);
+            _spinnerHeight_Inches.setSelection(heightInch);
          }
 
          _rawDataPathEditor.setStringValue(person.getRawDataPath());
          _rdoGenderMale.setSelection(gender == 0);
-         _rdoGenderFemale.setSelection(gender != 0);
+         _rdoGenderFemale.setSelection(gender == 1);
+         _rdoGenderDiverse.setSelection(gender == 2);
          _spinnerRestingHR.setSelection(restPulse == 0 ? TourPerson.DEFAULT_REST_PULSE : restPulse);
 
          final int hrMaxFormulaKey = person.getHrMaxFormula();

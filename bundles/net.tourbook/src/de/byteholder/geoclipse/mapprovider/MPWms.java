@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import de.byteholder.geoclipse.logging.GeoException;
 import de.byteholder.geoclipse.map.BoundingBoxEPSG4326;
 import de.byteholder.geoclipse.map.ITileLoader;
 import de.byteholder.geoclipse.map.Tile;
+import de.byteholder.geoclipse.map.MapUtils;
 import de.byteholder.geoclipse.util.Util;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class MPWms extends MP implements ITileLoader {
     */
 //	private static final String			SRS_EPSG_3857		= "EPSG:3857";				//$NON-NLS-1$
 
-   // this is depricated
+   // this is deprecated
 //	private static final String			SRS_EPSG_3785		= "EPSG:3785";				//$NON-NLS-1$
 //	private static final String			SRS_EPSG_900913		= "EPSG:900913";			//$NON-NLS-1$
 
@@ -63,7 +64,7 @@ public class MPWms extends MP implements ITileLoader {
 
    /**
     * wms server {@link #_wmsServer} and wms caps {@link #_wmsCaps} are set when a connection to
-    * the server was successfull, otherwise they are <code>null</code>
+    * the server was successful, otherwise they are <code>null</code>
     */
    private WebMapServer                _wmsServer;
 
@@ -231,7 +232,7 @@ public class MPWms extends MP implements ITileLoader {
       }
 
       // remove invalid characters from the key
-      final String customTileKey = de.byteholder.geoclipse.map.UI.createIdFromName(sb.toString(), 150);
+      final String customTileKey = MapUtils.createIdFromName(sb.toString(), 150);
 
       return customTileKey;
    }
@@ -293,7 +294,7 @@ public class MPWms extends MP implements ITileLoader {
       }
 
       if (visibleLayers == 0) {
-         throw new GeoException(NLS.bind(Messages.DBG043_Wms_Server_Error_CannotConnectToServer, getId()));
+         throw new GeoException(NLS.bind(Messages.Error_WmsServer_CannotConnectToServer_DBG043, getId()));
       }
 
       final int imageSize = getTileSize();
@@ -324,25 +325,25 @@ public class MPWms extends MP implements ITileLoader {
 
       } catch (final NoRouteToHostException e) {
          throw new GeoException(NLS.bind(
-               Messages.DBG035_Wms_Server_Error_CannotConnectToServer,
+               Messages.Error_WmsServer_CannotConnectToServer_DBG035,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final IOException e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG036_Wms_Server_Error_IoException,
+               Messages.Error_WmsServer_IoException_DBG036,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final ServiceException e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG037_Wms_Server_Error_ServiceException,
+               Messages.Error_WmsServer_ServiceException_DBG037,
                e.getMessage(),
                finalUrl), e);
 
       } catch (final Exception e) {
          throw new GeoException(NLS.bind(//
-               Messages.DBG038_Wms_Server_Error_CannotLoadImage,
+               Messages.Error_WmsServer_CannotLoadImage_DBG038,
                finalUrl), e);
       }
    }

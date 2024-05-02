@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,19 +23,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.tourbook.Messages;
-import net.tourbook.application.TourTypeContributionItem;
+import net.tourbook.application.ContributionItem_TourType;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.extension.upload.CloudUploaderManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.ui.TourTypeFilter;
 import net.tourbook.ui.TourTypeFilterSet;
@@ -93,7 +91,7 @@ public class TourTypeFilterManager {
     */
    private static ActionTTFilter            _selectedFilterAction;
 
-   private static TourTypeContributionItem  _tourTypeContribItem;
+   private static ContributionItem_TourType  _tourTypeContribItem;
 
    static {
 
@@ -257,15 +255,6 @@ public class TourTypeFilterManager {
    public static ArrayList<TourTypeFilter> readTourTypeFilters() {
 
       final ArrayList<TourTypeFilter> filterList = readXMLFilterFile();
-
-      final List<TourTypeFilter> cloudTourTypeFilters = CloudUploaderManager.getCloudTourTypeFilters();
-      cloudTourTypeFilters.forEach(tourTypeFilter -> {
-
-         if (filterList.stream().noneMatch(
-               filter -> filter.getFilterName().equals(tourTypeFilter.getFilterName()))) {
-            filterList.add(tourTypeFilter);
-         }
-      });
 
       final ArrayList<TourType> tourTypes = TourDatabase.getAllTourTypes();
       final ArrayList<?> tourTypesNotDisplayed = (ArrayList<?>) tourTypes.clone();
@@ -584,7 +573,7 @@ public class TourTypeFilterManager {
       });
    }
 
-   public static void setToolBarContribItem(final TourTypeContributionItem tourTypeContribItem) {
+   public static void setToolBarContribItem(final ContributionItem_TourType tourTypeContribItem) {
       _tourTypeContribItem = tourTypeContribItem;
    }
 

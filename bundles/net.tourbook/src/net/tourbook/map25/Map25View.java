@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,11 +47,8 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.map.Action_ExportMap_SubMenu;
 import net.tourbook.map.IMapSyncListener;
-<<<<<<< HEAD
 import net.tourbook.map.IMapView;
-=======
 import net.tourbook.map.MapColorProvider;
->>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.map.MapInfoManager;
 import net.tourbook.map.MapManager;
 import net.tourbook.map.MapUtils;
@@ -60,7 +57,8 @@ import net.tourbook.map.bookmark.IMapBookmarkListener;
 import net.tourbook.map.bookmark.IMapBookmarks;
 import net.tourbook.map.bookmark.MapBookmark;
 import net.tourbook.map.bookmark.MapBookmarkManager;
-import net.tourbook.map.player.MapPlayerManager;
+import net.tourbook.map.player.ModelPlayerManager;
+import net.tourbook.map.player.ModelPlayerView;
 import net.tourbook.map2.view.IDiscreteColorProvider;
 import net.tourbook.map25.action.ActionMap25_PhotoFilter;
 import net.tourbook.map25.action.ActionMap25_ShowMarker;
@@ -104,11 +102,8 @@ import net.tourbook.ui.tourChart.TourChart;
 
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.e4.ui.di.PersistState;
-<<<<<<< HEAD
-import org.eclipse.jface.action.ActionContributionItem;
-=======
 import org.eclipse.jface.action.Action;
->>>>>>> refs/remotes/Wolfgang/main
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -129,20 +124,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.ISelectionListener;
-<<<<<<< HEAD
-=======
 import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPart;
->>>>>>> refs/remotes/Wolfgang/main
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
-<<<<<<< HEAD
-import org.oscim.layers.marker.MarkerInterface;
-=======
->>>>>>> refs/remotes/Wolfgang/main
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.map.Animator;
 import org.oscim.map.Map;
@@ -153,20 +140,17 @@ public class Map25View extends ViewPart implements
       ICloseOpenedDialogs,
       IMapBookmarkListener,
       IMapSyncListener,
-<<<<<<< HEAD
-      IMapView {
-=======
+      IMapView,
       IMapWithPhotos,
       IPhotoEventListener {
 
    private static final String MAP_ACTION_SHOW_TOUR_IN_MAP            = net.tourbook.map2.Messages.map_action_show_tour_in_map;
    private static final String MAP_ACTION_TOUR_COLOR_ALTITUDE_TOOLTIP = net.tourbook.map2.Messages.map_action_tour_color_altitude_tooltip;
    private static final String MAP_ACTION_TOUR_COLOR_GRADIENT_TOOLTIP = net.tourbook.map2.Messages.map_action_tour_color_gradient_tooltip;
-   private static final String MAP_ACTION_TOUR_COLOR_PACE_TOOLTIP     = net.tourbook.map2.Messages.map_action_tour_color_pase_tooltip;
+   private static final String MAP_ACTION_TOUR_COLOR_PACE_TOOLTIP     = net.tourbook.map2.Messages.map_action_tour_color_pace_tooltip;
    private static final String MAP_ACTION_TOUR_COLOR_PULSE_TOOLTIP    = net.tourbook.map2.Messages.map_action_tour_color_pulse_tooltip;
    private static final String MAP_ACTION_TOUR_COLOR_SPEED_TOOLTIP    = net.tourbook.map2.Messages.map_action_tour_color_speed_tooltip;
    private static final String TOUR_ACTION_SHOW_HR_ZONES_TOOLTIP      = net.tourbook.map2.Messages.Tour_Action_ShowHrZones_Tooltip;
->>>>>>> refs/remotes/Wolfgang/main
 
 // SET_FORMATTING_OFF
 
@@ -218,11 +202,8 @@ public class Map25View extends ViewPart implements
    //
    private boolean                       _isPartVisible;
    private boolean                       _isShowTour;
-<<<<<<< HEAD
    // private boolean                       _isInZoom;
    private boolean                       _isShowPhoto;
-=======
->>>>>>> refs/remotes/Wolfgang/main
    //
    private IPartListener2                _partListener;
    private ISelectionListener            _postSelectionListener;
@@ -278,30 +259,17 @@ public class Map25View extends ViewPart implements
    private int                           _rightSliderValueIndex;
    private int                           _selectedSliderValueIndex;
    //
-<<<<<<< HEAD
-   private int     _hash_AllPhotos;
-   private int     _hashTourId;
-   private int     _hashTourData;
-=======
    private int                           _hashTourId;
    private int                           _hashTourData;
->>>>>>> refs/remotes/Wolfgang/main
    //
-<<<<<<< HEAD
-   private MapSync _mapSynchedWith = MapSync.NONE;
-=======
+   private MapPosition                   _currentMapPosition                     = new MapPosition();
    private MapSync                       _mapSynchedWith                         = MapSync.NONE;
->>>>>>> refs/remotes/Wolfgang/main
    //
-<<<<<<< HEAD
-   private long    _lastFiredSyncEventTime;
-
-=======
    private long                          _lastFiredSyncEventTime;
+   private long                          _lastReceivedSyncEventTime;
    //
    private IMapColorProvider             _mapColorProvider;
    //
->>>>>>> refs/remotes/Wolfgang/main
    // context menu
 //   private boolean _isContextMenuVisible;
    /*
@@ -632,25 +600,15 @@ public class Map25View extends ViewPart implements
 
    private void actionTrackColor(final Object selectedAction) {
 
-<<<<<<< HEAD
-      map25.post(() -> {
-=======
       // get graph ID
       MapGraphId selectedActionGraphId = null;
       if (selectedAction instanceof ActionTrackColor) {
->>>>>>> refs/remotes/Wolfgang/main
 
-<<<<<<< HEAD
          final Animator animator = map25.animator();
-=======
          selectedActionGraphId = ((ActionTrackColor) selectedAction)._graphId;
->>>>>>> refs/remotes/Wolfgang/main
 
-<<<<<<< HEAD
          animator.cancel();
          animator.animateZoom(500, _zoomFactor, 0, 0);
-         map25.updateMap(true);
-=======
       } else if (selectedAction instanceof ActionTrackColor_HrZone) {
 
          selectedActionGraphId = ((ActionTrackColor_HrZone) selectedAction)._graphId;
@@ -710,10 +668,8 @@ public class Map25View extends ViewPart implements
 
          final Animator animator = map25.animator();
 
-         animator.cancel();
          animator.animateZoom(500, _zoomFactor, 0, 0);
          map25.updateMap();
->>>>>>> refs/remotes/Wolfgang/main
       });
 
    }
@@ -725,13 +681,8 @@ public class Map25View extends ViewPart implements
 
          final Animator animator = map25.animator();
 
-         animator.cancel();
          animator.animateZoom(500, 1 / _zoomFactor, 0, 0);
-<<<<<<< HEAD
-         map25.updateMap(true);
-=======
          map25.updateMap();
->>>>>>> refs/remotes/Wolfgang/main
       });
 
    }
@@ -753,24 +704,13 @@ public class Map25View extends ViewPart implements
 
          final Animator animator = map25.animator();
 
-         animator.cancel();
-<<<<<<< HEAD
-         animator.animateTo(//
-               2000,
-               _allBoundingBox,
-=======
          animator.animateTo(
                2000,
                _boundingBox,
->>>>>>> refs/remotes/Wolfgang/main
                Easing.Type.SINE_INOUT,
                Animator.ANIM_MOVE | Animator.ANIM_SCALE);
 
-<<<<<<< HEAD
-         map25.updateMap(true);
-=======
          map25.updateMap();
->>>>>>> refs/remotes/Wolfgang/main
       });
 
    }
@@ -819,7 +759,8 @@ public class Map25View extends ViewPart implements
             if (partRef.getPart(false) == Map25View.this) {
                _isPartVisible = false;
             }
-            setIsAnimationVisible(partRef, false);
+
+            setIsMap25Available(partRef, null);
          }
 
          @Override
@@ -834,13 +775,15 @@ public class Map25View extends ViewPart implements
          public void partVisible(final IWorkbenchPartReference partRef) {
 
             onPartVisible(partRef);
-            setIsAnimationVisible(partRef, true);
+
+            setIsMap25Available(partRef, Map25View.this);
          }
 
-         private void setIsAnimationVisible(final IWorkbenchPartReference partRef, final boolean isAnimationVisible) {
+         private void setIsMap25Available(final IWorkbenchPartReference partRef, final Map25View map25View) {
 
             if (partRef.getPart(false) == Map25View.this) {
-               MapPlayerManager.setIsAnimationVisible(isAnimationVisible);
+
+               ModelPlayerManager.setMap25View(map25View);
             }
          }
       };
@@ -963,11 +906,8 @@ public class Map25View extends ViewPart implements
 
    private void createActions() {
 
-<<<<<<< HEAD
-      _actionShowMarker_WithOptions = new ActionMap25_ShowMarker(this, _parent);
       _actionExportMap_SubMenu = new Action_ExportMap_SubMenu(this);
       _actionMapBookmarks = new ActionMapBookmarks(this._parent, this);
-      _actionShowPhotos = new ActionShowPhotos(this);
       //_actionShowPhoto_WithOptions = new ActionShowPhoto_WithConfig();
       _actionMapProvider = new ActionMap25_MapProvider();
       _actionMapOptions = new ActionMap25_Options();
@@ -975,13 +915,10 @@ public class Map25View extends ViewPart implements
       _actionSyncMap_WithOtherMap = new ActionSyncMap2WithOtherMap(this);
       _actionSyncMap_WithTour = new ActionSynchMapWithTour(this);
       _actionSyncMap_WithChartSlider = new ActionSynchMapWithChartSlider(this);
-      _actionShowTour_WithOptions = new ActionShowTour_WithConfig();
       _actionZoom_In = new ActionZoomIn(this);
       _actionZoom_Out = new ActionZoomOut(this);
       //_actionShowPhoto = new ActionShowPhoto(this);
-=======
 // SET_FORMATTING_OFF
->>>>>>> refs/remotes/Wolfgang/main
 
       _actionMapBookmarks              = new ActionMapBookmarks(this._parent, this);
       _actionMapLayer                  = new ActionMap25_Layer();
@@ -1375,11 +1312,11 @@ public class Map25View extends ViewPart implements
       enableContextMenuActions();
    }
 
-   void fireSyncMapEvent(final MapPosition mapPosition, final int positionFlags) {
+   void fireSyncMapEvent(final MapPosition mapPosition, final SyncParameter syncParameter) {
 
       _lastFiredSyncEventTime = System.currentTimeMillis();
 
-      MapManager.fireSyncMapEvent(mapPosition, this, positionFlags);
+      MapManager.fireSyncMapEvent(mapPosition, this, syncParameter);
 
       updateUI_MapPosition(mapPosition.getLatitude(), mapPosition.getLongitude(), mapPosition.zoomLevel);
    }
@@ -1387,6 +1324,10 @@ public class Map25View extends ViewPart implements
    @Override
    public List<Photo> getFilteredPhotos() {
       return _filteredPhotos;
+   }
+
+   public long getLastReceivedSyncEventTime() {
+      return _lastReceivedSyncEventTime;
    }
 
    public Map25App getMapApp() {
@@ -1397,6 +1338,12 @@ public class Map25View extends ViewPart implements
    public MapPosition getMapPosition() {
 
       return _map25App.getMap().getMapPosition();
+   }
+
+   @Override
+   public Image getMapViewImage() {
+
+      return MapUtils.getMapViewImage(_parent);
    }
 
    @Override
@@ -1444,12 +1391,6 @@ public class Map25View extends ViewPart implements
    }
 
    @Override
-   public Image getMapViewImage() {
-
-      return MapUtils.getMapViewImage(_parent);
-   }
-
-   @Override
    public void moveToMapLocation(final MapBookmark selectedBookmark) {
 
       MapBookmarkManager.setLastSelectedBookmark(selectedBookmark);
@@ -1457,7 +1398,7 @@ public class Map25View extends ViewPart implements
       final Map map = _map25App.getMap();
       final MapPosition mapPosition = selectedBookmark.getMapPosition();
 
-      Map25ConfigManager.setMapLocation(map, mapPosition);
+      Map25LocationManager.setMapLocation(map, mapPosition);
    }
 
    @Override
@@ -1473,10 +1414,12 @@ public class Map25View extends ViewPart implements
    }
 
    void onMapPosition(final GeoPoint mapGeoPoint, final int zoomLevel) {
+
       updateUI_MapPosition(mapGeoPoint.getLatitude(), mapGeoPoint.getLongitude(), zoomLevel);
    }
 
    private void onSelectionChanged(final ISelection selection) {
+
       //_mapApp.debugPrint(" Map25View: * onSelectionChanged: tour selection changed");
 
       final int selectionHash = selection.hashCode();
@@ -1715,7 +1658,7 @@ public class Map25View extends ViewPart implements
          numAllTimeSlices += tourData.latitudeSerie.length;
       }
 
-      // use array to optimize performance when millions of points are created
+      // use an array to optimize performance when millions of points are created
       _allGeoPoints = new GeoPoint[numAllTimeSlices];
       _allTourStarts.clear();
       final int[] allGeoPointColors = new int[numAllTimeSlices];
@@ -1723,35 +1666,66 @@ public class Map25View extends ViewPart implements
       int tourIndex = 0;
       int geoIndex = 0;
 
+      int[] allTimeSeries;
+      float[] allDistanceSeries;
+
       if (_allTourData.size() == 1 && _allTourData.get(0).isMultipleTours()) {
 
          // one tourdata contains multiple tours
 
          final TourData tourData = _allTourData.get(0);
 
+         allTimeSeries = tourData.timeSerie;
+         allDistanceSeries = tourData.distanceSerie;
+
          _allTourStarts.addAll(tourData.multipleTourStartIndex);
 
          final double[] latitudeSerie = tourData.latitudeSerie;
          final double[] longitudeSerie = tourData.longitudeSerie;
 
-         // create vtm geo points
+         // create vtm E6 geo points
          for (int serieIndex = 0; serieIndex < latitudeSerie.length; serieIndex++, tourIndex++) {
             _allGeoPoints[geoIndex++] = (new GeoPoint(latitudeSerie[serieIndex], longitudeSerie[serieIndex]));
          }
 
       } else {
 
+         allTimeSeries = new int[numAllTimeSlices];
+         allDistanceSeries = new float[numAllTimeSlices];
+
+         int prevTourTimes = 0;
+         float prevTourDistances = 0;
+
          for (final TourData tourData : _allTourData) {
 
             _allTourStarts.add(tourIndex);
 
+            /*
+             * Create time/distance series
+             */
+            final int[] oneTourTimeSerie = tourData.timeSerie;
+            final float[] oneTourDistanceSerie = tourData.distanceSerie;
+
+            final boolean isTourDistanceAvailable = oneTourDistanceSerie != null && oneTourDistanceSerie.length > 0;
+            final boolean isTourTimeAvailable = oneTourTimeSerie != null && oneTourTimeSerie.length > 0;
+
+            /*
+             * Create vtm geo points and colors
+             */
             final double[] latitudeSerie = tourData.latitudeSerie;
             final double[] longitudeSerie = tourData.longitudeSerie;
 
             final float[] valueSerie = getValueSerie(tourData);
 
-            // create vtm geo points and colors
             for (int serieIndex = 0; serieIndex < latitudeSerie.length; serieIndex++, tourIndex++) {
+
+               if (isTourTimeAvailable) {
+                  allTimeSeries[geoIndex] = prevTourTimes + oneTourTimeSerie[serieIndex];
+               }
+
+               if (isTourDistanceAvailable) {
+                  allDistanceSeries[geoIndex] = prevTourDistances + oneTourDistanceSerie[serieIndex];
+               }
 
                _allGeoPoints[geoIndex] = (new GeoPoint(latitudeSerie[serieIndex], longitudeSerie[serieIndex]));
 
@@ -1790,10 +1764,20 @@ public class Map25View extends ViewPart implements
 
                geoIndex++;
             }
+
+            /*
+             * Summarize tour times and distances
+             */
+            if (isTourTimeAvailable) {
+               prevTourTimes += oneTourTimeSerie[oneTourTimeSerie.length - 1];
+            }
+            if (isTourDistanceAvailable) {
+               prevTourDistances += oneTourDistanceSerie[oneTourDistanceSerie.length - 1];
+            }
          }
       }
 
-      tourLayer.setupTourPositions(_allGeoPoints, allGeoPointColors, _allTourStarts);
+      tourLayer.setupTourPositions(_allGeoPoints, allGeoPointColors, _allTourStarts, allTimeSeries, allDistanceSeries);
 
       checkSliderIndices();
 
@@ -1867,28 +1851,16 @@ public class Map25View extends ViewPart implements
          map25.post(() -> {
 
             // create outside isSynch that data are available when map is zoomed to show the whole tour
-<<<<<<< HEAD
-            _allBoundingBox = createBoundingBox(_allGeoPoints);
-=======
             _boundingBox = createBoundingBox(_allGeoPoints);
->>>>>>> refs/remotes/Wolfgang/main
 
             if (_mapSynchedWith == MapSync.WITH_TOUR) {
 
-//						final int animationTime = Map25ConfigManager.getActiveTourTrackConfig().animationTime;
+//					final int animationTime = Map25ConfigManager.getActiveTourTrackConfig().animationTime;
                final int animationTime = Map25ConfigManager.DEFAULT_ANIMATION_TIME;
-<<<<<<< HEAD
-               Map25ConfigManager.setMapLocation(map25, _allBoundingBox, animationTime);
-=======
-               Map25ConfigManager.setMapLocation(map25, _boundingBox, animationTime);
->>>>>>> refs/remotes/Wolfgang/main
+               Map25LocationManager.setMapLocation(map25, _boundingBox, animationTime);
             }
 
-<<<<<<< HEAD
-            map25.updateMap(true);
-=======
             map25.updateMap();
->>>>>>> refs/remotes/Wolfgang/main
          });
 
       } else {
@@ -2169,7 +2141,8 @@ public class Map25View extends ViewPart implements
    @Override
    public void setFocus() {
 
-//		_swtContainer.setFocus();
+      // activate map
+      _swtContainer.setFocus();
    }
 
    /**
@@ -2276,17 +2249,10 @@ public class Map25View extends ViewPart implements
          final ArrayList<TourData> tourDataList = TourManager.getSelectedTours(true);
          if (tourDataList != null) {
 
-<<<<<<< HEAD
-            _allTourData.clear();
-            _allTourData.addAll(tourDataList);
-
-            paintTours_AndUpdateMap();
-=======
             setMapTours(tourDataList);
             setMapPhotos(null);
 
             paintTours();
->>>>>>> refs/remotes/Wolfgang/main
          }
 
          enableActions();
@@ -2375,16 +2341,16 @@ public class Map25View extends ViewPart implements
                   return;
                }
 
-               Map25ConfigManager.setMapLocation(map25, sliderBBox, 500);
+               Map25LocationManager.setMapLocation(map25, sliderBBox, 500);
             }
          });
       }
    }
 
    @Override
-   public void syncMapWithOtherMap(final MapPosition mapPosition,
+   public void syncMapWithOtherMap(final MapPosition syncMapPosition,
                                    final ViewPart viewPart,
-                                   final int positionFlags) {
+                                   final IMapSyncListener.SyncParameter syncParameter) {
 
       if (_mapSynchedWith != MapSync.WITH_OTHER_MAP) {
 
@@ -2400,28 +2366,54 @@ public class Map25View extends ViewPart implements
          return;
       }
 
-      final long timeDiff = System.currentTimeMillis() - _lastFiredSyncEventTime;
+      final long currentTimeMillis = System.currentTimeMillis();
 
-      if (timeDiff < 1000) {
+      _lastReceivedSyncEventTime = currentTimeMillis;
+
+      final long timeDiffLastFiredSync = currentTimeMillis - _lastFiredSyncEventTime;
+      if (timeDiffLastFiredSync < 1000
+
+            // accept all sync events from the model player
+            && (viewPart instanceof ModelPlayerView) == false) {
+
          // ignore because it causes LOTS of problems when synching moved map
          return;
       }
 
       final Map map = _map25App.getMap();
+      map.getMapPosition(_currentMapPosition);
 
-      /**
-       * Keep current tilt/bearing
-       */
-      final MapPosition currentMapPos = map.getMapPosition();
-      if (mapPosition.bearing == 0) {
-         mapPosition.bearing = currentMapPos.bearing;
+      if (syncParameter == SyncParameter.SHOW_MAP_POSITION_WITHOUT_ANIMATION) {
+
+         // set map position without animation
+
+         // update only map position x/y values and keep any other values from the current map position
+         _currentMapPosition.x = syncMapPosition.x;
+         _currentMapPosition.y = syncMapPosition.y;
+
+         _map25App.getMap().setMapPosition(_currentMapPosition);
+
+      } else {
+
+         // sync map with animation
+
+         /**
+          * Set values which are not set
+          */
+         if (syncMapPosition.scale <= 1) {
+            syncMapPosition.setScale(_currentMapPosition.scale);
+         }
+
+         if (syncMapPosition.bearing == 0) {
+            syncMapPosition.bearing = _currentMapPosition.bearing;
+         }
+
+         if (syncMapPosition.tilt == 0) {
+            syncMapPosition.tilt = _currentMapPosition.tilt;
+         }
+
+         Map25LocationManager.setMapLocation(map, syncMapPosition);
       }
-
-      if (mapPosition.tilt == 0) {
-         mapPosition.tilt = currentMapPos.tilt;
-      }
-
-      Map25ConfigManager.setMapLocation(map, mapPosition);
    }
 
    private void updateFilteredPhotos() {

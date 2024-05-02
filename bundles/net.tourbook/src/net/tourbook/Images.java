@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -41,11 +41,12 @@ public class Images {
    public static final String App_Cancel_2                               = "16px-Crystal_Clear_action_button_cancel.png";         //$NON-NLS-1$
    public static final String App_Delete                                 = "delete.png";                                          //$NON-NLS-1$
    public static final String App_Delete_Disabled                        = "delete-disabled.png";                                 //$NON-NLS-1$
-   public static final String App_Directory_CollatedTours                = "collated-tours.png";                                  // "directory-collated-tours.png";   //$NON-NLS-1$
-   public static final String App_Directory_ReferenceTours               = "reference-tours.png";                                 // "directory-reference-tours.png";  //$NON-NLS-1$
-   public static final String App_Directory_TaggedTours                  = "tagged-tours.png";                                    // "directory-tagged-tours.png";     //$NON-NLS-1$
-   public static final String App_Directory_TourBook                     = "tourbook-tours.png";                                  // "directory-tour-book.png";        //$NON-NLS-1$
-   public static final String App_Directory_TourImport                   = "imported-tours.png";                                  // "directory-tour-import.png";      //$NON-NLS-1$
+   public static final String App_Directory_CollatedTours                = "collated-tours.png";                                  //$NON-NLS-1$
+   public static final String App_Directory_ReferenceTours               = "reference-tours.png";                                 //$NON-NLS-1$
+   public static final String App_Directory_TaggedTours                  = "tagged-tours.png";                                    //$NON-NLS-1$
+   public static final String App_Directory_TourBook                     = "tourbook-tours.png";                                  //$NON-NLS-1$
+   public static final String App_Directory_TourComparisonTimeline       = "tour-map-statistic.png";                              //$NON-NLS-1$
+   public static final String App_Directory_TourImport                   = "imported-tours.png";                                  //$NON-NLS-1$
    public static final String App_Edit                                   = "quick-edit.png";                                      //$NON-NLS-1$
    public static final String App_Edit_Disabled                          = "quick-edit-disabled.png";                             //$NON-NLS-1$
    public static final String App_EmptyIcon_Placeholder                  = "icon-placeholder.gif";                                //$NON-NLS-1$
@@ -70,6 +71,7 @@ public class Images {
    public static final String App_Sort                                   = "app-sort.png";                                        //$NON-NLS-1$
    public static final String App_Sort_Disabled                          = "app-sort-disabled.png";                               //$NON-NLS-1$
    public static final String App_Today                                  = "today.png";                                           //$NON-NLS-1$
+   public static final String App_Today_Disabled                         = "today-disabled.png";                                  //$NON-NLS-1$
    public static final String App_Trash                                  = "trash.png";                                           //$NON-NLS-1$
    public static final String App_Trash_Disabled                         = "trash-disabled.png";                                  //$NON-NLS-1$
    public static final String App_Trash_Themed                           = "trash-blue.png";                                      //$NON-NLS-1$
@@ -83,6 +85,7 @@ public class Images {
    public static final String ArrowUp_Blue                               = "arrow-up-blue.png";                                   //$NON-NLS-1$
    public static final String ArrowUp_Blue_Disabled                      = "arrow-up-blue-disabled.png";                          //$NON-NLS-1$
    public static final String Calendar                                   = "calendar.png";                                        //$NON-NLS-1$
+   public static final String Camera                                     = "camera.png";                                          //$NON-NLS-1$
    public static final String Checkbox_Checked                           = "checkbox-checked.png";                                //$NON-NLS-1$
    public static final String Checkbox_Checked_Disabled                  = "checkbox-checked-disabled.png";                       //$NON-NLS-1$
    public static final String Checkbox_Uncheck                           = "checkbox-unchecked.png";                              //$NON-NLS-1$
@@ -96,8 +99,10 @@ public class Images {
    public static final String EditRow_Disabled                           = "edit-row-disabled.png";                               //$NON-NLS-1$
    public static final String EditTour                                   = "tour-editor.png";                                     //$NON-NLS-1$
    public static final String EditTour_Disabled                          = "write_obj_disabled.gif";                              //$NON-NLS-1$
-   public static final String GeoParts                                   = "geo-parts.png";                                       //$NON-NLS-1$
-   public static final String GeoParts_Disabled                          = "geo-parts-disabled.png";                              //$NON-NLS-1$
+   public static final String GeoCompare_PinComparedTour                 = "geo-compare-pin-compared-tour.png";                   //$NON-NLS-1$
+   public static final String GeoCompare_PinComparedTour_Disabled        = "geo-compare-pin-compared-tour-disabled.png";          //$NON-NLS-1$
+   public static final String GeoCompare_SelectComparedTour              = "geo-compare-select-compared-tour.png";                //$NON-NLS-1$
+   public static final String GeoCompare_SelectComparedTour_Disabled     = "geo-compare-select-compared-tour-disabled.png";       //$NON-NLS-1$
    public static final String Graph                                      = "graph.png";                                           //$NON-NLS-1$
    public static final String GraphMinMax                                = "graph-min-max.png";                                   //$NON-NLS-1$
    public static final String GraphMinMax_Disabled                       = "graph-min-max-disabled.png";                          //$NON-NLS-1$
@@ -119,6 +124,8 @@ public class Images {
    public static final String Graph_Overlapped                           = "graph-overlapped.png";                                //$NON-NLS-1$
    public static final String Graph_Pace                                 = "graph-pace.png";                                      //$NON-NLS-1$
    public static final String Graph_Pace_Disabled                        = "graph-pace-disabled.png";                             //$NON-NLS-1$
+   public static final String Graph_Pace_Interval                        = "graph-pace-interval.png";                             //$NON-NLS-1$
+   public static final String Graph_Pace_Interval_Disabled               = "graph-pace-interval-disabled.png";                    //$NON-NLS-1$
    public static final String Graph_Pace_Summarized                      = "graph-pace-summarized.png";                           //$NON-NLS-1$
    public static final String Graph_Pace_Summarized_Disabled             = "graph-pace-summarized-disabled.png";                  //$NON-NLS-1$
    public static final String Graph_Power                                = "graph-power.png";                                     //$NON-NLS-1$
@@ -135,6 +142,8 @@ public class Images {
    public static final String Graph_RunDyn_VerticalRatio_Disabled        = "graph-run-dyn-vertical-ratio-disabled.png";           //$NON-NLS-1$
    public static final String Graph_Speed                                = "graph-speed.png";                                     //$NON-NLS-1$
    public static final String Graph_Speed_Disabled                       = "graph-speed-disabled.png";                            //$NON-NLS-1$
+   public static final String Graph_Speed_Interval                       = "graph-speed-interval.png";                            //$NON-NLS-1$
+   public static final String Graph_Speed_Interval_Disabled              = "graph-speed-interval-disabled.png";                   //$NON-NLS-1$
    public static final String Graph_Speed_Summarized                     = "graph-speed-summarized.png";                          //$NON-NLS-1$
    public static final String Graph_Speed_Summarized_Disabled            = "graph-speed-summarized-disabled.png";                 //$NON-NLS-1$
    public static final String Graph_Swim_Strokes                         = "graph-swim-strokes.png";                              //$NON-NLS-1$
@@ -143,15 +152,19 @@ public class Images {
    public static final String Graph_Swim_Swolf_Disabled                  = "graph-swim-swolf-disabled.png";                       //$NON-NLS-1$
    public static final String Graph_Temperature                          = "graph-temperature.png";                               //$NON-NLS-1$
    public static final String Graph_Temperature_Disabled                 = "graph-temperature-disabled.png";                      //$NON-NLS-1$
-   public static final String Graph_TourCompare                          = "tour-map-compare-result-graph.png";                   //$NON-NLS-1$
-   public static final String Graph_TourCompare_Disabled                 = "tour-map-compare-result-graph-disabled.png";          //$NON-NLS-1$
+   public static final String Graph_TourCompare                          = "graph-tour-compare.png";                              //$NON-NLS-1$
+   public static final String Graph_TourCompare_Disabled                 = "graph-tour-compare-disabled.png";                     //$NON-NLS-1$
+   public static final String Graph_TourCompare_ByElevation              = "graph-tour-compare-elevation.png";                    //$NON-NLS-1$
+   public static final String Graph_TourCompare_ByGeo                    = "graph-tour-compare-geo.png";                          //$NON-NLS-1$
    public static final String GroupValues                                = "app-group-values.png";                                //$NON-NLS-1$
    public static final String GroupValues_Disabled                       = "app-group-values-disabled.png";                       //$NON-NLS-1$
    public static final String HeartRateVariability                       = "heart-rate-variability.png";                          //$NON-NLS-1$
    public static final String Import_DashboardUI                         = "import-dashboard.png";                                //$NON-NLS-1$
    public static final String Import_Files                               = "import-get-tours.png";                                //$NON-NLS-1$
-   public static final String Import_UI_Easy                             = "import-ui-easy.png";                                  //$NON-NLS-1$
-   public static final String Import_UI_Easy_Disabled                    = "import-ui-easy-disabled.png";                         //$NON-NLS-1$
+   public static final String Import_UI_Easy_Fancy                       = "import-ui-easy-fancy.png";                            //$NON-NLS-1$
+   public static final String Import_UI_Easy_Fancy_Disabled              = "import-ui-easy-fancy-disabled.png";                   //$NON-NLS-1$
+   public static final String Import_UI_Easy_Simple                      = "import-ui-easy-simple.png";                           //$NON-NLS-1$
+   public static final String Import_UI_Easy_Simple_Disabled             = "import-ui-easy-simple-disabled.png";                  //$NON-NLS-1$
    public static final String Import_UI_Fossil                           = "import-ui-fossil.png";                                //$NON-NLS-1$
    public static final String Import_UI_Fossil_Disabled                  = "import-ui-fossil-disabled.png";                       //$NON-NLS-1$
    public static final String Map                                        = "map.png";                                             //$NON-NLS-1$
@@ -172,13 +185,24 @@ public class Images {
    public static final String MapBookmark_New                            = "map-bookmark-new.png";                                //$NON-NLS-1$
    public static final String MapLayer                                   = "map-layer.png";                                       //$NON-NLS-1$
    public static final String MapLayer_Dark                              = "map-layer-dark.png";                                  //$NON-NLS-1$
+   public static final String MapLocation                                = "map-location.png";                                    //$NON-NLS-1$
+   public static final String MapLocationMarker                          = "map-location-marker.png";                             //$NON-NLS-1$
+   public static final String MapLocationMarker_Address                  = "map-location-marker-address.png";                     //$NON-NLS-1$
+   public static final String MapLocationMarker_Start                    = "map-location-marker-start.png";                       //$NON-NLS-1$
+   public static final String MapLocationMarker_End                      = "map-location-marker-end.png";                         //$NON-NLS-1$
+   public static final String MapLocationMarker_Hovered                  = "map-location-marker-hovered.png";                     //$NON-NLS-1$
+   public static final String MapModel                                   = "map-model.png";                                       //$NON-NLS-1$
+   public static final String MapModel_Disabled                          = "map-model-disabled.png";                              //$NON-NLS-1$
+   public static final String MapModelCursor                             = "map-model-cursor.png";                                //$NON-NLS-1$
+   public static final String MapModelCursor_Disabled                    = "map-model-cursor-disabled.png";                       //$NON-NLS-1$
+   public static final String MapModelList                               = "map-model-list.png";                                  //$NON-NLS-1$
+   public static final String MapModelList_Disabled                      = "map-model-list-disabled.png";                         //$NON-NLS-1$
    public static final String MapOptions                                 = "map-options.png";                                     //$NON-NLS-1$
    public static final String MapOptions_Dark                            = "map-options-dark.png";                                //$NON-NLS-1$
    public static final String MapOptions_Disabled                        = "map-options-disabled.png";                            //$NON-NLS-1$
-   public static final String MapPlayer                                  = "map-player.png";                                      //$NON-NLS-1$
-   public static final String MapPlayer_Dark                             = "map-player-dark.png";                                 //$NON-NLS-1$
    public static final String MapProvider                                = "change-map-provider.png";                             //$NON-NLS-1$
    public static final String MergeTours                                 = "merge-tours.png";                                     //$NON-NLS-1$
+   public static final String ModelPlayer                                = "model-player.png";                                    //$NON-NLS-1$
    public static final String MyTourbook16                               = "tourbook16.png";                                      //$NON-NLS-1$
    public static final String POI_Anchor                                 = "anchor.png";                                          //$NON-NLS-1$
    public static final String POI_Car                                    = "car.png";                                             //$NON-NLS-1$
@@ -201,19 +225,22 @@ public class Images {
    public static final String PhotoTimeAdjustment_Disabled               = "photo-time-adjustment-disabled.png";                  //$NON-NLS-1$
    public static final String PulseZones                                 = "pulse-zones.png";                                     //$NON-NLS-1$
    public static final String PulseZones_Disabled                        = "pulse-zones-disabled.png";                            //$NON-NLS-1$
-   public static final String RawData_DeviceFolder                       = "device-folder.png";                                   //$NON-NLS-1$
-   public static final String RawData_DeviceFolder_Disabled              = "device-folder-disabled.png";                          //$NON-NLS-1$
-   public static final String RawData_DeviceFolder_NotChecked            = "device-folder-not-checked.png";                       //$NON-NLS-1$
-   public static final String RawData_DeviceFolder_NotDefined            = "device-folder-not-defined.png";                       //$NON-NLS-1$
+   public static final String RawData_DeviceFolder_Off                   = "device-folder-off.png";                               //$NON-NLS-1$
+   public static final String RawData_DeviceFolder_OK                    = "device-folder-OK.png";                                //$NON-NLS-1$
+   public static final String RawData_DeviceFolder_Error                 = "device-folder-error.png";                             //$NON-NLS-1$
+   public static final String RawData_DeviceFolder_IsChecking            = "device-folder-is-checking.png";                       //$NON-NLS-1$
    public static final String RawData_DeviceFolder_NotSetup              = "device-folder-not-setup.png";                         //$NON-NLS-1$
    public static final String RawData_Device_TurnOff                     = "device-turn-off.png";                                 //$NON-NLS-1$
    public static final String RawData_Device_TurnOn                      = "device-turn-on.png";                                  //$NON-NLS-1$
    public static final String RawData_Transfer                           = "device-synchronize.png";                              //$NON-NLS-1$
    public static final String RawData_TransferDirect                     = "device-synchronize-direct.png";                       //$NON-NLS-1$
+   public static final String RefTour                                    = "tour-map-reftour.png";                                //$NON-NLS-1$
    public static final String RefTour_Layout_Flat                        = "reftour-layout-flat.png";                             //$NON-NLS-1$
    public static final String RefTour_Layout_Flat_Disabled               = "reftour-layout-flat-disabled.png";                    //$NON-NLS-1$
    public static final String RefTour_Layout_Hierarchical                = "reftour-layout-hierarchical.png";                     //$NON-NLS-1$
    public static final String RefTour_Layout_Hierarchical_Disabled       = "reftour-layout-hierarchical-disabled.png";            //$NON-NLS-1$
+   public static final String RefTour_New                                = "tour-map-reftour-new.png";                            //$NON-NLS-1$
+   public static final String RefTour_Statistic_Show_All_Values          = "ref-tour-statistic-show-all-values.png";              //$NON-NLS-1$
    public static final String RestoreTags                                = "restore-tour.png";                                    //$NON-NLS-1$
    public static final String RestoreTags_Disabled                       = "restore-tour-disabled.png";                           //$NON-NLS-1$
    public static final String RestoreTour                                = "restore-tour.png";                                    //$NON-NLS-1$
@@ -250,6 +277,7 @@ public class Images {
    public static final String SplinePoint                                = "spline-point.png";                                    //$NON-NLS-1$
    public static final String State_AdjustTemperature                    = "state-temperature.png";                               //$NON-NLS-1$
    public static final String State_Copy                                 = "state-copy.png";                                      //$NON-NLS-1$
+   public static final String State_Delete                               = "state-delete.png";                                    //$NON-NLS-1$
    public static final String State_DeletedTour_View                     = "state-deleted-tour-view.png";                         //$NON-NLS-1$
    public static final String State_Deleted_Backup                       = "state-delete-backup.png";                             //$NON-NLS-1$
    public static final String State_Deleted_Device                       = "state-delete-device.png";                             //$NON-NLS-1$
@@ -259,6 +287,7 @@ public class Images {
    public static final String State_MovedTour_View                       = "state-moved-tour-view.png";                           //$NON-NLS-1$
    public static final String State_NotSavedInTour                       = "state-not-saved-in-tour.png";                         //$NON-NLS-1$
    public static final String State_OK                                   = "state-ok.png";                                        //$NON-NLS-1$
+   public static final String State_RetrieveTourLocation                 = "state-tour-location.png";                             //$NON-NLS-1$
    public static final String State_RetrieveWeatherData                  = "state-weather.png";                                   //$NON-NLS-1$
    public static final String State_Save                                 = "state-save.png";                                      //$NON-NLS-1$
    public static final String State_SaveTour                             = "state-save-tour.png";                                 //$NON-NLS-1$
@@ -266,6 +295,8 @@ public class Images {
    public static final String State_TourMarker                           = "state-tour-marker.png";                               //$NON-NLS-1$
    public static final String Statistic                                  = "statistics.png";                                      //$NON-NLS-1$
    public static final String StatisticValues                            = "statistic-values.png";                                //$NON-NLS-1$
+   public static final String SyncGeoGraph_ByScale                       = "synch-geo-graph-byScale.png";                         //$NON-NLS-1$
+   public static final String SyncGeoGraph_BySize                        = "synch-geo-graph-bySize.png";                          //$NON-NLS-1$
    public static final String SyncGraph_ByScale                          = "synch-graph-byScale.png";                             //$NON-NLS-1$
    public static final String SyncGraph_ByScale_Disabled                 = "synch-graph-byScale-disabled.png";                    //$NON-NLS-1$
    public static final String SyncGraph_BySize                           = "synch-graph-bySize.png";                              //$NON-NLS-1$
@@ -287,6 +318,7 @@ public class Images {
    public static final String SyncWith_Slider_Disabled                   = "synch-with-tour-slider-disabled.png";                 //$NON-NLS-1$
    public static final String SyncWith_Tour                              = "synch-with-tour.png";                                 //$NON-NLS-1$
    public static final String SyncWith_Tour_Disabled                     = "synch-with-tour-disabled.png";                        //$NON-NLS-1$
+   public static final String SyncWith_TourLocation                      = "synch-with-tour-location.png";                        //$NON-NLS-1$
    public static final String Tag                                        = "tag-tag.png";                                         //$NON-NLS-1$
    public static final String Tag_Category                               = "tag-category.png";                                    //$NON-NLS-1$
    public static final String Tag_Root                                   = "tag-tag-root.png";                                    //$NON-NLS-1$
@@ -299,6 +331,7 @@ public class Images {
    public static final String TagsChecked_Disabled                       = "tags-checked-disabled.png";                           //$NON-NLS-1$
    public static final String Tour_Duplicate                             = "tour-duplicate.png";                                  //$NON-NLS-1$
    public static final String Tour_Duplicate_Disabled                    = "tour-duplicate-disabled.png";                         //$NON-NLS-1$
+   public static final String Tour_StartEnd                              = "tour-start-end.png";                                  //$NON-NLS-1$
    public static final String TourAnalyzer                               = "tour-analyzer.png";                                   //$NON-NLS-1$
    public static final String TourBlog                                   = "tour-blog.png";                                       //$NON-NLS-1$
    public static final String TourBook_Month                             = "tourbook-month.png";                                  //$NON-NLS-1$
@@ -306,16 +339,28 @@ public class Images {
    public static final String TourBook_SelectAll                         = "tourbook-select-all.png";                             //$NON-NLS-1$
    public static final String TourBook_SelectAll_Disabled                = "tourbook-select-all-disabled.png";                    //$NON-NLS-1$
    public static final String TourBook_Week                              = "tourbook-week.png";                                   //$NON-NLS-1$
-   public static final String TourCatalog_CompareWizard                  = "tour-map-compare-wizard.png";                         //$NON-NLS-1$
-   public static final String TourCatalog_RefTour_New                    = "tour-map-reftour-new.png";                            //$NON-NLS-1$
    public static final String TourChart                                  = "tour-chart.png";                                      //$NON-NLS-1$
    public static final String TourChart_Disabled                         = "tour-chart-disabled.png";                             //$NON-NLS-1$
+   public static final String TourCompare_Timeline_Elevation             = "tour-compare-timeline-elevation.png";                 //$NON-NLS-1$
+   public static final String TourCompare_Timeline_Geo                   = "tour-compare-timeline-geo.png";                       //$NON-NLS-1$
+   public static final String TourCompare_ElevationCompare_Tool          = "tour-map-compare-result.png";                         //$NON-NLS-1$
+   public static final String TourCompare_ElevationCompare_Tour          = "tour-compare-elevation-compared-tour.png";            //$NON-NLS-1$
+   public static final String TourCompare_GeoCompare_Tool                = "geo-parts.png";                                       //$NON-NLS-1$
+   public static final String TourCompare_GeoCompare_Tool_Disabled       = "tour-compare-geo-compare-tool-disabled.png";          //$NON-NLS-1$
+   public static final String TourCompare_GeoCompare_Tour                = "tour-compare-geo-compared-tour.png";                  //$NON-NLS-1$
+   public static final String TourCompare_GeoCompare_RefTour             = "tour-compare-geo-tour.png";                           //$NON-NLS-1$
    public static final String TourData                                   = "tour-data.png";                                       //$NON-NLS-1$
    public static final String TourElevationCompareFilter                 = "tour-elevation-compare-filter.png";                   //$NON-NLS-1$
    public static final String TourElevationCompareFilter_Saved           = "tour-elevation-compare-filter-saved.png";             //$NON-NLS-1$
    public static final String TourElevationCompareFilter_NotSaved        = "tour-elevation-compare-filter-not-saved.png";         //$NON-NLS-1$
    public static final String TourFilter                                 = "tour-filter.png";                                     //$NON-NLS-1$
    public static final String TourFilter_Disabled                        = "tour-filter-disabled.png";                            //$NON-NLS-1$
+   public static final String TourFilter_Collected_All                   = "tour-filter-collected-all.png";                       //$NON-NLS-1$
+   public static final String TourFilter_Collected_All_Disabled          = "tour-filter-collected-all-disabled.png";              //$NON-NLS-1$
+   public static final String TourFilter_Collected_Not                   = "tour-filter-collected-not.png";                       //$NON-NLS-1$
+   public static final String TourFilter_Collected_Not_Disabled          = "tour-filter-collected-not-disabled.png";              //$NON-NLS-1$
+   public static final String TourFilter_Collected_Selected              = "tour-filter-collected-selected.png";                  //$NON-NLS-1$
+   public static final String TourFilter_Collected_Selected_Disabled     = "tour-filter-collected-selected-disabled.png";         //$NON-NLS-1$
    public static final String TourFilter_TourWithPhotos                  = "tour-filter-tour-with-photos.png";                    //$NON-NLS-1$
    public static final String TourFilter_TourWithPhotos_Disabled         = "tour-filter-tour-with-photos-disabled.png";           //$NON-NLS-1$
    public static final String TourFilter_TourWithNotSavedPhotos          = "tour-filter-tour-with-not-saved-photos.png";          //$NON-NLS-1$
@@ -324,6 +369,7 @@ public class Images {
    public static final String TourInfo                                   = "tour-info.png";                                       //$NON-NLS-1$
    public static final String TourInfo_Disabled                          = "tour-info-disabled.png";                              //$NON-NLS-1$
    public static final String TourInfo_Hovered                           = "tour-info-hovered.png";                               //$NON-NLS-1$
+   public static final String TourLocations                              = "tour-locations.png";                                  //$NON-NLS-1$
    public static final String TourLog                                    = "tour-log.png";                                        //$NON-NLS-1$
    public static final String TourLog_Layout_Color                       = "tour-log-layout-color.png";                           //$NON-NLS-1$
    public static final String TourLog_Layout_Simple                      = "tour-log-layout-simple.png";                          //$NON-NLS-1$
@@ -333,6 +379,7 @@ public class Images {
    public static final String TourMarker_New                             = "tour-marker-new.png";                                 //$NON-NLS-1$
    public static final String TourMarker_New_Disabled                    = "tour-marker-new-disabled.png";                        //$NON-NLS-1$
    public static final String TourNew                                    = "tour-new.png";                                        //$NON-NLS-1$
+   public static final String TourNutrition                              = "tour-nutrition.png";                                  //$NON-NLS-1$
    public static final String TourPauses                                 = "tour-pauses.png";                                     //$NON-NLS-1$
    public static final String TourPauses_Disabled                        = "tour-pauses-disabled.png";                            //$NON-NLS-1$
    public static final String TourSegmenter                              = "tour-segmenter.png";                                  //$NON-NLS-1$

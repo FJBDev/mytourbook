@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021, 2022 Frédéric Bard
+ * Copyright (C) 2021, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,11 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
@@ -33,12 +30,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.cloud.Activator;
@@ -46,6 +41,7 @@ import net.tourbook.cloud.CloudImages;
 import net.tourbook.cloud.Messages;
 import net.tourbook.cloud.Preferences;
 import net.tourbook.cloud.oauth2.OAuth2Constants;
+import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.suunto.workouts.Payload;
 import net.tourbook.cloud.suunto.workouts.Workouts;
 import net.tourbook.common.UI;
@@ -53,46 +49,50 @@ import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourPerson;
+import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.tour.TourLogManager;
 
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
-   private static final String     LOG_CLOUDACTION_END           = net.tourbook.cloud.Messages.Log_CloudAction_End;
-   private static final String     LOG_CLOUDACTION_INVALIDTOKENS = net.tourbook.cloud.Messages.Log_CloudAction_InvalidTokens;
+   private static final String     LOG_CLOUDACTION_END           = Messages.Log_CloudAction_End;
+   private static final String     LOG_CLOUDACTION_INVALIDTOKENS = Messages.Log_CloudAction_InvalidTokens;
+   private static final String     APP_PEOPLE_ITEM_ALL           = net.tourbook.Messages.App_People_item_all;
 
-   private static HttpClient       _httpClient                   = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(5)).build();
    private static IPreferenceStore _prefStore                    = Activator.getDefault().getPreferenceStore();
    private int[]                   _numberOfAvailableTours;
 
    private boolean                 _useActivePerson;
    private boolean                 _useAllPeople;
 
+   private String                  _personName;
+
    public SuuntoCloudDownloader() {
 
       super("SUUNTO", //$NON-NLS-1$
             Messages.VendorName_Suunto,
             Messages.Import_Data_HTML_SuuntoWorkoutsDownloader_Tooltip,
-            Activator.getImageAbsoluteFilePath(CloudImages.Cloud_Suunto));
+            Activator.getImageAbsoluteFilePath(CloudImages.Cloud_Suunto_Logo));
    }
 
    private CompletableFuture<WorkoutDownload> downloadFile(final Payload workoutPayload) {
 
       final HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(OAuth2Constants.HEROKU_APP_URL + "/suunto/workout/exportFit?workoutKey=" + workoutPayload.workoutKey))//$NON-NLS-1$
-            .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+            .uri(OAuth2Utils.createOAuthPasseurUri("/suunto/workout/exportFit?workoutKey=" + workoutPayload.workoutKey()))//$NON-NLS-1$
+            .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
             .GET()
             .build();
 
@@ -112,7 +112,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       });
 
       final int[] numberOfDownloadedTours = new int[1];
-      workoutDownloads.stream().map(CompletableFuture::join).forEach(workoutDownload -> {
+      workoutDownloads.stream().map(download -> download.join()).forEach(workoutDownload -> {
          if (monitor.isCanceled()) {
             return;
          } else if (logDownloadResult(workoutDownload)) {
@@ -146,26 +146,34 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
          }
       }
 
+      // Disable the person selector's combo so that the user doesn't launch a concurrent
+      // download that could create issues by mixing different user's settings
+      PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+         PersonManager.getPersonSelector().setEnabled(false);
+      });
+
+      final TourPerson activePerson = TourbookPlugin.getActivePerson();
+      _personName = activePerson == null
+            ? APP_PEOPLE_ITEM_ALL
+            : activePerson.getName();
+
       _numberOfAvailableTours = new int[1];
+      final String[] notificationText = new String[1];
       final int[] numberOfDownloadedTours = new int[1];
 
-      final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+      final Job job = new Job(Messages.Dialog_DownloadWorkoutsFromSuunto_Task) {
 
          @Override
-         public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+         public IStatus run(final IProgressMonitor monitor) {
 
-            monitor.beginTask(Messages.Dialog_DownloadWorkoutsFromSuunto_Task, 2);
+            monitor.beginTask(UI.EMPTY_STRING, 3);
 
             monitor.subTask(Messages.Dialog_ValidatingSuuntoTokens_SubTask);
 
             if (!SuuntoTokensRetrievalHandler.getValidTokens(_useActivePerson, _useAllPeople)) {
-               TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS);
-               return;
-            }
-
-            if (StringUtils.isNullOrEmpty(getDownloadFolder())) {
-               TourLogManager.log_ERROR(Messages.Log_DownloadWorkoutsFromSuunto_004_NoSpecifiedFolder);
-               return;
+               Display.getDefault().asyncExec(() -> TourLogManager.log_ERROR(LOG_CLOUDACTION_INVALIDTOKENS));
+               notificationText[0] = LOG_CLOUDACTION_INVALIDTOKENS;
+               return Status.CANCEL_STATUS;
             }
 
             monitor.subTask(NLS.bind(Messages.Dialog_DownloadWorkoutsFromSuunto_SubTask,
@@ -173,25 +181,28 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
                         UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND,
                         UI.EMPTY_STRING,
                         UI.EMPTY_STRING }));
+            monitor.worked(1);
 
             //Get the list of workouts
             final Workouts workouts = retrieveWorkoutsList();
-            if (workouts.payload.size() == 0) {
-               TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound);
-               return;
+            if (workouts == null || workouts.payload().isEmpty()) {
+               Display.getDefault().asyncExec(() -> TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound));
+               notificationText[0] = Messages.Log_DownloadWorkoutsFromSuunto_002_NewWorkoutsNotFound;
+               return Status.CANCEL_STATUS;
             }
 
             final List<Long> tourStartTimes = retrieveAllTourStartTimes();
 
             //Identifying the workouts that have not yet been imported in the tour database
-            final List<Payload> newWorkouts = workouts.payload.stream()
-                  .filter(suuntoWorkout -> !tourStartTimes.contains(suuntoWorkout.startTime / 1000L * 1000L))
-                  .collect(Collectors.toList());
+            final List<Payload> newWorkouts = workouts.payload().stream()
+                  .filter(suuntoWorkout -> !tourStartTimes.contains(suuntoWorkout.startTime() / 1000L * 1000L))
+                  .toList();
 
             final int numNewWorkouts = newWorkouts.size();
             if (numNewWorkouts == 0) {
-               TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist);
-               return;
+               Display.getDefault().asyncExec(() -> TourLogManager.log_INFO(Messages.Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist));
+               notificationText[0] = Messages.Log_DownloadWorkoutsFromSuunto_003_AllWorkoutsAlreadyExist;
+               return Status.CANCEL_STATUS;
             }
 
             _numberOfAvailableTours[0] = numNewWorkouts;
@@ -207,31 +218,55 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
             numberOfDownloadedTours[0] = downloadFiles(newWorkouts, monitor);
 
             monitor.worked(1);
+
+            monitor.done();
+
+            return Status.OK_STATUS;
          }
       };
 
-      try {
-         final long start = System.currentTimeMillis();
+      final long start = System.currentTimeMillis();
 
-         TourLogManager.showLogView();
-         TourLogManager.log_TITLE(Messages.Log_DownloadWorkoutsFromSuunto_001_Start);
+      TourLogManager.log_TITLE(Messages.Log_DownloadWorkoutsFromSuunto_001_Start);
 
-         new ProgressMonitorDialog(Display.getCurrent().getActiveShell()).run(true, true, runnable);
+      job.setPriority(Job.INTERACTIVE);
+      job.schedule();
 
-         TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+      job.addJobChangeListener(new JobChangeAdapter() {
 
-         MessageDialog.openInformation(
-               Display.getDefault().getActiveShell(),
-               Messages.Dialog_DownloadWorkoutsFromSuunto_Title,
-               NLS.bind(Messages.Dialog_DownloadWorkoutsFromSuunto_Message,
-                     numberOfDownloadedTours[0],
-                     _numberOfAvailableTours[0] - numberOfDownloadedTours[0]));
+         @Override
+         public void done(final IJobChangeEvent event) {
 
-      } catch (final InvocationTargetException | InterruptedException e) {
-         StatusUtil.log(e);
-         Thread.currentThread().interrupt();
-      }
+            if (PlatformUI.isWorkbenchRunning()) {
 
+               final String infoText = event.getResult().isOK()
+                     ? NLS.bind(Messages.Dialog_DownloadWorkoutsFromSuunto_Message,
+                           numberOfDownloadedTours[0],
+                           _numberOfAvailableTours[0] - numberOfDownloadedTours[0])
+                     : notificationText[0];
+
+               PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+
+                  TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
+
+                  UI.openNotificationPopup(
+                        Messages.Dialog_DownloadWorkoutsFromSuunto_Title,
+                        Activator.getImageDescriptor(CloudImages.Cloud_Suunto_Logo_Small),
+                        infoText);
+               });
+
+               PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+                  PersonManager.getPersonSelector().setEnabled(true);
+               });
+            }
+         }
+
+         @Override
+         public void running(final IJobChangeEvent event) {
+            // todo fb detect if no new files to be downloaded but how ?
+
+         }
+      });
    }
 
    private String getAccessToken() {
@@ -313,12 +348,12 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
          isTourDownloaded = true;
 
-         TourLogManager.log_OK(
+         Display.getDefault().asyncExec(() -> TourLogManager.log_OK(
                NLS.bind(Messages.Log_DownloadWorkoutsFromSuunto_005_DownloadStatus,
                      workoutDownload.getWorkoutKey(),
-                     workoutDownload.getAbsoluteFilePath()));
+                     workoutDownload.getAbsoluteFilePath())));
       } else {
-         TourLogManager.log_ERROR(workoutDownload.getError());
+         Display.getDefault().asyncExec(() -> TourLogManager.log_ERROR(workoutDownload.getError()));
       }
 
       return isTourDownloaded;
@@ -357,57 +392,66 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
 
    private Workouts retrieveWorkoutsList() {
 
+      final StringBuilder queryParameters = new StringBuilder();
+
+      if (getSuuntoUseWorkoutFilterStartDate()) {
+
+         final long startDateFilter = getSuuntoWorkoutFilterStartDate();
+         queryParameters.append("since=" + startDateFilter); //$NON-NLS-1$
+      }
+      if (getSuuntoUseWorkoutFilterEndDate()) {
+
+         final long endDateFilter = getSuuntoWorkoutFilterEndDate();
+
+         if (StringUtils.hasContent(queryParameters.toString())) {
+            queryParameters.append('&');
+         }
+
+         queryParameters.append("until=" + endDateFilter); //$NON-NLS-1$
+      }
+
+      if (StringUtils.hasContent(queryParameters.toString())) {
+         queryParameters.insert(0, '?');
+      }
+
+      final URI oAuthPasseurAppUri = OAuth2Utils.createOAuthPasseurUri("/suunto/workouts" + queryParameters); //$NON-NLS-1$
+
       try {
 
-         final URI herokuUri = new URI(OAuth2Constants.HEROKU_APP_URL);
-
-         final URIBuilder uriBuilder = new URIBuilder()
-               .setScheme(herokuUri.getScheme())
-               .setHost(herokuUri.getHost())
-               .setPath("suunto/workouts"); //$NON-NLS-1$
-
-         if (getSuuntoUseWorkoutFilterStartDate()) {
-            final long startDateFilter = getSuuntoWorkoutFilterStartDate();
-            uriBuilder.setParameter("since", String.valueOf(startDateFilter)); //$NON-NLS-1$
-         }
-         if (getSuuntoUseWorkoutFilterEndDate()) {
-            final long endDateFilter = getSuuntoWorkoutFilterEndDate();
-            uriBuilder.setParameter("until", String.valueOf(endDateFilter)); //$NON-NLS-1$
-         }
-
          final HttpRequest request = HttpRequest.newBuilder()
-               .uri(uriBuilder.build())
-               .header(HttpHeaders.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
+               .uri(oAuthPasseurAppUri)
+               .header(OAuth2Constants.AUTHORIZATION, OAuth2Constants.BEARER + getAccessToken())
                .GET()
                .build();
 
-         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+         final HttpResponse<String> response = OAuth2Utils.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
          if (response.statusCode() == HttpURLConnection.HTTP_OK && StringUtils.hasContent(response.body())) {
 
             return new ObjectMapper().readValue(response.body(), Workouts.class);
          }
-      } catch (IOException | InterruptedException | URISyntaxException e) {
+      } catch (IOException | InterruptedException e) {
          StatusUtil.log(e);
          Thread.currentThread().interrupt();
       }
 
-      return new Workouts();
+      return null;
    }
 
    private CompletableFuture<WorkoutDownload> sendAsyncRequest(final Payload workoutPayload,
                                                                final HttpRequest request) {
 
-      final CompletableFuture<WorkoutDownload> workoutDownload = _httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
-            .thenApply(response -> writeFileToFolder(workoutPayload, response))
-            .exceptionally(e -> {
-               final WorkoutDownload erroneousDownload = new WorkoutDownload(workoutPayload.workoutKey);
-               erroneousDownload.setError(NLS.bind(Messages.Log_DownloadWorkoutsFromSuunto_007_Error,
-                     erroneousDownload.getWorkoutKey(),
-                     e.getMessage()));
-               erroneousDownload.setSuccessfullyDownloaded(false);
-               return erroneousDownload;
-            });
+      final CompletableFuture<WorkoutDownload> workoutDownload =
+            OAuth2Utils.httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
+                  .thenApply(response -> writeFileToFolder(workoutPayload, response))
+                  .exceptionally(e -> {
+                     final WorkoutDownload erroneousDownload = new WorkoutDownload(workoutPayload.workoutKey());
+                     erroneousDownload.setError(NLS.bind(Messages.Log_DownloadWorkoutsFromSuunto_007_Error,
+                           erroneousDownload.getWorkoutKey(),
+                           e.getMessage()));
+                     erroneousDownload.setSuccessfullyDownloaded(false);
+                     return erroneousDownload;
+                  });
 
       return workoutDownload;
    }
@@ -415,7 +459,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
    private WorkoutDownload writeFileToFolder(final Payload workoutPayload,
                                              final HttpResponse<InputStream> response) {
 
-      final WorkoutDownload workoutDownload = new WorkoutDownload(workoutPayload.workoutKey);
+      final WorkoutDownload workoutDownload = new WorkoutDownload(workoutPayload.workoutKey());
 
       final Optional<String> contentDisposition =
             response.headers().firstValue("Content-Disposition"); //$NON-NLS-1$
@@ -428,7 +472,7 @@ public class SuuntoCloudDownloader extends TourbookCloudDownloader {
       }
 
       final String customizedFileName =
-            CustomFileNameBuilder.buildCustomizedFileName(workoutPayload, suuntoFileName);
+            CustomFileNameBuilder.buildCustomizedFileName(workoutPayload, suuntoFileName, _personName);
 
       final Path filePath = Paths.get(
             getDownloadFolder(),

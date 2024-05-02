@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +29,7 @@ import javax.persistence.Transient;
 
 import net.tourbook.Messages;
 import net.tourbook.common.UI;
+import net.tourbook.common.util.StringUtils;
 import net.tourbook.database.FIELD_VALIDATION;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.ui.views.sensors.SensorManager;
@@ -35,7 +37,9 @@ import net.tourbook.ui.views.sensors.SensorManager;
 /**
  */
 @Entity
-public class DeviceSensor implements Cloneable {
+public class DeviceSensor implements Cloneable, Serializable {
+
+   private static final long    serialVersionUID      = 1L;
 
    private static final char    NL                    = UI.NEW_LINE;
 
@@ -103,6 +107,9 @@ public class DeviceSensor implements Cloneable {
    @Transient
    private String               _label;
 
+   @Transient
+   private String               _sensorKeyByName;
+
    /**
     * Default constructor used in EJB
     */
@@ -125,6 +132,48 @@ public class DeviceSensor implements Cloneable {
       this.productName = productName;
 
       this.serialNumber = serialNumber;
+   }
+
+   /**
+    * Creates a device key by using it's name components. Normally a device is identified by it's
+    * serial number but some devices do not have it.
+    *
+    * @param manufacturerName
+    * @param manufacturerNumber
+    * @param productNumber
+    * @param productName
+    *
+    * @return
+    */
+   public static String createSensorKeyByName(final String manufacturerName,
+                                              final int manufacturerNumber,
+                                              final int productNumber,
+                                              final String productName) {
+
+      final StringBuilder sb = new StringBuilder();
+
+      if (StringUtils.hasContent(manufacturerName)) {
+
+         sb.append(manufacturerName);
+
+      } else {
+
+         sb.append(manufacturerNumber);
+
+      }
+
+      sb.append(UI.DASH);
+
+      if (StringUtils.hasContent(productName)) {
+
+         sb.append(productName);
+
+      } else {
+
+         sb.append(productNumber);
+      }
+
+      return sb.toString();
    }
 
    @Override
@@ -174,25 +223,6 @@ public class DeviceSensor implements Cloneable {
       return true;
    }
 
-   public boolean equals1(final Object obj) {
-
-      if (this == obj) {
-         return true;
-      }
-
-      if (obj == null) {
-         return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final DeviceSensor other = (DeviceSensor) obj;
-
-      return sensorId == other.sensorId;
-   }
-
    public String getDescription() {
 
       if (description == null) {
@@ -240,6 +270,22 @@ public class DeviceSensor implements Cloneable {
    }
 
    /**
+    * @return Returns a sensor key by using it's name components. Normally a device is identified by
+    *         it's serial number but some devices do not have it, they are identified by the sensor
+    *         names/numbers
+    *
+    */
+   public String getSensorKeyByName() {
+
+      if (_sensorKeyByName == null) {
+
+         _sensorKeyByName = createSensorKeyByName(manufacturerName, manufacturerNumber, productNumber, productName);
+      }
+
+      return _sensorKeyByName;
+   }
+
+   /**
     * @return Returns the sensor custom name or an empty string when not available
     */
    public String getSensorName() {
@@ -255,6 +301,10 @@ public class DeviceSensor implements Cloneable {
       return sensorType;
    }
 
+   /**
+    * @return Returns the serial number as string, an empty string is returned when a serial number
+    *         is not available
+    */
    public String getSerialNumber() {
       return serialNumber;
    }
@@ -392,9 +442,9 @@ public class DeviceSensor implements Cloneable {
    @Override
    public String toString() {
 
-      return "DeviceSensor" + NL //                                     //$NON-NLS-1$
+      return "DeviceSensor" + NL //                                           //$NON-NLS-1$
 
-//            + "[" + NL //                                               //$NON-NLS-1$
+//            + "[" + NL //                                                   //$NON-NLS-1$
 
             + "      sensorName           = " + sensorName + NL //            //$NON-NLS-1$
             + "      sensorId             = " + sensorId + NL //              //$NON-NLS-1$
@@ -403,9 +453,10 @@ public class DeviceSensor implements Cloneable {
             + "      productNumber        = " + productNumber + NL //         //$NON-NLS-1$
             + "      productName          = " + productName + NL //           //$NON-NLS-1$
             + "      serialNumber         = " + serialNumber + NL //          //$NON-NLS-1$
-            + "      _label               = " + getLabel() + NL //          //$NON-NLS-1$
+            + "      _sensorKeyByName     = " + _sensorKeyByName + NL //      //$NON-NLS-1$
+            + "      _label               = " + getLabel() + NL //            //$NON-NLS-1$
 
-//            + "]" + NL //                                              //$NON-NLS-1$
+//            + "]" + NL //                                                   //$NON-NLS-1$
       ;
    }
 

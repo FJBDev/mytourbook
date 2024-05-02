@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2022 Frédéric Bard
+ * Copyright (C) 2020, 2023 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.tourbook.common.UI;
+import net.tourbook.common.util.FileUtils;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.export.ExportTourGPX;
@@ -27,60 +29,86 @@ import net.tourbook.export.ExportTourTCX;
 import net.tourbook.export.TourExporter;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import utils.Comparison;
 import utils.FilesUtils;
 import utils.Initializer;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TourExporterTests {
 
-   private static final String FILES_PATH           = FilesUtils.rootPath + "export/files/"; //$NON-NLS-1$
-   private static final String _testTourFilePathTcx = FILES_PATH + "TCXExport.tcx";          //$NON-NLS-1$
-   private static final String _testTourFilePathGpx = FILES_PATH + "GPXExport.gpx";          //$NON-NLS-1$
+   private static final String FIT_FILES_PATH            = FilesUtils.rootPath + "device/garmin/fit/files/"; //$NON-NLS-1$
+   private static final String FILES_PATH                = FilesUtils.rootPath + "export/files/";            //$NON-NLS-1$
+   private static final String EXPORTEDTOUR_FILEPATH_FIT = FILES_PATH + "FITExport.fit";                     //$NON-NLS-1$
+   private static final String EXPORTEDTOUR_FILEPATH_CSV = FILES_PATH + "FITExport.csv";                     //$NON-NLS-1$
+   private static final String EXPORTEDTOUR_FILEPATH_TCX = FILES_PATH + "TCXExport.tcx";                     //$NON-NLS-1$
+   private static final String EXPORTEDTOUR_FILEPATH_GPX = FILES_PATH + "GPXExport.gpx";                     //$NON-NLS-1$
 
-   private static TourData     _tour;
+   private TourData            _tour;
    private TourExporter        _tourExporter;
 
-   @BeforeAll
-   static void initAll() {
+   private void executeFitTest(final String controlTourFileName) {
 
-      _tour = Initializer.importTour();
-      final TourType tourType = new TourType();
-      tourType.setName("Running"); //$NON-NLS-1$
-      _tour.setTourType(tourType);
-   }
+      _tourExporter.export(EXPORTEDTOUR_FILEPATH_FIT);
 
-   @AfterEach
-   void afterEach() {
-
-      net.tourbook.common.util.FilesUtils.deleteIfExists(Paths.get(_testTourFilePathTcx));
-      net.tourbook.common.util.FilesUtils.deleteIfExists(Paths.get(_testTourFilePathGpx));
+      Comparison.compareFitAgainstControl(FILES_PATH + controlTourFileName,
+            EXPORTEDTOUR_FILEPATH_FIT);
    }
 
    private void executeGpxTest(final String controlTourFileName) {
 
-      _tourExporter.export(_testTourFilePathGpx);
+      _tourExporter.export(EXPORTEDTOUR_FILEPATH_GPX);
 
       final List<String> nodesToFilter = Arrays.asList("Cadence", "mt:tourType", "mt:tourDistance"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final List<String> attributesToFilter = Arrays.asList("creator"); //$NON-NLS-1$
       Comparison.compareXmlAgainstControl(FILES_PATH + controlTourFileName,
-            _testTourFilePathGpx,
+            EXPORTEDTOUR_FILEPATH_GPX,
             nodesToFilter,
             attributesToFilter);
    }
 
    private void executeTcxTest(final String controlTourFileName) {
 
-      _tourExporter.export(_testTourFilePathTcx);
+      _tourExporter.export(EXPORTEDTOUR_FILEPATH_TCX);
 
       final List<String> nodesToFilter = Arrays.asList("Cadence", "Author", "Creator"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       final List<String> attributesToFilter = new ArrayList<>();
       Comparison.compareXmlAgainstControl(FILES_PATH + controlTourFileName,
-            _testTourFilePathTcx,
+            EXPORTEDTOUR_FILEPATH_TCX,
             nodesToFilter,
             attributesToFilter);
+   }
+
+   @Test
+   void export_Tour_In_FIT_Format() {
+
+      initializeTourExporterFit();
+
+      final String controlTourFileName = "LongsPeakFit.fit"; //$NON-NLS-1$
+      executeFitTest(controlTourFileName);
+   }
+
+   @Test
+   void export_Tour_In_FIT_Format_With_Pauses() {
+
+      initializeTourExporterFit();
+
+      final String controlTourFileName = "Bye_bye_Silverton.fit"; //$NON-NLS-1$
+      final String sourceFilePath = FilesUtils.getAbsoluteFilePath(FIT_FILES_PATH + controlTourFileName);
+      _tour = Initializer.importTour_FIT(sourceFilePath);
+      _tourExporter.useTourData(_tour);
+
+      executeFitTest(controlTourFileName);
+   }
+
+   private void initializeTourExporterFit() {
+
+      _tourExporter = new TourExporter("fit").useTourData(_tour); //$NON-NLS-1$
+      _tourExporter.setActivityType(_tour.getTourType().getName());
    }
 
    private void initializeTourExporterGpx() {
@@ -95,6 +123,26 @@ public class TourExporterTests {
       _tourExporter.setActivityType(_tour.getTourType().getName());
    }
 
+   @BeforeEach
+   void setUp() {
+
+      _tour = Initializer.importTour();
+      final TourType tourType = new TourType();
+      tourType.setName("Running"); //$NON-NLS-1$
+      _tour.setTourType(tourType);
+      _tour.setBodyWeight(77.7f); // 77.7kg
+      _tour.setCalories(1282000); // 1282 kcal / 1282000 calories
+   }
+
+   @AfterEach
+   void tearDown() {
+
+      FileUtils.deleteIfExists(Paths.get(EXPORTEDTOUR_FILEPATH_FIT));
+      FileUtils.deleteIfExists(Paths.get(EXPORTEDTOUR_FILEPATH_CSV));
+      FileUtils.deleteIfExists(Paths.get(EXPORTEDTOUR_FILEPATH_GPX));
+      FileUtils.deleteIfExists(Paths.get(EXPORTEDTOUR_FILEPATH_TCX));
+   }
+
    @Test
    void testGpxExportAllOptions() {
 
@@ -107,9 +155,7 @@ public class TourExporterTests {
       _tourExporter.setIsExportSurfingWaves(true);
       _tourExporter.setIsExportWithBarometer(true);
       _tourExporter.setIsCamouflageSpeed(true);
-      _tourExporter.setCamouflageSpeed(15 / 3.6f); // 15km/h
-      _tour.setBodyWeight(77.7f); // 77.7kg
-      _tour.setCalories(1282000); // 1282 kcal / 1282000 calories
+      _tourExporter.setCamouflageSpeed(UI.convertSpeed_KmhToMs(15)); // 15km/h
 
       executeGpxTest(controlTourFileName);
    }
@@ -134,7 +180,8 @@ public class TourExporterTests {
       _tourExporter.setUseActivityType(true);
       _tourExporter.setActivityType("Biking"); //$NON-NLS-1$
       _tourExporter.setIsCamouflageSpeed(true);
-      _tourExporter.setCamouflageSpeed(15 / 3.6f);
+      _tourExporter.setCamouflageSpeed(UI.convertSpeed_KmhToMs(15)); // 15km/h
+      _tour.setCalories(0);
 
       final String controlTourFileName = "LongsPeak-CamouflageSpeed-15kmh-BikingActivity.tcx"; //$NON-NLS-1$
       executeTcxTest(controlTourFileName);

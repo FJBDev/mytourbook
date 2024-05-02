@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourType;
 import net.tourbook.tour.CadenceMultiplier;
+import net.tourbook.tour.location.TourLocationProfile;
 
 public class ImportLauncher implements Cloneable {
 
@@ -52,33 +53,34 @@ public class ImportLauncher implements Cloneable {
    /**
     * When <code>true</code>, assigns a type to the tour.
     */
-   public boolean                  isSetTourType                 = false;
+   public boolean                  isSetTourType;
 
    /**
     * When <code>true</code> save the tour for the active person.
     */
-   public boolean                  isSaveTour                    = false;
+   public boolean                  isSaveTour;
 
    /**
     * When <code>true</code> then the text of the last marker is set.
     */
-   public boolean                  isSetLastMarker               = false;
+   public boolean                  isSetLastMarker;
+
    /**
     * Last marker distance in meters.
     */
-   public int                      lastMarkerDistance            = 0;
+   public int                      lastMarkerDistance;
 
    public String                   lastMarkerText                = UI.EMPTY_STRING;
 
    /**
     * When <code>true</code> then the tour start temperature is adjusted.
     */
-   public boolean                  isAdjustTemperature           = false;
+   public boolean                  isAdjustTemperature;
 
    /**
     * When <code>true</code>, the weather data is saved in the tour.
     */
-   public boolean                  isRetrieveWeatherData         = false;
+   public boolean                  isRetrieveWeatherData;
 
    /**
     * Duration in seconds during which the temperature is adjusted.
@@ -102,6 +104,22 @@ public class ImportLauncher implements Cloneable {
     */
    public boolean                  isReplaceFirstTimeSliceElevation;
 
+   /**
+    * When <code>true</code> then the elevation up/down totals are computed from SRTM data when
+    * available
+    */
+   public boolean                  isReplaceElevationFromSRTM;
+
+   /**
+    * When <code>true</code> then tour start/end locations are retrieved and set into the tour
+    */
+   public boolean                  isRetrieveTourLocation;
+
+   /**
+    * This tour location profile is used to set the tour location values
+    */
+   public TourLocationProfile      tourLocationProfile;
+
    public ImportLauncher() {
 
       _id = ++_idCreator;
@@ -117,6 +135,7 @@ public class ImportLauncher implements Cloneable {
          clonedObject = (ImportLauncher) super.clone();
 
          clonedObject._id = ++_idCreator;
+
          clonedObject.speedTourTypes = new ArrayList<>();
 
          for (final SpeedTourType speedVertex : speedTourTypes) {

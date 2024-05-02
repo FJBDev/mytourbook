@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,24 +34,21 @@ import org.eclipse.ui.PlatformUI;
 
 public class ThemeUtil {
 
-   public static final String  DEFAULT_BACKGROUND_LIGHT_THEME = "fff";                                             //$NON-NLS-1$
-   public static final String  DEFAULT_FOREGROUND_LIGHT_THEME = "333";                                             //$NON-NLS-1$
+   public static final String  DEFAULT_BACKGROUND_LIGHT_THEME = "fff";   //$NON-NLS-1$
+   public static final String  DEFAULT_FOREGROUND_LIGHT_THEME = "333";   //$NON-NLS-1$
 
-   public static final String  DEFAULT_FOREGROUND_DARK_THEME  = "ddd";                                             //$NON-NLS-1$
-   public static final String  DEFAULT_BACKGROUND_DARK_THEME  = "333";                                             //$NON-NLS-1$
-
-   private static final Color  THEMED_COLOR_ERROR             = new Color(255, 88, 88);
-   private static final Color  SYSTEM_COLOR_RED               = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+   public static final String  DEFAULT_FOREGROUND_DARK_THEME  = "ddd";   //$NON-NLS-1$
+   public static final String  DEFAULT_BACKGROUND_DARK_THEME  = "333";   //$NON-NLS-1$
 
    /**
     * Currently only .png files are supported for themed images !!!
     */
-   private static final String IMAGE_NAME_EXTENSION_PNG       = ".png";                                            //$NON-NLS-1$
+   private static final String IMAGE_NAME_EXTENSION_PNG       = ".png";  //$NON-NLS-1$
 
    /**
     * All images for the dark theme should have this postfix before the file extension
     */
-   public static final String  DARK_THEME_POSTFIX             = "-dark";                                           //$NON-NLS-1$
+   public static final String  DARK_THEME_POSTFIX             = "-dark"; //$NON-NLS-1$
 
    /*
     * Copied from org.eclipse.e4.ui.internal.workbench.swt.E4Application
@@ -100,6 +97,8 @@ public class ThemeUtil {
 
    private static Color        _defaultForegroundColor_Shell;
    private static Color        _defaultBackgroundColor_Shell;
+
+   private static Color        _defaultForegroundColor_LabelDisabled;
 
    /**
     * These are all Eclipse themes when using W10:
@@ -151,16 +150,6 @@ public class ThemeUtil {
    }
 
    /**
-    * @return Returns themed color for displaying errors
-    */
-   public static Color getColor_Error() {
-
-      return UI.IS_DARK_THEME
-            ? THEMED_COLOR_ERROR
-            : SYSTEM_COLOR_RED;
-   }
-
-   /**
     * @return The tour chart do not show a dark background color when displayed in a dialog, it
     *         shows the background color from the shell.
     *         <p>
@@ -203,6 +192,10 @@ public class ThemeUtil {
       return _defaultForegroundColor_Combo;
    }
 
+   public static Color getDefaultForegroundColor_LabelDisabled() {
+      return _defaultForegroundColor_LabelDisabled;
+   }
+
    public static Color getDefaultForegroundColor_Shell() {
       return _defaultForegroundColor_Shell;
    }
@@ -221,6 +214,19 @@ public class ThemeUtil {
       return _defaultForegroundColor_TableHeader;
    }
 
+   /**
+    * @return Returns themed color for displaying errors
+    */
+   public static Color getErrorColor() {
+
+      return UI.IS_DARK_THEME
+
+            // yellow is very bright in the dark theme compared with other colors
+            ? UI.SYS_COLOR_YELLOW
+
+            : UI.SYS_COLOR_RED;
+   }
+
    public static String getThemedCss_DefaultBackground() {
 
       return UI.IS_DARK_THEME
@@ -237,6 +243,7 @@ public class ThemeUtil {
 
    /**
     * @param imageName
+    *
     * @return Returns the themed image name. The postfix {@value #DARK_THEME_POSTFIX} is
     *         appended to the image name when the dark theme image name is returned.
     */
@@ -244,7 +251,7 @@ public class ThemeUtil {
 
       String imageNameThemed;
 
-      if (UI.isDarkTheme()) {
+      if (UI.IS_DARK_THEME) {
 
          imageNameThemed = imageName.substring(0, imageName.length() - 4) + DARK_THEME_POSTFIX + IMAGE_NAME_EXTENSION_PNG;
 
@@ -261,7 +268,7 @@ public class ThemeUtil {
     */
    public static String getThemedTreeHeaderLabel(final String headerLabel) {
 
-      if (UI.isDarkTheme()) {
+      if (UI.IS_DARK_THEME) {
 
          return headerLabel + UI.SPACE2;
       }
@@ -314,19 +321,21 @@ public class ThemeUtil {
 
          // table header color: 38 3D 3F
          final Color table_HeaderLineColor         = new Color(0x50, 0x50, 0x50);
-         final Color label_DisabledForegroundColor = new Color(0x80, 0x80, 0x80);
+
+         // the disabled label color is used for both dark+light theme
+         _defaultForegroundColor_LabelDisabled     = new Color(0x80, 0x80, 0x80);
 
          display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme",       isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor",         isDarkTheme ? menuBarForegroundColor : null);         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor",         isDarkTheme ? menuBarBackgroundColor : null);         //$NON-NLS-1$
-         display.setData("org.eclipse.swt.internal.win32.menuBarBorderColor",             isDarkTheme ? menuBarBorderColor : null);             //$NON-NLS-1$
+         display.setData("org.eclipse.swt.internal.win32.menuBarBorderColor",             isDarkTheme ? menuBarBorderColor     : null);         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER",           isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER",             isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER",            isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER",             isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER",             isDarkTheme);                                         //$NON-NLS-1$
-         display.setData("org.eclipse.swt.internal.win32.Table.headerLineColor",          isDarkTheme ? table_HeaderLineColor : null);          //$NON-NLS-1$
-         display.setData("org.eclipse.swt.internal.win32.Label.disabledForegroundColor",  isDarkTheme ? label_DisabledForegroundColor : null);  //$NON-NLS-1$
+         display.setData("org.eclipse.swt.internal.win32.Table.headerLineColor",          isDarkTheme ? table_HeaderLineColor         : null);  //$NON-NLS-1$
+         display.setData("org.eclipse.swt.internal.win32.Label.disabledForegroundColor",  isDarkTheme ? _defaultForegroundColor_LabelDisabled : null);  //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme",             isDarkTheme);                                         //$NON-NLS-1$
          display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors",          isDarkTheme);                                         //$NON-NLS-1$
 

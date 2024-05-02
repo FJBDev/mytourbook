@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,9 +17,10 @@ package net.tourbook.ui.tourChart.action;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
-import net.tourbook.application.PerspectiveFactoryTourCatalog;
+import net.tourbook.application.PerspectiveFactoryReferenceTimeline;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.SelectionChartInfo;
+import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
@@ -27,9 +28,8 @@ import net.tourbook.data.TourReference;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
-import net.tourbook.ui.UI;
 import net.tourbook.ui.tourChart.TourChart;
-import net.tourbook.ui.views.tourCatalog.TourCatalogView;
+import net.tourbook.ui.views.referenceTour.ReferenceTourView;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -49,8 +49,8 @@ public class ActionCreateRefTour extends Action {
 
    public ActionCreateRefTour(final TourChart tourChart) {
 
-      setText(Messages.tourCatalog_view_action_create_reference_tour);
-      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourCatalog_RefTour_New));
+      setText(Messages.RefTour_Action_CreateReferenceTour);
+      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.RefTour_New));
 
       _tourChart = tourChart;
    }
@@ -68,8 +68,8 @@ public class ActionCreateRefTour extends Action {
       // get the reference tour name
       final InputDialog dialog = new InputDialog(
             Display.getCurrent().getActiveShell(),
-            Messages.tourCatalog_view_dlg_add_reference_tour_title,
-            Messages.tourCatalog_view_dlg_add_reference_tour_msg,
+            Messages.RefTour_Dialog_AddReferenceTour_Title,
+            Messages.RefTour_Dialog_AddReferenceTour_Message,
             UI.EMPTY_STRING,
             null);
 
@@ -99,10 +99,10 @@ public class ActionCreateRefTour extends Action {
             final IWorkbenchWindow wbWindow = workbench.getActiveWorkbenchWindow();
 
             // show compare result perspective
-            workbench.showPerspective(PerspectiveFactoryTourCatalog.PERSPECTIVE_ID, wbWindow);
+            workbench.showPerspective(PerspectiveFactoryReferenceTimeline.PERSPECTIVE_ID, wbWindow);
 
             // show ref tour view
-            Util.showView(TourCatalogView.ID, true);
+            Util.showView(ReferenceTourView.ID, true);
 
             // update reference tour view
             TourManager.fireEvent(TourEventId.REFERENCE_TOUR_IS_CREATED, new TourEvent(savedTourData));
