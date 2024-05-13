@@ -36,7 +36,6 @@ import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -1451,27 +1450,26 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    @Override
    public Image getMapViewImage() {
 
-      // Get the size of the WorldWindowGLCanvas
-      final int width = _wwCanvas.getWidth();
-      final int height = _wwCanvas.getHeight();
+      // Assuming you have a WorldWindowGLCanvas called "worldWindow"
+      // Render the scene before capturing the screenshot
+      _wwCanvas.redraw();
 
       // Create a BufferedImage to hold the screenshot
-      final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      final BufferedImage screenshot = new BufferedImage(_wwCanvas.getWidth(), _wwCanvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-      // Get the screenshot
-      final Graphics graphics = image.getGraphics();
-      _wwCanvas.paint(graphics);
+      // Render the WorldWindow contents to the BufferedImage
+      _wwCanvas.paint(screenshot.getGraphics());
 
       // Save the BufferedImage to a file
       final File outputFile = new File("/home/frederic/Desktop/screenshot.png");
       try {
-         ImageIO.write(image, "png", outputFile);
+         ImageIO.write(screenshot, "png", outputFile);
       } catch (final IOException e) {
          e.printStackTrace();
       }
 
       // Convert the BufferedImage to an SWT Image
-      final ImageData imageData = Images.convertToSWT(image);
+      final ImageData imageData = Images.convertToSWT(screenshot);
       final Image swtImage = new Image(Display.getDefault(), imageData);
 
       return swtImage;
