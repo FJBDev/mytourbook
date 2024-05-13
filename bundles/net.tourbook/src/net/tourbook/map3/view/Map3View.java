@@ -18,10 +18,13 @@ package net.tourbook.map3.view;
 import de.byteholder.geoclipse.util.Images;
 
 import gov.nasa.worldwind.View;
+import gov.nasa.worldwind.WWObjectImpl;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.InputHandler;
+import gov.nasa.worldwind.event.SelectEvent;
+import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Line;
@@ -32,17 +35,17 @@ import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.view.BasicView;
 import gov.nasa.worldwind.view.orbit.BasicOrbitView;
-import gov.nasa.worldwindx.examples.util.ScreenShot;
-import gov.nasa.worldwindx.examples.util.ScreenShotAction;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -296,6 +299,41 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
    }
 
+   public static class ScreenshotCaptureListener extends WWObjectImpl implements SelectListener {
+
+      private WorldWindowGLCanvas worldWindow;
+
+      public ScreenshotCaptureListener(final WorldWindowGLCanvas worldWindow) {
+         this.worldWindow = worldWindow;
+      }
+
+      private void captureScreenshot() {
+         try {
+            // Get the screen image
+            final java.awt.Rectangle bounds = this.worldWindow.getBounds();
+            final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
+            final Graphics2D graphics = image.createGraphics();
+            this.worldWindow.paint(graphics);
+            graphics.dispose();
+
+            // Save it to a file
+            final File outputFile = new File("screenshot.png");
+            ImageIO.write(image, "png", outputFile);
+
+            System.out.println("Screenshot saved to: " + outputFile.getAbsolutePath());
+         } catch (final IOException e) {
+            e.printStackTrace();
+         }
+      }
+
+      @Override
+      public void selected(final SelectEvent event) {
+         if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
+            captureScreenshot();
+         }
+      }
+   }
+
    public Map3View() {}
 
    /**
@@ -510,7 +548,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
       showAllTours(true);
    }
-
    private void addMap3Listener() {
 
       _wwMouseListener = new MouseAdapter() {
@@ -543,6 +580,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       inputHandler.addMouseListener(_wwMouseListener);
       inputHandler.addMouseMotionListener(_wwMouseMotionListener);
       inputHandler.addMouseWheelListener(_wwMouseWheelListener);
+      inputHandler.addSelectListener(new ScreenshotCaptureListener(_wwCanvas));
 
       /*
        * Statistics
@@ -1450,24 +1488,34 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
    @Override
    public Image getMapViewImage() {
+      _wwCanvas.redraw();
 
 
-      // Use AWTGLReadBufferUtil to capture the screenshot
-      final String filePath = "/home/frederic/Desktop/screenshot.png";
-      ScreenShotAction..saveScreenShot(_wwCanvas, new File(filePath));
-      // Save the BufferedImage to a file
+      // Save it to a file
+
       final File outputFile = new File("/home/frederic/Desktop/screenshot.png");
       try {
-         ImageIO.write(screenshot, "png", outputFile);
+         Thread.sleep(1000); // Get the screen image
+         final java.awt.Rectangle bounds = _wwCanvas.getBounds();
+         final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
+         final Graphics2D graphics = image.createGraphics();
+         _wwCanvas.paint(graphics);
+         graphics.dispose();
+         ImageIO.write(image, "bmp", outputFile);
+
+         // Convert the BufferedImage to an SWT Image
+         final ImageData imageData = Images.convertToSWT(image);
+         final Image swtImage = new Image(Display.getDefault(), imageData);
       } catch (final IOException e) {
+         e.printStackTrace();
+      } catch (final InterruptedException e) {
+         // TODO Auto-generated catch block
          e.printStackTrace();
       }
 
-      // Convert the BufferedImage to an SWT Image
-      final ImageData imageData = Images.convertToSWT(screenshot);
-      final Image swtImage = new Image(Display.getDefault(), imageData);
 
-      return swtImage;
+
+      return null;
    }
 
    /**
@@ -2381,9 +2429,8 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       final float[] altitudeSerie = tourData.altitudeSerie;
 
       final View view = _wwCanvas.getView();
-      if (view instanceof BasicOrbitView) {
+      if (view instanceof final BasicOrbitView orbitView) {
 
-         final BasicOrbitView orbitView = (BasicOrbitView) view;
          final Position eyePos = orbitView.getCurrentEyePosition();
 
          final float trackAltitude = altitudeSerie == null ? 0 : altitudeSerie[valuesIndex];
