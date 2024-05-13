@@ -214,7 +214,7 @@ public class TagMenuManager {
 
       if (_prefChangeListener == null) {
 
-         // static var's are not yet initialized
+         // static variables are not yet initialized
          addPrefListener();
          setupRecentActions();
          restoreAutoOpen();
@@ -505,10 +505,8 @@ public class TagMenuManager {
 
             isRemoveTagEnabled = true;
 
-            if (oneTourTagIds != null) {
-               for (final Long tagId : oneTourTagIds) {
-                  allTourTagIds.add(tagId);
-               }
+            for (final Long tagId : oneTourTagIds) {
+               allTourTagIds.add(tagId);
             }
 
          } else {
@@ -734,8 +732,8 @@ public class TagMenuManager {
 
          // tours are not saved but the tour provider must be notified that tours has changed
 
-         if (_tourProvider instanceof ITourProvider2) {
-            ((ITourProvider2) _tourProvider).toursAreModified(modifiedTours);
+         if (_tourProvider instanceof final ITourProvider2 tourProvider2) {
+            tourProvider2.toursAreModified(modifiedTours);
          } else {
             TourManager.fireEvent(TourEventId.TOUR_CHANGED, new TourEvent(modifiedTours));
          }
