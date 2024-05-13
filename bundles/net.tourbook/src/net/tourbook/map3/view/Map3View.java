@@ -32,6 +32,8 @@ import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.view.BasicView;
 import gov.nasa.worldwind.view.orbit.BasicOrbitView;
+import gov.nasa.worldwindx.examples.util.ScreenShot;
+import gov.nasa.worldwindx.examples.util.ScreenShotAction;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,7 +43,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1450,16 +1451,10 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    @Override
    public Image getMapViewImage() {
 
-      // Assuming you have a WorldWindowGLCanvas called "worldWindow"
-      // Render the scene before capturing the screenshot
-      _wwCanvas.redraw();
 
-      // Create a BufferedImage to hold the screenshot
-      final BufferedImage screenshot = new BufferedImage(_wwCanvas.getWidth(), _wwCanvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-      // Render the WorldWindow contents to the BufferedImage
-      _wwCanvas.paint(screenshot.getGraphics());
-
+      // Use AWTGLReadBufferUtil to capture the screenshot
+      final String filePath = "/home/frederic/Desktop/screenshot.png";
+      ScreenShotAction..saveScreenShot(_wwCanvas, new File(filePath));
       // Save the BufferedImage to a file
       final File outputFile = new File("/home/frederic/Desktop/screenshot.png");
       try {
