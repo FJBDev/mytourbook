@@ -266,11 +266,13 @@ class Action_AddTourTag_SubMenu extends Action implements IMenuCreator, IAdvance
 
       super(Messages.Action_Tag_Add_AutoOpen, AS_PUSH_BUTTON);
 
+      // todo fb
       createDefaultAction(tagMenuMgr);
    }
 
    private void addActionToMenu(final Menu menu, final Action action) {
 
+      // todo fb on arrive ici
       final ActionContributionItem item = new ActionContributionItem(action);
       item.fill(menu, -1);
    }

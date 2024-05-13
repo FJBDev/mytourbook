@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2024 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -133,21 +133,12 @@ public class CalendarView extends ViewPart implements ITourProvider, ICalendarPr
       _partListener = new IPartListener2() {
 
          @Override
-         public void partActivated(final IWorkbenchPartReference partRef) {}
-
-         @Override
-         public void partBroughtToTop(final IWorkbenchPartReference partRef) {}
-
-         @Override
          public void partClosed(final IWorkbenchPartReference partRef) {
 
             if (partRef.getPart(false) == CalendarView.this) {
                CalendarProfileManager.removeProfileListener(CalendarView.this);
             }
          }
-
-         @Override
-         public void partDeactivated(final IWorkbenchPartReference partRef) {}
 
          @Override
          public void partHidden(final IWorkbenchPartReference partRef) {
@@ -158,18 +149,12 @@ public class CalendarView extends ViewPart implements ITourProvider, ICalendarPr
          }
 
          @Override
-         public void partInputChanged(final IWorkbenchPartReference partRef) {}
-
-         @Override
          public void partOpened(final IWorkbenchPartReference partRef) {
 
             if (partRef.getPart(false) == CalendarView.this) {
                CalendarProfileManager.addProfileListener(CalendarView.this);
             }
          }
-
-         @Override
-         public void partVisible(final IWorkbenchPartReference partRef) {}
       };
 
       getViewSite().getPage().addPartListener(_partListener);
@@ -247,9 +232,9 @@ public class CalendarView extends ViewPart implements ITourProvider, ICalendarPr
          } else if ((tourEventId == TourEventId.TOUR_SELECTION //
                || tourEventId == TourEventId.SLIDER_POSITION_CHANGED)
 
-               && eventData instanceof ISelection) {
+               && eventData instanceof final ISelection selection) {
 
-            onSelectionChanged((ISelection) eventData);
+            onSelectionChanged(selection);
 
          } else if (tourEventId == TourEventId.TAG_STRUCTURE_CHANGED
                || tourEventId == TourEventId.ALL_TOURS_ARE_MODIFIED) {
