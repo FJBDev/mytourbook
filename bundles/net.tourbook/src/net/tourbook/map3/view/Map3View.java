@@ -14,7 +14,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.map3.view;
-
+//todo fb https://forum.worldwindcentral.com/forum/world-wind-java-forums/development-help/11471-how-to-get-the-screenshot
 import de.byteholder.geoclipse.util.Images;
 
 import gov.nasa.worldwind.View;
