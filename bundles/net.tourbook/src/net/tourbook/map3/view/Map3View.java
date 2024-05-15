@@ -40,6 +40,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -1488,7 +1491,15 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
    @Override
    public Image getMapViewImage() {
+
       _wwCanvas.redraw();
+      Point p = new Point(0,0);
+      p = _wwCanvas.getLocationOnScreen();
+      final BufferedImage screencapture = new Robot()
+            .createScreenCapture(new Rectangle(p.x,
+                  p.y,
+                  _wwCanvas.getWidth(),
+                  _wwCanvas.getHeight()));
 
 
       // Save it to a file
