@@ -36,6 +36,7 @@ import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.view.BasicView;
 import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
@@ -1495,11 +1496,17 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       _wwCanvas.redraw();
       Point p = new Point(0,0);
       p = _wwCanvas.getLocationOnScreen();
-      final BufferedImage screencapture = new Robot()
-            .createScreenCapture(new Rectangle(p.x,
-                  p.y,
-                  _wwCanvas.getWidth(),
-                  _wwCanvas.getHeight()));
+      BufferedImage screencapture = null;
+      try {
+         screencapture = new Robot()
+               .createScreenCapture(new Rectangle(p.x,
+                     p.y,
+                     _wwCanvas.getWidth(),
+                     _wwCanvas.getHeight()));
+      } catch (final AWTException e1) {
+         // TODO Auto-generated catch block
+         e1.printStackTrace();
+      }
 
 
       // Save it to a file
@@ -1508,15 +1515,16 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       try {
          Thread.sleep(1000); // Get the screen image
          final java.awt.Rectangle bounds = _wwCanvas.getBounds();
-         final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
-         final Graphics2D graphics = image.createGraphics();
-         _wwCanvas.paint(graphics);
-         graphics.dispose();
-         ImageIO.write(image, "bmp", outputFile);
+         //final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
+//         final Graphics2D graphics = screencapture.createGraphics();
+//         _wwCanvas.paint(graphics);
+//         graphics.dispose();
+         ImageIO.write(screencapture, "png", outputFile);
 
          // Convert the BufferedImage to an SWT Image
-         final ImageData imageData = Images.convertToSWT(image);
+         final ImageData imageData = Images.convertToSWT(screencapture);
          final Image swtImage = new Image(Display.getDefault(), imageData);
+         return swtImage;
       } catch (final IOException e) {
          e.printStackTrace();
       } catch (final InterruptedException e) {
