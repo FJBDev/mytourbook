@@ -14,7 +14,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.map3.view;
-//todo fb https://forum.worldwindcentral.com/forum/world-wind-java-forums/development-help/11471-how-to-get-the-screenshot
+
 import de.byteholder.geoclipse.util.Images;
 
 import gov.nasa.worldwind.View;
@@ -79,6 +79,7 @@ import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.OpenDialogManager;
 import net.tourbook.common.util.SWTPopupOverAWT;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -552,6 +553,7 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
 
       showAllTours(true);
    }
+
    private void addMap3Listener() {
 
       _wwMouseListener = new MouseAdapter() {
@@ -1493,46 +1495,23 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
    @Override
    public Image getMapViewImage() {
 
-      _wwCanvas.redraw();
-      Point p = new Point(0,0);
-      p = _wwCanvas.getLocationOnScreen();
-      BufferedImage screencapture = null;
       try {
-         screencapture = new Robot()
-               .createScreenCapture(new Rectangle(p.x,
-                     p.y,
+
+         final Point locationOnScreen = _wwCanvas.getLocationOnScreen();
+         final BufferedImage screencapture = new Robot()
+               .createScreenCapture(new Rectangle(locationOnScreen.x,
+                     locationOnScreen.y,
                      _wwCanvas.getWidth(),
                      _wwCanvas.getHeight()));
-      } catch (final AWTException e1) {
-         // TODO Auto-generated catch block
-         e1.printStackTrace();
-      }
-
-
-      // Save it to a file
-
-      final File outputFile = new File("/home/frederic/Desktop/screenshot.png");
-      try {
-         Thread.sleep(1000); // Get the screen image
-         final java.awt.Rectangle bounds = _wwCanvas.getBounds();
-         //final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
-//         final Graphics2D graphics = screencapture.createGraphics();
-//         _wwCanvas.paint(graphics);
-//         graphics.dispose();
-         ImageIO.write(screencapture, "png", outputFile);
 
          // Convert the BufferedImage to an SWT Image
          final ImageData imageData = Images.convertToSWT(screencapture);
          final Image swtImage = new Image(Display.getDefault(), imageData);
          return swtImage;
-      } catch (final IOException e) {
-         e.printStackTrace();
-      } catch (final InterruptedException e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+
+      } catch (final AWTException e) {
+         StatusUtil.log(e);
       }
-
-
 
       return null;
    }
