@@ -600,13 +600,13 @@ public class Map25View extends ViewPart implements
 
       // get graph ID
       MapGraphId selectedActionGraphId = null;
-      if (selectedAction instanceof ActionTrackColor) {
+      if (selectedAction instanceof final ActionTrackColor actionTrackColor) {
 
-         selectedActionGraphId = ((ActionTrackColor) selectedAction)._graphId;
+         selectedActionGraphId = actionTrackColor._graphId;
 
-      } else if (selectedAction instanceof ActionTrackColor_HrZone) {
+      } else if (selectedAction instanceof final ActionTrackColor_HrZone actionTrackColor_HrZone) {
 
-         selectedActionGraphId = ((ActionTrackColor_HrZone) selectedAction)._graphId;
+         selectedActionGraphId = actionTrackColor_HrZone._graphId;
       }
 
       final MapGraphId trackGraphId = Map25ConfigManager.getActiveTourTrackConfig().gradientColorGraphID;
@@ -614,17 +614,15 @@ public class Map25View extends ViewPart implements
 
          // active color is selected -> prevent unchecking selected color
 
-         if (selectedAction instanceof ActionTrackColor) {
+         if (selectedAction instanceof final ActionTrackColor action) {
 
-            final ActionTrackColor action = (ActionTrackColor) selectedAction;
             if (action.getSelection() == false) {
 
                action.setSelection(true);
             }
 
-         } else if (selectedAction instanceof ActionTrackColor_HrZone) {
+         } else if (selectedAction instanceof final ActionTrackColor_HrZone action) {
 
-            final ActionTrackColor_HrZone action = (ActionTrackColor_HrZone) selectedAction;
             if (action.isChecked() == false) {
 
                action.setChecked(true);
@@ -641,13 +639,13 @@ public class Map25View extends ViewPart implements
          // uncheck any other colors
          if (action != selectedAction) {
 
-            if (action instanceof ActionTrackColor) {
+            if (action instanceof final ActionTrackColor actionTrackColor) {
 
-               ((ActionTrackColor) action).setSelection(false);
+               actionTrackColor.setSelection(false);
 
-            } else if (action instanceof ActionTrackColor_HrZone) {
+            } else if (action instanceof final ActionTrackColor_HrZone actionTrackColor_HrZone) {
 
-               ((ActionTrackColor_HrZone) action).setChecked(false);
+               actionTrackColor_HrZone.setChecked(false);
             }
          }
       }
@@ -848,13 +846,13 @@ public class Map25View extends ViewPart implements
 //						onSelectionChanged_TourMarker((SelectionTourMarker) eventData, false);
 //					}
 
-         } else if ((tourEventId == TourEventId.TOUR_SELECTION) && eventData instanceof ISelection) {
+         } else if ((tourEventId == TourEventId.TOUR_SELECTION) && eventData instanceof final ISelection selection) {
 
-            onSelectionChanged((ISelection) eventData);
+            onSelectionChanged(selection);
 
-         } else if (tourEventId == TourEventId.SLIDER_POSITION_CHANGED && eventData instanceof ISelection) {
+         } else if (tourEventId == TourEventId.SLIDER_POSITION_CHANGED && eventData instanceof final ISelection selection) {
 
-            onSelectionChanged((ISelection) eventData);
+            onSelectionChanged(selection);
          }
       };
 
@@ -1409,7 +1407,7 @@ public class Map25View extends ViewPart implements
       if (_lastSelectionHash == selectionHash) {
 
          /*
-          * Last selection has not changed, this can occure when the app lost the focus and got the
+          * Last selection has not changed, this can occur when the app lost the focus and got the
           * focus again.
           */
          return;
@@ -1432,9 +1430,8 @@ public class Map25View extends ViewPart implements
       final boolean isSyncWithSlider = _mapSynchedWith == MapSync.WITH_SLIDER
             || _mapSynchedWith == MapSync.WITH_SLIDER_CENTERED;
 
-      if (selection instanceof SelectionTourData) {
+      if (selection instanceof final SelectionTourData selectionTourData) {
 
-         final SelectionTourData selectionTourData = (SelectionTourData) selection;
          final TourData tourData = selectionTourData.getTourData();
 
          setMapTour(tourData);
@@ -1442,9 +1439,8 @@ public class Map25View extends ViewPart implements
 
          paintTours();
 
-      } else if (selection instanceof SelectionTourId) {
+      } else if (selection instanceof final SelectionTourId tourIdSelection) {
 
-         final SelectionTourId tourIdSelection = (SelectionTourId) selection;
          final TourData tourData = TourManager.getInstance().getTourData(tourIdSelection.getTourId());
 
          setMapTour(tourData);
@@ -1452,11 +1448,11 @@ public class Map25View extends ViewPart implements
 
          paintTours();
 
-      } else if (selection instanceof SelectionTourIds) {
+      } else if (selection instanceof final SelectionTourIds selectionTourIds) {
 
          // paint all selected tours
 
-         final ArrayList<Long> tourIds = ((SelectionTourIds) selection).getTourIds();
+         final ArrayList<Long> tourIds = selectionTourIds.getTourIds();
          if (tourIds.isEmpty()) {
 
             // history tour (without tours) is displayed
@@ -1483,7 +1479,7 @@ public class Map25View extends ViewPart implements
 
          }
 
-      } else if (selection instanceof SelectionChartInfo) {
+      } else if (selection instanceof final SelectionChartInfo chartInfo) {
 
          final Map25TrackConfig activeTourTrackConfig = Map25ConfigManager.getActiveTourTrackConfig();
          final boolean isShowSliderLocation = activeTourTrackConfig.isShowSliderLocation;
@@ -1499,12 +1495,9 @@ public class Map25View extends ViewPart implements
 
          TourData tourData = null;
 
-         final SelectionChartInfo chartInfo = (SelectionChartInfo) selection;
-
          final Chart chart = chartInfo.getChart();
-         if (chart instanceof TourChart) {
+         if (chart instanceof final TourChart tourChart) {
 
-            final TourChart tourChart = (TourChart) chart;
             tourData = tourChart.getTourData();
          }
 
@@ -1556,13 +1549,12 @@ public class Map25View extends ViewPart implements
             }
          }
 
-      } else if (selection instanceof SelectionChartXSliderPosition) {
+      } else if (selection instanceof final SelectionChartXSliderPosition xSliderPos) {
 
          if (isSyncWithSlider == false) {
             return;
          }
 
-         final SelectionChartXSliderPosition xSliderPos = (SelectionChartXSliderPosition) selection;
          final Chart chart = xSliderPos.getChart();
          if (chart == null) {
             return;
@@ -1571,9 +1563,9 @@ public class Map25View extends ViewPart implements
          final ChartDataModel chartDataModel = chart.getChartDataModel();
 
          final Object tourId = chartDataModel.getCustomData(Chart.CUSTOM_DATA_TOUR_ID);
-         if (tourId instanceof Long) {
+         if (tourId instanceof final Long tourIdLong) {
 
-            final TourData tourData = TourManager.getInstance().getTourData((Long) tourId);
+            final TourData tourData = TourManager.getInstance().getTourData(tourIdLong);
             if (tourData != null) {
 
                final int leftSliderValueIndex = xSliderPos.getLeftSliderValueIndex();
@@ -1625,11 +1617,11 @@ public class Map25View extends ViewPart implements
       }
 
       // set colors according to the tour values
-      if (_mapColorProvider instanceof IGradientColorProvider) {
+      if (_mapColorProvider instanceof final IGradientColorProvider gradientColorProvider) {
 
          MapUtils.configureColorProvider(
                _allTourData,
-               (IGradientColorProvider) _mapColorProvider,
+               gradientColorProvider,
                ColorProviderConfig.MAP3_TOUR,
                200 // set dummy for now
          );
@@ -1715,17 +1707,17 @@ public class Map25View extends ViewPart implements
                int colorValue = 0xff_80_80_80;
                int abgr = 0;
 
-               if (valueSerie != null && _mapColorProvider instanceof IGradientColorProvider) {
+               if (valueSerie != null && _mapColorProvider instanceof final IGradientColorProvider gradientColorProvider) {
 
-                  abgr = ((IGradientColorProvider) _mapColorProvider).getRGBValue(
+                  abgr = gradientColorProvider.getRGBValue(
                         ColorProviderConfig.MAP3_TOUR,
                         valueSerie[serieIndex]);
 
-               } else if (_mapColorProvider instanceof IDiscreteColorProvider) {
+               } else if (_mapColorProvider instanceof final IDiscreteColorProvider discreteColorProvider) {
 
                   // e.g. HR zone color provider
 
-                  abgr = ((IDiscreteColorProvider) _mapColorProvider).getColorValue(tourData, serieIndex, true);
+                  abgr = discreteColorProvider.getColorValue(tourData, serieIndex, true);
                }
 
 // SET_FORMATTING_OFF
@@ -1966,15 +1958,11 @@ public class Map25View extends ViewPart implements
 
       for (final Object action : _allTrackColorActions) {
 
-         if (action instanceof ActionTrackColor) {
-
-            final ActionTrackColor trackAction = (ActionTrackColor) action;
+         if (action instanceof final ActionTrackColor trackAction) {
 
             trackAction.setSelection(trackGraphId == trackAction._graphId);
 
-         } else if (action instanceof ActionTrackColor_HrZone) {
-
-            final ActionTrackColor_HrZone trackAction = (ActionTrackColor_HrZone) action;
+         } else if (action instanceof final ActionTrackColor_HrZone trackAction) {
 
             trackAction.setChecked(trackGraphId == trackAction._graphId);
          }
@@ -2086,15 +2074,11 @@ public class Map25View extends ViewPart implements
 
       for (final Object action : _allTrackColorActions) {
 
-         if (action instanceof ActionTrackColor) {
-
-            final ActionTrackColor colorAction = (ActionTrackColor) action;
+         if (action instanceof final ActionTrackColor colorAction) {
 
             colorAction.setSelection(colorAction._graphId == graphId);
 
-         } else if (action instanceof ActionTrackColor_HrZone) {
-
-            final ActionTrackColor_HrZone colorAction = (ActionTrackColor_HrZone) action;
+         } else if (action instanceof final ActionTrackColor_HrZone colorAction) {
 
             colorAction.setChecked(colorAction._graphId == graphId);
          }
@@ -2140,9 +2124,7 @@ public class Map25View extends ViewPart implements
 
       final ArrayList<Photo> allPhotos = new ArrayList<>();
 
-      if (selection instanceof TourPhotoLinkSelection) {
-
-         final TourPhotoLinkSelection linkSelection = (TourPhotoLinkSelection) selection;
+      if (selection instanceof final TourPhotoLinkSelection linkSelection) {
 
          final ArrayList<TourPhotoLink> tourPhotoLinks = linkSelection.tourPhotoLinks;
 
