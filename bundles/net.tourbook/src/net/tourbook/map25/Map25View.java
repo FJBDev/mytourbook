@@ -15,11 +15,15 @@
  *******************************************************************************/
 package net.tourbook.map25;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Frame;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +46,7 @@ import net.tourbook.common.tooltip.IOpeningDialog;
 import net.tourbook.common.tooltip.OpenDialogManager;
 import net.tourbook.common.tooltip.ToolbarSlideout;
 import net.tourbook.common.util.SWTPopupOverAWT;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -116,6 +121,7 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -1324,7 +1330,24 @@ public class Map25View extends ViewPart implements
    @Override
    public Image getMapViewImage() {
 
-      return MapUtils.getMapViewImage(_parent);
+      try {
+
+         final BufferedImage screencapture = new Robot()
+               .createScreenCapture(new Rectangle(_parent.getLocation().x,
+                     _parent.getLocation().y,
+                     _parent.getSize().x,
+                     _parent.getSize().y));
+
+         // Convert the BufferedImage to an SWT Image
+         final ImageData imageData = de.byteholder.geoclipse.util.Images.convertToSWT(screencapture);
+         final Image swtImage = new Image(Display.getDefault(), imageData);
+         return swtImage;
+
+      } catch (final AWTException e) {
+         StatusUtil.log(e);
+      }
+
+      return null;
    }
 
    @Override
