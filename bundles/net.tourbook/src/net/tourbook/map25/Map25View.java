@@ -907,6 +907,7 @@ public class Map25View extends ViewPart implements
 
 // SET_FORMATTING_OFF
 
+      _actionExportMap_SubMenu         = new Action_ExportMap_SubMenu(this);
       _actionMapBookmarks              = new ActionMapBookmarks(this._parent, this);
       _actionMapLayer                  = new ActionMap25_Layer();
       _actionMapOptions                = new ActionMap25_Options();
@@ -1333,8 +1334,8 @@ public class Map25View extends ViewPart implements
       try {
 
          final BufferedImage screencapture = new Robot()
-               .createScreenCapture(new Rectangle(_parent.getLocation().x,
-                     _parent.getLocation().y,
+               .createScreenCapture(new Rectangle(_parent.toDisplay(1, 1).x,
+                     _parent.toDisplay(1, 1).y,
                      _parent.getSize().x,
                      _parent.getSize().y));
 
