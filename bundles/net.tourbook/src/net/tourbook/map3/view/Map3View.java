@@ -18,13 +18,10 @@ package net.tourbook.map3.view;
 import de.byteholder.geoclipse.util.Images;
 
 import gov.nasa.worldwind.View;
-import gov.nasa.worldwind.WWObjectImpl;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.InputHandler;
-import gov.nasa.worldwind.event.SelectEvent;
-import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Line;
@@ -40,7 +37,6 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -50,12 +46,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 import net.tourbook.OtherMessages;
@@ -302,41 +295,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
          super(display, swtContextMenu);
       }
 
-   }
-
-   public static class ScreenshotCaptureListener extends WWObjectImpl implements SelectListener {
-
-      private WorldWindowGLCanvas worldWindow;
-
-      public ScreenshotCaptureListener(final WorldWindowGLCanvas worldWindow) {
-         this.worldWindow = worldWindow;
-      }
-
-      private void captureScreenshot() {
-         try {
-            // Get the screen image
-            final java.awt.Rectangle bounds = this.worldWindow.getBounds();
-            final BufferedImage image = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
-            final Graphics2D graphics = image.createGraphics();
-            this.worldWindow.paint(graphics);
-            graphics.dispose();
-
-            // Save it to a file
-            final File outputFile = new File("screenshot.png");
-            ImageIO.write(image, "png", outputFile);
-
-            System.out.println("Screenshot saved to: " + outputFile.getAbsolutePath());
-         } catch (final IOException e) {
-            e.printStackTrace();
-         }
-      }
-
-      @Override
-      public void selected(final SelectEvent event) {
-         if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
-            captureScreenshot();
-         }
-      }
    }
 
    public Map3View() {}
@@ -586,7 +544,6 @@ public class Map3View extends ViewPart implements ITourProvider, IMapBookmarks, 
       inputHandler.addMouseListener(_wwMouseListener);
       inputHandler.addMouseMotionListener(_wwMouseMotionListener);
       inputHandler.addMouseWheelListener(_wwMouseWheelListener);
-      inputHandler.addSelectListener(new ScreenshotCaptureListener(_wwCanvas));
 
       /*
        * Statistics
