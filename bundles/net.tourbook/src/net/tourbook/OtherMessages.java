@@ -39,16 +39,29 @@ public class OtherMessages {
    //
    // net.tourbook.Messages
    //
+  public static final String   APP_BTN_BROWSE                           = net.tourbook.Messages.app_btn_browse;
 
    public static final String APP_UNIT_HHMMSS                              = net.tourbook.Messages.App_Unit_HHMMSS;
    public static final String APP_UNIT_SECONDS_SMALL                       = net.tourbook.Messages.App_Unit_Seconds_Small;
+
+  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES         = net.tourbook.Messages.dialog_export_chk_overwriteFiles;
+  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP = net.tourbook.Messages.dialog_export_chk_overwriteFiles_tooltip;
+  public static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE         = net.tourbook.Messages.dialog_export_dir_dialog_message;
+  public static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT            = net.tourbook.Messages.dialog_export_dir_dialog_text;
+  public static final String   DIALOG_EXPORT_GROUP_EXPORTFILENAME       = net.tourbook.Messages.dialog_export_group_exportFileName;
+  public static final String   DIALOG_EXPORT_LABEL_EXPORTFILEPATH       = net.tourbook.Messages.dialog_export_label_exportFilePath;
+  public static final String   DIALOG_EXPORT_LABEL_FILENAME             = net.tourbook.Messages.dialog_export_label_fileName;
+  public static final String   DIALOG_EXPORT_LABEL_FILEPATH             = net.tourbook.Messages.dialog_export_label_filePath;
+  public static final String   DIALOG_EXPORT_MSG_FILEALREADYEXISTS      = net.tourbook.Messages.dialog_export_msg_fileAlreadyExists;
+  public static final String   DIALOG_EXPORT_MSG_FILENAMEISINVALID      = net.tourbook.Messages.dialog_export_msg_fileNameIsInvalid;
+  public static final String   DIALOG_EXPORT_MSG_PATHISNOTAVAILABLE     = net.tourbook.Messages.dialog_export_msg_pathIsNotAvailable;
+  public static final String   DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP       = net.tourbook.Messages.dialog_export_txt_filePath_tooltip;
 
    public static final String LOG_TOUR_LOCATION_RETRIEVE_LOCATION_POINT    = net.tourbook.Messages.Log_TourLocation_Retrieve_LocationPoint;
 
    public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_DESCENT  = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Descent;
    public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_ASCENT   = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Ascent;
    public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_FLAT     = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Flat;
-
 
    //
    // net.tourbook.common.Messages
@@ -158,6 +171,14 @@ public class OtherMessages {
    public static final String WEATHER_AIRQUAlITY_4_POOR                    = net.tourbook.common.Messages.Weather_AirQuality_4_Poor;
    public static final String WEATHER_AIRQUAlITY_5_VERYPOOR                = net.tourbook.common.Messages.Weather_AirQuality_5_VeryPoor;
    public static final String WEATHER_CLOUDS_SUNNY                         = net.tourbook.common.Messages.Weather_Clouds_Sunny;
+
+   //
+   // net.tourbook.map3.Messages
+   //
+
+   public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT_TOOLTIP = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default_Tooltip;
+   public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT         = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default;
+
 
    //
    // net.tourbook.ui.Messages

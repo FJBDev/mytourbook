@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,9 +32,11 @@ import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.SWT2Dutil;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.photo.ILoadCallBack;
+import net.tourbook.photo.IPhotoPreferences;
 import net.tourbook.photo.ImageQuality;
 import net.tourbook.photo.ImageUtils;
 import net.tourbook.photo.Photo;
+import net.tourbook.photo.PhotoActivator;
 import net.tourbook.photo.PhotoImageCache;
 import net.tourbook.photo.PhotoImageMetadata;
 import net.tourbook.photo.PhotoLoadManager;
@@ -44,6 +46,7 @@ import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -56,7 +59,9 @@ import org.imgscalr.Scalr.Rotation;
 
 public class PhotoImageLoader {
 
-   private static String[] awtImageFileSuffixes;
+   private static IPreferenceStore _prefStore = PhotoActivator.getPrefStore();
+
+   private static String[]         awtImageFileSuffixes;
 
    static {
 
@@ -71,7 +76,6 @@ public class PhotoImageLoader {
 
 //		final String writeFormats[] = ImageIO.getWriterMIMETypes();
 //		System.out.println("Mime Writers:     " + Arrays.asList(writeFormats));
-
    }
 
    private Photo                    _photo;
@@ -145,7 +149,7 @@ public class PhotoImageLoader {
 
       } catch (final Exception e) {
 
-         StatusUtil.log(NLS.bind(//
+         StatusUtil.log(NLS.bind(
                "Cannot save thumbnail image with AWT: \"{0}\"", //$NON-NLS-1$
                imageFilePath), e);
       } finally {
@@ -157,7 +161,7 @@ public class PhotoImageLoader {
 
          } catch (final Exception e) {
 
-            StatusUtil.log(NLS.bind(//
+            StatusUtil.log(NLS.bind(
                   "Cannot load thumbnail image with SWT: \"{0}\"", //$NON-NLS-1$
                   tempFilename), e);
          } finally {
@@ -185,6 +189,10 @@ public class PhotoImageLoader {
          }
       }
       _trackedSWTImages.clear();
+   }
+
+   private boolean getIsRotateImageAutomatically() {
+      return _prefStore.getBoolean(IPhotoPreferences.PHOTO_SYSTEM_IS_ROTATE_IMAGE_AUTOMATICALLY);
    }
 
    public Photo getPhoto() {
@@ -225,7 +233,7 @@ public class PhotoImageLoader {
     */
    private boolean isAWTImageSupported() {
 
-      final String photoSuffix = _photo.imageFileExt;
+      final String photoSuffix = _photo.imageFileExt.toLowerCase();
 
       for (final String awtImageSuffix : awtImageFileSuffixes) {
          if (photoSuffix.equals(awtImageSuffix)) {
@@ -239,6 +247,7 @@ public class PhotoImageLoader {
    /**
     * @param storeImageFilePath
     *           Path to store image in the thumbnail store
+    *
     * @return
     */
    private Image loadImageFromEXIFThumbnail(final IPath storeImageFilePath) {
@@ -279,7 +288,7 @@ public class PhotoImageLoader {
                   awtBufferedImage = transformImageRotate(awtBufferedImage);
 
                } catch (final Exception e) {
-                  StatusUtil.log(NLS.bind(//
+                  StatusUtil.log(NLS.bind(
                         "Image \"{0}\" cannot be resized", //$NON-NLS-1$
                         _photo.imageFilePathName), e);
                   return null;
@@ -295,7 +304,7 @@ public class PhotoImageLoader {
                }
 
             } catch (final Exception e) {
-               StatusUtil.log(NLS.bind(//
+               StatusUtil.log(NLS.bind(
                      "SWT store image \"{0}\" cannot be created", //$NON-NLS-1$
                      storeImageFilePath.toOSString()), e);
             } finally {
@@ -360,6 +369,7 @@ public class PhotoImageLoader {
     *
     * @param _photo
     * @param requestedImageQuality
+    *
     * @return
     */
    private Image loadImageFromStore(final ImageQuality requestedImageQuality) {
@@ -497,7 +507,7 @@ public class PhotoImageLoader {
 
          if (hqImage == null) {
 
-            System.out.println(NLS.bind(//
+            System.out.println(NLS.bind(
                   UI.timeStampNano() + " image == NULL when loading with {0}: \"{1}\"", //$NON-NLS-1$
                   _imageFramework.toUpperCase(),
                   _photo.imageFilePathName));
@@ -521,7 +531,7 @@ public class PhotoImageLoader {
                } finally {
 
                   if (hqImage == null) {
-                     System.out.println(NLS.bind(//
+                     System.out.println(NLS.bind(
                            UI.timeStampNano() + " image == NULL when loading with SWT: \"{0}\"", //$NON-NLS-1$
                            _photo.imageFilePathName));
                   }
@@ -576,7 +586,7 @@ public class PhotoImageLoader {
 
       } catch (final Exception e) {
 
-         System.out.println(NLS.bind(//
+         System.out.println(NLS.bind(
                "SWT: image \"{0}\" cannot be loaded", //$NON-NLS-1$
                originalImagePathName));
 
@@ -630,6 +640,7 @@ public class PhotoImageLoader {
 
       Image hqImage;
       Image requestedSWTImage = null;
+      final boolean isRotateImageAutomatically = getIsRotateImageAutomatically();
 
       /*
        * create HQ image
@@ -651,14 +662,15 @@ public class PhotoImageLoader {
             hqRotation = getRotation();
          }
 
-         final Image scaledHQImage = ImageUtils.resize(
+         final Image scaledHQImage = net.tourbook.common.util.ImageUtils.resize(
                _display,
                originalImage,
                bestSize.x,
                bestSize.y,
                SWT.ON,
                SWT.LOW,
-               hqRotation);
+               hqRotation,
+               isRotateImageAutomatically);
 
          endResizeHQ = System.currentTimeMillis() - startResizeHQ;
 
@@ -738,14 +750,15 @@ public class PhotoImageLoader {
                thumbRotation = getRotation();
             }
 
-            final Image scaledThumbImage = ImageUtils.resize(
+            final Image scaledThumbImage = net.tourbook.common.util.ImageUtils.resize(
                   _display,
                   hqImage,
                   bestSize.x,
                   bestSize.y,
                   SWT.ON,
                   SWT.LOW,
-                  thumbRotation);
+                  thumbRotation,
+                  isRotateImageAutomatically);
 
             /*
              * new image has been created, source image must be disposed when it's not the
@@ -852,7 +865,7 @@ public class PhotoImageLoader {
 
          if (awtOriginalImage == null) {
 
-            System.out.println(NLS.bind(//
+            System.out.println(NLS.bind(
                   UI.timeStampNano() + " AWT: image \"{0}\" cannot be loaded, will load with SWT", //$NON-NLS-1$
                   originalImagePathName));
 
@@ -872,7 +885,7 @@ public class PhotoImageLoader {
 
          if (swtImage == null) {
 
-            exceptionMessage = NLS.bind(//
+            exceptionMessage = NLS.bind(
                   "Photo image with thumb save error cannot be created with SWT (1): ", //$NON-NLS-1$
                   originalImagePathName);
          } else {
@@ -1060,7 +1073,7 @@ public class PhotoImageLoader {
                requestedSWTImage = createSWTimageFromAWTimage(saveThumbAWT, originalImagePathName);
 
                if (requestedSWTImage == null) {
-                  exceptionMessage = NLS.bind(//
+                  exceptionMessage = NLS.bind(
                         "Photo image cannot be converted from AWT to SWT: ", //$NON-NLS-1$
                         originalImagePathName);
                }
@@ -1188,7 +1201,7 @@ public class PhotoImageLoader {
 
             isLoadingException = true;
 
-            System.out.println(NLS.bind(//
+            System.out.println(NLS.bind(
                   "SWT: image \"{0}\" cannot be loaded (1)", //$NON-NLS-1$
                   originalImagePathName));
 
@@ -1229,7 +1242,7 @@ public class PhotoImageLoader {
 
                   isLoadingException = true;
 
-                  System.out.println(NLS.bind(//
+                  System.out.println(NLS.bind(
                         "SWT: image \"{0}\" cannot be loaded (3)", //$NON-NLS-1$
                         originalImagePathName));
 
@@ -1273,14 +1286,16 @@ public class PhotoImageLoader {
 
                final long startRotate = System.currentTimeMillis();
 
-               final Image rotatedImage = ImageUtils.resize(
+               final boolean isRotateImageAutomatically = getIsRotateImageAutomatically();
+               final Image rotatedImage = net.tourbook.common.util.ImageUtils.resize(
                      _display,
                      swtImage,
                      imageWidth,
                      imageHeight,
                      SWT.ON,
                      SWT.LOW,
-                     rotation);
+                     rotation,
+                     isRotateImageAutomatically);
 
                swtImage.dispose();
                swtImage = rotatedImage;
@@ -1321,6 +1336,7 @@ public class PhotoImageLoader {
 
    /**
     * @param requestedStoreImageFilePath
+    *
     * @return Returns <code>null</code> when properties cannot be loaded.
     */
    private void loadImageProperties(final IPath requestedStoreImageFilePath) {
@@ -1470,6 +1486,7 @@ public class PhotoImageLoader {
     *
     * @param waitingqueueoriginal
     * @param waitingqueueexif
+    *
     * @return Returns <code>true</code> when image should be loaded in HQ.
     */
    public boolean loadImageThumb(final LinkedBlockingDeque<PhotoImageLoader> waitingQueueOriginal) {
@@ -1483,6 +1500,7 @@ public class PhotoImageLoader {
          }
       } catch (final InterruptedException e) {
          // should not happen, I hope so
+         Thread.currentThread().interrupt();
       }
 
       boolean isLoadedImageInRequestedQuality = false;
@@ -1621,6 +1639,7 @@ public class PhotoImageLoader {
     * @param thumbImage
     * @param width
     * @param height
+    *
     * @return
     */
    private BufferedImage transformImageCrop(final BufferedImage thumbImage) {
@@ -1715,6 +1734,7 @@ public class PhotoImageLoader {
 
    /**
     * @param scaledImage
+    *
     * @return Returns rotated image when orientations is not default
     */
    private BufferedImage transformImageRotate(final BufferedImage scaledImage) {

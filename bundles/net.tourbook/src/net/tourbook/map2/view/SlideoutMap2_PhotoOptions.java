@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2020, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,10 +34,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -49,9 +46,7 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActionResetToDefault {
 
-   private static final String   MAP_ACTION_EDIT2D_MAP_PREFERENCES = net.tourbook.map2.Messages.Map_Action_Edit2DMapPreferences;
-
-   private static final String   STATE_PHOTO_PROPERTIES_IMAGE_SIZE = "STATE_PHOTO_PROPERTIES_IMAGE_SIZE";                       //$NON-NLS-1$
+   private static final String   STATE_PHOTO_PROPERTIES_IMAGE_SIZE = "STATE_PHOTO_PROPERTIES_IMAGE_SIZE"; //$NON-NLS-1$
 
    private static final int      MIN_IMAGE_WIDTH                   = 10;
 
@@ -60,7 +55,7 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
     */
    private static final int      MAX_IMAGE_WIDTH                   = 200;
 
-   final static IPreferenceStore _prefStore                        = TourbookPlugin.getPrefStore();
+   static final IPreferenceStore _prefStore                        = TourbookPlugin.getPrefStore();
    private IDialogSettings       _state;
 
    private ActionResetToDefaults _actionRestoreDefaults;
@@ -72,9 +67,7 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
    /*
     * UI controls
     */
-   private Composite _parent;
-
-   private Spinner   _spinnerImageSize;
+   private Spinner _spinnerImageSize;
 
    /**
     * @param ownerControl
@@ -102,8 +95,6 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
 
    @Override
    protected Composite createToolTipContentArea(final Composite parent) {
-
-      initUI(parent);
 
       createActions();
 
@@ -197,18 +188,10 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
             _spinnerImageSize.setMaximum(MAX_IMAGE_WIDTH);
             _spinnerImageSize.setIncrement(1);
             _spinnerImageSize.setPageIncrement(10);
-            _spinnerImageSize.addSelectionListener(new SelectionAdapter() {
-               @Override
-               public void widgetSelected(final SelectionEvent e) {
-                  onChangeUI();
-               }
-            });
-            _spinnerImageSize.addMouseWheelListener(new MouseWheelListener() {
-               @Override
-               public void mouseScrolled(final MouseEvent event) {
-                  Util.adjustSpinnerValueOnMouseScroll(event);
-                  onChangeUI();
-               }
+            _spinnerImageSize.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> onChangeUI()));
+            _spinnerImageSize.addMouseWheelListener(mouseEvent -> {
+               UI.adjustSpinnerValueOnMouseScroll(mouseEvent, 10);
+               onChangeUI();
             });
 
             GridDataFactory.fillDefaults()
@@ -220,11 +203,6 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
 
    private void enableControls() {
 
-   }
-
-   private void initUI(final Composite parent) {
-
-      _parent = parent;
    }
 
    @Override
@@ -260,7 +238,7 @@ public class SlideoutMap2_PhotoOptions extends ToolbarSlideout implements IActio
 
       _imageSize = Util.getStateInt(_state, STATE_PHOTO_PROPERTIES_IMAGE_SIZE, Photo.MAP_IMAGE_DEFAULT_WIDTH_HEIGHT);
 
-      // ensure that an image is displayed, it happend that image size was 0
+      // ensure that an image is displayed, it happened that image size was 0
       if (_imageSize < 10) {
          _imageSize = Photo.MAP_IMAGE_DEFAULT_WIDTH_HEIGHT;
       }
