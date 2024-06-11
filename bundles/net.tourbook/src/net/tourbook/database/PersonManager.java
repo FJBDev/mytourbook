@@ -1,9 +1,5 @@
 /*******************************************************************************
-<<<<<<< HEAD
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
-=======
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
->>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -113,6 +109,10 @@ public class PersonManager {
     * @return Returns all tour people in the db sorted by last/first name
     */
    public static ArrayList<TourPerson> getTourPeople() {
+
+      if (_people != null) {
+         return _people;
+      }
 
       synchronized (LOCK) {
          // check again
