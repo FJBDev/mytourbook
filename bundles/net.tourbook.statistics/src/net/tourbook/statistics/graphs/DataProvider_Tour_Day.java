@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -439,8 +439,8 @@ class DataProvider_Tour_Day extends DataProvider {
 
                // get additional tags from tag join
 
-               if (dbTagId instanceof Long && tagIds != null) {
-                  tagIds.add((Long) dbTagId);
+               if (dbTagId instanceof final Long tagId && tagIds != null) {
+                  tagIds.add(tagId);
                }
 
             } else {
@@ -551,10 +551,10 @@ class DataProvider_Tour_Day extends DataProvider {
                dbAllTourTitle.add(dbTourTitle);
                dbAllTourDescription.add(dbDescription == null ? UI.EMPTY_STRING : dbDescription);
 
-               if (dbTagId instanceof Long) {
+               if (dbTagId instanceof final Long tagId) {
 
                   tagIds = new ArrayList<>();
-                  tagIds.add((Long) dbTagId);
+                  tagIds.add(tagId);
 
                   allTagIds.put(dbTourId, tagIds);
                }
