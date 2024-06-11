@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2016 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -43,14 +43,14 @@ public class StatisticDay_Summary extends StatisticDay {
 
          final String property = propertyChangeEvent.getProperty();
 
-            // observe which data are displayed
-            if (false
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP)
+         // observe which data are displayed
+         if (false
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP)
 
                || property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)
 

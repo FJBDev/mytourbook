@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Frédéric Bard
+ * Copyright (C) 2021, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,7 +47,7 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
 
          ) {
 
-               _isDuration_ReloadData = true;
+            _isDuration_ReloadData = true;
 
             // get the changed preferences
             getPreferences();
@@ -84,11 +84,12 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
          createYData_PredictedPerformance(chartDataModel);
       }
       if (_prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_SKIBA)) {
-      createYData_TrainingStress(chartDataModel);
+         createYData_TrainingStress(chartDataModel);
       }
 
       return chartDataModel;
    }
+
    @Override
    protected String getGridPrefPrefix() {
       return GRID_DAY_TRAININGLOAD;
