@@ -116,9 +116,8 @@ public class TourDatabase {
     * <li>/net.tourbook.export/format-templates/mt-1.0.vm</li>
     * <li>net.tourbook.device.mt.MT_StAXHandler</li>
     */
-//   private static final int TOURBOOK_DB_VERSION = 56;
 
-   private static final int TOURBOOK_DB_VERSION = 55; // 24.x ??????
+   private static final int TOURBOOK_DB_VERSION = 56; // 24.x ??????
 
 //   private static final int TOURBOOK_DB_VERSION = 54; // 24.1 fixed db data update bug 47 -> 48
 //   private static final int TOURBOOK_DB_VERSION = 53; // 24.1 added new fields
@@ -287,6 +286,8 @@ public class TourDatabase {
    private static final String RENAMED__TOUR_MAX_TEMPERATURE__INTO        = "weather_Temperature_Max_Device";     //$NON-NLS-1$
    private static final String RENAMED__TOUR_MIN_TEMPERATURE__FROM        = "weather_Temperature_Min";            //$NON-NLS-1$
    private static final String RENAMED__TOUR_MIN_TEMPERATURE__INTO        = "weather_Temperature_Min_Device";     //$NON-NLS-1$
+   private static final String RENAMED__TOUR_TRAININGSTRESS_DEVICE__FROM  = "power_TrainingStressScore";          //$NON-NLS-1$
+   private static final String RENAMED__TOUR_TRAININGSTRESS_DEVICE__INTO  = "trainingStress_Device";              //$NON-NLS-1$
    private static final String RENAMED__TOUR_ISWEATHERDATAFROMAPI__FROM   = "isWeatherDataFromApi";               //$NON-NLS-1$
    private static final String RENAMED__TOUR_ISWEATHERDATAFROMAPI__INTO   = "isWeatherDataFromProvider";          //$NON-NLS-1$
    private static final String RENAMED__TOUR_WEATHER_CLOUDS__FROM         = "weatherClouds";                      //$NON-NLS-1$
@@ -4556,9 +4557,9 @@ public class TourDatabase {
             + "   power_Normalized                       INTEGER DEFAULT 0,            " + NL //$NON-NLS-1$
             + "   power_FTP                              INTEGER DEFAULT 0,            " + NL //$NON-NLS-1$
 
-            + "   power_TotalWork                        BIGINT DEFAULT 0,             " + NL //$NON-NLS-1$
-            + "   power_TrainingStressScore              FLOAT DEFAULT 0,              " + NL //$NON-NLS-1$
-            + "   power_IntensityFactor                  FLOAT DEFAULT 0,              " + NL //$NON-NLS-1$
+            + " power_TotalWork                       BIGINT DEFAULT 0,                   " + NL //$NON-NLS-1$
+            + " trainingStress_Device                 FLOAT DEFAULT 0,                    " + NL //$NON-NLS-1$
+            + " power_IntensityFactor                 FLOAT DEFAULT 0,                    " + NL //$NON-NLS-1$
 
             + "   power_PedalLeftRightBalance            INTEGER DEFAULT 0,            " + NL //$NON-NLS-1$
             + "   power_AvgLeftTorqueEffectiveness       FLOAT DEFAULT 0,              " + NL //$NON-NLS-1$
@@ -4690,6 +4691,7 @@ public class TourDatabase {
 
             // version 47 end
 
+
             // version 50 start  -  23.5
 
             + "   weather_AirQuality                     VARCHAR(" + TourData.DB_LENGTH_WEATHER_AIRQUALITY + "), " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -4702,6 +4704,14 @@ public class TourDatabase {
             + "   tourLocationEnd_LocationID             BIGINT,                       " + NL //$NON-NLS-1$
 
             // version 52 end
+
+            //version XX start  -  21.XX
+            //
+            + " trainingStress_Govss                  INTEGER DEFAULT 0,                  " + NL //$NON-NLS-1$
+            + " trainingStress_BikeScore              INTEGER DEFAULT 0,                " + NL //$NON-NLS-1$
+            + " trainingStress_SwimScore              INTEGER DEFAULT 0,                  " + NL //$NON-NLS-1$
+            //
+            // version XX end
 
             // version 5 start
             /**
@@ -5050,6 +5060,19 @@ public class TourDatabase {
 
             + "   rawDataPath                VARCHAR(" + TourPerson.DB_LENGTH_RAW_DATA_PATH + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   deviceReaderId             VARCHAR(" + TourPerson.DB_LENGTH_DEVICE_READER_ID + "),   " + NL //$NON-NLS-1$ //$NON-NLS-2$
+
+            //
+            // version 99 start
+            //
+            + "   govssThresholdPower        INTEGER DEFAULT 0,                                      " + NL //$NON-NLS-1$
+            + "   govssTimeTrialDuration     INTEGER DEFAULT 0,                                       " + NL //$NON-NLS-1$
+            + "   govssTimeTrialDistance     INTEGER DEFAULT 0,                                       " + NL //$NON-NLS-1$
+            + "   govssTimeTrialAverageSlope INTEGER DEFAULT 0,                                        " + NL //$NON-NLS-1$
+            + "   govssAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   bikeScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_BIKESCORE_ASSOCIATED_TOUR_TYPES + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            + "   swimScoreAssociatedTourTypes   VARCHAR(" + TourPerson.DB_LENGTH_SWIMSCORE_ASSOCIATED_TOUR_TYPES + "),      " + NL //$NON-NLS-1$ //$NON-NLS-2$
+            //
+            // version 99 end ---------
 
             + "   " + KEY_BIKE + "           BIGINT                                    " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -6680,10 +6703,10 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_054_To_055(conn, splashManager);
          }
 
-//// 55 -> 56    24.XX
-//         if (currentDbVersion == 55) {
-//            currentDbVersion = _dbDesignVersion_New = updateDb_055_To_056(conn, splashManager);
-//         }
+// 55 -> 56    24.XX
+         if (currentDbVersion == 55) {
+            currentDbVersion = _dbDesignVersion_New = updateDb_0CURRENT_to_099(conn, splashManager);
+         }
 
          // update db design version number
          updateVersionNumber_10_AfterDesignUpdate(conn, _dbDesignVersion_New);
@@ -10742,6 +10765,44 @@ public class TourDatabase {
             createTable_TourNutritionProduct(stmt);
          }
       }
+      stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
+   }
+
+   private int updateDb_0CURRENT_to_099(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 99;
+//TODO FB change 99 to the appropriate DB version
+//      logDb_UpdateStart(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+      final Statement stmt = conn.createStatement();
+      {
+         // check if db is updated to version 48
+         if (isColumnAvailable(conn, TABLE_TOUR_DATA, "trainingStress_Govss") == false) { //$NON-NLS-1$
+
+      // SET_FORMATTING_OFF
+
+                  // Add new columns
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_govss", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_bikeScore", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_DATA, "trainingStress_swimScore", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssThresholdPower", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDuration", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialDistance", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_Int      (stmt, TABLE_TOUR_PERSON, "govssTimeTrialAverageSlope", DEFAULT_0);//$NON-NLS-1$
+                  SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "govssAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                  SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "bikeScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                  SQL.AddColumn_VarCar   (stmt, TABLE_TOUR_PERSON, "swimScoreAssociatedTourTypes", TourPerson.DB_LENGTH_GOVSS_ASSOCIATED_TOUR_TYPES); //$NON-NLS-1$
+                  SQL.RenameCol(stmt,     TABLE_TOUR_DATA, RENAMED__TOUR_TRAININGSTRESS_DEVICE__FROM,    RENAMED__TOUR_TRAININGSTRESS_DEVICE__INTO);
+
+// SET_FORMATTING_ON
+         }
+      }
+
       stmt.close();
 
       logDbUpdate_End(newDbVersion);

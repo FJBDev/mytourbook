@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -76,6 +76,8 @@ public class GraphColorManager {
    public static final String  PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";       //$NON-NLS-1$
    public static final String  PREF_GRAPH_BODYFAT                      = "BodyFat";                    //$NON-NLS-1$
    public static final String  PREF_GRAPH_BODYWEIGHT                   = "BodyWeight";                 //$NON-NLS-1$
+   public static final String  PREF_GRAPH_PREDICTED_PERFORMANCE        = "Predicted_Performance";      //$NON-NLS-1$
+   public static final String  PREF_GRAPH_TRAINING_STRESS              = "Training_Stress";            //$NON-NLS-1$
 
    public static final String  PREF_COLOR_GRADIENT_BRIGHT              = "bright";                     //$NON-NLS-1$
    public static final String  PREF_COLOR_GRADIENT_DARK                = "dark";                       //$NON-NLS-1$
@@ -103,11 +105,11 @@ public class GraphColorManager {
    static final String         TAG_BRIGHTNESS_MAX                      = "max";                        //$NON-NLS-1$
    static final String         TAG_BRIGHTNESS_MAX_FACTOR               = "maxFactor";                  //$NON-NLS-1$
 
-   static final String         MEMENTO_CHILD_MIN_MAX_VALUE             = "minmaxValue";                //$NON-NLS-1$
-   static final String         TAG_IS_MIN_VALUE_OVERWRITE              = "isMinOverwrite";             //$NON-NLS-1$
-   static final String         TAG_MIN_VALUE_OVERWRITE                 = "minValueOverwrite";          //$NON-NLS-1$
-   static final String         TAG_IS_MAX_VALUE_OVERWRITE              = "isMaxOverwrite";             //$NON-NLS-1$
-   static final String         TAG_MAX_VALUE_OVERWRITE                 = "maxValueOverwrite";          //$NON-NLS-1$
+   private static final String MEMENTO_CHILD_MIN_MAX_VALUE             = "minmaxValue";                //$NON-NLS-1$
+   private static final String TAG_IS_MIN_VALUE_OVERWRITE              = "isMinOverwrite";             //$NON-NLS-1$
+   private static final String TAG_MIN_VALUE_OVERWRITE                 = "minValueOverwrite";          //$NON-NLS-1$
+   private static final String TAG_IS_MAX_VALUE_OVERWRITE              = "isMaxOverwrite";             //$NON-NLS-1$
+   private static final String TAG_MAX_VALUE_OVERWRITE                 = "maxValueOverwrite";          //$NON-NLS-1$
 
 // SET_FORMATTING_OFF
 

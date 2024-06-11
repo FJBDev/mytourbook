@@ -71,11 +71,11 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory BODY_PULSE_MAX;
    public static final String             BODY_PULSE_MAX_ID                                  = "BODY_PULSE_MAX";                                  //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_AVG_BPM;
-   public static final String             BODY_PULSE_RR_AVG_BPM_ID                           = "BODY_PULSE_RR_AVG_BPM";                           //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_AVG_BPM_ID                           = "BODY_PULSE_RR_AVG_BPM";                           //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_INDEX;
-   public static final String             BODY_PULSE_RR_INDEX_ID                             = "BODY_PULSE_RR_INDEX";                             //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_INDEX_ID                             = "BODY_PULSE_RR_INDEX";                             //$NON-NLS-1$
    public static final TableColumnFactory BODY_PULSE_RR_INTERVALS;
-   public static final String             BODY_PULSE_RR_INTERVALS_ID                         = "BODY_PULSE_RR_INTERVALS";                         //$NON-NLS-1$
+   private static final String            BODY_PULSE_RR_INTERVALS_ID                         = "BODY_PULSE_RR_INTERVALS";                         //$NON-NLS-1$
    public static final TableColumnFactory BODY_RESTPULSE;
    public static final String             BODY_RESTPULSE_ID                                  = "BODY_RESTPULSE";                                  //$NON-NLS-1$
    public static final TableColumnFactory BODY_WEIGHT;
@@ -290,11 +290,12 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MOTION_DISTANCE;
    public static final String             MOTION_DISTANCE_ID                                 = "MOTION_DISTANCE";                                 //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_DELTA;
-   public static final String             MOTION_DISTANCE_DELTA_ID                           = "MOTION_DISTANCE_DELTA_ID";                        //$NON-NLS-1$
+   private static final String            MOTION_DISTANCE_DELTA_ID                           = "MOTION_DISTANCE_DELTA_ID";                        //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_DIFF;
    public static final TableColumnFactory MOTION_DISTANCE_TOTAL;
    public static final TableColumnFactory MOTION_LATITUDE;
    public static final TableColumnFactory MOTION_LONGITUDE;
+   public static final TableColumnFactory MOTION_NORMALIZED_PACE;
    public static final TableColumnFactory MOTION_MAX_SPEED;
    public static final String             MOTION_MAX_SPEED_ID                                = "MOTION_MAX_SPEED";                                //$NON-NLS-1$
    public static final TableColumnFactory MOTION_PACE;
@@ -387,7 +388,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory SENSOR_NAME_KEY;
    public static final String             SENSOR_NAME_KEY_ID                                 = "SENSOR_NAME_KEY";                                 //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_DESCRIPTION;
-   public static final String             SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
+   private static final String            SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NAME;
    public static final String             SENSOR_MANUFACTURER_NAME_ID                        = "SENSOR_MANUFACTURER_NAME";                        //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NUMBER;
@@ -2374,6 +2375,28 @@ public abstract class TableColumnFactory {
             colDef.setColumnHeaderText(         UI.UNIT_LABEL_PACE);
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_pace_tooltip);
             colDef.setColumnUnit(               UI.UNIT_LABEL_PACE);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(9));
+
+            return colDef;
+         }
+      };
+
+      MOTION_NORMALIZED_PACE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "MOTION_NORMALIZED_PACE", SWT.TRAIL); //$NON-NLS-1$
+
+            final String unitLabel = "n" + UI.UNIT_LABEL_PACE; //$NON-NLS-1$
+
+            colDef.setColumnCategory(Messages.ColumnFactory_Category_Motion);
+            colDef.setColumnLabel(Messages.ColumnFactory_Pace_Normalized_Label);
+            colDef.setColumnHeaderText(unitLabel);
+            colDef.setColumnUnit(unitLabel);
+            colDef.setColumnHeaderToolTipText(Messages.ColumnFactory_Pace_Normalized_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(9));
 

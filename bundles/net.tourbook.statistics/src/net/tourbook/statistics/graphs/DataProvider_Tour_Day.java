@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -37,6 +37,7 @@ import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.statistic.DurationTime;
 import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
+import net.tourbook.trainingload.PredictedPerformance;
 import net.tourbook.ui.SQLFilter;
 import net.tourbook.ui.TourTypeFilter;
 
@@ -44,7 +45,7 @@ import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList;
 
-public class DataProvider_Tour_Day extends DataProvider {
+class DataProvider_Tour_Day extends DataProvider {
 
    private TourStatisticData_Day _tourDayData;
 
@@ -227,6 +228,34 @@ public class DataProvider_Tour_Day extends DataProvider {
       }
    }
 
+   private void computeAndAddPredictedPerformanceValue(final FloatArrayList dbAllPredictedPerformance,
+                                                       final FloatArrayList dbAllTrainingStress) {
+
+      final int currentFitnessValue = dbAllTrainingStress.isEmpty() ? 0 : (int) dbAllTrainingStress.get(dbAllTrainingStress.size() - 1);
+      int previousFitnessValue = 0;
+
+      int numberOfDaysSinceLastTrainingStress = 0;
+      for (int index = dbAllTrainingStress.size() - 2; index >= 0; --index) {
+
+         previousFitnessValue = (int) dbAllTrainingStress.get(index);
+         ++numberOfDaysSinceLastTrainingStress;
+
+         if (previousFitnessValue > 0) {
+            break;
+         }
+      }
+      //TODO FB i would think that only the day summary would be useful. are the week/month/year valuable ?
+      //Issue: the problem with using the current statistics is that when starting a new year, it doesn't take into account the previous years
+      //predicted performance values.
+      //specific sql queries for computing the predicted performance values that would use the
+      //current query but go back as far as possible ???
+
+      dbAllPredictedPerformance.add(PredictedPerformance.computePredictedPerformanceValue(numberOfDaysSinceLastTrainingStress,
+            previousFitnessValue,
+            currentFitnessValue));
+
+   }
+
    TourStatisticData_Day getDayData(final TourPerson person,
                                     final TourTypeFilter tourTypeFilter,
                                     final int lastYear,
@@ -329,8 +358,12 @@ public class DataProvider_Tour_Day extends DataProvider {
                + "   TourType_typeId," + NL //                       18 //$NON-NLS-1$
                + "   jTdataTtag.TourTag_tagId," + NL //              19 //$NON-NLS-1$
 
-               + "   BodyWeight,         " + NL //                   20 //$NON-NLS-1$
-               + "   BodyFat          " + NL //                      21 //$NON-NLS-1$
+               + "   BodyWeight,         " + NL //      19 //$NON-NLS-1$
+               + "   BodyFat,          " + NL //      20 //$NON-NLS-1$
+
+               + "   trainingStress_Govss,          " + NL //      21 //$NON-NLS-1$
+               + "   trainingStress_BikeScore,          " + NL //      22 //$NON-NLS-1$
+               + "   trainingStress_SwimScore          " + NL //      23 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 
@@ -374,6 +407,9 @@ public class DataProvider_Tour_Day extends DataProvider {
          final FloatArrayList dbAllBodyWeight = new FloatArrayList();
          final FloatArrayList dbAllBodyFat = new FloatArrayList();
 
+         final FloatArrayList dbAllPredictedPerformance = new FloatArrayList();
+         final FloatArrayList dbAllTrainingStress = new FloatArrayList();
+
          final ArrayList<String> dbAllTourTitle = new ArrayList<>();
          final ArrayList<String> dbAllTourDescription = new ArrayList<>();
 
@@ -403,8 +439,8 @@ public class DataProvider_Tour_Day extends DataProvider {
 
                // get additional tags from tag join
 
-               if (dbTagId instanceof Long) {
-                  tagIds.add((Long) dbTagId);
+               if (dbTagId instanceof final Long tagId && tagIds != null) {
+                  tagIds.add(tagId);
                }
 
             } else {
@@ -439,6 +475,11 @@ public class DataProvider_Tour_Day extends DataProvider {
 
                final float bodyWeight                 = result.getFloat(20) * UI.UNIT_VALUE_WEIGHT;
                final float bodyFat                    = result.getFloat(21);
+
+               final float govss    =  result.getInt(21);
+               final float bikeScore    =  result.getInt(22);
+ final float swimScore    = result.getInt(23);
+
 
 // SET_FORMATTING_ON
 
@@ -490,6 +531,9 @@ public class DataProvider_Tour_Day extends DataProvider {
                dbAllBodyWeight.add(bodyWeight);
                dbAllBodyFat.add(bodyFat);
 
+               dbAllTrainingStress.add(govss + bikeScore + swimScore);
+               computeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, dbAllTrainingStress);
+
                // round distance
                final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;
 
@@ -507,10 +551,10 @@ public class DataProvider_Tour_Day extends DataProvider {
                dbAllTourTitle.add(dbTourTitle);
                dbAllTourDescription.add(dbDescription == null ? UI.EMPTY_STRING : dbDescription);
 
-               if (dbTagId instanceof Long) {
+               if (dbTagId instanceof final Long tagId) {
 
                   tagIds = new ArrayList<>();
-                  tagIds.add((Long) dbTagId);
+                  tagIds.add(tagId);
 
                   allTagIds.put(dbTourId, tagIds);
                }
@@ -558,6 +602,9 @@ public class DataProvider_Tour_Day extends DataProvider {
 
          final float[] bodyWeight_High = dbAllBodyWeight.toArray();
          final float[] bodyFat_High = dbAllBodyFat.toArray();
+
+         final float[] predictedPerformance_High = dbAllPredictedPerformance.toArray();
+         final float[] trainingStress_High = dbAllTrainingStress.toArray();
 
          final int serieLength = durationTime_High.length;
 
@@ -661,6 +708,10 @@ public class DataProvider_Tour_Day extends DataProvider {
          adjustValues_Avg(dbAllTourStartDateTime,  bodyWeight_High);
          adjustValues_Avg(dbAllTourStartDateTime,  bodyFat_High);
 
+         //TODO FB what is that for ? is it necessary ?
+//         adjustValues_Avg(dbAllTourStartDateTime,    predictedPerformance_High);
+//         adjustValues_Avg(dbAllTourStartDateTime,        trainingStress_High);
+
 //SET_FORMATTING_ON
 
          // get number of days for all years
@@ -732,6 +783,12 @@ public class DataProvider_Tour_Day extends DataProvider {
 
          _tourDayData.allAthleteBodyFat_Low = new float[yearDays];
          _tourDayData.allAthleteBodyFat_High = bodyFat_High;
+
+         _tourDayData.allTraining_Load_PredictedPerformance_Low = new float[yearDays];
+         _tourDayData.allTraining_Load_PredictedPerformance_High = predictedPerformance_High;
+
+         _tourDayData.allTraining_Load_TrainingStress_Low = new float[yearDays];
+         _tourDayData.allTraining_Load_TrainingStress_High = trainingStress_High;
 
          _tourDayData.allTourTitles = dbAllTourTitle;
          _tourDayData.allTourDescriptions = dbAllTourDescription;
@@ -925,7 +982,7 @@ public class DataProvider_Tour_Day extends DataProvider {
       return statistic_RawStatisticValues;
    }
 
-   public void setGraphContext(final boolean isShowTrainingPerformance_AvgValue, final boolean isAdjustmentSamePosition) {
+   void setGraphContext(final boolean isShowTrainingPerformance_AvgValue, final boolean isAdjustmentSamePosition) {
 
       _isShowTrainingPerformance_AvgValue = isShowTrainingPerformance_AvgValue;
       _isAdjustSamePosition = isAdjustmentSamePosition;

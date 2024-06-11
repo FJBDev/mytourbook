@@ -1464,7 +1464,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
          joinedDistance += tourData.getTourDistance();
          joinedCalories += tourData.getCalories();
-         joinedTss += tourData.getPower_TrainingStressScore();
+         joinedTss += tourData.getTrainingStress_Device();
 
          /*
           * Init next tour
@@ -1499,7 +1499,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       _joinedTourData.setDeviceTimeInterval(joinedDeviceTimeInterval);
 
       _joinedTourData.setCalories(joinedCalories);
-      _joinedTourData.setPower_TrainingStressScore(joinedTss);
+      _joinedTourData.setTrainingStress_Device(joinedTss);
       _joinedTourData.setCadenceMultiplier(joinedCadenceMultiplier);
       _joinedTourData.setRestPulse(joinedRestPulse);
 

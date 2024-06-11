@@ -41,7 +41,7 @@
   "power_Normalized" : 0,
   "power_PedalLeftRightBalance" : 0,
   "power_TotalWork" : 0,
-  "power_TrainingStressScore" : 0.0,
+  "trainingStress_Device" : 0.0,
   "rearShiftCount" : 0,
   "restPulse" : 0,
   "runDyn_StanceTimeBalance_Avg" : 0.0,

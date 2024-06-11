@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,12 +30,14 @@ public class Messages extends NLS {
    public static String        LABEL_GRAPH_ELEVATION_UP;
    public static String        LABEL_GRAPH_NUMBER_OF_TOURS;
    public static String        LABEL_GRAPH_PACE;
+   public static String        LABEL_GRAPH_PREDICTED_PERFORMANCE;
    public static String        LABEL_GRAPH_SPEED;
    public static String        LABEL_GRAPH_TIME;
    public static String        LABEL_GRAPH_TIME_UNIT;
    public static String        LABEL_GRAPH_TRAINING_EFFECT;
    public static String        LABEL_GRAPH_TRAINING_EFFECT_ANAEROBIC;
    public static String        LABEL_GRAPH_TRAINING_PERFORMANCE;
+   public static String        LABEL_GRAPH_TRAINING_STRESS;
 
    public static String        NUMBERS_UNIT;
 

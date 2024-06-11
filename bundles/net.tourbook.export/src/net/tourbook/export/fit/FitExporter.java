@@ -642,7 +642,7 @@ public class FitExporter {
       sessionMesg.setAvgRightTorqueEffectiveness(_tourData.getPower_AvgRightTorqueEffectiveness());
       sessionMesg.setAvgLeftPedalSmoothness(_tourData.getPower_AvgLeftPedalSmoothness());
       sessionMesg.setAvgRightPedalSmoothness(_tourData.getPower_AvgRightPedalSmoothness());
-      sessionMesg.setTrainingStressScore(_tourData.getPower_TrainingStressScore());
+      sessionMesg.setTrainingStressScore(_tourData.getTrainingStress_Device());
       sessionMesg.setIntensityFactor(_tourData.getPower_IntensityFactor());
       sessionMesg.setThresholdPower(_tourData.getPower_FTP());
       sessionMesg.setTotalTrainingEffect(_tourData.getTraining_TrainingEffect_Aerob());

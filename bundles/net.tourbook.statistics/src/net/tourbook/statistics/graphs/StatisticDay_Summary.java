@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2016 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,24 +15,18 @@
  *******************************************************************************/
 package net.tourbook.statistics.graphs;
 
-import net.tourbook.application.TourbookPlugin;
 import net.tourbook.chart.ChartDataModel;
 import net.tourbook.chart.ChartType;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.statistic.ChartOptions_DaySummary;
 import net.tourbook.statistic.SlideoutStatisticOptions;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
 public class StatisticDay_Summary extends StatisticDay {
 
-   private final IPreferenceStore  _prefStore = TourbookPlugin.getPrefStore();
    private IPropertyChangeListener _statDay_PrefChangeListener;
 
    private boolean                 _isShowAvgPace;
@@ -45,36 +39,33 @@ public class StatisticDay_Summary extends StatisticDay {
    private void addPrefListener(final Composite container) {
 
       // create pref listener
-      _statDay_PrefChangeListener = new IPropertyChangeListener() {
-         @Override
-         public void propertyChange(final PropertyChangeEvent event) {
+      _statDay_PrefChangeListener = propertyChangeEvent -> {
 
-            final String property = event.getProperty();
+         final String property = propertyChangeEvent.getProperty();
 
-            // observe which data are displayed
-            if (false
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN)
-                  || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP)
+         // observe which data are displayed
+         if (false
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_PACE)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_AVG_SPEED)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DISTANCE)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_DURATION)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_DOWN)
+               || property.equals(ITourbookPreferences.STAT_DAY_IS_SHOW_ELEVATION_UP)
 
-                  || property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)
+               || property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)
 
-            ) {
+         ) {
 
-               if (property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)) {
+            if (property.equals(ITourbookPreferences.STAT_DAY_DURATION_TIME)) {
 
-                  _isDuration_ReloadData = true;
-               }
-
-               // get the changed preferences
-               getPreferences();
-
-               // update chart
-               preferencesHasChanged();
+               _isDuration_ReloadData = true;
             }
+
+            // get the changed preferences
+            getPreferences();
+
+            // update chart
+            preferencesHasChanged();
          }
       };
 
@@ -82,12 +73,7 @@ public class StatisticDay_Summary extends StatisticDay {
       _prefStore.addPropertyChangeListener(_statDay_PrefChangeListener);
 
       // remove pref listener
-      container.addDisposeListener(new DisposeListener() {
-         @Override
-         public void widgetDisposed(final DisposeEvent e) {
-            _prefStore.removePropertyChangeListener(_statDay_PrefChangeListener);
-         }
-      });
+      container.addDisposeListener(disposeEvent -> _prefStore.removePropertyChangeListener(_statDay_PrefChangeListener));
    }
 
    @Override

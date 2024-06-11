@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2024 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -383,6 +383,7 @@ class CalendarTourDataProvider {
     * @param year
     * @param month
     * @param day
+    *
     * @return CalendarTourData
     */
    private CalendarTourData[][] loadFromDb_Month(final int year, final int month) {
@@ -558,8 +559,8 @@ class CalendarTourDataProvider {
                if (tourId == lastTourId) {
 
                   // get additional tags from outer join
-                  if (dbTagId instanceof Long) {
-                     tagIds.add((Long) dbTagId);
+                  if (dbTagId instanceof final Long dbTagIdLong) {
+                     tagIds.add(dbTagIdLong);
                   }
 
                } else {
@@ -785,7 +786,7 @@ class CalendarTourDataProvider {
                   + "      cadenceZone_SlowTime," + NL //                              //$NON-NLS-1$
                   + "      cadenceZone_FastTime," + NL //                              //$NON-NLS-1$
                   + "      TourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
-                  + "      power_TrainingStressScore" + NL //                          //$NON-NLS-1$
+                  + "      trainingStress_Device" + NL //                          //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                  //$NON-NLS-1$
 
@@ -832,7 +833,7 @@ class CalendarTourDataProvider {
 
                + " SUM(TourDeviceTime_Recorded)," + NL //                           10 //$NON-NLS-1$
 
-               + " SUM(power_TrainingStressScore)" + NL //                          11 //$NON-NLS-1$
+               + " SUM(trainingStress_Device)" + NL //                          11 //$NON-NLS-1$
 
                + sqlFromTourData;
 

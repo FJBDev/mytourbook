@@ -99,6 +99,7 @@
                   <enumeration value="Summary"/>
                   <enumeration value="Time"/>
                   <enumeration value="Training"/>
+                  <enumeration value="TrainingLoad"/>
                </restriction>
             </simpleType>
          </attribute>

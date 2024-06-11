@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,7 @@ import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
 import net.tourbook.ui.SQLFilter;
 import net.tourbook.ui.TourTypeFilter;
 
-public class DataProvider_Tour_Year extends DataProvider {
+class DataProvider_Tour_Year extends DataProvider {
 
    private TourStatisticData_Year _tourYearData;
 
@@ -291,7 +291,11 @@ public class DataProvider_Tour_Year extends DataProvider {
                   + "      TourAltDown," + NL //                                                //$NON-NLS-1$
 
                   + "      BodyWeight,         " + NL //       //$NON-NLS-1$
-                  + "      BodyFat          " + NL //       //$NON-NLS-1$
+                  + "      BodyFat,         " + NL //       //$NON-NLS-1$
+
+                  + "      trainingStress_Govss," + NL //                   //$NON-NLS-1$
+                  + "      trainingStress_BikeScore," + NL //                   //$NON-NLS-1$
+                  + "      trainingStress_SwimScore" + NL //                   //$NON-NLS-1$
 
                   + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                           //$NON-NLS-1$
 
@@ -339,8 +343,12 @@ public class DataProvider_Tour_Year extends DataProvider {
 
                + "   SUM(1)," + NL //                                      11 //$NON-NLS-1$
 
-               + "   AVG( CASE WHEN BodyWeight = 0    THEN NULL ELSE BodyWeight END)," + NL //  12 //$NON-NLS-1$
-               + "   AVG( CASE WHEN BodyFat = 0       THEN NULL ELSE BodyFat END)" + NL //      13 //$NON-NLS-1$
+               + "   AVG( CASE WHEN BodyWeight = 0         THEN NULL ELSE BodyWeight END)," + NL //      11 //$NON-NLS-1$
+               + "   AVG( CASE WHEN BodyFat = 0         THEN NULL ELSE BodyFat END)," + NL //      12 //$NON-NLS-1$
+
+               + "   SUM(trainingStress_Govss)," + NL //                   13  //$NON-NLS-1$
+               + "   SUM(trainingStress_bikeScore)," + NL //               14  //$NON-NLS-1$
+               + "   SUM(trainingStress_swimScore)" + NL //                15  //$NON-NLS-1$
 
                + fromTourData
 
@@ -375,6 +383,7 @@ public class DataProvider_Tour_Year extends DataProvider {
          final int[][] dbPausedTime = new int[numTourTypes][numYears];
          final int[][] dbMovingTime = new int[numTourTypes][numYears];
          final int[][] dbBreakTime = new int[numTourTypes][numYears];
+         final float[][] dbTrainingStress = new float[numTourTypes][numYears];
 
          final long[][] dbTypeIds = new long[numTourTypes][numYears];
          final long[] tourTypeSum = new long[numTourTypes];
@@ -414,12 +423,13 @@ public class DataProvider_Tour_Year extends DataProvider {
 
             final long dbValue_Distance            = (long) (result.getInt(8) / UI.UNIT_VALUE_DISTANCE);
 
+            final int dbValue_NumTours             = result.getInt(10);
+            final float dbValue_BodyWeight         = result.getFloat(11) * UI.UNIT_VALUE_WEIGHT;
+            final float dbValue_BodyFat            = result.getFloat(12);
+            final float dbValue_TrainingStress         = result.getFloat(13);
+
             final long dbValue_ElevationUp         = (long) (result.getInt(9) / UI.UNIT_VALUE_ELEVATION);
             final long dbValue_ElevationDown       = (long) (result.getInt(10) / UI.UNIT_VALUE_ELEVATION);
-
-            final int dbValue_NumTours             = result.getInt(11);
-            final float dbValue_BodyWeight         = result.getFloat(12) * UI.UNIT_VALUE_WEIGHT;
-            final float dbValue_BodyFat            = result.getFloat(13);
 
 // SET_FORMATTING_ON
 
@@ -474,6 +484,7 @@ public class DataProvider_Tour_Year extends DataProvider {
             dbPausedTime[colorIndex][yearIndex] = dbValue_PausedTime;
             dbMovingTime[colorIndex][yearIndex] = dbValue_MovingTime;
             dbBreakTime[colorIndex][yearIndex] = dbValue_ElapsedTime - dbValue_MovingTime;
+            dbTrainingStress[colorIndex][yearIndex] = dbValue_TrainingStress;
 
             usedTourTypeIds[colorIndex] = dbTypeId;
             tourTypeSum[colorIndex] += dbValue_Distance + dbValue_ElevationUp + dbValue_ElapsedTime;
@@ -562,6 +573,12 @@ public class DataProvider_Tour_Year extends DataProvider {
             _tourYearData.athleteBodyFat_Low = new float[numYears];
             _tourYearData.athleteBodyFat_High = new float[numYears];
 
+            _tourYearData.predictedPerformance_Low = new float[numYears];
+            _tourYearData.predictedPerformance_High = new float[numYears];
+
+            _tourYearData.trainingStress_Low = new float[1][numYears];
+            _tourYearData.trainingStress_High = new float[1][numYears];
+
          } else {
 
             final long[][] usedTypeIds = new long[numTourTypes_WithData][];
@@ -576,6 +593,7 @@ public class DataProvider_Tour_Year extends DataProvider {
             final int[][] usedMovingTime = new int[numTourTypes_WithData][];
             final int[][] usedBreakTime = new int[numTourTypes_WithData][];
             final float[][] usedNumTours = new float[numTourTypes_WithData][];
+            final float[][] usedTrainingStress = new float[numTourTypes_WithData][];
 
             for (int index = 0; index < numTourTypes_WithData; index++) {
 
@@ -593,6 +611,7 @@ public class DataProvider_Tour_Year extends DataProvider {
                usedBreakTime[index] = (int[]) allBreakTime_WithData.get(index);
 
                usedNumTours[index] = (float[]) allNumTours_WithData.get(index);
+               usedTrainingStress[index] = (float[]) allNumTours_WithData.get(index);
             }
 
             _tourYearData.typeIds = usedTypeIds;
@@ -640,6 +659,12 @@ public class DataProvider_Tour_Year extends DataProvider {
             }
             _tourYearData.athleteBodyFat_Low = new float[numYears];
             _tourYearData.athleteBodyFat_High = fat;
+
+            _tourYearData.predictedPerformance_Low = new float[numYears];
+            _tourYearData.predictedPerformance_High = new float[numYears];
+
+            _tourYearData.trainingStress_Low = new float[numTourTypes_WithData][numYears];
+            _tourYearData.trainingStress_High = usedTrainingStress;
          }
 
          _tourYearData.numUsedTourTypes = numTourTypes_WithData;

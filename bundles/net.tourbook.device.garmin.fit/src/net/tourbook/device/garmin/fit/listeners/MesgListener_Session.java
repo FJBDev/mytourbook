@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -190,7 +190,7 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
 
       final Float trainingStressScore = mesg.getTrainingStressScore();
       if (trainingStressScore != null) {
-         tourData.setPower_TrainingStressScore(trainingStressScore);
+         tourData.setTrainingStress_Device(trainingStressScore);
       }
 
       final Float intensityFactor = mesg.getIntensityFactor();

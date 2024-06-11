@@ -78,37 +78,38 @@ import org.eclipse.swt.widgets.Shell;
 
 class DialogReimportTours extends TitleAreaDialog {
 
-   private static final String STATE_REIMPORT_TOURS_ALL                           = "STATE_REIMPORT_TOURS_ALL";                           //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_SELECTED                      = "STATE_REIMPORT_TOURS_SELECTED";                      //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_ALL                              = "STATE_REIMPORT_TOURS_ALL";                              //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_SELECTED                         = "STATE_REIMPORT_TOURS_SELECTED";                         //$NON-NLS-1$
 
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES                 = "STATE_REIMPORT_TOURS_BETWEEN_DATES";                 //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM            = "STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM";            //$NON-NLS-1$
-   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL           = "STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL";           //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES                    = "STATE_REIMPORT_TOURS_BETWEEN_DATES";                    //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM               = "STATE_REIMPORT_TOURS_BETWEEN_DATES_FROM";               //$NON-NLS-1$
+   private static final String STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL              = "STATE_REIMPORT_TOURS_BETWEEN_DATES_UNTIL";              //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                    = "STATE_IS_IMPORT_ALL_TIME_SLICES";                    //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_ENTIRE_TOUR                        = "STATE_IS_IMPORT_ENTIRE_TOUR";                        //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_ALL_TIME_SLICES                       = "STATE_IS_IMPORT_ALL_TIME_SLICES";                       //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_ENTIRE_TOUR                           = "STATE_IS_IMPORT_ENTIRE_TOUR";                           //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TOUR__CALORIES                     = "STATE_IS_IMPORT_TOUR__CALORIES";                     //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__MARKERS                      = "STATE_IS_IMPORT_TOUR__MARKERS";                      //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TOUR__WEATHER                      = "STATE_IS_IMPORT_TOUR__WEATHER";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__CALORIES                        = "STATE_IS_IMPORT_TOUR__CALORIES";                        //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__FILE_LOCATION                   = "STATE_IS_IMPORT_TOUR__FILE_LOCATION";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__MARKERS                         = "STATE_IS_IMPORT_TOUR__MARKERS";                         //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE = "STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE"; //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TOUR__WEATHER                         = "STATE_IS_IMPORT_TOUR__WEATHER";                         //$NON-NLS-1$
 
-   private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__ELEVATION              = "STATE_IS_IMPORT_TIME_SLICE__ELEVATION";              //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__GEAR                   = "STATE_IS_IMPORT_TIME_SLICE__GEAR";                   //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE        = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE";        //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED        = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED";        //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS       = "STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS";       //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__SWIMMING               = "STATE_IS_IMPORT_TIME_SLICE__SWIMMING";               //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE = "STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE"; //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TRAINING               = "STATE_IS_IMPORT_TIME_SLICE__TRAINING";               //$NON-NLS-1$
-   private static final String STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES           = "STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__BATTERY                   = "STATE_IS_IMPORT_TIME_SLICE__BATTERY";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__CADENCE                   = "STATE_IS_IMPORT_TIME_SLICE__CADENCE";                   //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__ELEVATION                 = "STATE_IS_IMPORT_TIME_SLICE__ELEVATION";                 //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__GEAR                      = "STATE_IS_IMPORT_TIME_SLICE__GEAR";                      //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE           = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_PULSE";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED           = "STATE_IS_IMPORT_TIME_SLICE__POWER_AND_SPEED";           //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS          = "STATE_IS_IMPORT_TIME_SLICE__RUNNING_DYNAMICS";          //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__SWIMMING                  = "STATE_IS_IMPORT_TIME_SLICE__SWIMMING";                  //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE    = "STATE_IS_IMPORT_TIME_SLICE__TEMPERATURE_FROMDEVICE";    //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TRAINING                  = "STATE_IS_IMPORT_TIME_SLICE__TRAINING";                  //$NON-NLS-1$
+   private static final String STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES              = "STATE_IS_IMPORT_TIME_SLICE__TIMER_PAUSES";              //$NON-NLS-1$
 
-   private static final String STATE_IS_LOG_DETAILS                               = "STATE_IS_LOG_DETAILS";                               //$NON-NLS-1$
-   private static final String STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND       = "STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND";       //$NON-NLS-1$
+   private static final String STATE_IS_LOG_DETAILS                                  = "STATE_IS_LOG_DETAILS";                                  //$NON-NLS-1$
+   private static final String STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND          = "STATE_IS_SKIP_TOURS_WITH_IMPORTFILE_NOTFOUND";          //$NON-NLS-1$
 
-   private static final int    VERTICAL_SECTION_MARGIN                            = 10;
+   private static final int    VERTICAL_SECTION_MARGIN                               = 10;
 
    //
    private static final IDialogSettings    _state          = TourbookPlugin.getState("DialogReimportTours"); //$NON-NLS-1$
@@ -172,6 +173,7 @@ class DialogReimportTours extends TitleAreaDialog {
    private Button    _chkData_TimeSlice_TemperatureFromDevice;
    private Button    _chkData_TimeSlice_Training;
    private Button    _chkData_Tour_Markers;
+   private Button    _chkData_Tour_TrainingStress_Score;
    private Button    _chkData_TimeSlice_TourTimerPauses;
    private Button    _chkData_Tour_Weather;
 
@@ -443,6 +445,14 @@ class DialogReimportTours extends TitleAreaDialog {
             gridDataItem.applyTo(_chkData_Tour_Markers);
          }
          {
+            /*
+             * Training Stress Score (Device)
+             */
+            _chkData_Tour_TrainingStress_Score = new Button(containerTour, SWT.CHECK);
+            _chkData_Tour_TrainingStress_Score.setText("Messages.Dialog_ModifyTours_Checkbox_TourTrainingStressScore");
+            _chkData_Tour_TrainingStress_Score.addSelectionListener(_defaultListener);
+            gridDataItem.applyTo(_chkData_Tour_TrainingStress_Score);
+
             /*
              * Weather (description and clouds)
              */
@@ -1008,7 +1018,8 @@ class DialogReimportTours extends TitleAreaDialog {
             || _chkData_Tour_Calories.getSelection()
             || _chkData_Tour_ImportFileLocation.getSelection()
             || _chkData_Tour_Markers.getSelection()
-            || _chkData_Tour_Weather.getSelection();
+            || _chkData_Tour_Weather.getSelection()
+            || _chkData_Tour_TrainingStress_Score.getSelection();
 
       final boolean isDataSelected = false
 
@@ -1023,6 +1034,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _chkData_Tour_ImportFileLocation.setEnabled(isPartOfATourSelected);
       _chkData_Tour_Markers.setEnabled(isPartOfATourSelected);
       _chkData_Tour_Calories.setEnabled(isPartOfATourSelected);
+      _chkData_Tour_TrainingStress_Score.setEnabled(isPartOfATourSelected);
       _chkData_Tour_Weather.setEnabled(isPartOfATourSelected);
 
       _chkData_TimeSlice_Battery.setEnabled(isTimeSlice);
@@ -1132,6 +1144,7 @@ class DialogReimportTours extends TitleAreaDialog {
 
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_Calories,           TourValueType.TOUR__CALORIES,             tourValueTypes);
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_Markers,            TourValueType.TOUR__MARKER,               tourValueTypes);
+            DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_TrainingStress_Score,            TourValueType.TOUR__TRAINING_STRESS_SCORE,               tourValueTypes);
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_ImportFileLocation, TourValueType.TOUR__IMPORT_FILE_LOCATION, tourValueTypes);
             DialogUtils.addTourValueTypeFromCheckbox(_chkData_Tour_Weather,            TourValueType.TOUR__WEATHER,              tourValueTypes);
 
@@ -1151,6 +1164,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _chkData_Tour_Calories                    .setSelection(false);
       _chkData_Tour_ImportFileLocation          .setSelection(false);
       _chkData_Tour_Markers                     .setSelection(false);
+      _chkData_Tour_TrainingStress_Score        .setSelection(false);
       _chkData_Tour_Weather                     .setSelection(false);
 
       _chkData_TimeSlice_Battery                .setSelection(false);
@@ -1238,6 +1252,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _chkData_Tour_Calories                  .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__CALORIES));
       _chkData_Tour_ImportFileLocation        .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__FILE_LOCATION));
       _chkData_Tour_Markers                   .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__MARKERS));
+      _chkData_Tour_TrainingStress_Score      .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE));
       _chkData_Tour_Weather                   .setSelection(_state.getBoolean(STATE_IS_IMPORT_TOUR__WEATHER));
 
       _chkData_TimeSlice_Battery              .setSelection(_state.getBoolean(STATE_IS_IMPORT_TIME_SLICE__BATTERY));
@@ -1279,6 +1294,7 @@ class DialogReimportTours extends TitleAreaDialog {
       _state.put(STATE_IS_IMPORT_TOUR__CALORIES,               _chkData_Tour_Calories.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR__FILE_LOCATION,          _chkData_Tour_ImportFileLocation.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR__MARKERS,                _chkData_Tour_Markers.getSelection());
+      _state.put(STATE_IS_IMPORT_TOUR__TRAININGSTRESS_SCORE_FROMDEVICE,                _chkData_Tour_TrainingStress_Score.getSelection());
       _state.put(STATE_IS_IMPORT_TOUR__WEATHER,                _chkData_Tour_Weather.getSelection());
 
       _state.put(STATE_IS_IMPORT_ALL_TIME_SLICES,                    _chkData_AllTimeSlices.getSelection());

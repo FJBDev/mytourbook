@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2023 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -40,7 +40,7 @@ public class StatisticsViewTests extends UITest {
       bot.sleep(3000);
 
       final SWTBotCombo statisticsTypeComboBox = statisticsViewBot.comboBox(0);
-      assertEquals(31, statisticsTypeComboBox.itemCount());
+      assertEquals(35, statisticsTypeComboBox.itemCount());
       assertNotNull(statisticsTypeComboBox);
       statisticsTypeComboBox.setSelection(0);
       assertEquals("Daytime", statisticsTypeComboBox.selection()); //$NON-NLS-1$
@@ -84,7 +84,10 @@ public class StatisticsViewTests extends UITest {
       statisticsTypeComboBox.setSelection("Athlete's Data - Week"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Month"); //$NON-NLS-1$
       statisticsTypeComboBox.setSelection("Athlete's Data - Year"); //$NON-NLS-1$
-      statisticsTypeComboBox.setSelection("Battery SoC"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Training Load - Day");//$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Training Load - Month"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Training Load - Week"); //$NON-NLS-1$
+      statisticsTypeComboBox.setSelection("Training Load - Year"); //$NON-NLS-1$
 
       statisticsView.close();
    }

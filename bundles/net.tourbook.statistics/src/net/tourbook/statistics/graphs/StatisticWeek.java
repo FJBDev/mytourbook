@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -48,7 +48,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticWeek extends TourbookStatistic {
+abstract class StatisticWeek extends TourbookStatistic {
 
    private static final String      SUB_TITLE_1_LINE       = "%s … %s";                   //$NON-NLS-1$
    private static final String      SUB_TITLE_2_LINES      = "%s …\n%s";                  //$NON-NLS-1$
@@ -75,14 +75,10 @@ public abstract class StatisticWeek extends TourbookStatistic {
    private ChartDataYSerie          _athleteBodyWeight_YData;
    private ChartDataYSerie          _athleteBodyFat_YData;
 
-   public boolean canTourBeVisible() {
-      return false;
-   }
-
    /**
     * create segments for each week
     */
-   ChartStatisticSegments createChartSegments() {
+   private ChartStatisticSegments createChartSegments() {
 
       final double[] segmentStart = new double[_statNumberOfYears];
       final double[] segmentEnd = new double[_statNumberOfYears];
@@ -423,6 +419,24 @@ public abstract class StatisticWeek extends TourbookStatistic {
 
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TOUR);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Week.trainingStress_Low,
+            _statisticData_Week.trainingStress_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Week.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);
    }

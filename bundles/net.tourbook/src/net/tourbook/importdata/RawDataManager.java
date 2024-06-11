@@ -339,6 +339,7 @@ public class RawDataManager {
       TOUR__CALORIES, //
       TOUR__IMPORT_FILE_LOCATION, //
       TOUR__MARKER, //
+      TOUR__TRAINING_STRESS_SCORE, //
       TOUR__WEATHER, //
 
       TIME_SLICES__BATTERY, //
@@ -865,6 +866,14 @@ public class RawDataManager {
                oldTourData.getTourMarkers().size() + UI.SPACE1 + OtherMessages.COLUMN_FACTORY_CATEGORY_MARKER);
          newData.add(
                newTourData.getTourMarkers().size() + UI.SPACE1 + OtherMessages.COLUMN_FACTORY_CATEGORY_MARKER);
+      }
+
+      if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
+
+         previousData.add(
+               String.valueOf(Math.round(oldTourData.getTrainingStress_Device())));
+         newData.add(
+               String.valueOf(Math.round(newTourData.getTrainingStress_Device())));
       }
 
       if (isEntireTour || tourValueType == TourValueType.TOUR__IMPORT_FILE_LOCATION) {
@@ -1556,6 +1565,10 @@ public class RawDataManager {
                tourDataDummyClone.setImportFilePath(oldTourData.getImportFilePathName());
             }
 
+            if (isEntireTour || tourValueType == TourValueType.TOUR__TRAINING_STRESS_SCORE) {
+
+               tourDataDummyClone.setTrainingStress_Device(oldTourData.getTrainingStress_Device());
+            }
             if (isEntireTour || tourValueType == TourValueType.TOUR__WEATHER) {
 
                tourDataDummyClone.setWeather(oldTourData.getWeather());
@@ -3513,6 +3526,11 @@ public class RawDataManager {
                oldTourData.setTourMarkers(reimportedTourData.getTourMarkers());
             }
 
+            if (tourValueTypes.contains(TourValueType.TOUR__TRAINING_STRESS_SCORE)) {
+
+               oldTourData.setTrainingStress_Device(reimportedTourData.getTrainingStress_Device());
+            }
+
             if (tourValueTypes.contains(TourValueType.TOUR__IMPORT_FILE_LOCATION)) {
 
                // update device name which is also not set in older versions
@@ -3643,7 +3661,7 @@ public class RawDataManager {
             oldTourData.setPower_FTP(                          reimportedTourData.getPower_FTP());
 
             oldTourData.setPower_TotalWork(                    reimportedTourData.getPower_TotalWork());
-            oldTourData.setPower_TrainingStressScore(          reimportedTourData.getPower_TrainingStressScore());
+            oldTourData.setTrainingStress_Device(          reimportedTourData.getTrainingStress_Device());
             oldTourData.setPower_IntensityFactor(              reimportedTourData.getPower_IntensityFactor());
 
             oldTourData.setPower_PedalLeftRightBalance(        reimportedTourData.getPower_PedalLeftRightBalance());

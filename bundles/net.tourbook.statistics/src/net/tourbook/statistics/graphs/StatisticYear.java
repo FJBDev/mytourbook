@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -49,7 +49,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticYear extends TourbookStatistic {
+abstract class StatisticYear extends TourbookStatistic {
 
    private TourStatisticData_Year   _statisticData_Year;
    private DataProvider_Tour_Year   _tourYear_DataProvider = new DataProvider_Tour_Year();
@@ -74,11 +74,7 @@ public abstract class StatisticYear extends TourbookStatistic {
    private ChartDataYSerie          _athleteBodyWeight_YData;
    private ChartDataYSerie          _athleteBodyFat_YData;
 
-   public boolean canTourBeVisible() {
-      return false;
-   }
-
-   ChartStatisticSegments createChartSegments(final TourStatisticData_Year tourDataYear) {
+   private ChartStatisticSegments createChartSegments(final TourStatisticData_Year tourDataYear) {
 
       final int yearCounter = tourDataYear.elevationUp_High[0].length;
 
@@ -360,6 +356,42 @@ public abstract class StatisticYear extends TourbookStatistic {
       yData.setShowYSlider(true);
 
       StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TOUR);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.predictedPerformance_Low,
+            _statisticData_Year.predictedPerformance_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
+      StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
+
+      chartDataModel.addYData(yData);
+   }
+
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Year.trainingStress_Low,
+            _statisticData_Year.trainingStress_High);
+
+      yData.setYTitle(Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setUnitLabel(UI.UNIT_PERCENT);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_BODYFAT);
       StatisticServices.setTourTypeColorIndex(yData, _statisticData_Year.typeIds_Resorted, _appTourTypeFilter);
 
       chartDataModel.addYData(yData);

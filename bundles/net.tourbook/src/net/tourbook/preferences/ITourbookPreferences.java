@@ -150,6 +150,13 @@ public interface ITourbookPreferences {
    public static final String STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE    = "STAT_BODYFAT_YAXIS_MAX_VISIBLE_VALUE";    //$NON-NLS-1$
 
    /*
+    * Statistic: Training Stress
+    */
+   public static final String STAT_TRAINING_MODEL_DEVICE = "STAT_TRAINING_MODEL_DEVICE"; //$NON-NLS-1$
+   public static final String STAT_TRAINING_MODEL_SKIBA  = "STAT_TRAINING_MODEL_SKIBA";  //$NON-NLS-1$
+   public static final String STAT_TRAINING_MODEL_TRIMP  = "STAT_TRAINING_MODEL_TRIMP";  //$NON-NLS-1$
+
+   /*
     * Graphs
     */
    /** All graphs in the visible sequence */
@@ -640,7 +647,13 @@ public interface ITourbookPreferences {
    public static final String WEATHER_WEATHER_PROVIDER_ID                  = "WEATHER_WEATHER_PROVIDER_ID";                  //$NON-NLS-1$
 
    /*
-    * Tour marker view
+    * Predicted Performance
+    */
+   public static final String FITNESS_DECAY = "FITNESS_DECAY"; //$NON-NLS-1$
+   public static final String FATIGUE_DECAY = "FATIGUE_DECAY"; //$NON-NLS-1$
+
+   /*
+    * Tour Marker View
     */
    public static final String TOURMARKERVIEW_USE_ELAPSED_TIME  = "TOURMARKERVIEW_USE_ELAPSED_TIME";  //$NON-NLS-1$
    public static final String TOURMARKERVIEW_USE_MOVING_TIME   = "TOURMARKERVIEW_USE_MOVING_TIME";   //$NON-NLS-1$

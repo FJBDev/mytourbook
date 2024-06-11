@@ -56,7 +56,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class FitLog_SAXHandler extends DefaultHandler {
+class FitLog_SAXHandler extends DefaultHandler {
 
    private static final String                  TAG_ACTIVITY                           = "Activity";                           //$NON-NLS-1$
    private static final String                  TAG_ACTIVITY_CADENCE                   = "Cadence";                            //$NON-NLS-1$
@@ -238,25 +238,25 @@ public class FitLog_SAXHandler extends DefaultHandler {
       private LinkedHashMap<String, String> customDataFields   = new LinkedHashMap<>();
    }
 
-   public static class Equipment {
+   static class Equipment {
 
-      String Id;
-      String Name;
+      String         Id;
+      private String Name;
 
-      String DatePurchased;
-      String ExpectedLifeKilometers;
-      String InUse;
-      String Notes;
-      String PurchaseLocation;
-      String PurchasePrice;
-      String Type;
-      String WeightKilograms;
+      String         DatePurchased;
+      String         ExpectedLifeKilometers;
+      String         InUse;
+      String         Notes;
+      String         PurchaseLocation;
+      String         PurchasePrice;
+      String         Type;
+      String         WeightKilograms;
 
       // Properties only used to generate the equipment name
       String Brand;
       String Model;
 
-      public String generateNotes() {
+      private String generateNotes() {
 
          final StringBuilder notes = new StringBuilder(ATTRIB_EQUIPMENT_ID + "(SportTracks): " + Id); //$NON-NLS-1$
 
@@ -363,15 +363,15 @@ public class FitLog_SAXHandler extends DefaultHandler {
       private long duration;
    }
 
-   public FitLog_SAXHandler(final String importFilePath,
-                            final Map<Long, TourData> alreadyImportedTours,
-                            final Map<Long, TourData> newlyImportedTours,
-                            final boolean isFitLogExFile,
+   FitLog_SAXHandler(final String importFilePath,
+                     final Map<Long, TourData> alreadyImportedTours,
+                     final Map<Long, TourData> newlyImportedTours,
+                     final boolean isFitLogExFile,
 
-                            final ImportState_File importState_File,
-                            final ImportState_Process importState_Process,
+                     final ImportState_File importState_File,
+                     final ImportState_Process importState_Process,
 
-                            final FitLogDeviceDataReader device) {
+                     final FitLogDeviceDataReader device) {
 
       _importFilePath = importFilePath;
       _alreadyImportedTours = alreadyImportedTours;
@@ -568,6 +568,10 @@ public class FitLog_SAXHandler extends DefaultHandler {
                tourNotes.append(UI.NEW_LINE);
             }
             tourNotes.append("\"" + key + "\" : \"" + value + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+            if (key.toUpperCase().equalsIgnoreCase(FitLogEx_SAXHandler.ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_TRIMP)) {
+               tourData.setTrainingStress_Device(Float.valueOf(value));
+            }
          });
 
          tourData.setTourDescription(tourNotes.toString());

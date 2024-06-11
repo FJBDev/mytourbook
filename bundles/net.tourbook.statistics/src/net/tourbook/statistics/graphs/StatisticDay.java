@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -64,7 +64,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 
-public abstract class StatisticDay extends TourbookStatistic implements IBarSelectionProvider, ITourProvider {
+abstract class StatisticDay extends TourbookStatistic implements IBarSelectionProvider, ITourProvider {
 
    private TourStatisticData_Day       _statisticData_Day;
    private DataProvider_Tour_Day       _tourDay_DataProvider    = new DataProvider_Tour_Day();
@@ -99,10 +99,10 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       _tourPropertyListener = (workbenchPart, tourEventId, propertyData) -> {
 
-         if (tourEventId == TourEventId.TOUR_CHANGED && propertyData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && propertyData instanceof final TourEvent tourEvent) {
 
             // check if a tour was modified
-            final ArrayList<TourData> modifiedTours = ((TourEvent) propertyData).getModifiedTours();
+            final ArrayList<TourData> modifiedTours = tourEvent.getModifiedTours();
             if (modifiedTours != null) {
 
                for (final TourData modifiedTourData : modifiedTours) {
@@ -133,7 +133,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
    /**
     * create segments for the chart
     */
-   ChartStatisticSegments createChartSegments(final TourStatisticData_Day tourTimeData) {
+   private ChartStatisticSegments createChartSegments(final TourStatisticData_Day tourTimeData) {
 
       final double[] segmentStart = new double[_statNumberOfYears];
       final double[] segmentEnd = new double[_statNumberOfYears];
@@ -219,8 +219,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
             // set selection also into the view that when the view is activated, then a tour selection is fired
             final ISelectionProvider selectionProvider = viewSite.getSelectionProvider();
-            if (selectionProvider instanceof PostSelectionProvider) {
-               ((PostSelectionProvider) selectionProvider).setSelectionNoFireEvent(selection);
+            if (selectionProvider instanceof final PostSelectionProvider postSelectionProvider) {
+               postSelectionProvider.setSelectionNoFireEvent(selection);
             }
          }
       });
@@ -244,8 +244,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          if (traverseEvent.detail == SWT.TRAVERSE_RETURN) {
 
             final ISelection selection = _chart.getSelection();
-            if (selection instanceof SelectionBarChart) {
-               final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+            if (selection instanceof final SelectionBarChart barChartSelection) {
 
                if (barChartSelection.serieIndex != -1) {
 
@@ -401,6 +400,81 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       StatisticServices.setTourTypeColors(_athleteBodyWeight_YData, GraphColorManager.PREF_GRAPH_BODYWEIGHT);
 
       chartDataModel.addYData(_athleteBodyWeight_YData);
+   }
+
+   /**
+    * Predicted Performance
+    */
+   void createYData_PredictedPerformance(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Day.allTraining_Load_PredictedPerformance_Low,
+            _statisticData_Day.allTraining_Load_PredictedPerformance_High);
+
+      //TODO FB Attempting to display several lines in the same graph: Predicted performance, fatigue,fitness
+//      final float[][] lowValueSeries = new float[2][2];
+//      final float[][] highValueSeries = new float[2][2];
+//      lowValueSeries[0] = new float[2];
+//      lowValueSeries[0][0] = 150;
+//      lowValueSeries[0][1] = 75;
+//      lowValueSeries[1][0] = 250;
+//      lowValueSeries[1][1] = 95;
+//
+//      highValueSeries[0] = new float[2];
+//      highValueSeries[0][0] = 123;
+//      highValueSeries[0][1] = 24;
+//      highValueSeries[1][0] = 65;
+//      highValueSeries[1][1] = 7;
+//      final ChartDataYSerie yData = new ChartDataYSerie(
+//            ChartType.LINE,
+//            lowValueSeries,
+//            highValueSeries);
+
+      yData.setYTitle("Device");//Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_PREDICTED_PERFORMANCE);
+
+      chartDataModel.addYData(yData);
+
+//      final ChartDataYSerie yData2 = new ChartDataYSerie(
+//            ChartType.LINE,
+//            _statisticData_Day.allAthleteBodyWeight_Low,
+//            _statisticData_Day.allAthleteBodyWeight_High);
+//
+//      yData2.setYTitle(Messages.LABEL_GRAPH_PREDICTED_PERFORMANCE);
+//      yData2.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+//      yData2.setShowYSlider(true);
+//
+//      StatisticServices.setDefaultColors(yData2, GraphColorManager.PREF_GRAPH_BODYFAT);
+//
+//      chartDataModel.addYData(yData2);
+   }
+
+   /**
+    * Training Stress
+    */
+   void createYData_TrainingStress(final ChartDataModel chartDataModel) {
+
+      final ChartDataYSerie yData = new ChartDataYSerie(
+            ChartType.LINE,
+            _statisticData_Day.allTraining_Load_TrainingStress_Low,
+            _statisticData_Day.allTraining_Load_TrainingStress_High);
+
+      yData.setYTitle("SKIBA");//Messages.LABEL_GRAPH_TRAINING_STRESS);
+      yData.setAxisUnit(ChartDataSerie.AXIS_UNIT_NUMBER);
+      yData.setAllValueColors(0);
+      yData.setShowYSlider(true);
+      yData.setVisibleMinValue(0);
+      yData.setColorIndex(new int[][] { _statisticData_Day.allTypeColorIndices });
+
+      StatisticServices.setTourTypeColors(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS);
+      // StatisticServices.setTourTypeColorsIndex(yData, GraphColorManager.PREF_GRAPH_TRAINING_STRESS, _activeTourTypeFilter);
+
+      chartDataModel.addYData(yData);
    }
 
    void createYDataAvgPace(final ChartDataModel chartDataModel) {
@@ -570,7 +644,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
    @Override
    public Long getSelectedTourId() {
-      return _selectedTourId;
+      return getSelectedTour();
    }
 
    @Override
@@ -593,7 +667,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       updateStatistic(new StatisticContext(_activePerson, _activeTourTypeFilter, _statSelectedYear, _statNumberOfYears));
    }
 
-   void resetMinMaxKeeper() {
+   private void resetMinMaxKeeper() {
 
       _minMaxKeeper.resetMinMax();
    }
@@ -620,9 +694,9 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       }
 
       final ISelection selection = _chart.getSelection();
-      if (_statisticData_Day != null && selection instanceof SelectionBarChart) {
+      if (_statisticData_Day != null && selection instanceof final SelectionBarChart selectionBarChart) {
 
-         final int valueIndex = ((SelectionBarChart) selection).valueIndex;
+         final int valueIndex = selectionBarChart.valueIndex;
 
          // check array bounds
          if (valueIndex < _statisticData_Day.allTourIds.length) {
@@ -654,7 +728,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       // find the tour which has the same tourId as the selected tour
       for (int tourIndex = 0; tourIndex < tourIds.length; tourIndex++) {
-         final boolean isTourSelected = tourIds[tourIndex] == tourId ? true : false;
+         final boolean isTourSelected = tourIds[tourIndex] == tourId;
          if (isTourSelected) {
             isSelected = true;
             _selectedTourId = tourId;
@@ -715,8 +789,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
        */
       long selectedTourId = -1;
       final ISelection selection = _chart.getSelection();
-      if (selection instanceof SelectionBarChart) {
-         final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+      if (selection instanceof final SelectionBarChart barChartSelection) {
 
          if (barChartSelection.serieIndex != -1) {
 
