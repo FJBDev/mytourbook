@@ -28,8 +28,6 @@ import java.net.URLConnection;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 
-import javax.persistence.Persistence;
-
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
 import net.tourbook.common.time.TimeTools;
@@ -41,6 +39,9 @@ import net.tourbook.device.garmin.fit.FitDataReader;
 import net.tourbook.device.gpx.GPXDeviceDataReader;
 import net.tourbook.importdata.ImportState_File;
 import net.tourbook.importdata.ImportState_Process;
+
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 public class Initializer {
 
@@ -151,7 +152,13 @@ public class Initializer {
 
    public static void initializeDatabase() {
 
-      Persistence.createEntityManagerFactory("tourdatabase").createEntityManager(); //$NON-NLS-1$
+      try (EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tourdatabasetests")) {
+
+         entityManagerFactory.createEntityManager();
+
+      } catch (final Exception e) {
+         // Nothing to do
+      }
    }
 
    public static HttpClientMock initializeHttpClientMock() {

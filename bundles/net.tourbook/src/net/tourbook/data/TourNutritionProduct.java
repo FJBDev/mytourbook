@@ -17,15 +17,6 @@ package net.tourbook.data;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-
 import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
 import net.tourbook.database.TourDatabase;
@@ -34,6 +25,15 @@ import net.tourbook.nutrition.openfoodfacts.NutriScoreData;
 import net.tourbook.nutrition.openfoodfacts.Nutriments;
 import net.tourbook.nutrition.openfoodfacts.NutritionDataPer;
 import net.tourbook.nutrition.openfoodfacts.Product;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 
 @Entity
 public class TourNutritionProduct {
