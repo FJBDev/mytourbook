@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,6 +22,7 @@ import de.byteholder.geoclipse.preferences.IMappingPreferences;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,12 +37,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 /**
@@ -165,7 +163,22 @@ public class TileImageCache {
             }
          }
 
-         for (final Image image : _allImages) {
+         for (int imageIndex = 0; imageIndex < _allImages.size(); imageIndex++) {
+
+            Image image = null;
+
+            try {
+
+               // use imageIndex to prevent foreach loop !!!
+               @SuppressWarnings("unused")
+               final int dummy = imageIndex;
+
+               image = _allImages.get(imageIndex);
+
+            } catch (final ConcurrentModificationException e) {
+               // ignore
+            }
+
             if (image != null) {
                try {
                   image.dispose();
@@ -182,6 +195,7 @@ public class TileImageCache {
 
    /**
     * @param tileImagePath
+    *
     * @return Returns the path for the offline image or <code>null</code> when the image is not
     *         available
     */
@@ -221,6 +235,7 @@ public class TileImageCache {
     * Loads the tile image from the offline image file
     *
     * @param tile
+    *
     * @return Returns image from offline image file or <code>null</code> when loading fails
     */
    Image getOfflineImage(final Tile tile) {
@@ -353,6 +368,7 @@ public class TileImageCache {
 
    /**
     * @param tile
+    *
     * @return Returns the tile image from the cache, returns <code>null</code> when the image is
     *         not available in the cache or is disposed
     */
@@ -377,6 +393,7 @@ public class TileImageCache {
 
    /**
     * @param tile
+    *
     * @return Returns the tile image os file path or <code>null</code> when the path is not
     *         available
     */
@@ -398,12 +415,12 @@ public class TileImageCache {
    }
 
    /**
-    * Put tile image into the image cache
+    * Put tile image into the image cache and replace existing image
     *
     * @param tileKey
     * @param tileImage
     */
-   private void putIntoImageCache(final String tileKey, final Image tileImage) {
+   void putIntoImageCache(final String tileKey, final Image tileImage) {
 
       /*
        * check if the max number of images is reached, remove oldest image from the cache
@@ -653,6 +670,7 @@ public class TileImageCache {
     * @param tileKey
     * @param isSaveImage
     * @param isChildError
+    *
     * @return
     */
    Image setupImage(final ImageData loadedImageData,
@@ -678,6 +696,7 @@ public class TileImageCache {
     *           tile key which is used to keep the image in the cache
     * @param loadedImageData
     * @param tileOfflineImage
+    *
     * @return
     */
    private Image setupImageInternal(final Tile tile,
@@ -698,53 +717,18 @@ public class TileImageCache {
 
          // tile image (map) is dimmed
 
-         final int dimmingAlphaValue = mp.getDimLevel();
-
-         if (dimmingAlphaValue == 0xFF) {
+         if (mp.getDimAlpha() == 0xFF) {
 
             // tile image is not dimmed
 
          } else {
 
-            // tile image is dimmed
+            // tile image is dimmed, set flag that dimming is painted
 
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //
-            // run in the UI thread
-            //
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            _display.asyncExec(() -> {
-
-               if (tileImage == null || tileImage.isDisposed()) {
-                  return;
-               }
-
-               // create dimmed image
-               final Rectangle imageBounds = tileImage.getBounds();
-               final Image dimmedImage = new Image(_display, imageBounds);
-
-               final GC gcDimmedImage = new GC(dimmedImage);
-               {
-                  gcDimmedImage.setBackground(new Color(mp.getDimColor()));
-                  gcDimmedImage.fillRectangle(imageBounds);
-
-                  gcDimmedImage.setAlpha(dimmingAlphaValue);
-                  {
-                     gcDimmedImage.drawImage(tileImage, 0, 0);
-                  }
-                  gcDimmedImage.setAlpha(0xff);
-               }
-               gcDimmedImage.dispose();
-
-               tileImage.dispose();
-
-               // replace tile image with the dimmed image
-               putIntoImageCache(tileKey, dimmedImage);
-            });
+            tile.dimImage_TileKey = tileKey;
          }
       }
 
       return tileImage;
    }
-
 }

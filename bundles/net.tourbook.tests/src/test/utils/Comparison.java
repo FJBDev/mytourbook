@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2023 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,13 @@ package utils;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -70,15 +77,36 @@ public class Comparison {
          final List<String> testFileContentArray = Files.readAllLines(testTourAbsoluteFilePathCsv, StandardCharsets.UTF_8);
          final List<String> controlFileContentArray = Files.readAllLines(controlTourAbsoluteFilePathCsv, StandardCharsets.UTF_8);
 
-         //Modify the test and control files to ignore the software version
+         // Modify the test and control files to ignore the software version
          final String genericSoftwareVersion = "software_version,"; //$NON-NLS-1$
          final String genericApplicationVersion = "application_version,"; //$NON-NLS-1$
 
-         controlFileContentArray.replaceAll(line -> line = line.replace("software_version,\"23.3\"", genericSoftwareVersion)); //$NON-NLS-1$
-         controlFileContentArray.replaceAll(line -> line = line.replace("application_version,\"2330\"", genericApplicationVersion)); //$NON-NLS-1$
+         controlFileContentArray.replaceAll(line -> line = line.replace("software_version,\"24.1\"", genericSoftwareVersion)); //$NON-NLS-1$
+         controlFileContentArray.replaceAll(line -> line = line.replace("application_version,\"2410\"", genericApplicationVersion)); //$NON-NLS-1$
 
          testFileContentArray.replaceAll(line -> line.replaceFirst("software_version,\"\\d\\d\\.\\d\"", genericSoftwareVersion)); //$NON-NLS-1$
          testFileContentArray.replaceAll(line -> line.replaceFirst("application_version,\"\\d\\d\\d\\d\"", genericApplicationVersion)); //$NON-NLS-1$
+
+         // Modify the session/activity messages to remove/ignore their creation timestamps
+         // since it will be different at every test run
+         String timeCreatedData = "Data,0,activity,num_sessions,";
+
+         List<String> timeCreatedLine = controlFileContentArray.stream().filter(s -> s.startsWith(timeCreatedData))
+               .toList();
+         // Retrieve the value of "time_created"
+         String controlTimeCreatedValue = timeCreatedLine.get(0).split(",")[7];
+         //Replace all the values by an empty string
+         controlFileContentArray.replaceAll(line -> line = line.replace(
+               controlTimeCreatedValue,
+               UI.EMPTY_STRING));
+
+         timeCreatedLine = testFileContentArray.stream().filter(s -> s.startsWith(timeCreatedData)).toList();
+         // Retrieve the value of "time_created"
+         String testTimeCreatedValue = timeCreatedLine.get(0).split(",")[7];
+         //Replace all the values by an empty string
+         testFileContentArray.replaceAll(line -> line = line.replace(
+               testTimeCreatedValue,
+               UI.EMPTY_STRING));
 
          //Compare with the control file
          if (!controlFileContentArray.equals(testFileContentArray)) {
@@ -122,7 +150,7 @@ public class Comparison {
       final String controlDocument = readFileContent(controlFileName + JSON);
 
       testTourData.getTourMarkersSorted();
-      final String testJson = testTourData.toJson();
+      final String testJson = convertTourDataToJson(testTourData);
 
       final JSONCompareResult result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
 
@@ -183,6 +211,28 @@ public class Comparison {
          Thread.currentThread().interrupt();
          StatusUtil.log(e);
       }
+   }
+
+   private static String convertTourDataToJson(final TourData tourData) {
+
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.setSerializationInclusion(Include.NON_NULL);
+      objectMapper.setSerializationInclusion(Include.NON_EMPTY);
+      objectMapper.setConfig(objectMapper.getSerializationConfig()
+            .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+      objectMapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
+      objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.NONE);
+      objectMapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
+      objectMapper.setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE);
+      objectMapper.setVisibility(PropertyAccessor.SETTER, Visibility.NONE);
+
+      String jsonString = UI.EMPTY_STRING;
+      try {
+         jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tourData);
+      } catch (final JsonProcessingException e) {
+         e.printStackTrace();
+      }
+      return jsonString;
    }
 
    public static String readFileContent(final String controlDocumentFileName) {

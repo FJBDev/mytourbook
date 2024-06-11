@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,26 +15,26 @@
  *******************************************************************************/
 package net.tourbook.tour.location;
 
-import de.byteholder.geoclipse.map.UI;
-
 import java.io.Serializable;
 
+import net.tourbook.common.UI;
 import net.tourbook.data.TourLocation;
 
+/**
+ * Wrapper for {@link TourLocation} with additional data from the data retrieval.
+ */
 public class TourLocationData implements Serializable {
 
-   private static final long   serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-   private static final String NL               = UI.NEW_LINE;
+   private static final char NL               = UI.NEW_LINE;
 
-   String                      downloadedData;
+   String                    downloadedData;
 
-   long                        downloadTime;
-   long                        waitingTime;
+   long                      downloadTime;
+   long                      waitingTime;
 
-   public TourLocation         tourLocation;
-
-   public TourLocationData() {}
+   public TourLocation       tourLocation;
 
    public TourLocationData(final String downloadedData, final long retrievalTime, final long waitingTime) {
 

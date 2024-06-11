@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,8 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.chart;
-
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.InputStream;
 import java.text.NumberFormat;
@@ -46,6 +44,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -580,7 +579,7 @@ public class ChartComponentGraph extends Canvas {
       final ScrollBar horizontalBar = getHorizontalBar();
       horizontalBar.setEnabled(false);
       horizontalBar.setVisible(false);
-      horizontalBar.addSelectionListener(widgetSelectedAdapter(this::onScroll));
+      horizontalBar.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> onScroll(selectionEvent)));
 
       addMouseMoveListener(mouseEvent -> {
          if (_isGraphVisible) {
@@ -683,7 +682,7 @@ public class ChartComponentGraph extends Canvas {
          }
       });
 
-      addListener(SWT.KeyDown, this::onKeyDown);
+      addListener(SWT.KeyDown, event -> onKeyDown(event));
 
       addDisposeListener(disposeEvent -> onDispose());
 
@@ -811,7 +810,7 @@ public class ChartComponentGraph extends Canvas {
 //      setCursorStyle();
 
       /*
-       * The hited slider could be outsite of the chart, hide the labels on the slider
+       * The hit slider could be outside of the chart, hide the labels on the slider
        */
       _hitYSlider = null;
 
@@ -850,6 +849,7 @@ public class ChartComponentGraph extends Canvas {
 
    /**
     * @param allGraphDrawingData
+    *
     * @return Returns <code>true</code> when a chart can be overlapped.
     *         <p>
     *         The overlap feature is currently supported for graphs which all have the chart type
@@ -907,7 +907,7 @@ public class ChartComponentGraph extends Canvas {
       }
 
       /*
-       * check if one slider was hit, when yes, the leftslider is set and the right slider is null
+       * check if one slider was hit, when yes, the left slider is set and the right slider is null
        */
       if (slider1 != null && slider2 == null) {
          // only slider 1 was hit
@@ -1037,6 +1037,7 @@ public class ChartComponentGraph extends Canvas {
     * Create a cursor resource from an image file
     *
     * @param imageName
+    *
     * @return
     */
    private Cursor createCursorFromImage(final String imageName) {
@@ -2046,8 +2047,8 @@ public class ChartComponentGraph extends Canvas {
                 */
                final ChartTitleSegment chartTitleSegment = new ChartTitleSegment();
 
-               if (segmentCustomData != null && segmentCustomData[segmentIndex] instanceof Long) {
-                  chartTitleSegment.setTourId((Long) segmentCustomData[segmentIndex]);
+               if (segmentCustomData != null && segmentCustomData[segmentIndex] instanceof final Long tourId) {
+                  chartTitleSegment.setTourId(tourId);
                }
 
                chartTitleSegment.devXTitle = devXTitle;
@@ -2101,8 +2102,8 @@ public class ChartComponentGraph extends Canvas {
          final ChartTitleSegment chartTitleSegment = new ChartTitleSegment();
 
          final Object tourIdObject = _chartDrawingData.chartDataModel.getCustomData(Chart.CUSTOM_DATA_TOUR_ID);
-         if (tourIdObject instanceof Long) {
-            chartTitleSegment.setTourId((Long) tourIdObject);
+         if (tourIdObject instanceof final Long tourId) {
+            chartTitleSegment.setTourId(tourId);
          }
 
          chartTitleSegment.devXTitle = devXTitle;
@@ -2752,7 +2753,7 @@ public class ChartComponentGraph extends Canvas {
       final double scaleX = graphDrawingData.getScaleX();
       final double scaleY = graphDrawingData.getScaleY();
 
-// this feature also needs that the y-axis is scaled accordingly -> this not yet implemted
+// this feature also needs that the y-axis is scaled accordingly -> this not yet implemented
 //
 //      if (_canChartBeOverlapped && _isChartOverlapped) {
 //
@@ -6964,8 +6965,8 @@ public class ChartComponentGraph extends Canvas {
             }
 
             for (final Object item : _chart.getChartOverlays()) {
-               if (item instanceof IChartOverlay) {
-                  ((IChartOverlay) item).drawOverlay(gcOverlay, graphDrawingData);
+               if (item instanceof final IChartOverlay chartOverlay) {
+                  chartOverlay.drawOverlay(gcOverlay, graphDrawingData);
                }
             }
          }
@@ -7017,6 +7018,7 @@ public class ChartComponentGraph extends Canvas {
 
    /**
     * @param rgb
+    *
     * @return Returns the color from the color cache, the color must not be disposed this is done
     *         when the cache is disposed
     */
@@ -7059,7 +7061,7 @@ public class ChartComponentGraph extends Canvas {
 
    private PointLong getHoveredValue_DevPosition() {
 
-      if (_lineDevPositions.size() == 0) {
+      if (_lineDevPositions.isEmpty()) {
          return null;
       }
 
@@ -7107,7 +7109,7 @@ public class ChartComponentGraph extends Canvas {
 
       if (isAdjusted) {
 
-         // force repaining
+         // force repainting
          _isOverlayDirty = true;
       }
 
@@ -7375,6 +7377,7 @@ public class ChartComponentGraph extends Canvas {
 
    /**
     * @param devXGraph
+    *
     * @return Returns <code>true</code> when the synch marker was hit
     */
    private boolean isSynchMarkerHit(final int devXGraph) {
@@ -7427,6 +7430,7 @@ public class ChartComponentGraph extends Canvas {
     *
     * @param graphX
     * @param devY
+    *
     * @return
     */
    private ChartYSlider isYSliderHit(final int graphX, final int devY) {
@@ -7488,7 +7492,7 @@ public class ChartComponentGraph extends Canvas {
          final float pointX = points[pathIndex];
          final float pointY = points[pathIndex + 1];
 
-         System.out.println(String.format("%5d  %7.0f  %7.0f", pathIndex / 2, pointX, pointY));
+         System.out.println(String.format("%5d  %7.0f  %7.0f", pathIndex / 2, pointX, pointY)); //$NON-NLS-1$
       }
    }
 
@@ -7620,6 +7624,7 @@ public class ChartComponentGraph extends Canvas {
     * @param xxDevSliderLinePos
     *           x coordinate for the slider line within the graph, this can be outside of the
     *           visible graph
+    *
     * @return Returns <code>true</code> when the slider position has changed
     */
    private boolean moveXSlider(final ChartXSlider xSlider, final long devXSliderLinePos) {
@@ -8203,6 +8208,7 @@ public class ChartComponentGraph extends Canvas {
 
    /**
     * @param mouseEvent
+    *
     * @return Returns <code>true</code> when the mouse event was handled.
     */
    boolean onMouseExitAxis(final MouseEvent mouseEvent) {
@@ -8216,8 +8222,8 @@ public class ChartComponentGraph extends Canvas {
          _devXAutoScrollMousePosition = Integer.MIN_VALUE;
 
          // hide move/scroll cursor
-         if (mouseEvent.widget instanceof ChartComponentAxis) {
-            ((ChartComponentAxis) mouseEvent.widget).setCursor(null);
+         if (mouseEvent.widget instanceof final ChartComponentAxis chartComponentAxis) {
+            chartComponentAxis.setCursor(null);
          }
 
          return true;
@@ -8426,7 +8432,7 @@ public class ChartComponentGraph extends Canvas {
       if (_hoveredValuePointIndex != -1
 
             /*
-             * This reduces flickering when the slider is dragged, it's not prefect but better and
+             * This reduces flickering when the slider is dragged, it's not perfect but better and
              * it depends on the zoom level in the map and chart
              */
             && (isSliderPositionModified || _isSliderDirty == false)
@@ -8483,6 +8489,7 @@ public class ChartComponentGraph extends Canvas {
 
    /**
     * @param mouseEvent
+    *
     * @return Returns <code>true</code> when the mouse event was been handled.
     */
    boolean onMouseMoveAxis(final MouseEvent mouseEvent) {
@@ -8511,8 +8518,7 @@ public class ChartComponentGraph extends Canvas {
 
          // get tooltip shell
          final Shell ttShell = valuePointToolTip.getToolTipShell();
-         if (ttShell != null && mouseWidget instanceof Control) {
-            final Control control = (Control) mouseWidget;
+         if (ttShell != null && mouseWidget instanceof final Control control) {
 
             if (control.getShell() == ttShell) {
 
@@ -8691,7 +8697,7 @@ public class ChartComponentGraph extends Canvas {
 
       if (_isAutoScroll) {
 
-         // stop auto scolling
+         // stop auto scrolling
          _isAutoScroll = false;
 
          /*
@@ -9669,7 +9675,7 @@ public class ChartComponentGraph extends Canvas {
 
    void setHovered_ValuePoint_Index(final int newHoveredValuePointIndex) {
 
-      if (_lineDevPositions.size() == 0
+      if (_lineDevPositions.isEmpty()
 
             // this can happen when multiple tours are selected in the map
             // but only one tour is displayed in the chart
@@ -9837,6 +9843,7 @@ public class ChartComponentGraph extends Canvas {
     * Set the value index in the X-slider for the hovered position.
     *
     * @param xSlider
+    *
     * @return Returns <code>true</code> when the slider position has changed
     */
    boolean setXSliderValue_FromHoveredValuePoint(final ChartXSlider xSlider) {
@@ -10134,7 +10141,7 @@ public class ChartComponentGraph extends Canvas {
       updateVisibleMinMaxValues();
 
       /*
-       * draw the dragged image until the graph image is recomuted
+       * draw the dragged image until the graph image is recomputed
        */
       _isPaintDraggedImage = true;
 

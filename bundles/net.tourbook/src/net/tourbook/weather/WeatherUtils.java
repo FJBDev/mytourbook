@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2023 Frédéric Bard
+ * Copyright (C) 2022, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,7 @@ public class WeatherUtils {
 
    public static final int    SECONDS_PER_THIRTY_MINUTE = 1800;
 
-   public static final String OAUTH_PASSEUR_APP_URL     = "https://passeur-mytourbook-oauthapps.cyclic.app"; //$NON-NLS-1$
+   public static final String OAUTH_PASSEUR_APP_URL     = "https://passeur-mytourbook-oauthapps.onrender.com"; //$NON-NLS-1$
 
    /**
     * Returns the fully detailed weather data as a human readable string.
@@ -201,7 +201,8 @@ public class WeatherUtils {
          final float averageTemperature = tourData.getWeather_Temperature_Average();
          if (averageTemperature != Float.MIN_VALUE) {
 
-            //TODO When using a JDK version that supports Unicode 11.0 (JDK >= 12)
+            //TODO fb When using a JDK version that supports Unicode 11.0 (JDK >= 12)
+            //better weather emoji now that MT uses Java 17? the overcast one looks very basic
 //            if (averageTemperature < 0) {
 //
 //               // Cold face 🥶
@@ -267,7 +268,7 @@ public class WeatherUtils {
 
          weatherAvgValues.add(Messages.Log_HistoricalWeatherRetriever_001_WeatherData_AirQuality
                + UI.SPACE
-               + IWeather.airQualityTexts[airQualityTextIndex]);
+               + IWeather.AIR_QUALITY_TEXT[airQualityTextIndex]);
       }
 
       // Humidity
@@ -428,7 +429,7 @@ public class WeatherUtils {
 
    public static int getWeather_AirQuality_TextIndex(final String weather_AirQuality) {
 
-      final int Weather_AirQuality_TextIndex = Arrays.asList(IWeather.airQualityIds).indexOf(weather_AirQuality);
+      final int Weather_AirQuality_TextIndex = Arrays.asList(IWeather.AIR_QUALITY_IDS).indexOf(weather_AirQuality);
 
       return Weather_AirQuality_TextIndex < 0
             ? 0
@@ -449,7 +450,7 @@ public class WeatherUtils {
 
       String weatherIcon;
 
-      switch (IWeather.cloudIcon[weatherIndex]) {
+      switch (IWeather.CLOUD_ICON[weatherIndex]) {
 
       case IWeather.WEATHER_ID_CLEAR:
          //https://emojipedia.org/sun/
@@ -511,8 +512,8 @@ public class WeatherUtils {
 
       if (StringUtils.hasContent(weatherClouds)) {
          // binary search cannot be done because it requires sorting which we cannot...
-         for (int cloudIndex = 0; cloudIndex < IWeather.cloudIcon.length; ++cloudIndex) {
-            if (IWeather.cloudIcon[cloudIndex].equalsIgnoreCase(weatherClouds)) {
+         for (int cloudIndex = 0; cloudIndex < IWeather.CLOUD_ICON.length; ++cloudIndex) {
+            if (IWeather.CLOUD_ICON[cloudIndex].equalsIgnoreCase(weatherClouds)) {
                weatherCloudsIndex = cloudIndex;
                break;
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +58,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -226,6 +227,8 @@ public class DialogExportTour extends TitleAreaDialog {
    private Combo                  _comboTcxActivityTypes;
    private Combo                  _comboTcxCourseName;
 
+   private ImageDescriptor        _imageDescriptor;
+
    private Composite              _dlgContainer;
    private Composite              _inputContainer;
 
@@ -253,7 +256,8 @@ public class DialogExportTour extends TitleAreaDialog {
                     final List<TourData> tourDataList,
                     final int tourStartIndex,
                     final int tourEndIndex,
-                    final String formatTemplate) {
+                    final String formatTemplate,
+                    final ImageDescriptor imageDescriptor) {
 
       super(parentShell);
 
@@ -269,6 +273,8 @@ public class DialogExportTour extends TitleAreaDialog {
 
       // make dialog resizable
       setShellStyle(shellStyle);
+
+      _imageDescriptor = imageDescriptor;
 
       _exportExtensionPoint = exportExtensionPoint;
       _formatTemplate = formatTemplate;
@@ -660,7 +666,7 @@ public class DialogExportTour extends TitleAreaDialog {
          _spinnerCamouflageSpeed.setPageIncrement(10);
          _spinnerCamouflageSpeed.setMinimum(1);
          _spinnerCamouflageSpeed.setMaximum(1000);
-         _spinnerCamouflageSpeed.addMouseWheelListener(Util::adjustSpinnerValueOnMouseScroll);
+         _spinnerCamouflageSpeed.addMouseWheelListener(mouseEvent -> Util.adjustSpinnerValueOnMouseScroll(mouseEvent));
 
          // label: unit
          _lblCamouflageSpeedUnit = UI.createLabel(container, UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_LABEL_SPEED);
@@ -999,7 +1005,8 @@ public class DialogExportTour extends TitleAreaDialog {
             _exportState_GPX_IsExportSurfingWaves,
             _exportState_GPX_IsExportAllTourData,
             _exportState_TCX_IsCourses,
-            _exportState_TCX_CourseName);
+            _exportState_TCX_CourseName,
+            _imageDescriptor);
 
       if (_exportState_isAbsoluteDistance) {
          _tourExporter.setUseAbsoluteDistance(true);
@@ -1301,7 +1308,7 @@ public class DialogExportTour extends TitleAreaDialog {
    @Override
    protected void okPressed() {
 
-      BusyIndicator.showWhile(Display.getCurrent(), this::doExport);
+      BusyIndicator.showWhile(Display.getCurrent(), () -> doExport());
 
       if (_exportState_FileCollisionBehaviour.value == FileCollisionBehavior.DIALOG_IS_CANCELED) {
          getButton(IDialogConstants.OK_ID).setEnabled(true);

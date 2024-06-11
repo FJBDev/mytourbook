@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,45 @@ package net.tourbook;
 public class OtherMessages {
 
 // SET_FORMATTING_OFF
+
+   //
+   // de.byteholder.geoclipse.preferences.Messages
+   //
+
+   public static final String THEME_FONT_LOGGING_PREVIEW_TEXT              = de.byteholder.geoclipse.preferences.Messages.Theme_Font_Logging_PREVIEW_TEXT;
+   public static final String THEME_FONT_LOGGING                           = de.byteholder.geoclipse.preferences.Messages.Theme_Font_Logging;
+
+
+   //
+   // net.tourbook.Messages
+   //
+  public static final String   APP_BTN_BROWSE                           = net.tourbook.Messages.app_btn_browse;
+
+   public static final String APP_UNIT_HHMMSS                              = net.tourbook.Messages.App_Unit_HHMMSS;
+   public static final String APP_UNIT_SECONDS_SMALL                       = net.tourbook.Messages.App_Unit_Seconds_Small;
+
+  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES         = net.tourbook.Messages.dialog_export_chk_overwriteFiles;
+  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP = net.tourbook.Messages.dialog_export_chk_overwriteFiles_tooltip;
+  public static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE         = net.tourbook.Messages.dialog_export_dir_dialog_message;
+  public static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT            = net.tourbook.Messages.dialog_export_dir_dialog_text;
+  public static final String   DIALOG_EXPORT_GROUP_EXPORTFILENAME       = net.tourbook.Messages.dialog_export_group_exportFileName;
+  public static final String   DIALOG_EXPORT_LABEL_EXPORTFILEPATH       = net.tourbook.Messages.dialog_export_label_exportFilePath;
+  public static final String   DIALOG_EXPORT_LABEL_FILENAME             = net.tourbook.Messages.dialog_export_label_fileName;
+  public static final String   DIALOG_EXPORT_LABEL_FILEPATH             = net.tourbook.Messages.dialog_export_label_filePath;
+  public static final String   DIALOG_EXPORT_MSG_FILEALREADYEXISTS      = net.tourbook.Messages.dialog_export_msg_fileAlreadyExists;
+  public static final String   DIALOG_EXPORT_MSG_FILENAMEISINVALID      = net.tourbook.Messages.dialog_export_msg_fileNameIsInvalid;
+  public static final String   DIALOG_EXPORT_MSG_PATHISNOTAVAILABLE     = net.tourbook.Messages.dialog_export_msg_pathIsNotAvailable;
+  public static final String   DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP       = net.tourbook.Messages.dialog_export_txt_filePath_tooltip;
+
+   public static final String LOG_TOUR_LOCATION_RETRIEVE_LOCATION_POINT    = net.tourbook.Messages.Log_TourLocation_Retrieve_LocationPoint;
+
+   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_DESCENT  = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Descent;
+   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_ASCENT   = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Ascent;
+   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_FLAT     = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Flat;
+
+   //
+   // net.tourbook.common.Messages
+   //
 
    public static final String APP_ACTION_APPLY_AND_CLOSE                   = net.tourbook.common.Messages.App_Action_ApplyAndClose;
    public static final String APP_ACTION_CLOSE_TOOLTIP                     = net.tourbook.common.Messages.App_Action_Close_Tooltip;
@@ -121,11 +160,29 @@ public class OtherMessages {
    public static final String PREF_SYSTEM_LABEL_WEIGHT                     = net.tourbook.common.Messages.Pref_System_Label_Weight;
    public static final String PREF_SYSTEM_LABEL_WEIGHT_INFO                = net.tourbook.common.Messages.Pref_System_Label_Weight_Info;
 
-   public static final String WEATHER_CLOUDS_SUNNY                         = net.tourbook.common.Messages.Weather_Clouds_Sunny;
-
    public static final String SLIDEOUT_MAP_TRACK_COLORS_LABEL_TITLE                            = net.tourbook.common.Messages.Slideout_Map_TrackColors_Label_Title;
    public static final String SLIDEOUT_MAP_TRACK_COLORS_LABEL_VISIBLE_COLOR_PROFILES_TOOLTIP   = net.tourbook.common.Messages.Slideout_Map_TrackColors_Label_VisibleColorProfiles_Tooltip;
    public static final String SLIDEOUT_MAP_TRACK_COLORS_LABEL_VISIBLE_COLOR_PROFILES           = net.tourbook.common.Messages.Slideout_Map_TrackColors_Label_VisibleColorProfiles;
+
+   public static final String WEATHER_AIRQUAlITY_0_IS_NOT_DEFINED          = net.tourbook.common.Messages.Weather_AirQuality_0_IsNotDefined;
+   public static final String WEATHER_AIRQUAlITY_1_GOOD                    = net.tourbook.common.Messages.Weather_AirQuality_1_Good;
+   public static final String WEATHER_AIRQUAlITY_2_FAIR                    = net.tourbook.common.Messages.Weather_AirQuality_2_Fair;
+   public static final String WEATHER_AIRQUAlITY_3_MODERATE                = net.tourbook.common.Messages.Weather_AirQuality_3_Moderate;
+   public static final String WEATHER_AIRQUAlITY_4_POOR                    = net.tourbook.common.Messages.Weather_AirQuality_4_Poor;
+   public static final String WEATHER_AIRQUAlITY_5_VERYPOOR                = net.tourbook.common.Messages.Weather_AirQuality_5_VeryPoor;
+   public static final String WEATHER_CLOUDS_SUNNY                         = net.tourbook.common.Messages.Weather_Clouds_Sunny;
+
+   //
+   // net.tourbook.map3.Messages
+   //
+
+   public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT_TOOLTIP = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default_Tooltip;
+   public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT         = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default;
+
+
+   //
+   // net.tourbook.ui.Messages
+   //
 
    public static final String COLUMN_FACTORY_CATEGORY_BODY                 = net.tourbook.ui.Messages.ColumnFactory_Category_Body;
    public static final String COLUMN_FACTORY_CATEGORY_DATA                 = net.tourbook.ui.Messages.ColumnFactory_Category_Data;
@@ -170,28 +227,11 @@ public class OtherMessages {
    public static final String TOUR_TOOLTIP_LABEL_NO_GEO_TOUR               = net.tourbook.ui.Messages.Tour_Tooltip_Label_NoGeoTour;
    public static final String TOUR_TOOLTIP_LABEL_RECORDED_TIME             = net.tourbook.ui.Messages.Tour_Tooltip_Label_RecordedTime;
 
-   public static final String VALUE_UNIT_CALORIES                         = net.tourbook.ui.Messages.Value_Unit_Calories;
-   public static final String VALUE_UNIT_CADENCE                          = net.tourbook.ui.Messages.Value_Unit_Cadence;
-   public static final String VALUE_UNIT_CADENCE_SPM                      = net.tourbook.ui.Messages.Value_Unit_Cadence_Spm;
-   public static final String VALUE_UNIT_K_CALORIES                       = net.tourbook.ui.Messages.Value_Unit_KCalories;
-   public static final String VALUE_UNIT_PULSE                            = net.tourbook.ui.Messages.Value_Unit_Pulse;
-
-   public static final String APP_UNIT_HHMMSS                             = net.tourbook.Messages.App_Unit_HHMMSS;
-   public static final String APP_UNIT_SECONDS_SMALL                      = net.tourbook.Messages.App_Unit_Seconds_Small;
-
-   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_DESCENT = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Descent;
-   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_ASCENT  = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Ascent;
-   public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_FLAT    = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Flat;
-
-   public static final String THEME_FONT_LOGGING_PREVIEW_TEXT             = de.byteholder.geoclipse.preferences.Messages.Theme_Font_Logging_PREVIEW_TEXT;
-   public static final String THEME_FONT_LOGGING                          = de.byteholder.geoclipse.preferences.Messages.Theme_Font_Logging;
-
-   public static final String WEATHER_AIRQUAlITY_0_IS_NOT_DEFINED         = net.tourbook.common.Messages.Weather_AirQuality_0_IsNotDefined;
-   public static final String WEATHER_AIRQUAlITY_1_GOOD                   = net.tourbook.common.Messages.Weather_AirQuality_1_Good;
-   public static final String WEATHER_AIRQUAlITY_2_FAIR                   = net.tourbook.common.Messages.Weather_AirQuality_2_Fair;
-   public static final String WEATHER_AIRQUAlITY_3_MODERATE               = net.tourbook.common.Messages.Weather_AirQuality_3_Moderate;
-   public static final String WEATHER_AIRQUAlITY_4_POOR                   = net.tourbook.common.Messages.Weather_AirQuality_4_Poor;
-   public static final String WEATHER_AIRQUAlITY_5_VERYPOOR               = net.tourbook.common.Messages.Weather_AirQuality_5_VeryPoor;
+   public static final String VALUE_UNIT_CALORIES                          = net.tourbook.ui.Messages.Value_Unit_Calories;
+   public static final String VALUE_UNIT_CADENCE                           = net.tourbook.ui.Messages.Value_Unit_Cadence;
+   public static final String VALUE_UNIT_CADENCE_SPM                       = net.tourbook.ui.Messages.Value_Unit_Cadence_Spm;
+   public static final String VALUE_UNIT_K_CALORIES                        = net.tourbook.ui.Messages.Value_Unit_KCalories;
+   public static final String VALUE_UNIT_PULSE                             = net.tourbook.ui.Messages.Value_Unit_Pulse;
 
 // SET_FORMATTING_ON
 }

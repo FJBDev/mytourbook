@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2023 Frédéric Bard
+ * Copyright (C) 2020, 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,6 +32,7 @@ import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
+import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.device.garmin.fit.FitDataReader;
@@ -46,6 +47,7 @@ public class Initializer {
 
    public static void authorizeVendor(final int callBackPort, final TokensRetrievalHandler tokensRetrievalHandler) {
 
+      BufferedReader bufferedReader = null;
       try {
          // create the HttpServer
          HttpServer httpServer;
@@ -60,13 +62,15 @@ public class Initializer {
          // authorize and retrieve the tokens
          final URL url = new URL("http://localhost:" + callBackPort + "/?code=12345"); //$NON-NLS-1$ //$NON-NLS-2$
          final URLConnection conn = url.openConnection();
-         new BufferedReader(new InputStreamReader(conn.getInputStream()));
+         bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
          // stop the server
          httpServer.stop(0);
 
       } catch (final IOException e) {
          StatusUtil.log(e);
+      } finally {
+         Util.closeReader(bufferedReader);
       }
    }
 
