@@ -51,7 +51,6 @@ import net.tourbook.trainingload.PrefPageBikeScore;
 import net.tourbook.trainingload.PrefPageGovss;
 import net.tourbook.trainingload.PrefPageSwimScore;
 import net.tourbook.trainingload.PrefPageTrainingStressModel;
-import net.tourbook.trainingload.PrefPageTrainingStressModel.IPersonModifiedListener;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -112,36 +111,34 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferencePage {
 
-   private static final String                  GRAPH_LABEL_HEARTBEAT_UNIT          = net.tourbook.common.Messages.Graph_Label_Heartbeat_Unit;
-
-   public static final String     ID                        = "net.tourbook.preferences.PrefPagePeopleId"; //$NON-NLS-1$
+   public static final String                   ID                                  = "net.tourbook.preferences.PrefPagePeopleId"; //$NON-NLS-1$
    //
-   private static final String    STATE_SELECTED_PERSON     = "selectedPersonId";                          //$NON-NLS-1$
-   private static final String    STATE_SELECTED_TAB_FOLDER = "selectedTabFolder";                         //$NON-NLS-1$
+   private static final String                  STATE_SELECTED_PERSON               = "selectedPersonId";                          //$NON-NLS-1$
+   private static final String                  STATE_SELECTED_TAB_FOLDER           = "selectedTabFolder";                         //$NON-NLS-1$
 
-   private static final int       HEART_BEAT_MIN            = 10;
-   public static final int        HEART_BEAT_MAX            = 300;
+   private static final int                     HEART_BEAT_MIN                      = 10;
+   public static final int                      HEART_BEAT_MAX                      = 300;
 
    /**
     * Id to indicate that the hr zones should be displayed for the active person when the pref
     * dialog is opened
     */
-   public static final String     PREF_DATA_SELECT_HR_ZONES = "SelectHrZones";                             //$NON-NLS-1$
+   public static final String                   PREF_DATA_SELECT_HR_ZONES           = "SelectHrZones";                             //$NON-NLS-1$
 
    /**
     * Id to indicate that the person's information should be displayed for the active person when
     * the pref
     * dialog is opened
     */
-   public static final String                   PREF_DATA_SELECT_PERSON_INFORMATION = "SelectPersonInformation";                              //$NON-NLS-1$
+   public static final String                   PREF_DATA_SELECT_PERSON_INFORMATION = "SelectPersonInformation";                   //$NON-NLS-1$
 
    private static PrefPageTrainingStressModel[] _trainingStressModels;
    private static PrefPageGovss                 _prefPageGovss;
    private static PrefPageBikeScore             _prefPageBikeScore;
    private static PrefPageSwimScore             _prefPageSwimScore;
 
-   private final IPreferenceStore _prefStore                = TourbookPlugin.getPrefStore();
-   private final IDialogSettings  _state                    = TourbookPlugin.getState(ID);
+   private final IPreferenceStore               _prefStore                          = TourbookPlugin.getPrefStore();
+   private final IDialogSettings                _state                              = TourbookPlugin.getState(ID);
 
    // REMOVED BIKES 30.4.2011
 
@@ -1813,31 +1810,13 @@ public class PrefPagePeople extends PreferencePage implements IWorkbenchPreferen
       _trainingStressModels = new PrefPageTrainingStressModel[3];
       //TODO FB_prefPageBikeScore = new PrefPageBikeScore();
       _prefPageGovss = new PrefPageGovss();
-      _prefPageGovss.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageGovss.setPersonModifiedListener(() -> onModifyPerson());
       _trainingStressModels[0] = _prefPageGovss;
       _prefPageBikeScore = new PrefPageBikeScore();
-      _prefPageBikeScore.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageBikeScore.setPersonModifiedListener(() -> onModifyPerson());
       _trainingStressModels[1] = _prefPageBikeScore;
       _prefPageSwimScore = new PrefPageSwimScore();
-      _prefPageSwimScore.setPersonModifiedListener(new IPersonModifiedListener() {
-
-         @Override
-         public void onPersonModifiedListener() {
-            onModifyPerson();
-         }
-      });
+      _prefPageSwimScore.setPersonModifiedListener(() -> onModifyPerson());
       _trainingStressModels[2] = _prefPageSwimScore;
    }
 
