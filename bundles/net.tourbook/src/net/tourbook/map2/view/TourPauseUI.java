@@ -466,7 +466,7 @@ public class TourPauseUI implements IColorSelectorListener {
       onChangeUI();
    }
 
-   private void resetToDefaults() {
+   void resetToDefaults() {
 
 // SET_FORMATTING_OFF
 
@@ -488,10 +488,11 @@ public class TourPauseUI implements IColorSelectorListener {
 
       selectPauseDurationOperator(Map2ConfigManager.DURATION_OPERATOR_DEFAULT);
 
+      updateUI();
       enableControls();
    }
 
-   private void restoreState() {
+   void restoreState() {
 
       final Map2Config config = Map2ConfigManager.getActiveConfig();
 
@@ -515,6 +516,7 @@ public class TourPauseUI implements IColorSelectorListener {
 
       selectPauseDurationOperator(config.tourPauseDurationFilter_Operator);
 
+      updateUI();
       enableControls();
    }
 
@@ -524,7 +526,7 @@ public class TourPauseUI implements IColorSelectorListener {
 
 // SET_FORMATTING_OFF
 
-      config.isFilterTourPauses                     = _chkIsFilter_TourPauses.getSelection();
+      config.isFilterTourPauses                    = _chkIsFilter_TourPauses.getSelection();
       config.isFilterTourPause_Duration            = _chkIsFilter_PauseDuration.getSelection();
       config.isShowAutoPauses                      = _chkIsShow_AutoPauses.getSelection();
       config.isShowUserPauses                      = _chkIsShow_UserPauses.getSelection();

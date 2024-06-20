@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2024 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,33 +13,11 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.map2.action;
+package net.tourbook.map;
 
-import net.tourbook.Images;
-import net.tourbook.Messages;
-import net.tourbook.application.TourbookPlugin;
-import net.tourbook.map2.view.Map2View;
+import org.eclipse.swt.graphics.Image;
 
-import org.eclipse.jface.action.Action;
+public interface IMapView {
 
-public class ActionShowTourPauses extends Action {
-
-   private Map2View _mapView;
-
-   public ActionShowTourPauses(final Map2View mapView) {
-
-      super(null, AS_CHECK_BOX);
-
-      _mapView = mapView;
-
-      setText(Messages.Tour_Action_ShowTourPauses);
-
-      setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourPauses));
-      setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourPauses_Disabled));
-   }
-
-   @Override
-   public void run() {
-      _mapView.actionSetShowTourPausesInMap();
-   }
+   Image getMapViewImage();
 }

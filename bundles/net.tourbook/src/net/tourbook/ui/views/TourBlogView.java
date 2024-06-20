@@ -79,6 +79,7 @@ import net.tourbook.ui.views.referenceTour.TVIRefTour_RefTourItem;
 import net.tourbook.weather.WeatherUtils;
 import net.tourbook.web.WEB;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.action.IToolBarManager;
@@ -390,8 +391,7 @@ public class TourBlogView extends ViewPart {
 
       // Average fluids per hour
       final String averageFluidPerHour = NutritionUtils.computeAverageFluidsPerHour(_tourData);
-      if (net.tourbook.common.util.StringUtils.hasContent(averageFluidPerHour) &&
-            !averageFluidPerHour.equals("0")) { //$NON-NLS-1$
+      if (net.tourbook.common.util.StringUtils.hasContent(averageFluidPerHour)) {
 
          sb.append(buildTableRow(Messages.Tour_Nutrition_Label_Fluids,
                averageFluidPerHour,
@@ -1356,7 +1356,7 @@ public class TourBlogView extends ViewPart {
       } else if (selection instanceof final SelectionTourIds selectionTourIds) {
 
          final List<Long> tourIds = selectionTourIds.getTourIds();
-         if ((tourIds != null) && (tourIds.size() > 0)) {
+         if (CollectionUtils.isNotEmpty(tourIds)) {
             _tourChart = null;
             tourId = tourIds.get(0);
          }
@@ -1417,6 +1417,10 @@ public class TourBlogView extends ViewPart {
 
    private void reloadTourData() {
 
+      if (_tourData == null) {
+         return;
+      }
+
       final Long tourId = _tourData.getTourId();
       final TourManager tourManager = TourManager.getInstance();
 
@@ -1469,7 +1473,8 @@ public class TourBlogView extends ViewPart {
 
          final List<TourData> selectedTours = TourManager.getSelectedTours();
 
-         if ((selectedTours != null) && (selectedTours.size() > 0)) {
+         if (CollectionUtils.isNotEmpty(selectedTours)) {
+
             onSelectionChanged(new SelectionTourData(selectedTours.get(0)));
          }
       });

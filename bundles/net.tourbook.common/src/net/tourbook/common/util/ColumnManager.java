@@ -2094,6 +2094,7 @@ public class ColumnManager {
             _allProfiles);
 
       if (_slideoutShell != null) {
+
          // prevent that the column dialog will freeze the app
          _slideoutShell.setIsAnotherDialogOpened(true);
       }
@@ -2101,6 +2102,7 @@ public class ColumnManager {
       columnDialog.open();
 
       if (_slideoutShell != null) {
+
          _slideoutShell.setIsAnotherDialogOpened(false);
       }
    }
@@ -2323,16 +2325,16 @@ public class ColumnManager {
       final ArrayList<String> allOrderedColumnIds = new ArrayList<>();
       final ArrayList<String> allColumnIdsAndWidth = new ArrayList<>();
 
-// TODO
-      System.out.println("All columns in _allDefinedColumnDefinitions, number of entries: " + _allDefinedColumnDefinitions.size()); //$NON-NLS-1$
-      System.out.println();
-
-      for (final ColumnDefinition colDefLog : _allDefinedColumnDefinitions) {
-         System.out.println("  \"" + colDefLog.getColumnId() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-      }
-
-      System.out.println();
-      System.out.println();
+//// TODO
+//      System.out.println("All columns in _allDefinedColumnDefinitions, number of entries: " + _allDefinedColumnDefinitions.size()); //$NON-NLS-1$
+//      System.out.println();
+//
+//      for (final ColumnDefinition colDefLog : _allDefinedColumnDefinitions) {
+//         System.out.println("  \"" + colDefLog.getColumnId() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+//      }
+//
+//      System.out.println();
+//      System.out.println();
 
       for (int uiColumnPos = 0; uiColumnPos < numColumns; uiColumnPos++) {
 
@@ -2481,7 +2483,7 @@ public class ColumnManager {
          System.out.println(errorMessage);
 // TODO remove SYSTEM.OUT.PRINTLN
 
-//         StatusUtil.log(new Throwable(errorMessage));
+//       StatusUtil.log(new Throwable(errorMessage));
 
          return;
       }
