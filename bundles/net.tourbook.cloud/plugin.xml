@@ -32,6 +32,14 @@
       
       
 	<!-- CLOUD UPLOADERS -->
+	
+   <extension   point="net.tourbook.cloudUploader">
+      <cloudUploader
+         id             ="net.tourbook.cloud.GarminCoursesUploader"
+         name           ="Garmin Courses Uploader"
+         class          ="net.tourbook.cloud.garmin.GarminCoursesUploader"
+      />
+   </extension>
 
    <extension   point="net.tourbook.cloudUploader">
       <cloudUploader
@@ -68,6 +76,17 @@
             class="net.tourbook.cloud.dropbox.PrefPageDropbox"
             id="net.tourbook.cloud.PrefPageDropbox"
             name="Dropbox">
+      </page>
+   </extension>
+   
+   
+    <!-- Garmin -->
+   <extension	point="org.eclipse.ui.preferencePages">
+      <page
+            category="net.tourbook.preferences.PrefPageCloud"
+            class="net.tourbook.cloud.garmin.PrefPageGarmin"
+            id="net.tourbook.cloud.PrefPageGarmin"
+            name="Garmin">
       </page>
    </extension>
    
