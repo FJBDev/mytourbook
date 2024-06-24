@@ -335,7 +335,7 @@ public class GarminCoursesUploader extends TourbookCloudUploader {
                   TourLogManager.log_TITLE(String.format(LOG_CLOUDACTION_END, (System.currentTimeMillis() - start) / 1000.0));
 
                   UI.openNotificationPopup(Messages.Dialog_UploadRoutesToSuunto_Title,
-                        Activator.getImageDescriptor(CloudImages.Cloud_Suunto_Logo_Small),
+                        Activator.getImageDescriptor(CloudImages.Cloud_Garmin_Logo),
                         infoText);
                });
             }
