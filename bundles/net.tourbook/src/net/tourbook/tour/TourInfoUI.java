@@ -301,6 +301,8 @@ public class TourInfoUI {
    private Label            _lblRestPulse;
    private Label            _lblTemperature_Part1;
    private Label            _lblTemperature_Part2;
+   private Label            _lblTimeDuringDay_Value;
+   private Label            _lblTimeDuringNight_Value;
    private Label            _lblTimeZone_Value;
    private Label            _lblTimeZoneDifference;
    private Label            _lblTimeZoneDifference_Value;
@@ -751,6 +753,31 @@ public class TourInfoUI {
 
             // hour
             createUI_Label(container, Messages.Tour_Tooltip_Label_Hour);
+         }
+      }
+
+      final long tourTime_Night = _tourData.getTourTime_Night();
+      if (tourTime_Night > 0) {
+
+         createUI_Spacer(container);
+
+         {
+            /*
+             * Time during the day
+             */
+            createUI_Label(container, Messages.Tour_Tooltip_Label_TimeZone);
+
+            _lblTimeDuringDay_Value = createUI_LabelValue(container, SWT.LEAD);
+            GridDataFactory.fillDefaults().span(2, 1).applyTo(_lblTimeDuringDay_Value);
+         }
+         {
+            /*
+             * Time during the night
+             */
+            createUI_Label(container, Messages.Tour_Tooltip_Label_TimeZone);
+
+            _lblTimeDuringNight_Value = createUI_LabelValue(container, SWT.LEAD);
+            GridDataFactory.fillDefaults().span(2, 1).applyTo(_lblTimeDuringNight_Value);
          }
       }
    }
@@ -1908,6 +1935,11 @@ public class TourInfoUI {
       return isShortTour || isSingleTour;
    }
 
+   private boolean isTourDuringNightTime() {
+      // TODO Auto-generated method stub
+      return _tourData.isTourDuringNightTime();
+   }
+
    /**
     * Show tour in battery SoC statistic
     */
@@ -2252,6 +2284,13 @@ public class TourInfoUI {
          _lblMovingTime.setText(movingPeriod.toString(UI.DEFAULT_DURATION_FORMATTER_SHORT));
          _lblBreakTime.setText(breakPeriod.toString(UI.DEFAULT_DURATION_FORMATTER_SHORT));
       }
+
+      /*
+       * Time during the day and night
+       */
+      final long tourTime_Night = _tourData.getTourTime_Night();
+      _lblTimeDuringDay_Value.setText(FormatManager.formatElapsedTime(elapsedTime - tourTime_Night));
+      _lblTimeDuringNight_Value.setText(FormatManager.formatElapsedTime(tourTime_Night));
 
       /*
        * Weather

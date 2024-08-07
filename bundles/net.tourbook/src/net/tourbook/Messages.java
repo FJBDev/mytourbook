@@ -508,6 +508,7 @@ public class Messages extends NLS {
 
    public static String        Dialog_CustomTourNutritionProduct_Label_BeverageQuantity;
    public static String        Dialog_CustomTourNutritionProduct_Label_Calories;
+   public static String        Dialog_CustomTourNutritionProduct_Label_Carbohydrates;
    public static String        Dialog_CustomTourNutritionProduct_Label_IsBeverage;
    public static String        Dialog_CustomTourNutritionProduct_Label_Name;
    public static String        Dialog_CustomTourNutritionProduct_Label_NumberServings;
@@ -3419,6 +3420,8 @@ public class Messages extends NLS {
    public static String        Tour_Nutrition_Button_OpenProductsWebsite;
    public static String        Tour_Nutrition_Button_SearchProduct;
    public static String        Tour_Nutrition_Button_SearchProduct_Tooltip;
+   public static String        Tour_Nutrition_Button_UpdateProducts;
+   public static String        Tour_Nutrition_Button_UpdateProducts_Tooltip;
    public static String        Tour_Nutrition_Column_BeverageContainer;
    public static String        Tour_Nutrition_Column_BeverageQuantity;
    public static String        Tour_Nutrition_Column_BeverageQuantity_Tooltip;
@@ -3439,6 +3442,8 @@ public class Messages extends NLS {
    public static String        Tour_Nutrition_Label_Averages_Tooltip;
    public static String        Tour_Nutrition_Label_Calories;
    public static String        Tour_Nutrition_Label_Calories_Tooltip;
+   public static String        Tour_Nutrition_Label_Carbohydrates;
+   public static String        Tour_Nutrition_Label_Carbohydrates_Tooltip;
    public static String        Tour_Nutrition_Label_Fluids;
    public static String        Tour_Nutrition_Label_QuantityType_Products;
    public static String        Tour_Nutrition_Label_QuantityType_Servings;
