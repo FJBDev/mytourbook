@@ -15,5 +15,6 @@
 	<classpathentry exported="true" kind="lib" path="istack-commons-runtime-4.2.0.jar"/> <!-- https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime -->
 	<classpathentry exported="true" kind="lib" path="activation-1.1.1.jar"/> <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
 	<classpathentry exported="true" kind="lib" path="jakarta.activation-2.0.1.jar"/> <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
+	<classpathentry exported="true" kind="lib" path="jakarta.xml.bind-api-4.0.2.jar"/> <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
 	<classpathentry kind="output" path="bin"/>
 </classpath>

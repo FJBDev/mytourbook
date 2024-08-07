@@ -14,10 +14,12 @@ Bundle-ClassPath:
  jaxb-core-4.0.3.jar,
  istack-commons-runtime-4.2.0.jar,
  activation-1.1.1.jar,
- jakarta.activation-2.0.1.jar
+ jakarta.activation-2.0.1.jar,
+ jakarta.xml.bind-api-4.0.2.jar
 Export-Package: com.sun.istack,
  javax.activation,
  jakarta.activation,
+ jakarta.xml.bind.annotation.adapters,
  org.apache.commons.io,
  org.apache.commons.logging,
  org.apache.fop.apps,
