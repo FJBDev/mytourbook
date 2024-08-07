@@ -12,7 +12,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.inject-api-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.persistence-api-3.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta.transaction-api-2.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jakarta.xml.bind-api-4.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jakarta.xml.bind-api-4.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-runtime-4.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-3.5.0.Final.jar"/>
 	
