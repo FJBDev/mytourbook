@@ -108,8 +108,6 @@ import net.tourbook.map2.action.ActionShowSliderInLegend;
 import net.tourbook.map2.action.ActionShowSliderInMap;
 import net.tourbook.map2.action.ActionShowStartEndInMap;
 import net.tourbook.map2.action.ActionShowTourInfoInMap;
-import net.tourbook.map2.action.ActionShowTourMarker;
-import net.tourbook.map2.action.ActionShowTourPauses;
 import net.tourbook.map2.action.ActionShowTourWeatherInMap;
 import net.tourbook.map2.action.ActionShowValuePoint;
 import net.tourbook.map2.action.ActionShowWayPoints;
@@ -126,6 +124,7 @@ import net.tourbook.map2.action.ActionZoomLevelAdjustment;
 import net.tourbook.map2.action.ActionZoomOut;
 import net.tourbook.map2.action.ActionZoomShowEntireMap;
 import net.tourbook.map2.action.ActionZoomShowEntireTour;
+import net.tourbook.map2.view.SlideoutMap2_PhotoOptions.ImageSize;
 import net.tourbook.map25.Map25FPSManager;
 import net.tourbook.photo.IPhotoEventListener;
 import net.tourbook.photo.Photo;
@@ -188,6 +187,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -227,6 +227,7 @@ public class Map2View extends ViewPart implements
    static final String           STATE_TRACK_OPTIONS_SELECTED_TAB                      = "STATE_TRACK_OPTIONS_SELECTED_TAB";                    //$NON-NLS-1$
 
    private static final String   STATE_IS_SHOW_LEGEND_IN_MAP                           = "STATE_IS_SHOW_LEGEND_IN_MAP";                         //$NON-NLS-1$
+   private static final String   STATE_IS_SHOW_MAP_POINTS                              = "STATE_IS_SHOW_MAP_POINTS";                           //$NON-NLS-1$
    private static final String   STATE_IS_SHOW_PHOTO_IN_MAP                            = "STATE_IS_SHOW_PHOTO_IN_MAP";                          //$NON-NLS-1$
    private static final String   STATE_IS_SHOW_TOUR_IN_MAP                             = "STATE_IS_SHOW_TOUR_IN_MAP";                           //$NON-NLS-1$
    private static final String   STATE_IS_SHOW_SCALE_IN_MAP                            = "STATE_IS_SHOW_SCALE_IN_MAP";                          //$NON-NLS-1$
@@ -411,6 +412,7 @@ public class Map2View extends ViewPart implements
    private int                               _photoFilter_RatingStars;
    private Enum<PhotoRatingStarOperator>     _photoFilter_RatingStar_Operator;
    //
+   private boolean                           _isShowMapPoints;
    private boolean                           _isShowTour;
    private boolean                           _isShowPhoto;
    private boolean                           _isShowLegend;
@@ -500,13 +502,14 @@ public class Map2View extends ViewPart implements
    private ActionManageMapProviders          _actionManageMapProvider;
    private ActionMapBookmarks                _actionMap2Slideout_Bookmarks;
    private ActionMap2Color                   _actionMap2Slideout_Color;
-   private ActionMap2_MapPoint               _actionMap2Slideout_MapLocationsAndMarkers;
+   private ActionMap2_MapPoints              _actionMap2Slideout_MapPoints;
    private ActionMap2_MapProvider            _actionMap2Slideout_MapProvider;
    private ActionMap2_Options                _actionMap2Slideout_Options;
    private ActionMap2_PhotoFilter            _actionMap2Slideout_PhotoFilter;
    private ActionMap2_Graphs                 _actionMap2Slideout_TourColors;
    private ActionMapPoint_CenterMap          _actionMapPoint_CenterMap;
    private ActionMapPoint_EditTourMarker     _actionMapPoint_EditTourMarker;
+   private ActionMapPoint_RemovePhoto        _actionMapPoint_RemovePhoto;
    private ActionMapPoint_ShowOnlyThisTour   _actionMapPoint_ShowOnlyThisTour;
    private ActionMapPoint_ZoomIn             _actionMapPoint_ZoomIn;
    private ActionReloadFailedMapImages       _actionReloadFailedMapImages;
@@ -523,8 +526,6 @@ public class Map2View extends ViewPart implements
    private ActionShowStartEndInMap           _actionShowStartEndInMap;
    private ActionShowTour                    _actionShowTour;
    private ActionShowTourInfoInMap           _actionShowTourInfoInMap;
-   private ActionShowTourMarker              _actionShowTourMarker;
-   private ActionShowTourPauses              _actionShowTourPauses;
    private ActionShowTourWeatherInMap        _actionShowTourWeatherInMap;
    private ActionShowValuePoint              _actionShowValuePoint;
    private ActionShowWayPoints               _actionShowWayPoints;
@@ -612,13 +613,16 @@ public class Map2View extends ViewPart implements
       }
    }
 
-   private class ActionMap2_MapPoint extends ActionToolbarSlideoutAdv {
+   private class ActionMap2_MapPoints extends ActionToolbarSlideoutAdv {
 
       private static final ImageDescriptor _actionImageDescriptor = TourbookPlugin.getThemedImageDescriptor(Images.MapLocation_MapPoint);
 
-      public ActionMap2_MapPoint() {
+      public ActionMap2_MapPoints() {
 
          super(_actionImageDescriptor, _actionImageDescriptor);
+
+         isToggleAction = true;
+         notSelectedTooltip = Messages.Map_Action_ShowMapPoints_Tooltip;
       }
 
       @Override
@@ -633,6 +637,17 @@ public class Map2View extends ViewPart implements
       @Override
       protected void onBeforeOpenSlideout() {
          closeOpenedDialogs(this);
+      }
+
+      @Override
+      protected void onSelect(final SelectionEvent selectionEvent) {
+
+         // show/hide slideout
+         super.onSelect(selectionEvent);
+
+         _isShowMapPoints = getSelection();
+
+         _map.setShowMapPoint(_isShowMapPoints);
       }
    }
 
@@ -660,7 +675,7 @@ public class Map2View extends ViewPart implements
 
       public ActionMapPoint_CenterMap() {
 
-         setText("&Center map to the map point position");
+         setText(Messages.Map_Action_CenterMapToMapPointPosition);
       }
 
       @Override
@@ -673,7 +688,7 @@ public class Map2View extends ViewPart implements
 
       public ActionMapPoint_EditTourMarker() {
 
-         setText("&Edit tour marker");
+         setText(Messages.Map_Action_EditTourMarker);
 
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit));
          setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit_Disabled));
@@ -686,11 +701,27 @@ public class Map2View extends ViewPart implements
 
    }
 
+   private class ActionMapPoint_RemovePhoto extends Action {
+
+      public ActionMapPoint_RemovePhoto() {
+
+         super(OtherMessages.ACTION_PHOTOS_AND_TOURS_REMOVE_PHOTO, Action.AS_PUSH_BUTTON);
+
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete));
+      }
+
+      @Override
+      public void run() {
+
+         TourManager.tourPhoto_Remove(_map.getHoveredMapPoint());
+      }
+   }
+
    private class ActionMapPoint_ShowOnlyThisTour extends Action {
 
       public ActionMapPoint_ShowOnlyThisTour() {
 
-         setText("&Show only this tour");
+         setText(Messages.Map_Action_ShowOnlyThisTour);
       }
 
       @Override
@@ -703,7 +734,7 @@ public class Map2View extends ViewPart implements
 
       public ActionMapPoint_ZoomIn() {
 
-         setText("&Zoom in to the map point position");
+         setText(Messages.Map_Action_ZoomInToTheMapPointPosition);
       }
 
       @Override
@@ -1149,7 +1180,7 @@ public class Map2View extends ViewPart implements
       ActionOpenMarkerDialog.doAction(tourProvider, true, tourMarker);
 
       // hide hovered marker
-      _map.resetHoveredMarker();
+      _map.resetHoveredMapPoint();
 
       _map.paint();
    }
@@ -1180,7 +1211,7 @@ public class Map2View extends ViewPart implements
          // this seems to be more complicated, a syncexec() to not work
          _map.getDisplay().timerExec(300, () -> {
 
-            _map.resetHoveredMarker();
+            _map.resetHoveredMapPoint();
 
             _map.paint();
          });
@@ -1196,10 +1227,14 @@ public class Map2View extends ViewPart implements
       _map.setZoom(_map.getMapProvider().getMaximumZoomLevel());
       _map.setMapCenter(new GeoPosition(geoPoint.getLatitude(), geoPoint.getLongitude()));
 
-      // hide hovered marker
-      _map.resetHoveredMarker();
-
       _map.redraw();
+
+      // this need a delay otherwise the hovered map point is not hidden
+      _map.getDisplay().timerExec(10, () -> {
+
+         // hide hovered marker
+         _map.resetHoveredMapPoint();
+      });
    }
 
    public void actionPOI() {
@@ -1266,24 +1301,6 @@ public class Map2View extends ViewPart implements
       } else {
          _tourToolTip.removeToolTipProvider(_tourInfoToolTipProvider);
       }
-
-      _map.paint();
-   }
-
-   public void actionSetShowTourMarkerInMap() {
-
-      Map2ConfigManager.getActiveConfig().isShowTourMarker = _actionShowTourMarker.isChecked();
-
-      Map2PointManager.updateMapLocationAndMarkerSlideout();
-
-      _map.paint();
-   }
-
-   public void actionSetShowTourPausesInMap() {
-
-      Map2ConfigManager.getActiveConfig().isShowTourPauses = _actionShowTourPauses.isChecked();
-
-      Map2PointManager.updateMapLocationAndMarkerSlideout();
 
       _map.paint();
    }
@@ -1425,6 +1442,9 @@ public class Map2View extends ViewPart implements
       enableActions();
 
       TourPainterConfiguration.isShowPhotos = _isShowPhoto;
+
+      // update UI in the map point slideout
+      Map2PointManager.enableControls();
 
       _map.setOverlayKey(Integer.toString(_filteredPhotos.hashCode()));
       _map.disposeOverlayImageCache();
@@ -1978,14 +1998,14 @@ public class Map2View extends ViewPart implements
       _allTourColor_Actions.put(MapGraphId.RunDyn_StepLength,  _actionTourColor_RunDyn_StepLength);
 
       // actions with slideouts
-      _actionMap2Slideout_Bookmarks                = new ActionMapBookmarks(this._parent, this);
-      _actionMap2Slideout_Color                    = new ActionMap2Color();
-      _actionMap2Slideout_MapLocationsAndMarkers   = new ActionMap2_MapPoint();
-      _actionMap2Slideout_MapProvider              = new ActionMap2_MapProvider(this, _state_MapProvider);
-      _actionMap2Slideout_PhotoFilter              = new ActionMap2_PhotoFilter(this, _state_PhotoFilter);
-      _actionMap2Slideout_Options                  = new ActionMap2_Options();
-      _actionMap2Slideout_SyncMap                  = new ActionSyncMap();
-      _actionMap2Slideout_TourColors               = new ActionMap2_Graphs();
+      _actionMap2Slideout_Bookmarks       = new ActionMapBookmarks(this._parent, this);
+      _actionMap2Slideout_Color           = new ActionMap2Color();
+      _actionMap2Slideout_MapPoints       = new ActionMap2_MapPoints();
+      _actionMap2Slideout_MapProvider     = new ActionMap2_MapProvider(this, _state_MapProvider);
+      _actionMap2Slideout_PhotoFilter     = new ActionMap2_PhotoFilter(this, _state_PhotoFilter);
+      _actionMap2Slideout_Options         = new ActionMap2_Options();
+      _actionMap2Slideout_SyncMap         = new ActionSyncMap();
+      _actionMap2Slideout_TourColors      = new ActionMap2_Graphs();
 
       _actionZoom_CenterMapBy             = new ActionZoomCenterBy(this);
       _actionZoom_In                      = new ActionZoomIn(this);
@@ -2000,6 +2020,7 @@ public class Map2View extends ViewPart implements
       _actionManageMapProvider            = new ActionManageMapProviders(this);
       _actionMapPoint_CenterMap           = new ActionMapPoint_CenterMap();
       _actionMapPoint_EditTourMarker      = new ActionMapPoint_EditTourMarker();
+      _actionMapPoint_RemovePhoto         = new ActionMapPoint_RemovePhoto();
       _actionMapPoint_ShowOnlyThisTour    = new ActionMapPoint_ShowOnlyThisTour();
       _actionMapPoint_ZoomIn              = new ActionMapPoint_ZoomIn();
       _actionReloadFailedMapImages        = new ActionReloadFailedMapImages(this);
@@ -2018,8 +2039,6 @@ public class Map2View extends ViewPart implements
       _actionShowPOI                      = new ActionShowPOI(this);
       _actionShowTour                     = new ActionShowTour();
       _actionShowTourInfoInMap            = new ActionShowTourInfoInMap(this);
-      _actionShowTourMarker               = new ActionShowTourMarker(this);
-      _actionShowTourPauses               = new ActionShowTourPauses(this);
       _actionShowTourWeatherInMap         = new ActionShowTourWeatherInMap(this);
       _actionShowWayPoints                = new ActionShowWayPoints(this);
       _actionZoomLevelAdjustment          = new ActionZoomLevelAdjustment();
@@ -2180,6 +2199,8 @@ public class Map2View extends ViewPart implements
       // register overlays which draw the tour
       GeoclipseExtensions.registerOverlays(_map);
 
+      setMapImageSize();
+
       // initialize map when part is created and the map size is > 0
       _map.getDisplay().asyncExec(() -> {
 
@@ -2321,8 +2342,6 @@ public class Map2View extends ViewPart implements
       _actionCreateTourMarkerFromMap.setCurrentHoveredTourId(hoveredTourId);
       _actionLookupTourLocation.setCurrentHoveredTourId(hoveredTourId);
 
-      _actionShowTourMarker.setChecked(Map2ConfigManager.getActiveConfig().isShowTourMarker);
-
 // SET_FORMATTING_OFF
 
       /*
@@ -2363,8 +2382,6 @@ public class Map2View extends ViewPart implements
       _actionShowStartEndInMap            .setEnabled(isOneTourDisplayed);
       _actionShowTourInfoInMap            .setEnabled(isOneTourDisplayed);
       _actionShowTour                     .setEnabled(_isTourPainted);
-      _actionShowTourMarker               .setEnabled(_isTourPainted);
-      _actionShowTourPauses               .setEnabled(_isTourPainted);
       _actionShowTourWeatherInMap         .setEnabled(isTourAvailable);
       _actionShowWayPoints                .setEnabled(_isTourPainted);
       _actionZoom_CenterMapBy             .setEnabled(true);
@@ -2436,16 +2453,19 @@ public class Map2View extends ViewPart implements
 // SET_FORMATTING_OFF
 
       final Map2Point      mapPoint    = hoveredMapPoint.mapPoint;
+      final Photo          photo       = mapPoint.photo;
       final MapPointType   pointType   = mapPoint.pointType;
 
       final int      numTours          = _allTourData.size();
 
       final boolean  isMultipleTours   = numTours > 1;
+      final boolean  isPhotoAvailable  = photo != null;
       final boolean  isTourMarker      = pointType.equals(MapPointType.TOUR_MARKER);
       final boolean  isTourAvailable   = isTourMarker || pointType.equals(MapPointType.TOUR_PAUSE);
 
-      _actionMapPoint_EditTourMarker  .setEnabled(isTourMarker);
-      _actionMapPoint_ShowOnlyThisTour.setEnabled(isMultipleTours && isTourAvailable);
+      _actionMapPoint_EditTourMarker   .setEnabled(isTourMarker);
+      _actionMapPoint_RemovePhoto      .setEnabled(isPhotoAvailable);
+      _actionMapPoint_ShowOnlyThisTour .setEnabled(isMultipleTours && isTourAvailable);
 
 // SET_FORMATTING_ON
    }
@@ -2470,7 +2490,7 @@ public class Map2View extends ViewPart implements
 
       tbm.add(new Separator());
 
-      tbm.add(_actionMap2Slideout_MapLocationsAndMarkers);
+      tbm.add(_actionMap2Slideout_MapPoints);
       tbm.add(_actionMap2Slideout_Bookmarks);
 
       tbm.add(new Separator());
@@ -2509,6 +2529,7 @@ public class Map2View extends ViewPart implements
 
          menuMgr.add(_actionMapPoint_ShowOnlyThisTour);
          menuMgr.add(_actionMapPoint_EditTourMarker);
+         menuMgr.add(_actionMapPoint_RemovePhoto);
 
       } else {
 
@@ -2524,8 +2545,6 @@ public class Map2View extends ViewPart implements
           * Show tour features
           */
          menuMgr.add(new Separator());
-         menuMgr.add(_actionShowTourMarker);
-         menuMgr.add(_actionShowTourPauses);
          menuMgr.add(_actionShowWayPoints);
          menuMgr.add(_actionShowPOI);
          menuMgr.add(_actionShowStartEndInMap);
@@ -3623,6 +3642,23 @@ public class Map2View extends ViewPart implements
 
          } else {
 
+            int a = 0;
+            a++;
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//            PhotoImageCache.disposeAll();
+
             final TourData tourData = TourManager.getInstance().getTourData(tourIdSelection.getTourId());
 
             paintToursAndPhotos(tourData, selection);
@@ -3648,6 +3684,9 @@ public class Map2View extends ViewPart implements
          if (tourIds.isEmpty()) {
 
             // history tour (without tours) is displayed
+
+            // hide tours
+            paintTours(tourIds);
 
             final ArrayList<Photo> allPhotos = paintPhotoSelection(selection);
 
@@ -4602,6 +4641,11 @@ public class Map2View extends ViewPart implements
       _actionShowTour.setSelection(_isShowTour);
       _map.setIsShowTour(_isShowTour);
 
+      // map points
+      _isShowMapPoints = Util.getStateBoolean(_state, STATE_IS_SHOW_MAP_POINTS, true);
+      _actionMap2Slideout_MapPoints.setSelection(_isShowMapPoints);
+      _map.setShowMapPoint(_isShowMapPoints);
+
       // photo states
       _isShowPhoto = Util.getStateBoolean(_state, STATE_IS_SHOW_PHOTO_IN_MAP, true);
       _actionShowPhotos.setSelection(_isShowPhoto);
@@ -4636,11 +4680,6 @@ public class Map2View extends ViewPart implements
       // show start/end in map
       _actionShowStartEndInMap.setChecked(_state.getBoolean(STATE_IS_SHOW_START_END_IN_MAP));
       TourPainterConfiguration.isShowTourStartEnd = _actionShowStartEndInMap.isChecked();
-
-      // show tour marker / pauses
-      final Map2Config activeConfig = Map2ConfigManager.getActiveConfig();
-      _actionShowTourMarker.setChecked(activeConfig.isShowTourMarker);
-      _actionShowTourPauses.setChecked(activeConfig.isShowTourPauses);
 
       // show way points
       final boolean isShowWayPoints = Util.getStateBoolean(_state, STATE_IS_SHOW_WAY_POINTS, true);
@@ -4779,12 +4818,17 @@ public class Map2View extends ViewPart implements
 
       final boolean hasAnyStars = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.HAS_ANY;
 
-      if (_isPhotoFilterActive && !hasAnyStars) {
+      if (_isPhotoFilterActive && hasAnyStars == false) {
 
-         final boolean isNoStar = _photoFilter_RatingStars == 0;
-         final boolean isEqual = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_EQUAL;
-         final boolean isMore = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_MORE_OR_EQUAL;
-         final boolean isLess = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_LESS_OR_EQUAL;
+// SET_FORMATTING_OFF
+
+         final boolean isNoStar     = _photoFilter_RatingStars == 0;
+         final boolean isEqual      = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_EQUAL;
+         final boolean isMore       = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_MORE_OR_EQUAL;
+         final boolean isMoreOrNone = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_MORE_OR_EQUAL_OR_NONE;
+         final boolean isLess       = _photoFilter_RatingStar_Operator == PhotoRatingStarOperator.IS_LESS_OR_EQUAL;
+
+// SET_FORMATTING_ON
 
          for (final Photo photo : _allPhotos) {
 
@@ -4801,6 +4845,10 @@ public class Map2View extends ViewPart implements
                _filteredPhotos.add(photo);
 
             } else if (isMore && ratingStars >= _photoFilter_RatingStars) {
+
+               _filteredPhotos.add(photo);
+
+            } else if (isMoreOrNone && (ratingStars >= _photoFilter_RatingStars || ratingStars == 0)) {
 
                _filteredPhotos.add(photo);
 
@@ -4832,6 +4880,7 @@ public class Map2View extends ViewPart implements
 // SET_FORMATTING_OFF
 
       _state.put(STATE_IS_SHOW_TOUR_IN_MAP,                       _isShowTour);
+      _state.put(STATE_IS_SHOW_MAP_POINTS,                        _isShowMapPoints);
       _state.put(STATE_IS_SHOW_PHOTO_IN_MAP,                      _isShowPhoto);
       _state.put(STATE_IS_SHOW_LEGEND_IN_MAP,                     _isShowLegend);
 
@@ -5006,6 +5055,42 @@ public class Map2View extends ViewPart implements
       _tourWeatherToolTipProvider.setIconPosition(devXTooltip, devYTooltip);
    }
 
+   public void setMapImageSize() {
+
+      final Enum<ImageSize> imageSize = Util.getStateEnum(_state,
+            SlideoutMap2_PhotoOptions.STATE_PHOTO_IMAGE_SIZE,
+            ImageSize.MEDIUM);
+
+      int mapImageSize;
+
+      if (imageSize.equals(ImageSize.LARGE)) {
+
+         mapImageSize = Util.getStateInt(_state,
+               SlideoutMap2_PhotoOptions.STATE_PHOTO_IMAGE_SIZE_LARGE,
+               SlideoutMap2_PhotoOptions.MAP_IMAGE_DEFAULT_SIZE_LARGE);
+
+      } else if (imageSize.equals(ImageSize.MEDIUM)) {
+
+         mapImageSize = Util.getStateInt(_state,
+               SlideoutMap2_PhotoOptions.STATE_PHOTO_IMAGE_SIZE_MEDIUM,
+               SlideoutMap2_PhotoOptions.MAP_IMAGE_DEFAULT_SIZE_MEDIUM);
+
+      } else if (imageSize.equals(ImageSize.SMALL)) {
+
+         mapImageSize = Util.getStateInt(_state,
+               SlideoutMap2_PhotoOptions.STATE_PHOTO_IMAGE_SIZE_SMALL,
+               SlideoutMap2_PhotoOptions.MAP_IMAGE_DEFAULT_SIZE_SMALL);
+
+      } else {
+
+         mapImageSize = Util.getStateInt(_state,
+               SlideoutMap2_PhotoOptions.STATE_PHOTO_IMAGE_SIZE_TINY,
+               SlideoutMap2_PhotoOptions.MAP_IMAGE_DEFAULT_SIZE_TINY);
+      }
+
+      Photo.setMapImageRequestedSize(mapImageSize);
+   }
+
    /**
     * Set tour data for the map, this is THE central point to set new tours into the map.
     *
@@ -5101,6 +5186,9 @@ public class Map2View extends ViewPart implements
       final boolean isBackgroundDark = isBackgroundDark();
 
       _map.setDimLevel(isMapDimmed, mapDimValue, mapDimColor, isUseMapDimColor, isBackgroundDark);
+
+      // update legend image after the dim level is modified
+      createLegendImage(TourPainterConfiguration.getMapColorProvider());
    }
 
    private void setVisibleDataPoints(final TourData tourData) {
@@ -5505,9 +5593,6 @@ public class Map2View extends ViewPart implements
       setIconPosition_TourInfo();
       setIconPosition_TourWeather();
 
-      // create legend image after the dim level is modified
-      createLegendImage(TourPainterConfiguration.getMapColorProvider());
-
       _map.resetMapPoints();
 
       _map.paint();
@@ -5613,13 +5698,6 @@ public class Map2View extends ViewPart implements
       if (_isMapSyncWith_ValuePoint) {
          positionMapTo_ValueIndex(hoveredTourData, hoveredSerieIndex);
       }
-   }
-
-   public void updateUI_Photos() {
-
-      _map.disposeOverlayImageCache();
-
-      _map.paint();
    }
 
    /**

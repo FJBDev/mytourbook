@@ -19,19 +19,16 @@ import org.eclipse.ui.PlatformUI;
 
 public class Map2PointManager {
 
-   private static SlideoutMap2_MapPoints _mapPointSlideout;
+   private static SlideoutMap2_MapPoints _mapPoint_Slideout;
+   private static MapPointStatistics     _mapPoint_Statistics;
 
-   private static int                    _numCommonLocations_Painted;
-   private static int                    _numCommonLocations_All;
+   public static void enableControls() {
 
-   private static int                    _numTourLocations_Painted;
-   private static int                    _numTourLocations_All;
+      if (_mapPoint_Slideout != null) {
 
-   private static int                    _numTourMarkers_Painted;
-   private static int                    _numTourMarkers_All;
-
-   private static int                    _numTourPauses_Painted;
-   private static int                    _numTourPauses_All;
+         _mapPoint_Slideout.enableControls();
+      }
+   }
 
    /**
     * @param isOpenSlideout
@@ -41,99 +38,52 @@ public class Map2PointManager {
     */
    public static SlideoutMap2_MapPoints getMapPointSlideout(final boolean isOpenSlideout) {
 
-      if (_mapPointSlideout != null) {
+      if (_mapPoint_Slideout != null) {
 
          if (isOpenSlideout) {
 
-            _mapPointSlideout.open(false);
+            _mapPoint_Slideout.open(false);
          }
       }
 
-      return _mapPointSlideout;
+      return _mapPoint_Slideout;
    }
 
    public static void setMapLocationSlideout(final SlideoutMap2_MapPoints mapLocationSlideout) {
 
-      _mapPointSlideout = mapLocationSlideout;
+      _mapPoint_Slideout = mapLocationSlideout;
    }
 
    /**
-    * Update UI in the location + marker slideout
+    * Update UI in the map point slideout
     */
-   public static void updateMapLocationAndMarkerSlideout() {
+   public static void updateMapPointSlideout() {
 
-      if (_mapPointSlideout != null) {
+      if (_mapPoint_Slideout != null) {
 
-         _mapPointSlideout.updateUI();
+         _mapPoint_Slideout.updateUI();
       }
    }
 
    public static void updateStatistics() {
 
-      if (_mapPointSlideout != null) {
+      if (_mapPoint_Slideout != null && _mapPoint_Statistics != null) {
 
-         PlatformUI.getWorkbench().getDisplay().asyncExec(() -> _mapPointSlideout.updateStatistics(
+         PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 
-               _numCommonLocations_Painted,
-               _numCommonLocations_All,
+            if (_mapPoint_Slideout != null) {
 
-               _numTourLocations_Painted,
-               _numTourLocations_All,
-
-               _numTourMarkers_Painted,
-               _numTourMarkers_All,
-
-               _numTourPauses_Painted,
-               _numTourPauses_All
-
-         ));
+               _mapPoint_Slideout.updateStatistics(_mapPoint_Statistics);
+            }
+         });
       }
 
    }
 
-   public static void updateStatistics(final int numCommonLocations_Painted,
-                                       final int numCommonLocations_All,
+   public static void updateStatistics(final MapPointStatistics mapPointStatistics) {
 
-                                       final int numTourLocations_Painted,
-                                       final int numTourLocations_All,
+      _mapPoint_Statistics = mapPointStatistics;
 
-                                       final int numTourMarkers_Painted,
-                                       final int numTourMarkers_All,
-
-                                       final int numTourPauses_Painted,
-                                       final int numTourPauses_All) {
-
-// SET_FORMATTING_OFF
-
-      _numCommonLocations_Painted   = numCommonLocations_Painted;
-      _numCommonLocations_All       = numCommonLocations_All;
-      _numTourLocations_Painted     = numTourLocations_Painted;
-      _numTourLocations_All         = numTourLocations_All;
-      _numTourMarkers_Painted       = numTourMarkers_Painted;
-      _numTourMarkers_All           = numTourMarkers_All;
-      _numTourPauses_Painted        = numTourPauses_Painted;
-      _numTourPauses_All            = numTourPauses_All;
-
-// SET_FORMATTING_ON
-
-      if (_mapPointSlideout != null) {
-
-         PlatformUI.getWorkbench().getDisplay().asyncExec(() -> _mapPointSlideout.updateStatistics(
-
-               numCommonLocations_Painted,
-               numCommonLocations_All,
-
-               numTourLocations_Painted,
-               numTourLocations_All,
-
-               numTourMarkers_Painted,
-               numTourMarkers_All,
-
-               numTourPauses_Painted,
-               numTourPauses_All
-
-         ));
-      }
-
+      updateStatistics();
    }
 }
