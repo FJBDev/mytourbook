@@ -5,15 +5,15 @@ Bundle-SymbolicName: net.tourbook.tests;singleton:=true
 Bundle-Version: 24.8.0.qualifier
 Require-Bundle: net.tourbook,
  net.tourbook.ext.jars,
- net.tourbook.ext.ejb3,
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
  org.opentest4j,
+ net.tourbook.ext.jpa,
  junit-jupiter-api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- hibernate-entitymanager.jar,
+ hibernate-core-6.4.0.Final.jar,
  jsonassert-1.5.1.jar,
  xmlunit-core-2.10.0.jar,
  HttpClientMock-1.0.0.jar,
