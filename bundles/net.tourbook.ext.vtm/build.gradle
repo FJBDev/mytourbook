@@ -95,7 +95,7 @@ dependencies {
       SLF4J: Defaulting to no-operation (NOP) logger implementation
       SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
    */
-   api 'org.slf4j:slf4j-simple:2.0.5'
+   api 'org.slf4j:slf4j-simple:2.0.16'
     
     // http logging
    api 'com.squareup.okhttp3:logging-interceptor:3.14.1'
