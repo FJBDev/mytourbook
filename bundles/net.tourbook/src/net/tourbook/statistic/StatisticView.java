@@ -333,13 +333,13 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       _tourEventListener = (part, tourEventId, eventData) -> {
 
-         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof final TourEvent tourEvent) {
 
             if (part == StatisticView.this) {
                return;
             }
 
-            if (((TourEvent) eventData).isTourModified) {
+            if ((tourEvent).isTourModified) {
                /*
                 * ignore edit changes because the statistics show data only from saved data
                 */
@@ -363,9 +363,9 @@ public class StatisticView extends ViewPart implements ITourProvider {
             updateStatistic();
 
          } else if (tourEventId == TourEventId.SELECTION_RECORDING_DEVICE_BATTERY
-               && eventData instanceof SelectionRecordingDeviceBattery) {
+               && eventData instanceof final SelectionRecordingDeviceBattery selectionRecordingDeviceBattery) {
 
-            selectBatterySoCStatistic((SelectionRecordingDeviceBattery) eventData);
+            selectBatterySoCStatistic(selectionRecordingDeviceBattery);
          }
       };
       TourManager.getInstance().addTourEventListener(_tourEventListener);
@@ -452,7 +452,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
              */
 
             _comboStatistics = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-            _comboStatistics.setToolTipText(Messages.Tour_Book_Combo_statistic_tooltip);
+            _comboStatistics.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
             _comboStatistics.setVisibleItemCount(50);
 
             _comboStatistics.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
