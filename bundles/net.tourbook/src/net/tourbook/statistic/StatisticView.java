@@ -88,6 +88,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private static final String               STATE_SELECTED_STATISTIC = "statistic.container.selected_statistic";      //$NON-NLS-1$
    private static final String               STATE_SELECTED_YEAR      = "statistic.container.selected-year";           //$NON-NLS-1$
    private static final String               STATE_NUMBER_OF_YEARS    = "statistic.container.number_of_years";         //$NON-NLS-1$
+   private static final String               STATE_TIME_RANGE         = "statistic.container.time_range";              //$NON-NLS-1$
 
    private static final char                 NL                       = net.tourbook.common.UI.NEW_LINE;
 
@@ -139,6 +140,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private Combo                    _comboYear;
    private Combo                    _comboStatistics;
+   private Combo                    _comboStatisticsTimeRange;
    private Combo                    _comboNumberOfYears;
    private Combo                    _comboBarVerticalOrder;
 
@@ -461,6 +463,21 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
          {
             /*
+             * combo: statistics time range
+             */
+
+            _comboStatisticsTimeRange = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+            _comboStatisticsTimeRange.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
+            _comboStatisticsTimeRange.setVisibleItemCount(4);
+            _comboStatisticsTimeRange.add("year");
+            _comboStatisticsTimeRange.add("month");
+            _comboStatisticsTimeRange.add("week");
+            _comboStatisticsTimeRange.add("day");
+            _comboStatisticsTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
+         }
+
+         {
+            /*
              * combo: year
              */
 
@@ -701,6 +718,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
       }
 
       updateStatistic_10_NoReload(null);
+
+      //activate or gray out the time range
    }
 
    private void onSelectYear(final boolean isUpdateStatistic) {
