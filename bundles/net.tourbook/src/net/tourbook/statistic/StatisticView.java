@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
@@ -752,6 +753,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
       int selectedIndex = 0;
 
       // fill combobox with statistic names
+      //TODO FB fill the combo but not for Week, Year etc.....
+      //then, depending on what we find in the plugin, fill the 2nd combo for year, week etc...
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
 
          _comboStatistics.add(statistic.plugin_VisibleName);
@@ -1236,7 +1239,21 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       // fill combobox with statistic names
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
-         _comboStatistics.add(statistic.plugin_VisibleName);
+
+//         TourbookStatistic [
+//                            statisticId  = net.tourbook.statistics.StatisticSummaryMonthCombined
+//                            visibleName  = Month Summary
+//                            categoryData = Summary
+//                            categoryTime = Month
+//                           ]
+
+         //if the combo doesn't contain the statistic
+         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_Category_Data)) {
+
+            // add statistic to the combo
+
+            _comboStatistics.add(statistic.plugin_Category_Data);
+         }
       }
    }
 
