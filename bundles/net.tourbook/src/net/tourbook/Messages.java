@@ -2998,7 +2998,7 @@ public class Messages extends NLS {
    public static String        Tour_Book_Action_ExportViewCSV_Tooltip;
    public static String        Tour_Book_Action_GoToLastTour_Tooltip2;
    public static String        Tour_Book_Action_ToggleViewLayout_Tooltip;
-   public static String        Tour_Book_Combo_statistic_tooltip;
+   public static String        Tour_Book_Combo_Statistics_Tooltip;
    public static String        Tour_Book_Info_TourLocationIsAvailable;
    public static String        Tour_Book_Label_chart_title;
    public static String        Tour_Book_Label_Total;
