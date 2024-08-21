@@ -664,7 +664,7 @@ public class ModelPlayerView extends ViewPart implements ICloseOpenedDialogs {
 
          /*
           * Run async otherwise the selection is not at the correct position when scale was moved
-          * with the mouse wheel. The mouse event do not have a doit property to prevent the
+          * with the mouse wheel. The mouse event do not have a do it property to prevent the
           * wrong selection.
           */
          _display.asyncExec(() -> {
@@ -720,7 +720,7 @@ public class ModelPlayerView extends ViewPart implements ICloseOpenedDialogs {
             && ModelPlayerManager.isPlayerRunning() == false
             && ModelPlayerManager.isLastFrame()) {
 
-         // start new anmimation
+         // start new animation
 
          setTimelineSelection(0);
          setMapAndModelPosition(0);
@@ -1058,7 +1058,7 @@ public class ModelPlayerView extends ViewPart implements ICloseOpenedDialogs {
 
       if (isPlayerRunning == false && ModelPlayerManager.isLastFrame()) {
 
-         // start new anmimation
+         // start new animation
 
          _scaleTimeline.setSelection(0);
 

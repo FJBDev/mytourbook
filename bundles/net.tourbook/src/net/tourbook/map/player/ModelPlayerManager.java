@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2022, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -25,6 +25,7 @@ import net.tourbook.common.util.Util;
 import net.tourbook.map.IMapSyncListener.SyncParameter;
 import net.tourbook.map.MapManager;
 import net.tourbook.map.model.MapModelManager;
+import net.tourbook.map2.view.Map2View;
 import net.tourbook.map25.Map25App;
 import net.tourbook.map25.Map25FPSManager;
 import net.tourbook.map25.Map25View;
@@ -70,6 +71,7 @@ public class ModelPlayerManager {
    static final int                     MODEL_CURSOR_SIZE_MAX             = 10_000;
 
    private static Map25View             _map25View;
+   private static Map2View              _map2View;
    private static ModelPlayerView       _modelPlayerView;
 
    private static int                   _currentVisiblePositionIndex;
@@ -216,7 +218,8 @@ public class ModelPlayerManager {
     */
    public static boolean canShowMapModel() {
 
-      return isMap25ViewAvailable();
+      return isMap25ViewAvailable() ||
+            isMap2ViewAvailable();
    }
 
    public static long getAnimationDuration() {
@@ -868,6 +871,10 @@ public class ModelPlayerManager {
       return _map25View != null;
    }
 
+   private static boolean isMap2ViewAvailable() {
+      return _map2View != null;
+   }
+
    public static boolean isMapModelCursorVisible() {
       return _isMapModelCursorVisible;
    }
@@ -1000,6 +1007,14 @@ public class ModelPlayerManager {
       }
    }
 
+   public static void setMap2View(final Map2View map2View) {
+
+      _map2View = map2View;
+
+      if (isPlayerViewAvailable()) {
+         _modelPlayerView.updateMapModelVisibility();
+      }
+   }
    /**
     * Set the angle between two positions into {@link #_modelForwardAngle}
     *
