@@ -2560,10 +2560,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             TourSegmenterView.STATE_STACKED_VISIBLE_VALUES,
             TourSegmenterView.STATE_STACKED_VISIBLE_VALUES_DEFAULT);
 
-      final int graphOpacity = Util.getStateInt(
-            _tourSegmenterState,
-            TourSegmenterView.STATE_GRAPH_OPACITY,
-            TourSegmenterView.STATE_GRAPH_OPACITY_DEFAULT);
+      final int graphOpacity = _prefStore.getInt(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING);
 
       final double[] xDataSerie = _tcc.isShowTimeOnXAxis
             ? _tourData.getTimeSerieDouble()
