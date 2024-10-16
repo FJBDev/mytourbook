@@ -49,6 +49,15 @@ Experimental
 New
 ===
 
+* Tour Info Tooltip (Frederic):
+  - New fields: elapsed time at night and during the day
+
+* Tour Nutrition (Frederic):
+  - Support for the carbohydrates
+  - New button to update the nutrition facts of (a) product(s)
+  - Select a product from a list of the most recent products used
+  - Edit an existing custom nutrition product
+
 * Tour Info Tooltip
   - Customize content
     https://github.com/mytourbook/mytourbook/issues/1411
@@ -67,6 +76,9 @@ New
 
 Improvements
 ============
+
+* Tour Nutrition (Frederic):
+  - Add duplicated products when they are contained in a beverage container
 
 * Tour Book View
   - Added column for tour description, the displayed text has been shortened to 100 characters

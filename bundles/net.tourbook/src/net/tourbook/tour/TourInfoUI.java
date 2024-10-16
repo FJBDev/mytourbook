@@ -209,8 +209,7 @@ public class TourInfoUI {
    /*
     * UI resources
     */
-   private Font _boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
-
+   private Font             _boldFont = JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT);
    /*
     * UI controls
     */
@@ -290,6 +289,8 @@ public class TourInfoUI {
    private Label            _lblRestPulse;
    private Label            _lblTemperature_Part1;
    private Label            _lblTemperature_Part2;
+   private Label            _lblTimeDuringDay_Value;
+   private Label            _lblTimeDuringNight_Value;
    private Label            _lblTimeZone_Value;
    private Label            _lblTimeZoneDifference;
    private Label            _lblTimeZoneDifference_Value;
@@ -712,6 +713,27 @@ public class TourInfoUI {
 
             // hour
             createUI_Label(container, Messages.Tour_Tooltip_Label_Hour);
+         }
+      }
+
+      final long tourTime_Night = _tourData.getTourDeviceTime_Elapsed_Night();
+      if (tourTime_Night > 0) {
+         createUI_Spacer(container);
+         {
+            /*
+             * Time during the day
+             */
+            createUI_Label(container, Messages.Tour_Tooltip_Label_ElapsedTimeDuringDay);
+            _lblTimeDuringDay_Value = createUI_LabelValue(container, SWT.LEAD);
+            GridDataFactory.fillDefaults().span(2, 1).applyTo(_lblTimeDuringDay_Value);
+         }
+         {
+            /*
+             * Time during the night
+             */
+            createUI_Label(container, Messages.Tour_Tooltip_Label_ElapsedTimeDuringNight);
+            _lblTimeDuringNight_Value = createUI_LabelValue(container, SWT.LEAD);
+            GridDataFactory.fillDefaults().span(2, 1).applyTo(_lblTimeDuringNight_Value);
          }
       }
    }
@@ -2127,6 +2149,15 @@ public class TourInfoUI {
          _lblPausedTime.setText(pausedPeriod.toString(UI.DEFAULT_DURATION_FORMATTER_SHORT));
          _lblMovingTime.setText(movingPeriod.toString(UI.DEFAULT_DURATION_FORMATTER_SHORT));
          _lblBreakTime.setText(breakPeriod.toString(UI.DEFAULT_DURATION_FORMATTER_SHORT));
+      }
+
+      /*
+       * Time during the day and night
+       */
+      final long tourTime_Night = _tourData.getTourDeviceTime_Elapsed_Night();
+      if (tourTime_Night > 0) {
+         _lblTimeDuringDay_Value.setText(FormatManager.formatElapsedTime(elapsedTime - tourTime_Night));
+         _lblTimeDuringNight_Value.setText(FormatManager.formatElapsedTime(tourTime_Night));
       }
 
       /*
