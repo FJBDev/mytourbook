@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tourSegmenter;
 
+import static org.eclipse.swt.events.MouseTrackListener.mouseExitAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import net.tourbook.Messages;
@@ -42,8 +43,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -66,6 +65,8 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 
    private static final IPreferenceStore _prefStore      = TourbookPlugin.getPrefStore();
    private static final IDialogSettings  _segmenterState = TourSegmenterView.getState();
+
+   private IPropertyChangeListener       _prefChangeListener;
 
    // initialize with default values which are (should) never be used
    private Rectangle               _toolTipItemBounds = new Rectangle(0, 0, 50, 50);
@@ -145,7 +146,7 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 
       _tourSegmenterView = tourSegmenterView;
 
-      addListener(ownerControl, toolBar);
+      addListener(toolBar);
 
       setToolTipCreateStyle(AnimatedToolTipShell.TOOLTIP_STYLE_KEEP_CONTENT);
       setBehaviourOnMouseOver(AnimatedToolTipShell.MOUSE_OVER_BEHAVIOUR_IGNORE_OWNER);
@@ -156,16 +157,30 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
       setFadeOutDelaySteps(1);
    }
 
-   private void addListener(final Control ownerControl, final ToolBar toolBar) {
+   private void addListener(final ToolBar toolBar) {
 
-      toolBar.addMouseTrackListener(new MouseTrackAdapter() {
-         @Override
-         public void mouseExit(final MouseEvent e) {
+      toolBar.addMouseTrackListener(mouseExitAdapter(mouseEvent -> {
 
-            // prevent to open the tooltip
-            _canOpenToolTip = false;
+         // prevent to open the tooltip
+         _canOpenToolTip = false;
+      }));
+   }
+
+   private void addPrefListener(final Composite parent) {
+
+      _prefChangeListener = propertyChangeEvent -> {
+
+         final String property = propertyChangeEvent.getProperty();
+
+         if (property.equals(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING)) {
+
+            restoreState();
          }
-      });
+      };
+
+      _prefStore.addPropertyChangeListener(_prefChangeListener);
+
+      parent.addDisposeListener(disposeEvent -> onDisposeSlideout());
    }
 
    @Override
@@ -189,6 +204,8 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
       createActions();
 
       final Composite ui = createUI(parent);
+
+      addPrefListener(parent);
 
       restoreState();
       enableControls();
@@ -628,6 +645,11 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
       _tourSegmenterView.reloadViewer();
    }
 
+   private void onDisposeSlideout() {
+
+      _prefStore.removePropertyChangeListener(_prefChangeListener);
+   }
+
    /**
     * @param toolTipItemBounds
     * @param isOpenDelayed
@@ -715,9 +737,10 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
             TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE,
             TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE_DEFAULT);
 
+      //todo fb here
       _segmenterState.put(
-            TourSegmenterView.STATE_GRAPH_OPACITY,
-            TourSegmenterView.STATE_GRAPH_OPACITY_DEFAULT);
+            ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING,
+            ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DEFAULT);
       _segmenterState.put(
             TourSegmenterView.STATE_STACKED_VISIBLE_VALUES,
             TourSegmenterView.STATE_STACKED_VISIBLE_VALUES_DEFAULT);
@@ -776,9 +799,8 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
             TourSegmenterView.STATE_LINE_OPACITY,
             TourSegmenterView.STATE_LINE_OPACITY_DEFAULT);
 
-      final int graphOpacity = Util.getStateInt(_segmenterState,
-            TourSegmenterView.STATE_GRAPH_OPACITY,
-            TourSegmenterView.STATE_GRAPH_OPACITY_DEFAULT);
+      final int graphOpacity = _prefStore.getInt(
+            ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING);
 
       // hide small values
       _chkHideSmallValues.setSelection(Util.getStateBoolean(
@@ -857,7 +879,7 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 
    private void saveState() {
 
-      // !!! font editor saves it's values automatically !!!
+      // !!! font editor saves its values automatically !!!
 
       final int lineOpacity = _spinLineOpacity.getSelection();
       final int graphOpacity = _spinGraphOpacity.getSelection();
@@ -877,7 +899,8 @@ public class SlideoutTourChartSegmenterProperties extends AnimatedToolTipShell
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_TOOLTIP,         _chkShowSegmentTooltip.getSelection());
 		_segmenterState.put(TourSegmenterView.STATE_IS_SHOW_SEGMENTER_VALUE,           _chkShowSegmentValue.getSelection());
 
-		_segmenterState.put(TourSegmenterView.STATE_GRAPH_OPACITY,            UI.transformOpacity_WhenSaved(graphOpacity));
+		 _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_FILLING_DARK,     UI.transformOpacity_WhenSaved(graphOpacity));
+
 		_segmenterState.put(TourSegmenterView.STATE_STACKED_VISIBLE_VALUES,   _spinVisibleValuesStacked.getSelection());
 
 // SET_FORMATTING_ON
