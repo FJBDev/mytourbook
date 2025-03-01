@@ -119,7 +119,7 @@ public class TourDatabase {
     * <li>/net.tourbook.export/format-templates/mt-1.0.vm</li>
     * <li>net.tourbook.device.mt.MT_StAXHandler</li>
     */
-   private static final int TOURBOOK_DB_VERSION = 56;
+   private static final int TOURBOOK_DB_VERSION = 57;
 
 //   private static final int TOURBOOK_DB_VERSION = 55; // 24.5
 //   private static final int TOURBOOK_DB_VERSION = 54; // 24.1 fixed db data update bug 47 -> 48
@@ -205,7 +205,7 @@ public class TourDatabase {
    public static final String  TABLE_TOUR_NUTRITION_PRODUCT               = "TOURNUTRITIONPRODUCT";                                  //$NON-NLS-1$
    public static final String  TABLE_TOUR_GEO_PARTS                       = "TourGeoParts";                                          //$NON-NLS-1$
    public static final String  TABLE_TOUR_LOCATION                        = "TourLocation";                                          //$NON-NLS-1$
-//   public static final String  TABLE_TOUR_LOCATION_POINT                  = "TourLocationPoint";                                     //$NON-NLS-1$
+   public static final String  TABLE_TOUR_LOCATION_POINT                  = "TourLocationPoint";                                     //$NON-NLS-1$
    public static final String  TABLE_TOUR_MARKER                          = "TOURMARKER";                                            //$NON-NLS-1$
    public static final String  TABLE_TOUR_PERSON                          = "TOURPERSON";                                            //$NON-NLS-1$
    public static final String  TABLE_TOUR_PERSON_HRZONE                   = "TOURPERSONHRZONE";                                      //$NON-NLS-1$
@@ -516,7 +516,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void AddColumn_BigInt(final Statement stmt,
+      private static void addColumn_BigInt(final Statement stmt,
                                            final String table,
                                            final String columnName,
                                            final String defaultValue) throws SQLException {
@@ -549,7 +549,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void AddColumn_Boolean(final Statement stmt,
+      private static void addColumn_Boolean(final Statement stmt,
                                             final String table,
                                             final String columnName,
                                             final String defaultValue) throws SQLException {
@@ -564,7 +564,7 @@ public class TourDatabase {
          exec(stmt, "ALTER TABLE " + table + " ADD COLUMN " + columnName + " BOOLEAN DEFAULT " + defaultValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
 
-      private static void AddColumn_Double(final Statement stmt,
+      private static void addColumn_Double(final Statement stmt,
                                            final String table,
                                            final String columnName,
                                            final String defaultValue) throws SQLException {
@@ -579,7 +579,7 @@ public class TourDatabase {
          exec(stmt, "ALTER TABLE " + table + " ADD COLUMN " + columnName + " DOUBLE DEFAULT " + defaultValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
 
-      private static void AddColumn_Float(final Statement stmt,
+      private static void addColumn_Float(final Statement stmt,
                                           final String table,
                                           final String columnName,
                                           final String defaultValue) throws SQLException {
@@ -603,7 +603,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void AddColumn_Int(final Statement stmt,
+      private static void addColumn_Int(final Statement stmt,
                                         final String table,
                                         final String columnName,
                                         final String defaultValue) throws SQLException {
@@ -627,7 +627,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void AddColumn_SmallInt(final Statement stmt,
+      private static void addColumn_SmallInt(final Statement stmt,
                                              final String table,
                                              final String columnName,
                                              final String defaultValue) throws SQLException {
@@ -652,7 +652,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void AddColumn_VarCar(final Statement stmt,
+      private static void addColumn_VarCar(final Statement stmt,
                                            final String table,
                                            final String columnName,
                                            final int columnWidth) throws SQLException {
@@ -667,7 +667,7 @@ public class TourDatabase {
          exec(stmt, "ALTER TABLE " + table + " ADD COLUMN " + columnName + " VARCHAR(" + columnWidth + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
       }
 
-      private static void AlterColumn_VarChar_Width(final Statement stmt,
+      private static void alterColumn_VarChar_Width(final Statement stmt,
                                                     final String table,
                                                     final String columnName,
                                                     final int newWidth) throws SQLException {
@@ -691,7 +691,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void Cleanup_DropColumn(final Statement stmt,
+      private static void cleanup_DropColumn(final Statement stmt,
                                              final String table,
                                              final String columnName) {
 
@@ -710,7 +710,7 @@ public class TourDatabase {
          }
       }
 
-      private static void Cleanup_DropConstraint(final Statement stmt,
+      private static void cleanup_DropConstraint(final Statement stmt,
                                                  final String tableName,
                                                  final String constraintName) throws SQLException {
 
@@ -731,7 +731,7 @@ public class TourDatabase {
          }
       }
 
-      private static void Cleanup_DropTable(final Statement stmt, final String tableName) throws SQLException {
+      private static void cleanup_DropTable(final Statement stmt, final String tableName) throws SQLException {
 
          if (isTableAvailable(stmt.getConnection(), tableName) == false) {
 
@@ -759,7 +759,7 @@ public class TourDatabase {
        *
        * @return
        */
-      private static String CreateField_EntityId(final String fieldName, final boolean isGenerateID) {
+      private static String createField_EntityId(final String fieldName, final boolean isGenerateID) {
 
          String generateID = UI.EMPTY_STRING;
 
@@ -784,7 +784,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void CreateIndex(final Statement stmt,
+      private static void createIndex(final Statement stmt,
                                       final String tableName,
                                       final String indexAndColumnName) throws SQLException {
 
@@ -813,7 +813,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void CreateIndex_Combined(final Statement stmt,
+      private static void createIndex_Combined(final Statement stmt,
                                                final String tableName,
                                                final String columnName) throws SQLException {
 
@@ -843,7 +843,7 @@ public class TourDatabase {
        *
        * @throws SQLException
        */
-      private static void RenameCol(final Statement stmt,
+      private static void renameCol(final Statement stmt,
                                     final String table,
                                     final String oldColumnName,
                                     final String newColumnName) throws SQLException {
@@ -4179,7 +4179,7 @@ public class TourDatabase {
 
       exec(stmt, "CREATE TABLE " + TABLE_DEVICE_SENSOR + "   (                                        " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_DEVICE_SENSOR, true)
+            + SQL.createField_EntityId(ENTITY_ID_DEVICE_SENSOR, true)
 
             // version 46 start
 
@@ -4197,7 +4197,7 @@ public class TourDatabase {
             + ")" //                                                                          //$NON-NLS-1$
       );
 
-      SQL.CreateIndex(stmt, TABLE_DEVICE_SENSOR, "SerialNumber"); //$NON-NLS-1$
+      SQL.createIndex(stmt, TABLE_DEVICE_SENSOR, "SerialNumber"); //$NON-NLS-1$
    }
 
    /**
@@ -4211,7 +4211,7 @@ public class TourDatabase {
 
       exec(stmt, "CREATE TABLE " + TABLE_DEVICE_SENSOR_VALUE + "   (                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_DEVICE_SENSOR_VALUE, true)
+            + SQL.createField_EntityId(ENTITY_ID_DEVICE_SENSOR_VALUE, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   " + KEY_DEVICE_SENSOR + "  BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -4235,7 +4235,7 @@ public class TourDatabase {
             + ")" //                                                                          //$NON-NLS-1$
       );
 
-      SQL.CreateIndex_Combined(stmt, TABLE_DEVICE_SENSOR_VALUE, "TourStartTime"); //$NON-NLS-1$
+      SQL.createIndex_Combined(stmt, TABLE_DEVICE_SENSOR_VALUE, "TourStartTime"); //$NON-NLS-1$
    }
 
    /**
@@ -4254,7 +4254,7 @@ public class TourDatabase {
       exec(stmt,
             "CREATE TABLE " + TABLE_TOUR_BEVERAGE_CONTAINER + "   (                             " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
-                  + SQL.CreateField_EntityId(ENTITY_ID_BEVERAGECONTAINER, true)
+                  + SQL.createField_EntityId(ENTITY_ID_BEVERAGECONTAINER, true)
 
                   // Version 55 - begin
 
@@ -4281,7 +4281,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_BIKE + "   (                             " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_BIKE, true)
+            + SQL.createField_EntityId(ENTITY_ID_BIKE, true)
 
             + "   Name                       VARCHAR(" + TourBike.DB_LENGTH_NAME + "), " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   Weight                     FLOAT,                                    " + NL //$NON-NLS-1$ // kg
@@ -4306,7 +4306,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_COMPARED + "   (                         " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_COMPARED, true)
+            + SQL.createField_EntityId(ENTITY_ID_COMPARED, true)
 
             + "   RefTourId                  BIGINT,                                   " + NL //$NON-NLS-1$
             + "   TourId                     BIGINT,                                   " + NL //$NON-NLS-1$
@@ -4361,7 +4361,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_DATA + "   (                             " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_TOUR, false)
+            + SQL.createField_EntityId(ENTITY_ID_TOUR, false)
 
             + "   StartYear                              SMALLINT NOT NULL,            " + NL //$NON-NLS-1$
             + "   StartMonth                             SMALLINT NOT NULL,            " + NL //$NON-NLS-1$
@@ -4741,10 +4741,10 @@ public class TourDatabase {
       createIndex_TourData_033(stmt);
       createIndex_TourData_037(stmt);
 
-      SQL.CreateIndex_Combined(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start"); //$NON-NLS-1$
+      SQL.createIndex_Combined(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start"); //$NON-NLS-1$
 
-      SQL.CreateIndex_Combined(stmt, TABLE_TOUR_DATA, "TourLocationStart_LocationID"); //$NON-NLS-1$
-      SQL.CreateIndex_Combined(stmt, TABLE_TOUR_DATA, "TourLocationEnd_LocationID"); //$NON-NLS-1$
+      SQL.createIndex_Combined(stmt, TABLE_TOUR_DATA, "TourLocationStart_LocationID"); //$NON-NLS-1$
+      SQL.createIndex_Combined(stmt, TABLE_TOUR_DATA, "TourLocationEnd_LocationID"); //$NON-NLS-1$
    }
 
    /**
@@ -4768,8 +4768,8 @@ public class TourDatabase {
 
             + ")"); //$NON-NLS-1$
 
-      SQL.CreateIndex(stmt, TABLE_TOUR_GEO_PARTS, "TourId"); //$NON-NLS-1$
-      SQL.CreateIndex(stmt, TABLE_TOUR_GEO_PARTS, "GeoPart"); //$NON-NLS-1$
+      SQL.createIndex(stmt, TABLE_TOUR_GEO_PARTS, "TourId"); //$NON-NLS-1$
+      SQL.createIndex(stmt, TABLE_TOUR_GEO_PARTS, "GeoPart"); //$NON-NLS-1$
    }
 
    /**
@@ -4783,7 +4783,7 @@ public class TourDatabase {
 
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_LOCATION + "   (                         " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_LOCATION, true)
+            + SQL.createField_EntityId(ENTITY_ID_LOCATION, true)
 
             + "   name                                VARCHAR(" + TourLocation.DB_FIELD_LENGTH + "),  " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   display_name                        VARCHAR(" + TourLocation.DB_FIELD_LENGTH + "),  " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -4923,7 +4923,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_MARKER + "   (                           " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_MARKER, true)
+            + SQL.createField_EntityId(ENTITY_ID_MARKER, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5001,7 +5001,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_NUTRITION_PRODUCT + "   (                           " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_NUTRITIONPRODUCT, true)
+            + SQL.createField_EntityId(ENTITY_ID_NUTRITIONPRODUCT, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   " + KEY_BEVERAGE_CONTAINER + "  BIGINT,                              " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -5042,7 +5042,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_PERSON + "   (                           " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_PERSON, true)
+            + SQL.createField_EntityId(ENTITY_ID_PERSON, true)
 
             + "   lastName                   VARCHAR(" + TourPerson.DB_LENGTH_LAST_NAME + "),          " + NL //$NON-NLS-1$ //$NON-NLS-2$
             + "   firstName                  VARCHAR(" + TourPerson.DB_LENGTH_FIRST_NAME + "),         " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -5088,7 +5088,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_PERSON_HRZONE + "   (                    " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_HR_ZONE, true)
+            + SQL.createField_EntityId(ENTITY_ID_HR_ZONE, true)
 
             + "   " + KEY_PERSON + "   BIGINT,                                         " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5126,7 +5126,7 @@ public class TourDatabase {
 
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_PHOTO + "   (                            " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_PHOTO, true)
+            + SQL.createField_EntityId(ENTITY_ID_PHOTO, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5158,7 +5158,7 @@ public class TourDatabase {
       );
 
       // Create index for {@link TourPhoto}, it will dramatically improve performance.
-      SQL.CreateIndex(stmt, TABLE_TOUR_PHOTO, "ImageFilePathName"); //$NON-NLS-1$
+      SQL.createIndex(stmt, TABLE_TOUR_PHOTO, "ImageFilePathName"); //$NON-NLS-1$
    }
 
    /**
@@ -5175,7 +5175,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_REFERENCE + "   (                        " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_REF, true)
+            + SQL.createField_EntityId(ENTITY_ID_REF, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                   " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5214,7 +5214,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_TAG + "   (                                 " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_TAG, true)
+            + SQL.createField_EntityId(ENTITY_ID_TAG, true)
 
             + "   isRoot                     INTEGER,                                     " + NL //$NON-NLS-1$
             + "   expandType                 INTEGER,                                     " + NL //$NON-NLS-1$
@@ -5258,7 +5258,7 @@ public class TourDatabase {
       );
 
       // Create index TOURTAG_TAGID
-      SQL.CreateIndex(stmt, JOINTABLE__TOURDATA__TOURTAG, KEY_TAG);
+      SQL.createIndex(stmt, JOINTABLE__TOURDATA__TOURTAG, KEY_TAG);
    }
 
    /**
@@ -5278,7 +5278,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_TAG_CATEGORY + "   (                     " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_TAG_CATEGORY, true)
+            + SQL.createField_EntityId(ENTITY_ID_TAG_CATEGORY, true)
 
             + "   isRoot                     INTEGER,                                  " + NL //$NON-NLS-1$
             + "   name                       VARCHAR(" + TourTag.DB_LENGTH_NAME + "),  " + NL //$NON-NLS-1$ //$NON-NLS-2$
@@ -5374,7 +5374,7 @@ public class TourDatabase {
 
       //
 
-            + SQL.CreateField_EntityId(ENTITY_ID_TYPE, true)
+            + SQL.createField_EntityId(ENTITY_ID_TYPE, true)
 
             + "   name                       VARCHAR(" + TourType.DB_LENGTH_NAME + "), " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -5432,7 +5432,7 @@ public class TourDatabase {
        */
       exec(stmt, "CREATE TABLE " + TABLE_TOUR_WAYPOINT + "   (                                        " + NL //$NON-NLS-1$ //$NON-NLS-2$
       //
-            + SQL.CreateField_EntityId(ENTITY_ID_WAY_POINT, true)
+            + SQL.createField_EntityId(ENTITY_ID_WAY_POINT, true)
 
             + "   " + KEY_TOUR + "           BIGINT,                                                  " + NL //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -6715,6 +6715,11 @@ public class TourDatabase {
 //// 55 -> 56    24.XX
          if (currentDbVersion == 55) {
             currentDbVersion = _dbDesignVersion_New = updateDb_055_To_056(conn, splashManager);
+         }
+
+         // 55 -> 56    24.XX
+         if (currentDbVersion == 56) {
+            currentDbVersion = _dbDesignVersion_New = updateDb_056_To_057(conn, splashManager);
          }
 
          // update db design version number
@@ -8389,14 +8394,14 @@ public class TourDatabase {
              * Drop tables which will never be used, they exist since many years but it is unknown
              * why they has been created.
              */
-            SQL.Cleanup_DropTable(stmt, TABLE_TOUR_CATEGORY);
-            SQL.Cleanup_DropTable(stmt, TABLE_TOURCATEGORY__TOURDATA);
+            SQL.cleanup_DropTable(stmt, TABLE_TOUR_CATEGORY);
+            SQL.cleanup_DropTable(stmt, TABLE_TOURCATEGORY__TOURDATA);
 
-            SQL.Cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURMARKER);
-            SQL.Cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURPHOTO);
-            SQL.Cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURREFERENCE);
-            SQL.Cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURWAYPOINT);
-            SQL.Cleanup_DropTable(stmt, JOINTABLE__TOURPERSON__TOURPERSON_HRZONE);
+            SQL.cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURMARKER);
+            SQL.cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURPHOTO);
+            SQL.cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURREFERENCE);
+            SQL.cleanup_DropTable(stmt, JOINTABLE__TOURDATA__TOURWAYPOINT);
+            SQL.cleanup_DropTable(stmt, JOINTABLE__TOURPERSON__TOURPERSON_HRZONE);
 
             /*
              * Table: TOURTAG
@@ -8406,7 +8411,7 @@ public class TourDatabase {
                 * Changed TagCategory from @ManyToMany to @ManyToOne because a tag can be associated
                 * only with ONE category and not with multiple.
                 */
-               SQL.Cleanup_DropConstraint(stmt, JOINTABLE__TOURDATA__TOURTAG, "FK_TOURDATA_TOURTAG_TOURTAG_TAGID"); //$NON-NLS-1$
+               SQL.cleanup_DropConstraint(stmt, JOINTABLE__TOURDATA__TOURTAG, "FK_TOURDATA_TOURTAG_TOURTAG_TAGID"); //$NON-NLS-1$
             }
 
             /*
@@ -8416,15 +8421,15 @@ public class TourDatabase {
                /*
                 * Adjust column with to TourWayPoint width, that both have the same max size.
                 */
-               SQL.AlterColumn_VarChar_Width(stmt, TABLE_TOUR_MARKER, "label", TourWayPoint.DB_LENGTH_NAME); //$NON-NLS-1$
-               SQL.AlterColumn_VarChar_Width(stmt, TABLE_TOUR_MARKER, "category", TourWayPoint.DB_LENGTH_CATEGORY); //$NON-NLS-1$
+               SQL.alterColumn_VarChar_Width(stmt, TABLE_TOUR_MARKER, "label", TourWayPoint.DB_LENGTH_NAME); //$NON-NLS-1$
+               SQL.alterColumn_VarChar_Width(stmt, TABLE_TOUR_MARKER, "category", TourWayPoint.DB_LENGTH_CATEGORY); //$NON-NLS-1$
 
                /*
                 * Add new columns
                 */
-               SQL.AddColumn_VarCar(stmt, TABLE_TOUR_MARKER, "description", TourWayPoint.DB_LENGTH_DESCRIPTION); //$NON-NLS-1$
-               SQL.AddColumn_VarCar(stmt, TABLE_TOUR_MARKER, "urlText", TourMarker.DB_LENGTH_URL_TEXT); //$NON-NLS-1$
-               SQL.AddColumn_VarCar(stmt, TABLE_TOUR_MARKER, "urlAddress", TourMarker.DB_LENGTH_URL_ADDRESS); //$NON-NLS-1$
+               SQL.addColumn_VarCar(stmt, TABLE_TOUR_MARKER, "description", TourWayPoint.DB_LENGTH_DESCRIPTION); //$NON-NLS-1$
+               SQL.addColumn_VarCar(stmt, TABLE_TOUR_MARKER, "urlText", TourMarker.DB_LENGTH_URL_TEXT); //$NON-NLS-1$
+               SQL.addColumn_VarCar(stmt, TABLE_TOUR_MARKER, "urlAddress", TourMarker.DB_LENGTH_URL_ADDRESS); //$NON-NLS-1$
             }
          }
       }
@@ -8449,10 +8454,10 @@ public class TourDatabase {
          // Table: TOURMARKER
          {
             // Add new columns
-            SQL.AddColumn_BigInt(stmt, TABLE_TOUR_MARKER, "tourTime", SQL_LONG_MIN_VALUE);//$NON-NLS-1$
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_MARKER, "altitude", SQL_FLOAT_MIN_VALUE); //$NON-NLS-1$
-            SQL.AddColumn_Double(stmt, TABLE_TOUR_MARKER, "latitude", SQL_DOUBLE_MIN_VALUE); //$NON-NLS-1$
-            SQL.AddColumn_Double(stmt, TABLE_TOUR_MARKER, "longitude", SQL_DOUBLE_MIN_VALUE); //$NON-NLS-1$
+            SQL.addColumn_BigInt(stmt, TABLE_TOUR_MARKER, "tourTime", SQL_LONG_MIN_VALUE);//$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_MARKER, "altitude", SQL_FLOAT_MIN_VALUE); //$NON-NLS-1$
+            SQL.addColumn_Double(stmt, TABLE_TOUR_MARKER, "latitude", SQL_DOUBLE_MIN_VALUE); //$NON-NLS-1$
+            SQL.addColumn_Double(stmt, TABLE_TOUR_MARKER, "longitude", SQL_DOUBLE_MIN_VALUE); //$NON-NLS-1$
          }
       }
       stmt.close();
@@ -8617,8 +8622,8 @@ public class TourDatabase {
          // Table: TABLE_TOUR_DATA
          {
             // Add new columns
-            SQL.AddColumn_Int(stmt, TABLE_TOUR_DATA, "frontShiftCount", DEFAULT_0);//$NON-NLS-1$
-            SQL.AddColumn_Int(stmt, TABLE_TOUR_DATA, "rearShiftCount", DEFAULT_0); //$NON-NLS-1$
+            SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "frontShiftCount", DEFAULT_0);//$NON-NLS-1$
+            SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "rearShiftCount", DEFAULT_0); //$NON-NLS-1$
          }
       }
       stmt.close();
@@ -8643,7 +8648,7 @@ public class TourDatabase {
              */
 
             // add new columns
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_COMPARED, "AvgPulse", DEFAULT_0); //$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_COMPARED, "AvgPulse", DEFAULT_0); //$NON-NLS-1$
          }
          {
             /*
@@ -8651,8 +8656,8 @@ public class TourDatabase {
              */
 
             // add new columns
-            SQL.AddColumn_VarCar(stmt, TABLE_TOUR_WAYPOINT, "urlText", TourMarker.DB_LENGTH_URL_TEXT); //$NON-NLS-1$
-            SQL.AddColumn_VarCar(stmt, TABLE_TOUR_WAYPOINT, "urlAddress", TourMarker.DB_LENGTH_URL_ADDRESS); //$NON-NLS-1$
+            SQL.addColumn_VarCar(stmt, TABLE_TOUR_WAYPOINT, "urlText", TourMarker.DB_LENGTH_URL_TEXT); //$NON-NLS-1$
+            SQL.addColumn_VarCar(stmt, TABLE_TOUR_WAYPOINT, "urlAddress", TourMarker.DB_LENGTH_URL_ADDRESS); //$NON-NLS-1$
          }
       }
       stmt.close();
@@ -8793,7 +8798,7 @@ public class TourDatabase {
          if (isColumnAvailable(conn, TABLE_TOUR_DATA, "TourImportFileName") == false) { //$NON-NLS-1$
 
             // TABLE_TOUR_DATA: add column TourImportFileName
-            SQL.AddColumn_VarCar(stmt, TABLE_TOUR_DATA, "TourImportFileName", TourData.DB_LENGTH_TOUR_IMPORT_FILE_NAME); //$NON-NLS-1$
+            SQL.addColumn_VarCar(stmt, TABLE_TOUR_DATA, "TourImportFileName", TourData.DB_LENGTH_TOUR_IMPORT_FILE_NAME); //$NON-NLS-1$
 
             createIndex_TourData_029(stmt);
          }
@@ -8926,20 +8931,20 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_Avg",                         DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Int   (stmt, TABLE_TOUR_DATA, "power_Max",                         DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Int   (stmt, TABLE_TOUR_DATA, "power_Normalized",                  DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Int   (stmt, TABLE_TOUR_DATA, "power_FTP",                         DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_Avg",                         DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Int   (stmt, TABLE_TOUR_DATA, "power_Max",                         DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Int   (stmt, TABLE_TOUR_DATA, "power_Normalized",                  DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Int   (stmt, TABLE_TOUR_DATA, "power_FTP",                         DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA, "power_TotalWork",                   DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_TrainingStressScore",         DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_IntensityFactor",             DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_BigInt(stmt, TABLE_TOUR_DATA, "power_TotalWork",                   DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_TrainingStressScore",         DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_IntensityFactor",             DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_Int   (stmt, TABLE_TOUR_DATA, "power_PedalLeftRightBalance",       DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgLeftTorqueEffectiveness",  DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgRightTorqueEffectiveness", DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgLeftPedalSmoothness",      DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgRightPedalSmoothness",     DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Int   (stmt, TABLE_TOUR_DATA, "power_PedalLeftRightBalance",       DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgLeftTorqueEffectiveness",  DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgRightTorqueEffectiveness", DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgLeftPedalSmoothness",      DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float (stmt, TABLE_TOUR_DATA, "power_AvgRightPedalSmoothness",     DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -8960,8 +8965,8 @@ public class TourDatabase {
       final Statement stmt = conn.createStatement();
       {
          // Add new columns
-         SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA, "CadenceMultiplier", DEFAULT_1_0); //$NON-NLS-1$
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_DATA, "IsStrideSensorPresent", DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt, TABLE_TOUR_DATA, "CadenceMultiplier", DEFAULT_1_0); //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "IsStrideSensorPresent", DEFAULT_0); //$NON-NLS-1$
       }
       stmt.close();
 
@@ -8980,7 +8985,7 @@ public class TourDatabase {
       final Statement stmt = conn.createStatement();
       {
          // TABLE_TOUR_DATA: add column TimeZoneId
-         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_DATA, "TimeZoneId", TourData.DB_LENGTH_TIME_ZONE_ID); //$NON-NLS-1$
+         SQL.addColumn_VarCar(stmt, TABLE_TOUR_DATA, "TimeZoneId", TourData.DB_LENGTH_TIME_ZONE_ID); //$NON-NLS-1$
       }
       stmt.close();
 
@@ -9192,25 +9197,25 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Min",           DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Max",           DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Avg",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Min",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Max",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StanceTime_Avg",           DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Min",    DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Max",    DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Avg",    DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Min",    DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Max",    DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StanceTimeBalance_Avg",    DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Min",           DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Max",           DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Avg",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Min",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Max",           DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_StepLength_Avg",           DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Min",  DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Max",  DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Avg",  DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Min",  DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Max",  DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_VerticalOscillation_Avg",  DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Min",        DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Max",        DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Avg",        DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Min",        DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Max",        DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float   (stmt, TABLE_TOUR_DATA, "runDyn_VerticalRatio_Avg",        DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -9246,14 +9251,14 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_NumberOfEvents",          DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_NumberOfEvents",          DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinDistance",             DEFAULT_IGNORED); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinSpeed_StartStop",      DEFAULT_IGNORED); //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinSpeed_Surfing",        DEFAULT_IGNORED); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinDistance",             DEFAULT_IGNORED); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinSpeed_StartStop",      DEFAULT_IGNORED); //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinSpeed_Surfing",        DEFAULT_IGNORED); //$NON-NLS-1$
 
-         SQL.AddColumn_Boolean (stmt, TABLE_TOUR_DATA, "surfing_IsMinDistance",           DEFAULT_FALSE);   //$NON-NLS-1$
-         SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinTimeDuration",         DEFAULT_IGNORED); //$NON-NLS-1$
+         SQL.addColumn_Boolean (stmt, TABLE_TOUR_DATA, "surfing_IsMinDistance",           DEFAULT_FALSE);   //$NON-NLS-1$
+         SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "surfing_MinTimeDuration",         DEFAULT_IGNORED); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -9276,7 +9281,7 @@ public class TourDatabase {
          // check if column is available
          if (isColumnAvailable(conn, TABLE_TOUR_DATA, "HasGeoData") == false) { //$NON-NLS-1$
 
-            SQL.AddColumn_Boolean(stmt, TABLE_TOUR_DATA, "HasGeoData", DEFAULT_FALSE); //$NON-NLS-1$
+            SQL.addColumn_Boolean(stmt, TABLE_TOUR_DATA, "HasGeoData", DEFAULT_FALSE); //$NON-NLS-1$
 
             createIndex_TourData_037(stmt);
          }
@@ -9406,12 +9411,12 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_VarCar (stmt, TABLE_TOUR_TAG,              "notes", TourTag.DB_LENGTH_NOTES);                 //$NON-NLS-1$
-         SQL.AddColumn_VarCar (stmt, TABLE_TOUR_TAG_CATEGORY,     "notes", TourTag.DB_LENGTH_NOTES);                 //$NON-NLS-1$
+         SQL.addColumn_VarCar (stmt, TABLE_TOUR_TAG,              "notes", TourTag.DB_LENGTH_NOTES);                 //$NON-NLS-1$
+         SQL.addColumn_VarCar (stmt, TABLE_TOUR_TAG_CATEGORY,     "notes", TourTag.DB_LENGTH_NOTES);                 //$NON-NLS-1$
 
-         SQL.AddColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingEffect_Aerob",       DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingEffect_Anaerob",     DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingPerformance",        DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingEffect_Aerob",       DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingEffect_Anaerob",     DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float  (stmt, TABLE_TOUR_DATA,             "training_TrainingPerformance",        DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -9434,13 +9439,13 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_Boolean   (stmt, TABLE_TOUR_DATA, "isWeatherDataFromApi",          DEFAULT_FALSE);   //$NON-NLS-1$
-         SQL.AddColumn_SmallInt  (stmt, TABLE_TOUR_DATA, "weather_Humidity",              DEFAULT_0);       //$NON-NLS-1$
-         SQL.AddColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Precipitation",         DEFAULT_0);       //$NON-NLS-1$
-         SQL.AddColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Pressure",              DEFAULT_0);       //$NON-NLS-1$
-         SQL.AddColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_Min",       DEFAULT_0);       //$NON-NLS-1$
-         SQL.AddColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_Max",       DEFAULT_0);       //$NON-NLS-1$
-         SQL.AddColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_WindChill", DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Boolean   (stmt, TABLE_TOUR_DATA, "isWeatherDataFromApi",          DEFAULT_FALSE);   //$NON-NLS-1$
+         SQL.addColumn_SmallInt  (stmt, TABLE_TOUR_DATA, "weather_Humidity",              DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Precipitation",         DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Pressure",              DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_Min",       DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_Max",       DEFAULT_0);       //$NON-NLS-1$
+         SQL.addColumn_Float     (stmt, TABLE_TOUR_DATA, "weather_Temperature_WindChill", DEFAULT_0);       //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -9463,16 +9468,16 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // Add new columns
-         SQL.AddColumn_VarCar (stmt, TABLE_TOUR_DATA, "power_DataSource",              TourData.DB_LENGTH_POWER_DATA_SOURCE); //$NON-NLS-1$
-         SQL.AddColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZone_SlowTime",          DEFAULT_0);                            //$NON-NLS-1$
-         SQL.AddColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZone_FastTime",          DEFAULT_0);                            //$NON-NLS-1$
-         SQL.AddColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZones_DelimiterValue",   DEFAULT_0);                            //$NON-NLS-1$
-         SQL.AddColumn_Int    (stmt, TABLE_TOUR_DATA, "avgAltitudeChange",             DEFAULT_0);                            //$NON-NLS-1$
+         SQL.addColumn_VarCar (stmt, TABLE_TOUR_DATA, "power_DataSource",              TourData.DB_LENGTH_POWER_DATA_SOURCE); //$NON-NLS-1$
+         SQL.addColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZone_SlowTime",          DEFAULT_0);                            //$NON-NLS-1$
+         SQL.addColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZone_FastTime",          DEFAULT_0);                            //$NON-NLS-1$
+         SQL.addColumn_Int    (stmt, TABLE_TOUR_DATA, "cadenceZones_DelimiterValue",   DEFAULT_0);                            //$NON-NLS-1$
+         SQL.addColumn_Int    (stmt, TABLE_TOUR_DATA, "avgAltitudeChange",             DEFAULT_0);                            //$NON-NLS-1$
 
-         SQL.AddColumn_Int    (stmt, TABLE_TOUR_COMPARED, RENAMED__TOUR_RECORDING_TIME__FROM,         DEFAULT_0);
+         SQL.addColumn_Int    (stmt, TABLE_TOUR_COMPARED, RENAMED__TOUR_RECORDING_TIME__FROM,         DEFAULT_0);
 
          // Create index in table: TOURDATA_TOURTAG - Index: TOURTAG_TAGID
-         SQL.CreateIndex   (stmt, JOINTABLE__TOURDATA__TOURTAG, KEY_TAG);
+         SQL.createIndex   (stmt, JOINTABLE__TOURDATA__TOURTAG, KEY_TAG);
 
 // SET_FORMATTING_ON
       }
@@ -9626,7 +9631,7 @@ public class TourDatabase {
       final Statement stmt = conn.createStatement();
       {
          // Add new columns
-         SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA, "maxPace", DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt, TABLE_TOUR_DATA, "maxPace", DEFAULT_0); //$NON-NLS-1$
       }
       stmt.close();
 
@@ -9648,15 +9653,15 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
             // Add new columns
-            SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA,     "tourDeviceTime_Recorded", DEFAULT_0);                   //$NON-NLS-1$
-            SQL.AddColumn_BigInt(stmt, TABLE_TOUR_DATA,     "tourDeviceTime_Paused",   DEFAULT_0);                   //$NON-NLS-1$
-            SQL.AddColumn_Float(stmt,  TABLE_TOUR_DATA,     "bodyFat",                 DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_BigInt(stmt, TABLE_TOUR_DATA,     "tourDeviceTime_Recorded", DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_BigInt(stmt, TABLE_TOUR_DATA,     "tourDeviceTime_Paused",   DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_Float(stmt,  TABLE_TOUR_DATA,     "bodyFat",                 DEFAULT_0);                   //$NON-NLS-1$
 
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_DRIVING_TIME__FROM,      RENAMED__TOUR_DRIVING_TIME__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__BIKER_WEIGHT__FROM,           RENAMED__BIKER_WEIGHT__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_DRIVING_TIME__FROM,      RENAMED__TOUR_DRIVING_TIME__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__BIKER_WEIGHT__FROM,           RENAMED__BIKER_WEIGHT__INTO);
 
-            SQL.RenameCol(stmt,     TABLE_TOUR_COMPARED, RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_COMPARED, RENAMED__TOUR_RECORDING_TIME__FROM,    RENAMED__TOUR_RECORDING_TIME__INTO);
 
 // SET_FORMATTING_ON
       }
@@ -9933,14 +9938,14 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // add new fields
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Gradient_Bright",    DEFAULT_0);    //$NON-NLS-1$
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Gradient_Dark",      DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Gradient_Bright",    DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Gradient_Dark",      DEFAULT_0);    //$NON-NLS-1$
 
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Line_LightTheme",    DEFAULT_0);    //$NON-NLS-1$
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Line_DarkTheme",     DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Line_LightTheme",    DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Line_DarkTheme",     DEFAULT_0);    //$NON-NLS-1$
 
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Text_LightTheme",    DEFAULT_0);    //$NON-NLS-1$
-         SQL.AddColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Text_DarkTheme",     DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Text_LightTheme",    DEFAULT_0);    //$NON-NLS-1$
+         SQL.addColumn_Int(stmt, TABLE_TOUR_TYPE, "Color_Text_DarkTheme",     DEFAULT_0);    //$NON-NLS-1$
 
          // update new fields with old values
          execUpdate(stmt,
@@ -9962,21 +9967,21 @@ public class TourDatabase {
          );
 
          // drop old fields
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightRed");                    //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightGreen");                  //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightBlue");                   //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightRed");                    //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightGreen");                  //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorBrightBlue");                   //$NON-NLS-1$
 
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkRed");                      //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkGreen");                    //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkBlue");                     //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkRed");                      //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkGreen");                    //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorDarkBlue");                     //$NON-NLS-1$
 
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineRed");                      //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineGreen");                    //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineBlue");                     //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineRed");                      //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineGreen");                    //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorLineBlue");                     //$NON-NLS-1$
 
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextRed");                      //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextGreen");                    //$NON-NLS-1$
-         SQL.Cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextBlue");                     //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextRed");                      //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextGreen");                    //$NON-NLS-1$
+         SQL.cleanup_DropColumn(stmt, TABLE_TOUR_TYPE, "colorTextBlue");                     //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -10013,10 +10018,10 @@ public class TourDatabase {
          if (isColumnAvailable(conn, TABLE_TOUR_DATA, "Battery_Percentage_Start") == false) { //$NON-NLS-1$
 
             // add new fields
-            SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start", DEFAULT_IGNORED); //$NON-NLS-1$
-            SQL.AddColumn_SmallInt(stmt, TABLE_TOUR_DATA, "Battery_Percentage_End", DEFAULT_IGNORED); //$NON-NLS-1$
+            SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start", DEFAULT_IGNORED); //$NON-NLS-1$
+            SQL.addColumn_SmallInt(stmt, TABLE_TOUR_DATA, "Battery_Percentage_End", DEFAULT_IGNORED); //$NON-NLS-1$
 
-            SQL.CreateIndex_Combined(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start"); //$NON-NLS-1$
+            SQL.createIndex_Combined(stmt, TABLE_TOUR_DATA, "Battery_Percentage_Start"); //$NON-NLS-1$
          }
       }
       stmt.close();
@@ -10082,19 +10087,19 @@ public class TourDatabase {
 
 // SET_FORMATTING_OFF
 
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_AVG_TEMPERATURE__FROM,        RENAMED__TOUR_AVG_TEMPERATURE__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_MAX_TEMPERATURE__FROM,        RENAMED__TOUR_MAX_TEMPERATURE__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_MIN_TEMPERATURE__FROM,        RENAMED__TOUR_MIN_TEMPERATURE__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_ISWEATHERDATAFROMAPI__FROM,   RENAMED__TOUR_ISWEATHERDATAFROMAPI__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_CLOUDS__FROM,         RENAMED__TOUR_WEATHER_CLOUDS__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_WIND_DIRECTION__FROM, RENAMED__TOUR_WEATHER_WIND_DIRECTION__INTO);
-            SQL.RenameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_WIND_SPEED__FROM,     RENAMED__TOUR_WEATHER_WIND_SPEED__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_AVG_TEMPERATURE__FROM,        RENAMED__TOUR_AVG_TEMPERATURE__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_MAX_TEMPERATURE__FROM,        RENAMED__TOUR_MAX_TEMPERATURE__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_MIN_TEMPERATURE__FROM,        RENAMED__TOUR_MIN_TEMPERATURE__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_ISWEATHERDATAFROMAPI__FROM,   RENAMED__TOUR_ISWEATHERDATAFROMAPI__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_CLOUDS__FROM,         RENAMED__TOUR_WEATHER_CLOUDS__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_WIND_DIRECTION__FROM, RENAMED__TOUR_WEATHER_WIND_DIRECTION__INTO);
+            SQL.renameCol(stmt,     TABLE_TOUR_DATA,     RENAMED__TOUR_WEATHER_WIND_SPEED__FROM,     RENAMED__TOUR_WEATHER_WIND_SPEED__INTO);
 
             // Add new columns
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Average", DEFAULT_0);               //$NON-NLS-1$
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Max", DEFAULT_0);                   //$NON-NLS-1$
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Min", DEFAULT_0);                   //$NON-NLS-1$
-            SQL.AddColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Snowfall", DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Average", DEFAULT_0);               //$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Max", DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Temperature_Min", DEFAULT_0);                   //$NON-NLS-1$
+            SQL.addColumn_Float(stmt, TABLE_TOUR_DATA,   "weather_Snowfall", DEFAULT_0);                   //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -10317,7 +10322,7 @@ public class TourDatabase {
 
       final Statement stmt = connection.createStatement();
       {
-         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_TAG, "imageFilePath", TourTag.DB_LENGTH_FILE_PATH); //$NON-NLS-1$
+         SQL.addColumn_VarCar(stmt, TABLE_TOUR_TAG, "imageFilePath", TourTag.DB_LENGTH_FILE_PATH); //$NON-NLS-1$
       }
       stmt.close();
 
@@ -10340,7 +10345,7 @@ public class TourDatabase {
           */
 
          // add new columns
-         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_DATA, "weather_AirQuality", TourData.DB_LENGTH_WEATHER_AIRQUALITY); //$NON-NLS-1$
+         SQL.addColumn_VarCar(stmt, TABLE_TOUR_DATA, "weather_AirQuality", TourData.DB_LENGTH_WEATHER_AIRQUALITY); //$NON-NLS-1$
       }
       {
          /*
@@ -10348,8 +10353,8 @@ public class TourDatabase {
           */
 
          // add new columns
-         SQL.AddColumn_Float(stmt, TABLE_TOUR_COMPARED, "AvgAltimeter", DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float(stmt, TABLE_TOUR_COMPARED, "MaxPulse", DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt, TABLE_TOUR_COMPARED, "AvgAltimeter", DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt, TABLE_TOUR_COMPARED, "MaxPulse", DEFAULT_0); //$NON-NLS-1$
       }
       stmt.close();
 
@@ -10503,14 +10508,14 @@ public class TourDatabase {
 
 // SET_FORMATTING_OFF
 
-         SQL.AddColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_ElevationDiff", DEFAULT_FALSE); //$NON-NLS-1$
-         SQL.AddColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_GeoDiff",       DEFAULT_FALSE); //$NON-NLS-1$
-         SQL.AddColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_MaxResults",    DEFAULT_FALSE); //$NON-NLS-1$
-         SQL.AddColumn_Float(stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_ElevationDiff",   DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Float(stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_GeoDiff",         DEFAULT_0); //$NON-NLS-1$
-         SQL.AddColumn_Int  (stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_MaxResults",      DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_ElevationDiff", DEFAULT_FALSE); //$NON-NLS-1$
+         SQL.addColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_GeoDiff",       DEFAULT_FALSE); //$NON-NLS-1$
+         SQL.addColumn_Boolean(stmt,   TABLE_TOUR_REFERENCE,   "isTourFilter_MaxResults",    DEFAULT_FALSE); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_ElevationDiff",   DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_GeoDiff",         DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Int  (stmt,     TABLE_TOUR_REFERENCE,   "tourFilter_MaxResults",      DEFAULT_0); //$NON-NLS-1$
 
-         SQL.AddColumn_Float(stmt,     TABLE_TOUR_COMPARED,    "TourPace",                   DEFAULT_0); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt,     TABLE_TOUR_COMPARED,    "TourPace",                   DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
@@ -10660,14 +10665,14 @@ public class TourDatabase {
 // SET_FORMATTING_OFF
 
          // increase tour location size
-         SQL.AlterColumn_VarChar_Width (stmt, TABLE_TOUR_DATA, "tourStartPlace", TourData.DB_LENGTH_TOUR_START_PLACE_V52); //$NON-NLS-1$
-         SQL.AlterColumn_VarChar_Width (stmt, TABLE_TOUR_DATA, "tourEndPlace",   TourData.DB_LENGTH_TOUR_END_PLACE_V52);   //$NON-NLS-1$
+         SQL.alterColumn_VarChar_Width (stmt, TABLE_TOUR_DATA, "tourStartPlace", TourData.DB_LENGTH_TOUR_START_PLACE_V52); //$NON-NLS-1$
+         SQL.alterColumn_VarChar_Width (stmt, TABLE_TOUR_DATA, "tourEndPlace",   TourData.DB_LENGTH_TOUR_END_PLACE_V52);   //$NON-NLS-1$
 
-         SQL.AddColumn_BigInt          (stmt, TABLE_TOUR_DATA, "tourLocationStart_LocationID",  null);   //$NON-NLS-1$
-         SQL.AddColumn_BigInt          (stmt, TABLE_TOUR_DATA, "tourLocationEnd_LocationID",    null);   //$NON-NLS-1$
+         SQL.addColumn_BigInt          (stmt, TABLE_TOUR_DATA, "tourLocationStart_LocationID",  null);   //$NON-NLS-1$
+         SQL.addColumn_BigInt          (stmt, TABLE_TOUR_DATA, "tourLocationEnd_LocationID",    null);   //$NON-NLS-1$
 
-         SQL.CreateIndex_Combined      (stmt, TABLE_TOUR_DATA, "tourLocationStart_LocationID");          //$NON-NLS-1$
-         SQL.CreateIndex_Combined      (stmt, TABLE_TOUR_DATA, "tourLocationEnd_LocationID");            //$NON-NLS-1$
+         SQL.createIndex_Combined      (stmt, TABLE_TOUR_DATA, "tourLocationStart_LocationID");          //$NON-NLS-1$
+         SQL.createIndex_Combined      (stmt, TABLE_TOUR_DATA, "tourLocationEnd_LocationID");            //$NON-NLS-1$
 
 // SET_FORMATTING_ON
 
@@ -10715,8 +10720,8 @@ public class TourDatabase {
 
 // SET_FORMATTING_OFF
 
-            SQL.AddColumn_VarCar (stmt, TABLE_TOUR_LOCATION, "appliedName",   TourLocation.DB_FIELD_LENGTH);      //$NON-NLS-1$
-            SQL.AddColumn_BigInt (stmt, TABLE_TOUR_LOCATION, "lastModified",  "0");                               //$NON-NLS-1$ //$NON-NLS-2$
+            SQL.addColumn_VarCar (stmt, TABLE_TOUR_LOCATION, "appliedName",   TourLocation.DB_FIELD_LENGTH);      //$NON-NLS-1$
+            SQL.addColumn_BigInt (stmt, TABLE_TOUR_LOCATION, "lastModified",  "0");                               //$NON-NLS-1$ //$NON-NLS-2$
 
 // SET_FORMATTING_ON
             }
@@ -10788,10 +10793,40 @@ public class TourDatabase {
       logDbUpdate_Start(newDbVersion);
       updateMonitor(splashManager, newDbVersion);
 
-      try (final Statement stmt = conn.createStatement()) {
-
-         SQL.AddColumn_VarCar(stmt, TABLE_TOUR_PHOTO, "photoAdjustmentsJSON", VARCHAR_MAX_LENGTH); //$NON-NLS-1$
+      final Statement stmt = conn.createStatement();
+      {
+         // double check if db already exists
+         if (isTableAvailable(conn, TABLE_TOUR_LOCATION_POINT) == false) {
+            //createTable_TourLocationPoint(stmt);
+         }
       }
+      stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
+   }
+
+   private int updateDb_056_To_057(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 57;
+
+      logDbUpdate_Start(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+      final Statement stmt = conn.createStatement();
+      {
+         // alter columns
+
+// SET_FORMATTING_OFF
+
+         SQL.addColumn_Int          (stmt, TABLE_TOUR_NUTRITION_PRODUCT, "carbohydrates",  DEFAULT_0);   //$NON-NLS-1$
+         SQL.addColumn_Int          (stmt, TABLE_TOUR_NUTRITION_PRODUCT, "carbohydrates_Serving",  DEFAULT_0);   //$NON-NLS-1$
+
+// SET_FORMATTING_ON
+
+      }
+      stmt.close();
 
       logDbUpdate_End(newDbVersion);
 
