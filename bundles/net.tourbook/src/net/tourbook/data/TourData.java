@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -10917,6 +10918,40 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    /**
+    * @return Returns the total elapsed time spent during the night (in seconds).
+    */
+   public long getTourDeviceTime_Elapsed_Night() {
+
+      long tourTime_Night = 0;
+      ZonedDateTime sunsetTimes = null;
+      ZonedDateTime sunriseTimes = null;
+      int currentDay = 0;
+      final int timeSerieLength = timeSerie.length;
+      for (int index = 0; index < timeSerieLength; ++index) {
+
+         //todo fb support when multiple tours (cf. -0 below)
+         final ZonedDateTime currentZonedDateTime = getTourStartTime().plusSeconds(timeSerie[index] - 0);
+
+         //If the current time is in the next day, we need to recalculate the sunrise/sunset times for this new day.
+         if (currentDay == 0 || currentZonedDateTime.getDayOfMonth() != currentDay) {
+
+            sunriseTimes = TimeTools.determineSunriseTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+            sunsetTimes = TimeTools.determineSunsetTimes(currentZonedDateTime, latitudeSerie[index], longitudeSerie[index]);
+
+            currentDay = currentZonedDateTime.getDayOfMonth();
+         }
+         final long currentTime = currentZonedDateTime.toEpochSecond();
+
+         if (TimeTools.isTimeSliceAtNight(sunsetTimes, sunriseTimes, currentTime) &&
+               index > 0) // Skip the first time slice, as it doesn't have a previous time slice.
+         {
+            tourTime_Night += timeSerie[index] - timeSerie[index - 1];
+         }
+      }
+      return tourTime_Night;
+   }
+
+   /**
     * @return Returns the total paused time in seconds.
     */
    public long getTourDeviceTime_Paused() {
@@ -14015,5 +14050,34 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          pausedTime_Start[index] += startTimeOffset;
          pausedTime_End[index] += startTimeOffset;
       }
+   }
+
+   public void updateTourNutritionProducts(final Set<TourNutritionProduct> updatedTourNutritionProducts) {
+
+      if (tourNutritionProducts == null || updatedTourNutritionProducts == null) {
+         return;
+      }
+
+      // Map existing products by their unique identifier (barcode)
+      final Map<String, TourNutritionProduct> existingProductsMap = tourNutritionProducts.stream()
+            .collect(Collectors.toMap(TourNutritionProduct::getProductCode, product -> product));
+
+      // Iterate through the updated products
+      for (final TourNutritionProduct updatedProduct : updatedTourNutritionProducts) {
+
+         final TourNutritionProduct existingProduct = existingProductsMap.get(updatedProduct.getProductCode());
+
+         if (existingProduct != null) {
+
+            // Update only the properties that are different
+            existingProduct.updateNewProductInfo(updatedProduct);
+
+         } else {
+
+            // If the product does not exist, add it to the set
+            tourNutritionProducts.add(updatedProduct);
+         }
+      }
+
    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -47,7 +48,10 @@ import net.tourbook.data.TourNutritionProduct;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.nutrition.DialogCustomTourNutritionProduct;
 import net.tourbook.nutrition.NutritionUtils;
+import net.tourbook.nutrition.ProductSearchType;
 import net.tourbook.nutrition.QuantityType;
+import net.tourbook.nutrition.TourNutritionProductMenuManager;
+import net.tourbook.nutrition.openfoodfacts.Product;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.ITourEventListener;
 import net.tourbook.tour.SelectionDeletedTours;
@@ -56,6 +60,8 @@ import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.SelectionTourIds;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
+import net.tourbook.tour.TourLogManager;
+import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.tour.TourManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +91,7 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -115,21 +122,33 @@ import cop.swt.widgets.viewers.table.celleditors.SpinnerCellEditor;
 
 public class TourNutritionView extends ViewPart implements ITourViewer {
 
+   // todo fb
+
+   //when 2 identical products are present, the modificaiton of its beverage can't be done
+   // if the other identical product doesn't have a beverage container
+
+   // slideout with ignore 1h
+   // add group with 2 radio buttons "Use the last most added items", "Use the most used items for all the tours"
+   // in that group, add a spinner for the number of items to show 1 to 15
+
+   //add the ability to insert 2 similar items if they are beverages (cf. example 08/03/2024)
+
    public static final String            ID                             = "net.tourbook.ui.views.nutrition.TourNutritionView"; //$NON-NLS-1$
+
    private static final String           STATE_PRODUCT_SEARCHES_HISTORY = "products.searchesHistory";                          //$NON-NLS-1$
    private static final String           STATE_SECTION_PRODUCTS_LIST    = "STATE_SECTION_PRODUCTS_LIST";                       //$NON-NLS-1$
    private static final String           STATE_SECTION_SUMMARY          = "STATE_SECTION_SUMMARY";                             //$NON-NLS-1$
-
    private static final String           COLUMN_CONSUMED_QUANTITY       = "ConsumedQuantity";                                  //$NON-NLS-1$
+
    private static final String           COLUMN_QUANTITY_TYPE           = "QuantityType";                                      //$NON-NLS-1$
    private static final String           COLUMN_NAME                    = "Name";                                              //$NON-NLS-1$
    private static final String           COLUMN_CALORIES                = "Calories";                                          //$NON-NLS-1$
+   private static final String           COLUMN_CARBOHYDRATES           = "Carbohydrates";                                     //$NON-NLS-1$
    private static final String           COLUMN_SODIUM                  = "Sodium";                                            //$NON-NLS-1$
    private static final String           COLUMN_ISBEVERAGE              = "IsBeverage";                                        //$NON-NLS-1$
    private static final String           COLUMN_BEVERAGE_QUANTITY       = "BeverageQuantity";                                  //$NON-NLS-1$
    private static final String           COLUMN_BEVERAGE_CONTAINER      = "BeverageContainer";                                 //$NON-NLS-1$
    private static final String           COLUMN_CONSUMED_CONTAINERS     = "ConsumedContainers";                                //$NON-NLS-1$
-
    private static final IPreferenceStore _prefStore                     = TourbookPlugin.getPrefStore();
 
    private static final int              HINT_TEXT_COLUMN_WIDTH         = UI.IS_OSX ? 100 : 50;
@@ -154,6 +173,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
    private TableColumnDefinition          _colDef_QuantityType;
    private TableColumnDefinition          _colDef_Name;
    private TableColumnDefinition          _colDef_Calories;
+   private TableColumnDefinition          _colDef_Carbohydrates;
    private TableColumnDefinition          _colDef_Sodium;
    private TableColumnDefinition          _colDef_IsBeverage;
    /**
@@ -183,12 +203,15 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
    /*
     * UI controls
     */
-   private Image                     _imageAdd     = TourbookPlugin.getImageDescriptor(Images.App_Add).createImage();
-   private Image                     _imageSearch  = TourbookPlugin.getImageDescriptor(Images.SearchTours).createImage();
+   private Button                    _btnUpdateProducts;
 
-   private Image                     _imageCheck   = TourbookPlugin.getImageDescriptor(Images.Checkbox_Checked).createImage();
-   private Image                     _imageUncheck = TourbookPlugin.getImageDescriptor(Images.Checkbox_Uncheck).createImage();
-   private Image                     _imageYes     = CommonActivator.getImageDescriptor(CommonImages.App_Yes).createImage();
+   private Image                     _imageAdd        = TourbookPlugin.getImageDescriptor(Images.App_Add).createImage();
+   private Image                     _imageRefreshAll = TourbookPlugin.getImageDescriptor(Images.App_Refresh_All).createImage();
+   private Image                     _imageSearch     = TourbookPlugin.getImageDescriptor(Images.SearchTours).createImage();
+
+   private Image                     _imageCheck      = TourbookPlugin.getImageDescriptor(Images.Checkbox_Checked).createImage();
+   private Image                     _imageUncheck    = TourbookPlugin.getImageDescriptor(Images.Checkbox_Uncheck).createImage();
+   private Image                     _imageYes        = CommonActivator.getImageDescriptor(CommonImages.App_Yes).createImage();
 
    private PageBook                  _pageBook;
    private Composite                 _pageNoData;
@@ -198,6 +221,8 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
    private boolean                   _isInUpdate;
    private Label                     _lblCalories_Average;
    private Label                     _lblCalories_Total;
+   private Label                     _lblCarbohydrates_Average;
+   private Label                     _lblCarbohydrates_Total;
    private Label                     _lblFluid_Average;
    private Label                     _lblFluid_Total;
    private Label                     _lblSodium_Average;
@@ -602,6 +627,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
       _actionDeleteProducts = new ActionDeleteProducts();
       _actionOpenProductsWebsite = new ActionOpenProductsWebsite();
+
    }
 
    private void createMenuManager() {
@@ -682,7 +708,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
    private void createUI_110_Report(final Composite parent) {
 
       final Composite container = _tk.createComposite(parent);
-      GridLayoutFactory.fillDefaults().numColumns(7).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(9).applyTo(container);
       {
          /*
           * Columns headers
@@ -692,6 +718,9 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
             GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.FILL).applyTo(label);
 
             label = UI.createLabel(container, Messages.Tour_Nutrition_Label_Calories);
+            GridDataFactory.fillDefaults().span(2, 1).align(SWT.CENTER, SWT.FILL).applyTo(label);
+
+            label = UI.createLabel(container, Messages.Tour_Nutrition_Label_Carbohydrates);
             GridDataFactory.fillDefaults().span(2, 1).align(SWT.CENTER, SWT.FILL).applyTo(label);
 
             label = UI.createLabel(container, Messages.Tour_Nutrition_Label_Fluids);
@@ -716,6 +745,15 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
             // Unit: kcal
             UI.createLabel(container, OtherMessages.VALUE_UNIT_K_CALORIES);
+
+            _lblCarbohydrates_Total = _tk.createLabel(container, UI.EMPTY_STRING, SWT.TRAIL);
+            GridDataFactory.fillDefaults()
+                  .hint(HINT_TEXT_COLUMN_WIDTH, SWT.DEFAULT)
+                  .align(SWT.END, SWT.FILL)
+                  .applyTo(_lblCarbohydrates_Total);
+
+            // Unit: g
+            UI.createLabel(container, UI.UNIT_WEIGHT_G);
 
             _lblFluid_Total = _tk.createLabel(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults()
@@ -750,6 +788,13 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
             // Unit: kcal/h
             UI.createLabel(container, OtherMessages.VALUE_UNIT_K_CALORIES + UI.SLASH + UI.UNIT_LABEL_TIME);
 
+            _lblCarbohydrates_Average = _tk.createLabel(container, UI.EMPTY_STRING, SWT.TRAIL);
+            GridDataFactory.fillDefaults().hint(HINT_TEXT_COLUMN_WIDTH, SWT.DEFAULT).align(SWT.END, SWT.FILL)
+                  .applyTo(_lblCarbohydrates_Average);
+
+            // Unit: g/h
+            UI.createLabel(container, UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME);
+
             _lblFluid_Average = _tk.createLabel(container, UI.EMPTY_STRING, SWT.TRAIL);
             GridDataFactory.fillDefaults().hint(HINT_TEXT_COLUMN_WIDTH, SWT.DEFAULT).align(SWT.END, SWT.FILL)
                   .applyTo(_lblFluid_Average);
@@ -773,7 +818,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
+      GridLayoutFactory.fillDefaults().numColumns(3).applyTo(container);
       {
 
          /*
@@ -811,6 +856,14 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
          }));
          btnAddCustomProduct.setImage(_imageAdd);
          GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(btnAddCustomProduct);
+
+         _btnUpdateProducts = new Button(container, SWT.NONE);
+         _btnUpdateProducts.setText(Messages.Tour_Nutrition_Button_UpdateProducts);
+         _btnUpdateProducts.setToolTipText(Messages.Tour_Nutrition_Button_UpdateProducts_Tooltip);
+         _btnUpdateProducts.addSelectionListener(widgetSelectedAdapter(selectionEvent -> BusyIndicator.showWhile(Display.getCurrent(),
+               () -> onUpdateProducts())));
+         _btnUpdateProducts.setImage(_imageRefreshAll);
+         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(_btnUpdateProducts);
       }
    }
 
@@ -966,6 +1019,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       defineColumn_20_QuantityType();
       defineColumn_30_Name();
       defineColumn_40_Calories();
+      defineColumn_41_Carbohydrates();
       defineColumn_50_Sodium();
       defineColumn_60_IsBeverage();
       defineColumn_70_BeverageQuantity();
@@ -1071,6 +1125,36 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
             final String text = caloriesValue == 0
                   ? UI.EMPTY_STRING
                   : String.valueOf(caloriesValue);
+            cell.setText(text);
+         }
+      });
+   }
+
+   private void defineColumn_41_Carbohydrates() {
+
+      _colDef_Carbohydrates = new TableColumnDefinition(_columnManager, COLUMN_CARBOHYDRATES, SWT.TRAIL);
+
+      _colDef_Carbohydrates.setColumnLabel(Messages.Tour_Nutrition_Label_Carbohydrates);
+      _colDef_Carbohydrates.setColumnHeaderText(Messages.Tour_Nutrition_Label_Carbohydrates);
+      _colDef_Carbohydrates.setColumnHeaderToolTipText(Messages.Tour_Nutrition_Label_Carbohydrates_Tooltip);
+
+      _colDef_Carbohydrates.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(12));
+
+      _colDef_Carbohydrates.setIsDefaultColumn();
+
+      _colDef_Carbohydrates.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourNutritionProduct tourNutritionProduct = (TourNutritionProduct) cell.getElement();
+
+            final int carbohydratesValue = tourNutritionProduct.getQuantityType() == QuantityType.Products
+                  ? tourNutritionProduct.getCarbohydrates()
+                  : tourNutritionProduct.getCarbohydrates_Serving();
+
+            final String text = carbohydratesValue == 0
+                  ? UI.EMPTY_STRING
+                  : String.valueOf(carbohydratesValue);
             cell.setText(text);
          }
       });
@@ -1222,6 +1306,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       _prefStore.removePropertyChangeListener(_prefChangeListener);
 
       UI.disposeResource(_imageAdd);
+      UI.disposeResource(_imageRefreshAll);
       UI.disposeResource(_imageSearch);
       UI.disposeResource(_imageCheck);
       UI.disposeResource(_imageUncheck);
@@ -1238,6 +1323,18 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
    }
 
+   private void enableControls() {
+
+      final int numberOfProducts = _productsViewer.getTable().getItemCount();
+
+      final Set<TourNutritionProduct> tourNutritionProducts = _tourData.getTourNutritionProducts();
+      //Ensure that at least 1 product is not a custom product
+      final boolean containsProductFromDatabase = tourNutritionProducts.stream().anyMatch(
+            tourNutritionProduct -> !tourNutritionProduct.isCustomProduct());
+
+      _btnUpdateProducts.setEnabled(numberOfProducts > 0 && containsProductFromDatabase);
+   }
+
    private void fillContextMenu(final IMenuManager menuMgr) {
 
       _actionOpenProductsWebsite.setTourNutritionProducts(getSelectedProductsCodes());
@@ -1245,8 +1342,44 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
       menuMgr.add(_actionDeleteProducts);
 
+      //todo fb add the recent tour nutrition products when not selecting existing products
+      TourNutritionProductMenuManager.fillMenuWithRecentTourNutritionProducts(menuMgr, true);
+
       enableActions();
    }
+
+   private List<TourNutritionProduct> getAllProducts() {
+
+      final StructuredSelection selection = (StructuredSelection) _productsViewer.getSelection();
+
+      final List<TourNutritionProduct> selectedTourNutritionProducts = new ArrayList<>();
+
+      for (final Object object : selection.toList()) {
+
+         if (object instanceof final TourNutritionProduct tourNutritionProduct) {
+            selectedTourNutritionProducts.add(tourNutritionProduct);
+         }
+      }
+
+      return selectedTourNutritionProducts;
+   }
+
+//   private List<String> getAllProducts() {
+//
+//      final List<TourNutritionProduct> selectedTourNutritionProducts = getSelectedProducts();
+//
+//      final List<String> selectedTourNutritionProductsCodes = new ArrayList<>();
+//
+//      for (final TourNutritionProduct tourNutritionProduct : selectedTourNutritionProducts) {
+//
+//         if (tourNutritionProduct.isCustomProduct()) {
+//            continue;
+//         }
+//         selectedTourNutritionProductsCodes.add(tourNutritionProduct.getProductCode());
+//      }
+//
+//      return selectedTourNutritionProductsCodes;
+//   }
 
    @Override
    public ColumnManager getColumnManager() {
@@ -1450,6 +1583,50 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       updateUI_ProductViewer();
    }
 
+   private void onUpdateProducts() {
+
+      TourLogManager.showLogView(AutoOpenEvent.TOUR_ADJUSTMENTS);
+
+      final Set<TourNutritionProduct> tourNutritionProducts = _tourData.getTourNutritionProducts();
+      final Set<TourNutritionProduct> updatedTourNutritionProducts = new HashSet<>();
+      for (final TourNutritionProduct tourNutritionProduct : tourNutritionProducts) {
+
+         if (net.tourbook.common.util.StringUtils.isNullOrEmpty(tourNutritionProduct.getProductCode())) {
+            continue;
+         }
+
+         //get the product from the api
+
+         final Product updatedProduct = NutritionUtils.searchProduct(
+               tourNutritionProduct.getProductCode(),
+               ProductSearchType.ByCode).get(0);
+
+         final TourNutritionProduct updatedTourNutritionProduct = new TourNutritionProduct(_tourData, updatedProduct);
+         // if carbohydrates or calories are different, then we update the product
+
+         boolean isUpdateProduct = false;
+         if (updatedTourNutritionProduct.getCarbohydrates_Serving() != tourNutritionProduct.getCarbohydrates_Serving() ||
+               updatedTourNutritionProduct.getCalories_Serving() != tourNutritionProduct.getCalories_Serving()) {
+
+            isUpdateProduct = true;
+         }
+
+         if (isUpdateProduct) {
+
+            updatedTourNutritionProducts.add(updatedTourNutritionProduct);
+         }
+      }
+
+      if (!updatedTourNutritionProducts.isEmpty()) {
+
+         _tourData.updateTourNutritionProducts(updatedTourNutritionProducts);
+         _tourData = TourManager.saveModifiedTour(_tourData);
+         // ??? _tourData.setTourNutritionProducts(_tourData.getTourNutritionProducts());
+
+         // todo display the changes in the log view
+      }
+   }
+
    @Override
    public ColumnViewer recreateViewer(final ColumnViewer columnViewer) {
 
@@ -1464,6 +1641,8 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
          reloadViewer();
       }
       _viewerContainer.setRedraw(true);
+
+      enableControls();
 
       return _productsViewer;
    }
@@ -1552,6 +1731,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
             //Trigger the update of the calories and sodium values
             _colDef_Calories.setColumnLabel(UI.EMPTY_STRING);
+            _colDef_Carbohydrates.setColumnLabel(UI.EMPTY_STRING);
             _colDef_Sodium.setColumnLabel(UI.EMPTY_STRING);
             _tourData = TourManager.saveModifiedTour(_tourData);
          }
@@ -1559,6 +1739,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
       _colDef_Name.setEditingSupport(new NoEditingSupport());
       _colDef_Calories.setEditingSupport(new NoEditingSupport());
+      _colDef_Carbohydrates.setEditingSupport(new NoEditingSupport());
       _colDef_Sodium.setEditingSupport(new NoEditingSupport());
 
       _colDef_IsBeverage.setEditingSupport(new EditingSupport(_productsViewer) {
@@ -1732,6 +1913,8 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
          updateUI_SummaryFromModel();
       }
+
+      enableControls();
    }
 
    private void updateUI_SummaryFromModel() {
@@ -1741,6 +1924,10 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       final int totalCalories = NutritionUtils.getTotalCalories(tourNutritionProducts);
       final String totalCaloriesFormatted = FormatManager.formatNumber_0(totalCalories);
       _lblCalories_Total.setText(totalCaloriesFormatted);
+
+      final int totalCarbohydrates = NutritionUtils.getTotalCarbohydrates(tourNutritionProducts);
+      final String totalCarbohydratesFormatted = FormatManager.formatNumber_0(totalCarbohydrates);
+      _lblCarbohydrates_Total.setText(totalCarbohydratesFormatted);
 
       final float totalFluid = NutritionUtils.getTotalFluids(tourNutritionProducts) * 100 / 100;
       final String totalFluidFormatted = _nf2.format(totalFluid);
@@ -1752,6 +1939,9 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
       final String averageCaloriesPerHour = NutritionUtils.computeAverageCaloriesPerHour(_tourData);
       _lblCalories_Average.setText(averageCaloriesPerHour);
+
+      final String averageCarbohydratesPerHour = NutritionUtils.computeAverageCarbohydratesPerHour(_tourData);
+      _lblCarbohydrates_Average.setText(averageCarbohydratesPerHour);
 
       final String averageFluidsPerHour = NutritionUtils.computeAverageFluidsPerHour(_tourData);
       _lblFluid_Average.setText(averageFluidsPerHour);

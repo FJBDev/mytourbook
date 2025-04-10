@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,9 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Entity;
@@ -26,6 +29,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.Util;
 import net.tourbook.database.TourDatabase;
@@ -34,6 +39,9 @@ import net.tourbook.nutrition.openfoodfacts.NutriScoreData;
 import net.tourbook.nutrition.openfoodfacts.Nutriments;
 import net.tourbook.nutrition.openfoodfacts.NutritionDataPer;
 import net.tourbook.nutrition.openfoodfacts.Product;
+import net.tourbook.tour.TourLogManager;
+
+import org.eclipse.osgi.util.NLS;
 
 @Entity
 public class TourNutritionProduct {
@@ -75,6 +83,18 @@ public class TourNutritionProduct {
     * Unit: kcal
     */
    private int                        calories;
+
+   /**
+    * Carbohydrates per product.
+    * Unit: g
+    */
+   private int                        carbohydrates;
+
+   /**
+    * Carbohydrates per serving.
+    * Unit: g
+    */
+   private int                        carbohydrates_Serving;
 
    /**
     * Sodium amount per product.
@@ -166,6 +186,21 @@ public class TourNutritionProduct {
       computeNutrimentsPerProduct(product);
    }
 
+   private void buildProductInfoDifference(final String updatedInfo,
+                                           final String existingInfo,
+                                           final List<String> previousData,
+                                           final List<String> newData,
+                                           final String unit) {
+
+      previousData.add(UI.EMPTY_STRING
+
+            + existingInfo + unit);
+
+      newData.add(UI.EMPTY_STRING
+
+            + updatedInfo + unit);
+   }
+
    /**
     * Sets the total amount of calories and sodium, if provided.
     * Otherwise, computes the calories and sodium using the amount per serving along with the
@@ -192,8 +227,12 @@ public class TourNutritionProduct {
             servingQuantity != Float.MIN_VALUE) {
 
          final int numberOfServings = Math.round(productQuantity / servingQuantity);
-         setCalories(Math.round(nutriments.energyKcalServing * numberOfServings));
-         setCalories_Serving(Math.round(nutriments.energyKcalServing));
+
+         setCalories(Math.round(nutriments.carbohydratesServing * numberOfServings));
+         setCalories_Serving(Math.round(nutriments.carbohydratesServing));
+
+         setCarbohydrates(Math.round(nutriments.carbohydratesServing * numberOfServings));
+         setCarbohydrates_Serving(Math.round(nutriments.carbohydratesServing));
 
          setSodium(Math.round(nutriments.sodiumServing * numberOfServings * 1000));
          setSodium_Serving(Math.round(nutriments.sodiumServing * 1000));
@@ -208,6 +247,7 @@ public class TourNutritionProduct {
       } else {
 
          setCalories_Serving(Math.round(nutriments.energyKcalServing));
+         setCarbohydrates_Serving(Math.round(nutriments.carbohydratesServing));
          setSodium_Serving(Math.round(nutriments.sodiumServing * 1000));
 
          // In some cases, the product quantity is not provided, we can only
@@ -229,6 +269,7 @@ public class TourNutritionProduct {
          if (product.nutritionDataPer == NutritionDataPer.HUNDRED_GRAMS) {
 
             setCalories(Math.round((nutriments.energyKcal100g * productQuantity) / 100f));
+            setCarbohydrates(Math.round((nutriments.carbohydrates100g * productQuantity) / 100f));
             setSodium(Math.round(nutriments.sodium100g * productQuantity * 10));
 
          } else if (product.nutritionDataPer == NutritionDataPer.SERVING) {
@@ -237,6 +278,7 @@ public class TourNutritionProduct {
                   ? 0 : productQuantity / servingQuantity;
 
             setCalories(Math.round(getCalories_Serving() * numServingsPerProduct));
+            setCarbohydrates(Math.round(getCarbohydrates_Serving() * numServingsPerProduct));
             setSodium(Math.round(getSodium_Serving() * numServingsPerProduct));
          }
       }
@@ -256,6 +298,14 @@ public class TourNutritionProduct {
 
    public int getCalories_Serving() {
       return calories_Serving;
+   }
+
+   public int getCarbohydrates() {
+      return carbohydrates;
+   }
+
+   public int getCarbohydrates_Serving() {
+      return carbohydrates_Serving;
    }
 
    public float getConsumedQuantity() {
@@ -340,6 +390,14 @@ public class TourNutritionProduct {
       this.calories_Serving = calories_Serving;
    }
 
+   public void setCarbohydrates(final int carbohydrates) {
+      this.carbohydrates = carbohydrates;
+   }
+
+   public void setCarbohydrates_Serving(final int carbohydrates_Serving) {
+      this.carbohydrates_Serving = carbohydrates_Serving;
+   }
+
    public void setConsumedQuantity(final float consumedQuantity) {
       this.consumedQuantity = consumedQuantity;
    }
@@ -383,5 +441,85 @@ public class TourNutritionProduct {
       productId = TourDatabase.ENTITY_IS_NOT_SAVED;
 
       tourData = tourDataFromClone;
+   }
+
+   void updateNewProductInfo(final TourNutritionProduct updatedProduct) {
+
+      final List<String> previousData = new ArrayList<>();
+      final List<String> newData = new ArrayList<>();
+
+      if (!this.getName().equals(updatedProduct.getName())) {
+
+         previousData.add(UI.EMPTY_STRING
+
+               + this.getName() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getName() + UI.UNIT_VOLT);
+
+         newData.add(UI.EMPTY_STRING
+
+               + this.getName() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getName() + UI.UNIT_VOLT);
+
+         this.setName(updatedProduct.getName());
+      }
+      if (this.getCalories() != updatedProduct.getCalories()) {
+
+         this.setCalories(updatedProduct.getCalories());
+
+         buildProductInfoDifference(
+               String.valueOf(updatedProduct.getCalories()),
+               String.valueOf(this.getCalories()),
+               previousData,
+               newData,
+               OtherMessages.VALUE_UNIT_K_CALORIES);
+      }
+      if (this.getCalories_Serving() != updatedProduct.getCalories_Serving()) {
+         this.setCalories_Serving(updatedProduct.getCalories_Serving());
+
+         previousData.add(UI.EMPTY_STRING
+
+               + this.getCalories_Serving() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getCalories_Serving() + UI.UNIT_VOLT);
+
+         newData.add(UI.EMPTY_STRING
+
+               + this.getCalories_Serving() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getCalories_Serving() + UI.UNIT_VOLT);
+      }
+      if (this.getCarbohydrates() != updatedProduct.getCarbohydrates()) {
+
+         this.setCarbohydrates(updatedProduct.getCarbohydrates());
+         previousData.add(UI.EMPTY_STRING
+
+               + this.getCarbohydrates() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getCarbohydrates() + UI.UNIT_VOLT);
+
+         newData.add(UI.EMPTY_STRING
+
+               + this.getCarbohydrates() + UI.UNIT_VOLT + UI.SPACE
+               + updatedProduct.getCarbohydrates() + UI.UNIT_VOLT);
+      }
+      if (this.getCarbohydrates_Serving() != updatedProduct.getCarbohydrates_Serving()) {
+         this.setCarbohydrates_Serving(updatedProduct.getCarbohydrates_Serving());
+      }
+      if (!Objects.equals(this.getSodium(), updatedProduct.getSodium())) {
+         this.setSodium(updatedProduct.getSodium());
+      }
+      if (!Objects.equals(this.getSodium_Serving(), updatedProduct.getSodium_Serving())) {
+         this.setSodium_Serving(updatedProduct.getSodium_Serving());
+      }
+      for (int index = 0; index < previousData.size(); ++index) {
+
+         //todo fb
+         //it should look like this
+         // Updating the following Tour Nutrition Products:
+         // PRODUCTNAME → Previous data: PRODUCTNAME 504.0kcal XXg..... - Current data: NEWNAME 504.0kcal YYg....
+         // PRODUCTNAME2 → Previous data: PRODUCTNAME 504.0kcal XXg..... - Current data: NEWNAME 504.0kcal YYg....
+         //Updated in 0.347 s
+         TourLogManager.subLog_INFO(NLS.bind(
+               Messages.Log_ModifiedTour_Old_Data_Vs_New_Data,
+               previousData.get(index),
+               newData.get(index)));
+      }
    }
 }
