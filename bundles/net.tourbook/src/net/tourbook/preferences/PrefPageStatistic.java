@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -62,7 +63,7 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    private TableViewer                           _statViewer;
 
    private boolean                               _isModified            = false;
-   private ArrayList<TourbookStatistic>          _visibleStatistics;
+   private List<TourbookStatistic>               _visibleStatistics;
 
    private Button                                _btnMoveDown;
    private Button                                _btnMoveUp;
