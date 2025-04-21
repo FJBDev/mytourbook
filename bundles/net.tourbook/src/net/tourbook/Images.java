@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -88,6 +88,8 @@ public class Images {
    public static final String Camera                                     = "camera.png";                                          //$NON-NLS-1$
    public static final String Checkbox_Checked                           = "checkbox-checked.png";                                //$NON-NLS-1$
    public static final String Checkbox_Checked_Disabled                  = "checkbox-checked-disabled.png";                       //$NON-NLS-1$
+   public static final String Checkbox_Inverse                           = "checkbox-inverse.png";                                //$NON-NLS-1$
+   public static final String Checkbox_Inverse_Disabled                  = "checkbox-inverse-disabled.png";                       //$NON-NLS-1$
    public static final String Checkbox_Uncheck                           = "checkbox-unchecked.png";                              //$NON-NLS-1$
    public static final String Checkbox_Uncheck_Disabled                  = "checkbox-unchecked-disabled.png";                     //$NON-NLS-1$
    public static final String ConconiChart                               = "conconi-chart.png";                                   //$NON-NLS-1$
@@ -230,6 +232,7 @@ public class Images {
    public static final String PhotoTimeAdjustment_Disabled               = "photo-time-adjustment-disabled.png";                  //$NON-NLS-1$
    public static final String PulseZones                                 = "pulse-zones.png";                                     //$NON-NLS-1$
    public static final String PulseZones_Disabled                        = "pulse-zones-disabled.png";                            //$NON-NLS-1$
+   public static final String PushIntoViews                              = "push-into-views.png";                                 //$NON-NLS-1$
    public static final String RawData_DeviceFolder_Off                   = "device-folder-off.png";                               //$NON-NLS-1$
    public static final String RawData_DeviceFolder_OK                    = "device-folder-OK.png";                                //$NON-NLS-1$
    public static final String RawData_DeviceFolder_Error                 = "device-folder-error.png";                             //$NON-NLS-1$
@@ -298,6 +301,7 @@ public class Images {
    public static final String State_SaveTour                             = "state-save-tour.png";                                 //$NON-NLS-1$
    public static final String State_SavedInTour                          = "state-saved-in-tour.png";                             //$NON-NLS-1$
    public static final String State_TourMarker                           = "state-tour-marker.png";                               //$NON-NLS-1$
+   public static final String State_TourTags                             = "state-tour-tags.png";                                 //$NON-NLS-1$
    public static final String Statistic                                  = "statistics.png";                                      //$NON-NLS-1$
    public static final String StatisticValues                            = "statistic-values.png";                                //$NON-NLS-1$
    public static final String SyncGeoGraph_ByScale                       = "synch-geo-graph-byScale.png";                         //$NON-NLS-1$
@@ -414,13 +418,10 @@ public class Images {
    public static final String Zoom_CenterBy_Mouse_Disabled               = "zoom-center-mouse-disabled.png";                      //$NON-NLS-1$
    public static final String Zoom_CenterBy_Tour                         = "zoom-center-tour.png";                                //$NON-NLS-1$
    public static final String Zoom_CenterBy_Tour_Disabled                = "zoom-center-tour-disabled.png";                       //$NON-NLS-1$
-   public static final String Zoom_FitGraph                              = "zoom-fit-graph.gif";                                  //$NON-NLS-1$
    public static final String Zoom_In                                    = "zoom-in.png";                                         //$NON-NLS-1$
    public static final String Zoom_In_Disabled                           = "zoom-in-disabled.png";                                //$NON-NLS-1$
    public static final String Zoom_Out                                   = "zoom-out.png";                                        //$NON-NLS-1$
    public static final String Zoom_Out_Disabled                          = "zoom-out-disabled.png";                               //$NON-NLS-1$
-   public static final String Zoom_Out_ToMinZoom                         = "zoom-fit-graph.gif";                                  //$NON-NLS-1$
-   public static final String Zoom_Out_ToMinZoom_Disabled                = "zoom-fit-graph-disabled.gif";                         //$NON-NLS-1$
    public static final String Zoom_ShowEntireLayer                       = "map-show-entire-layer.png";                           //$NON-NLS-1$
    public static final String Zoom_ShowEntireMap                         = "zoom-show-entire-map.png";                            //$NON-NLS-1$
    public static final String Zoom_ShowEntireTour                        = "zoom-show-entire-tour.png";                           //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -87,6 +87,7 @@ import net.tourbook.srtm.PrefPageSRTMData;
 import net.tourbook.tour.TourLogManager.AutoOpenEvent;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.ITourProviderAll;
+import net.tourbook.ui.ITourProviderByID;
 import net.tourbook.ui.action.ActionEditQuick;
 import net.tourbook.ui.action.ActionEditTour;
 import net.tourbook.ui.tourChart.GraphBackgroundSource;
@@ -1590,6 +1591,56 @@ public class TourManager {
       return _labelProviderMMSS;
    }
 
+   private static TourPhotoReference getRemovedPhotoReference(final ITourProviderByID tourProvider,
+                                                              final Photo galleryPhoto) {
+
+      final Collection<TourPhotoReference> allRemovedPhotoRefs = galleryPhoto.getTourPhotoReferences().values();
+
+      TourPhotoReference removedPhotoRef = null;
+
+      final int numPhotoRefs = allRemovedPhotoRefs.size();
+      if (numPhotoRefs == 1) {
+
+         // get first photo ref
+         removedPhotoRef = allRemovedPhotoRefs.iterator().next();
+
+      } else {
+
+         // the current photo is referenced in more than one tour
+
+         final Set<Long> providedTourIDs = tourProvider.getSelectedTourIDs();
+
+         if (providedTourIDs == null) {
+            StatusUtil.logInfo("The tourprovider do not provide any tour id for %d photo references".formatted(numPhotoRefs)); //$NON-NLS-1$
+            return null;
+         }
+
+         if (providedTourIDs.size() != 1) {
+            StatusUtil.logInfo("The tourprovider do not provide one tour id for %d photo references".formatted(numPhotoRefs)); //$NON-NLS-1$
+            return null;
+         }
+
+         final Long oneTourID = providedTourIDs.iterator().next();
+
+         for (final TourPhotoReference photoRef : allRemovedPhotoRefs) {
+
+            if (oneTourID.equals(photoRef.tourId)) {
+
+               removedPhotoRef = photoRef;
+
+               break;
+            }
+         }
+      }
+
+      if (removedPhotoRef == null) {
+         StatusUtil.logInfo("Could not find a photo reference in \"%s\"".formatted(galleryPhoto.imageFileName)); //$NON-NLS-1$
+         return null;
+      }
+
+      return removedPhotoRef;
+   }
+
    /**
     * Searches all tour providers in the workbench and return tours which are selected.
     *
@@ -1835,6 +1886,22 @@ public class TourManager {
             + getTourDateLong(tourDateTime)
             + UI.DASH_WITH_SPACE
             + getTourTimeShort(tourDateTime);
+   }
+
+   public static String getTourTitle(final ZonedDateTime tourDateTimeStart, final ZonedDateTime tourDateTimeEnd) {
+
+      final String weekDay = tourDateTimeStart.format(TimeTools.Formatter_Weekday_L);
+
+      return UI.EMPTY_STRING
+
+            + weekDay
+            + UI.COMMA_SPACE
+            + getTourDateLong(tourDateTimeStart)
+
+            + UI.DASH_WITH_SPACE
+            + getTourTimeShort(tourDateTimeStart)
+            + UI.DASH
+            + getTourTimeShort(tourDateTimeEnd);
    }
 
    /**
@@ -2994,7 +3061,7 @@ public class TourManager {
       final ArrayList<TourData> modifiedTours = new ArrayList<>();
       modifiedTours.add(tourData);
 
-      final ArrayList<TourData> savedTourData = saveModifiedTours(modifiedTours, isFireNotification);
+      final ArrayList<TourData> savedTourData = saveModifiedTours(modifiedTours, isFireNotification, null);
 
       if (savedTourData.isEmpty()) {
          return null;
@@ -3016,7 +3083,8 @@ public class TourManager {
     * @return Returns a list with all persisted {@link TourData}
     */
    public static ArrayList<TourData> saveModifiedTours(final List<TourData> modifiedTours) {
-      return saveModifiedTours(modifiedTours, true);
+
+      return saveModifiedTours(modifiedTours, true, null);
    }
 
    /**
@@ -3034,7 +3102,8 @@ public class TourManager {
     * @return a list with all persisted {@link TourData}
     */
    private static ArrayList<TourData> saveModifiedTours(final List<TourData> modifiedTours,
-                                                        final boolean canFireNotification) {
+                                                        final boolean canFireNotification,
+                                                        final List<Long> oldTourIDs) {
 
       // reset multiple tour data cache
       _joined_TourData = null;
@@ -3104,6 +3173,7 @@ public class TourManager {
 
          final TourEvent tourEvent = new TourEvent(savedTours);
          tourEvent.tourDataEditorSavedTour = tourDataEditorSavedTour[0];
+         tourEvent.oldTourIDs = oldTourIDs;
 
          fireEvent(TourEventId.TOUR_CHANGED, tourEvent);
 
@@ -3112,6 +3182,25 @@ public class TourManager {
       }
 
       return savedTours;
+   }
+
+   /**
+    * Saves tours which have been modified and updates the tour data editor, fires a
+    * {@link TourEventId#TOUR_CHANGED} event.<br>
+    * <br>
+    * If a tour is opened in the {@link TourDataEditorView}, the tour will be saved only when the
+    * tour is not dirty, if the tour is dirty, saving is not done. The change event is always fired.
+    *
+    * @param modifiedTours
+    *           modified tours
+    * @param oldTourIDs
+    *
+    * @return Returns a list with all persisted {@link TourData}
+    */
+   public static ArrayList<TourData> saveModifiedTours(final List<TourData> modifiedTours,
+                                                       final List<Long> oldTourIDs) {
+
+      return saveModifiedTours(modifiedTours, true, oldTourIDs);
    }
 
    private static void saveModifiedTours_OneTour(final ArrayList<TourData> savedTours,
@@ -3589,58 +3678,63 @@ public class TourManager {
     * Remove selected photos from it's tours.
     *
     * @param photoGallery
+    * @param tourProvider
     */
-   public static void tourPhoto_Remove(final PhotoGallery photoGallery) {
+   public static void tourPhoto_Remove(final PhotoGallery photoGallery, final ITourProviderByID tourProvider) {
 
       if (isTourEditorModified()) {
          return;
       }
 
+      final Shell activeShell = Display.getDefault().getActiveShell();
+
       int numPhotos = 0;
 
-      // key: tour id, photo id
-      final HashMap<Long, HashMap<Long, TourPhoto>> allToursWithTourPhotos = new HashMap<>();
+      // keys: tour id - photo id / tour photo
+      final HashMap<Long, HashMap<Long, TourPhoto>> allToursAllTourPhotos = new HashMap<>();
 
       // loop: all selected photos in the gallery
-      final Collection<GalleryMT20Item> tourPhotos2Remove = photoGallery.getGallerySelection();
-      for (final GalleryMT20Item galleryItem : tourPhotos2Remove) {
+      final Collection<GalleryMT20Item> allSelectedGalleryItems = photoGallery.getGallerySelection();
+      for (final GalleryMT20Item galleryItem : allSelectedGalleryItems) {
 
-         final Photo removedPhoto = galleryItem.photo;
+         final Photo galleryPhoto = galleryItem.photo;
 
-         final Collection<TourPhotoReference> removedPhotoRefs = removedPhoto.getTourPhotoReferences().values();
+         final TourPhotoReference removedPhotoRef = getRemovedPhotoReference(tourProvider, galleryPhoto);
 
-         // loop: all tour references in a photo
-         for (final TourPhotoReference photoTourRef : removedPhotoRefs) {
+         if (removedPhotoRef == null) {
+            continue;
+         }
 
-            final long removedTourId = photoTourRef.tourId;
-            final long removedPhotoId = photoTourRef.photoId;
+         final long removedTourId = removedPhotoRef.tourId;
+         final long removedPhotoId = removedPhotoRef.photoId;
 
-            final TourData tourData = getTour(removedTourId);
-            if (tourData != null) {
+         final TourData tourData = getTour(removedTourId);
+         if (tourData != null) {
 
-               // photo is from this tour
+            // photo is from this tour
 
-               // loop: all tour photos
-               for (final TourPhoto tourPhoto : tourData.getTourPhotos()) {
+            // loop: all tour photos
+            for (final TourPhoto tourPhoto : tourData.getTourPhotos()) {
 
-                  if (tourPhoto.getPhotoId() == removedPhotoId) {
+               if (tourPhoto.getPhotoId() == removedPhotoId) {
 
-                     // photo is in tour photo collection -> remove it
+                  // photo is in tour photo collection -> remove it
 
-                     HashMap<Long, TourPhoto> allTourIdPhotos = allToursWithTourPhotos.get(removedTourId);
+                  HashMap<Long, TourPhoto> allTourIdPhotos = allToursAllTourPhotos.get(removedTourId);
 
-                     if (allTourIdPhotos == null) {
-                        allTourIdPhotos = new HashMap<>();
-                        allToursWithTourPhotos.put(removedTourId, allTourIdPhotos);
-                     }
+                  if (allTourIdPhotos == null) {
 
-                     final TourPhoto prevTourPhoto = allTourIdPhotos.put(removedPhotoId, tourPhoto);
-                     if (prevTourPhoto == null) {
-                        numPhotos++;
-                     }
-
-                     break;
+                     allTourIdPhotos = new HashMap<>();
+                     allToursAllTourPhotos.put(removedTourId, allTourIdPhotos);
                   }
+
+                  final TourPhoto prevTourPhoto = allTourIdPhotos.put(removedPhotoId, tourPhoto);
+
+                  if (prevTourPhoto == null) {
+                     numPhotos++;
+                  }
+
+                  break;
                }
             }
          }
@@ -3650,19 +3744,21 @@ public class TourManager {
          return;
       }
 
-      // remove photos from this tour and save it
+      /*
+       * Remove photos from this tour and save it
+       */
+
+      final int numTours = allToursAllTourPhotos.size();
+      final String message = NLS.bind(Messages.Photos_AndTours_Dialog_RemovePhotos_Message, numPhotos, numTours);
 
       final MessageDialog dialog = new MessageDialog(
 
-            Display.getDefault().getActiveShell(),
+            activeShell,
 
-            Messages.Photos_AndTours_Dialog_RemovePhotos_Title,
-            null, // no title image
+            Messages.Photos_AndTours_Dialog_RemovePhotos_Title, // dialog title
+            null, // title image
 
-            NLS.bind(Messages.Photos_AndTours_Dialog_RemovePhotos_Message,
-                  numPhotos,
-                  allToursWithTourPhotos.size()),
-
+            message,
             MessageDialog.CONFIRM,
 
             0, // default index
@@ -3670,57 +3766,61 @@ public class TourManager {
             Messages.App_Action_RemoveTourPhotos,
             Messages.App_Action_Cancel);
 
-      if (dialog.open() == IDialogConstants.OK_ID) {
+      if (dialog.open() != IDialogConstants.OK_ID) {
 
-         /*
-          * Remove tour reference from the photo, this MUST be done after the user has
-          * confirmed the removal otherwise the photo do not have a tour reference when the dialog
-          * is canceled
-          */
+         return;
+      }
 
-         // loop: all selected photos in the gallery
-         for (final GalleryMT20Item galleryPhotoItem : tourPhotos2Remove) {
+      /*
+       * Remove tour reference from the photo, this MUST be done after the user has
+       * confirmed the removal otherwise the photo do not have a tour reference when the dialog
+       * is canceled
+       */
 
-            final Photo removedGalleryPhoto = galleryPhotoItem.photo;
+      // loop: all selected photos in the gallery
+      for (final GalleryMT20Item galleryPhotoItem : allSelectedGalleryItems) {
 
-            final Collection<TourPhotoReference> removedPhotoRefs = removedGalleryPhoto.getTourPhotoReferences().values();
+         final Photo galleryPhoto = galleryPhotoItem.photo;
 
-            // loop: all tour references in a photo
-            for (final TourPhotoReference tourPhotoReference : removedPhotoRefs) {
+         final TourPhotoReference removedPhotoRef = getRemovedPhotoReference(tourProvider, galleryPhoto);
 
-               final long removedTourId = tourPhotoReference.tourId;
-               final long removedPhotoId = tourPhotoReference.photoId;
+         if (removedPhotoRef == null) {
+            continue;
+         }
 
-               final HashMap<Long, TourPhoto> allTourIdPhotos = allToursWithTourPhotos.get(removedTourId);
+         final long removedTourId = removedPhotoRef.tourId;
+         final long removedPhotoId = removedPhotoRef.photoId;
 
-               if (allTourIdPhotos != null) {
+         final HashMap<Long, TourPhoto> allTourPhotos = allToursAllTourPhotos.get(removedTourId);
 
-                  // loop: all current tour photos
-                  for (final TourPhoto tourIdPhoto : allTourIdPhotos.values()) {
+         if (allTourPhotos != null) {
 
-                     if (tourIdPhoto.getPhotoId() == removedPhotoId) {
+            // loop: all current tour photos
+            for (final TourPhoto tourIdPhoto : allTourPhotos.values()) {
 
-                        // photo is in tour photo collection -> remove it
+               if (tourIdPhoto.getPhotoId() == removedPhotoId) {
 
-                        removedGalleryPhoto.removeTour(removedTourId);
+                  // photo is in tour photo collection -> remove it
 
-                        break;
-                     }
-                  }
+                  galleryPhoto.removeTour(removedTourId);
+
+                  break;
                }
             }
          }
+      }
 
-         for (final Long tourId : allToursWithTourPhotos.keySet()) {
+      // update DB
+      for (final Entry<Long, HashMap<Long, TourPhoto>> entrySet : allToursAllTourPhotos.entrySet()) {
 
-            final TourData tourData = getTour(tourId);
+         final Long tourId = entrySet.getKey();
+         final HashMap<Long, TourPhoto> allTouPhotos = entrySet.getValue();
 
-            final HashMap<Long, TourPhoto> tourWithPhotos = allToursWithTourPhotos.get(tourId);
+         final Collection<TourPhoto> allTourPhotos = allTouPhotos.values();
 
-            final Collection<TourPhoto> tourPhotos = tourWithPhotos.values();
+         final TourData tourData = getTour(tourId);
 
-            tourData.removePhotos(tourPhotos);
-         }
+         tourData.removePhotos(allTourPhotos);
       }
    }
 
@@ -4515,40 +4615,51 @@ public class TourManager {
       // swim style can be displayed when they are available
       final boolean canShowBackground_SwimStyle = tcc.canShowBackground_SwimStyle = tourData.swim_Time != null;
 
-      final String prefGraphBgSource = _prefStore.getString(ITourbookPreferences.GRAPH_BACKGROUND_SOURCE);
-      final String prefGraphBgStyle = _prefStore.getString(ITourbookPreferences.GRAPH_BACKGROUND_STYLE);
+      final boolean canShowBackground_InterpolatedValues = tcc.canShowBackground_InterpolatedValues = tourData.interpolatedValueSerie != null;
 
-      GraphBackgroundSource graphBgSource = (GraphBackgroundSource) Util.getEnumValue(prefGraphBgSource,
-            TourChartConfiguration.GRAPH_BACKGROUND_SOURCE_DEFAULT);
-      final GraphBackgroundStyle graphBgStyle = (GraphBackgroundStyle) Util.getEnumValue(prefGraphBgStyle,
-            TourChartConfiguration.GRAPH_BACKGROUND_STYLE_DEFAULT);
+// SET_FORMATTING_OFF
 
-      final boolean prefShow_HrZone = GraphBackgroundSource.HR_ZONE.name().equals(prefGraphBgSource);
-      final boolean prefShow_SwimStyle = GraphBackgroundSource.SWIMMING_STYLE.name().equals(prefGraphBgSource);
+      final String prefGraphBgSource   = _prefStore.getString(ITourbookPreferences.GRAPH_BACKGROUND_SOURCE);
+      final String prefGraphBgStyle    = _prefStore.getString(ITourbookPreferences.GRAPH_BACKGROUND_STYLE);
 
-      // check if data are available for the requested background source
-      if (prefShow_HrZone) {
+      GraphBackgroundSource graphBgSource       = (GraphBackgroundSource) Util.getEnumValue(prefGraphBgSource, TourChartConfiguration.GRAPH_BACKGROUND_SOURCE_DEFAULT);
+      final GraphBackgroundStyle graphBgStyle   = (GraphBackgroundStyle)  Util.getEnumValue(prefGraphBgStyle,  TourChartConfiguration.GRAPH_BACKGROUND_STYLE_DEFAULT);
 
-         if (canShowBackground_HrZones == false) {
+      final boolean prefIsShow_HrZone           = GraphBackgroundSource.HR_ZONE.name().equals(prefGraphBgSource);
+      final boolean prefIsShow_SwimStyle        = GraphBackgroundSource.SWIMMING_STYLE.name().equals(prefGraphBgSource);
+
+// SET_FORMATTING_ON
+
+      if (canShowBackground_InterpolatedValues) {
+
+         // interpolated values are forced to be displayed when available
+
+         graphBgSource = GraphBackgroundSource.INTERPOLATED_VALUES;
+
+      } else {
+
+         // check if data are available for the requested background source
+         if (prefIsShow_HrZone && canShowBackground_HrZones == false) {
 
             // hr zones cannot be displayed -> show default
             graphBgSource = GraphBackgroundSource.DEFAULT;
+
+         } else if (prefIsShow_SwimStyle && canShowBackground_SwimStyle == false) {
+
+            // swimming style cannot be displayed -> show default
+            graphBgSource = GraphBackgroundSource.DEFAULT;
          }
-
-      } else if (prefShow_SwimStyle && canShowBackground_SwimStyle == false) {
-
-         // swimming style cannot be displayed -> show default
-         graphBgSource = GraphBackgroundSource.DEFAULT;
       }
 
       tcc.graphBackground_Source = graphBgSource;
       tcc.graphBackground_Style = graphBgStyle;
 
-      final boolean isHrZoneDisplayed = canShowBackground_HrZones && tcc.isBackgroundStyle_HrZone();
-      final boolean isSwimStyleDisplayed = canShowBackground_SwimStyle && tcc.isBackgroundStyle_SwimmingStyle();
-      final boolean useCustomBackground = isHrZoneDisplayed || isSwimStyleDisplayed;
-
 // SET_FORMATTING_OFF
+
+      final boolean isHrZoneDisplayed              = canShowBackground_HrZones            && tcc.isBackgroundStyle_HrZone();
+      final boolean isInterpolatedValueDisplayed   = canShowBackground_InterpolatedValues;
+      final boolean isSwimStyleDisplayed           = canShowBackground_SwimStyle          && tcc.isBackgroundStyle_SwimmingStyle();
+      final boolean useCustomBackground            = isHrZoneDisplayed || isInterpolatedValueDisplayed || isSwimStyleDisplayed;
 
       final ChartDataYSerie yDataElevation         = createModelData_Elevation(        tourData, chartDataModel, chartType, useCustomBackground, tcc);
       final ChartDataYSerie yDataPulse             = createModelData_Heartbeat(        tourData, chartDataModel, chartType, useCustomBackground, tcc, isShowTimeOnXAxis);
@@ -6378,9 +6489,9 @@ public class TourManager {
 
       // notify listener to reload the tours
       /*
-       * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! this is not
-       * working because the tour data editor does not reload the tour
-       * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       * this is not working because the tour data editor does not reload the tour
+       * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
 //      fireEvent(TourEventId.TOUR_CHANGED, new TourEvent(modifiedTour));
    }

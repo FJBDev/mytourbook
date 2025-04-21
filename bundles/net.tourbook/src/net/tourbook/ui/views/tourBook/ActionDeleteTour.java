@@ -75,7 +75,7 @@ public class ActionDeleteTour extends Action {
 
       setText(Messages.Tour_Book_Action_delete_selected_tours);
 
-      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete));
+      setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.State_Delete));
       setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete_Disabled));
    }
 
@@ -277,10 +277,13 @@ public class ActionDeleteTour extends Action {
 
                .thenAccept(allRowPositions -> {
 
-                  // keep row position for the first deleted tour
-                  final int firstRowPosition = allRowPositions[0];
+                  if (allRowPositions.length > 0) {
 
-                  firstDeletePosition[0] = firstRowPosition;
+                     // keep row position for the first deleted tour
+                     final int firstRowPosition = allRowPositions[0];
+
+                     firstDeletePosition[0] = firstRowPosition;
+                  }
                });
 
          // wait until row index is set

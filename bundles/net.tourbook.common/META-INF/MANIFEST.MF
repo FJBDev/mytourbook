@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MyTourbook Commons
 Bundle-SymbolicName: net.tourbook.common;singleton:=true
-Bundle-Version: 24.8.0.qualifier
+Bundle-Version: 25.4.0.qualifier
 Bundle-Activator: net.tourbook.common.CommonActivator
 Bundle-Vendor: MyTourbook
 Export-Package: cop.swt.widgets.viewers.table.celleditors,
@@ -11,6 +11,7 @@ Export-Package: cop.swt.widgets.viewers.table.celleditors,
  net.sf.swtaddons.autocomplete.text,
  net.tourbook.common,
  net.tourbook.common.action,
+ net.tourbook.common.autocomplete,
  net.tourbook.common.color,
  net.tourbook.common.dialog,
  net.tourbook.common.e4,
@@ -29,6 +30,7 @@ Export-Package: cop.swt.widgets.viewers.table.celleditors,
  net.tourbook.common.weather,
  net.tourbook.common.widgets,
  net.tourbook.opengl,
+ org.eclipse.nebula.widgets.nattable.widget.mt,
  org.eclipse.nebula.widgets.opal.duallist.mt,
  particlelabeling
 Require-Bundle: org.eclipse.ui,
@@ -50,7 +52,6 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: com.skedgo.converter,
- javax.inject,
  org.eclipse.collections.impl.list.mutable.primitive,
  org.eclipse.collections.impl.map.mutable.primitive,
  org.eclipse.e4.core.services.log,

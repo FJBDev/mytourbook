@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,9 +26,11 @@ public interface ITourbookPreferences {
    /*
     * Dummy field used by field editors so they don't assert
     */
-   public static final String DUMMY_FIELD   = UI.EMPTY_STRING;
+   public static final String DUMMY_FIELD                          = UI.EMPTY_STRING;
 
-   public static final String GENERAL_NOTES = "GENERAL_NOTES"; //$NON-NLS-1$
+   public static final String APP_LAST_SELECTED_PREFERENCE_PAGE_ID = "APP_LAST_SELECTED_PREFERENCE_PAGE_ID"; //$NON-NLS-1$
+
+   public static final String GENERAL_NOTES                        = "GENERAL_NOTES";                        //$NON-NLS-1$
 
    /*
     * System
@@ -367,8 +369,10 @@ public interface ITourbookPreferences {
    public static final String CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES = "CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES";    //$NON-NLS-1$
    public static final String CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES   = "CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES";      //$NON-NLS-1$
 
-   public static final String DEFAULT_IMPORT_TOUR_TYPE_ID             = "tourtype.import.default";                    //$NON-NLS-1$
-
+   /**
+    * Tour type
+    */
+   public static final String TOUR_TYPE_IMPORT_DEFAUL_ID              = "TourType_ImportDefaultID";                   //$NON-NLS-1$
    public static final String TOUR_TYPE_LIST_IS_MODIFIED              = "tourtype.list.is-modified";                  //$NON-NLS-1$
    public static final String TOUR_TYPE_FILTER_LIST                   = "tourtype.filter.list";                       //$NON-NLS-1$
 
@@ -428,34 +432,32 @@ public interface ITourbookPreferences {
    /*
     * regional settings
     */
-   public static final String REGIONAL_USE_CUSTOM_DECIMAL_FORMAT    = "regional_use.custom.decimal.format";      //$NON-NLS-1$
-   public static final String REGIONAL_DECIMAL_SEPARATOR            = "regional_decimal.separator";              //$NON-NLS-1$
-   public static final String REGIONAL_GROUP_SEPARATOR              = "regional_group.separator";                //$NON-NLS-1$
+   public static final String REGIONAL_USE_CUSTOM_DECIMAL_FORMAT    = "regional_use.custom.decimal.format"; //$NON-NLS-1$
+   public static final String REGIONAL_DECIMAL_SEPARATOR            = "regional_decimal.separator";         //$NON-NLS-1$
+   public static final String REGIONAL_GROUP_SEPARATOR              = "regional_group.separator";           //$NON-NLS-1$
 
    /**
     * layout for the views have been changed
     */
-   public static final String VIEW_LAYOUT_CHANGED                   = "view.layout.changed";                     //$NON-NLS-1$
-   public static final String VIEW_LAYOUT_DISPLAY_LINES             = "view.layout.display.lines";               //$NON-NLS-1$
+   public static final String VIEW_LAYOUT_CHANGED                   = "view.layout.changed";                //$NON-NLS-1$
+   public static final String VIEW_LAYOUT_DISPLAY_LINES             = "view.layout.display.lines";          //$NON-NLS-1$
 
    /**
     * Layout for maps
     */
-   public static final String MAP_LAYOUT_BORDER_TYPE                = "MAP_LAYOUT_BORDER_TYPE";                  //$NON-NLS-1$
-   public static final String MAP_LAYOUT_BORDER_COLOR               = "MAP_LAYOUT_BORDER_COLOR";                 //$NON-NLS-1$
-   public static final String MAP_LAYOUT_BORDER_DIMM_VALUE          = "MAP_LAYOUT_BORDER_DIMM_VALUE";            //$NON-NLS-1$
-   public static final String MAP_LAYOUT_BORDER_WIDTH               = "map.layout.borderWidth";                  //$NON-NLS-1$
-   public static final String MAP_LAYOUT_IS_ANTIALIAS_PAINTING      = "MAP_LAYOUT_IS_ANTIALIAS_PAINTING";        //$NON-NLS-1$
-   public static final String MAP_LAYOUT_IS_CUT_OFF_LINES_IN_PAUSES = "MAP_LAYOUT_IS_DRAW_LINES_IN_PAUSES";      //$NON-NLS-1$
-   public static final String MAP_LAYOUT_LIVE_UPDATE                = "MAP_LAYOUT_LIVE_UPDATE";                  //$NON-NLS-1$
-   public static final String MAP_LAYOUT_PAINT_WITH_BORDER          = "map.layout.paintWithBorder";              //$NON-NLS-1$
-   public static final String MAP_LAYOUT_PLOT_TYPE                  = "map.layout.symbol";                       //$NON-NLS-1$
-   public static final String MAP_LAYOUT_SYMBOL_WIDTH               = "map.layout.symbol-width";                 //$NON-NLS-1$
-   public static final String MAP_LAYOUT_TOUR_PAINT_METHOD          = "map.layout.tour-paint-algorithm";         //$NON-NLS-1$
-   public static final String MAP_LAYOUT_TOUR_PAINT_METHOD_WARNING  = "map.layout.tour-paint-algorithm-warning"; //$NON-NLS-1$
+   public static final String MAP_LAYOUT_BORDER_TYPE                = "MAP_LAYOUT_BORDER_TYPE";             //$NON-NLS-1$
+   public static final String MAP_LAYOUT_BORDER_COLOR               = "MAP_LAYOUT_BORDER_COLOR";            //$NON-NLS-1$
+   public static final String MAP_LAYOUT_BORDER_DIMM_VALUE          = "MAP_LAYOUT_BORDER_DIMM_VALUE";       //$NON-NLS-1$
+   public static final String MAP_LAYOUT_BORDER_WIDTH               = "map.layout.borderWidth";             //$NON-NLS-1$
+   public static final String MAP_LAYOUT_IS_ANTIALIAS_PAINTING      = "MAP_LAYOUT_IS_ANTIALIAS_PAINTING";   //$NON-NLS-1$
+   public static final String MAP_LAYOUT_IS_CUT_OFF_LINES_IN_PAUSES = "MAP_LAYOUT_IS_DRAW_LINES_IN_PAUSES"; //$NON-NLS-1$
+   public static final String MAP_LAYOUT_LIVE_UPDATE                = "MAP_LAYOUT_LIVE_UPDATE";             //$NON-NLS-1$
+   public static final String MAP_LAYOUT_PAINT_WITH_BORDER          = "map.layout.paintWithBorder";         //$NON-NLS-1$
+   public static final String MAP_LAYOUT_PLOT_TYPE                  = "map.layout.symbol";                  //$NON-NLS-1$
+   public static final String MAP_LAYOUT_SYMBOL_WIDTH               = "map.layout.symbol-width";            //$NON-NLS-1$
 
-   public static final String MAP2_LAYOUT_IS_TOUR_TRACK_OPACITY     = "MAP2_LAYOUT_IS_TOUR_TRACK_OPACITY";       //$NON-NLS-1$
-   public static final String MAP2_LAYOUT_TOUR_TRACK_OPACITY        = "MAP2_LAYOUT_TOUR_TRACK_OPACITY";          //$NON-NLS-1$
+   public static final String MAP2_LAYOUT_IS_TOUR_TRACK_OPACITY     = "MAP2_LAYOUT_IS_TOUR_TRACK_OPACITY";  //$NON-NLS-1$
+   public static final String MAP2_LAYOUT_TOUR_TRACK_OPACITY        = "MAP2_LAYOUT_TOUR_TRACK_OPACITY";     //$NON-NLS-1$
 
    /*
     * Geo compare
@@ -465,13 +467,7 @@ public interface ITourbookPreferences {
    public static final String GEO_COMPARE_REF_TOUR_RGB           = "GEO_COMPARE_REF_TOUR_RGB";           //$NON-NLS-1$
 
    /*
-    * id's for preference pages
-    */
-   public static final String PREF_PAGE_TOUR_TYPE        = "net.tourbook.preferences.PrefPageTourTypeDefinition"; //$NON-NLS-1$
-   public static final String PREF_PAGE_TOUR_TYPE_FILTER = "net.tourbook.preferences.PrefPageTourTypeFilter";     //$NON-NLS-1$
-
-   /*
-    * tour data editor
+    * Tour data editor
     */
    public static final String TOURDATA_EDITOR_CONFIRMATION_REVERT_TOUR = "tourdata.editor.confirmation.revert-tour"; //$NON-NLS-1$
 

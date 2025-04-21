@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,6 +26,7 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -118,8 +119,6 @@ public abstract class AdvancedSlideoutShell {
    private Point                      _shellEndLocation                   = new Point(0, 0);
 
    private int                        _fadeOutDelayCounter;
-
-   private double                     _maxHeightFactor                    = 0.8;
 
    private int                        _horizContentWidth                  = MIN_SHELL_HORIZ_WIDTH;
    private int                        _horizContentHeight                 = MIN_SHELL_HORIZ_HEIGHT;
@@ -654,7 +653,7 @@ public abstract class AdvancedSlideoutShell {
    }
 
    /**
-    * Close the slideout, any possible flags to keep it open are ignored, the shell will be also
+    * Close the slideout, any possible flags to keep it open are ignored, the shell will also be
     * disposed.
     */
    public void close() {
@@ -694,7 +693,13 @@ public abstract class AdvancedSlideoutShell {
       _rrShellWithResize = new RRShell(_ownerControl.getShell(), styleWithResize, getShellTitle_WithResize(), true);
 
       final Shell shellWithResize = _rrShellWithResize.getShell();
-      shellWithResize.addControlListener(new ControlAdapter() {
+      shellWithResize.addControlListener(new ControlListener() {
+
+         @Override
+         public void controlMoved(final ControlEvent e) {
+            onTTShellMoved(e);
+         }
+
          @Override
          public void controlResized(final ControlEvent e) {
             onTTShellResize(e);
@@ -1315,6 +1320,8 @@ public abstract class AdvancedSlideoutShell {
 
    }
 
+   protected void onTTShellMoved(final ControlEvent event) {}
+
    protected void onTTShellResize(final ControlEvent event) {
 
       if (_isInShellResize) {
@@ -1334,10 +1341,12 @@ public abstract class AdvancedSlideoutShell {
 
       // ensure tooltip is not too large
       final Rectangle displayBounds = getDisplayBounds(shellLocation);
-      final double maxHeight = displayBounds.height * _maxHeightFactor;
-      final double maxWidth = displayBounds.width * 0.95;
+      final double maxHeight = displayBounds.height;
+      final double maxWidth = displayBounds.width;
 
       boolean isResizeAdjusted = false;
+      boolean isHeightAdjusted = false;
+      boolean isWidthAdjusted = false;
 
       final Rectangle clientArea = resizeShell.getClientArea();
       int newContentWidth = clientArea.width;
@@ -1345,18 +1354,18 @@ public abstract class AdvancedSlideoutShell {
 
       if (newContentHeight > maxHeight) {
          newContentHeight = (int) maxHeight;
-         isResizeAdjusted = true;
+         isHeightAdjusted = true;
       } else if (newContentHeight < MIN_SHELL_HORIZ_HEIGHT) {
          newContentHeight = MIN_SHELL_HORIZ_HEIGHT;
-         isResizeAdjusted = true;
+         isHeightAdjusted = true;
       }
 
       if (newContentWidth > maxWidth) {
          newContentWidth = (int) maxWidth;
-         isResizeAdjusted = true;
+         isWidthAdjusted = true;
       } else if (newContentWidth < MIN_SHELL_HORIZ_WIDTH) {
          newContentWidth = MIN_SHELL_HORIZ_WIDTH;
-         isResizeAdjusted = true;
+         isWidthAdjusted = true;
       }
 
       if (isVerticalLayout()) {
@@ -1371,27 +1380,52 @@ public abstract class AdvancedSlideoutShell {
       final Point newContentSize = onResize(newContentWidth, newContentHeight);
       if (newContentSize != null) {
 
-         newContentWidth = newContentSize.x;
-         newContentHeight = newContentSize.y;
+         /**
+          * Set new content size only when it has changed, otherwise there can be strange resizing
+          * issues when the shell is resized with the mouse
+          * https://github.com/mytourbook/mytourbook/issues/1393
+          */
 
-         if (isVerticalLayout()) {
-            _vertContentWidth = newContentWidth;
-            _vertContentHeight = newContentHeight;
-         } else {
-            _horizContentWidth = newContentWidth;
-            _horizContentHeight = newContentHeight;
+         if (newContentWidth != newContentSize.x || newContentHeight != newContentSize.y) {
+
+            newContentWidth = newContentSize.x;
+            newContentHeight = newContentSize.y;
+
+            if (isVerticalLayout()) {
+               _vertContentWidth = newContentWidth;
+               _vertContentHeight = newContentHeight;
+            } else {
+               _horizContentWidth = newContentWidth;
+               _horizContentHeight = newContentHeight;
+            }
+
+            isResizeAdjusted = true;
          }
-
-         isResizeAdjusted = true;
       }
 
-      if (isResizeAdjusted) {
+      if (isResizeAdjusted || isWidthAdjusted || isHeightAdjusted) {
+
+         if (isWidthAdjusted && isHeightAdjusted == false) {
+
+            // force current height
+            newContentHeight = Integer.MIN_VALUE;
+         }
+
+         if (isHeightAdjusted && isWidthAdjusted == false) {
+
+            // force current width
+            newContentWidth = Integer.MIN_VALUE;
+         }
+
          _isInShellResize = true;
          {
             _rrShellWithResize.setContentSize(newContentWidth, newContentHeight);
          }
          _isInShellResize = false;
       }
+
+      // there is sometimes an issue that a tooltip is moved, try to keep the current position
+      saveState();
    }
 
    /**
@@ -1606,18 +1640,22 @@ public abstract class AdvancedSlideoutShell {
     */
    protected void saveState() {
 
-      _state.put(STATE_HORIZ_SLIDEOUT_WIDTH, _horizContentWidth);
-      _state.put(STATE_HORIZ_SLIDEOUT_HEIGHT, _horizContentHeight);
-      _state.put(STATE_VERT_SLIDEOUT_WIDTH, _vertContentWidth);
-      _state.put(STATE_VERT_SLIDEOUT_HEIGHT, _vertContentHeight);
+// SET_FORMATTING_OFF
 
-      _state.put(STATE_IS_SLIDEOUT_PINNED, _isSlideoutPinned);
-      _state.put(STATE_HORIZ_SLIDEOUT_PIN_LOCATION_X, _horizPinLocationX);
-      _state.put(STATE_HORIZ_SLIDEOUT_PIN_LOCATION_Y, _horizPinLocationY);
-      _state.put(STATE_VERT_SLIDEOUT_PIN_LOCATION_X, _vertPinLocationX);
-      _state.put(STATE_VERT_SLIDEOUT_PIN_LOCATION_Y, _vertPinLocationY);
+      _state.put(STATE_HORIZ_SLIDEOUT_WIDTH,             _horizContentWidth);
+      _state.put(STATE_HORIZ_SLIDEOUT_HEIGHT,            _horizContentHeight);
+      _state.put(STATE_VERT_SLIDEOUT_WIDTH,              _vertContentWidth);
+      _state.put(STATE_VERT_SLIDEOUT_HEIGHT,             _vertContentHeight);
 
-      _state.put(STATE_IS_KEEP_SLIDEOUT_OPEN, _isKeepSlideoutOpen);
+      _state.put(STATE_IS_SLIDEOUT_PINNED,               _isSlideoutPinned);
+      _state.put(STATE_HORIZ_SLIDEOUT_PIN_LOCATION_X,    _horizPinLocationX);
+      _state.put(STATE_HORIZ_SLIDEOUT_PIN_LOCATION_Y,    _horizPinLocationY);
+      _state.put(STATE_VERT_SLIDEOUT_PIN_LOCATION_X,     _vertPinLocationX);
+      _state.put(STATE_VERT_SLIDEOUT_PIN_LOCATION_Y,     _vertPinLocationY);
+
+      _state.put(STATE_IS_KEEP_SLIDEOUT_OPEN,            _isKeepSlideoutOpen);
+
+// SET_FORMATTING_ON
    }
 
    /**
@@ -1683,16 +1721,6 @@ public abstract class AdvancedSlideoutShell {
       if (isPinned) {
          setSlideoutPinnedLocation();
       }
-   }
-
-   /**
-    * This factor is multiplied with the display height to force the max height of this slideout
-    *
-    * @param maxHeightFactor
-    */
-   public void setMaxHeightFactor(final double maxHeightFactor) {
-
-      _maxHeightFactor = maxHeightFactor;
    }
 
    protected void setShellFadeInSteps(final int shellFadeInSteps) {

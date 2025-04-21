@@ -58,14 +58,24 @@ public class MPCustom extends MP {
    @Override
    public IPath getTileOSPath(final String fullPath, final Tile tile) {
 
-      IPath filePath = new Path(fullPath);
+      final float highDPIScaling = getHiDPI();
 
-      filePath = filePath.append(getOfflineFolder());
+      final String nameSuffix =
 
-      filePath = filePath//
+            highDPIScaling == 2.0 ? UI.HIDPI_NAME_2x
+
+                  : highDPIScaling == 1.50 ? UI.HIDPI_NAME_15x
+
+                        : UI.EMPTY_STRING;
+
+      final IPath filePath = new Path(fullPath)
+
+            .append(getOfflineFolder())
+
             .append(Integer.toString(tile.getZoom()))
             .append(Integer.toString(tile.getX()))
-            .append(Integer.toString(tile.getY()))
+            .append(Integer.toString(tile.getY()) + nameSuffix)
+
             .addFileExtension(MapProviderManager.getImageFileExtension(getImageFormat()));
 
       return filePath;

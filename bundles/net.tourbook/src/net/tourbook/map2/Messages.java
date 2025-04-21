@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -66,15 +66,35 @@ public class Messages extends NLS {
    public static String map_action_save_default_position;
    public static String map_action_set_default_position;
 
+   public static String Map_Action_AutoSelectPhoto;
    public static String Map_Action_CenterMapToMapPointPosition;
    public static String Map_Action_CopyLocation;
    public static String Map_Action_CreateTourMarkerFromMap;
+   public static String Map_Action_DeselectPhoto;
+   public static String Map_Action_DeselectPhoto_Tooltip;
+   public static String Map_Action_EditPhotoLabel;
+   public static String Map_Action_EditPhotoLabel_Dialog_Message;
+   public static String Map_Action_EditPhotoLabel_Dialog_Title;
    public static String Map_Action_EditTourMarker;
    public static String Map_Action_Export_Map_Clipboard_Copied_Info;
    public static String Map_Action_Export_Map_View;
    public static String Map_Action_Export_Map_View_Clipboard;
    public static String Map_Action_Export_Map_View_Image;
    public static String Map_Action_Export_Map_View_Image_Tooltip;
+   public static String Map_Action_ExternalApp_DoubleClickStart;
+   public static String Map_Action_ExternalApp_OpenPhotoImage;
+   public static String Map_Action_ExternalApp_Setup;
+   public static String Map_Action_GeoMarkerPosition_RemoveAll;
+   public static String Map_Action_GeoMarkerPosition_RemoveAll_Tooltip;
+   public static String Map_Action_GeoMarkerPosition_SetIntoMarker;
+   public static String Map_Action_GeoMarkerPosition_SetIntoMarker_Tooltip;
+   public static String Map_Action_GeoPositions_Delete;
+   public static String Map_Action_GeoPositions_Set;
+   public static String Map_Action_GeoPositions_SetInto;
+   public static String Map_Action_GeoPositions_Set_End;
+   public static String Map_Action_GeoPositions_Set_Start;
+   public static String Map_Action_GeoPositions_Set_StartAndEnd;
+   public static String Map_Action_GeoPositions_Tooltip;
    public static String Map_Action_GotoLocation;
    public static String Map_Action_LookupCommonLocation;
    public static String Map_Action_ManageMapProviders;
@@ -88,11 +108,16 @@ public class Messages extends NLS {
    public static String Map_Action_ShowMapPoints_Tooltip;
    public static String Map_Action_ShowOnlyThisTour;
    public static String Map_Action_ShowPhotos_Tooltip;
+   public static String Map_Action_ShowPhotoAnnotations;
+   public static String Map_Action_ShowPhotoHistogram;
+   public static String Map_Action_ShowPhotoImage;
+   public static String Map_Action_ShowPhotoLabel;
+   public static String Map_Action_ShowPhotoRating;
    public static String Map_Action_ShowTourInfoInMap;
    public static String Map_Action_ShowTourWeatherInMap;
    public static String Map_Action_ShowValuePoint;
-   public static String Map_Action_ShowWayPoints;
    public static String Map_Action_SynchWith_TourLocations;
+   public static String Map_Action_SynchWith_TourPosition;
    public static String Map_Action_SynchWith_ValuePoint;
    public static String Map_Action_SynchWithSlider_Centered;
    public static String Map_Action_SyncPhotoWithMap_Tooltip;
@@ -115,7 +140,6 @@ public class Messages extends NLS {
    public static String map_action_show_slider_in_map;
    public static String map_action_show_start_finish_in_map;
    public static String map_action_show_tour_in_map;
-   public static String map_action_synch_with_slider;
    public static String map_action_synch_with_tour;
    public static String map_action_tour_color_altitude_tooltip;
    public static String map_action_tour_color_gradient_tooltip;

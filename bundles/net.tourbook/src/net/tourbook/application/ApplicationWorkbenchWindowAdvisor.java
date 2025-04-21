@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -58,8 +58,10 @@ import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
 import net.tourbook.tour.location.CommonLocationManager;
 import net.tourbook.tour.location.TourLocationManager;
 import net.tourbook.tour.photo.TourPhotoManager;
+import net.tourbook.tourMarker.TourMarkerTypeManager;
 import net.tourbook.tourType.TourTypeImage;
 import net.tourbook.tourType.TourTypeManager;
+import net.tourbook.ui.action.TourActionManager;
 import net.tourbook.ui.views.rawData.RawDataView;
 import net.tourbook.ui.views.referenceTour.ElevationCompareManager;
 import net.tourbook.web.WebContentServer;
@@ -436,6 +438,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       // do last cleanup, this dispose causes NPE in e4 when run in dispose() method
 
       TagManager.disposeTagImages();
+      TourMarkerTypeManager.dispose();
       TourTypeImage.dispose();
    }
 
@@ -463,6 +466,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       TourGeoFilter_Manager.restoreState();
       TourTagFilterManager.restoreState();
       TourLocationManager.restoreState();
+      TourActionManager.restoreState();
    }
 
    @Override
@@ -553,6 +557,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       ModelPlayerManager.saveState();
       SwimStrokeManager.saveState();
       TourLocationManager.saveState();
+      TourActionManager.saveState();
 
       FTSearchManager.closeIndexReaderSuggester();
       WebContentServer.stop();
@@ -603,7 +608,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
             .getActiveWorkbenchWindow()
             .getSelectionService();
 
-      selectionService.addPostSelectionListener(this::onPostSelectionChanged);
+      selectionService.addPostSelectionListener((part, selection) -> onPostSelectionChanged(part, selection));
    }
 
    /**

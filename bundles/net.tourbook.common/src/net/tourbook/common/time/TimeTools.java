@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +58,7 @@ import org.shredzone.commons.suncalc.SunTimes;
 
 public class TimeTools {
 
+   private static final String                   YEAR_Y                = "y";                                  //$NON-NLS-1$
    private static final String                   YEAR_YY               = "yy";                                 //$NON-NLS-1$
    private static final String                   YEAR_YYY              = "yyy";                                //$NON-NLS-1$
    private static final String                   YEAR_YYYY             = "yyyy";                               //$NON-NLS-1$
@@ -111,6 +112,7 @@ public class TimeTools {
 
 // SET_FORMATTING_OFF
 
+   public static final DateTimeFormatter   Formatter_Date_NoYear;
    public static final DateTimeFormatter   Formatter_Date_S;
    public static final DateTimeFormatter   Formatter_Date_M             = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
    public static final DateTimeFormatter   Formatter_Date_L             = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
@@ -180,6 +182,12 @@ public class TimeTools {
             IsoChronology.INSTANCE,
             defaultLocale);
 
+      String shortDatePatternNoYear = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            FormatStyle.SHORT, //      date
+            null, //                   time
+            IsoChronology.INSTANCE,
+            defaultLocale);
+
       String shortDateTimePattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
             FormatStyle.SHORT, //      date
             FormatStyle.SHORT, //      time
@@ -204,11 +212,22 @@ public class TimeTools {
          shortDateMediumTimePattern = shortDateMediumTimePattern.replace(YEAR_YY, YEAR_YYYY);
       }
 
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_Y, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YY, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YYY, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YYYY, UI.EMPTY_STRING);
+
+      // remove trailing slash /
+      if (shortDatePatternNoYear.endsWith(UI.SLASH)) {
+         shortDatePatternNoYear = shortDatePatternNoYear.subSequence(0, shortDatePatternNoYear.length() - 1).toString();
+      }
+
 // SET_FORMATTING_OFF
 
       Formatter_Date_S        = DateTimeFormatter.ofPattern(shortDatePattern,             defaultLocale);
       Formatter_DateTime_S    = DateTimeFormatter.ofPattern(shortDateTimePattern,         defaultLocale);
       Formatter_DateTime_SM   = DateTimeFormatter.ofPattern(shortDateMediumTimePattern,   defaultLocale);
+      Formatter_Date_NoYear   = DateTimeFormatter.ofPattern(shortDatePatternNoYear,       defaultLocale);
 
 // SET_FORMATTING_ON
 
@@ -731,6 +750,13 @@ public class TimeTools {
       return ZonedDateTime.ofInstant(
             Instant.ofEpochMilli(epochOfMilli),
             ZoneOffset.UTC);
+   }
+
+   public static boolean isTimeSliceAtNight(final ZonedDateTime sunsetTimes,
+                                            final ZonedDateTime sunriseTimes,
+                                            final long time) {
+
+      return time >= sunsetTimes.toEpochSecond() || time <= sunriseTimes.toEpochSecond();
    }
 
    /**

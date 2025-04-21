@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package net.tourbook.importdata;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
@@ -42,6 +43,9 @@ import net.tourbook.common.widgets.ComboEnumEntry;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.PrefPageTourType_Definitions;
+import net.tourbook.tag.TagGroup;
+import net.tourbook.tag.TagGroupManager;
 import net.tourbook.tour.CadenceMultiplier;
 import net.tourbook.tour.TourManager;
 import net.tourbook.tour.location.TourLocationManager;
@@ -66,6 +70,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -159,6 +164,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
    private SelectionListener            _ilSelectionListener;
    private SelectionListener            _liveUpdateListener;
    private MouseWheelListener           _liveUpdateMouseWheelListener;
+   private MouseWheelListener           _liveUpdateMouseWheelListener10;
    private SelectionListener            _speedTourTypeListener;
    //
    private ActionOpenPrefDialog         _actionOpenTourTypePrefs;
@@ -239,12 +245,14 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
    private Button               _chkIC_TurnOffWatching;
    //
    private Button               _chkIL_AdjustTemperature;
+   private Button               _chkIL_Remove2ndLastTimeSliceMarker;
    private Button               _chkIL_ReplaceElevationFromSRTM;
    private Button               _chkIL_ReplaceFirstTimeSliceElevation;
    private Button               _chkIL_RetrieveTourLocation;
    private Button               _chkIL_RetrieveWeatherData;
    private Button               _chkIL_SaveTour;
    private Button               _chkIL_SetLastMarker;
+   private Button               _chkIL_SetTourTagGroup;
    private Button               _chkIL_SetTourType;
    private Button               _chkIL_ShowInDashboard;
    //
@@ -269,6 +277,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
    private Combo                _comboIC_DeviceType;
    private Combo                _comboIL_TourType;
    private Combo                _comboIL_TourLocationProfiles;
+   private Combo                _comboIL_TourTagGroups;
    private ComboViewerCadence   _comboIL_One_TourType_Cadence;
    private ComboViewerCadence[] _comboTT_Cadence;
    //
@@ -291,6 +300,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
    private Label                _lblIL_TemperatureAdjustmentDuration;
    private Label                _lblIL_TemperatureAdjustmentDuration_Unit;
    private Label                _lblIL_TourLocationProfiles;
+   private Label                _lblIL_TourTagGroup;
    private Label[]              _lblTT_Speed_SpeedUnit;
    private Label[]              _lblTT_Speed_TourTypeIcon;
    //
@@ -740,7 +750,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
 
       _actionOpenTourTypePrefs = new ActionOpenPrefDialog(
             Messages.action_tourType_modify_tourTypes,
-            ITourbookPreferences.PREF_PAGE_TOUR_TYPE);
+            PrefPageTourType_Definitions.ID);
 
       _actionRestoreDefaults = new ActionResetToDefaults(this);
    }
@@ -886,7 +896,6 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       final Table table = new Table(parent,
             SWT.H_SCROLL
                   | SWT.V_SCROLL
-                  | SWT.BORDER
                   | SWT.FULL_SELECTION);
       table.setHeaderVisible(true);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(table);
@@ -1511,7 +1520,6 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       final Table table = new Table(parent,
             SWT.H_SCROLL
                   | SWT.V_SCROLL
-                  | SWT.BORDER
                   | SWT.FULL_SELECTION);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(table);
 
@@ -1546,6 +1554,11 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       _ilViewer.addSelectionChangedListener(selectionChangedEvent -> onSelect_IL(selectionChangedEvent.getSelection()));
 
       _ilViewer.addDoubleClickListener(doubleClickEvent -> onIL_DblClick());
+
+      /**
+       * !!! Very important to enable the viewer tooltips !!!
+       */
+      ColumnViewerToolTipSupport.enableFor(_ilViewer);
 
       createUI_513_IL_ContextMenu();
       createUI_514_IL_DragDrop();
@@ -1774,10 +1787,12 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       {
          createUI_542_IL_Name(group);
          createUI_550_IL_03_TourType(group);
-         createUI_600_IL_04_LastMarker(group);
+         createUI_600_IL_041_Remove2ndLastTimeSliceMarker(group);
+         createUI_600_IL_042_SetLastMarker(group);
          createUI_600_IL_05_AdjustTemperature(group);
          createUI_600_IL_06_AdjustElevation(group);
          createUI_600_IL_07_SetElevationFromSRTM(group);
+         createUI_600_IL_08_SetTourTagGroup(group);
          createUI_600_IL_50_RetrieveWeatherData(group);
          createUI_600_IL_51_RetrieveTourLocations(group);
          createUI_600_IL_99_Save(group);
@@ -2009,7 +2024,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       _speedTourType_Container = createUI_568_IL_SpeedTourType_ScrolledContainer(_speedTourType_OuterContainer);
 
       /*
-       * fields
+       * Fields
        */
       _actionTTSpeed_Delete = new ActionSpeedTourType_Delete[speedTTSize];
       _lblTT_Speed_TourTypeIcon = new Label[speedTTSize];
@@ -2132,7 +2147,24 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       return speedTTContainer;
    }
 
-   private void createUI_600_IL_04_LastMarker(final Composite parent) {
+   private void createUI_600_IL_041_Remove2ndLastTimeSliceMarker(final Composite parent) {
+
+      {
+         /*
+          * Checkbox: 2nd last time slice marker
+          */
+         _chkIL_Remove2ndLastTimeSliceMarker = new Button(parent, SWT.CHECK);
+         _chkIL_Remove2ndLastTimeSliceMarker.setText(Messages.Dialog_ImportConfig_Checkbox_Remove2ndLastTimeSliceMarker);
+         _chkIL_Remove2ndLastTimeSliceMarker.setToolTipText(Messages.Dialog_ImportConfig_Checkbox_Remove2ndLastTimeSliceMarker_Tooltip);
+         _chkIL_Remove2ndLastTimeSliceMarker.addSelectionListener(_defaultModify_Listener);
+         GridDataFactory.fillDefaults()
+               .span(2, 1)
+               .indent(0, 5)
+               .applyTo(_chkIL_Remove2ndLastTimeSliceMarker);
+      }
+   }
+
+   private void createUI_600_IL_042_SetLastMarker(final Composite parent) {
 
       {
          /*
@@ -2327,6 +2359,36 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
             .applyTo(_chkIL_ReplaceElevationFromSRTM);
    }
 
+   private void createUI_600_IL_08_SetTourTagGroup(final Composite parent) {
+
+      {
+         _chkIL_SetTourTagGroup = new Button(parent, SWT.CHECK);
+         _chkIL_SetTourTagGroup.setText(Messages.Dialog_ImportConfig_Checkbox_SetTourTags);
+         _chkIL_SetTourTagGroup.setToolTipText(Messages.Dialog_ImportConfig_Checkbox_SetTourTags_Tooltip);
+         _chkIL_SetTourTagGroup.addSelectionListener(_defaultModify_Listener);
+         GridDataFactory.fillDefaults()
+               .span(2, 1)
+               .indent(0, 5)
+               .applyTo(_chkIL_SetTourTagGroup);
+      }
+
+      {
+         _lblIL_TourTagGroup = new Label(parent, SWT.NONE);
+         _lblIL_TourTagGroup.setText(Messages.Dialog_ImportConfig_Label_TourTag);
+         GridDataFactory.fillDefaults()
+               .align(SWT.FILL, SWT.CENTER)
+               .indent(_leftPadding, 0)
+               .applyTo(_lblIL_TourTagGroup);
+
+         _comboIL_TourTagGroups = new Combo(parent, SWT.READ_ONLY);
+         _comboIL_TourTagGroups.addSelectionListener(_defaultModify_Listener);
+         GridDataFactory.fillDefaults()
+               .align(SWT.BEGINNING, SWT.FILL)
+               .hint(_pc.convertWidthInCharsToPixels(30), SWT.DEFAULT)
+               .applyTo(_comboIL_TourTagGroups);
+      }
+   }
+
    private void createUI_600_IL_50_RetrieveWeatherData(final Composite parent) {
 
       /*
@@ -2482,7 +2544,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          _spinnerDash_TileSize.setMaximum(EasyConfig.TILE_SIZE_MAX);
          _spinnerDash_TileSize.setMinimum(EasyConfig.TILE_SIZE_MIN);
          _spinnerDash_TileSize.addSelectionListener(_liveUpdateListener);
-         _spinnerDash_TileSize.addMouseWheelListener(_liveUpdateMouseWheelListener);
+         _spinnerDash_TileSize.addMouseWheelListener(_liveUpdateMouseWheelListener10);
          GridDataFactory.fillDefaults()
                .align(SWT.FILL, SWT.CENTER)
                .applyTo(_spinnerDash_TileSize);
@@ -3106,30 +3168,34 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          showTourTypePage(null);
       }
 
+      final boolean hasTagGroups = TagGroupManager.getTagGroups().size() > 0;
+      final boolean isSetTourTagGroup = hasTagGroups && _chkIL_SetTourTagGroup.getSelection();
+
 // SET_FORMATTING_OFF
 
-      _btnIL_Duplicate              .setEnabled(isILSelected);
-      _btnIL_Remove                 .setEnabled(isILSelected && numLaunchers > 1);
+      _btnIL_Duplicate                          .setEnabled(isILSelected);
+      _btnIL_Remove                             .setEnabled(isILSelected && numLaunchers > 1);
 
-      _chkIL_SetLastMarker          .setEnabled(isILSelected);
-      _chkIL_SaveTour               .setEnabled(isILSelected);
-      _chkIL_ShowInDashboard        .setEnabled(isILSelected);
-      _chkIL_SetTourType            .setEnabled(isILSelected);
+      _chkIL_Remove2ndLastTimeSliceMarker       .setEnabled(isILSelected);
+      _chkIL_SetLastMarker                      .setEnabled(isILSelected);
+      _chkIL_SaveTour                           .setEnabled(isILSelected);
+      _chkIL_ShowInDashboard                    .setEnabled(isILSelected);
+      _chkIL_SetTourType                        .setEnabled(isILSelected);
 
-      _comboIL_TourType             .setEnabled(isILSelected && isSetTourType);
+      _comboIL_TourType                         .setEnabled(isILSelected && isSetTourType);
 
-      _lblIL_ConfigName             .setEnabled(isILSelected);
-      _lblIL_ConfigDescription      .setEnabled(isILSelected);
+      _lblIL_ConfigName                         .setEnabled(isILSelected);
+      _lblIL_ConfigDescription                  .setEnabled(isILSelected);
 
-      _txtIL_ConfigName             .setEnabled(isILSelected);
-      _txtIL_ConfigDescription      .setEnabled(isILSelected);
+      _txtIL_ConfigName                         .setEnabled(isILSelected);
+      _txtIL_ConfigDescription                  .setEnabled(isILSelected);
 
       // last marker
-      _lblIL_LastMarker             .setEnabled(isLastMarkerSelected);
-      _lblIL_LastMarkerDistanceUnit .setEnabled(isLastMarkerSelected);
-      _lblIL_LastMarkerText         .setEnabled(isLastMarkerSelected);
-      _spinnerIL_LastMarkerDistance .setEnabled(isLastMarkerSelected);
-      _txtIL_LastMarker             .setEnabled(isLastMarkerSelected);
+      _lblIL_LastMarker                         .setEnabled(isLastMarkerSelected);
+      _lblIL_LastMarkerDistanceUnit             .setEnabled(isLastMarkerSelected);
+      _lblIL_LastMarkerText                     .setEnabled(isLastMarkerSelected);
+      _spinnerIL_LastMarkerDistance             .setEnabled(isLastMarkerSelected);
+      _txtIL_LastMarker                         .setEnabled(isLastMarkerSelected);
 
       // adjust temperature
       _lblIL_AvgTemperature                     .setEnabled(isAdjustTemperature);
@@ -3145,6 +3211,11 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       // set tour location
       _lblIL_TourLocationProfiles   .setEnabled(isSetTourLocation);
       _comboIL_TourLocationProfiles .setEnabled(isSetTourLocation);
+
+      // tag group
+      _chkIL_SetTourTagGroup        .setEnabled(isILSelected && hasTagGroups);
+      _comboIL_TourTagGroups        .setEnabled(isILSelected && isSetTourTagGroup);
+      _lblIL_TourTagGroup           .setEnabled(isILSelected && isSetTourTagGroup);
 
       _ilViewer.getTable()          .setEnabled(isLauncherAvailable);
 
@@ -3234,6 +3305,13 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       for (final TourLocationProfile profile : TourLocationManager.getProfiles()) {
          _comboIL_TourLocationProfiles.add(profile.getName());
       }
+
+      // tag groups
+      _comboIL_TourTagGroups.add(Messages.Dialog_ImportConfig_Info_DefaultTourTag);
+      for (final TagGroup tagGroup : TagGroupManager.getTagGroupsSorted()) {
+
+         _comboIL_TourTagGroups.add(tagGroup.name + UI.SPACE3 + tagGroup.tourTags.size());
+      }
    }
 
    @Override
@@ -3283,6 +3361,23 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       return TourLocationManager.getDefaultProfile();
    }
 
+   private String getSelectedTourTagGroupID() {
+
+      final int selectedLocationIndex = _comboIL_TourTagGroups.getSelectionIndex()
+
+            // ignore first default item
+            - 1;
+
+      if (selectedLocationIndex >= 0) {
+
+         final TagGroup tagGroup = TagGroupManager.getTagGroupsSorted().get(selectedLocationIndex);
+
+         return tagGroup.id;
+      }
+
+      return null;
+   }
+
    /**
     * @return Returns the selected tour type configuration or <code>null</code> when a tour type
     *         will not be set.
@@ -3306,6 +3401,22 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       }
 
       return null;
+   }
+
+   private int getTourTagGroupIndex(final String tourTagGroupID) {
+
+      final List<TagGroup> tagGroupsSorted = TagGroupManager.getTagGroupsSorted();
+
+      for (int groupIndex = 0; groupIndex < tagGroupsSorted.size(); groupIndex++) {
+
+         final TagGroup tagGroup = tagGroupsSorted.get(groupIndex);
+
+         if (tagGroup.id.equals(tourTagGroupID)) {
+            return groupIndex;
+         }
+      }
+
+      return -1;
    }
 
    private int getTourTypeConfigIndex(final Enum<TourTypeConfig> tourTypeConfig) {
@@ -3373,6 +3484,10 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       _liveUpdateListener = SelectionListener.widgetSelectedAdapter(selectionEvent -> doLiveUpdate());
       _liveUpdateMouseWheelListener = mouseEvent -> {
          UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+         doLiveUpdate();
+      };
+      _liveUpdateMouseWheelListener10 = mouseEvent -> {
+         UI.adjustSpinnerValueOnMouseScroll(mouseEvent, 10);
          doLiveUpdate();
       };
 
@@ -3688,18 +3803,24 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          return;
       }
 
+      final String selectedTourTagGroupID = getSelectedTourTagGroupID();
+
 // SET_FORMATTING_OFF
 
       // update model which is displayed in the IL viewer
       _selectedIL.name                                = _txtIL_ConfigName.getText();
       _selectedIL.description                         = _txtIL_ConfigDescription.getText();
 
+      _selectedIL.isRemove2ndLastTimeSliceMarker      = _chkIL_Remove2ndLastTimeSliceMarker.getSelection();
       _selectedIL.isSetLastMarker                     = _chkIL_SetLastMarker.getSelection();
       _selectedIL.lastMarkerDistance                  = getSelectedLastMarkerDistance();
 
       _selectedIL.isAdjustTemperature                 = _chkIL_AdjustTemperature.getSelection();
       _selectedIL.temperatureAdjustmentDuration       = _spinnerIL_TemperatureAdjustmentDuration.getSelection();
       _selectedIL.tourAvgTemperature                  = UI.convertTemperatureToMetric(_spinnerIL_AvgTemperature.getSelection());
+
+      _selectedIL.isSetTourTagGroup                   = _chkIL_SetTourTagGroup.getSelection();
+      _selectedIL.tourTagGroupID                      = selectedTourTagGroupID;
 
       _selectedIL.isReplaceFirstTimeSliceElevation    = _chkIL_ReplaceFirstTimeSliceElevation.getSelection();
       _selectedIL.isRetrieveTourLocation              = _chkIL_RetrieveTourLocation.getSelection();
@@ -3713,6 +3834,8 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
 
       // update UI
       _ilViewer.update(_selectedIL, null);
+
+      updateUI_TagGroupTooltip(TagGroupManager.getTagGroup(selectedTourTagGroupID));
    }
 
    private void onIL_Remove() {
@@ -4244,26 +4367,28 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          return;
       }
 
+      final Enum<TourTypeConfig> selectedTourTypeConfig = getSelectedTourTypeConfig();
+
 // SET_FORMATTING_OFF
 
-      _selectedIL.name                 = _txtIL_ConfigName.getText();
-      _selectedIL.description          = _txtIL_ConfigDescription.getText();
-      _selectedIL.isSaveTour           = _chkIL_SaveTour.getSelection();
-      _selectedIL.isShowInDashboard    = _chkIL_ShowInDashboard.getSelection();
+      _selectedIL.name                             = _txtIL_ConfigName.getText();
+      _selectedIL.description                      = _txtIL_ConfigDescription.getText();
+      _selectedIL.isSaveTour                       = _chkIL_SaveTour.getSelection();
+      _selectedIL.isShowInDashboard                = _chkIL_ShowInDashboard.getSelection();
 
       // last marker
-      _selectedIL.isSetLastMarker      = _chkIL_SetLastMarker.getSelection();
-      _selectedIL.lastMarkerDistance   = getSelectedLastMarkerDistance();
-      _selectedIL.lastMarkerText       = _txtIL_LastMarker.getText();
+      _selectedIL.isRemove2ndLastTimeSliceMarker   = _chkIL_Remove2ndLastTimeSliceMarker.getSelection();
+      _selectedIL.isSetLastMarker                  = _chkIL_SetLastMarker.getSelection();
+      _selectedIL.lastMarkerDistance               = getSelectedLastMarkerDistance();
+      _selectedIL.lastMarkerText                   = _txtIL_LastMarker.getText();
 
       // tour type
-      final Enum<TourTypeConfig> selectedTourTypeConfig = getSelectedTourTypeConfig();
-      _selectedIL.tourTypeConfig       = selectedTourTypeConfig;
-      _selectedIL.isSetTourType        = _chkIL_SetTourType.getSelection();
+      _selectedIL.tourTypeConfig                   = selectedTourTypeConfig;
+      _selectedIL.isSetTourType                    = _chkIL_SetTourType.getSelection();
 
       // tour location
-      _selectedIL.isRetrieveTourLocation    = _chkIL_RetrieveTourLocation.getSelection();
-      _selectedIL.tourLocationProfile  = getSelectedTourLocation();
+      _selectedIL.isRetrieveTourLocation           = _chkIL_RetrieveTourLocation.getSelection();
+      _selectedIL.tourLocationProfile              = getSelectedTourLocation();
 
 // SET_FORMATTING_ON
 
@@ -4438,6 +4563,9 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          _chkIL_SaveTour.setSelection(_selectedIL.isSaveTour);
          _chkIL_ShowInDashboard.setSelection(_selectedIL.isShowInDashboard);
 
+         // 2nd last time slice index marker
+         _chkIL_Remove2ndLastTimeSliceMarker.setSelection(_selectedIL.isRemove2ndLastTimeSliceMarker);
+
          // last marker
          _chkIL_SetLastMarker.setSelection(_selectedIL.isSetLastMarker);
          _spinnerIL_LastMarkerDistance.setSelection(distanceValue);
@@ -4463,13 +4591,43 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
          _chkIL_RetrieveTourLocation.setSelection(_selectedIL.isRetrieveTourLocation);
          _comboIL_TourLocationProfiles.select(TourLocationManager.getProfileIndex(_selectedIL.tourLocationProfile));
 
+         // set tour type
          final Enum<TourTypeConfig> tourTypeConfig = _selectedIL.tourTypeConfig;
          final boolean isSetTourType = tourTypeConfig != null && _selectedIL.isSetTourType;
 
-         // Set tour type
          _chkIL_SetTourType.setSelection(isSetTourType);
          if (isSetTourType) {
             _comboIL_TourType.select(getTourTypeConfigIndex(tourTypeConfig));
+         }
+         // set tour tag group
+         final String tagGroupID = _selectedIL.tourTagGroupID;
+         final TagGroup tagGroup = TagGroupManager.getTagGroup(tagGroupID);
+         final boolean isSetTourTagGroup = tagGroupID != null && tagGroup != null && _selectedIL.isSetTourTagGroup;
+         _chkIL_SetTourTagGroup.setSelection(isSetTourTagGroup);
+
+         _comboIL_TourTagGroups.setToolTipText(null);
+
+         if (isSetTourTagGroup) {
+
+            final int tourTagGroupIndex = getTourTagGroupIndex(tagGroupID);
+
+            if (tourTagGroupIndex == -1) {
+
+               _comboIL_TourTagGroups.select(0);
+
+            } else {
+
+               _comboIL_TourTagGroups.select(tourTagGroupIndex
+
+                     // ignore first default item
+                     + 1);
+
+               updateUI_TagGroupTooltip(tagGroup);
+            }
+
+         } else {
+
+            _comboIL_TourTagGroups.select(0);
          }
 
          /*
@@ -4601,6 +4759,23 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
       update_Model_From_UI_OneTourType();
 
       redrawILViewer();
+   }
+
+   /**
+    * Create and set tag group tooltip text
+    *
+    * @param tagGroup
+    */
+   private void updateUI_TagGroupTooltip(final TagGroup tagGroup) {
+
+      if (tagGroup == null) {
+
+         _comboIL_TourTagGroups.setToolTipText(null);
+
+      } else {
+
+         _comboIL_TourTagGroups.setToolTipText(TagGroupManager.createTagSortedList(tagGroup));
+      }
    }
 
    private void updateUI_TemperatureAdjustmentDuration() {

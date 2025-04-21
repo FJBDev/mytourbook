@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.UI;
+import net.tourbook.common.util.NoAutoScalingImageDataProvider;
 import net.tourbook.common.util.StatusUtil;
 
 import org.eclipse.core.runtime.IPath;
@@ -194,38 +196,64 @@ public class TileImageCache {
    }
 
    /**
+    * @param tile
     * @param tileImagePath
     *
     * @return Returns the path for the offline image or <code>null</code> when the image is not
     *         available
     */
-   private IPath getCheckedOfflineImagePath(final IPath tileImagePath) {
+   private IPath getCheckedOfflineImagePath(final Tile tile, final IPath tileImagePath) {
 
-      File tileImageFile = tileImagePath.toFile();
+      /*
+       * Test 4k image
+       */
 
-      if (tileImageFile.exists()) {
+      final String fileExt = tileImagePath.getFileExtension();
+      final IPath pathWithoutExt = tileImagePath.removeFileExtension();
 
+      final String hiDPI_2xFileName = pathWithoutExt.lastSegment() + UI.HIDPI_NAME_2x;
+
+      IPath hiDPIFilePath = pathWithoutExt
+            .removeLastSegments(1)
+            .append(hiDPI_2xFileName)
+            .addFileExtension(fileExt);
+
+      if (hiDPIFilePath.toFile().exists()) {
+         return hiDPIFilePath;
+      }
+
+      final String hiDPI_15xFileName = pathWithoutExt.lastSegment() + UI.HIDPI_NAME_15x;
+
+      hiDPIFilePath = pathWithoutExt
+            .removeLastSegments(1)
+            .append(hiDPI_15xFileName)
+            .addFileExtension(fileExt);
+
+      if (hiDPIFilePath.toFile().exists()) {
+         return hiDPIFilePath;
+      }
+
+      /*
+       * Test default image
+       */
+
+      if (tileImagePath.toFile().exists()) {
          return tileImagePath;
+      }
 
-      } else {
+      /*
+       * Test part image
+       */
 
-         // test a part image
+      final String partImageFileName = pathWithoutExt.lastSegment() + MapProviderManager.PART_IMAGE_FILE_NAME_SUFFIX;
 
-         final String fileExt = tileImagePath.getFileExtension();
-         final IPath pathWithoutExt = tileImagePath.removeFileExtension();
+      final IPath partImageFilePath = pathWithoutExt
+            .removeLastSegments(1)
+            .append(partImageFileName)
+            .addFileExtension(fileExt);
 
-         final String partFileName = pathWithoutExt.lastSegment() + MapProviderManager.PART_IMAGE_FILE_NAME_SUFFIX;
-
-         final IPath partFilePath = pathWithoutExt
-               .removeLastSegments(1)
-               .append(partFileName)
-               .addFileExtension(fileExt);
-
-         tileImageFile = partFilePath.toFile();
-
-         if (tileImageFile.exists()) {
-            return partFilePath;
-         }
+      if (partImageFilePath.toFile().exists()) {
+         return partImageFilePath;
       }
 
       return null;
@@ -255,7 +283,7 @@ public class TileImageCache {
             return null;
          }
 
-         final IPath offlineImagePath = getCheckedOfflineImagePath(tileImagePath);
+         final IPath offlineImagePath = getCheckedOfflineImagePath(tile, tileImagePath);
          if (offlineImagePath != null) {
 
             // get image for this tile
@@ -271,7 +299,23 @@ public class TileImageCache {
                 * image with an imageloader
                 */
 
-               final Image loadedImage = new Image(_display, osTileImagePath);
+               Image loadedImage;
+
+               if (osTileImagePath.contains(UI.HIDPI_NAME_2x)
+                     || osTileImagePath.contains(UI.HIDPI_NAME_15x)) {
+
+                  // create unscaled image
+
+                  final ImageData imageData = new ImageData(osTileImagePath);
+
+                  loadedImage = new Image(_display, new NoAutoScalingImageDataProvider(imageData));
+
+               } else {
+
+                  // create scaled image
+
+                  loadedImage = new Image(_display, osTileImagePath);
+               }
 
                /*
                 * It can happen that these images are not in the image cache. Keep all created
@@ -577,16 +621,9 @@ public class TileImageCache {
          final ImageLoader imageLoader = new ImageLoader();
          imageLoader.data = new ImageData[] { tileImageData };
 
-         imageType = tileImageData.type;
-
-         final String fileExtension = MapProviderManager.getImageFileExtension(imageType);
-         final String extension;
-         if (fileExtension == null) {
-            extension = MapProviderManager.FILE_EXTENSION_PNG;
-            imageType = SWT.IMAGE_PNG;
-         } else {
-            extension = fileExtension;
-         }
+         // force png because jpg would loose further quality
+         final String extension = MapProviderManager.FILE_EXTENSION_PNG;
+         imageType = SWT.IMAGE_PNG;
 
          if (isChildError) {
 
@@ -594,8 +631,7 @@ public class TileImageCache {
              * create a part image which is an image where not all children are loaded
              */
 
-            final String fileName = tilePathWithoutExt.lastSegment()
-                  + MapProviderManager.PART_IMAGE_FILE_NAME_SUFFIX;
+            final String fileName = tilePathWithoutExt.lastSegment() + MapProviderManager.PART_IMAGE_FILE_NAME_SUFFIX;
 
             tilePathWithoutExt = tilePathWithoutExt.removeLastSegments(1).append(fileName);
          }
@@ -610,9 +646,9 @@ public class TileImageCache {
       } catch (final Exception e) {
 
          /*
-          * disabled because it happened to often
+          * Disabled because it happened to often
           */
-         StatusUtil.log("cannot save tile image:" + imageOSFilePath + " - image type:" + imageType, e);//$NON-NLS-1$ //$NON-NLS-2$
+         StatusUtil.log("Cannot save tile image:" + imageOSFilePath + " - image type:" + imageType, e);//$NON-NLS-1$ //$NON-NLS-2$
       }
    }
 
@@ -643,7 +679,7 @@ public class TileImageCache {
             return;
          }
 
-         final IPath offlineImagePath = getCheckedOfflineImagePath(tileImagePath);
+         final IPath offlineImagePath = getCheckedOfflineImagePath(tile, tileImagePath);
          if (offlineImagePath != null) {
 
             // offline image is available
@@ -704,9 +740,35 @@ public class TileImageCache {
                                     final ImageData loadedImageData,
                                     final Image tileOfflineImage) {
 
-      final Image tileImage = tileOfflineImage != null
-            ? tileOfflineImage
-            : new Image(_display, loadedImageData);
+      final Image tileImage;
+
+      if (tileOfflineImage != null) {
+
+         tileImage = tileOfflineImage;
+
+      } else {
+
+         if (
+
+         // ckeck offline image
+         (tile.getOfflinePath() != null
+               && (tile.getOfflinePath().contains(UI.HIDPI_NAME_2x)
+                     || tile.getOfflinePath().contains(UI.HIDPI_NAME_15x)))
+
+               // check map provider
+               || tile.getMP().getHiDPI() != 1.0) {
+
+            // create unscaled image
+
+            tileImage = new Image(_display, new NoAutoScalingImageDataProvider(loadedImageData));
+
+         } else {
+
+            // create scaled image
+
+            tileImage = new Image(_display, loadedImageData);
+         }
+      }
 
       // cache tile image
       putIntoImageCache(tileKey, tileImage);

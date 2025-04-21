@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -93,17 +93,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
                   : "1|sans-serif|7|0|");//$NON-NLS-1$
 /////////////////    1|DejaVu Sans|6.75|0|WINDOWS|1|-9|0|0|0|400|0|0|0|0|3|2|1|34|DejaVu Sans
 
-      store.setDefault(IPhotoPreferences.PHOTO_VIEWER_IMAGE_FRAMEWORK,
-
-            UI.IS_OSX
-
-                  ? PhotoLoadManager.IMAGE_FRAMEWORK_SWT
-
-                  //
-                  // SWT is terrible when scrolling large images on win & linux, osx is smoothly
-                  //
-                  : PhotoLoadManager.IMAGE_FRAMEWORK_AWT);
-
       store.setDefault(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_PREVIEW, false);
       store.setDefault(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_LOADING_MESSAGE, true);
       store.setDefault(IPhotoPreferences.PHOTO_FULLSIZE_VIEWER_IS_SHOW_HQ_IMAGE, false);
@@ -111,19 +100,19 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(IPhotoPreferences.PHOTO_SYSTEM_IS_ROTATE_IMAGE_AUTOMATICALLY, false);
 
       /*
-       * external photo viewer
+       * External photo folder viewer
        */
       if (UI.IS_WIN) {
 
-         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_1, "explorer.exe"); //$NON-NLS-1$
+         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_1, "explorer.exe"); //$NON-NLS-1$
 
       } else if (UI.IS_OSX) {
 
-         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_1, "Preview.app"); //$NON-NLS-1$
-         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_2, "Finder.app"); //$NON-NLS-1$
+         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_1, "Preview.app"); //$NON-NLS-1$
+         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_2, "Finder.app"); //$NON-NLS-1$
 
       } else if (UI.IS_LINUX) {
-         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_1, "nautilus"); //$NON-NLS-1$
+         store.setDefault(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_1, "nautilus"); //$NON-NLS-1$
       }
 
    }

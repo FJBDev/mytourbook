@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -1243,6 +1243,94 @@ public class RawDataManager {
             newTourType != null
 
       );
+   }
+
+   /**
+    * Set tour type by looking up the sport and/or sub-sport name
+    *
+    * @param tourData
+    * @param importCategory
+    *           This could be e.g. sport name
+    * @param importSubCategory
+    *           This could be e.g. sub sport name
+    */
+   public static void setTourType(final TourData tourData,
+                                  final String importCategory,
+                                  final String importSubCategory) {
+
+      if (tourData == null || importCategory == null && importSubCategory == null) {
+
+         return;
+      }
+
+      TourType applyTourType = null;
+
+      final List<TourType> allTourTypes = TourDatabase.getAllTourTypes();
+
+      for (final TourType tourType : allTourTypes) {
+
+         boolean isCategoryOK = false;
+         boolean isSubCategoryOK = false;
+
+         final String ttCategory = tourType.getImportCategory();
+         final String ttSubCategory = tourType.getImportSubCategory();
+
+         final boolean hasCategory = importCategory != null && ttCategory != null;
+         final boolean hasSubCategory = importSubCategory != null && ttSubCategory != null;
+
+         if (hasCategory && importCategory.trim().equals(ttCategory.trim())) {
+            isCategoryOK = true;
+         }
+
+         if (hasSubCategory && importSubCategory.trim().equals(ttSubCategory.trim())) {
+            isSubCategoryOK = true;
+         }
+
+         if (hasCategory && hasSubCategory && isCategoryOK && isSubCategoryOK) {
+
+            applyTourType = tourType;
+            break;
+
+         } else if (hasCategory && isCategoryOK && hasSubCategory == false) {
+
+            // only the category is checked
+
+            applyTourType = tourType;
+            break;
+
+         } else if (hasSubCategory && isSubCategoryOK && hasCategory == false) {
+
+            // only the sub category is checked
+
+            applyTourType = tourType;
+            break;
+         }
+      }
+
+      if (applyTourType == null) {
+
+         // get default tour type
+
+         final long prefTourTypeDefaultID = _prefStore.getLong(ITourbookPreferences.TOUR_TYPE_IMPORT_DEFAUL_ID);
+
+         if (prefTourTypeDefaultID >= 0) {
+
+            for (final TourType tourType : allTourTypes) {
+
+               if (tourType.getTypeId() == prefTourTypeDefaultID) {
+
+                  applyTourType = tourType;
+
+                  break;
+               }
+            }
+         }
+      }
+
+      if (applyTourType != null) {
+
+         tourData.setTourType(applyTourType);
+      }
    }
 
    public void actionImportFromDevice() {
@@ -2685,21 +2773,22 @@ public class RawDataManager {
    }
 
    /**
-    * import the raw data of the given file
+    * Import the raw data of the given file
     *
     * @param device
-    *           the device which is able to process the data of the file
+    *           The device which is able to process the data of the file
     * @param sourceFileName
-    *           the file to be imported
+    *           The file to be imported
     * @param destinationPath
-    *           if not null copy the file to this path
+    *           When not <code>null</code>, then copy the file to this path
     * @param fileCollision
-    *           behavior if destination file exists (ask if null)
+    *           Behavior if destination file exists (ask if null)
     * @param isBuildNewFileName
-    *           if true create a new filename depending on the content of the file, keep old name if
-    *           false
+    *           When <code>true</code>, then create a new filename depending on the content of the
+    *           file, keep old name if false
     * @param isTourDisplayedInImportView
     * @param allNewlyImportedToursFromOneFile
+    * @param importState_Process
     * @param importState_File
     *
     * @return Returns the import filename or <code>null</code> when it was not imported
@@ -2763,6 +2852,8 @@ public class RawDataManager {
          } catch (final Exception e) {
             TourLogManager.log_EXCEPTION_WithStacktrace(e);
          }
+
+         setDefaultTourType(allNewlyImportedToursFromOneFile);
 
          if (isTourDisplayedInImportView) {
             _allImported_Tours.putAll(allNewlyImportedToursFromOneFile);
@@ -2935,6 +3026,49 @@ public class RawDataManager {
             : rc < 0
                   ? -1
                   : 0;
+   }
+
+   /**
+    * @param oldTourData
+    * @param importState_Process
+    *
+    * @return Return the imported {@link TourData} or <code>null</code> when the reimport failed
+    */
+   public TourData reimportTour(final TourData oldTourData,
+                                final ImportState_Process importState_Process) {
+
+      final String osFilePath = oldTourData.getImportFilePathName();
+
+      if (osFilePath == null) {
+         return null;
+      }
+
+      final File importFile = new File(osFilePath);
+
+      final Map<Long, TourData> allImportedToursFromOneFile = new HashMap<>();
+
+      final ImportState_File importState_File = RawDataManager.getInstance().importTours_FromOneFile(
+
+            importFile, //                   importFile
+            null, //                         destinationPath
+            null, //                         fileCollision
+            false, //                        isBuildNewFileNames
+            false, //                        isTourDisplayedInImportView
+            allImportedToursFromOneFile,
+            importState_Process //
+      );
+
+      if (importState_File.isFileImportedWithValidData == false) {
+         return null;
+      }
+
+      final Collection<TourData> allValues = allImportedToursFromOneFile.values();
+
+      for (final TourData tourData : allValues) {
+         return tourData;
+      }
+
+      return null;
    }
 
    /**
@@ -3339,7 +3473,13 @@ public class RawDataManager {
                 */
                final TourData savedTourData = TourDatabase.saveTour_Concurrent(updatedTourData, true);
 
+               // keep transient values
+               final boolean[] interpolatedValueSerie = updatedTourData.interpolatedValueSerie;
+
                updatedTourData = savedTourData;
+
+               // set transient values
+               updatedTourData.interpolatedValueSerie = interpolatedValueSerie;
             }
 
             if (importState_Process.isLog_OK()) {
@@ -3840,6 +3980,45 @@ public class RawDataManager {
             }
          }
       });
+   }
+
+   /**
+    * Set the default tour type when a tour type is not yet set
+    *
+    * @param allTourData
+    */
+   private void setDefaultTourType(final Map<Long, TourData> allTourData) {
+
+      final long prefTourTypeDefaultID = _prefStore.getLong(ITourbookPreferences.TOUR_TYPE_IMPORT_DEFAUL_ID);
+
+      if (prefTourTypeDefaultID < 0) {
+         return;
+      }
+
+      // get default tour type
+      TourType defaultTourType = null;
+
+      for (final TourType tourType : TourDatabase.getAllTourTypes()) {
+
+         if (tourType.getTypeId() == prefTourTypeDefaultID) {
+
+            defaultTourType = tourType;
+
+            break;
+         }
+      }
+
+      // set default tour type
+      if (defaultTourType != null) {
+
+         for (final TourData tourData : allTourData.values()) {
+
+            if (tourData.getTourType() == null) {
+
+               tourData.setTourType(defaultTourType);
+            }
+         }
+      }
    }
 
    public void setImportYear(final int year) {

@@ -63,11 +63,11 @@ jobs:
           path: D:\a\mytourbook\mytourbook\mergedJaCoCoReport.exec
           retention-days: 5
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure()
         with:
           name: Tests Report
-          path: 'D:/a/mytourbook-BUILD-autocreated/core/**/target/surefire-reports/*.xml'
+          path: 'D:/a/**/surefire-reports/*.xml'
           reporter: java-junit
           
   check_date:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2015, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourType;
+import net.tourbook.tag.TagGroup;
+import net.tourbook.tag.TagGroupManager;
 import net.tourbook.tour.CadenceMultiplier;
 import net.tourbook.tour.location.TourLocationProfile;
 
@@ -64,6 +66,12 @@ public class ImportLauncher implements Cloneable {
     * When <code>true</code> then the text of the last marker is set.
     */
    public boolean                  isSetLastMarker;
+
+   /**
+    * When <code>true</code> then a marker will be removed when it is located at the 2nd last time
+    * slice
+    */
+   public boolean                  isRemove2ndLastTimeSliceMarker;
 
    /**
     * Last marker distance in meters.
@@ -119,6 +127,16 @@ public class ImportLauncher implements Cloneable {
     * This tour location profile is used to set the tour location values
     */
    public TourLocationProfile      tourLocationProfile;
+
+   /**
+    * When <code>true</code> then all tags in a groups are set into the tour
+    */
+   public boolean                  isSetTourTagGroup;
+
+   /**
+    * ID of the {@link TagGroup}
+    */
+   public String                   tourTagGroupID;
 
    public ImportLauncher() {
 
@@ -180,6 +198,21 @@ public class ImportLauncher implements Cloneable {
       int result = 1;
       result = prime * result + (int) (_id ^ (_id >>> 32));
       return result;
+   }
+
+   /**
+    * @return Returns <code>true</code> when tags are set into the tour
+    */
+   public boolean isSetTags() {
+
+      final TagGroup tagGroup = TagGroupManager.getTagGroup(tourTagGroupID);
+
+      if (tagGroup != null && isSetTourTagGroup) {
+
+         return tagGroup.tourTags.size() > 0;
+      }
+
+      return false;
    }
 
    /**

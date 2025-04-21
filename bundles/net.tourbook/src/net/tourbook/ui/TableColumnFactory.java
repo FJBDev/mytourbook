@@ -279,6 +279,9 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MARKER_SERIE_INDEX;
    public static final TableColumnFactory MARKER_TIME_DELTA;
    public static final TableColumnFactory MARKER_URL;
+   public static final String             MARKER_URL_ID                                      = "MARKER_URL_ID";                                   //$NON-NLS-1$
+   public static final TableColumnFactory MARKER_TYPE;
+   public static final String             MARKER_TYPE_ID                                     = "MARKER_TYPE_ID";                                  //$NON-NLS-1$
 
    public static final TableColumnFactory MOTION_ALTIMETER;
    public static final String             MOTION_ALTIMETER_ID                                = "MOTION_ALTIMETER";                                //$NON-NLS-1$
@@ -309,6 +312,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory PHOTO_NUMBER_OF_NO_GPS_PHOTOS;
    public static final TableColumnFactory PHOTO_NUMBER_OF_PHOTOS;
    public static final TableColumnFactory PHOTO_TIME_ADJUSTMENT;
+   public static final TableColumnFactory PHOTO_TIME_ADJUSTMENT_ALL;
    public static final TableColumnFactory PHOTO_TOUR_CAMERA;
 
    public static final TableColumnFactory POWER_AVG;
@@ -465,6 +469,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory TIME_TOUR_START_TIME;
    public static final String             TIME_TOUR_START_TIME_ID                            = "TIME_TOUR_START_TIME";                            //$NON-NLS-1$
    public static final TableColumnFactory TIME_TOUR_END_TIME;
+   public static final String             TIME_TOUR_END_TIME_ID                              = "TIME_TOUR_END_TIME";                              //$NON-NLS-1$
    public static final TableColumnFactory TIME_TOUR_START_DATE;
    public static final TableColumnFactory TIME_TOUR_END_DATE;
    public static final TableColumnFactory TIME_WEEK_DAY;
@@ -474,6 +479,8 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory TIME_WEEKYEAR;
    public static final String             TIME_WEEKYEAR_ID                                   = "TIME_WEEKYEAR";                                   //$NON-NLS-1$
 
+   public static final TableColumnFactory TOUR_DESCRIPTION;
+   public static final String             TOUR_DESCRIPTION_ID                                = "TOUR_DESCRIPTION";                                //$NON-NLS-1$
    public static final TableColumnFactory TOUR_MARKER;
    public static final TableColumnFactory TOUR_LOCATION_START;
    public static final String             TOUR_LOCATION_START_ID                             = "TOUR_LOCATION_START";                             //$NON-NLS-1$
@@ -2071,13 +2078,33 @@ public abstract class TableColumnFactory {
          }
       };
 
+      MARKER_TYPE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, MARKER_TYPE_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Marker);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_MarkerType_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_MarkerType_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_MarkerType_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(25));
+
+            return colDef;
+         }
+      };
+
       MARKER_URL = new TableColumnFactory() {
 
          @Override
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
                                                    final PixelConverter pixelConverter) {
 
-            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "MARKER_URL", SWT.LEAD); //$NON-NLS-1$
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, MARKER_URL_ID, SWT.LEAD);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Marker);
 
@@ -2548,6 +2575,26 @@ public abstract class TableColumnFactory {
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Photo_TimeAdjustment_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(11)); // 9 ... 54
+
+            return colDef;
+         }
+      };
+
+      PHOTO_TIME_ADJUSTMENT_ALL = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "PHOTO_TIME_ADJUSTMENT_ALL", SWT.TRAIL); //$NON-NLS-1$
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Photo);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Photo_TimeAdjustmentAll_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Photo_TimeAdjustmentAll_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Photo_TimeAdjustmentAll_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
 
             return colDef;
          }
@@ -4504,6 +4551,11 @@ public abstract class TableColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 
+            colDef.setValueFormats(
+                  ValueFormatSet.Time_mmss,
+                  ValueFormat.TIME_HH_MM,
+                  columnManager);
+
             return colDef;
          }
       };
@@ -4606,6 +4658,26 @@ public abstract class TableColumnFactory {
       /*
        * Tour
        */
+
+      TOUR_DESCRIPTION = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, TOUR_DESCRIPTION_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TourDescription_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TourDescription_Label);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_TourDescription_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+            return colDef;
+         }
+      };
 
       TOUR_MARKER = new TableColumnFactory() {
 
