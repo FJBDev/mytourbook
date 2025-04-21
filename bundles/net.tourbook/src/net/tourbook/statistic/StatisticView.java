@@ -141,7 +141,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private Combo                    _comboYear;
    private Combo                    _comboStatistics;
-   private Combo                    _comboStatisticsTimeRange;
+   private Combo                    _comboTimeRange;
    private Combo                    _comboNumberOfYears;
    private Combo                    _comboBarVerticalOrder;
 
@@ -150,6 +150,9 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private PageBook                 _pageBookStatistic;
 
    private SlideoutStatisticOptions _slideoutStatisticOptions;
+
+   private List<String>             _internalStatisticsList = new ArrayList<>();
+   private List<String>             _internalTimeRangeList  = new ArrayList<>();
 
    private class ActionCopyStatValuesIntoClipboard extends Action {
 
@@ -467,14 +470,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
              * combo: statistics time range
              */
 
-            _comboStatisticsTimeRange = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-            _comboStatisticsTimeRange.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
-            _comboStatisticsTimeRange.setVisibleItemCount(4);
-            _comboStatisticsTimeRange.add("day");
-            _comboStatisticsTimeRange.add("week");
-            _comboStatisticsTimeRange.add("month");
-            _comboStatisticsTimeRange.add("year");
-            _comboStatisticsTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
+            _comboTimeRange = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+            _comboTimeRange.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
+            _comboTimeRange.setVisibleItemCount(4);
+            _comboTimeRange.add("day");
+            _comboTimeRange.add("week");
+            _comboTimeRange.add("month");
+            _comboTimeRange.add("year");
+            _comboTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
          }
 
          {
@@ -938,7 +941,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       }
 
       //todo fb same for time range
-      _comboStatisticsTimeRange.select(0);
+      _comboTimeRange.select(0);
       // select statistic item
       _comboStatistics.select(prevStatIndex);
       onSelectStatistic();
@@ -964,7 +967,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       }
 
       // keep statistic time range id for the selected statistic time range
-      final int statisticsTimeRangeselectionIndex = _comboStatisticsTimeRange.getSelectionIndex();
+      final int statisticsTimeRangeselectionIndex = _comboTimeRange.getSelectionIndex();
       if (statisticsTimeRangeselectionIndex != -1) {
          _state.put(STATE_TIME_RANGE, allAvailableStatistics.get(selectionIndex + statisticsTimeRangeselectionIndex).plugin_Category_Time);
       }
@@ -1087,8 +1090,19 @@ public class StatisticView extends ViewPart implements ITourProvider {
          return false;
       }
 
-      final int selectedStatisticTimeRangeIndex = _comboStatisticsTimeRange.getSelectionIndex();
-      final TourbookStatistic tourbookStatistic = allAvailableStatistics.get(selectedIndex + selectedStatisticTimeRangeIndex);
+      final int selectedStatisticTimeRangeIndex = _comboTimeRange.getSelectionIndex();
+      final String categoryTime = selectedStatisticTimeRangeIndex == -1
+            ? "Other"
+            : _internalTimeRangeList.get(selectedStatisticTimeRangeIndex);
+
+      //if -1 then => Other
+      TourbookStatistic tourbookStatistic = allAvailableStatistics.get(selectedIndex + selectedStatisticTimeRangeIndex);
+
+      tourbookStatistic = allAvailableStatistics.stream()
+            .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)) &&
+                  statistic.plugin_Category_Time.equals(categoryTime))
+            .findFirst()
+            .orElse(null);
 
       Composite statisticUI = tourbookStatistic.getUIControl();
 
@@ -1280,12 +1294,15 @@ public class StatisticView extends ViewPart implements ITourProvider {
 //                            categoryTime = Month
 //                           ]
          //if the combo doesn't contain the statistic
-         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_Category_Data)) {
+         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
 
             // add statistic to the combo
 
-            _comboStatistics.add(statistic.plugin_Category_Data);
+            _comboStatistics.add(statistic.plugin_VisibleName);
          }
+
+            _internalStatisticsList.add(statistic.plugin_Category_Data);
+            _internalTimeRangeList.add(statistic.plugin_Category_Time);
       }
    }
 

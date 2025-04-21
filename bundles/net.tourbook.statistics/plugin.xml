@@ -17,14 +17,14 @@
       <!-- SUMMARY -->
 
       <statistic
-         name           ="%Pref_Day_Summary"
+         name           ="%Pref_Summary"
          class          ="net.tourbook.statistics.graphs.StatisticDay_Summary"
          id             ="net.tourbook.statistics.StatisticSummaryDayCombined"
          category-data  ="Summary"
          category-time  ="Day"/>
 
       <statistic
-         name           ="%Pref_Week_Summary"
+         name           ="%Pref_Summary"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_Summary"
          id             ="net.tourbook.statistics.StatisticSummaryWeekCombined"
          category-data  ="Summary"
@@ -32,7 +32,7 @@
       />
 
       <statistic
-         name           ="%Pref_Month_Summary"
+         name           ="%Pref_Summary"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_Summary"
          id             ="net.tourbook.statistics.StatisticSummaryMonthCombined"
          category-data  ="Summary"
@@ -40,7 +40,7 @@
       />
 
       <statistic
-         name           ="%Pref_Year_Summary"
+         name           ="%Pref_Summary"
          class          ="net.tourbook.statistics.graphs.StatisticYear_Summary"
          id             ="net.tourbook.statistics.StatisticSummaryYear"
          category-data  ="Summary"
