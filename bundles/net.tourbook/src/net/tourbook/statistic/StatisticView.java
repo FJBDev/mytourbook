@@ -642,23 +642,27 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
    private String getSelectedCategoryTime() {
 
-      switch (_comboTimeRange.getSelectionIndex()) {
-         case 0:
-            return "Day";
-
-         case 1:
-            return "Week";
-
-         case 2:
-            return "Month";
-
-         case 3:
-            return "Year";
-
-         default:
-            return "Other";
-         }
+      if (_comboTimeRange.isEnabled() == false) {
+         return "Other";
       }
+
+      switch (_comboTimeRange.getSelectionIndex()) {
+      case 0:
+         return "Day";
+
+      case 1:
+         return "Week";
+
+      case 2:
+         return "Month";
+
+      case 3:
+         return "Year";
+
+      default:
+         return "Other";
+      }
+   }
 
    @Override
    public ArrayList<TourData> getSelectedTours() {
@@ -1147,8 +1151,6 @@ public class StatisticView extends ViewPart implements ITourProvider {
       return true;
    }
 
-
-
    @Override
    public void setFocus() {
 
@@ -1160,74 +1162,75 @@ public class StatisticView extends ViewPart implements ITourProvider {
       int selectedIndex;
       switch (pluginCategoryTime) {
 
-         case "Day":
-            selectedIndex = 0;
-            break;
+      case "Day":
+         selectedIndex = 0;
+         break;
 
-         case "Week":
-            selectedIndex = 1;
-            break;
+      case "Week":
+         selectedIndex = 1;
+         break;
 
-         case "Month":
-            selectedIndex = 2;
-            break;
+      case "Month":
+         selectedIndex = 2;
+         break;
 
-         case "Year":
-            selectedIndex = 3;
-            break;
+      case "Year":
+         selectedIndex = 3;
+         break;
 
-         default:
-            selectedIndex = -1;
-            break;
+      default:
+         selectedIndex = -1;
+         break;
+      }
+
+      _comboTimeRange.select(selectedIndex);
+   }
+
+   /**
+    * Update all statistics which have been created because person or tour type could be changed and
+    * reload data.
+    *
+    * @param person
+    * @param tourTypeFilter
+    */
+   private void updateStatistic() {
+
+      if (setActiveStatistic() == false) {
+         return;
+      }
+
+      refreshYearCombobox();
+      selectYear(-1);
+
+      // update number of years is _comboNumberOfYears
+      onSelectYear(false);
+
+      // tell all existing statistics the data have changed
+      for (final TourbookStatistic statistic : getAvailableStatistics()) {
+
+         if (statistic.getUIControl() != null) {
+
+            statistic.setSynchScale(_isSynchScaleEnabled);
+            statistic.setDataDirty();
          }
-
-         _comboTimeRange.select(selectedIndex);
       }
 
-/**
- * Update all statistics which have been created because person or tour type could be changed and
- * reload data.
- *
- * @param person
- * @param tourTypeFilter
- */
-private void updateStatistic() {
+      // refresh current statistic
+      final StatisticContext statContext = new StatisticContext(
+            _activePerson,
+            _activeTourTypeFilter,
+            _selectedYear,
+            getNumberOfYears());
 
-   if (setActiveStatistic() == false) {
-      return;
+      statContext.isRefreshData = true;
+
+      _activeStatistic.updateStatistic(statContext);
+
+      updateStatistic_20_PostRefresh(statContext);
+
+      fireEvent_StatisticValues();
    }
 
-   refreshYearCombobox();
-   selectYear(-1);
-
-   // update number of years is _comboNumberOfYears
-   onSelectYear(false);
-
-   // tell all existing statistics the data have changed
-   for (final TourbookStatistic statistic : getAvailableStatistics()) {
-
-      if (statistic.getUIControl() != null) {
-
-         statistic.setSynchScale(_isSynchScaleEnabled);
-         statistic.setDataDirty();
-      }
-   }
-
-   // refresh current statistic
-   final StatisticContext statContext = new StatisticContext(
-         _activePerson,
-         _activeTourTypeFilter,
-         _selectedYear,
-         getNumberOfYears());
-
-   statContext.isRefreshData = true;
-
-   _activeStatistic.updateStatistic(statContext);
-
-   updateStatistic_20_PostRefresh(statContext);
-
-   fireEvent_StatisticValues();
-}
    /**
     * @param tourId
     *           Tour which should be selected or <code>null</code>
