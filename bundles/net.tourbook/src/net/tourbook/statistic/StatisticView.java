@@ -152,7 +152,6 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private SlideoutStatisticOptions _slideoutStatisticOptions;
 
    private List<String>             _internalStatisticsList = new ArrayList<>();
-   private List<String>             _internalTimeRangeList  = new ArrayList<>();
 
    private class ActionCopyStatValuesIntoClipboard extends Action {
 
@@ -641,6 +640,26 @@ public class StatisticView extends ViewPart implements ITourProvider {
       return numberOfYears;
    }
 
+   private String getSelectedCategoryTime() {
+
+      switch (_comboTimeRange.getSelectionIndex()) {
+         case 0:
+            return "Day";
+
+         case 1:
+            return "Week";
+
+         case 2:
+            return "Month";
+
+         case 3:
+            return "Year";
+
+         default:
+            return "Other";
+         }
+      }
+
    @Override
    public ArrayList<TourData> getSelectedTours() {
 
@@ -1090,15 +1109,19 @@ public class StatisticView extends ViewPart implements ITourProvider {
          return false;
       }
 
-      final int selectedStatisticTimeRangeIndex = _comboTimeRange.getSelectionIndex();
-      final String categoryTime = selectedStatisticTimeRangeIndex == -1
-            ? "Other"
-            : _internalTimeRangeList.get(selectedStatisticTimeRangeIndex);
+      final List<TourbookStatistic> selectedTourbookStatistic = allAvailableStatistics.stream()
+            .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)))
+            .toList();
+      if (selectedTourbookStatistic.size() == 1) {
+         setSelectedCategoryTime(selectedTourbookStatistic.get(0).plugin_Category_Time);
+         _comboTimeRange.setEnabled(false);
+      } else {
+         _comboTimeRange.setEnabled(true);
+      }
 
-      //if -1 then => Other
-      TourbookStatistic tourbookStatistic = allAvailableStatistics.get(selectedIndex + selectedStatisticTimeRangeIndex);
+      final String categoryTime = getSelectedCategoryTime();
 
-      tourbookStatistic = allAvailableStatistics.stream()
+      final TourbookStatistic tourbookStatistic = allAvailableStatistics.stream()
             .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)) &&
                   statistic.plugin_Category_Time.equals(categoryTime))
             .findFirst()
@@ -1124,57 +1147,87 @@ public class StatisticView extends ViewPart implements ITourProvider {
       return true;
    }
 
+
+
    @Override
    public void setFocus() {
 
       _comboStatistics.setFocus();
    }
 
-   /**
-    * Update all statistics which have been created because person or tour type could be changed and
-    * reload data.
-    *
-    * @param person
-    * @param tourTypeFilter
-    */
-   private void updateStatistic() {
+   private void setSelectedCategoryTime(final String pluginCategoryTime) {
 
-      if (setActiveStatistic() == false) {
-         return;
-      }
+      int selectedIndex;
+      switch (pluginCategoryTime) {
 
-      refreshYearCombobox();
-      selectYear(-1);
+         case "Day":
+            selectedIndex = 0;
+            break;
 
-      // update number of years is _comboNumberOfYears
-      onSelectYear(false);
+         case "Week":
+            selectedIndex = 1;
+            break;
 
-      // tell all existing statistics the data have changed
-      for (final TourbookStatistic statistic : getAvailableStatistics()) {
+         case "Month":
+            selectedIndex = 2;
+            break;
 
-         if (statistic.getUIControl() != null) {
+         case "Year":
+            selectedIndex = 3;
+            break;
 
-            statistic.setSynchScale(_isSynchScaleEnabled);
-            statistic.setDataDirty();
+         default:
+            selectedIndex = -1;
+            break;
          }
+
+         _comboTimeRange.select(selectedIndex);
       }
 
-      // refresh current statistic
-      final StatisticContext statContext = new StatisticContext(
-            _activePerson,
-            _activeTourTypeFilter,
-            _selectedYear,
-            getNumberOfYears());
+/**
+ * Update all statistics which have been created because person or tour type could be changed and
+ * reload data.
+ *
+ * @param person
+ * @param tourTypeFilter
+ */
+private void updateStatistic() {
 
-      statContext.isRefreshData = true;
-
-      _activeStatistic.updateStatistic(statContext);
-
-      updateStatistic_20_PostRefresh(statContext);
-
-      fireEvent_StatisticValues();
+   if (setActiveStatistic() == false) {
+      return;
    }
 
+   refreshYearCombobox();
+   selectYear(-1);
+
+   // update number of years is _comboNumberOfYears
+   onSelectYear(false);
+
+   // tell all existing statistics the data have changed
+   for (final TourbookStatistic statistic : getAvailableStatistics()) {
+
+      if (statistic.getUIControl() != null) {
+
+         statistic.setSynchScale(_isSynchScaleEnabled);
+         statistic.setDataDirty();
+      }
+   }
+
+   // refresh current statistic
+   final StatisticContext statContext = new StatisticContext(
+         _activePerson,
+         _activeTourTypeFilter,
+         _selectedYear,
+         getNumberOfYears());
+
+   statContext.isRefreshData = true;
+
+   _activeStatistic.updateStatistic(statContext);
+
+   updateStatistic_20_PostRefresh(statContext);
+
+   fireEvent_StatisticValues();
+}
    /**
     * @param tourId
     *           Tour which should be selected or <code>null</code>
@@ -1299,10 +1352,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
             // add statistic to the combo
 
             _comboStatistics.add(statistic.plugin_VisibleName);
-         }
-
             _internalStatisticsList.add(statistic.plugin_Category_Data);
-            _internalTimeRangeList.add(statistic.plugin_Category_Time);
+         }
       }
    }
 

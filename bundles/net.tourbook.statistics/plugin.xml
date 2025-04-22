@@ -9,7 +9,7 @@
          name           ="%Pref_Tour_Time"
          class          ="net.tourbook.statistics.graphs.StatisticTour_Time"
          id             ="net.tourbook.statistics.StatisticTourTime"
-         category-data  ="Summary"
+         category-data  ="Time"
          category-time  ="Day"
       />
 
@@ -51,7 +51,7 @@
          name           ="%Pref_Tour_Numbers"
          class          ="net.tourbook.statistics.graphs.StatisticTour_Frequency"
          id             ="net.tourbook.statistics.StatisticTourNumbers"
-         category-data  ="Summary"
+         category-data  ="Numbers"
          category-time  ="Year"
       />
 
@@ -59,7 +59,7 @@
       <!-- HR -->
       
       <statistic
-         name           ="%Hr_Zone_Week"
+         name           ="%Hr_Zones"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_HrZone"
          id             ="net.tourbook.statistics.StatisticWeekHrZone"
          category-data  ="HR"
@@ -67,7 +67,7 @@
       />
 
       <statistic
-         name           ="%Hr_Zone_Month"
+         name           ="%Hr_Zones"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_HrZone"
          id             ="net.tourbook.statistics.StatisticMonthHrZone"
          category-data  ="HR"
@@ -81,7 +81,7 @@
          name           ="%Statistic_Training_Line"
          id             ="net.tourbook.statistics.graphs.StatisticTraining_Line"
          class          ="net.tourbook.statistics.graphs.StatisticTraining_Line"
-         category-data  ="Training"
+         category-data  ="TrainingLine"
          category-time  ="Day"
       />
 
@@ -89,7 +89,7 @@
          name           ="%Statistic_Training_Bar"
          id             ="net.tourbook.statistics.graphs.StatisticTraining_Bar"
          class          ="net.tourbook.statistics.graphs.StatisticTraining_Bar"
-         category-data  ="Training"
+         category-data  ="TrainingBar"
          category-time  ="Day"
       />
 
@@ -97,34 +97,34 @@
       <!-- TIME -->
       
       <statistic
-         name           ="%Pref_Day_Summary_Duration"
+         name           ="%Pref_Summary_Duration"
          class          ="net.tourbook.statistics.graphs.StatisticDay_TourTime"
          id             ="net.tourbook.statistics.StatisticSummaryDayTourTime"
-         category-data  ="Time"
+         category-data  ="Duration"
          category-time  ="Day"
       />
 
       <statistic
-         name           ="%Pref_Week_Summary_Duration"
+         name           ="%Pref_Summary_Duration"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_TourTime"
          id             ="net.tourbook.statistics.StatisticSummaryWeekDuration"
-         category-data  ="Time"
+         category-data  ="Duration"
          category-time  ="Week"
       />
       
       <statistic
-         name           ="%Pref_Month_Summary_TourTime"
+         name           ="%Pref_Summary_Duration"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_Duration"
          id             ="net.tourbook.statistics.StatisticSummaryMonthTourTime"
-         category-data  ="Time"
+         category-data  ="Duration"
          category-time  ="Month"
       />
       
       <statistic
-         name           ="%Pref_Year_Summary_TourTime"
+         name           ="%Pref_Summary_Duration"
          class          ="net.tourbook.statistics.graphs.StatisticYear_TourTime"
          id             ="net.tourbook.statistics.StatisticSummaryYearTourTime"
-         category-data  ="Time"
+         category-data  ="Duration"
          category-time  ="Year"
       />
       
@@ -132,7 +132,7 @@
       <!-- DISTANCE -->
       
       <statistic
-         name           ="%Pref_Day_Summary_Distance"
+         name           ="%Pref_Summary_Distance"
          class          ="net.tourbook.statistics.graphs.StatisticDay_Distance"
          id             ="net.tourbook.statistics.StatisticSummaryDayDistance"
          category-data  ="Distance"
@@ -140,7 +140,7 @@
       />
 
       <statistic
-         name           ="%Pref_Week_Summary_Distance"
+         name           ="%Pref_Summary_Distance"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_Distance"
          id             ="net.tourbook.statistics.StatisticSummaryWeekDistance"
          category-data  ="Distance"
@@ -148,7 +148,7 @@
       />
 
       <statistic
-         name           ="%Pref_Month_Summary_Distance"
+         name           ="%Pref_Summary_Distance"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_Distance"
          id             ="net.tourbook.statistics.StatisticSummaryMonthDistance"
          category-data  ="Distance"
@@ -156,7 +156,7 @@
       />
 
       <statistic
-         name           ="%Pref_Year_Summary_Distance"
+         name           ="%Pref_Summary_Distance"
          class          ="net.tourbook.statistics.graphs.StatisticYear_Distance"
          id             ="net.tourbook.statistics.StatisticSummaryYearDistance"
          category-data  ="Distance"
@@ -167,34 +167,34 @@
       <!-- ELEVATION GAIN / UP -->
 
       <statistic
-         name           ="%Pref_Day_Summary_Elevation_Gain"
+         name           ="%Pref_Summary_Elevation_Gain"
          class          ="net.tourbook.statistics.graphs.StatisticDay_Elevation_Up"
          id             ="net.tourbook.statistics.StatisticSummary_Day_Elevation_Up"
-         category-data  ="Elevation"
+         category-data  ="ElevationGain"
          category-time  ="Day"
       />
 
       <statistic
-         name           ="%Pref_Week_Summary_Elevation_Gain"
+         name           ="%Pref_Summary_Elevation_Gain"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_Elevation_Up"
          id             ="net.tourbook.statistics.StatisticSummary_Week_Elevation_Up"
-         category-data  ="Elevation"
+         category-data  ="ElevationGain"
          category-time  ="Week"
       />
 
       <statistic
-         name           ="%Pref_Month_Summary_Elevation_Gain"
+         name           ="%Pref_Summary_Elevation_Gain"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_Elevation_Up"
          id             ="net.tourbook.statistics.StatisticSummary_Month_Elevation_Up"
-         category-data  ="Elevation"
+         category-data  ="ElevationGain"
          category-time  ="Month"
       />
 
       <statistic
-         name           ="%Pref_Year_Summary_Elevation_Gain"
+         name           ="%Pref_Summary_Elevation_Gain"
          class          ="net.tourbook.statistics.graphs.StatisticYear_Elevation_Up"
          id             ="net.tourbook.statistics.StatisticSummary_Year_Elevation_Up"
-         category-data  ="Elevation"
+         category-data  ="ElevationGain"
          category-time  ="Year"
       />
 
@@ -202,34 +202,34 @@
       <!-- ELEVATION LOSS / DOWN -->
 
       <statistic
-         name           ="%Pref_Day_Summary_Elevation_Loss"
+         name           ="%Pref_Summary_Elevation_Loss"
          class          ="net.tourbook.statistics.graphs.StatisticDay_Elevation_Down"
          id             ="net.tourbook.statistics.StatisticSummary_Day_Elevation_Down"
-         category-data  ="Elevation"
+         category-data  ="ElevationLoss"
          category-time  ="Day"
       />
 
       <statistic
-         name           ="%Pref_Week_Summary_Elevation_Loss"
+         name           ="%Pref_Summary_Elevation_Loss"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_Elevation_Down"
          id             ="net.tourbook.statistics.StatisticSummary_Week_Elevation_Down"
-         category-data  ="Elevation"
+         category-data  ="ElevationLoss"
          category-time  ="Week"
       />
 
       <statistic
-         name           ="%Pref_Month_Summary_Elevation_Loss"
+         name           ="%Pref_Summary_Elevation_Loss"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_Elevation_Down"
          id             ="net.tourbook.statistics.StatisticSummary_Month_Elevation_Down"
-         category-data  ="Elevation"
+         category-data  ="ElevationLoss"
          category-time  ="Month"
       />
 
       <statistic
-         name           ="%Pref_Year_Summary_Elevation_Loss"
+         name           ="%Pref_Summary_Elevation_Loss"
          class          ="net.tourbook.statistics.graphs.StatisticYear_Elevation_Down"
          id             ="net.tourbook.statistics.StatisticSummary_Year_Elevation_Down"
-         category-data  ="Elevation"
+         category-data  ="ElevationLoss"
          category-time  ="Year"
       />
 
@@ -237,7 +237,7 @@
       <!-- ATHLETE -->
 
       <statistic
-         name           ="%Pref_Day_Summary_AthleteData"
+         name           ="%Pref_Summary_AthleteData"
          class          ="net.tourbook.statistics.graphs.StatisticDay_AthleteData"
          id             ="net.tourbook.statistics.StatisticSummaryDayAthleteData"
          category-data  ="AthleteData"
@@ -245,7 +245,7 @@
       />
 
       <statistic
-         name           ="%Pref_Week_Summary_AthleteData"
+         name           ="%Pref_Summary_AthleteData"
          class          ="net.tourbook.statistics.graphs.StatisticWeek_AthleteData"
          id             ="net.tourbook.statistics.StatisticSummaryWeekAthleteData"
          category-data  ="AthleteData"
@@ -253,7 +253,7 @@
       />
 
       <statistic
-         name           ="%Pref_Month_Summary_AthleteData"
+         name           ="%Pref_Summary_AthleteData"
          class          ="net.tourbook.statistics.graphs.StatisticMonth_AthleteData"
          id             ="net.tourbook.statistics.StatisticSummaryMonthAthleteData"
          category-data  ="AthleteData"
@@ -261,7 +261,7 @@
       />
 
       <statistic
-         name           ="%Pref_Year_Summary_AthleteData"
+         name           ="%Pref_Summary_AthleteData"
          class          ="net.tourbook.statistics.graphs.StatisticYear_AthleteData"
          id             ="net.tourbook.statistics.StatisticSummaryYearAthleteData"
          category-data  ="AthleteData"
