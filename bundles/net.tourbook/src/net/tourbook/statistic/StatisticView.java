@@ -642,26 +642,12 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
    private String getSelectedCategoryTime() {
 
-      if (_comboTimeRange.isEnabled() == false) {
+      if (_comboTimeRange.getItemCount() == 0) {
          return "Other";
       }
 
-      switch (_comboTimeRange.getSelectionIndex()) {
-      case 0:
-         return "Day";
+      return _comboTimeRange.getItem(0);
 
-      case 1:
-         return "Week";
-
-      case 2:
-         return "Month";
-
-      case 3:
-         return "Year";
-
-      default:
-         return "Other";
-      }
    }
 
    @Override
@@ -1116,8 +1102,9 @@ public class StatisticView extends ViewPart implements ITourProvider {
       final List<TourbookStatistic> selectedTourbookStatistic = allAvailableStatistics.stream()
             .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)))
             .toList();
+      //todo fb do not rebuild the combos if its just to change between year, week, month etc...
+      setSelectedCategoryTime(selectedTourbookStatistic);
       if (selectedTourbookStatistic.size() == 1) {
-         setSelectedCategoryTime(selectedTourbookStatistic.get(0).plugin_Category_Time);
          _comboTimeRange.setEnabled(false);
       } else {
          _comboTimeRange.setEnabled(true);
@@ -1157,33 +1144,26 @@ public class StatisticView extends ViewPart implements ITourProvider {
       _comboStatistics.setFocus();
    }
 
-   private void setSelectedCategoryTime(final String pluginCategoryTime) {
+   private void setSelectedCategoryTime(final List<TourbookStatistic> selectedTourbookStatistic) {
 
-      int selectedIndex;
-      switch (pluginCategoryTime) {
-
-      case "Day":
-         selectedIndex = 0;
-         break;
-
-      case "Week":
-         selectedIndex = 1;
-         break;
-
-      case "Month":
-         selectedIndex = 2;
-         break;
-
-      case "Year":
-         selectedIndex = 3;
-         break;
-
-      default:
-         selectedIndex = -1;
-         break;
+      if (selectedTourbookStatistic == null || selectedTourbookStatistic.isEmpty()) {
+         return;
       }
 
-      _comboTimeRange.select(selectedIndex);
+      _comboTimeRange.removeAll();
+
+      for (final TourbookStatistic statistic : selectedTourbookStatistic) {
+
+         if (statistic.plugin_Category_Time.equals("Other")) {
+            return;
+         }
+
+         _comboTimeRange.add(statistic.plugin_Category_Time);
+
+      }
+      if (selectedTourbookStatistic.size() > 1) {
+         _comboTimeRange.select(0);
+      }
    }
 
    /**
