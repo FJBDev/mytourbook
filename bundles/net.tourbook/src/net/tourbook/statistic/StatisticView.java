@@ -797,17 +797,20 @@ public class StatisticView extends ViewPart implements ITourProvider {
       _allStatisticProvider = StatisticManager.getStatisticProviders();
 
       _comboStatistics.removeAll();
+      _internalStatisticsList.clear();
       int indexCounter = 0;
       int selectedIndex = 0;
 
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
 
-         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
-
-            _comboStatistics.add(statistic.plugin_VisibleName);
+         if (Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
+            continue;
          }
 
-         if (_activeStatistic != null && _activeStatistic.plugin_StatisticId.equals(statistic.plugin_StatisticId)) {
+         _comboStatistics.add(statistic.plugin_VisibleName);
+         _internalStatisticsList.add(statistic.plugin_Category_Data);
+
+         if (_activeStatistic != null && _activeStatistic.plugin_VisibleName.equals(statistic.plugin_VisibleName)) {
             selectedIndex = indexCounter;
          }
 
