@@ -476,7 +476,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
             _comboTimeRange.add("week");
             _comboTimeRange.add("month");
             _comboTimeRange.add("year");
-            _comboTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
+            _comboTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTimeRange()));
          }
 
          {
@@ -640,14 +640,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
       return numberOfYears;
    }
 
-   private String getSelectedCategoryTime() {
+   private String getSelectedCategoryTime(final boolean isStatisticsChanged) {
 
       if (_comboTimeRange.getItemCount() == 0) {
          return "Other";
       }
 
-      return _comboTimeRange.getItem(0);
-
+      final int selectedIndex = isStatisticsChanged ? 0 : _comboTimeRange.getSelectionIndex();
+      return _comboTimeRange.getItem(selectedIndex);
    }
 
    @Override
@@ -727,11 +727,22 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
    private void onSelectStatistic() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
-      updateStatistic_10_NoReload(null);
+      updateStatistic_10_NoReload(null, true);
+
+      //activate or gray out the time range
+   }
+
+   private void onSelectTimeRange() {
+
+      if (setActiveStatistic(false) == false) {
+         return;
+      }
+
+      updateStatistic_10_NoReload(null, false);
 
       //activate or gray out the time range
    }
@@ -768,14 +779,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
          _selectedYear = Integer.parseInt(_comboYear.getItem(selectedItem));
 
          if (isUpdateStatistic) {
-            updateStatistic_10_NoReload(null);
+            updateStatistic_10_NoReload(null, true);
          }
       }
    }
 
    void refreshStatisticProvider() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
@@ -1049,7 +1060,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       /*
        * Select tour
        */
-      updateStatistic_10_NoReload(batterySoCSelection.getTourId());
+      updateStatistic_10_NoReload(batterySoCSelection.getTourId(), true);
    }
 
    private void selectYear(final int defaultYear) {
@@ -1085,7 +1096,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     * @return Returns <code>true</code> when a statistic is selected and {@link #_activeStatistic}
     *         is valid.
     */
-   private boolean setActiveStatistic() {
+   private boolean setActiveStatistic(final boolean isStatisticsChanged) {
 
       // get selected statistic
       final int selectedIndex = _comboStatistics.getSelectionIndex();
@@ -1103,14 +1114,21 @@ public class StatisticView extends ViewPart implements ITourProvider {
             .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)))
             .toList();
       //todo fb do not rebuild the combos if its just to change between year, week, month etc...
-      setSelectedCategoryTime(selectedTourbookStatistic);
-      if (selectedTourbookStatistic.size() == 1) {
-         _comboTimeRange.setEnabled(false);
-      } else {
-         _comboTimeRange.setEnabled(true);
+
+      if (isStatisticsChanged) {
+
+         setSelectedCategoryTime(selectedTourbookStatistic);
+
+         if (selectedTourbookStatistic.size() == 1) {
+
+            _comboTimeRange.setEnabled(false);
+         } else {
+
+            _comboTimeRange.setEnabled(true);
+         }
       }
 
-      final String categoryTime = getSelectedCategoryTime();
+      final String categoryTime = getSelectedCategoryTime(isStatisticsChanged);
 
       final TourbookStatistic tourbookStatistic = allAvailableStatistics.stream()
             .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)) &&
@@ -1175,7 +1193,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private void updateStatistic() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
@@ -1215,14 +1233,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
     * @param tourId
     *           Tour which should be selected or <code>null</code>
     */
-   private void updateStatistic_10_NoReload(final Long tourId) {
+   private void updateStatistic_10_NoReload(final Long tourId, final boolean isStatisticsChanged) {
 
       // keep current year
       if (_selectedYear == -1) {
          return;
       }
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(isStatisticsChanged) == false) {
          // statistic is not available
          return;
       }
