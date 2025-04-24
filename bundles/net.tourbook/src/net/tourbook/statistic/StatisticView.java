@@ -796,9 +796,6 @@ public class StatisticView extends ViewPart implements ITourProvider {
       int indexCounter = 0;
       int selectedIndex = 0;
 
-      // fill combobox with statistic names
-      //TODO FB fill the combo but not for Week, Year etc.....
-      //then, depending on what we find in the plugin, fill the 2nd combo for year, week etc...
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
 
          if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
