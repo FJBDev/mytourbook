@@ -58,7 +58,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    public static final String                    ID                     = "net.tourbook.preferences.PrefPageStatistic"; //$NON-NLS-1$
 
    private static final HashMap<String, Integer> _sortingByCategoryData = new HashMap<>();
-   private static final HashMap<String, Integer> _sortingByCategoryTime = new HashMap<>();
 
    private TableViewer                           _statViewer;
 
@@ -68,7 +67,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    private Button                                _btnMoveDown;
    private Button                                _btnMoveUp;
    private Button                                _btnSortByData;
-   private Button                                _btnSortByTime;
 
 //   <attribute name="category-data" use="required">
 //   <annotation>
@@ -121,13 +119,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
       _sortingByCategoryData.put("Battery",     40); //$NON-NLS-1$
       _sortingByCategoryData.put("Sensor",      42); //$NON-NLS-1$
       _sortingByCategoryData.put("Other",       99); //$NON-NLS-1$
-   }
-   {
-      _sortingByCategoryTime.put("Day",         1); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Week",        2); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Month",       3); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Year",        4); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Other",       99); //$NON-NLS-1$
    }
 // SET_FORMATTING_ON
 
@@ -273,14 +264,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             setButtonLayoutData(_btnSortByData);
             _btnSortByData.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByData()));
          }
-
-         {
-            // Button: Sort by time
-            _btnSortByTime = new Button(container, SWT.NONE);
-            _btnSortByTime.setText(Messages.Pref_Statistic_Action_SortByTime);
-            setButtonLayoutData(_btnSortByTime);
-            _btnSortByTime.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByTime()));
-         }
       }
    }
 
@@ -360,19 +343,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
          final int stat1Sorting = _sortingByCategoryData.get(stat1.plugin_Category_Data);
          final int stat2Sorting = _sortingByCategoryData.get(stat2.plugin_Category_Data);
-
-         return stat1Sorting - stat2Sorting;
-      });
-
-      updateUI_WithReselection();
-   }
-
-   private void onSortByTime() {
-
-      Collections.sort(_visibleStatistics, (stat1, stat2) -> {
-
-         final int stat1Sorting = _sortingByCategoryTime.get(stat1.plugin_Category_Time);
-         final int stat2Sorting = _sortingByCategoryTime.get(stat2.plugin_Category_Time);
 
          return stat1Sorting - stat2Sorting;
       });

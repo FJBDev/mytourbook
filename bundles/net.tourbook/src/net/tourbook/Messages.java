@@ -1905,7 +1905,6 @@ public class Messages extends NLS {
    public static String        Pref_People_Title;
 
    public static String        Pref_Statistic_Action_SortByData;
-   public static String        Pref_Statistic_Action_SortByTime;
    public static String        Pref_Statistic_Label_Info;
 
    public static String        Pref_Swimming_Label_Info;
