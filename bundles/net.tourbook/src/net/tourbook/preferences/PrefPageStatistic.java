@@ -151,7 +151,14 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
       final Composite uiContainer = createUI(parent);
 
-      _visibleStatistics = StatisticManager.getStatisticProviders();
+      _visibleStatistics = new ArrayList<>();
+      for (final TourbookStatistic statistic : StatisticManager.getStatisticProviders()) {
+
+         if (_visibleStatistics.stream().noneMatch(o -> o.plugin_VisibleName.equals(statistic.plugin_VisibleName))) {
+
+            _visibleStatistics.add(statistic);
+         }
+      }
 
       // load viewer
       _statViewer.setInput(new Object());
