@@ -801,7 +801,10 @@ public class StatisticView extends ViewPart implements ITourProvider {
       //then, depending on what we find in the plugin, fill the 2nd combo for year, week etc...
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
 
-         _comboStatistics.add(statistic.plugin_VisibleName);
+         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
+
+            _comboStatistics.add(statistic.plugin_VisibleName);
+         }
 
          if (_activeStatistic != null && _activeStatistic.plugin_StatisticId.equals(statistic.plugin_StatisticId)) {
             selectedIndex = indexCounter;
@@ -1359,7 +1362,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
    }
 
    /**
-    * Each statistic has it's own toolbar
+    * Each statistic has its own toolbar
     */
    private void updateUI_Toolbar() {
 
