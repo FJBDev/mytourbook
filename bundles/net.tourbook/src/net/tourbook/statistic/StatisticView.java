@@ -86,6 +86,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private static final String               COMBO_MINIMUM_WIDTH      = "1234567890";                                  //$NON-NLS-1$
    private static final String               COMBO_MAXIMUM_WIDTH      = "123456789012345678901234567890";              //$NON-NLS-1$
 
+   private static final String               OTHER                    = "Other";                                       //$NON-NLS-1$
+
    private static final String               STATE_SELECTED_STATISTIC = "statistic.container.selected_statistic";      //$NON-NLS-1$
    private static final String               STATE_SELECTED_YEAR      = "statistic.container.selected-year";           //$NON-NLS-1$
    private static final String               STATE_NUMBER_OF_YEARS    = "statistic.container.number_of_years";         //$NON-NLS-1$
@@ -470,12 +472,13 @@ public class StatisticView extends ViewPart implements ITourProvider {
              */
 
             _comboTimeRange = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-            _comboTimeRange.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
+            _comboTimeRange.setToolTipText(Messages.Tour_Book_Combo_TimeRange_Tooltip);
             _comboTimeRange.setVisibleItemCount(4);
-            _comboTimeRange.add("Day");
-            _comboTimeRange.add("Week");
-            _comboTimeRange.add("Month");
-            _comboTimeRange.add("Year");
+            //todo fb it doesnt work in other languages than enlish!
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Day);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Week);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Month);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Year);
             _comboTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTimeRange()));
          }
 
@@ -644,7 +647,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
                                           final boolean isTimeRangeContentUnchanged) {
 
       if (_comboTimeRange.getItemCount() == 0) {
-         return "Other";
+         return OTHER;
       }
       if (_comboTimeRange.getItemCount() == 1) {
          return _comboTimeRange.getItem(0);
@@ -1129,7 +1132,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
          setSelectedCategoryTime(selectedTourbookStatistic);
 
          final boolean isComboTimeRangeEnabled = selectedTourbookStatistic.size() == 1 ? !selectedTourbookStatistic.get(0).plugin_Category_Time
-               .equals("Other") : true;
+               .equals(OTHER) : true;
          _comboTimeRange.setEnabled(isComboTimeRangeEnabled);
       }
 
@@ -1179,7 +1182,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       for (final TourbookStatistic statistic : selectedTourbookStatistic) {
 
-         if (statistic.plugin_Category_Time.equals("Other")) {
+         if (statistic.plugin_Category_Time.equals(OTHER)) {
             return;
          }
 
