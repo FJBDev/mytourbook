@@ -10971,9 +10971,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    public long getTourDeviceTime_Elapsed_Night() {
 
-      if (latitudeSerie == null || latitudeSerie.length == 0 ||
-            longitudeSerie == null || longitudeSerie.length == 0) {
-
+      if (hasGeoData() == false) {
+         // the time zone needs a geo position
          return 0;
       }
 
