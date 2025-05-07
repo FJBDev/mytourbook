@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 package net.tourbook.statistic;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import net.tourbook.Messages;
@@ -142,7 +143,7 @@ public class StatisticManager {
       final boolean isShowRawData = false;
 
       final String statValues = formatStatValues(
-            
+
             rawStatisticValues,
             isCSVFormat,
             isRemoveZeros,
@@ -263,9 +264,7 @@ public class StatisticManager {
                   Object object;
                   try {
                      object = configElement.createExecutableExtension("class"); //$NON-NLS-1$
-                     if (object instanceof TourbookStatistic) {
-
-                        final TourbookStatistic statisticItem = (TourbookStatistic) object;
+                     if (object instanceof final TourbookStatistic statisticItem) {
 
                         statisticItem.plugin_StatisticId = configElement.getAttribute("id"); //$NON-NLS-1$
                         statisticItem.plugin_VisibleName = configElement.getAttribute("name"); //$NON-NLS-1$
@@ -288,9 +287,9 @@ public class StatisticManager {
    /**
     * @return Returns statistic providers with the custom sort order
     */
-   public static ArrayList<TourbookStatistic> getStatisticProviders() {
+   public static List<TourbookStatistic> getStatisticProviders() {
 
-      final ArrayList<TourbookStatistic> availableStatistics = getStatisticExtensionPoints();
+      final List<TourbookStatistic> availableStatistics = getStatisticExtensionPoints();
       final ArrayList<TourbookStatistic> visibleStatistics = new ArrayList<>();
 
       final IPreferenceStore prefStore = TourbookPlugin.getPrefStore();

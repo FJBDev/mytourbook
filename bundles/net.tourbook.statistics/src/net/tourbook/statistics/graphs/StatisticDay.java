@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -100,10 +100,10 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
       _tourPropertyListener = (workbenchPart, tourEventId, propertyData) -> {
 
-         if (tourEventId == TourEventId.TOUR_CHANGED && propertyData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && propertyData instanceof final TourEvent tourEvent) {
 
             // check if a tour was modified
-            final ArrayList<TourData> modifiedTours = ((TourEvent) propertyData).getModifiedTours();
+            final ArrayList<TourData> modifiedTours = tourEvent.getModifiedTours();
             if (modifiedTours != null) {
 
                for (final TourData modifiedTourData : modifiedTours) {
@@ -220,8 +220,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
 
             // set selection also into the view that when the view is activated, then a tour selection is fired
             final ISelectionProvider selectionProvider = viewSite.getSelectionProvider();
-            if (selectionProvider instanceof PostSelectionProvider) {
-               ((PostSelectionProvider) selectionProvider).setSelectionNoFireEvent(selection);
+            if (selectionProvider instanceof final PostSelectionProvider postSelectionProvider) {
+               postSelectionProvider.setSelectionNoFireEvent(selection);
             }
          }
       });
@@ -245,16 +245,13 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          if (traverseEvent.detail == SWT.TRAVERSE_RETURN) {
 
             final ISelection selection = _chart.getSelection();
-            if (selection instanceof SelectionBarChart) {
-               final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+            if (selection instanceof final SelectionBarChart barChartSelection &&
+                  barChartSelection.serieIndex != -1) {
 
-               if (barChartSelection.serieIndex != -1) {
+               _selectedTourId = _statisticData_Day.allTourIds[barChartSelection.valueIndex];
+               _tourInfoToolTipProvider.setTourId(_selectedTourId);
 
-                  _selectedTourId = _statisticData_Day.allTourIds[barChartSelection.valueIndex];
-                  _tourInfoToolTipProvider.setTourId(_selectedTourId);
-
-                  ActionEditQuick.doAction(StatisticDay.this);
-               }
+               ActionEditQuick.doAction(StatisticDay.this);
             }
          }
       });
@@ -273,8 +270,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
     * @return
     */
    private ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
-                                final Composite parent,
-                                int valueIndex) {
+                                           final Composite parent,
+                                           int valueIndex) {
 
       final int[] tourDOYValues = _statisticData_Day.getDoyValues();
 
@@ -626,9 +623,9 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       }
 
       final ISelection selection = _chart.getSelection();
-      if (_statisticData_Day != null && selection instanceof SelectionBarChart) {
+      if (_statisticData_Day != null && selection instanceof final SelectionBarChart selectionBarChart) {
 
-         final int valueIndex = ((SelectionBarChart) selection).valueIndex;
+         final int valueIndex = selectionBarChart.valueIndex;
 
          // check array bounds
          if (valueIndex < _statisticData_Day.allTourIds.length) {
@@ -721,22 +718,19 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
        */
       long selectedTourId = -1;
       final ISelection selection = _chart.getSelection();
-      if (selection instanceof SelectionBarChart) {
-         final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+      if (selection instanceof final SelectionBarChart barChartSelection &&
+            barChartSelection.serieIndex != -1) {
 
-         if (barChartSelection.serieIndex != -1) {
+         int selectedValueIndex = barChartSelection.valueIndex;
+         final long[] tourIds = _statisticData_Day.allTourIds;
 
-            int selectedValueIndex = barChartSelection.valueIndex;
-            final long[] tourIds = _statisticData_Day.allTourIds;
+         if (tourIds.length > 0) {
 
-            if (tourIds.length > 0) {
-
-               if (selectedValueIndex >= tourIds.length) {
-                  selectedValueIndex = tourIds.length - 1;
-               }
-
-               selectedTourId = tourIds[selectedValueIndex];
+            if (selectedValueIndex >= tourIds.length) {
+               selectedValueIndex = tourIds.length - 1;
             }
+
+            selectedTourId = tourIds[selectedValueIndex];
          }
       }
 
