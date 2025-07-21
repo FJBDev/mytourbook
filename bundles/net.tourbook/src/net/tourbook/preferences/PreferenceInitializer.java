@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -256,14 +256,17 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.GRAPH_IS_SHOW_NIGHT_SECTIONS, true);
       store.setDefault(ITourbookPreferences.GRAPH_NIGHT_SECTIONS_OPACITY, 0x80);
 
+      // speed/pace interval graph, unit is meters
+      store.setDefault(ITourbookPreferences.GRAPH_SPEED_PACE_DISTANCE_INTERVAL, 1000);
+
       // graph grid
       store.setDefault(ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE, 80);
       store.setDefault(ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE, 80);
       store.setDefault(ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES, false);
       store.setDefault(ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES, false);
 
-      // speed/pace interval graph, unit is meters
-      store.setDefault(ITourbookPreferences.GRAPH_SPEED_PACE_DISTANCE_INTERVAL, 1000);
+      // chart layout
+      store.setDefault(ITourbookPreferences.CHART_Y_AXIS_WIDTH, 50);
 
       /*
        * Min/Max values
@@ -563,8 +566,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
        * Tour Nutrition
        */
       store.setDefault(ITourbookPreferences.NUTRITION_IGNORE_FIRST_HOUR, false);
-
-      // SET_FORMATTING_ON
    }
 
 }

@@ -21,6 +21,10 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.ui.messages";                    //$NON-NLS-1$
 
+   public static String        ChartOptions_Layout_Group_Layout;
+   public static String        ChartOptions_Layout_Label_VerticalAxisWidth;
+   public static String        ChartOptions_Layout_Label_VerticalAxisWidth_Tooltip;
+
    public static String        ColumnFactory_AirQuality;
    public static String        ColumnFactory_AirQuality_Label;
    public static String        ColumnFactory_altitude_computed_difference_tooltip;
@@ -341,12 +345,6 @@ public class Messages extends NLS {
 
    public static String        ColumnFactory_Photo_FilePath_Label;
    public static String        ColumnFactory_Photo_FilePath_Tooltip;
-   public static String        ColumnFactory_Photo_TimeAdjustment_Header;
-   public static String        ColumnFactory_Photo_TimeAdjustment_Label;
-   public static String        ColumnFactory_Photo_TimeAdjustment_Tooltip;
-   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Header;
-   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Label;
-   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Tooltip;
    public static String        ColumnFactory_Photo_NumberOfGPSPhotos_Header;
    public static String        ColumnFactory_Photo_NumberOfGPSPhotos_Label;
    public static String        ColumnFactory_Photo_NumberOfGPSPhotos_Tooltip;
@@ -356,6 +354,15 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Photo_NumberOfTourPhotos_Header;
    public static String        ColumnFactory_Photo_NumberOfTourPhotos_Label;
    public static String        ColumnFactory_Photo_NumberOfTourPhotos_Tooltip;
+   public static String        ColumnFactory_Photo_Positioned_Header;
+   public static String        ColumnFactory_Photo_Positioned_Label;
+   public static String        ColumnFactory_Photo_Positioned_Tooltip;
+   public static String        ColumnFactory_Photo_TimeAdjustment_Header;
+   public static String        ColumnFactory_Photo_TimeAdjustment_Label;
+   public static String        ColumnFactory_Photo_TimeAdjustment_Tooltip;
+   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Header;
+   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Label;
+   public static String        ColumnFactory_Photo_TimeAdjustmentAll_Tooltip;
    public static String        ColumnFactory_Photo_TourCamera_Label;
    public static String        ColumnFactory_Photo_TourCamera_Label_Tooltip;
 
@@ -485,6 +492,9 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Surfing_NumberOfEvents_Header;
    public static String        ColumnFactory_Surfing_NumberOfEvents_Label;
 
+   public static String        ColumnFactory_Swim_LengthType_Header;
+   public static String        ColumnFactory_Swim_LengthType_Label;
+   public static String        ColumnFactory_Swim_LengthType_Tooltip;
    public static String        ColumnFactory_Swim_StrokeRate_Label;
    public static String        ColumnFactory_Swim_StrokeRate_Tooltip;
    public static String        ColumnFactory_Swim_StrokesPerLength_Label;

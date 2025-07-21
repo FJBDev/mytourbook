@@ -20,18 +20,17 @@ package net.tourbook.photo;
  */
 public class PhotoImages {
 
-   public static final String App_Delete                          = "delete.png";                                   //$NON-NLS-1$
-   public static final String App_Refresh                         = "refresh.png";                                  //$NON-NLS-1$
+   public static final String App_Refresh                         = "refresh.svg";                                  //$NON-NLS-1$
 
    public static final String Photo_ShowAnnotation                = "photo-action-show-annotation.png";             //$NON-NLS-1$
    public static final String Photo_ShowAnnotation_Disabled       = "photo-action-show-annotation-disabled.png";    //$NON-NLS-1$
-   public static final String PhotoAnnotation_Cropped             = "photo-annotation-cropped.png";                 //$NON-NLS-1$
+   public static final String PhotoAnnotation_Cropped             = "photo-annotation-cropped.svg";                 //$NON-NLS-1$
    public static final String PhotoAnnotation_ExifGPS             = "photo-annotation-exif-gps.png";                //$NON-NLS-1$
-   public static final String PhotoAnnotation_Tonality            = "photo-annotation-tonality.png";                //$NON-NLS-1$
+   public static final String PhotoAnnotation_Tonality            = "photo-annotation-tonality.svg";                //$NON-NLS-1$
    public static final String PhotoAnnotation_TourGPS             = "photo-annotation-tour-gps.png";                //$NON-NLS-1$
    public static final String PhotoAnnotation_SavedInTour         = "photo-annotation-saved-in-tour.png";           //$NON-NLS-1$
    public static final String PhotoAnnotation_SavedInTour_Hovered = "photo-annotation-saved-in-tour-hovered.png";   //$NON-NLS-1$
-   public static final String PhotoDirectoryView                  = "photo-directory.png";                          //$NON-NLS-1$
+   public static final String PhotoDirectoryView                  = "photo-directory.svg";                          //$NON-NLS-1$
    public static final String PhotoEnlargeSmallPhotos             = "photo-enlarge-small-photos.png";               //$NON-NLS-1$
    public static final String PhotoFilter_GPS                     = "photo-filter-gps.png";                         //$NON-NLS-1$
    public static final String PhotoFilter_GPS_Disabled            = "photo-filter-gps-disabled.png";                //$NON-NLS-1$
@@ -54,7 +53,7 @@ public class PhotoImages {
    public static final String PhotoInfo_Name_Disabled             = "photo-info-name-disabled.png";                 //$NON-NLS-1$
    public static final String PhotoInvalid_PhotoImage             = "photo-invalid-photo-image.png";                //$NON-NLS-1$
    public static final String PhotoInvalid_PhotoImage_Hovered     = "photo-invalid-photo-image-hovered.png";        //$NON-NLS-1$
-   public static final String PhotoRatingStar                     = "photo-rating-star.png";                        //$NON-NLS-1$
+   public static final String PhotoRatingStar                     = "photo-rating-star.svg";                        //$NON-NLS-1$
    public static final String PhotoRatingStar_AndHovered          = "photo-rating-star-and-hovered.png";            //$NON-NLS-1$
    public static final String PhotoRatingStar_Delete              = "photo-rating-star-delete.png";                 //$NON-NLS-1$
    public static final String PhotoRatingStar_Disabled            = "photo-rating-star-disabled.png";               //$NON-NLS-1$
@@ -66,8 +65,7 @@ public class PhotoImages {
    public static final String PhotoSort_ByDate_Disabled           = "photo-sort-by-date-disabled.png";              //$NON-NLS-1$
    public static final String PhotoSort_ByName                    = "photo-sort-by-name.png";                       //$NON-NLS-1$
    public static final String PhotoSort_ByName_Disabled           = "photo-sort-by-name-disabled.png";              //$NON-NLS-1$
-   public static final String PhotoTooltip                        = "photo-tooltip.png";                            //$NON-NLS-1$
-   public static final String PhotoTooltip_Disabled               = "photo-tooltip-disabled.png";                   //$NON-NLS-1$
+   public static final String PhotoTooltip                        = "photo-tooltip.svg";                            //$NON-NLS-1$
 
    private PhotoImages() {}
 }

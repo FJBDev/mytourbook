@@ -768,7 +768,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          setGraphLabel_Duration(_yData_Duration, durationTime);
       }
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the data in the chart
       _chart.updateChart(chartModel, false, true);

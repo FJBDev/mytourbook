@@ -306,9 +306,12 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
             updateStatistic();
 
-         } else if (property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)) {
+         } else if (
 
-            // measurement system has changed
+         // measurement system has changed
+         property.equals(ICommonPreferences.MEASUREMENT_SYSTEM)
+
+               || property.equals(ICommonPreferences.UI_DRAWING_FONT_IS_MODIFIED)) {
 
             updateStatistic();
          }
@@ -1337,9 +1340,11 @@ public class StatisticView extends ViewPart implements ITourProvider {
       final int preferredWidth = _comboBarVerticalOrder.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
 
       final GridData gd = (GridData) _comboBarVerticalOrder.getLayoutData();
-      gd.widthHint = preferredWidth > _maximumComboWidth //
+      gd.widthHint = preferredWidth > _maximumComboWidth
+
             ? _maximumComboWidth
-            : preferredWidth < _minimumComboWidth //
+            : preferredWidth < _minimumComboWidth
+
                   ? _minimumComboWidth
                   : preferredWidth;
 
@@ -1391,6 +1396,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       _activeStatistic.setupStatisticSlideout(_slideoutStatisticOptions);
       _slideoutStatisticOptions.setupGrid(
             _activeStatistic.getGridPrefPrefix(),
+            _activeStatistic.getLayoutPrefPrefix(),
             _activeStatistic.getEnabledGridOptions());
    }
 

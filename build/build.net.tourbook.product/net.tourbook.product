@@ -4,7 +4,7 @@
 <product 
 
    name              ="MyTourbook Product" 
-   version           ="25.4.0.qualifier" 
+   version           ="25.8.0.qualifier" 
 
    id                ="net.tourbook.productWithoutJRE" 
    uid               ="net.tourbook.productWithoutJRE" 
@@ -98,7 +98,9 @@
       <feature id="org.eclipse.emf.common"/>
 
       <feature id="feature.net.tourbook.ext.eclipse"        installMode="root"/>
+<!-- 
       <feature id="feature.net.tourbook.ext.eclipse.nl"     installMode="root"/>
+-->
       <feature id="feature.net.tourbook.ext.derby"          installMode="root"/>
       <feature id="feature.net.tourbook.ext.ejb3"           installMode="root"/>
       <feature id="feature.net.tourbook.ext.jars"           installMode="root"/>
