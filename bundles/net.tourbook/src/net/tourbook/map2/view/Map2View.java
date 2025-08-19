@@ -617,7 +617,6 @@ public class Map2View extends ViewPart implements
          setText(Messages.Map_Action_CopyLocation);
 
          setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Copy));
-         setDisabledImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Copy_Disabled));
       }
 
       @Override
@@ -1084,8 +1083,7 @@ public class Map2View extends ViewPart implements
 
       public ActionSyncMap() {
 
-         super(TourbookPlugin.getThemedImageDescriptor(Images.SyncMap),
-               TourbookPlugin.getThemedImageDescriptor(Images.SyncMap_Disabled));
+         super(TourbookPlugin.getThemedImageDescriptor(Images.SyncWith_Tour));
 
          isToggleAction = true;
          isShowSlideoutAlways = true;

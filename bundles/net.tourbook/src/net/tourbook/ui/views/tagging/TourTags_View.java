@@ -221,8 +221,7 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer 
 
          setToolTipText(Messages.Action_Tag_Restore_Tooltip);
 
-         setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.RestoreTags));
-         setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.RestoreTags_Disabled));
+         setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.RestoreTour));
       }
 
       @Override
@@ -241,7 +240,6 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer 
          setToolTipText(Messages.Action_Tag_Save_Tooltip);
 
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.SaveTags));
-         setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.SaveTags_Disabled));
       }
 
       @Override
@@ -272,7 +270,6 @@ public class TourTags_View extends ViewPart implements ITreeViewer, ITourViewer 
          setToolTipText(Messages.Tour_Tags_Action_TagCheckFilter_OnlyTaggedTours_Tooltip);
 
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TagsChecked));
-         setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TagsChecked_Disabled));
       }
 
       @Override

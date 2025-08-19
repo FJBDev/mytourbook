@@ -477,7 +477,6 @@ public class TourBookView extends ViewPart implements
          super(Messages.Tour_Book_Action_GoToLastTour_Tooltip2, AS_PUSH_BUTTON);
 
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Today));
-         setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Today_Disabled));
       }
 
       @Override
@@ -556,8 +555,7 @@ public class TourBookView extends ViewPart implements
 
       public ActionTourCollectionFilter() {
 
-         super(TourbookPlugin.getThemedImageDescriptor(Images.TourFilter_Collected_All),
-               TourbookPlugin.getThemedImageDescriptor(Images.TourFilter_Collected_All_Disabled));
+         super(TourbookPlugin.getThemedImageDescriptor(Images.TourFilter_Collected_All));
 
          isToggleAction = true;
          isShowSlideoutAlways = true;
@@ -4155,7 +4153,7 @@ public class TourBookView extends ViewPart implements
          break;
       }
 
-      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getImageDescriptor(viewLayoutImage));
+      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(viewLayoutImage));
 
       /*
        * View options
@@ -4564,7 +4562,7 @@ public class TourBookView extends ViewPart implements
 
       _viewLayout = TourBookViewLayout.CATEGORY_MONTH;
 
-      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourBook_Month));
+      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourBook_Month));
 
       _isLayoutNatTable = false;
    }
@@ -4573,7 +4571,7 @@ public class TourBookView extends ViewPart implements
 
       _viewLayout = TourBookViewLayout.CATEGORY_WEEK;
 
-      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourBook_Week));
+      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourBook_Week));
 
       _isLayoutNatTable = false;
    }
@@ -4582,7 +4580,7 @@ public class TourBookView extends ViewPart implements
 
       _viewLayout = TourBookViewLayout.NAT_TABLE;
 
-      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.TourBook_NatTable));
+      _actionToggleViewLayout.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourBook_NatTable));
 
       _isLayoutNatTable = true;
    }
