@@ -1923,7 +1923,6 @@ public class Messages extends NLS {
    public static String        Pref_People_Title;
 
    public static String        Pref_Statistic_Action_SortByData;
-   public static String        Pref_Statistic_Action_SortByTime;
    public static String        Pref_Statistic_Label_Info;
 
    public static String        Pref_Swimming_Label_Info;
@@ -3178,9 +3177,14 @@ public class Messages extends NLS {
    public static String        Tour_Book_Action_ExportViewCSV_Tooltip;
    public static String        Tour_Book_Action_GoToLastTour_Tooltip2;
    public static String        Tour_Book_Action_ToggleViewLayout_Tooltip;
-   public static String        Tour_Book_Combo_statistic_tooltip;
+   public static String        Tour_Book_Combo_Statistics_Tooltip;
+   public static String        Tour_Book_Combo_TimeRange_Tooltip;
    public static String        Tour_Book_Info_TourLocationIsAvailable;
    public static String        Tour_Book_Label_chart_title;
+   public static String        Tour_Book_Label_TimeRange_Day;
+   public static String        Tour_Book_Label_TimeRange_Week;
+   public static String        Tour_Book_Label_TimeRange_Month;
+   public static String        Tour_Book_Label_TimeRange_Year;
    public static String        Tour_Book_Label_Total;
    public static String        Tour_Book_Monitor_CollateSubtask;
    public static String        Tour_Book_Monitor_CollateTask;

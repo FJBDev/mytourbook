@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import net.tourbook.Images;
 import net.tourbook.Messages;
@@ -84,9 +86,12 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private static final String               COMBO_MINIMUM_WIDTH      = "1234567890";                                  //$NON-NLS-1$
    private static final String               COMBO_MAXIMUM_WIDTH      = "123456789012345678901234567890";              //$NON-NLS-1$
 
+   private static final String               OTHER                    = "Other";                                       //$NON-NLS-1$
+
    private static final String               STATE_SELECTED_STATISTIC = "statistic.container.selected_statistic";      //$NON-NLS-1$
    private static final String               STATE_SELECTED_YEAR      = "statistic.container.selected-year";           //$NON-NLS-1$
    private static final String               STATE_NUMBER_OF_YEARS    = "statistic.container.number_of_years";         //$NON-NLS-1$
+   private static final String               STATE_TIME_RANGE         = "statistic.container.time_range";              //$NON-NLS-1$
 
    private static final char                 NL                       = net.tourbook.common.UI.NEW_LINE;
 
@@ -119,7 +124,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
    /**
     * contains the statistics in the same sort order as the statistic combo box
     */
-   private ArrayList<TourbookStatistic>      _allStatisticProvider;
+   private List<TourbookStatistic>           _allStatisticProvider;
 
    private ActionCopyStatValuesIntoClipboard _actionCopyStatValuesIntoClipboard;
    private ActionStatisticOptions            _actionStatisticOptions;
@@ -138,6 +143,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private Combo                    _comboYear;
    private Combo                    _comboStatistics;
+   private Combo                    _comboTimeRange;
    private Combo                    _comboNumberOfYears;
    private Combo                    _comboBarVerticalOrder;
 
@@ -146,6 +152,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
    private PageBook                 _pageBookStatistic;
 
    private SlideoutStatisticOptions _slideoutStatisticOptions;
+
+   private List<String>             _internalStatisticsList = new ArrayList<>();
 
    private class ActionCopyStatValuesIntoClipboard extends Action {
 
@@ -335,13 +343,13 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       _tourEventListener = (part, tourEventId, eventData) -> {
 
-         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
+         if (tourEventId == TourEventId.TOUR_CHANGED && eventData instanceof final TourEvent tourEvent) {
 
             if (part == StatisticView.this) {
                return;
             }
 
-            if (((TourEvent) eventData).isTourModified) {
+            if ((tourEvent).isTourModified) {
                /*
                 * ignore edit changes because the statistics show data only from saved data
                 */
@@ -365,9 +373,9 @@ public class StatisticView extends ViewPart implements ITourProvider {
             updateStatistic();
 
          } else if (tourEventId == TourEventId.SELECTION_RECORDING_DEVICE_BATTERY
-               && eventData instanceof SelectionRecordingDeviceBattery) {
+               && eventData instanceof final SelectionRecordingDeviceBattery selectionRecordingDeviceBattery) {
 
-            selectBatterySoCStatistic((SelectionRecordingDeviceBattery) eventData);
+            selectBatterySoCStatistic(selectionRecordingDeviceBattery);
          }
       };
       TourManager.getInstance().addTourEventListener(_tourEventListener);
@@ -454,10 +462,26 @@ public class StatisticView extends ViewPart implements ITourProvider {
              */
 
             _comboStatistics = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-            _comboStatistics.setToolTipText(Messages.Tour_Book_Combo_statistic_tooltip);
+            _comboStatistics.setToolTipText(Messages.Tour_Book_Combo_Statistics_Tooltip);
             _comboStatistics.setVisibleItemCount(50);
 
             _comboStatistics.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectStatistic()));
+         }
+
+         {
+            /*
+             * combo: statistics time range
+             */
+
+            _comboTimeRange = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+            _comboTimeRange.setToolTipText(Messages.Tour_Book_Combo_TimeRange_Tooltip);
+            _comboTimeRange.setVisibleItemCount(4);
+            //todo fb it doesnt work in other languages than enlish!
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Day);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Week);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Month);
+            _comboTimeRange.add(Messages.Tour_Book_Label_TimeRange_Year);
+            _comboTimeRange.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelectTimeRange()));
          }
 
          {
@@ -597,7 +621,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
    /**
     * @return Returns all statistic plugins which are displayed in the statistic combo box
     */
-   private ArrayList<TourbookStatistic> getAvailableStatistics() {
+   private List<TourbookStatistic> getAvailableStatistics() {
 
       if (_allStatisticProvider == null) {
          _allStatisticProvider = StatisticManager.getStatisticProviders();
@@ -619,6 +643,20 @@ public class StatisticView extends ViewPart implements ITourProvider {
       }
 
       return numberOfYears;
+   }
+
+   private String getSelectedCategoryTime(final boolean isStatisticsChanged,
+                                          final boolean isTimeRangeContentUnchanged) {
+
+      if (_comboTimeRange.getItemCount() == 0) {
+         return OTHER;
+      }
+      if (_comboTimeRange.getItemCount() == 1) {
+         return _comboTimeRange.getItem(0);
+      }
+
+      final int selectedIndex = isStatisticsChanged && !isTimeRangeContentUnchanged ? 0 : _comboTimeRange.getSelectionIndex();
+      return _comboTimeRange.getItem(selectedIndex);
    }
 
    @Override
@@ -698,11 +736,24 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
    private void onSelectStatistic() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
-      updateStatistic_10_NoReload(null);
+      updateStatistic_10_NoReload(null, true);
+
+      //activate or gray out the time range
+   }
+
+   private void onSelectTimeRange() {
+
+      if (setActiveStatistic(false) == false) {
+         return;
+      }
+
+      updateStatistic_10_NoReload(null, false);
+
+      //activate or gray out the time range
    }
 
    private void onSelectYear(final boolean isUpdateStatistic) {
@@ -737,29 +788,34 @@ public class StatisticView extends ViewPart implements ITourProvider {
          _selectedYear = Integer.parseInt(_comboYear.getItem(selectedItem));
 
          if (isUpdateStatistic) {
-            updateStatistic_10_NoReload(null);
+            updateStatistic_10_NoReload(null, true);
          }
       }
    }
 
    void refreshStatisticProvider() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
       _allStatisticProvider = StatisticManager.getStatisticProviders();
 
       _comboStatistics.removeAll();
+      _internalStatisticsList.clear();
       int indexCounter = 0;
       int selectedIndex = 0;
 
-      // fill combobox with statistic names
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
 
-         _comboStatistics.add(statistic.plugin_VisibleName);
+         if (Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
+            continue;
+         }
 
-         if (_activeStatistic != null && _activeStatistic.plugin_StatisticId.equals(statistic.plugin_StatisticId)) {
+         _comboStatistics.add(statistic.plugin_VisibleName);
+         _internalStatisticsList.add(statistic.plugin_Category_Data);
+
+         if (_activeStatistic != null && _activeStatistic.plugin_VisibleName.equals(statistic.plugin_VisibleName)) {
             selectedIndex = indexCounter;
          }
 
@@ -883,7 +939,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    void restoreState() {
 
-      final ArrayList<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
+      final List<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
       if (allAvailableStatistics.isEmpty()) {
          return;
       }
@@ -903,9 +959,12 @@ public class StatisticView extends ViewPart implements ITourProvider {
       int prevStatIndex = 0;
       final String mementoStatisticId = _state.get(STATE_SELECTED_STATISTIC);
       if (mementoStatisticId != null) {
+
          int statIndex = 0;
          for (final TourbookStatistic statistic : allAvailableStatistics) {
+
             if (mementoStatisticId.equalsIgnoreCase(statistic.plugin_StatisticId)) {
+
                prevStatIndex = statIndex;
                break;
             }
@@ -913,6 +972,8 @@ public class StatisticView extends ViewPart implements ITourProvider {
          }
       }
 
+      final int timeRangeIndex = _state.getInt(STATE_TIME_RANGE);
+      _comboTimeRange.select(timeRangeIndex);
       // select statistic item
       _comboStatistics.select(prevStatIndex);
       onSelectStatistic();
@@ -926,7 +987,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
    @PersistState
    private void saveState() {
 
-      final ArrayList<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
+      final List<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
       if (allAvailableStatistics.isEmpty()) {
          return;
       }
@@ -935,6 +996,12 @@ public class StatisticView extends ViewPart implements ITourProvider {
       final int selectionIndex = _comboStatistics.getSelectionIndex();
       if (selectionIndex != -1) {
          _state.put(STATE_SELECTED_STATISTIC, allAvailableStatistics.get(selectionIndex).plugin_StatisticId);
+      }
+
+      // keep statistic time range id for the selected statistic time range
+      final int statisticsTimeRangeselectionIndex = _comboTimeRange.getSelectionIndex();
+      if (statisticsTimeRangeselectionIndex != -1) {
+         _state.put(STATE_TIME_RANGE, statisticsTimeRangeselectionIndex);
       }
 
       for (final TourbookStatistic tourbookStatistic : allAvailableStatistics) {
@@ -952,7 +1019,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private void selectBatterySoCStatistic(final SelectionRecordingDeviceBattery batterySoCSelection) {
 
-      final ArrayList<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
+      final List<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
       if (allAvailableStatistics.isEmpty()) {
          return;
       }
@@ -1005,7 +1072,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
       /*
        * Select tour
        */
-      updateStatistic_10_NoReload(batterySoCSelection.getTourId());
+      updateStatistic_10_NoReload(batterySoCSelection.getTourId(), true);
    }
 
    private void selectYear(final int defaultYear) {
@@ -1041,7 +1108,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     * @return Returns <code>true</code> when a statistic is selected and {@link #_activeStatistic}
     *         is valid.
     */
-   private boolean setActiveStatistic() {
+   private boolean setActiveStatistic(final boolean isStatisticsChanged) {
 
       // get selected statistic
       final int selectedIndex = _comboStatistics.getSelectionIndex();
@@ -1050,12 +1117,34 @@ public class StatisticView extends ViewPart implements ITourProvider {
          return false;
       }
 
-      final ArrayList<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
+      final List<TourbookStatistic> allAvailableStatistics = getAvailableStatistics();
       if (allAvailableStatistics.isEmpty()) {
          return false;
       }
 
-      final TourbookStatistic tourbookStatistic = allAvailableStatistics.get(selectedIndex);
+      final List<TourbookStatistic> selectedTourbookStatistic = allAvailableStatistics.stream()
+            .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)))
+            .toList();
+
+      boolean isTimeRangeContentUnchanged = true;
+      if (isStatisticsChanged) {
+
+         isTimeRangeContentUnchanged = _comboTimeRange.getItemCount() == selectedTourbookStatistic.size();
+
+         setSelectedCategoryTime(selectedTourbookStatistic);
+
+         final boolean isComboTimeRangeEnabled = selectedTourbookStatistic.size() == 1 ? !selectedTourbookStatistic.get(0).plugin_Category_Time
+               .equals(OTHER) : true;
+         _comboTimeRange.setEnabled(isComboTimeRangeEnabled);
+      }
+
+      final String categoryTime = getSelectedCategoryTime(isStatisticsChanged, isTimeRangeContentUnchanged);
+
+      final TourbookStatistic tourbookStatistic = allAvailableStatistics.stream()
+            .filter(statistic -> statistic.plugin_Category_Data.equals(_internalStatisticsList.get(selectedIndex)) &&
+                  statistic.plugin_Category_Time.equals(categoryTime))
+            .findFirst()
+            .orElse(null);
 
       Composite statisticUI = tourbookStatistic.getUIControl();
 
@@ -1083,6 +1172,30 @@ public class StatisticView extends ViewPart implements ITourProvider {
       _comboStatistics.setFocus();
    }
 
+   private void setSelectedCategoryTime(final List<TourbookStatistic> selectedTourbookStatistic) {
+
+      if (selectedTourbookStatistic == null ||
+            selectedTourbookStatistic.isEmpty() ||
+            _comboTimeRange.getItemCount() == selectedTourbookStatistic.size()) {
+         return;
+      }
+
+      _comboTimeRange.removeAll();
+
+      for (final TourbookStatistic statistic : selectedTourbookStatistic) {
+
+         if (statistic.plugin_Category_Time.equals(OTHER)) {
+            return;
+         }
+
+         _comboTimeRange.add(statistic.plugin_Category_Time);
+
+      }
+      if (selectedTourbookStatistic.size() >= 1) {
+         _comboTimeRange.select(0);
+      }
+   }
+
    /**
     * Update all statistics which have been created because person or tour type could be changed and
     * reload data.
@@ -1092,7 +1205,7 @@ public class StatisticView extends ViewPart implements ITourProvider {
     */
    private void updateStatistic() {
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(true) == false) {
          return;
       }
 
@@ -1132,14 +1245,14 @@ public class StatisticView extends ViewPart implements ITourProvider {
     * @param tourId
     *           Tour which should be selected or <code>null</code>
     */
-   private void updateStatistic_10_NoReload(final Long tourId) {
+   private void updateStatistic_10_NoReload(final Long tourId, final boolean isStatisticsChanged) {
 
       // keep current year
       if (_selectedYear == -1) {
          return;
       }
 
-      if (setActiveStatistic() == false) {
+      if (setActiveStatistic(isStatisticsChanged) == false) {
          // statistic is not available
          return;
       }
@@ -1241,12 +1354,26 @@ public class StatisticView extends ViewPart implements ITourProvider {
 
       // fill combobox with statistic names
       for (final TourbookStatistic statistic : getAvailableStatistics()) {
-         _comboStatistics.add(statistic.plugin_VisibleName);
+
+//         TourbookStatistic [
+//                            statisticId  = net.tourbook.statistics.StatisticSummaryMonthCombined
+//                            visibleName  = Month Summary
+//                            categoryData = Summary
+//                            categoryTime = Month
+//                           ]
+         //if the combo doesn't contain the statistic
+         if (!Arrays.asList(_comboStatistics.getItems()).contains(statistic.plugin_VisibleName)) {
+
+            // add statistic to the combo
+
+            _comboStatistics.add(statistic.plugin_VisibleName);
+            _internalStatisticsList.add(statistic.plugin_Category_Data);
+         }
       }
    }
 
    /**
-    * Each statistic has it's own toolbar
+    * Each statistic has its own toolbar
     */
    private void updateUI_Toolbar() {
 
