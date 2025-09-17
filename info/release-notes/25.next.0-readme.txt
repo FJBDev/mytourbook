@@ -34,7 +34,8 @@ Experimental
 New / Improvements
 ==================
 
-* 
+* Tour Nutrition (Frederic):
+  - Select a product from a list of the most recent products used
 
 
 Changes
