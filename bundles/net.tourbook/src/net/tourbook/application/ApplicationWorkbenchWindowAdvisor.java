@@ -43,6 +43,7 @@ import net.tourbook.map.bookmark.MapBookmarkManager;
 import net.tourbook.map.player.ModelPlayerManager;
 import net.tourbook.map3.view.Map3Manager;
 import net.tourbook.map3.view.Map3State;
+import net.tourbook.nutrition.TourNutritionProductMenuManager;
 import net.tourbook.photo.PhotoUI;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPagePeople;
@@ -486,6 +487,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
          TagMenuManager.restoreTagState();
          TourTypeMenuManager.restoreState();
+         TourNutritionProductMenuManager.restoreState();
 
          loadPeopleData();
          setupAppSelectionListener();
@@ -625,6 +627,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
       TourTypeFilterManager.saveState();
       TourTypeMenuManager.saveState();
+      TourNutritionProductMenuManager.saveState();
       TourTypeManager.saveState();
 
       CommonLocationManager.saveState();
