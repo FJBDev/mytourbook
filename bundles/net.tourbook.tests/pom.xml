@@ -45,6 +45,7 @@
              <skipTests>true</skipTests>
              <argLine>${tycho.testArgLine} -Djunit.jupiter.displayname.generator.default=org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores -DlogFitData</argLine>
              <useJDK>BREE</useJDK>
+            <!--https://github.com/eclipse-tycho/tycho/issues/393-->
          </configuration>
       </plugin>
       
