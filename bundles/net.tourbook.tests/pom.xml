@@ -25,15 +25,13 @@
       <plugin>
         <artifactId>tycho-surefire-plugin</artifactId>         <groupId>org.eclipse.tycho</groupId>
                                                                <version>${tycho.version}</version>
-                                                               <configuration>
-					                                                   <useJDK>BREE</useJDK>
-                                                   				</configuration>
          <configuration>
              <useUIHarness>true</useUIHarness>
              <useUIThread>true</useUIThread>
              <product>org.eclipse.platform.ide</product>
              <skipTests>true</skipTests>
              <argLine>${tycho.testArgLine} -Djunit.jupiter.displayname.generator.default=org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores -DlogFitData</argLine>
+             <useJDK>BREE</useJDK>
          </configuration>
       </plugin>
       
