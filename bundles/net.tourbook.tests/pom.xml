@@ -32,7 +32,7 @@
 			<artifactId>tycho-compiler-plugin</artifactId>
 			<version>${tycho.version}</version>
 			<configuration>
-				<release>11</release>
+				<release>21</release>
 			</configuration>
 		</plugin>
       <plugin>
