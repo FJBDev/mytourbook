@@ -10,6 +10,7 @@ Require-Bundle: net.tourbook,
  org.eclipse.ui,
  net.tourbook.common,
  org.opentest4j,
+ org.eclipse.collections;bundle-version="[11.0.0,12.0.0)",
  junit-jupiter
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
