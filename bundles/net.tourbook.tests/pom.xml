@@ -21,7 +21,20 @@
       <testSourceDirectory>${project.basedir}/src-test</testSourceDirectory>
 	  
 	   <plugins>
-
+      <plugin>
+		   <groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-maven-plugin</artifactId>
+			<version>${tycho.version}</version>
+			<extensions>true</extensions>
+		</plugin>
+		<plugin>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-compiler-plugin</artifactId>
+			<version>${tycho.version}</version>
+			<configuration>
+				<release>11</release>
+			</configuration>
+		</plugin>
       <plugin>
         <artifactId>tycho-surefire-plugin</artifactId>         <groupId>org.eclipse.tycho</groupId>
                                                                <version>${tycho.version}</version>
