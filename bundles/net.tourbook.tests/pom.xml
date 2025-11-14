@@ -25,6 +25,9 @@
       <plugin>
         <artifactId>tycho-surefire-plugin</artifactId>         <groupId>org.eclipse.tycho</groupId>
                                                                <version>${tycho.version}</version>
+                                                               <configuration>
+					                                                   <useJDK>BREE</useJDK>
+                                                   				</configuration>
          <configuration>
              <useUIHarness>true</useUIHarness>
              <useUIThread>true</useUIThread>
