@@ -1,6 +1,6 @@
 plugins {
 
-   id 'org.sonarqube' version '7.0.1.6134'
+   id 'org.sonarqube' version '7.1.0.6387'
    id 'jacoco'
 }
 
@@ -96,7 +96,7 @@ task mt_20_BuildProduct(type: Exec) {
    // run: mvn clean verify -P build-release -V
    
    workingDir = "../.."
-   commandLine 'cmd', '/c', 'mvn clean verify -P build-release -V'
+   commandLine 'cmd', '/c', 'mvn -X clean verify -P build-release -V'
 }
 
 

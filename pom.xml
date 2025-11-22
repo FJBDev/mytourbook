@@ -16,7 +16,12 @@
    <dependencies>
       <dependency>
          <artifactId>junit-jupiter</artifactId>                  <groupId>org.junit.jupiter</groupId>
-                                                                 <version>6.0.0-RC3</version>
+                                                                 <version>5.10.2</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <artifactId>junit-platform-engine</artifactId>          <groupId>org.junit.platform</groupId>
+                                                                 <version>1.10.2</version>
          <scope>test</scope>
       </dependency>
    </dependencies>	
@@ -251,7 +256,7 @@
       
       <plugin>
          <artifactId>jacoco-maven-plugin</artifactId>          <groupId>org.jacoco</groupId>
-                                                               <version>0.8.13</version>
+                                                               <version>0.8.14</version>
          <executions>
          
             <execution>
