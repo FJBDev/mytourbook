@@ -31,6 +31,7 @@
       <testSourceDirectory>${project.basedir}/src-test</testSourceDirectory>
 	  
    <plugins>
+
       <plugin>
         <artifactId>tycho-surefire-plugin</artifactId>         <groupId>org.eclipse.tycho</groupId>
                                                                <version>${tycho.version}</version>
