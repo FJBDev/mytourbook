@@ -22,20 +22,6 @@
 	  
 	   <plugins>
       <plugin>
-		   <groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-maven-plugin</artifactId>
-			<version>${tycho.version}</version>
-			<extensions>true</extensions>
-		</plugin>
-		<plugin>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-compiler-plugin</artifactId>
-			<version>${tycho.version}</version>
-			<configuration>
-				<release>21</release>
-			</configuration>
-		</plugin>
-      <plugin>
         <artifactId>tycho-surefire-plugin</artifactId>         <groupId>org.eclipse.tycho</groupId>
                                                                <version>${tycho.version}</version>
          <configuration>
@@ -44,8 +30,6 @@
              <product>org.eclipse.platform.ide</product>
              <skipTests>true</skipTests>
              <argLine>${tycho.testArgLine} -Djunit.jupiter.displayname.generator.default=org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores -DlogFitData</argLine>
-             <useJDK>BREE</useJDK>
-            <!--https://github.com/eclipse-tycho/tycho/issues/393-->
          </configuration>
       </plugin>
       
