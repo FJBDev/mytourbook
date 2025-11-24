@@ -10,8 +10,16 @@ Require-Bundle: net.tourbook,
  org.eclipse.ui,
  net.tourbook.common,
  org.opentest4j,
- org.eclipse.collections;bundle-version="[11.0.0,12.0.0)",
- junit-jupiter
+ org.junit,
+ org.junit.jupiter.api,
+ org.junit.jupiter.engine,
+ org.junit.jupiter.migrationsupport,
+ org.junit.jupiter.params,
+ org.junit.platform.commons,
+ org.junit.platform.engine,
+ org.junit.platform.launcher,
+ org.junit.platform.runner,
+ org.junit.platform.suite.api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  hibernate-entitymanager.jar,
@@ -49,5 +57,7 @@ Import-Package: com.fasterxml.jackson.core.type,
  org.eclipse.jface.preference,
  org.eclipse.swt,
  org.eclipse.swt.widgets,
- org.json
+ org.json,
+ org.junit,
+ org.junit.jupiter.api
 Automatic-Module-Name: net.tourbook.tests
