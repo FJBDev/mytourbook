@@ -34,6 +34,16 @@ Experimental
 New / Improvements
 ==================
 
+* Tour Nutrition (Frederic):
+  - Select a product from a list of the most recent products used
+
+* Radar values
+    https://github.com/mytourbook/mytourbook/issues/1561
+  - Import values from .fit files
+  - Display values in 
+    - Tour book view
+    - Tour chart
+      - Value point tooltip
 
 * TBD: Fit Export
   - Export swim values
@@ -83,5 +93,5 @@ System
 * Eclipse 2025-09 (4.37)         https://archive.eclipse.org/eclipse/downloads/drops4/R-4.37-202509050730/
 * NatTable 2.6.0                 https://eclipse.dev/nattable/download
 * Nebula Widgets                 https://download.eclipse.org/nebula/releases/latest
-* FIT SDK 21.176.0               https://forums.garmin.com/developer/fit-sdk/b/news-announcements
+* FIT SDK 21.188.0               https://forums.garmin.com/developer/fit-sdk/b/news-announcements
 * WorldWind 2.2.1                https://github.com/NASAWorldWind/WorldWindJava/releases/tag/v2.2.1

@@ -485,6 +485,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
          TagMenuManager.restoreTagState();
          TourTypeMenuManager.restoreState();
+         //TourNutritionProductMenuManager.restoreState();
 
          loadPeopleData();
          setupAppSelectionListener();
