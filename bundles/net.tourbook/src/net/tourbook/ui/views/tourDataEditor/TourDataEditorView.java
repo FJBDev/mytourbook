@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2007, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -69,6 +69,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.TableColumnDefinition;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
+import net.tourbook.data.Equipment;
 import net.tourbook.data.GearDataType;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -79,6 +80,8 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.MyTourbookException;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.map2.view.SelectionMapPosition;
@@ -88,7 +91,6 @@ import net.tourbook.photo.PhotoEventId;
 import net.tourbook.photo.PhotoManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageWeather;
-import net.tourbook.tag.TagContentLayout;
 import net.tourbook.tag.TagManager;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
@@ -302,20 +304,23 @@ public class TourDataEditorView extends ViewPart implements
    static final String                   STATE_SCROLL_FIELD_CONTENT                       = "STATE_SCROLL_FIELD_CONTENT";                     //$NON-NLS-1$
    static final ScrollFieldContent       STATE_SCROLL_FIELD_CONTENT_DEFAULT               = ScrollFieldContent.WHEN_FIELD_IS_HOVERED;
    //
-   public static final String            STATE_TAG_CONTENT_LAYOUT                         = "STATE_TAG_CONTENT_LAYOUT";                       //$NON-NLS-1$
-   public static final TagContentLayout  STATE_TAG_CONTENT_LAYOUT_DEFAULT                 = TagContentLayout.IMAGE_AND_DATA;
-   public static final String            STATE_TAG_IMAGE_SIZE                             = "STATE_TAG_IMAGE_SIZE";                           //$NON-NLS-1$
-   public static final int               STATE_TAG_IMAGE_SIZE_DEFAULT                     = 100;
-   public static final int               STATE_TAG_IMAGE_SIZE_MIN                         = 10;
-   public static final int               STATE_TAG_IMAGE_SIZE_MAX                         = 500;
-   public static final String            STATE_TAG_TEXT_WIDTH                             = "STATE_TAG_TEXT_WIDTH";                           //$NON-NLS-1$
-   public static final int               STATE_TAG_TEXT_WIDTH_DEFAULT                     = 200;
-   public static final int               STATE_TAG_TEXT_WIDTH_MIN                         = 20;
-   public static final int               STATE_TAG_TEXT_WIDTH_MAX                         = 1000;
-   public static final String            STATE_TAG_NUM_CONTENT_COLUMNS                    = "STATE_TAG_NUM_CONTENT_COLUMNS";                  //$NON-NLS-1$
-   public static final int               STATE_TAG_NUM_CONTENT_COLUMNS_DEFAULT            = 2;
-   public static final int               STATE_TAG_NUM_CONTENT_COLUMNS_MIN                = 1;
-   public static final int               STATE_TAG_NUM_CONTENT_COLUMNS_MAX                = 100;
+   public static final String            STATE_CONTENT_LAYOUT                             = "STATE_CONTENT_LAYOUT";                           //$NON-NLS-1$
+   public static final ContentLayout     STATE_CONTENT_LAYOUT_DEFAULT                     = ContentLayout.IMAGE_AND_DATA;
+   public static final String            STATE_CONTENT_IMAGE_SIZE                         = "STATE_CONTENT_IMAGE_SIZE";                       //$NON-NLS-1$
+   public static final int               STATE_CONTENT_IMAGE_SIZE_DEFAULT                 = 100;
+   public static final int               STATE_CONTENT_IMAGE_SIZE_MIN                     = 10;
+   public static final int               STATE_CONTENT_IMAGE_SIZE_MAX                     = 500;
+   public static final String            STATE_CONTENT_TEXT_WIDTH                         = "STATE_CONTENT_TEXT_WIDTH";                       //$NON-NLS-1$
+   public static final int               STATE_CONTENT_TEXT_WIDTH_DEFAULT                 = 200;
+   public static final int               STATE_CONTENT_TEXT_WIDTH_MIN                     = 20;
+   public static final int               STATE_CONTENT_TEXT_WIDTH_MAX                     = 1000;
+   public static final String            STATE_CONTENT_NUM_COLUMNS                        = "STATE_CONTENT_NUM_COLUMNS";                      //$NON-NLS-1$
+   public static final int               STATE_CONTENT_NUM_COLUMNS_DEFAULT                = 2;
+   public static final int               STATE_CONTENT_NUM_CONTENT_COLUMNS_MIN            = 1;
+   public static final int               STATE_CONTENT_NUM_CONTENT_COLUMNS_MAX            = 100;
+   //
+   public static final String            STATE_EQUIPMENT_IS_USE_VIEWER_DEFAULT_HEIGHT     = "STATE_EQUIPMENT_IS_USE_VIEWER_DEFAULT_HEIGHT";   //$NON-NLS-1$
+   public static final String            STATE_EQUIPMENT_VIEWER_IMAGE_HEIGHT              = "STATE_EQUIPMENT_VIEWER_IMAGE_HEIGHT";            //$NON-NLS-1$
    //
    public static final String            STATE_AUTOCOMPLETE_POPUP_HEIGHT_TITLE            = "STATE_AUTOCOMPLETE_POPUP_HEIGHT_TITLE";          //$NON-NLS-1$
    public static final String            STATE_AUTOCOMPLETE_POPUP_HEIGHT_LOCATION_START   = "STATE_AUTOCOMPLETE_POPUP_HEIGHT_LOCATION_START"; //$NON-NLS-1$
@@ -597,6 +602,7 @@ public class TourDataEditorView extends ViewPart implements
    //
    private ArrayList<Action_SetSwimStyle>                             _allSwimStyleActions;
    //
+   private EquipmentMenuManager                                       _equipmentMenuMgr;
    private TagMenuManager                                             _tagMenuMgr;
    //
    /**
@@ -687,8 +693,11 @@ public class TourDataEditorView extends ViewPart implements
    /*
     * Tab: Tour
     */
+   private Composite                 _containerEquipment_Content;
+   private ScrolledComposite         _containerEquipment_Scrolled;
    private Composite                 _containerTags_Content;
    private ScrolledComposite         _containerTags_Scrolled;
+   private PageBook                  _pageBook_Equipment;
    private PageBook                  _pageBook_Tags;
    //
    private ComboViewerCadence        _comboCadence;
@@ -712,6 +721,8 @@ public class TourDataEditorView extends ViewPart implements
    private Label                     _lblAltitudeDownUnit;
    private Label                     _lblCloudIcon;
    private Label                     _lblDistanceUnit;
+   private Label                     _lblEquipment;
+   private Label                     _lblNoEquipment;
    private Label                     _lblNoTags;
    private Label                     _lblPerson_BodyWeightUnit;
    private Label                     _lblPerson_BodyFatUnit;
@@ -732,6 +743,7 @@ public class TourDataEditorView extends ViewPart implements
    private Label                     _lblWeather_TemperatureUnit_WindChill;
    //
    private Link                      _linkDefaultTimeZone;
+   private Link                      _linkEquipment;
    private Link                      _linkGeoTimeZone;
    private Link                      _linkRemoveTimeZone;
    private Link                      _linkTag;
@@ -2996,7 +3008,8 @@ public class TourDataEditorView extends ViewPart implements
                // removed old tour data from the selection provider
                _postSelectionProvider.clearSelection();
 
-            } else if (tourEventId == TourEventId.TAG_STRUCTURE_CHANGED) {
+            } else if (tourEventId == TourEventId.TAG_STRUCTURE_CHANGED
+                  || tourEventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED) {
 
                if (_isTourDirty) {
 
@@ -3005,8 +3018,8 @@ public class TourDataEditorView extends ViewPart implements
                } else {
 
                   /**
-                   * When tags are deleted, then the tour editor is not be dirty (this is
-                   * previously checked)
+                   * When tags are deleted, then the tour editor is not dirty (this is previously
+                   * checked)
                    * <p>
                    * -> reload tour with removed tags
                    */
@@ -3014,11 +3027,14 @@ public class TourDataEditorView extends ViewPart implements
                   reloadTourData();
                }
 
-            } else if (tourEventId == TourEventId.TAG_CONTENT_CHANGED) {
+            } else if (tourEventId == TourEventId.CONTENT_LAYOUT_CHANGED) {
 
                // redisplay tour tags
 
+               updateUI_EquipmentContent();
                updateUI_TagContent();
+
+               onResize_Tab1();
 
             } else if (tourEventId == TourEventId.MARKER_SELECTION && eventData instanceof final SelectionTourMarker tourMarkerSelection) {
 
@@ -3236,9 +3252,10 @@ public class TourDataEditorView extends ViewPart implements
       _actionDeleteTimeSlices_KeepTimeAndDistance                 = new ActionDeleteTimeSlices_KeepTimeAndDistance(this);
       _actionDeleteTimeSlices_RemoveTime                          = new ActionDeleteTimeSlices_RemoveTime(this);
 
-// SET_FORMATTING_ON
+      _equipmentMenuMgr = new EquipmentMenuManager(this, false, false);
+      _tagMenuMgr       = new TagMenuManager(this, false);
 
-      _tagMenuMgr = new TagMenuManager(this, false);
+// SET_FORMATTING_ON
 
       // swim style actions
       _action_SetSwimStyle_Header = new ActionSetSwimStyle_Header();
@@ -3511,7 +3528,7 @@ public class TourDataEditorView extends ViewPart implements
       _linkTourType.setMenu(menuMgr.createContextMenu(_linkTourType));
 
       /*
-       * tag menu
+       * Tag menu
        */
       menuMgr = new MenuManager();
 
@@ -3525,7 +3542,7 @@ public class TourDataEditorView extends ViewPart implements
          _tagMenuMgr.enableTagActions(true, isTagInTour, tourTags);
       });
 
-      // set menu for the tag item
+      // set menu for the tag link control
       final Menu tagContextMenu = menuMgr.createContextMenu(_linkTag);
       tagContextMenu.addMenuListener(new MenuAdapter() {
          @Override
@@ -3545,6 +3562,20 @@ public class TourDataEditorView extends ViewPart implements
       });
 
       _linkTag.setMenu(tagContextMenu);
+
+      /*
+       * Equipment menu
+       */
+      menuMgr = new MenuManager();
+
+      menuMgr.setRemoveAllWhenShown(true);
+      menuMgr.addMenuListener(menuManager -> {
+
+         _equipmentMenuMgr.fillEquipmentMenu(menuManager);
+      });
+
+      // set menu for the equipment link control
+      _linkEquipment.setMenu(menuMgr.createContextMenu(_linkEquipment));
    }
 
    @Override
@@ -5159,6 +5190,22 @@ public class TourDataEditorView extends ViewPart implements
       {
          {
             /*
+             * Tour type
+             */
+            _linkTourType = new Link(container, SWT.NONE);
+            _linkTourType.setText(Messages.tour_editor_label_tour_type);
+            _linkTourType.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> UI.openControlMenu(_linkTourType)));
+            _tk.adapt(_linkTourType, true, true);
+            _firstColumnControls.add(_linkTourType);
+
+            _lblTourType = new CLabel(container, SWT.NONE);
+            GridDataFactory.swtDefaults()
+                  .grab(true, false)
+                  .span(3, 1)
+                  .applyTo(_lblTourType);
+         }
+         {
+            /*
              * Tag Menu
              */
             _linkTag = new Link(container, SWT.NONE);
@@ -5210,24 +5257,58 @@ public class TourDataEditorView extends ViewPart implements
                }
             }
          }
-
          {
             /*
-             * Tour type
+             * Equipment Menu
              */
-            _linkTourType = new Link(container, SWT.NONE);
-            _linkTourType.setText(Messages.tour_editor_label_tour_type);
-            _linkTourType.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> UI.openControlMenu(_linkTourType)));
-            _tk.adapt(_linkTourType, true, true);
-            _firstColumnControls.add(_linkTourType);
+            _linkEquipment = new Link(container, SWT.NONE);
+            _linkEquipment.setText(Messages.Tour_Editor_Link_Equipment);
+            _linkEquipment.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> UI.openControlMenu(_linkEquipment)));
+            _tk.adapt(_linkEquipment, true, true);
+            _firstColumnControls.add(_linkEquipment);
+            GridDataFactory.fillDefaults()
+                  .align(SWT.BEGINNING, SWT.BEGINNING)
+                  .applyTo(_linkEquipment);
+            {
+               /*
+                * Equipment label/image
+                */
+               final GridDataFactory gdForEquipmentContent = GridDataFactory.fillDefaults().grab(true, true)
 
-            _lblTourType = new CLabel(container, SWT.NONE);
-            GridDataFactory.swtDefaults()
-                  .grab(true, false)
-                  .span(3, 1)
-                  .applyTo(_lblTourType);
+                     /*
+                      * Hint is necessary that the width is not expanded when the text is long
+                      */
+                     .hint(2 * _hintTextColumnWidth, SWT.DEFAULT);
+
+               _pageBook_Equipment = new PageBook(container, SWT.NONE);
+               gdForEquipmentContent.grab(false, false).span(3, 1).applyTo(_pageBook_Equipment);
+               {
+                  _lblEquipment = _tk.createLabel(_pageBook_Equipment, UI.EMPTY_STRING, SWT.WRAP);
+                  gdForEquipmentContent.applyTo(_lblEquipment);
+               }
+               {
+
+                  _containerEquipment_Scrolled = new ScrolledComposite(_pageBook_Equipment, SWT.V_SCROLL | SWT.H_SCROLL);
+                  _containerEquipment_Scrolled.setExpandVertical(true);
+                  _containerEquipment_Scrolled.setExpandHorizontal(true);
+
+                  _containerEquipment_Content = new Composite(_containerEquipment_Scrolled, SWT.NONE);
+
+                  _containerEquipment_Scrolled.setContent(_containerEquipment_Content);
+                  _containerEquipment_Scrolled.addControlListener(ControlListener.controlResizedAdapter(
+                        controlEvent -> onResize_EquipmentContent()));
+
+                  GridLayoutFactory.fillDefaults()
+                        .numColumns(TagManager.getNumberOfTagContentColumns())
+                        .applyTo(_containerEquipment_Content);
+
+                  gdForEquipmentContent.applyTo(_containerEquipment_Content);
+               }
+               {
+                  _lblNoEquipment = UI.createLabel(_pageBook_Equipment, UI.EMPTY_STRING);
+               }
+            }
          }
-
          {
             /*
              * Cadence: rpm/spm
@@ -7416,6 +7497,7 @@ public class TourDataEditorView extends ViewPart implements
       _spinPerson_RestPulse               .setEnabled(canEdit);
       _spinPerson_Calories                .setEnabled(canEdit);
 
+      _linkEquipment                      .setEnabled(canEdit);
       _linkTag                            .setEnabled(canEdit);
       _linkTourType                       .setEnabled(canEdit);
 
@@ -8057,6 +8139,7 @@ public class TourDataEditorView extends ViewPart implements
             _focusField = null;
          }
       };
+
       parent.addDisposeListener(e -> onDispose());
    }
 
@@ -8250,6 +8333,7 @@ public class TourDataEditorView extends ViewPart implements
 
    private void onDispose() {
 
+      EquipmentManager.disposeEquipmentUIContent();
       TagManager.disposeTagUIContent();
    }
 
@@ -8301,6 +8385,17 @@ public class TourDataEditorView extends ViewPart implements
        * https://sourceforge.net/p/mytourbook/bugs/128/
        */
       discardModifications();
+   }
+
+   private void onResize_EquipmentContent() {
+
+      if (_containerEquipment_Content == null || _containerEquipment_Content.isDisposed()) {
+         return;
+      }
+
+      final Point contentSize = _containerEquipment_Content.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+
+      _containerEquipment_Scrolled.setMinSize(contentSize);
    }
 
    private void onResize_Tab1() {
@@ -9574,7 +9669,7 @@ public class TourDataEditorView extends ViewPart implements
          if (_tourData == modifiedTours.get(0)) {
 
             // tour type or tags can have been changed within this dialog
-            updateUI_TourTypeAndTags();
+            updateUI_FromExternalChanges();
 
             setTourDirty();
          }
@@ -9937,6 +10032,7 @@ public class TourDataEditorView extends ViewPart implements
       if (IS_DARK_THEME) {
 
          _linkDefaultTimeZone    .setBackground(_backgroundColor_Default);
+         _linkEquipment          .setBackground(_backgroundColor_Default);
          _linkGeoTimeZone        .setBackground(_backgroundColor_Default);
          _linkRemoveTimeZone     .setBackground(_backgroundColor_Default);
          _linkTag                .setBackground(_backgroundColor_Default);
@@ -10010,6 +10106,53 @@ public class TourDataEditorView extends ViewPart implements
 
       final GridData gdWeather = (GridData) _txtWeather.getLayoutData();
       gdWeather.heightHint = _pc.convertHeightInCharsToPixels(_numLines_WeatherDescription);
+
+      onResize_Tab1();
+   }
+
+   private void updateUI_EquipmentContent() {
+
+      final Set<Equipment> allEquipment = _tourData.getEquipment();
+
+      if (allEquipment.size() == 0) {
+
+         // there are no equipment
+
+         _pageBook_Equipment.showPage(_lblNoEquipment);
+
+      } else {
+
+         // show equipment content
+
+         final ContentLayout tagContentLayout = TagManager.getTagContentLayout();
+
+         if (ContentLayout.IMAGE_AND_DATA.equals(tagContentLayout)) {
+
+            // show equipment with image
+
+            _pageBook_Equipment.showPage(_containerEquipment_Scrolled);
+
+            EquipmentManager.updateUI_EquipmentWithImage(_pc, allEquipment, _containerEquipment_Content);
+
+            // update scrolled tag content container
+            onResize_EquipmentContent();
+
+         } else {
+
+            // show only the equipment name
+
+            _pageBook_Equipment.showPage(_lblEquipment);
+
+            EquipmentManager.updateUI_Equipment(_tourData, _lblEquipment, false);
+         }
+      }
+   }
+
+   private void updateUI_FromExternalChanges() {
+
+      net.tourbook.ui.UI.updateUI_TourType(_tourData, _lblTourType, true);
+      updateUI_TagContent();
+      updateUI_EquipmentContent();
 
       onResize_Tab1();
    }
@@ -10471,9 +10614,10 @@ public class TourDataEditorView extends ViewPart implements
 
       updateUI_TimeZone();
 
-      // tour type/tags
+      // tour type/tags/equipment
       net.tourbook.ui.UI.updateUI_TourType(_tourData, _lblTourType, true);
       updateUI_TagContent();
+      updateUI_EquipmentContent();
 
 // SET_FORMATTING_OFF
 
@@ -10505,10 +10649,7 @@ public class TourDataEditorView extends ViewPart implements
       final CadenceMultiplier cadence = CadenceMultiplier.getByValue((int) _tourData.getCadenceMultiplier());
       _comboCadence.setSelection(cadence);
 
-      /*
-       * layout container to resize labels
-       */
-      _tourContainer.layout(true);
+      onResize_Tab1();
    }
 
    private void updateUI_Tab_2_TimeSlices() {
@@ -10579,9 +10720,9 @@ public class TourDataEditorView extends ViewPart implements
 
          // show tag content
 
-         final TagContentLayout tagContentLayout = TagManager.getTagContentLayout();
+         final ContentLayout tagContentLayout = TagManager.getTagContentLayout();
 
-         if (TagContentLayout.IMAGE_AND_DATA.equals(tagContentLayout)) {
+         if (ContentLayout.IMAGE_AND_DATA.equals(tagContentLayout)) {
 
             // show tag with image
 
@@ -10601,8 +10742,6 @@ public class TourDataEditorView extends ViewPart implements
             TagManager.updateUI_Tags(_tourData, _lblTags);
          }
       }
-
-      onResize_Tab1();
    }
 
    /**
@@ -10808,16 +10947,6 @@ public class TourDataEditorView extends ViewPart implements
             _page_EditorForm.setText(title);
          }
       });
-   }
-
-   private void updateUI_TourTypeAndTags() {
-
-      // tour type/tags
-      net.tourbook.ui.UI.updateUI_TourType(_tourData, _lblTourType, true);
-      updateUI_TagContent();
-
-      // reflow layout that the tags are aligned correctly
-      _tourContainer.layout(true);
    }
 
    private void updateUI_WeatherLinkTooltip() {

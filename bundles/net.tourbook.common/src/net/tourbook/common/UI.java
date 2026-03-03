@@ -27,7 +27,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.formatter.FormatManager;
@@ -668,6 +670,7 @@ public class UI {
    //
    public static final PeriodFormatter          DEFAULT_DURATION_FORMATTER;
    public static final PeriodFormatter          DEFAULT_DURATION_FORMATTER_SHORT;
+   public static final PeriodFormatter          DURATION_FORMATTER_YEAR_MONTH_DAY;
 
    private static StringBuilder                 _formatterSB               = new StringBuilder();
    private static Formatter                     _formatter                 = new Formatter(_formatterSB);
@@ -927,12 +930,14 @@ public class UI {
 
       final String commaSpace = Messages.Period_Format_CommaSpace;
       final String space2 = Messages.Period_Format_SpaceAndSpace;
+
       final String[] variants = {
 
             Messages.Period_Format_Space,
             Messages.Period_Format_Comma,
             Messages.Period_Format_CommaAndAnd,
-            Messages.Period_Format_CommaSpaceAnd };
+            Messages.Period_Format_CommaSpaceAnd
+      };
 
       DEFAULT_DURATION_FORMATTER = new PeriodFormatterBuilder()
 
@@ -1004,7 +1009,23 @@ public class UI {
 
             .toFormatter();
 
+      DURATION_FORMATTER_YEAR_MONTH_DAY = new PeriodFormatterBuilder()
+
+            .appendYears()
+            .appendSuffix(Messages.Period_Format_Year_Short, Messages.Period_Format_Year_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .appendMonths()
+            .appendSuffix(Messages.Period_Format_Month_Short, Messages.Period_Format_Month_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .appendDays()
+            .appendSuffix(Messages.Period_Format_Day_Short, Messages.Period_Format_Day_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .toFormatter();
    }
+
    /**
     * Number of horizontal dialog units per character, value <code>4</code>.
     */
@@ -1814,7 +1835,9 @@ public class UI {
     *
     * @return
     */
-   public static Composite createPage(final FormToolkit formToolkit, final Composite parent, final String labelText) {
+   public static Composite createPage(final FormToolkit formToolkit,
+                                      final Composite parent,
+                                      final String labelText) {
 
       final Composite container = formToolkit.createComposite(parent);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
@@ -1848,7 +1871,35 @@ public class UI {
       return label;
    }
 
-   public static void createSpacer_Vertical(final Composite parent, final int height, final int spanHorizontal) {
+   public static Label createSpacer_Horizontal(final Composite parent,
+                                               final int width,
+                                               final int columns) {
+
+      final Label label = new Label(parent, SWT.NONE);
+
+      GridDataFactory.fillDefaults()
+            .hint(width, SWT.DEFAULT)
+            .span(columns, 1)
+            .applyTo(label);
+
+      return label;
+   }
+
+   public static Label createSpacer_Horizontal(final Composite parent,
+                                               final int columns,
+                                               final int alignHorizontal,
+                                               final int alignVertical) {
+
+      final Label label = new Label(parent, SWT.NONE);
+
+      GridDataFactory.fillDefaults().align(alignHorizontal, alignVertical).span(columns, 1).applyTo(label);
+
+      return label;
+   }
+
+   public static void createSpacer_Vertical(final Composite parent,
+                                            final int height,
+                                            final int spanHorizontal) {
 
       final Label label = new Label(parent, SWT.NONE);
 
@@ -2116,6 +2167,15 @@ public class UI {
    public static String escapeAmpersand(final String text) {
 
       return text.replace(SYMBOL_AMPERSAND, SYMBOL_AMPERSAND_AMPERSAND);
+   }
+
+   public static void fillUI_Combobox(final Combo combo, final ConcurrentSkipListSet<String> allValues) {
+
+      for (final String value : allValues) {
+         if (value != null) {
+            combo.add(value);
+         }
+      }
    }
 
    public static String format_hh(final long time) {
@@ -2502,32 +2562,34 @@ public class UI {
 
    /**
     * @param allVisibleItems
-    * @param allExpandedItems
+    * @param allExpandedPaths
     *
     * @return Returns {@link TreePath}'s which are expanded and open (not hidden).
     */
-   public static TreePath[] getExpandedOpenedItems(final Object[] allVisibleItems, final TreePath[] allExpandedItems) {
+   public static TreePath[] getExpandedAndOpenedItems(final Object[] allVisibleItems,
+                                                      final TreePath[] allExpandedPaths) {
 
-      final ArrayList<TreePath> expandedOpened = new ArrayList<>();
+      final List<TreePath> allExpandedAndOpenedPaths = new ArrayList<>();
 
-      for (final TreePath expandedPath : allExpandedItems) {
+      for (final TreePath expandedPath : allExpandedPaths) {
 
          /*
-          * The last expanded segment must be in the visible list otherwise it is hidden.
+          * The last expanded segment must be in the visible list otherwise it is hidden
           */
-         final Object lastExpandedItem = expandedPath.getLastSegment();
+         final Object lastExpandedSegment = expandedPath.getLastSegment();
 
          for (final Object visibleItem : allVisibleItems) {
 
-            if (lastExpandedItem == visibleItem) {
+            if (lastExpandedSegment == visibleItem) {
 
-               expandedOpened.add(expandedPath);
+               allExpandedAndOpenedPaths.add(expandedPath);
+
                break;
             }
          }
       }
 
-      return expandedOpened.toArray(new TreePath[expandedOpened.size()]);
+      return allExpandedAndOpenedPaths.toArray(new TreePath[allExpandedAndOpenedPaths.size()]);
    }
 
    /**

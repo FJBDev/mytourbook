@@ -166,7 +166,7 @@ public class TagMenuManager implements IActionProvider {
       @Override
       public void run() {
 
-         BusyIndicator.showWhile(Display.getCurrent(), () -> runnableRemoveAllTags());
+         BusyIndicator.showWhile(Display.getCurrent(), () -> removeAllTags());
       }
    }
 
@@ -735,18 +735,17 @@ public class TagMenuManager implements IActionProvider {
       _advancedMenuToAddTags_Flat      = new AdvancedMenuForActions(_actionContribItem_AddTag_AutoOpen_Flat);
       _advancedMenuToAddTags_Tree      = new AdvancedMenuForActions(_actionContribItem_AddTag_AutoOpen_Tree);
 
-      _actionAddRecentTags             = new ActionAddRecentTags(this);
-      _actionAddTag                    = new ActionAddTourTag_SubMenu(this);
-      _actionAddTagGroups              = new ActionTagGroups_SubMenu();
-      _actionClipboard_CopyTags        = new ActionClipboard_CopyTags();
-      _actionClipboard_PasteTags       = new ActionClipboard_PasteTags();
-      _actionRemoveTag                 = new Action_RemoveTourTag_SubMenu(this);
-      _actionRemoveAllTags             = new Action_RemoveAllTags();
-      _actionSetTags                   = new ActionShowTourTagsView();
-                                       
-      _actionTagGroupPreferences       = new ActionOpenPrefDialog(Messages.Action_Tag_ManageTagGroups,PrefPageTagGroups.ID);
-                                       
-      _allTagActions                   = new HashMap<>();
+      _actionAddRecentTags       = new ActionAddRecentTags(this);
+      _actionAddTag              = new ActionAddTourTag_SubMenu(this);
+      _actionAddTagGroups        = new ActionTagGroups_SubMenu();
+      _actionClipboard_CopyTags  = new ActionClipboard_CopyTags();
+      _actionClipboard_PasteTags = new ActionClipboard_PasteTags();
+      _actionRemoveTag           = new Action_RemoveTourTag_SubMenu(this);
+      _actionRemoveAllTags       = new Action_RemoveAllTags();
+      _actionSetTags             = new ActionShowTourTagsView();
+      _actionTagGroupPreferences = new ActionOpenPrefDialog(Messages.Action_Tag_ManageTagGroups, PrefPageTagGroups.ID);
+
+      _allTagActions             = new HashMap<>();
 
       _allTagActions.put(_actionAddRecentTags         .getClass().getName(),  _actionAddRecentTags);
       _allTagActions.put(_actionAddTag                .getClass().getName(),  _actionAddTag);
@@ -798,11 +797,8 @@ public class TagMenuManager implements IActionProvider {
 
             isRemoveTagEnabled = true;
 
-            if (oneTourTagIds != null) {
-
-               for (final Long tagId : oneTourTagIds) {
-                  allTourTagIds.add(tagId);
-               }
+            for (final Long tagId : oneTourTagIds) {
+               allTourTagIds.add(tagId);
             }
 
          } else {
@@ -902,7 +898,14 @@ public class TagMenuManager implements IActionProvider {
     */
    public void fillTagMenu(final IMenuManager menuMgr) {
 
-      // all all tour tag actions
+      if (_actionContribItem_AddTag_AutoOpen_Current == null) {
+
+         // this happened when opening the tag context menu the first time in the tour data editor
+
+         updateTagAutoOpenAction(null);
+      }
+
+      // add all tour tag actions
       menuMgr.add(new Separator());
       {
          menuMgr.add(_actionContribItem_AddTag_AutoOpen_Current);
@@ -1186,32 +1189,38 @@ public class TagMenuManager implements IActionProvider {
             toolTip);
    }
 
-   private void runnableRemoveAllTags() {
+   private void removeAllTags() {
 
-      // get tours which tour type should be changed
-      final ArrayList<TourData> modifiedTours = _tourProvider.getSelectedTours();
+      // get tours which tag should be changed
+      final ArrayList<TourData> allModifiedTours = _tourProvider.getSelectedTours();
+      final ArrayList<TourData> allToursWithTags = new ArrayList<>();
 
-      if (modifiedTours == null || modifiedTours.isEmpty()) {
+      if (allModifiedTours == null || allModifiedTours.isEmpty()) {
          return;
       }
 
-      final HashMap<Long, TourTag> modifiedTags = new HashMap<>();
+      final HashMap<Long, TourTag> allModifiedTags = new HashMap<>();
 
       // remove tag in all tours (without tours from an editor)
-      for (final TourData tourData : modifiedTours) {
+      for (final TourData tourData : allModifiedTours) {
 
          // get all tag's which will be removed
-         final Set<TourTag> tourTags = tourData.getTourTags();
+         final Set<TourTag> allTourTags = tourData.getTourTags();
 
-         for (final TourTag tourTag : tourTags) {
-            modifiedTags.put(tourTag.getTagId(), tourTag);
+         if (allTourTags.size() > 0) {
+
+            allToursWithTags.add(tourData);
+
+            for (final TourTag tourTag : allTourTags) {
+               allModifiedTags.put(tourTag.getTagId(), tourTag);
+            }
+
+            // remove all tour tags
+            allTourTags.clear();
          }
-
-         // remove all tour tags
-         tourTags.clear();
       }
 
-      saveAndNotify(modifiedTags, modifiedTours);
+      saveAndNotify(allModifiedTags, allToursWithTags);
    }
 
    /**
@@ -1248,7 +1257,7 @@ public class TagMenuManager implements IActionProvider {
    }
 
    /**
-    * Set/Save for multiple tour tags
+    * Add/remove and save for multiple tour tags
     *
     * @param mapWithAllModifiedTags
     * @param isAddMode

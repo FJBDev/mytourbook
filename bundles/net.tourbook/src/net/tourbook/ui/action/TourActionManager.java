@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,13 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.util.Util;
+import net.tourbook.equipment.ActionAddEquipment_SubMenu;
+import net.tourbook.equipment.ActionAddRecentEquipment;
+import net.tourbook.equipment.ActionRemoveEquipment_SubMenu;
+import net.tourbook.equipment.EquipmentMenuManager.ActionAddEquipmentGroups_SubMenu;
+import net.tourbook.equipment.EquipmentMenuManager.ActionClipboard_CopyEquipment;
+import net.tourbook.equipment.EquipmentMenuManager.ActionClipboard_PasteEquipment;
+import net.tourbook.equipment.EquipmentMenuManager.ActionRemoveEquipmentAll;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.preferences.PrefPageAppearance_TourActions;
@@ -108,8 +115,9 @@ public class TourActionManager {
       _allDefinedActionsMap = new HashMap<>();
 
       createActions_10_Edit();
-      createActions_20_Tags();
-      createActions_30_TourTypes();
+      createActions_20_TourTypes();
+      createActions_30_Tags();
+      createActions_32_Equipment();
       createActions_40_Export();
       createActions_50_Adjust();
 
@@ -219,9 +227,47 @@ public class TourActionManager {
    }
 
    /**
+    * TOUR TYPE ACTIONS
+    */
+   private static void createActions_20_TourTypes() {
+
+// SET_FORMATTING_OFF
+
+      final TourAction categoryAction_TourType           = new TourAction(
+            Messages.Tour_Action_Category_TourTypes,
+            TourActionCategory.TOUR_TYPE);
+
+      final TourAction actionSetTourType                 = new TourAction(
+            ActionSetTourTypeMenu.class.getName(),
+            Messages.App_Action_set_tour_type,
+            TourActionCategory.TOUR_TYPE);
+
+
+      final TourAction actionAddRecentTourTypes          = new TourAction(
+            ActionAddRecentTourTypes.class.getName(),
+            Messages.Action_TourType_AddRecentTourTypes,
+            TourActionCategory.TOUR_TYPE);
+
+
+      _allDefinedActions.add(categoryAction_TourType);
+
+      _allDefinedActions.add(actionSetTourType);
+      _allDefinedActions.add(actionAddRecentTourTypes);
+
+
+      _allDefinedActionsMap.put(categoryAction_TourType         .getCategoryClassName(),      categoryAction_TourType);
+
+      _allDefinedActionsMap.put(ActionSetTourTypeMenu           .class.getName(),             actionSetTourType);
+      _allDefinedActionsMap.put(ActionAddRecentTourTypes        .class.getName(),             actionAddRecentTourTypes);
+
+// SET_FORMATTING_ON
+
+   }
+
+   /**
     * TAG ACTIONS
     */
-   private static void createActions_20_Tags() {
+   private static void createActions_30_Tags() {
 
 // SET_FORMATTING_OFF
 
@@ -279,21 +325,24 @@ public class TourActionManager {
       _allDefinedActions.add(actionAddTag_AutoOpen_Default);
       _allDefinedActions.add(actionAddTag_AutoOpen_Flat);
       _allDefinedActions.add(actionAddTag_AutoOpen_Tree);
-      _allDefinedActions.add(actionAddTagGroups);
       _allDefinedActions.add(actionAddTag);
       _allDefinedActions.add(actionAddRecentTags);
+      _allDefinedActions.add(actionAddTagGroups);
+
       _allDefinedActions.add(actionRemoveTourTag);
       _allDefinedActions.add(actionRemoveAllTags);
       _allDefinedActions.add(actionClipboard_CopyTags);
       _allDefinedActions.add(actionClipboard_PasteTags);
 
 
+
       _allDefinedActionsMap.put(categoryAction_Tag              .getCategoryClassName(),      categoryAction_Tag);
 
       _allDefinedActionsMap.put(ActionShowTourTagsView          .class.getName(),             actionSetTags);
-      _allDefinedActionsMap.put(ActionTagGroups_SubMenu         .class.getName(),             actionAddTagGroups);
       _allDefinedActionsMap.put(ActionAddTourTag_SubMenu        .class.getName(),             actionAddTag);
       _allDefinedActionsMap.put(ActionAddRecentTags             .class.getName(),             actionAddRecentTags);
+      _allDefinedActionsMap.put(ActionTagGroups_SubMenu         .class.getName(),             actionAddTagGroups);
+
       _allDefinedActionsMap.put(ActionClipboard_CopyTags        .class.getName(),             actionClipboard_CopyTags);
       _allDefinedActionsMap.put(ActionClipboard_PasteTags       .class.getName(),             actionClipboard_PasteTags);
       _allDefinedActionsMap.put(Action_RemoveTourTag_SubMenu    .class.getName(),             actionRemoveTourTag);
@@ -308,41 +357,73 @@ public class TourActionManager {
    }
 
    /**
-    * TOUR TYPE ACTIONS
+    * EQUIPMENT Actions
     */
-   private static void createActions_30_TourTypes() {
+   private static void createActions_32_Equipment() {
 
 // SET_FORMATTING_OFF
 
-      final TourAction categoryAction_TourType           = new TourAction(
-            Messages.Tour_Action_Category_TourTypes,
-            TourActionCategory.TOUR_TYPE);
-
-      final TourAction actionSetTourType                 = new TourAction(
-            ActionSetTourTypeMenu.class.getName(),
-            Messages.App_Action_set_tour_type,
-            TourActionCategory.TOUR_TYPE);
+      final TourAction categoryAction_Equipment          = new TourAction(    Messages.Tour_Action_Category_Equipment,
+                                                                              TourActionCategory.EQUIPMENT);
 
 
-      final TourAction actionAddRecentTourTypes          = new TourAction(
-            ActionAddRecentTourTypes.class.getName(),
-            Messages.Action_TourType_AddRecentTourTypes,
-            TourActionCategory.TOUR_TYPE);
+      final TourAction actionAddEquipment                = new TourAction(    ActionAddEquipment_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_AddEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
 
+      final TourAction actionAddEquipment_Groups         = new TourAction(    ActionAddEquipmentGroups_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_AddEquipment_Groups,
+                                                                              TourActionCategory.EQUIPMENT);
 
-      _allDefinedActions.add(categoryAction_TourType);
+      final TourAction actionAddRecentEquipment          = new TourAction(    ActionAddRecentEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_AddRecentEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
 
-      _allDefinedActions.add(actionSetTourType);
-      _allDefinedActions.add(actionAddRecentTourTypes);
+      final TourAction actionRemoveEquipment             = new TourAction(    ActionRemoveEquipment_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_RemoveEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
 
+      final TourAction actionRemoveEquipment_All         = new TourAction(    ActionRemoveEquipmentAll.class.getName(),
+                                                                              Messages.Equipment_Action_RemoveEquipment_All,
+                                                                              TourActionCategory.EQUIPMENT);
 
-      _allDefinedActionsMap.put(categoryAction_TourType         .getCategoryClassName(),      categoryAction_TourType);
+      final TourAction actionClipboard_CopyEquipment     = new TourAction(    ActionClipboard_CopyEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_ClipboardCopy,
+                                                                              TourActionCategory.EQUIPMENT);
 
-      _allDefinedActionsMap.put(ActionSetTourTypeMenu           .class.getName(),             actionSetTourType);
-      _allDefinedActionsMap.put(ActionAddRecentTourTypes        .class.getName(),             actionAddRecentTourTypes);
+      final TourAction actionClipboard_PasteEquipment    = new TourAction(    ActionClipboard_PasteEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_ClipboardPaste,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      // -----------------------------------------------------------------
+
+      _allDefinedActions.add(categoryAction_Equipment);
+
+      _allDefinedActions.add(actionAddEquipment);
+      _allDefinedActions.add(actionAddRecentEquipment);
+      _allDefinedActions.add(actionAddEquipment_Groups);
+
+      _allDefinedActions.add(actionRemoveEquipment);
+      _allDefinedActions.add(actionRemoveEquipment_All);
+
+      _allDefinedActions.add(actionClipboard_CopyEquipment);
+      _allDefinedActions.add(actionClipboard_PasteEquipment);
+
+      // -----------------------------------------------------------------
+
+      _allDefinedActionsMap.put(categoryAction_Equipment          .getCategoryClassName(),   categoryAction_Equipment);
+
+      _allDefinedActionsMap.put(ActionAddEquipment_SubMenu        .class.getName(),          actionAddEquipment);
+      _allDefinedActionsMap.put(ActionAddRecentEquipment          .class.getName(),          actionAddRecentEquipment);
+      _allDefinedActionsMap.put(ActionAddEquipmentGroups_SubMenu  .class.getName(),          actionAddEquipment_Groups);
+
+      _allDefinedActionsMap.put(ActionRemoveEquipment_SubMenu     .class.getName(),          actionRemoveEquipment);
+      _allDefinedActionsMap.put(ActionRemoveEquipmentAll          .class.getName(),          actionRemoveEquipment_All);
+
+      _allDefinedActionsMap.put(ActionClipboard_CopyEquipment     .class.getName(),          actionClipboard_CopyEquipment);
+      _allDefinedActionsMap.put(ActionClipboard_PasteEquipment    .class.getName(),          actionClipboard_PasteEquipment);
 
 // SET_FORMATTING_ON
-
    }
 
    private static void createActions_40_Export() {
@@ -569,7 +650,7 @@ public class TourActionManager {
     */
    public static void fillContextMenu(final IMenuManager menuMgr,
                                       final TourActionCategory actionCategory,
-                                      final HashMap<String, Object> allCategoryActions,
+                                      final Map<String, Object> allCategoryActions,
                                       final ITourProvider tourProvider) {
 
       final List<TourAction> allActiveActions = getActiveActions();

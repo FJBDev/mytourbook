@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2015, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,6 +47,8 @@ import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.data.TourData;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.ViewContext;
@@ -88,7 +90,6 @@ import net.tourbook.ui.views.TreeViewerTourInfoToolTip;
 import net.tourbook.ui.views.ViewNames;
 import net.tourbook.ui.views.rawData.ActionMergeTour;
 import net.tourbook.ui.views.rawData.ActionReimportTours;
-import net.tourbook.ui.views.tourBook.TVITourBookTour;
 
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.IMenuManager;
@@ -131,7 +132,12 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.part.ViewPart;
 
-public class CollatedToursView extends ViewPart implements ITourProvider, ITourViewer3, ITourProviderByID, ITreeViewer {
+public class CollatedToursView extends ViewPart implements
+
+      ITourProvider,
+      ITourProviderByID,
+      ITourViewer3,
+      ITreeViewer {
 
    public static final String ID = "net.tourbook.ui.views.collateTours.CollatedToursView"; //$NON-NLS-1$
 
@@ -184,6 +190,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    //
    private boolean                                    _isToolTipInCollation;
+   private boolean                                    _isToolTipInEquipment;
    private boolean                                    _isToolTipInTags;
    private boolean                                    _isToolTipInTime;
    private boolean                                    _isToolTipInTitle;
@@ -192,6 +199,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    private final TourDoubleClickState                 _tourDoubleClickState      = new TourDoubleClickState();
    private TreeViewerTourInfoToolTip                  _tourInfoToolTip;
    //
+   private EquipmentMenuManager                       _equipmentMenuManager;
    private TagMenuManager                             _tagMenuManager;
    private TourTypeMenuManager                        _tourTypeMenuManager;
    private MenuManager                                _viewerMenuManager;
@@ -240,6 +248,35 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    private Menu      _treeContextMenu;
 
+   private class ContentProvider implements ITreeContentProvider {
+
+      @Override
+      public void dispose() {}
+
+      @Override
+      public Object[] getChildren(final Object parentElement) {
+         return ((TreeViewerItem) parentElement).getFetchedChildrenAsArray();
+      }
+
+      @Override
+      public Object[] getElements(final Object inputElement) {
+         return _rootItem.getFetchedChildrenAsArray();
+      }
+
+      @Override
+      public Object getParent(final Object element) {
+         return ((TreeViewerItem) element).getParentItem();
+      }
+
+      @Override
+      public boolean hasChildren(final Object element) {
+         return ((TreeViewerItem) element).hasChildren();
+      }
+
+      @Override
+      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
+   }
+
    private static class ItemComparer implements IElementComparer {
 
       @Override
@@ -277,35 +314,6 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       public int hashCode(final Object element) {
          return 0;
       }
-   }
-
-   private class TourBookContentProvider implements ITreeContentProvider {
-
-      @Override
-      public void dispose() {}
-
-      @Override
-      public Object[] getChildren(final Object parentElement) {
-         return ((TreeViewerItem) parentElement).getFetchedChildrenAsArray();
-      }
-
-      @Override
-      public Object[] getElements(final Object inputElement) {
-         return _rootItem.getFetchedChildrenAsArray();
-      }
-
-      @Override
-      public Object getParent(final Object element) {
-         return ((TreeViewerItem) element).getParentItem();
-      }
-
-      @Override
-      public boolean hasChildren(final Object element) {
-         return ((TreeViewerItem) element).hasChildren();
-      }
-
-      @Override
-      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
    }
 
    public class TreeContextMenuProvider implements IContextMenuProvider {
@@ -422,6 +430,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
             reloadViewer();
 
          } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED
+               || eventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED
                || eventId == TourEventId.ALL_TOURS_ARE_MODIFIED) {
 
             reloadViewer();
@@ -489,20 +498,25 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       _allTourActions_Adjust.put(_actionSetOtherPerson            .getClass().getName(),  _actionSetOtherPerson);
 //    _allTourActions_Adjust.put(_actionDeleteTourMenu            .getClass().getName(),  _actionDeleteTourMenu);
 
-// SET_FORMATTING_ON
-
       TourActionManager.setAllViewActions(ID,
+
             _allTourActions_Edit.keySet(),
             _allTourActions_Export.keySet(),
             _allTourActions_Adjust.keySet(),
-            _tagMenuManager.getAllTagActions().keySet(),
-            _tourTypeMenuManager.getAllTourTypeActions().keySet());
+
+            _tourTypeMenuManager    .getAllTourTypeActions()   .keySet(),
+            _tagMenuManager         .getAllTagActions()        .keySet(),
+            _equipmentMenuManager   .getAllEquipmentActions()  .keySet()
+      );
+
+// SET_FORMATTING_ON
 
       fillActionBars();
    }
 
    private void createMenuManager() {
 
+      _equipmentMenuManager = new EquipmentMenuManager(this, true, true);
       _tagMenuManager = new TagMenuManager(this, true);
       _tourTypeMenuManager = new TourTypeMenuManager(this);
 
@@ -578,7 +592,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       _tourViewer = new TreeViewer(tree);
       _columnManager.createColumns(_tourViewer);
 
-      _tourViewer.setContentProvider(new TourBookContentProvider());
+      _tourViewer.setContentProvider(new ContentProvider());
       _tourViewer.setComparer(new ItemComparer());
       _tourViewer.setUseHashlookup(true);
 
@@ -725,6 +739,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       defineColumn_Tour_Photos();
       defineColumn_Tour_Title();
       defineColumn_Tour_Tags();
+      defineColumn_Tour_Equipment();
 
       defineColumn_Motion_Distance();
       defineColumn_Motion_MaxSpeed();
@@ -1531,6 +1546,42 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    }
 
    /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager, _pc);
+      colDef.setLabelProvider(new TourInfoToolTipCellLabelProvider() {
+
+         @Override
+         public Long getTourId(final ViewerCell cell) {
+
+            if (_isToolTipInEquipment == false) {
+               return null;
+            }
+
+            return getCellTourId(cell);
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            if (element instanceof final TVICollatedTour_Tour tourItem) {
+
+               cell.setText(EquipmentManager.getEquipmentNames(tourItem.getEquipmentIds()));
+               setCellColor(cell, element);
+
+            } else if (element instanceof final TVICollatedTour_Event eventItem) {
+
+               cell.setText(EquipmentManager.getEquipmentNames(eventItem.getEquipmentIds()));
+            }
+         }
+      });
+   }
+
+   /**
     * column: markers
     */
    private void defineColumn_Tour_Marker() {
@@ -1721,7 +1772,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
             final Object element = cell.getElement();
             final float value = UI.convertTemperatureFromMetric(((TVICollatedTour) element).colAvgTemperature_Device);
 
-            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+            colDef.printDoubleValue(cell, value, element instanceof TVICollatedTour_Tour);
 
             setCellColor(cell, element);
          }
@@ -1804,7 +1855,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
       for (final Object treeItem : selection) {
 
-         if (treeItem instanceof final TVICollatedTour tviCollatedTour) {
+         if (treeItem instanceof final TVICollatedTour collatedTourItem) {
 
             boolean isDummyTour = false;
 
@@ -1816,11 +1867,14 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
                }
             }
 
-            if (firstTourItem == null && !isDummyTour) {
-               firstTourItem = tviCollatedTour;
-            }
+            if (isDummyTour == false) {
 
-            numTourItems++;
+               numTourItems++;
+
+               if (firstTourItem == null) {
+                  firstTourItem = collatedTourItem;
+               }
+            }
          }
       }
 
@@ -1850,7 +1904,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       _tourDoubleClickState.canAdjustAltitude      = isOneTour;
 
       _actionComputeDistanceValuesFromGeoPosition  .setEnabled(isTourSelected);
-      _actionComputeElevationGain                  .setEnabled(true);
+      _actionComputeElevationGain                  .setEnabled(isTourSelected);
       _actionEditQuick                             .setEnabled(isOneTour);
       _actionEditTour                              .setEnabled(isOneTour);
       _actionExportTour                            .setEnabled(isTourSelected);
@@ -1882,6 +1936,8 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
                   : firstTourItem.getTagIds());
 
       _tourTypeMenuManager.enableTourTypeActions(isTourSelected, TourDatabase.ENTITY_IS_NOT_SAVED);
+
+      _equipmentMenuManager.enableActions(getSelectedToursAsList());
    }
 
    private void fillActionBars() {
@@ -1913,11 +1969,14 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       // edit actions
       TourActionManager.fillContextMenu(menuMgr, TourActionCategory.EDIT, _allTourActions_Edit, this);
 
+      // tour type actions
+      _tourTypeMenuManager.fillContextMenu_WithActiveActions(menuMgr, this);
+
       // tag actions
       _tagMenuManager.fillTagMenu_WithActiveActions(menuMgr, this);
 
-      // tour type actions
-      _tourTypeMenuManager.fillContextMenu_WithActiveActions(menuMgr, this);
+      // equipment actions
+      _equipmentMenuManager.fillEquipmentMenu_WithActiveActions(menuMgr, this);
 
       menuMgr.add(new Separator());
       menuMgr.add(_actionComputeElevationGain);
@@ -1949,8 +2008,11 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       final Object element = cell.getElement();
 
       if (element instanceof final TVICollatedTour_Tour tviCollatedTour_Tour) {
+
          return tviCollatedTour_Tour.getTourId();
+
       } else if (element instanceof final TVICollatedTour_Event tviCollatedTour_Event) {
+
          return tviCollatedTour_Event.getTourId();
       }
 
@@ -1978,9 +2040,10 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       return _postSelectionProvider;
    }
 
-   private void getSelectedTourData(final ArrayList<TourData> selectedTourData, final Set<Long> tourIdSet) {
-      for (final Long tourId : tourIdSet) {
-         selectedTourData.add(TourManager.getInstance().getTourData(tourId));
+   private void getSelectedTourData(final List<Object> allSelectedTourData, final Set<Long> allTourIDs) {
+
+      for (final Long tourId : allTourIDs) {
+         allSelectedTourData.add(TourManager.getInstance().getTourData(tourId));
       }
    }
 
@@ -1993,8 +2056,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
       for (final Object viewItem : selectedTours) {
 
-         if (viewItem instanceof final TVICollatedTour tviCollatedTour) {
-            tourIds.add(tviCollatedTour.getTourId());
+         if (viewItem instanceof final TVICollatedTour_Event tviCollatedTour) {
+
+            final Long tourId = tviCollatedTour.getTourId();
+
+            // the last "tour" is not a real tour -> prevent that a wrong tour id is returned
+            if (tviCollatedTour.isLastEvent == false) {
+
+               tourIds.add(tourId);
+            }
          }
       }
 
@@ -2004,6 +2074,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    @Override
    public ArrayList<TourData> getSelectedTours() {
 
+      // casting is very tricky
+      @SuppressWarnings("unchecked")
+      final ArrayList<TourData> allSelectedTourData = (ArrayList<TourData>) (List<?>) getSelectedToursAsList();
+
+      return allSelectedTourData;
+   }
+
+   public List<Object> getSelectedToursAsList() {
+
       // get selected tour id's
 
       final Set<Long> tourIds = getSelectedTourIDs();
@@ -2011,7 +2090,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       /*
        * show busy indicator when multiple tours needs to be retrieved from the database
        */
-      final ArrayList<TourData> selectedTourData = new ArrayList<>();
+      final List<Object> selectedTourData = new ArrayList<>();
 
       if (tourIds.size() > 1) {
          BusyIndicator.showWhile(Display.getCurrent(), () -> getSelectedTourData(selectedTourData, tourIds));
@@ -2284,10 +2363,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    private void updateToolTipState() {
 
-      _isToolTipInCollation = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION);
-      _isToolTipInTime = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME);
-      _isToolTipInWeekDay = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY);
-      _isToolTipInTitle = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE);
-      _isToolTipInTags = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS);
+// SET_FORMATTING_OFF
+
+      _isToolTipInCollation   = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION);
+      _isToolTipInEquipment   = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_EQUIPMENT);
+      _isToolTipInTags        = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS);
+      _isToolTipInTime        = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME);
+      _isToolTipInTitle       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE);
+      _isToolTipInWeekDay     = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY);
+
+// SET_FORMATTING_ON
    }
 }

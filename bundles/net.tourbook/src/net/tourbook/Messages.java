@@ -143,6 +143,7 @@ public class Messages extends NLS {
    public static String        App_Action_Copy;
    public static String        App_Action_CopyDataIntoClipboard_Tooltip;
    public static String        App_Action_CopyDataIntoClipboard_CopyIsDone;
+   public static String        App_Action_Create;
    public static String        App_Action_Delete;
    public static String        App_Action_DeleteProfile;
    public static String        App_Action_DeleteProperty;
@@ -473,6 +474,8 @@ public class Messages extends NLS {
    public static String        DataImport_Error_file_does_not_exist_msg;
    public static String        DataImport_Error_file_does_not_exist_title;
 
+   public static String        Db_Field_Description;
+   public static String        Db_Field_Name;
    public static String        Db_Field_SensorDescription;
    public static String        Db_Field_SensorName;
    public static String        Db_Field_TourData_Description;
@@ -582,6 +585,59 @@ public class Messages extends NLS {
    public static String        Dialog_EditTimeslicesValues_Label_OffsetValues;
    public static String        Dialog_EditTimeslicesValues_Label_ReplaceValues;
    public static String        Dialog_EditTimeslicesValues_Title;
+
+   public static String        Dialog_Equipment_Checkbox_Collate;
+   public static String        Dialog_Equipment_Checkbox_Sync;
+   public static String        Dialog_Equipment_Checkbox_Sync_Tooltip;
+   public static String        Dialog_Equipment_Combo_PriceUnit_Tooltip;
+   public static String        Dialog_Equipment_Dialog_Message_Eqipment_Duplicate;
+   public static String        Dialog_Equipment_Dialog_Message_Eqipment_Edit;
+   public static String        Dialog_Equipment_Dialog_Message_Eqipment_New;
+   public static String        Dialog_Equipment_Dialog_Title;
+   public static String        Dialog_Equipment_Error_BrandModelIsEmpty;
+   public static String        Dialog_Equipment_Error_CannotLoadImage;
+   public static String        Dialog_Equipment_FileDialog_Title;
+   public static String        Dialog_Equipment_Label_Brand;
+   public static String        Dialog_Equipment_Label_Brand_Tooltip;
+   public static String        Dialog_Equipment_Label_Collate;
+   public static String        Dialog_Equipment_Label_Date;
+   public static String        Dialog_Equipment_Label_DateBuilt;
+   public static String        Dialog_Equipment_Label_DateRetired;
+   public static String        Dialog_Equipment_Label_Description;
+   public static String        Dialog_Equipment_Label_Image;
+   public static String        Dialog_Equipment_Label_InitialDistance;
+   public static String        Dialog_Equipment_Label_InitialDistance_Tooltip;
+   public static String        Dialog_Equipment_Label_Model;
+   public static String        Dialog_Equipment_Label_Price;
+   public static String        Dialog_Equipment_Label_Size;
+   public static String        Dialog_Equipment_Label_Type;
+   public static String        Dialog_Equipment_Label_Website;
+   public static String        Dialog_Equipment_Label_Weight;
+   public static String        Dialog_Equipment_Tooltip_1;
+   public static String        Dialog_Equipment_Tooltip_2;
+
+   public static String        Dialog_EquipmentPart_Collate_Tooltip;
+   public static String        Dialog_EquipmentPart_Dialog_Message_CreatePart;
+   public static String        Dialog_EquipmentPart_Dialog_Message_DuplicatePart;
+   public static String        Dialog_EquipmentPart_Dialog_Message_EditPart;
+   public static String        Dialog_EquipmentPart_Dialog_Title;
+   public static String        Dialog_EquipmentPart_FileDialog_Text;
+   public static String        Dialog_EquipmentPart_Label_CollateBetween;
+   public static String        Dialog_EquipmentPart_Radio_CollatePart_Next;
+   public static String        Dialog_EquipmentPart_Radio_CollatePart_Previous;
+   
+   public static String        Dialog_EquipmentService_Collate_Tooltip;
+   public static String        Dialog_EquipmentService_Dialog_Message_Service_Duplicate;
+   public static String        Dialog_EquipmentService_Dialog_Message_Service_Edit;
+   public static String        Dialog_EquipmentService_Dialog_Message_Service_New;
+   public static String        Dialog_EquipmentService_Dialog_Title;
+   public static String        Dialog_EquipmentService_Error_NameIsEmpty;
+   public static String        Dialog_EquipmentService_FileDialog_Title;
+   public static String        Dialog_EquipmentService_Label_CollateBetween;
+   public static String        Dialog_EquipmentService_Label_Company;
+   public static String        Dialog_EquipmentService_Label_Name;
+   public static String        Dialog_EquipmentService_Radio_CollateService_Next;
+   public static String        Dialog_EquipmentService_Radio_CollateService_Previous;
 
    public static String        dialog_export_btn_export;
 
@@ -714,6 +770,8 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Checkbox_RetrieveWeatherData_Tooltip;
    public static String        Dialog_ImportConfig_Checkbox_SaveTour;
    public static String        Dialog_ImportConfig_Checkbox_SaveTour_Tooltip;
+   public static String        Dialog_ImportConfig_Checkbox_SetEquipmentFromGroup;
+   public static String        Dialog_ImportConfig_Checkbox_SetEquipmentFromGroup_Tooltip;
    public static String        Dialog_ImportConfig_Checkbox_SetTourTags;
    public static String        Dialog_ImportConfig_Checkbox_SetTourTags_Tooltip;
    public static String        Dialog_ImportConfig_Checkbox_ShowInDashboard;
@@ -737,6 +795,7 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Column_Description;
    public static String        Dialog_ImportConfig_Column_Device;
    public static String        Dialog_ImportConfig_Column_DeviceFiles;
+   public static String        Dialog_ImportConfig_Column_Equipment;
    public static String        Dialog_ImportConfig_Column_LastMarker_Header;
    public static String        Dialog_ImportConfig_Column_LastMarker_Label;
    public static String        Dialog_ImportConfig_Column_LastMarker_Tooltip;
@@ -794,6 +853,7 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Label_DeviceFolder;
    public static String        Dialog_ImportConfig_Label_DeviceFolder_Tooltip;
    public static String        Dialog_ImportConfig_Label_DeviceType_Tooltip;
+   public static String        Dialog_ImportConfig_Label_EquipmentGroup;
    public static String        Dialog_ImportConfig_Label_ImportColumns;
    public static String        Dialog_ImportConfig_Label_ImportColumns_Tooltip;
    public static String        Dialog_ImportConfig_Label_ImportLauncher;
@@ -802,6 +862,7 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Label_LastMarkerText;
    public static String        Dialog_ImportConfig_Label_LocationProfile;
    public static String        Dialog_ImportConfig_Label_LocationProfile_Tooltip;
+   public static String        Dialog_ImportConfig_Label_SelectEquipmentGroup;
    public static String        Dialog_ImportConfig_Label_ShowTheseTiles;
    public static String        Dialog_ImportConfig_Label_StateTooltipWidth;
    public static String        Dialog_ImportConfig_Label_StateTooltip_DisplayAbsoluteFilePath;
@@ -1018,6 +1079,7 @@ public class Messages extends NLS {
    public static String        Dialog_TourTagCategory_Title;
    public static String        Dialog_TourTag_EditTag_Message;
    public static String        Dialog_TourTag_EditTag_Title;
+   public static String        Dialog_TourTag_Error_CannotLoadImage;
    public static String        Dialog_TourTag_FileDialog_ImageFiles;
    public static String        Dialog_TourTag_ImportImage_Title;
    public static String        Dialog_TourTag_Label_Image;
@@ -1088,6 +1150,61 @@ public class Messages extends NLS {
    public static String        Elevation_Compare_Action_TourCompareFilter_Tooltip;
    public static String        Elevation_Compare_Monitor_SubTask;
    public static String        Elevation_Compare_Monitor_Task;
+
+   public static String        Equipment_Action_AddEquipment;
+   public static String        Equipment_Action_AddEquipment_Groups;
+   public static String        Equipment_Action_AddRecentEquipment;
+   public static String        Equipment_Action_ClipboardCopy;
+   public static String        Equipment_Action_ClipboardCopy_Tooltip;
+   public static String        Equipment_Action_ClipboardPaste;
+   public static String        Equipment_Action_DeleteEquipment;
+   public static String        Equipment_Action_DeletePart;
+   public static String        Equipment_Action_DeleteService;
+   public static String        Equipment_Action_DuplicateEquipment;
+   public static String        Equipment_Action_DuplicateEquipment_Tooltip;
+   public static String        Equipment_Action_DuplicatePart;
+   public static String        Equipment_Action_DuplicatePart_Tooltip;
+   public static String        Equipment_Action_DuplicateService;
+   public static String        Equipment_Action_DuplicateService_Tooltip;
+   public static String        Equipment_Action_EditEquipment;
+   public static String        Equipment_Action_EditPart;
+   public static String        Equipment_Action_EditService;
+   public static String        Equipment_Action_EquipmentFilter_Tooltip;
+   public static String        Equipment_Action_EquipmentFilterInfo_Tooltip;
+   public static String        Equipment_Action_EquipmentPreferences;
+   public static String        Equipment_Action_ManageEquipment;
+   public static String        Equipment_Action_ManageEquipmentGroups;
+   public static String        Equipment_Action_NewEquipment;
+   public static String        Equipment_Action_NewPart;
+   public static String        Equipment_Action_NewService;
+   public static String        Equipment_Action_Paste_Tooltip;
+   public static String        Equipment_Action_RemoveEquipment_All;
+   public static String        Equipment_Action_RemoveEquipment;
+   public static String        Equipment_Action_SetTourStructure;
+   public static String        Equipment_Action_SetTourStructure_All_Dialog_Message;
+   public static String        Equipment_Action_SetTourStructure_All;
+   public static String        Equipment_Action_SetTourStructure_All_Dialog_Title;
+   public static String        Equipment_Action_ToggleCollatedTours;
+   public static String        Equipment_Action_ToggleCollatedTours_Tooltip;
+   public static String        Equipment_Dialog_DeleteEquipment_Action;
+   public static String        Equipment_Dialog_DeleteEquipment_Message_Multiple;
+   public static String        Equipment_Dialog_DeleteEquipment_Message_One;
+   public static String        Equipment_Dialog_DeleteEquipment_Title;
+   public static String        Equipment_Dialog_DeletePart_Action;
+   public static String        Equipment_Dialog_DeletePart_Message;
+   public static String        Equipment_Dialog_DeletePart_Title;
+   public static String        Equipment_Dialog_DeleteService_Action;
+   public static String        Equipment_Dialog_DeleteService_Message;
+   public static String        Equipment_Dialog_DeleteService_Title;
+   public static String        Equipment_Dialog_ToggleCollatedTours_Message;
+   public static String        Equipment_Dialog_ToggleCollatedTours_Title;
+   public static String        Equipment_ExpandType_ByYear;
+   public static String        Equipment_ExpandType_ByYearMonth;
+   public static String        Equipment_ExpandType_SortByDate;
+   public static String        Equipment_Log_EquipmentIsDeleted;
+   public static String        Equipment_Log_PartIsDeleted;
+   public static String        Equipment_StatusLine_EquipmentCopiedToClipboard;
+   public static String        Equipment_View_Label_UntilNow;
 
    public static String        Format_hhmm;
    public static String        Format_rawdata_file_yyyy_mm_dd;
@@ -1267,6 +1384,8 @@ public class Messages extends NLS {
    public static String        Import_Data_HTML_RetrieveWeatherData_Yes;
    public static String        Import_Data_HTML_SaveTour_No;
    public static String        Import_Data_HTML_SaveTour_Yes;
+   public static String        Import_Data_HTML_SetEquipment_NO;
+   public static String        Import_Data_HTML_SetEquipment_YES;
    public static String        Import_Data_HTML_SetTourTags_NO;
    public static String        Import_Data_HTML_SetTourTags_YES;
    public static String        Import_Data_HTML_Title_Backup;
@@ -1342,6 +1461,7 @@ public class Messages extends NLS {
    public static String        Log_EasyImport_006_AdjustElevation;
    public static String        Log_EasyImport_006_ReplaceElevationFromSRTM;
    public static String        Log_EasyImport_008_SetTourTags;
+   public static String        Log_EasyImport_009_SetEquipment;
    public static String        Log_EasyImport_050_RetrieveWeatherData;
    public static String        Log_EasyImport_051_RetrieveTourLocation;
    public static String        Log_EasyImport_099_SaveTour;
@@ -1610,6 +1730,7 @@ public class Messages extends NLS {
    public static String        PrefPage_TourTag_Button_DuplicateTag;
    public static String        PrefPage_TourTag_Label_Duplicate;
 
+   public static String        PrefPage_ViewActions_Checkbox_All;
    public static String        PrefPage_ViewActions_Group;
    public static String        PrefPage_ViewActions_Label_DoubleClick;
    public static String        PrefPage_ViewActions_Label_DoubleClick_AdjustAltitude;
@@ -1634,6 +1755,8 @@ public class Messages extends NLS {
    public static String        PrefPage_ViewTooltip_Label_CompareResult;
    public static String        PrefPage_ViewTooltip_Label_Date;
    public static String        PrefPage_ViewTooltip_Label_Day;
+   public static String        PrefPage_ViewTooltip_Label_Equipment;
+   public static String        PrefPage_ViewTooltip_Label_EquipmentTour;
    public static String        PrefPage_ViewTooltip_Label_Info;
    public static String        PrefPage_ViewTooltip_Label_RawData;
    public static String        PrefPage_ViewTooltip_Label_ReferenceTour;
@@ -1676,6 +1799,8 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Label_AutoOpenTagging_Tooltip;
    public static String        Pref_Appearance_Label_DisabledIcons;
    public static String        Pref_Appearance_Label_DisabledIcons_Tooltip;
+   public static String        Pref_Appearance_Label_ImageSize;
+   public static String        Pref_Appearance_Label_ImageSize_Tooltip;
    public static String        Pref_Appearance_Label_NotificationMessagesDuration;
    public static String        Pref_Appearance_Label_NotificationMessagesDuration_Tooltip;
    public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption;
@@ -1721,6 +1846,22 @@ public class Messages extends NLS {
    public static String        Pref_DisplayFormat_Tab_MultipleTours_Tooltip;
    public static String        Pref_DisplayFormat_Tab_OneTour;
    public static String        Pref_DisplayFormat_Tab_OneTour_Tooltip;
+
+   public static String        Pref_Equipment_Action_FilterEquipment_ShowAll_Tooltip;
+   public static String        Pref_Equipment_Action_FilterEquipment_ShowOnlyChecked_Tooltip;
+   public static String        Pref_Equipment_Button_RemoveRecentEquipment;
+   public static String        Pref_Equipment_Button_RemoveRecentEquipment_Tooltip;
+   public static String        Pref_Equipment_Dialog_DeleteEquipment_Message;
+   public static String        Pref_Equipment_Dialog_DeleteEquipment_Title;
+   public static String        Pref_Equipment_Dialog_NewEquipment_Message;
+   public static String        Pref_Equipment_Dialog_NewEquipment_Title;
+   public static String        Pref_Equipment_Dialog_RenameEquipment_Message;
+   public static String        Pref_Equipment_Dialog_RenameEquipment_Title;
+   public static String        Pref_Equipment_Error_NameIsEmpty;
+   public static String        Pref_Equipment_Label_AllEquipment;
+   public static String        Pref_Equipment_Label_EquipmentGroups;
+   public static String        Pref_Equipment_Label_NumberOfRecentEquipment;
+   public static String        Pref_Equipment_Label_NumberOfRecentEquipment_Tooltip;
 
    public static String        Pref_General_Button_ComputeCalendarWeek;
    public static String        Pref_General_CalendarWeek;
@@ -1961,7 +2102,6 @@ public class Messages extends NLS {
    public static String        pref_tourtag_dlg_reset_message;
    public static String        pref_tourtag_dlg_reset_title;
    public static String        pref_tourtag_hint;
-   public static String        Pref_TourTag_Lable_TagImageSize;
    public static String        Pref_TourTag_Link_AppearanceOptions;
    public static String        pref_tourtag_viewer_title;
 
@@ -2020,6 +2160,8 @@ public class Messages extends NLS {
    public static String        Pref_Tour_Label_TourCacheSize;
    public static String        Pref_Tour_Label_TourCacheSize_Info;
 
+   public static String        Pref_TourActions_Check_CheckOnSelection;
+   public static String        Pref_TourActions_Check_CheckOnSelection_Tooltip;
    public static String        Pref_TourActions_Check_ShowOnlyAvailableActions;
    public static String        Pref_TourActions_Check_ShowOnlyAvailableActions_Tooltip;
    public static String        Pref_TourActions_Label_ContextView;
@@ -2027,6 +2169,7 @@ public class Messages extends NLS {
    public static String        Pref_TourActions_Label_Options;
    public static String        Pref_TourActions_Label_Options_Tooltip;
    public static String        Pref_TourActions_Label_ViewerContext;
+   public static String        Pref_TourActions_Link_Option_Equipment;
    public static String        Pref_TourActions_Link_Option_Tags;
    public static String        Pref_TourActions_Link_Option_TourTypes;
    public static String        Pref_TourActions_Radio_ShowAllActions;
@@ -2293,6 +2436,29 @@ public class Messages extends NLS {
    public static String        Slideout_ChartPausesOptions_Label_Title;
 
    public static String        Slideout_ConconiOptions_Label_Title;
+
+   public static String        Slideout_EquipmentFilter_Column_Equipment;
+   public static String        Slideout_EquipmentFilter_Column_Filter;
+   public static String        Slideout_EquipmentFilter_Column_PartService;
+   public static String        Slideout_EquipmentFilter_Label_AssetOperator_Equipment;
+   public static String        Slideout_EquipmentFilter_Label_AssetOperator_PartService;
+   public static String        Slideout_EquipmentFilter_Label_AvailableEquipment;
+   public static String        Slideout_EquipmentFilter_Checkbox_IsLiveUpdate_Tooltip;
+   public static String        Slideout_EquipmentFilter_Label_Filter;
+   public static String        Slideout_EquipmentFilter_Label_SelectedEquipment;
+   public static String        Slideout_EquipmentFilter_Label_SelectedPartService;
+   public static String        Slideout_EquipmentFilter_Radio_Equipment;
+   public static String        Slideout_EquipmentFilter_Radio_EquipmentOperator_AND_Tooltip;
+   public static String        Slideout_EquipmentFilter_Radio_EquipmentOperator_OR_Tooltip;
+   public static String        Slideout_EquipmentFilter_Radio_PartService;
+   public static String        Slideout_EquipmentFilter_Title;
+
+   public static String        Slideout_EquipmentOptions_Action_EquipmentPreferences;
+   public static String        Slideout_EquipmentOptions_Label_RowHeight;
+   public static String        Slideout_EquipmentOptions_Radio_CustomHeight;
+   public static String        Slideout_EquipmentOptions_Radio_CustomHeight_Tooltip;
+   public static String        Slideout_EquipmentOptions_Radio_DefaultHeight;
+   public static String        Slideout_EquipmentOptions_Title;
 
    public static String        Slideout_GeoCompareOptions_Group_MapOptions;
    public static String        Slideout_GeoCompareOptions_Label_ComparedTourPart;
@@ -2704,6 +2870,8 @@ public class Messages extends NLS {
    public static String        Slideout_TMVOptions_Radio_RecordedTime;
 
    public static String        Slideout_TourBlogOptions_Checkbox_ShowMarkerTime;
+   public static String        Slideout_TourBlogOptions_Checkbox_ShowTourEquipment;
+   public static String        Slideout_TourBlogOptions_Checkbox_ShowTourEquipment_Tooltip;
    public static String        Slideout_TourBlogOptions_Checkbox_ShowTourMarkers;
    public static String        Slideout_TourBlogOptions_Checkbox_ShowTourNutrition;
    public static String        Slideout_TourBlogOptions_Checkbox_ShowTourSummary;
@@ -2767,7 +2935,7 @@ public class Messages extends NLS {
    public static String        Slideout_TourEditor_Combo_ElevationFromSRTM;
    public static String        Slideout_TourEditor_Combo_ScrollFieldContent_WhenFocused;
    public static String        Slideout_TourEditor_Combo_ScrollFieldContent_WhenHovered;
-   public static String        Slideout_TourEditor_Group_Tags;
+   public static String        Slideout_TourEditor_Group_TagEquipmentLayout;
    public static String        Slideout_TourEditor_Label_DeleteTimeSlices;
    public static String        Slideout_TourEditor_Label_LatLonDigits;
    public static String        Slideout_TourEditor_Label_LatLonDigits_Tooltip;
@@ -3087,6 +3255,7 @@ public class Messages extends NLS {
    public static String        Tour_Action_auto_zoom_to_slider_position;
    public static String        Tour_Action_Category_AdjustTour;
    public static String        Tour_Action_Category_EditTour;
+   public static String        Tour_Action_Category_Equipment;
    public static String        Tour_Action_Category_ExportTour;
    public static String        Tour_Action_Category_Tags;
    public static String        Tour_Action_Category_TourTypes;
@@ -3185,6 +3354,7 @@ public class Messages extends NLS {
    public static String        Tour_Blog_Label_Nutrition_Averages;
    public static String        Tour_Blog_Label_Nutrition_Beverages;
    public static String        Tour_Blog_Label_Nutrition_Foods;
+   public static String        Tour_Blog_Section_Equipment;
    public static String        Tour_Blog_Section_Nutrition;
    public static String        Tour_Blog_Section_Tags;
    public static String        Tour_Blog_Section_Weather;
@@ -3426,6 +3596,7 @@ public class Messages extends NLS {
    public static String        tour_editor_label_wind_direction_Tooltip;
    public static String        tour_editor_label_wind_speed;
    public static String        tour_editor_label_wind_speed_Tooltip;
+   public static String        Tour_Editor_Link_Equipment;
    public static String        Tour_Editor_Link_RemoveTimeZone;
    public static String        Tour_Editor_Link_RemoveTimeZone_Tooltip;
    public static String        Tour_Editor_Link_RetrieveWeather;

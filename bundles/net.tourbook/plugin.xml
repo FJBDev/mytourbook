@@ -332,16 +332,19 @@
          />
 
 
-      <!--
-         Import
+      <!-- 
+
+         Bicycle
+
+         pref page for bikes is disabled since version 11.07 because bikes 
+         are currently not used and is confusing the user
+
+         I set a comment around the page tag but OSX still displayed the page, this must be a bug in OSX
+
       -->
-      <page
-         class    ="net.tourbook.preferences.PrefPageImport"
-         id       ="net.tourbook.preferences.PrefPageImport"
-         name     ="%preference_page_data_import"
-      />
-      
-       <!--
+
+
+      <!--
          Cloud
       -->
       <page
@@ -350,17 +353,30 @@
          name     ="%preference_page_cloud"
       />
       
-      
-      <!-- 
-      
-         Bicycle
-      
-         pref page for bikes is disabled since version 11.07 because bikes 
-         are currently not used and is confusing the user
-         
-         I set a comment around the page tag but OSX still displayed the page, this must be a bug in OSX
-            
+      <!--
+         Equipment
       -->
+      <page
+         name     ="%Pref_Page_Equipment"
+         id       ="net.tourbook.preferences.PrefPageEquipment"
+         class    ="net.tourbook.preferences.PrefPageEquipment"
+      />
+         <page
+            name        ="%Pref_Page_Equipment_Groups"
+            id          ="net.tourbook.preferences.PrefPageEquipmentGroups"
+            class       ="net.tourbook.preferences.PrefPageEquipmentGroups"
+            category    ="net.tourbook.preferences.PrefPageEquipment"
+         />
+
+
+      <!--
+         Import
+      -->
+      <page
+         name     ="%preference_page_data_import"
+         id       ="net.tourbook.preferences.PrefPageImport"
+         class    ="net.tourbook.preferences.PrefPageImport"
+      />
 
 
       <!--
@@ -385,29 +401,18 @@
 
 
       <!--
-         Signs
-      
-      <page
-         name="%Pref_Page_SignImages"
-         id="net.tourbook.preferences.PrefPageSigns"
-         class="net.tourbook.preferences.PrefPageSigns"
-      />
-      -->
-
-
-      <!--
          SRTM
       -->
 
       <page
-         name="%Pref_Page_SRTM"
-         id="net.tourbook.srtm.PrefPageSRTMColors"
-         class="net.tourbook.srtm.PrefPageSRTMColors"
+         name     ="%Pref_Page_SRTM"
+         id       ="net.tourbook.srtm.PrefPageSRTMColors"
+         class    ="net.tourbook.srtm.PrefPageSRTMColors"
       />
          <page
-            name="%Pref_Page_SRTM_Data"
-            id="net.tourbook.srtm.PrefPageSRTMData"
-            class="net.tourbook.srtm.PrefPageSRTMData"
+            name        ="%Pref_Page_SRTM_Data"
+            id          ="net.tourbook.srtm.PrefPageSRTMData"
+            class       ="net.tourbook.srtm.PrefPageSRTMData"
             category    ="net.tourbook.srtm.PrefPageSRTMColors"
          />
 
@@ -610,6 +615,13 @@
                label       ="%command_tagging_name"
                mnemonic    ="%command_tagging_name_Mnemonic"
                tooltip     ="%command_tagging_name_tooltip"/>
+
+            <!-- Equipment -->
+            <command 
+               commandId   ="command.net.tourbook.equipment.EquipmentView.ID"
+               icon        ="icons/equipment.svg"
+               label       ="%View_Name_Equipment"
+               mnemonic    ="%View_Name_Equipment_Mnemonic"/>
 
             <!-- Collated Tours -->
             <command 
@@ -1288,6 +1300,11 @@
          defaultHandler ="net.tourbook.ui.views.ActionHandler_OpenView_TaggedTours"/>
 
       <command
+         id             ="command.net.tourbook.equipment.EquipmentView.ID"
+         name           ="%View_Name_Equipment"
+         defaultHandler ="net.tourbook.ui.views.ActionHandler_OpenView_Equipment"/>
+
+      <command
          id             ="command.net.tourbook.views.calendar.CalendarView"
          name           ="%view_name_Calendar"
          defaultHandler ="net.tourbook.ui.views.ActionHandler_OpenView_Calendar"/>
@@ -1656,6 +1673,13 @@
 
          <view
             category    ="net.tourbook.category.Tour_Directory"
+            id          ="net.tourbook.equipment.EquipmentView.ID"
+            class       ="net.tourbook.equipment.EquipmentView"
+            icon        ="icons/equipment.svg"
+            name        ="%View_Name_Equipment"/>
+            
+         <view
+            category    ="net.tourbook.category.Tour_Directory"
             id          ="net.tourbook.ui.views.collateTours.CollatedToursView"
             class       ="net.tourbook.ui.views.collateTours.CollatedToursView"
             icon        ="icons/collated-tours.svg"
@@ -2014,6 +2038,12 @@
       <key
          commandId   ="command.net.tourbook.views.tagViewID"
          sequence    ="%Shortcut_Key_App_TaggedTours"
+         contextId   ="org.eclipse.ui.contexts.window"
+         schemeId    ="net.tourbook.scheme"/>
+
+      <key
+         commandId   ="command.net.tourbook.equipment.EquipmentView.ID"
+         sequence    ="%Shortcut_Key_App_Equipment"
          contextId   ="org.eclipse.ui.contexts.window"
          schemeId    ="net.tourbook.scheme"/>
 

@@ -191,14 +191,14 @@ public class BreakTimeTool {
                                                                  final float minSliceSpeed,
                                                                  final int minSliceTime) {
 
-      System.out.println(UI.timeStamp() + NL
-
-            + "computeBreakTimeByAvgSliceSpeed() " + NL
-
-            + " minAvgSpeed   " + minAvgSpeed + NL
-            + " minSliceSpeed " + minSliceSpeed + NL
-            + " minSliceTime  " + minSliceTime + NL //
-      );
+//      System.out.println(UI.timeStamp() + NL
+//
+//            + "computeBreakTimeByAvgSliceSpeed() " + NL
+//
+//            + " minAvgSpeed   " + minAvgSpeed + NL
+//            + " minSliceSpeed " + minSliceSpeed + NL
+//            + " minSliceTime  " + minSliceTime + NL //
+//      );
 // TODO remove SYSTEM.OUT.PRINTLN
 
       final int[] timeSerie = tourData.timeSerie;
@@ -450,7 +450,7 @@ public class BreakTimeTool {
 
       return UI.EMPTY_STRING
 
-            + "BreakTimeTool"
+            + "BreakTimeTool" //                                                    //$NON-NLS-1$
 
             + " breakTimeMethodId      = " + breakTimeMethodId + NL //              //$NON-NLS-1$
             + " breakShortestTime      = " + breakShortestTime + NL //              //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,10 +13,19 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.tag;
+package net.tourbook.database;
 
-public enum TagContentLayout {
+import net.tourbook.data.TourData;
 
-   SIMPLE_TEXT, //
-   IMAGE_AND_DATA, //
+/**
+ * Interface to update tour values for {@link TourData}
+ */
+public interface ITourDataUpdate_OnlyUpdate {
+
+   /**
+    * @param tourData
+    *
+    * @return Returns <code>true</code> when <code>tourData</code> should be saved
+    */
+   public boolean updateTourData(TourData tourData);
 }

@@ -169,7 +169,11 @@ public class TimeTools {
 
    private static final Object            TIME_ZONE_LOCK       = new Object();
 
+   public static final long               MAX_TIME_IN_EPOCH_MILLI;
+
    static {
+
+      MAX_TIME_IN_EPOCH_MILLI = TimeTools.toEpochMilli(LocalDateTime.of(9999, 12, 31, 23, 59, 59));
 
       /**
        * Force 4 year digits, for some locales e.g. german the short formatting for a year has 2
@@ -709,9 +713,9 @@ public class TimeTools {
       return tzIndex;
    }
 
-   public static String getUTCISODateTime(final long date) {
+   public static String getUTCISODateTime(final long epochOfMilli) {
 
-      return Instant.ofEpochMilli(date)
+      return Instant.ofEpochMilli(epochOfMilli)
             .atZone(TimeTools.UTC)
             .format(DateTimeFormatter.ISO_DATE_TIME);
    }
@@ -732,15 +736,44 @@ public class TimeTools {
    /**
     * @param epochOfMilli
     *           The number of milliseconds from 1970-01-01T00:00:00Z
-    * @param timeZone
+    * @param timeZoneText
+    *           Can be <code>null</code> then the default timezome is used
     *
     * @return Returns a zoned date time from epochOfMilli
     */
-   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final ZoneId timeZone) {
+   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final String timeZoneText) {
+
+      ZoneId timeZoneID = getDefaultTimeZone();
+
+      if (timeZoneText != null) {
+
+         timeZoneID = ZoneId.of(timeZoneText);
+      }
 
       return ZonedDateTime.ofInstant(
             Instant.ofEpochMilli(epochOfMilli),
-            timeZone);
+            timeZoneID);
+   }
+
+   /**
+    * @param epochOfMilli
+    *           The number of milliseconds from 1970-01-01T00:00:00Z
+    * @param timeZoneID
+    *           Can be <code>null</code> then the default timezome is used
+    *
+    * @return Returns a zoned date time from epochOfMilli
+    */
+   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final ZoneId timeZoneID) {
+
+      ZoneId timeZoneChecked = timeZoneID;
+
+      if (timeZoneID == null) {
+         timeZoneChecked = getDefaultTimeZone();
+      }
+
+      return ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(epochOfMilli),
+            timeZoneChecked);
    }
 
    /**
@@ -874,6 +907,12 @@ public class TimeTools {
       _defaultTimeZoneId = ZoneId.of(selectedTimeZoneId);
    }
 
+   public static long toEpochMilli(final LocalDate localDate) {
+
+      return localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+   }
+
    /**
     * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
     * 1970-01-01T00:00:00Z.
@@ -893,10 +932,46 @@ public class TimeTools {
    }
 
    /**
-    * @param epochOfMilli
-    *           The number of milliseconds from 1970-01-01T00:00:00Z
+    * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
+    * 1970-01-01T00:00:00Z by using the default time zone
     *
-    * @return Returns a date from epochOfMilli.
+    * @param localDate
+    *
+    * @return
+    */
+   public static long toEpochMilliWithDefaultTimeZone(final LocalDate localDate) {
+
+      final LocalDateTime localDateTime = localDate.atStartOfDay();
+      final ZoneId zoneId = getDefaultTimeZone();
+      final ZoneOffset offsetForZone = zoneId.getRules().getOffset(localDateTime);
+
+      return localDateTime.toInstant(offsetForZone).toEpochMilli();
+   }
+
+   /**
+    * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
+    * 1970-01-01T00:00:00Z by using the default time zone
+    *
+    * @param localDateTime
+    *
+    * @return
+    */
+   public static long toEpochMilliWithDefaultTimeZone(final LocalDateTime localDateTime) {
+
+      final ZoneId zoneId = getDefaultTimeZone();
+      final ZoneOffset offsetForZone = zoneId.getRules().getOffset(localDateTime);
+
+      return localDateTime.toInstant(offsetForZone).toEpochMilli();
+   }
+
+   /**
+    * @param epochOfMilli
+    *           The number of milliseconds from 1970-01-01T00:00:00Z.
+    *           <p>
+    *           When epoch days are provided, they had to be multiplied with
+    *           {@link #DAY_MILLISECONDS}
+    *
+    * @return Returns a date from epochOfMilli
     */
    public static LocalDate toLocalDate(final long epochOfMilli) {
 

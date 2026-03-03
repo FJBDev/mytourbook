@@ -22,7 +22,7 @@ import net.tourbook.data.TourData;
 /**
  * Interface to update tour values for {@link TourData}
  */
-public interface ITourDataUpdate {
+public interface ITourDataUpdate extends ITourDataUpdate_OnlyUpdate {
 
    /**
     * @return Returns the new database DATA version
@@ -34,11 +34,4 @@ public interface ITourDataUpdate {
     *         are being processed
     */
    public List<Long> getTourIDs();
-
-   /**
-    * @param tourData
-    *
-    * @return Returns <code>true</code> when <code>tourData</code> should be saved
-    */
-   public boolean updateTourData(TourData tourData);
 }

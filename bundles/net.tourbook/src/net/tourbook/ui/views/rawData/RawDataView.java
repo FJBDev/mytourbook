@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -87,6 +87,7 @@ import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.TableColumnDefinition;
 import net.tourbook.common.util.Util;
+import net.tourbook.data.Equipment;
 import net.tourbook.data.FlatGainLoss;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
@@ -95,6 +96,10 @@ import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentGroup;
+import net.tourbook.equipment.EquipmentGroupManager;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
 import net.tourbook.extension.download.CloudDownloaderManager;
 import net.tourbook.extension.download.TourbookCloudDownloader;
 import net.tourbook.extension.export.ActionExport;
@@ -416,6 +421,7 @@ public class RawDataView extends ViewPart implements
    private IPropertyChangeListener          _prefChangeListener_Common;
    private ITourEventListener               _tourEventListener;
    //
+   private EquipmentMenuManager             _equipmentMenuManager;
    private TagMenuManager                   _tagMenuManager;
    private TourTypeMenuManager              _tourTypeMenuManager;
    private MenuManager                      _tourViewer_MenuManager;
@@ -475,10 +481,11 @@ public class RawDataView extends ViewPart implements
             .withMillisRemoved();
    }
    //
-   private boolean                       _isToolTipInDate;
-   private boolean                       _isToolTipInTime;
-   private boolean                       _isToolTipInTitle;
-   private boolean                       _isToolTipInTags;
+   private boolean                       _isShowToolTipInDate;
+   private boolean                       _isShowToolTipInEquipment;
+   private boolean                       _isShowToolTipInTags;
+   private boolean                       _isShowToolTipInTime;
+   private boolean                       _isShowToolTipInTitle;
    //
    private TourDoubleClickState          _tourDoubleClickState       = new TourDoubleClickState();
    //
@@ -521,11 +528,12 @@ public class RawDataView extends ViewPart implements
    private String                        _imageUrl_SerialPort_Configured;
    private String                        _imageUrl_SerialPort_Directly;
    private String                        _imageUrl_State_AdjustTemperature;
-   private String                        _imageUrl_State_RetrieveTourLocation;
-   private String                        _imageUrl_State_RetrieveWeatherData;
+   private String                        _imageUrl_State_Equipment;
    private String                        _imageUrl_State_Error;
    private String                        _imageUrl_State_OK;
    private String                        _imageUrl_State_MovedFiles;
+   private String                        _imageUrl_State_RetrieveTourLocation;
+   private String                        _imageUrl_State_RetrieveWeatherData;
    private String                        _imageUrl_State_SaveTour;
    private String                        _imageUrl_State_TourMarker;
    private String                        _imageUrl_State_TourTags;
@@ -1354,7 +1362,8 @@ public class RawDataView extends ViewPart implements
                reimportAllImportFiles(false);
             }
 
-         } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED) {
+         } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED
+               || eventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED) {
 
             _rawDataMgr.updateTourData_InImportView_FromDb(null);
 
@@ -1442,13 +1451,18 @@ public class RawDataView extends ViewPart implements
 //    _allTourActions_Adjust.put(_actionSetOtherPerson            .getClass().getName(),  _actionSetOtherPerson);
 //    _allTourActions_Adjust.put(_actionDeleteTourMenu            .getClass().getName(),  _actionDeleteTourMenu);
 
-// SET_FORMATTING_ON
 
       TourActionManager.setAllViewActions(ID,
-            _allTourActions_Edit.keySet(),
-            _allTourActions_Export.keySet(),
-            _tagMenuManager.getAllTagActions().keySet(),
-            _tourTypeMenuManager.getAllTourTypeActions().keySet());
+
+            _allTourActions_Edit    .keySet(),
+            _allTourActions_Export  .keySet(),
+
+            _tourTypeMenuManager    .getAllTourTypeActions()   .keySet(),
+            _tagMenuManager         .getAllTagActions()        .keySet(),
+            _equipmentMenuManager   .getAllEquipmentActions()  .keySet()
+      );
+
+// SET_FORMATTING_ON
 
       _actionEditImportPreferences = new ActionOpenPrefDialog(
             Messages.Import_Data_Action_EditImportPreferences,
@@ -2280,7 +2294,7 @@ public class RawDataView extends ViewPart implements
 
       final String tileName = importLauncher.name.trim();
       final String tileDescription = importLauncher.description.trim();
-      final String tourTypeText = EasyLauncherUtils.getTourTypeText(importLauncher, tileName);
+      final String tourTypeText = EasyLauncherUtils.createText_TourType(importLauncher, tileName);
 
       {
          // tour type name
@@ -2316,12 +2330,25 @@ public class RawDataView extends ViewPart implements
 
          if (importLauncher.isSetTags()) {
 
-            EasyLauncherUtils.getTagGroupText(importLauncher, sb);
+            EasyLauncherUtils.createText_TagsGroup(importLauncher, sb);
 
          } else {
 
             sb.append(NL);
-            sb.append(Messages.Import_Data_HTML_SetTourTags_NO.formatted());
+            sb.append(Messages.Import_Data_HTML_SetTourTags_NO);
+         }
+      }
+      {
+         // equipment group
+
+         if (importLauncher.isSetEquipment()) {
+
+            EasyLauncherUtils.createText_EquipmentGroup(importLauncher, sb);
+
+         } else {
+
+            sb.append(NL);
+            sb.append(Messages.Import_Data_HTML_SetEquipment_NO);
          }
       }
       {
@@ -2482,6 +2509,17 @@ public class RawDataView extends ViewPart implements
       }
 
       /*
+       * Equipment
+       */
+      String htmlEquipment = UI.EMPTY_STRING;
+      if (importLauncher.isSetEquipment()) {
+
+         final String stateImage = createHTML_BgImage(_imageUrl_State_Equipment);
+
+         htmlEquipment = createHTML_TileAnnotation(stateImage);
+      }
+
+      /*
        * Tags
        */
       String htmlTourTags = UI.EMPTY_STRING;
@@ -2512,6 +2550,7 @@ public class RawDataView extends ViewPart implements
       sb.append(htmlRetrieveWeatherData);
       sb.append(htmlAdjustTemperature);
       sb.append(htmlLastMarker);
+      sb.append(htmlEquipment);
       sb.append(htmlTourTags);
 
       sb.append("<div style='float:left;'>" + importLauncher.name + "</div>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2635,6 +2674,7 @@ public class RawDataView extends ViewPart implements
 
    private void createMenuManager() {
 
+      _equipmentMenuManager = new EquipmentMenuManager(this, true, true);
       _tagMenuManager = new TagMenuManager(this, true);
       _tourTypeMenuManager = new TourTypeMenuManager(this);
 
@@ -2789,11 +2829,12 @@ public class RawDataView extends ViewPart implements
          _imageUrl_SerialPort_Directly          = getIconUrl(Images.RawData_TransferDirect);
 
          _imageUrl_State_AdjustTemperature      = getIconUrl(Images.State_AdjustTemperature);
+         _imageUrl_State_Equipment              = getIconUrl(Images.State_Equipment);
+         _imageUrl_State_Error                  = getIconUrl(Images.State_Error);
+         _imageUrl_State_MovedFiles             = getIconUrl(Images.State_MovedTour);
+         _imageUrl_State_OK                     = getIconUrl(Images.State_OK);
          _imageUrl_State_RetrieveTourLocation   = getIconUrl(Images.State_RetrieveTourLocation);
          _imageUrl_State_RetrieveWeatherData    = getIconUrl(Images.State_RetrieveWeatherData);
-         _imageUrl_State_Error                  = getIconUrl(Images.State_Error);
-         _imageUrl_State_OK                     = getIconUrl(Images.State_OK);
-         _imageUrl_State_MovedFiles             = getIconUrl(Images.State_MovedTour);
          _imageUrl_State_SaveTour               = getIconUrl(Images.State_SaveTour);
          _imageUrl_State_TourMarker             = getIconUrl(Images.State_TourMarker);
          _imageUrl_State_TourTags               = getIconUrl(Images.State_TourTags);
@@ -2814,9 +2855,40 @@ public class RawDataView extends ViewPart implements
       }
    }
 
-   private String createTagGroupText(final ImportLauncher importLauncher) {
+   private String createText_EquipmentGroup(final ImportLauncher importLauncher) {
+
+      final String equipmentGroupID = importLauncher.equipmentGroupID;
+
+      final EquipmentGroup equipmentGroup = EquipmentGroupManager.getEquipmentGroup(equipmentGroupID);
+      final Set<Equipment> allEquipment = EquipmentGroupManager.getEquipment(equipmentGroupID);
+
+      if (equipmentGroup == null || allEquipment == null) {
+
+         return UI.EMPTY_STRING;
+      }
+
+      final List<Equipment> allSortedEquipment = new ArrayList<>(allEquipment);
+      Collections.sort(allSortedEquipment);
 
       final StringBuilder sb = new StringBuilder();
+
+      for (int equipmentIndex = 0; equipmentIndex < allSortedEquipment.size(); equipmentIndex++) {
+
+         final Equipment equipment = allSortedEquipment.get(equipmentIndex);
+
+         if (equipmentIndex > 0) {
+            sb.append(UI.SPACE2 + UI.SYMBOL_BULLET + UI.SPACE2);
+         }
+
+         sb.append(equipment.getName());
+      }
+
+      final String text = "\"%s\" : %s".formatted(equipmentGroup.name, sb.toString()); //$NON-NLS-1$
+
+      return text;
+   }
+
+   private String createText_TagsGroup(final ImportLauncher importLauncher) {
 
       final String tourTagGroupID = importLauncher.tourTagGroupID;
 
@@ -2831,22 +2903,22 @@ public class RawDataView extends ViewPart implements
       final List<TourTag> sortedTags = new ArrayList<>(allTags);
       Collections.sort(sortedTags);
 
-      final StringBuilder sbTags = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       for (int tagIndex = 0; tagIndex < sortedTags.size(); tagIndex++) {
 
          final TourTag tourTag = sortedTags.get(tagIndex);
 
          if (tagIndex > 0) {
-            sbTags.append(UI.SPACE2 + UI.SYMBOL_BULLET + UI.SPACE2);
+            sb.append(UI.SPACE2 + UI.SYMBOL_BULLET + UI.SPACE2);
          }
 
-         sbTags.append(tourTag.getTagName());
+         sb.append(tourTag.getTagName());
       }
 
-      sb.append("\"%s\" : %s".formatted(tagGroup.name, sbTags.toString())); //$NON-NLS-1$
+      final String text = "\"%s\" : %s".formatted(tagGroup.name, sb.toString()); //$NON-NLS-1$
 
-      return sb.toString();
+      return text;
    }
 
    private void createUI(final Composite parent) {
@@ -3439,6 +3511,7 @@ public class RawDataView extends ViewPart implements
       defineColumn_Tour_TypeText();
       defineColumn_Tour_Title();
       defineColumn_Tour_Tags();
+      defineColumn_Tour_Equipment();
       defineColumn_Tour_Marker();
 
       defineColumn_Motion_Distance();
@@ -3845,7 +3918,7 @@ public class RawDataView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInDate == false) {
+            if (_isShowToolTipInDate == false) {
                return null;
             }
 
@@ -3879,7 +3952,7 @@ public class RawDataView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInTime == false) {
+            if (_isShowToolTipInTime == false) {
                return null;
             }
 
@@ -3903,6 +3976,48 @@ public class RawDataView extends ViewPart implements
             }
          }
       });
+   }
+
+   /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final ColumnDefinition colDef = TableColumnFactory.TOUR_EQUIPMENT.createColumn(_tourViewer_ColumnManager, _pc);
+
+      colDef.setIsDefaultColumn();
+
+      colDef.setLabelProvider(new TourInfoToolTipCellLabelProvider() {
+
+         @Override
+         public Long getTourId(final ViewerCell cell) {
+
+            if (_isShowToolTipInEquipment) {
+
+               return ((TourData) cell.getElement()).getTourId();
+            }
+
+            return null;
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourData tourData = (TourData) cell.getElement();
+
+            final Set<Equipment> allEquipment = tourData.getEquipment();
+
+            if (allEquipment.isEmpty()) {
+
+               cell.setText(UI.EMPTY_STRING);
+
+            } else {
+
+               cell.setText(EquipmentManager.getEquipmentNames(allEquipment));
+            }
+         }
+      });
+
    }
 
    /**
@@ -3955,7 +4070,7 @@ public class RawDataView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInTags == false) {
+            if (_isShowToolTipInTags == false) {
                return null;
             }
 
@@ -4000,7 +4115,7 @@ public class RawDataView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInTitle == false) {
+            if (_isShowToolTipInTitle == false) {
                return null;
             }
 
@@ -4154,6 +4269,8 @@ public class RawDataView extends ViewPart implements
 
    private void enableActions() {
 
+      final List<Object> allSelectedAndSavedItems = new ArrayList<>();
+
       final boolean isTourImported = _rawDataMgr.getImportedTours().values().size() > 0;
 
       final StructuredSelection selection = (StructuredSelection) _tourViewer.getSelection();
@@ -4188,12 +4305,16 @@ public class RawDataView extends ViewPart implements
 
             } else {
 
+               // tour is saved
+
                if (numSavedTours == 0) {
                   firstSavedTour = tourData;
                }
 
                numSavedTours++;
                numSelectedNotDeletedTours++;
+
+               allSelectedAndSavedItems.add(treeItem);
             }
 
             if (numSelectedNotDeletedTours == 1) {
@@ -4202,7 +4323,7 @@ public class RawDataView extends ViewPart implements
          }
       }
 
-      final boolean isSavedTourSelected = numSavedTours > 0;
+      final boolean isSavedSelectedTour = numSavedTours > 0;
       final boolean isOneSavedAndNotDeleteTour = numSelectedNotDeletedTours == 1 && numSavedTours == 1;
       final boolean isOneSelectedNotDeleteTour = numSelectedNotDeletedTours == 1;
 
@@ -4295,10 +4416,11 @@ public class RawDataView extends ViewPart implements
       _actionSetupImport                  .setEnabled(isTourImported == false);
       _actionToggleImportUI               .setEnabled(isTourImported == false);
 
-      // actions for tags/tour types
-      _actionSetTourType.setEnabled(isSavedTourSelected && (allTourTypes.size() > 0));
-      _tagMenuManager.enableTagActions(isSavedTourSelected, isOneTourSelected, allUsedTagIds);
-      _tourTypeMenuManager.enableTourTypeActions(isSavedTourSelected, existingTourTypeId);
+      // actions for tags/tour types/...
+      _actionSetTourType                  .setEnabled(            isSavedSelectedTour && (allTourTypes.size() > 0));
+      _tagMenuManager                     .enableTagActions(      isSavedSelectedTour, isOneTourSelected, allUsedTagIds);
+      _tourTypeMenuManager                .enableTourTypeActions( isSavedSelectedTour, existingTourTypeId);
+      _equipmentMenuManager               .enableActions(         allSelectedAndSavedItems);
 
       // set double click state
       _tourDoubleClickState.canEditTour         = isOneSavedAndNotDeleteTour;
@@ -4437,6 +4559,9 @@ public class RawDataView extends ViewPart implements
 
       // tour tag actions
       _tagMenuManager.fillTagMenu_WithActiveActions(menuMgr, this);
+
+      // equipment actions
+      _equipmentMenuManager.fillEquipmentMenu_WithActiveActions(menuMgr, this);
 
       // add standard group which allows other plug-ins to contribute here
       menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -5900,6 +6025,13 @@ public class RawDataView extends ViewPart implements
          }
 
          /*
+          * 9. Set equipment from a group
+          */
+         if (importLauncher.isSetEquipmentGroup) {
+            runEasyImport_009_SetEquipment(importLauncher, importedTours);
+         }
+
+         /*
           * 50. Retrieve weather data
           */
          if (importLauncher.isRetrieveWeatherData) {
@@ -6195,7 +6327,7 @@ public class RawDataView extends ViewPart implements
    }
 
    private void runEasyImport_008_SetTourTags(final ImportLauncher importLauncher,
-                                              final ArrayList<TourData> importedTours) {
+                                              final ArrayList<TourData> allImportedTours) {
 
       final String tourTagGroupID = importLauncher.tourTagGroupID;
       final TagGroup tagGroup = TagGroupManager.getTagGroup(tourTagGroupID);
@@ -6205,11 +6337,30 @@ public class RawDataView extends ViewPart implements
       }
 
       // "8. Set tour tags from the tag group %s"
-      TourLogManager.log_DEFAULT(EasyImportManager.LOG_EASY_IMPORT_008_SET_TOUR_TAGS.formatted(createTagGroupText(importLauncher)));
+      TourLogManager.log_DEFAULT(EasyImportManager.LOG_EASY_IMPORT_008_SET_TOUR_TAGS.formatted(createText_TagsGroup(importLauncher)));
 
-      for (final TourData tourData : importedTours) {
+      for (final TourData tourData : allImportedTours) {
 
          tourData.setTourTags(tagGroup.tourTags);
+      }
+   }
+
+   private void runEasyImport_009_SetEquipment(final ImportLauncher importLauncher,
+                                               final ArrayList<TourData> allImportedTours) {
+
+      final String equipmentGroupID = importLauncher.equipmentGroupID;
+      final EquipmentGroup equipmentGroup = EquipmentGroupManager.getEquipmentGroup(equipmentGroupID);
+
+      if (equipmentGroup == null) {
+         return;
+      }
+
+      // "9. Set tour equipment from the equipment group %s"
+      TourLogManager.log_DEFAULT(EasyImportManager.LOG_EASY_IMPORT_009_SET_EQUIPMENT.formatted(createText_EquipmentGroup(importLauncher)));
+
+      for (final TourData tourData : allImportedTours) {
+
+         tourData.setEquipment(equipmentGroup.allEquipment);
       }
    }
 
@@ -7300,10 +7451,15 @@ public class RawDataView extends ViewPart implements
 
    private void updateToolTipState() {
 
-      _isToolTipInDate = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_DATE);
-      _isToolTipInTime = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TIME);
-      _isToolTipInTitle = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TITLE);
-      _isToolTipInTags = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TAGS);
+// SET_FORMATTING_OFF
+
+      _isShowToolTipInDate       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_DATE);
+      _isShowToolTipInEquipment  = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_EQUIPMENT);
+      _isShowToolTipInTags       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TAGS);
+      _isShowToolTipInTitle      = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TITLE);
+      _isShowToolTipInTime       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TIME);
+
+// SET_FORMATTING_ON
    }
 
    /**

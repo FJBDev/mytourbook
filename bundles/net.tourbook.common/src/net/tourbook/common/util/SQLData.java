@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ package net.tourbook.common.util;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.common.UI;
 
@@ -30,9 +31,7 @@ public class SQLData {
    private static final char NL = UI.NEW_LINE;
 
    private String            _sqlString;
-   private ArrayList<Object> _allParameters;
-
-   private int               _lastParameterIndex;
+   private List<Object>      _allParameters;
 
    /**
     * Setup with empty sql data
@@ -44,21 +43,13 @@ public class SQLData {
    }
 
    public SQLData(final String sqlString,
-                  final ArrayList<Object> parameters) {
+                  final List<Object> parameters) {
 
       _sqlString = sqlString;
       _allParameters = parameters;
    }
 
-   /**
-    * @return Returns the last parameter index +1 which was used for setting parameters in
-    *         {@link #setParameters(PreparedStatement, int)}
-    */
-   public int getLastParameterIndex() {
-      return _lastParameterIndex;
-   }
-
-   public ArrayList<Object> getParameters() {
+   public List<Object> getParameters() {
       return _allParameters;
    }
 
@@ -68,8 +59,6 @@ public class SQLData {
 
    /**
     * Sets the app filter parameters into the filter statement.
-    * <p>
-    * The last used index can be retrieved with {@link #getLastParameterIndex()}
     *
     * @param statement
     * @param startIndex
@@ -87,28 +76,23 @@ public class SQLData {
 
          if (parameter instanceof Long) {
 
-            statement.setLong(parameterIndex, (Long) parameter);
-            parameterIndex++;
+            statement.setLong(parameterIndex++, (Long) parameter);
 
          } else if (parameter instanceof Integer) {
 
-            statement.setInt(parameterIndex, (Integer) parameter);
-            parameterIndex++;
+            statement.setInt(parameterIndex++, (Integer) parameter);
 
          } else if (parameter instanceof Float) {
 
-            statement.setFloat(parameterIndex, (Float) parameter);
-            parameterIndex++;
+            statement.setFloat(parameterIndex++, (Float) parameter);
 
          } else if (parameter instanceof Double) {
 
-            statement.setDouble(parameterIndex, (Double) parameter);
-            parameterIndex++;
+            statement.setDouble(parameterIndex++, (Double) parameter);
 
          } else if (parameter instanceof String) {
 
-            statement.setString(parameterIndex, (String) parameter);
-            parameterIndex++;
+            statement.setString(parameterIndex++, (String) parameter);
 
          } else {
 
@@ -116,23 +100,22 @@ public class SQLData {
          }
       }
 
-      return _lastParameterIndex = parameterIndex;
+      return parameterIndex;
    }
 
    @Override
    public String toString() {
 
-      final int parameters = _allParameters == null ? 0 : _allParameters.size();
+      final int numParameters = _allParameters == null ? 0 : _allParameters.size();
 
       return UI.EMPTY_STRING
 
             + "SQLData" + NL //                                      //$NON-NLS-1$
 
-            + "   hash           = " + this.hashCode() + NL //            //$NON-NLS-1$
+            + "   hash           = " + this.hashCode() + NL //       //$NON-NLS-1$
             + "   _sqlString     = " + _sqlString + NL //            //$NON-NLS-1$
             + "   _allParameters = " + _allParameters + NL //        //$NON-NLS-1$
-            + "   num parameters = " + parameters + NL //            //$NON-NLS-1$
-
+            + "   numParameters  = " + numParameters + NL //         //$NON-NLS-1$
       ;
    }
 }
