@@ -357,17 +357,9 @@ class DataProvider_Tour_Day extends DataProvider {
 
                + "   TourType_typeId," + NL //                       18 //$NON-NLS-1$
 
-<<<<<<< HEAD
-               + "   BodyWeight,         " + NL //      19 //$NON-NLS-1$
-               + "   BodyFat,          " + NL //      20 //$NON-NLS-1$
-
                + "   trainingStress_Govss,          " + NL //      21 //$NON-NLS-1$
                + "   trainingStress_BikeScore,          " + NL //      22 //$NON-NLS-1$
-               + "   trainingStress_SwimScore          " + NL //      23 //$NON-NLS-1$
-=======
-               + "   BodyWeight," + NL //                            19 //$NON-NLS-1$
-               + "   BodyFat" + NL //                                20 //$NON-NLS-1$
->>>>>>> refs/remotes/Wolfgang/main
+               + "   trainingStress_SwimScore" + NL //      23 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 
@@ -410,16 +402,11 @@ class DataProvider_Tour_Day extends DataProvider {
          final FloatArrayList dbAllBodyWeight                  = new FloatArrayList();
          final FloatArrayList dbAllBodyFat                     = new FloatArrayList();
 
-<<<<<<< HEAD
          final FloatArrayList dbAllPredictedPerformance = new FloatArrayList();
          final FloatArrayList dbAllTrainingStress = new FloatArrayList();
 
-         final ArrayList<String> dbAllTourTitle = new ArrayList<>();
-         final ArrayList<String> dbAllTourDescription = new ArrayList<>();
-=======
          final ArrayList<String> dbAllTourTitle                = new ArrayList<>();
          final ArrayList<String> dbAllTourDescription          = new ArrayList<>();
->>>>>>> refs/remotes/Wolfgang/main
 
          final LongArrayList allTypeIds                        = new LongArrayList();
          final IntArrayList allTypeColorIndex                  = new IntArrayList();
@@ -442,16 +429,10 @@ class DataProvider_Tour_Day extends DataProvider {
             final long dbStartTimeMilli            = result.getLong(4);
             final String dbTimeZoneId              = result.getString(5);
 
-<<<<<<< HEAD
-               if (dbTagId instanceof final Long tagId && tagIds != null) {
-                  tagIds.add(tagId);
-               }
-=======
             final int dbElapsedTime                = result.getInt(6);
             final int dbRecordedTime               = result.getInt(7);
             final int dbPausedTime                 = result.getInt(8);
             final int dbMovingTime                 = result.getInt(9);
->>>>>>> refs/remotes/Wolfgang/main
 
             final float dbDistance                 = result.getFloat(10);
             final int dbAltitudeUp                 = result.getInt(11);
