@@ -719,30 +719,6 @@ public class TourDataEditorView extends ViewPart implements
    private DateTime                  _dtStartTime;
    private DateTime                  _dtTourDate;
    //
-<<<<<<< HEAD
-   private Label                  _lblAltitudeUpUnit;
-   private Label                  _lblAltitudeDownUnit;
-   private Label                  _lblCloudIcon;
-   private Label                  _lblDistanceUnit;
-   private Label                  _lblNoTags;
-   private Label                  _lblPerson_BodyWeightUnit;
-   private Label                  _lblPerson_BodyFatUnit;
-   private Label                  _lblSpeedUnit;
-   private Label                  _lblStartTime;
-   private Label                  _lblTags;
-   private Label                  _lblTimeZone;
-   private Label                  _lblTrainingStress_DeviceScore;
-   private Label                  _lblWeather_PrecipitationUnit;
-   private Label                  _lblWeather_PressureUnit;
-   private Label                  _lblWeather_SnowfallUnit;
-   private Label                  _lblWeather_TemperatureUnit_Avg;
-   private Label                  _lblWeather_TemperatureUnit_Avg_Device;
-   private Label                  _lblWeather_TemperatureUnit_Max;
-   private Label                  _lblWeather_TemperatureUnit_Max_Device;
-   private Label                  _lblWeather_TemperatureUnit_Min;
-   private Label                  _lblWeather_TemperatureUnit_Min_Device;
-   private Label                  _lblWeather_TemperatureUnit_WindChill;
-=======
    private Label                     _lblAltitudeUpUnit;
    private Label                     _lblAltitudeDownUnit;
    private Label                     _lblCloudIcon;
@@ -756,6 +732,7 @@ public class TourDataEditorView extends ViewPart implements
    private Label                     _lblStartTime;
    private Label                     _lblTags;
    private Label                     _lblTimeZone;
+   private Label              _lblTrainingStress_DeviceScore;
    private Label                     _lblWeather_AirQuality;
    private Label                     _lblWeather_PrecipitationUnit;
    private Label                     _lblWeather_PressureUnit;
@@ -767,27 +744,17 @@ public class TourDataEditorView extends ViewPart implements
    private Label                     _lblWeather_TemperatureUnit_Min;
    private Label                     _lblWeather_TemperatureUnit_Min_Device;
    private Label                     _lblWeather_TemperatureUnit_WindChill;
->>>>>>> refs/remotes/Wolfgang/main
    //
-<<<<<<< HEAD
-   private Link                   _linkDefaultTimeZone;
-   private Link                   _linkGeoTimeZone;
+   private Link               _linkDefaultTimeZone;
+   private Link               _linkEquipment;
+   private Link               _linkGeoTimeZone;
    private Link                   _linkBikeScore;
    private Link                   _linkGovss;
    private Link                   _linkSwimScore;
-   private Link                   _linkRemoveTimeZone;
-   private Link                   _linkTag;
-   private Link                   _linkTourType;
-   private Link                   _linkWeather;
-=======
-   private Link                      _linkDefaultTimeZone;
-   private Link                      _linkEquipment;
-   private Link                      _linkGeoTimeZone;
    private Link                      _linkRemoveTimeZone;
    private Link                      _linkTag;
    private Link                      _linkTourType;
    private Link                      _linkWeather;
->>>>>>> refs/remotes/Wolfgang/main
    //
    private Spinner                   _spinPerson_BodyFat;
    private Spinner                   _spinPerson_BodyWeight;
@@ -3318,12 +3285,8 @@ public class TourDataEditorView extends ViewPart implements
       for (final StrokeStyle strokeStyle : SwimStrokeManager.DEFAULT_STROKE_STYLES) {
          _allSwimStyleActions.add(new Action_SetSwimStyle(this, strokeStyle));
       }
-<<<<<<< HEAD
-      _action_RemoveSwimStyle = new Action_RemoveSwimStyle();
-=======
       _action_RemoveSwimStyle = new ActionRemoveSwimStyle();
 
->>>>>>> refs/remotes/Wolfgang/main
    }
 
    private void createActionsBeforeUI() {
