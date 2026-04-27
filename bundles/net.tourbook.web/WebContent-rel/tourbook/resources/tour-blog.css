@@ -14,6 +14,8 @@ body
    $BODY_SCROLLBAR$
 }
 
+$BODY_SCROLLBAR_EXTENDED$
+
 p,td,ul 
 {
    line-height:            130%;
@@ -36,7 +38,7 @@ table
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input 
 {
-   font-family:            verdana, helvetica, arial, sans-serif;
+   font-family:            $BODY_FONT$, verdana, helvetica, arial, sans-serif;
 }
 
 

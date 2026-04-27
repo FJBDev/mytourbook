@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2019 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,18 +24,17 @@ import org.eclipse.core.runtime.Path;
 
 class OSMMapProvider extends MPPlugin {
 
-   static final String         FACTORY_ID     = "osm";           //$NON-NLS-1$
-   private static final String OFFLINE_FOLDER = "osm";           //$NON-NLS-1$
-   private static final String FACTORY_NAME   = "OpenStreetMap"; //$NON-NLS-1$
-   private static final String OSM_CATEGORY   = "OSM";           //$NON-NLS-1$
+   static final String         FACTORY_ID     = "osm";                                                 //$NON-NLS-1$
+   private static final String OFFLINE_FOLDER = "osm";                                                 //$NON-NLS-1$
+   private static final String FACTORY_NAME   = "OpenStreetMap";                                       //$NON-NLS-1$
+   private static final String OSM_CATEGORY   = "OSM";                                                 //$NON-NLS-1$
 
-   private static final String SEPARATOR      = "/";             //$NON-NLS-1$
+   private static final String SEPARATOR      = "/";                                                   //$NON-NLS-1$
 
    private static final int    MIN_ZOOM       = 0;
    private static final int    MAX_ZOOM       = 19;
 
-   // https is very slow
-   private static final String TILE_BASE_URL  = "http://tile.openstreetmap.org";                       //$NON-NLS-1$
+   private static final String TILE_BASE_URL  = "https://tile.openstreetmap.org";                      //$NON-NLS-1$
    private static final String MAP_ONLINE_URL = "https://www.openstreetmap.org";                       //$NON-NLS-1$
 
    private static final String FILE_EXT       = MapProviderManager.FILE_EXTENSION_PNG;
@@ -61,6 +60,11 @@ class OSMMapProvider extends MPPlugin {
    }
 
    @Override
+   public float getHiDPI() {
+      return 1.0f;
+   }
+
+   @Override
    public String getId() {
       return FACTORY_ID;
    }
@@ -83,7 +87,7 @@ class OSMMapProvider extends MPPlugin {
    @Override
    public IPath getTileOSPath(final String fullPath, final Tile tile) {
 
-      return new Path(fullPath)//
+      return new Path(fullPath)
             .append(OFFLINE_FOLDER)
             .append(Integer.toString(tile.getZoom()))
             .append(Integer.toString(tile.getX()))
@@ -94,7 +98,7 @@ class OSMMapProvider extends MPPlugin {
    @Override
    public String getTileUrl(final Tile tile) {
 
-      return new StringBuilder()//
+      return new StringBuilder()
             .append(TILE_BASE_URL)
             .append(SEPARATOR)
             .append(tile.getZoom())

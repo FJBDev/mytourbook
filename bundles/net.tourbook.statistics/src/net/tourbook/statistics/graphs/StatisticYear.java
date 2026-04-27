@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +34,7 @@ import net.tourbook.chart.IChartInfoProvider;
 import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourPerson;
@@ -118,10 +123,10 @@ abstract class StatisticYear extends TourbookStatistic {
     * @param hoveredBar_HorizontalIndex
     *           valueIndex
     */
-   private void createToolTipUI(final IToolTipProvider toolTipProvider,
-                                final Composite parent,
-                                final int hoveredBar_SerieIndex,
-                                final int hoveredBar_ValueIndex) {
+   private ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                           final Composite parent,
+                                           final int hoveredBar_SerieIndex,
+                                           final int hoveredBar_ValueIndex) {
 
       /*
        * Create tooltip title
@@ -130,7 +135,7 @@ abstract class StatisticYear extends TourbookStatistic {
       final LocalDate yearDate = LocalDate.of(oldestYear, 1, 1).plusYears(hoveredBar_ValueIndex);
 
       final String toolTipTitle = Integer.toString(yearDate.getYear());
-      final String totalColumnHeaderTitel = toolTipTitle;
+      final String totalColumnHeaderTitle = toolTipTitle;
 
       final boolean isShowPercentageValues = _prefStore.getBoolean(ITourbookPreferences.STAT_YEAR_TOOLTIP_IS_SHOW_PERCENTAGE_VALUES);
       final boolean isShowSummaryValues = _prefStore.getBoolean(ITourbookPreferences.STAT_YEAR_TOOLTIP_IS_SHOW_SUMMARY_VALUES);
@@ -143,9 +148,11 @@ abstract class StatisticYear extends TourbookStatistic {
             hoveredBar_ValueIndex,
             toolTipTitle,
             null,
-            totalColumnHeaderTitel,
+            totalColumnHeaderTitle,
             isShowSummaryValues,
             isShowPercentageValues);
+
+      return null;
    }
 
    void createXData_Year(final ChartDataModel chartDataModel) {
@@ -488,8 +495,15 @@ abstract class StatisticYear extends TourbookStatistic {
 
       // set tool tip info
       chartModel.setCustomData(
+
             ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER,
-            (IChartInfoProvider) StatisticYear.this::createToolTipUI);
+
+            (IChartInfoProvider) (toolTipProvider, parent, serieIndex, valueIndex) -> createToolTipUI(
+
+                  toolTipProvider,
+                  parent,
+                  serieIndex,
+                  valueIndex));
    }
 
    @Override
@@ -559,7 +573,7 @@ abstract class StatisticYear extends TourbookStatistic {
          setGraphLabel_Duration(_yData_Duration, durationTime);
       }
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // update title segment config AFTER defaults are set above
       final ChartTitleSegmentConfig ctsConfig = _chart.getChartTitleSegmentConfig();

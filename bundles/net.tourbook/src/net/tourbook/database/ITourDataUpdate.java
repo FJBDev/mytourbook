@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Frédéric Bard
+ * Copyright (C) 2022, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,14 +15,23 @@
  *******************************************************************************/
 package net.tourbook.database;
 
+import java.util.List;
+
 import net.tourbook.data.TourData;
 
 /**
  * Interface to update tour values for {@link TourData}
  */
-public interface ITourDataUpdate {
+public interface ITourDataUpdate extends ITourDataUpdate_OnlyUpdate {
 
+   /**
+    * @return Returns the new database DATA version
+    */
    public int getDatabaseVersion();
 
-   public boolean updateTourData(TourData tourData);
+   /**
+    * @return Returns all tour id's which should be processed or <code>null</code> that all tours
+    *         are being processed
+    */
+   public List<Long> getTourIDs();
 }

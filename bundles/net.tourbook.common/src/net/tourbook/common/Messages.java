@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.common.messages";               //$NON-NLS-1$
 
+   public static String        App_Action_Add_WithConfirm;
    public static String        App_Action_ApplyAndClose;
    public static String        App_Action_Close_Tooltip;
    public static String        App_Action_New_WithConfirm;
@@ -35,9 +36,18 @@ public class Messages extends NLS {
 
    public static String        App_Error_NotSupportedValueFormatter;
 
-   public static String        App_Size_Large;
-   public static String        App_Size_Medium;
-   public static String        App_Size_Small;
+   public static String        App_Size_Large_Label;
+   public static String        App_Size_Large_Shortcut;
+   public static String        App_Size_Large_Text;
+   public static String        App_Size_Medium_Label;
+   public static String        App_Size_Medium_Shortcut;
+   public static String        App_Size_Medium_Text;
+   public static String        App_Size_Small_Label;
+   public static String        App_Size_Small_Shortcut;
+   public static String        App_Size_Small_Text;
+   public static String        App_Size_Tiny_Label;
+   public static String        App_Size_Tiny_Shortcut;
+   public static String        App_Size_Tiny_Text;
 
    public static String        App_Theme_BackgroundColor_Light_Tooltip;
    public static String        App_Theme_BackgroundColor_Dark_Tooltip;
@@ -169,6 +179,7 @@ public class Messages extends NLS {
    public static String        Graph_Label_Distance;
    public static String        Graph_Label_ElevationGain;
    public static String        Graph_Label_Gears;
+   public static String        Graph_Label_GearNumber;
    public static String        Graph_Label_Gradient;
    public static String        Graph_Label_Gradient_Unit;
    public static String        Graph_Label_Heartbeat;
@@ -200,9 +211,14 @@ public class Messages extends NLS {
    public static String        Graph_Label_Tour_Compare_Unit;
    public static String        Graph_Label_Geo_Compare_Unit;
    public static String        Graph_Label_Prefix_AthleteData;
+   public static String        Graph_Label_Prefix_Radar;
    public static String        Graph_Label_Prefix_RunningDynamics;
    public static String        Graph_Label_Prefix_Swimming;
    public static String        Graph_Label_Prefix_Training;
+   public static String        Graph_Label_Radar_PassedVehicles;
+   public static String        Graph_Label_Radar_DistanceToVehicle;
+   public static String        Graph_Label_Radar_PassingSpeed_Absolute;
+   public static String        Graph_Label_Radar_PassingSpeed_Relative;
    public static String        Graph_Label_RunDyn_StanceTime;
    public static String        Graph_Label_RunDyn_StanceTimeBalance;
    public static String        Graph_Label_RunDyn_StepLength;
@@ -320,9 +336,10 @@ public class Messages extends NLS {
 
    public static String        Weather_Clouds_Clouds;
    public static String        Weather_Clouds_Cloudy;
+   public static String        Weather_Clouds_Drizzle;
+   public static String        Weather_Clouds_Fog;
    public static String        Weather_Clouds_IsNotDefined;
    public static String        Weather_Clouds_Lightning;
-   public static String        Weather_Clouds_Drizzle;
    public static String        Weather_Clouds_Rain;
    public static String        Weather_Clouds_ScatteredShowers;
    public static String        Weather_Clouds_SevereWeatherAlert;
@@ -387,6 +404,7 @@ public class Messages extends NLS {
    public static String        Slideout_Dialog_Action_DragSlideout_ToolTip;
    public static String        Slideout_Dialog_Action_KeepSlideoutOpen_Tooltip;
    public static String        Slideout_Dialog_Action_PinSlideoutLocation_Tooltip;
+   public static String        Slideout_Dialog_Action_ResetSlideoutLocation_Tooltip;
 
    public static String        Slideout_Map_TrackColors_Label_Title;
    public static String        Slideout_Map_TrackColors_Label_VisibleColorProfiles;
@@ -409,6 +427,8 @@ public class Messages extends NLS {
    public static String        Value_Formatter_Number_1_2;
    public static String        Value_Formatter_Number_1_3;
    public static String        Value_Formatter_Pace_MM_SS;
+   public static String        Value_Formatter_Time_DD_MM_YYY;
+   public static String        Value_Formatter_Time_DD_MM_YYY__HH_MM_SS;
    public static String        Value_Formatter_Time_HH;
    public static String        Value_Formatter_Time_HH_MM;
    public static String        Value_Formatter_Time_HH_MM_SS;

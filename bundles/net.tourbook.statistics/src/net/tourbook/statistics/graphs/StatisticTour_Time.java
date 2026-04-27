@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -29,6 +29,7 @@ import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.chart.SelectionBarChart;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipHideListener;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.Util;
@@ -275,6 +276,7 @@ public class StatisticTour_Time extends TourbookStatistic implements IBarSelecti
             _tourInfoUI.dispose();
          }
       });
+
    }
 
    @Override
@@ -288,6 +290,11 @@ public class StatisticTour_Time extends TourbookStatistic implements IBarSelecti
    @Override
    protected String getGridPrefPrefix() {
       return GRID_TOUR_TIME;
+   }
+
+   @Override
+   protected String getLayoutPrefPrefix() {
+      return LAYOUT_TOUR_TIME;
    }
 
    @Override
@@ -404,8 +411,14 @@ public class StatisticTour_Time extends TourbookStatistic implements IBarSelecti
       final IChartInfoProvider chartInfoProvider = new IChartInfoProvider() {
 
          @Override
-         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+         public ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                           final Composite parent,
+                                           final int serieIndex,
+                                           final int valueIndex) {
+
             StatisticTour_Time.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+
+            return _tourInfoUI;
          }
       };
 
@@ -467,7 +480,7 @@ public class StatisticTour_Time extends TourbookStatistic implements IBarSelecti
          _minMaxKeeper.setMinMaxValues(chartModel);
       }
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the data in the chart
       _chart.updateChart(chartModel, false, true);
@@ -528,5 +541,4 @@ public class StatisticTour_Time extends TourbookStatistic implements IBarSelecti
    public void updateToolBar() {
       _chart.fillToolbar(true);
    }
-
 }

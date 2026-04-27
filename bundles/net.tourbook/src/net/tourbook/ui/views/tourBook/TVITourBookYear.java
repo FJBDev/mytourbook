@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,11 +28,11 @@ import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.time.TourDateTime;
 import net.tourbook.common.util.SQL;
+import net.tourbook.common.util.SQLData;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.tag.tour.filter.TourTagFilterManager;
-import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.equipment.EquipmentPartFilter;
+import net.tourbook.ui.AppFilter;
 
 public class TVITourBookYear extends TVITourBookItem {
 
@@ -63,6 +63,10 @@ public class TVITourBookYear extends TVITourBookItem {
          final ArrayList<TreeViewerItem> children = new ArrayList<>();
          setChildren(children);
 
+         final ZonedDateTime tourWeek = calendar8.with(
+               TimeTools.calendarWeek.dayOfWeek(),
+               TimeTools.calendarWeek.getFirstDayOfWeek().getValue());
+
          String sqlSumYearField = UI.EMPTY_STRING;
          String sqlSumYearFieldSub = UI.EMPTY_STRING;
 
@@ -81,81 +85,60 @@ public class TVITourBookYear extends TVITourBookItem {
             sqlSumYearFieldSub = "StartMonth"; //$NON-NLS-1$
          }
 
-         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
-         String sqlFromTourData;
+         final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
+         final SQLData partFilter = new EquipmentPartFilter().getSqlData();
 
-         final TourTagFilterSqlJoinBuilder tagFilterSqlJoinBuilder = new TourTagFilterSqlJoinBuilder();
+         sql = UI.EMPTY_STRING
 
-         if (TourTagFilterManager.isTourTagFilterEnabled()) {
+               + "SELECT" + NL //                                                      //$NON-NLS-1$
 
-            // with tag filter
+               + "   " + sqlSumYearField + "," + NL //                                 //$NON-NLS-1$ //$NON-NLS-2$
+               + "   " + sqlSumYearFieldSub + "," + NL //                              //$NON-NLS-1$ //$NON-NLS-2$
 
-            sqlFromTourData = NL
+               + getSQL_SUM_COLUMNS("tdFields", 3) //                                  //$NON-NLS-1$
 
-                  + "FROM (" + NL //                                                   //$NON-NLS-1$
+               + "FROM " + NL //                                                       //$NON-NLS-1$
 
-                  + "   SELECT" + NL //                                                //$NON-NLS-1$
+               + "(" + NL //                                                           //$NON-NLS-1$
 
-                  // this is necessary otherwise tours can occur multiple times when a tour contains multiple tags !!!
-                  + "      DISTINCT TourId," + NL //                                   //$NON-NLS-1$
+               // Get distinct tours that match the criteria (parts 1 or 6 active at tour start)
+               + "   SELECT DISTINCT" + NL //                                          //$NON-NLS-1$
 
-                  + "      " + sqlSumYearField + "," + NL //                           //$NON-NLS-1$ //$NON-NLS-2$
-                  + "      " + sqlSumYearFieldSub + "," + NL //                        //$NON-NLS-1$ //$NON-NLS-2$
-                  + "      " + SQL_SUM_FIELDS + NL //$NON-NLS-1$
+               + "      TourData.TourID," + NL //                                      //$NON-NLS-1$
 
-                  + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                  //$NON-NLS-1$
+               + "      TourData.StartYear," + NL //                                   //$NON-NLS-1$
+               + "      TourData.StartMonth," + NL //                                  //$NON-NLS-1$
 
-                  // get tag id's
-                  + "       " + tagFilterSqlJoinBuilder.getSqlTagJoinTable() //$NON-NLS-1$
+               + "      TourData.StartWeekYear," + NL //                               //$NON-NLS-1$
+               + "      TourData.StartWeek," + NL //                                   //$NON-NLS-1$
 
-                  + "   AS jTdataTtag" + NL //$NON-NLS-1$
-                  + "   ON tourID = jTdataTtag.TourData_tourId" + NL //                //$NON-NLS-1$
+               + getSQL_SUM_FIELDS("TourData", 6) //                                   //$NON-NLS-1$
 
-                  + "   WHERE " + sqlSumYearField + "=?" + NL //                       //$NON-NLS-1$ //$NON-NLS-2$
-                  + "      " + sqlAppFilter.getWhereClause() //$NON-NLS-1$
+               + "   FROM TOURDATA AS TourData" + NL //                                //$NON-NLS-1$
 
-                  + ") NecessaryNameOtherwiseItDoNotWork" + NL //                      //$NON-NLS-1$
-            ;
+               + partFilter.getSqlString()
 
-         } else {
+               + "   WHERE" + NL //                                                    //$NON-NLS-1$
 
-            // without tag filter
+               + "      " + sqlSumYearField + " = ?" + NL //                           //$NON-NLS-1$ //$NON-NLS-2$
 
-            sqlFromTourData = NL
+               + appFilter.getWhereClause()
 
-                  + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                     //$NON-NLS-1$
+               + ") AS tdFields" + NL //                                               //$NON-NLS-1$
 
-                  + "WHERE " + sqlSumYearField + "=?" + NL //                          //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   " + sqlAppFilter.getWhereClause() + NL; //$NON-NLS-1$
-         }
-
-         sql = NL +
-
-               "SELECT" + NL //                                                        //$NON-NLS-1$
-
-               + sqlSumYearField + "," + NL //                                         //$NON-NLS-1$
-               + sqlSumYearFieldSub + "," + NL //                                      //$NON-NLS-1$
-               + SQL_SUM_COLUMNS
-
-               + sqlFromTourData
-
-               + "GROUP BY " + sqlSumYearField + "," + sqlSumYearFieldSub + NL //      //$NON-NLS-1$ //$NON-NLS-2$
+               + "GROUP BY " + sqlSumYearField + ", " + sqlSumYearFieldSub + NL //     //$NON-NLS-1$ //$NON-NLS-2$
                + "ORDER BY " + sqlSumYearFieldSub + NL //                              //$NON-NLS-1$
          ;
 
-         final ZonedDateTime tourWeek = calendar8.with(
-               TimeTools.calendarWeek.dayOfWeek(),
-               TimeTools.calendarWeek.getFirstDayOfWeek().getValue());
-
          final PreparedStatement prepStmt = conn.prepareStatement(sql);
 
-         int paramIndex = 1;
+         int nextIndex = 1;
 
-         paramIndex = tagFilterSqlJoinBuilder.setParameters(prepStmt, paramIndex);
+         nextIndex = partFilter.setParameters(prepStmt, nextIndex);
 
-         // set sql parameters
-         prepStmt.setInt(paramIndex++, tourYear);
-         sqlAppFilter.setParameters(prepStmt, paramIndex++);
+         prepStmt.setInt(nextIndex++, tourYear);
+
+         nextIndex = appFilter.setParameters(prepStmt, nextIndex);
 
          final ResultSet result = prepStmt.executeQuery();
          while (result.next()) {

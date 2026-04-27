@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,9 +20,11 @@
 package net.tourbook.device.garmin.fit.listeners;
 
 import com.garmin.fit.DateTime;
+import com.garmin.fit.DisplayMeasure;
 import com.garmin.fit.SessionMesg;
 import com.garmin.fit.SessionMesgListener;
 import com.garmin.fit.Sport;
+import com.garmin.fit.SubSport;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -66,6 +72,16 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
          fitData.setSportname(sportName);
       }
 
+      final SubSport subSport = mesg.getSubSport();
+      if (subSport != null) {
+         fitData.setSubSport(subSport.name().trim());
+      }
+
+      final String sportProfileName = mesg.getSportProfileName();
+      if (sportProfileName != null) {
+         fitData.setSportProfileName(sportProfileName.trim());
+      }
+
       final Short avgHeartRate = mesg.getAvgHeartRate();
       if (avgHeartRate != null) {
          tourData.setAvgPulse(avgHeartRate);
@@ -88,15 +104,20 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
          tourData.setTourDistance(Math.round(totalDistance));
       }
 
+      float elevationGain = 0;
+      float elevationLoss = 0;
+
       final Integer totalAscent = mesg.getTotalAscent();
       if (totalAscent != null) {
-         tourData.setTourAltUp(totalAscent);
+         elevationGain = totalAscent;
       }
 
       final Integer totalDescent = mesg.getTotalDescent();
       if (totalDescent != null) {
-         tourData.setTourAltDown(totalDescent);
+         elevationLoss = totalDescent;
       }
+
+      tourData.setElevationGainLoss(elevationGain, elevationLoss);
 
       final Float totalElapsedTime = mesg.getTotalElapsedTime();
       if (totalElapsedTime != null) {
@@ -213,6 +234,25 @@ public class MesgListener_Session extends AbstractMesgListener implements Sessio
       final Float totalAnaerobicTrainingEffect = mesg.getTotalAnaerobicTrainingEffect();
       if (totalAnaerobicTrainingEffect != null) {
          tourData.setTraining_TrainingEffect_Anaerob(totalAnaerobicTrainingEffect);
+      }
+
+      // ----------------------- SWIMMING -----------------------
+
+      final Float poolLength = mesg.getPoolLength();
+      final DisplayMeasure poolLengthUnit = mesg.getPoolLengthUnit();
+
+      if (poolLength != null && poolLengthUnit != null) {
+
+         if (poolLengthUnit.equals(DisplayMeasure.METRIC)) {
+
+            tourData.setPoolLength((int) (poolLength * 1000));
+
+         } else if (poolLengthUnit.equals(DisplayMeasure.STATUTE)) {
+
+            // mile/feet
+
+            // we need a .fit file to test mile/feet
+         }
       }
 
       fitData.onSetup_Session_20_Finalize();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2020, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,6 +39,7 @@ import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageViews;
 import net.tourbook.ui.TableColumnFactory;
@@ -127,6 +128,7 @@ class TourBook_ColumnFactory {
       defineColumn_1_Date();
       defineColumn_Time_WeekDay();
       defineColumn_Time_TourStartTime();
+      defineColumn_Time_TourEndTime();
       defineColumn_Time_TimeZoneDifference();
       defineColumn_Time_TimeZone();
       defineColumn_Time_ElapsedTime();
@@ -142,9 +144,11 @@ class TourBook_ColumnFactory {
       defineColumn_Tour_Type_Image();
       defineColumn_Tour_Type_Text();
       defineColumn_Tour_Title();
+      defineColumn_Tour_Description();
       defineColumn_Tour_Marker();
       defineColumn_Tour_Photos();
       defineColumn_Tour_Tags();
+      defineColumn_Tour_Equipment();
       defineColumn_Tour_Location_Start();
       defineColumn_Tour_Location_End();
       defineColumn_Tour_LocationID_Start(); //  // for debugging
@@ -241,6 +245,9 @@ class TourBook_ColumnFactory {
       defineColumn_Surfing_MinSpeed_Surfing();
       defineColumn_Surfing_MinTimeDuration();
       defineColumn_Surfing_MinDistance();
+
+      // Radar
+      defineColumn_Radar_PassedVehicles();
 
       // Device
       defineColumn_Device_Name();
@@ -1853,6 +1860,38 @@ class TourBook_ColumnFactory {
    }
 
    /**
+    * Column: Radar - Number of passed vehicles
+    */
+   private void defineColumn_Radar_PassedVehicles() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.RADAR_PASSED_VEHICLES.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final double value = ((TVITourBookItem) element).colRadar_PassedVehicles;
+
+            return colDef_NatTable.printValue_0(value);
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.RADAR_PASSED_VEHICLES.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final double value = ((TVITourBookItem) element).colRadar_PassedVehicles;
+
+            colDef_Tree.printValue_0(cell, value);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
     * Column: Running Dynamics - Stance time max
     */
    private void defineColumn_RunDyn_StanceTime_Avg() {
@@ -2888,6 +2927,102 @@ class TourBook_ColumnFactory {
    }
 
    /**
+    * Column: Time - Tour end time
+    */
+   private void defineColumn_Time_TourEndTime() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.TIME_TOUR_END_TIME.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setIsDefaultColumn();
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider_WithTourTooltip() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final TVITourBookTour tourItem = (TVITourBookTour) element;
+
+            final TourDateTime tourDateTime = tourItem.colTourDateTime;
+            final long elapsedTime = tourItem.colTourDeviceTime_Elapsed;
+
+            final ZonedDateTime tourStartDateTime = tourDateTime.tourZonedDateTime;
+            final ZonedDateTime tourEndDateTime = tourStartDateTime.plusSeconds(elapsedTime);
+
+            final ValueFormat valueFormatter = colDef_NatTable.getValueFormat_Detail();
+
+            String tourEndTime;
+
+            if (valueFormatter.equals(ValueFormat.TIME_HH_MM_SS)) {
+               tourEndTime = tourEndDateTime.format(TimeTools.Formatter_Time_M);
+            } else {
+               tourEndTime = tourEndDateTime.format(TimeTools.Formatter_Time_S);
+            }
+
+            if (UI.IS_SCRAMBLE_DATA) {
+               tourEndTime = UI.scrambleText(tourEndTime);
+            }
+
+            return tourEndTime;
+         }
+
+         @Override
+         public boolean isShowTooltip() {
+            return _isShowToolTipIn_Time;
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.TIME_TOUR_END_TIME.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setIsDefaultColumn();
+      colDef_Tree.setLabelProvider(new TourInfoToolTipCellLabelProvider() {
+
+         @Override
+         public Long getTourId(final ViewerCell cell) {
+
+            if (_isShowToolTipIn_Time == false) {
+               return null;
+            }
+
+            final Object element = cell.getElement();
+            if ((element instanceof final TVITourBookTour tourItem)) {
+               return tourItem.getTourId();
+            }
+
+            return null;
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            if (element instanceof final TVITourBookTour tourItem) {
+
+               final TourDateTime tourDateTime = tourItem.colTourDateTime;
+               final long elapsedTime = tourItem.colTourDeviceTime_Elapsed;
+
+               final ZonedDateTime tourStartDateTime = tourDateTime.tourZonedDateTime;
+               final ZonedDateTime tourEndDateTime = tourStartDateTime.plusSeconds(elapsedTime);
+
+               final ValueFormat valueFormatter = colDef_Tree.getValueFormat_Detail();
+
+               String tourEndTime;
+
+               if (valueFormatter.equals(ValueFormat.TIME_HH_MM_SS)) {
+                  tourEndTime = tourEndDateTime.format(TimeTools.Formatter_Time_M);
+               } else {
+                  tourEndTime = tourEndDateTime.format(TimeTools.Formatter_Time_S);
+               }
+
+               if (UI.IS_SCRAMBLE_DATA) {
+                  tourEndTime = UI.scrambleText(tourEndTime);
+               }
+
+               cell.setText(tourEndTime);
+
+               setCellColor(cell, element);
+            }
+         }
+      });
+   }
+
+   /**
     * Column: Time - Tour start time
     */
    private void defineColumn_Time_TourStartTime() {
@@ -3111,6 +3246,94 @@ class TourBook_ColumnFactory {
    }
 
    /**
+    * Column: Tour - Description
+    */
+   private void defineColumn_Tour_Description() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.TOUR_DESCRIPTION.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final String colTourDescription = ((TVITourBookTour) element).colTourDescription;
+
+            if (colTourDescription == null) {
+               return UI.EMPTY_STRING;
+            } else {
+               return colTourDescription;
+            }
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.TOUR_DESCRIPTION.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            if (element instanceof final TVITourBookTour tourItem) {
+
+               final String colTourDescription = tourItem.colTourDescription;
+
+               if (colTourDescription == null) {
+                  cell.setText(UI.EMPTY_STRING);
+               } else {
+                  cell.setText(colTourDescription);
+               }
+
+               setCellColor(cell, element);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final List<Long> allEquipmentIDs = ((TVITourBookTour) element).getEquipmentIds();
+
+            final ValueFormat valueFormat = colDef_NatTable.getValueFormat_Detail();
+
+            final String text = EquipmentManager.getEquipmentNames(allEquipmentIDs, valueFormat);
+
+            return text;
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            if (element instanceof final TVITourBookTour tourItem) {
+
+               final List<Long> allEquipmentIDs = tourItem.getEquipmentIds();
+
+               final ValueFormat valueFormat = colDef_Tree.getValueFormat_Detail();
+
+               final String text = EquipmentManager.getEquipmentNames(allEquipmentIDs, valueFormat);
+
+               cell.setText(text);
+               setCellColor(cell, element);
+            }
+         }
+      });
+   }
+
+   /**
     * Column: Tour - Tour end location
     */
    private void defineColumn_Tour_Location_End() {
@@ -3276,7 +3499,7 @@ class TourBook_ColumnFactory {
 
             if (tourLocation instanceof final Long value) {
 
-               return Long.toString((Long) tourLocation);
+               return Long.toString(value);
 
             } else {
 
@@ -3296,7 +3519,7 @@ class TourBook_ColumnFactory {
 
             if (tourLocation instanceof final Long value) {
 
-               cell.setText(Long.toString((Long) tourLocation));
+               cell.setText(Long.toString(value));
 
             } else {
 
@@ -3323,7 +3546,7 @@ class TourBook_ColumnFactory {
 
             if (tourLocation instanceof final Long value) {
 
-               return Long.toString((Long) tourLocation);
+               return Long.toString(value);
 
             } else {
 
@@ -3343,7 +3566,7 @@ class TourBook_ColumnFactory {
 
             if (tourLocation instanceof final Long value) {
 
-               cell.setText(Long.toString((Long) tourLocation));
+               cell.setText(Long.toString(value));
 
             } else {
 
@@ -3534,13 +3757,18 @@ class TourBook_ColumnFactory {
          @Override
          public String getValueText(final Object element) {
 
-            final String colTourTitle = ((TVITourBookTour) element).colTourTitle;
+            String colTourTitle = ((TVITourBookTour) element).colTourTitle;
 
             if (colTourTitle == null) {
 // used for debugging
 //             return "<NULL>";
                return UI.EMPTY_STRING;
             } else {
+
+               if (UI.IS_SCRAMBLE_DATA) {
+                  colTourTitle = UI.scrambleText(colTourTitle);
+               }
+
                return colTourTitle;
             }
          }

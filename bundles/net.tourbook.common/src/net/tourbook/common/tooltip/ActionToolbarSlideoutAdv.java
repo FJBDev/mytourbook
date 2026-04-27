@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2017, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.common.tooltip;
 
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.CommonImages;
+import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
 
 import org.eclipse.jface.action.ContributionItem;
@@ -33,7 +34,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * Action to open a slideout in a toolbar.
+ * Action to open a slideout in a toolbar
  */
 public abstract class ActionToolbarSlideoutAdv extends ContributionItem implements IOpeningDialog {
 
@@ -55,14 +56,11 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
    public String            notSelectedTooltip = UI.EMPTY_STRING;
 
    private boolean          _isImageCreated_EnabledDisabled;
-   private boolean          _isImageCreated_Selected;
 
    /*
     * UI controls
     */
    private Image _imageEnabled;
-   private Image _imageDisabled;
-   private Image _imageSelected;
 
    /**
     * Use {@link CommonImages#TourOptions} as default action image
@@ -70,35 +68,26 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
    public ActionToolbarSlideoutAdv() {
 
       _imageEnabled = CommonActivator.getThemedImageDescriptor(CommonImages.TourOptions).createImage();
-      _imageDisabled = CommonActivator.getThemedImageDescriptor(CommonImages.TourOptions_Disabled).createImage();
 
       _isImageCreated_EnabledDisabled = true;
    }
 
-   public ActionToolbarSlideoutAdv(final Image actionImage, final Image actionImageDisabled) {
+   public ActionToolbarSlideoutAdv(final Image actionImage) {
 
       _imageEnabled = actionImage;
-      _imageDisabled = actionImageDisabled;
    }
 
-   public ActionToolbarSlideoutAdv(final ImageDescriptor actionImage, final ImageDescriptor actionImageDisabled) {
+   public ActionToolbarSlideoutAdv(final Image actionImage,
+                                   final Image actionImageDisabled) {
 
-      _imageEnabled = actionImage.createImage();
-      _imageDisabled = actionImageDisabled.createImage();
-
-      _isImageCreated_EnabledDisabled = true;
+      _imageEnabled = actionImage;
    }
 
-   public ActionToolbarSlideoutAdv(final ImageDescriptor actionImage_Enabled,
-                                   final ImageDescriptor actionImage_Disabled,
-                                   final ImageDescriptor actionImage_Selected) {
+   public ActionToolbarSlideoutAdv(final ImageDescriptor actionImageDescriptor) {
 
-      _imageEnabled = actionImage_Enabled.createImage();
-      _imageDisabled = actionImage_Disabled.createImage();
-      _imageSelected = actionImage_Selected.createImage();
+      _imageEnabled = actionImageDescriptor.createImage();
 
       _isImageCreated_EnabledDisabled = true;
-      _isImageCreated_Selected = true;
    }
 
    protected abstract AdvancedSlideout createSlideout(ToolItem toolItem);
@@ -106,8 +95,7 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
    @Override
    public void fill(final ToolBar toolbar, final int index) {
 
-      if (_imageEnabled == null || _imageEnabled.isDisposed()
-            || _imageDisabled == null || _imageDisabled.isDisposed()) {
+      if (_imageEnabled == null || _imageEnabled.isDisposed()) {
 
          return;
       }
@@ -123,7 +111,6 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
          }
 
          _actionToolItem.setImage(_imageEnabled);
-         _actionToolItem.setDisabledImage(_imageDisabled);
          _actionToolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
@@ -177,6 +164,7 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
 
    @Override
    public void hideDialog() {
+
       _toolbarSlideout.hideNow();
    }
 
@@ -203,16 +191,6 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
       if (_isImageCreated_EnabledDisabled && _imageEnabled != null && _imageEnabled.isDisposed() == false) {
 
          _imageEnabled.dispose();
-      }
-
-      if (_isImageCreated_EnabledDisabled && _imageDisabled != null && _imageDisabled.isDisposed() == false) {
-
-         _imageDisabled.dispose();
-      }
-
-      if (_isImageCreated_Selected && _imageSelected != null && _imageSelected.isDisposed() == false) {
-
-         _imageSelected.dispose();
       }
    }
 
@@ -258,6 +236,11 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
 
       updateUI_ToolItem_Image();
       updateUI_ToolItem_Tooltip();
+
+      if (UI.isCtrlKey(selectionEvent)) {
+
+         _toolbarSlideout.resetLocation();
+      }
 
       if (_toolbarSlideout.isVisible() == false) {
 
@@ -329,19 +312,7 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
     *
     * @param _actionToolItem2
     */
-   protected void updateUI_ToolItem_Image() {
-
-      if (_imageSelected != null) {
-
-         // selected image is available
-
-         if (_actionToolItem.getSelection()) {
-            _actionToolItem.setImage(_imageSelected);
-         } else {
-            _actionToolItem.setImage(_imageEnabled);
-         }
-      }
-   }
+   protected void updateUI_ToolItem_Image() {}
 
    private void updateUI_ToolItem_Tooltip() {
 
@@ -353,7 +324,15 @@ public abstract class ActionToolbarSlideoutAdv extends ContributionItem implemen
 
       } else {
 
-         _actionToolItem.setToolTipText(notSelectedTooltip);
+         String tooltipText = notSelectedTooltip;
+
+         // append <Ctrl> key hint
+         if (isToggleAction) {
+
+            tooltipText += UI.NEW_LINE2 + Messages.Slideout_Dialog_Action_ResetSlideoutLocation_Tooltip;
+         }
+
+         _actionToolItem.setToolTipText(tooltipText);
       }
    }
 }

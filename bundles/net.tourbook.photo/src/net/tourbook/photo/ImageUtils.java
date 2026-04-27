@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2012, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ImageUtils {
 
+   static final String IMAGE_FILE_EXTENSION_SVG = "svg"; //$NON-NLS-1$
+
    public static FileFilter createImageFileFilter() {
 
       return pathname -> {
@@ -58,6 +60,11 @@ public class ImageUtils {
          }
 
          if (Imaging.hasImageFileExtension(pathname)) {
+            return true;
+         }
+
+         // support .svg files
+         if (name.toLowerCase().endsWith(UI.SYMBOL_DOT + IMAGE_FILE_EXTENSION_SVG)) {
             return true;
          }
 

@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,9 +37,7 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.statistic.DurationTime;
-import net.tourbook.tag.tour.filter.TourTagFilterManager;
-import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.ui.AppFilter;
 import net.tourbook.ui.TourTypeFilter;
 
 class DataProvider_Tour_Week extends DataProvider {
@@ -329,6 +331,7 @@ class DataProvider_Tour_Week extends DataProvider {
          int numTourTypes = allActiveTourTypes.length;
          numTourTypes = numTourTypes == 0 ? 1 : numTourTypes; // ensure that at least 1 is available
 
+<<<<<<< HEAD
          String fromTourData;
 
          final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
@@ -393,6 +396,9 @@ class DataProvider_Tour_Week extends DataProvider {
 
             ;
          }
+=======
+         final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
+>>>>>>> refs/remotes/Wolfgang/main
 
          sql = UI.EMPTY_STRING
 
@@ -422,7 +428,11 @@ class DataProvider_Tour_Week extends DataProvider {
                + "   SUM(trainingStress_BikeScore)," + NL //                   15  //$NON-NLS-1$
                + "   SUM(trainingStress_SwimScore)" + NL //                   16  //$NON-NLS-1$
 
-               + fromTourData
+               + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                                       //$NON-NLS-1$
+
+               + "WHERE StartWeekYear IN (" + getYearList(lastYear, numberOfYears) + ")" + NL //      //$NON-NLS-1$ //$NON-NLS-2$
+
+               + appFilter.getWhereClause()
 
                + "GROUP BY StartWeekYear, StartWeek, tourType_typeId" + NL //    //$NON-NLS-1$
                + "ORDER BY StartWeekYear, StartWeek" + NL //                     //$NON-NLS-1$
@@ -459,10 +469,9 @@ class DataProvider_Tour_Week extends DataProvider {
 
          final PreparedStatement prepStmt = conn.prepareStatement(sql);
 
-         int paramIndex = 1;
-         paramIndex = tagFilterSqlJoinBuilder.setParameters(prepStmt, paramIndex);
+         int nextIndex = 1;
 
-         sqlAppFilter.setParameters(prepStmt, paramIndex);
+         nextIndex = appFilter.setParameters(prepStmt, nextIndex);
 
          final ResultSet result = prepStmt.executeQuery();
          while (result.next()) {

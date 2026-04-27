@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,15 +26,16 @@ import net.tourbook.chart.ChartType;
 import net.tourbook.chart.GraphDrawingData;
 import net.tourbook.chart.IChartLayer;
 import net.tourbook.chart.IChartOverlay;
+import net.tourbook.common.UI;
+import net.tourbook.photo.Photo;
+import net.tourbook.tour.photo.TourPhotoManager;
 
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
 
 public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
 
@@ -56,7 +57,8 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
 
    private Color                    _bgColorLink;
    private Color                    _bgColorTour;
-   private Display                  _display;
+   private Color                    _photoGroupColor;
+   private Color                    _photoPointColor;
 
    public ChartLayerPhoto(final ArrayList<PhotoCategory> photoCategories) {
 
@@ -324,11 +326,14 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
          yPhotoCategoryOffset -= PHOTO_ICON_SIZE + PHOTO_ICON_SPACING;
 
          final ArrayList<ChartPhoto> chartPhotos = photoCategorie.chartPhotos;
+         final int numPhotos = chartPhotos.size();
 
-         int photoIndex = 0;
-         final Point[] photoPositions = photoCategorie.photoPositions = new Point[chartPhotos.size()];
+         final Point[] allPhotoPositions = photoCategorie.photoPositions = new Point[numPhotos];
+         final boolean[] allGeoPositionedPhotos = photoCategorie.allGeoPositionedPhotos = new boolean[numPhotos];
 
-         for (final ChartPhoto chartPhoto : chartPhotos) {
+         for (int photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
+
+            final ChartPhoto chartPhoto = chartPhotos.get(photoIndex);
 
             final double devXPhotoValue = scaleX * chartPhoto.xValue;
             final int devXPhoto = (int) (devXPhotoValue - devGraphImageOffset);
@@ -337,8 +342,6 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
             if (devXPhoto < groupHGrid) {
 
                // skip invisible photos
-
-               photoIndex++;
 
                continue;
             }
@@ -379,8 +382,12 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
                }
             }
 
+            final Photo photo = chartPhoto.photo;
+            final boolean isGeoPositioned = TourPhotoManager.isPhotoGeoPositioned(photo);
+
             // keep photo position which is used when tooltip is displayed
-            photoPositions[photoIndex++] = new Point(devXPhoto, devYPhoto);
+            allPhotoPositions[photoIndex] = new Point(devXPhoto, devYPhoto);
+            allGeoPositionedPhotos[photoIndex] = isGeoPositioned;
          }
       }
 
@@ -394,8 +401,6 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
                     final GraphDrawingData graphDrawingData,
                     final Chart chart,
                     final PixelConverter pixelConverter) {
-
-      _display = Display.getCurrent();
 
       final int devYTop = graphDrawingData.getDevYTop();
       final long devGraphImageOffset = chart.getXXDevViewPortLeftBorder();
@@ -469,8 +474,10 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
          /*
           * set color depending on photo type and number of photo categories
           */
-         gc.setForeground(_display.getSystemColor(SWT.COLOR_WHITE));
-         gc.setBackground(getPhotoGroupBackgroundColor(photoCategory.photoType, false));
+         _photoGroupColor = getPhotoGroupBackgroundColor(photoCategory.photoType, false);
+         _photoPointColor = getPhotoPointBackgroundColor(photoCategory.photoType, false);
+
+         gc.setForeground(UI.SYS_COLOR_WHITE);
 
          for (final PhotoPaintGroup paintGroup : photoCategory.paintGroups) {
 
@@ -533,16 +540,16 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
 
             drawPhotoAndGroup(gc, paintGroup, photoCategory);
 
-//				/*
-//				 * Debug: draw grid
-//				 */
-//				final int yHitHeight = groupY + groupHeight;// + 2 * GROUP_Y_HIT_BORDER;
-//				gc.setLineWidth(1);
-//				gc.setForeground(_display.getSystemColor(SWT.COLOR_RED));
-//				gc.drawLine(paintGroup.hGridStart, groupY, paintGroup.hGridStart, yHitHeight);
+//            /*
+//             * Debug: draw grid
+//             */
+//            final int yHitHeight = groupY + groupHeight;// + 2 * GROUP_Y_HIT_BORDER;
+//            gc.setLineWidth(1);
+//            gc.setForeground(UI.SYS_COLOR_RED);
+//            gc.drawLine(paintGroup.hGridStart, groupY, paintGroup.hGridStart, yHitHeight);
 //
-//				gc.setForeground(_display.getSystemColor(SWT.COLOR_DARK_BLUE));
-//				gc.drawLine(paintGroup.hGridEnd, groupY, paintGroup.hGridEnd, yHitHeight);
+//            gc.setForeground(UI.SYS_COLOR_BLUE);
+//            gc.drawLine(paintGroup.hGridEnd, groupY, paintGroup.hGridEnd, yHitHeight);
          }
       }
    }
@@ -554,10 +561,10 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
          return;
       }
 
-      final Device display = gcOverlay.getDevice();
+      _photoGroupColor = getPhotoGroupBackgroundColor(_hoveredPhotoCategory.photoType, true);
+      _photoPointColor = getPhotoPointBackgroundColor(_hoveredPhotoCategory.photoType, true);
 
-      gcOverlay.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-      gcOverlay.setBackground(getPhotoGroupBackgroundColor(_hoveredPhotoCategory.photoType, true));
+      gcOverlay.setForeground(UI.SYS_COLOR_WHITE);
 
       drawPhotoAndGroup(gcOverlay, _hoveredPaintGroup, _hoveredPhotoCategory);
    }
@@ -565,11 +572,16 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
    private void drawPhotoAndGroup(final GC gc, final PhotoPaintGroup paintGroup, final PhotoCategory photoCategory) {
 
       final Point[] photoPositions = photoCategory.photoPositions;
+      final boolean[] allGeoPositionedPhotos = photoCategory.allGeoPositionedPhotos;
 
       int prevDevYPhoto = Integer.MIN_VALUE;
       int prevDevXPhoto = Integer.MIN_VALUE;
 
-      // draw photo marker at the graph vertical position
+      /*
+       * Draw photo marker at the graph vertical position
+       */
+      gc.setBackground(_photoPointColor);
+
       for (final int photoIndex : paintGroup.photoIndex) {
 
          final Point photoPosition = photoPositions[photoIndex];
@@ -587,6 +599,15 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
             continue;
          }
 
+         if (allGeoPositionedPhotos[photoIndex]) {
+
+            gc.setBackground(UI.IS_DARK_THEME ? UI.SYS_COLOR_GREEN : UI.SYS_COLOR_RED);
+
+         } else {
+
+            gc.setBackground(_photoPointColor);
+         }
+
          gc.fillRectangle(
                devXPhoto - (PHOTO_ICON_SIZE / 2),
                devYPhoto,
@@ -597,7 +618,10 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
          prevDevYPhoto = devYPhoto;
       }
 
-      // draw group
+      /*
+       * Draw group
+       */
+      gc.setBackground(_photoGroupColor);
       gc.fillRoundRectangle(
             paintGroup.paintedGroupDevX,
             paintGroup.paintedGroupDevY,
@@ -630,6 +654,7 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
     * @param eventTime
     * @param devXMouseMove
     * @param devYMouseMove
+    *
     * @return Returns photos which are currently be hovered. 0 means no photo is hovered.
     */
    ArrayList<ChartPhoto> getHoveredPhotos(final long eventTime, final int devXMouseMove, final int devYMouseMove) {
@@ -658,16 +683,58 @@ public class ChartLayerPhoto implements IChartLayer, IChartOverlay {
             }
 
          } else {
-            return _display.getSystemColor(SWT.COLOR_DARK_GRAY);
+
+            return UI.SYS_COLOR_DARK_GRAY;
          }
 
       } else {
 
          if (isHovered) {
 
-            return _display.getSystemColor(SWT.COLOR_DARK_GRAY);
+            return UI.SYS_COLOR_DARK_GRAY;
 
          } else {
+
+            if (photoType == ChartPhotoType.LINK) {
+               return _bgColorLink;
+            } else {
+               return _bgColorTour;
+            }
+         }
+      }
+   }
+
+   private Color getPhotoPointBackgroundColor(final ChartPhotoType photoType, final boolean isHovered) {
+
+      if (_photoCategories.size() == 1) {
+
+         // only ONE category is available
+
+         if (isHovered) {
+
+            if (photoType == ChartPhotoType.LINK) {
+               return _bgColorLink;
+            } else {
+               return _bgColorTour;
+            }
+
+         } else {
+
+            return UI.IS_DARK_THEME
+                  ? UI.SYS_COLOR_WHITE
+                  : UI.SYS_COLOR_DARK_GRAY;
+         }
+
+      } else {
+
+         if (isHovered) {
+
+            return UI.IS_DARK_THEME
+                  ? UI.SYS_COLOR_WHITE
+                  : UI.SYS_COLOR_DARK_GRAY;
+
+         } else {
+
             if (photoType == ChartPhotoType.LINK) {
                return _bgColorLink;
             } else {

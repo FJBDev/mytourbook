@@ -105,7 +105,8 @@ class MT_StAXHandler {
    private long          _data_TourDeviceTime_Elapsed;
    private long          _data_TourDeviceTime_Paused;
    private long          _data_TourDeviceTime_Recorded;
-   private float         _data_TourAltDown;
+   private float         _data_TourElevationGain;
+   private float         _data_TourElevationLoss;
 
    MT_StAXHandler(final TourbookDevice deviceDataReader,
                   final String importFilePath,
@@ -392,7 +393,7 @@ class MT_StAXHandler {
 
       _tourData = new TourData();
 
-      startElement_Parent.getAttributes().forEachRemaining(this::setValues_Tour_Attributes);
+      startElement_Parent.getAttributes().forEachRemaining(event -> setValues_Tour_Attributes(event));
 
       /**
        * !!! VERY IMPORTANT !!!
@@ -409,7 +410,7 @@ class MT_StAXHandler {
       _tourData.setTourStartTime(               _data_TourStartTime);
       _tourData.setTourDeviceTime_Elapsed(      _data_TourDeviceTime_Elapsed);
 
-      _tourData.setTourAltDown(                 _data_TourAltDown);
+      _tourData.setElevationGainLoss(           _data_TourElevationGain, _data_TourElevationLoss);
 
 // SET_FORMATTING_ON
 
@@ -1139,8 +1140,8 @@ class MT_StAXHandler {
 
       case "temperatureScale":                     _tourData.setTemperatureScale(                  Util.parseInt_0(value));      break; //$NON-NLS-1$
 
-      case "tourAltDown":                          _data_TourAltDown                             = Util.parseFloat_0(value);     break; //$NON-NLS-1$
-      case "tourAltUp":                            _tourData.setTourAltUp(                         Util.parseFloat_0(value));    break; //$NON-NLS-1$
+      case "tourAltUp":                            _data_TourElevationGain                       = Util.parseFloat_0(value);     break; //$NON-NLS-1$
+      case "tourAltDown":                          _data_TourElevationLoss                       = Util.parseFloat_0(value);     break; //$NON-NLS-1$
       case "tourDistance":                         _tourData.setTourDistance(                      Util.parseFloat_0(value));    break; //$NON-NLS-1$
 
       case "training_TrainingEffect_Aerob":        _tourData.setTraining_TrainingEffect_Aerob(     Util.parseFloat_0(value));    break; //$NON-NLS-1$

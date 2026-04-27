@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2017 Wolfgang Schramm and Contributors
- * 
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
@@ -35,15 +35,15 @@ import org.eclipse.ui.part.PageBook;
  */
 public abstract class AbstractRRShell {
 
-   private boolean      _isResizeable;
+   private boolean _isResizeable;
 
-   private int       _shellTrimWidth;
-   private int       _shellTrimHeight;
+   private int     _shellTrimWidth;
+   private int     _shellTrimHeight;
 
    /*
     * UI resources
     */
-   private Display      _display;
+   private Display   _display;
 
    private Shell     _shell;
 
@@ -208,7 +208,7 @@ public abstract class AbstractRRShell {
       if (_isResizeable == false) {
 
          /*
-          * set size ONLY for the shell without resize, size for shell with resize is set by the
+          * Set size ONLY for the shell without resize, size for shell with resize is set by the
           * user by resizing the window, when size is not set, the shell is empty and default
           * size is 2x2
           */
@@ -238,19 +238,46 @@ public abstract class AbstractRRShell {
       _shell.setAlpha(alpha);
    }
 
-   public void setContentSize(final int width, final int height) {
+   public void setContentSize(final int contentWidth, final int contentHeight) {
 
-      final int shellWidth = width + _shellTrimWidth * 2;
-      final int shellHeight = height + _shellTrimHeight * 2;
+      int newContentWidth = contentWidth;
+      int newContentHeight = contentHeight;
+
+      if (contentWidth == Integer.MIN_VALUE || contentHeight == Integer.MIN_VALUE) {
+
+         // keep width and/or height
+
+         final Point shellSize = _shell.getSize();
+
+         if (contentWidth == Integer.MIN_VALUE) {
+
+            newContentWidth = shellSize.x - _shellTrimWidth * 2;
+         }
+
+         if (contentHeight == Integer.MIN_VALUE) {
+
+            newContentHeight = shellSize.y - _shellTrimHeight * 2;
+         }
+      }
+
+      final int shellWidth = newContentWidth + _shellTrimWidth * 2;
+      final int shellHeight = newContentHeight + _shellTrimHeight * 2;
 
       _shell.setSize(shellWidth, shellHeight);
    }
 
    private void setContentSize(final Point size) {
+
       setContentSize(size.x, size.y);
    }
 
    public void setShellLocation(final int x, final int y, final int flag) {
+
+// Sometimes, not very often, the tooltip location is running amok, this logging should help to find this issues
+//
+//      System.out.println(UI.timeStamp() + " setShellLocation: " + x + " / " + y);
+// TODO remove SYSTEM.OUT.PRINTLN
+
       _shell.setLocation(x, y);
    }
 
@@ -272,6 +299,7 @@ public abstract class AbstractRRShell {
 
    @Override
    public String toString() {
+
       return ("_isResizeable=" + _isResizeable) //$NON-NLS-1$
             + ("\tTrimWidth=" + _shellTrimWidth) //$NON-NLS-1$
             + ("\tTrimHeight=" + _shellTrimHeight) //$NON-NLS-1$

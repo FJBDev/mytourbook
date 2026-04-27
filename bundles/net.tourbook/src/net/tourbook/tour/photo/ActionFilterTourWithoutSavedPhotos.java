@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,12 +34,11 @@ public class ActionFilterTourWithoutSavedPhotos extends Action {
       setToolTipText(Messages.Action_PhotosAndTours_FilterNotSavedPhotos_Tooltip);
 
       setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourFilter_TourWithNotSavedPhotos));
-      setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.TourFilter_TourWithNotSavedPhotos_Disabled));
    }
 
    @Override
    public void run() {
-      _photosAndToursView.actionFilterNotSavedPhotos();
+      _photosAndToursView.actionFilter_NotSavedPhotos();
    }
 
 }

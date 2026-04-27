@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2013, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
-import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.ArrayList;
@@ -121,7 +120,6 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
    private boolean                                   _isInUIUpdate;
 
    private int                                       _defaultImageWidth               = 300;
-   private int                                       _oldImageWidth                   = -1;
 
    /**
     * Contains the table column widget for the profile image.
@@ -258,7 +256,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
       final Map3GradientColorProvider newColorProvider = new Map3GradientColorProvider(graphId, newColorProfile);
 
-      new DialogMap3ColorEditor(//
+      new DialogMap3ColorEditor(
             Display.getCurrent().getActiveShell(),
             newColorProvider,
             this,
@@ -283,7 +281,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       // create a new profile name by setting it to the profile id which is unique
       duplicatedColorProvider.getMap3ColorProfile().setDuplicatedName();
 
-      new DialogMap3ColorEditor(//
+      new DialogMap3ColorEditor(
             Display.getCurrent().getActiveShell(),
             duplicatedColorProvider,
             this,
@@ -299,7 +297,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
          final Map3GradientColorProvider colorProvider = (Map3GradientColorProvider) firstElement;
 
-         new DialogMap3ColorEditor(//
+         new DialogMap3ColorEditor(
                Display.getCurrent().getActiveShell(),
                colorProvider,
                this,
@@ -430,7 +428,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
             .spacing(LayoutConstants.getSpacing().x, 2)
             .numColumns(2)
             .applyTo(container);
@@ -457,7 +455,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
          // label: title
          final Label label = new Label(container, SWT.WRAP);
          label.setText(Messages.Pref_Map3Color_Label_Title);
-         GridDataFactory.fillDefaults()//
+         GridDataFactory.fillDefaults()
                .grab(true, true)
                .align(SWT.FILL, SWT.CENTER)
                .applyTo(label);
@@ -477,7 +475,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       defineAllColumns();
 
       _viewerContainer = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults()//
+      GridDataFactory.fillDefaults()
             .grab(true, true)
             .applyTo(_viewerContainer);
       GridLayoutFactory.fillDefaults().applyTo(_viewerContainer);
@@ -496,8 +494,8 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       /*
        * Create tree
        */
-      final Tree tree = new Tree(parent, //
-            SWT.CHECK //
+      final Tree tree = new Tree(parent,
+            SWT.CHECK
                   | SWT.H_SCROLL
                   | SWT.V_SCROLL
 //                  | SWT.BORDER
@@ -556,7 +554,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
          }
       });
 
-      _colorProfileViewer.addCheckStateListener(this::onViewerCheckStateChange);
+      _colorProfileViewer.addCheckStateListener(event -> onViewerCheckStateChange(event));
 
       createUI_24_ContextMenu();
 
@@ -639,7 +637,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
-      GridLayoutFactory.fillDefaults()//
+      GridLayoutFactory.fillDefaults()
 //            .margins(0, 5)
             .extendedMargins(0, 0, 5, 20)
             .numColumns(2)
@@ -664,8 +662,8 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       defineColumn_10_ProfileName();
       defineColumn_20_GraphImage();
 
-      defineColumn_32_MinValue();
-      defineColumn_30_ColorImage();
+      defineColumn_30_MinValue();
+      defineColumn_32_ColorImage();
       defineColumn_35_MaxValue();
 
       defineColumn_40_ValueMarker();
@@ -683,7 +681,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
       colDef.setColumnLabel(Messages.Pref_Map3Color_Column_ProfileName);
       colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_ProfileName);
-      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(20));
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(10));
       colDef.setIsDefaultColumn();
       colDef.setIsColumnMoveable(false);
       colDef.setCanModifyVisibility(false);
@@ -732,40 +730,16 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
    }
 
    /**
-    * Column: Color image
-    */
-   private void defineColumn_30_ColorImage() {
-
-      final TreeColumnDefinition colDef = new TreeColumnDefinition(_columnManager, "colorImage", SWT.LEAD); //$NON-NLS-1$
-      _colDefProfileImage = colDef;
-
-      colDef.setColumnLabel(Messages.Pref_Map3Color_Column_Colors);
-      colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_Colors);
-      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(20));
-      colDef.setIsDefaultColumn();
-      colDef.setIsColumnMoveable(false);
-      colDef.setCanModifyVisibility(false);
-      colDef.setLabelProvider(new CellLabelProvider() {
-
-         // !!! set dummy label provider, otherwise an error occurs !!!
-         @Override
-         public void update(final ViewerCell cell) {}
-      });
-
-      colDef.setControlListener(controlResizedAdapter(controlEvent -> onResizeImageColumn()));
-   }
-
-   /**
     * Column: Min value
     */
-   private void defineColumn_32_MinValue() {
+   private void defineColumn_30_MinValue() {
 
       final TreeColumnDefinition colDef = new TreeColumnDefinition(_columnManager, "prevMinValue", SWT.TRAIL); //$NON-NLS-1$
 
       colDef.setColumnLabel(Messages.Pref_Map3Color_Column_MinValue_Label);
       colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_MinValue_Header);
       colDef.setColumnHeaderToolTipText(Messages.Pref_Map3Color_Column_MinValue_Label);
-      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(8));
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(6));
       colDef.setIsDefaultColumn();
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -792,6 +766,28 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
    }
 
    /**
+    * Column: Color image
+    */
+   private void defineColumn_32_ColorImage() {
+
+      final TreeColumnDefinition colDef = new TreeColumnDefinition(_columnManager, "colorImage", SWT.LEAD); //$NON-NLS-1$
+      _colDefProfileImage = colDef;
+
+      colDef.setColumnLabel(Messages.Pref_Map3Color_Column_Colors);
+      colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_Colors);
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(10));
+      colDef.setIsDefaultColumn();
+      colDef.setIsColumnMoveable(false);
+      colDef.setCanModifyVisibility(false);
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         // !!! set dummy label provider, otherwise an error occurs !!!
+         @Override
+         public void update(final ViewerCell cell) {}
+      });
+   }
+
+   /**
     * Column: Max value
     */
    private void defineColumn_35_MaxValue() {
@@ -801,7 +797,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       colDef.setColumnLabel(Messages.Pref_Map3Color_Column_MaxValue_Label);
       colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_MaxValue_Header);
       colDef.setColumnHeaderToolTipText(Messages.Pref_Map3Color_Column_MaxValue_Label);
-      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(8));
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(6));
       colDef.setIsDefaultColumn();
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -909,7 +905,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       colDef.setColumnLabel(Messages.Pref_Map3Color_Column_Id_Label);
       colDef.setColumnHeaderText(Messages.Pref_Map3Color_Column_Id_Header);
       colDef.setColumnHeaderToolTipText(Messages.Pref_Map3Color_Column_Id_Tooltip);
-      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(10));
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(6));
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -1037,15 +1033,10 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
       if (isProfileImageValid(image) == false) {
 
-         /*
-          * This offset prevents that the color is painted just beside the vertical scollbar when
-          * default size is used.
-          */
-         final int trailingOffset = 0;//10;
-
          final int columnWidth = getImageColumnWidth();
+         final int columnWidth_Scaled = (int) (columnWidth * UI.HIDPI_SCALING);
 
-         final int imageWidth = columnWidth - trailingOffset;
+         final int imageWidth = columnWidth_Scaled;
          final int imageHeight = PROFILE_IMAGE_HEIGHT - 1;
 
          final Map3ColorProfile colorProfile = colorProvider.getMap3ColorProfile();
@@ -1067,8 +1058,6 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
          final Image oldImage = _profileImages.put(colorProvider, image);
 
          UI.disposeResource(oldImage);
-
-         _oldImageWidth = imageWidth;
       }
 
       return image;
@@ -1089,6 +1078,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
    /**
     * @param image
+    *
     * @return Returns <code>true</code> when the image is valid, returns <code>false</code> when the
     *         profile image must be created,
     */
@@ -1097,10 +1087,12 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       if (image == null || image.isDisposed()) {
 
          return false;
-
       }
 
-      if (image.getBounds().width != getImageColumnWidth()) {
+      final int imageWidth = image.getBounds().width;
+      final int imageColumnWidth = (int) (getImageColumnWidth() * UI.HIDPI_SCALING);
+
+      if (imageWidth != imageColumnWidth) {
 
          image.dispose();
 
@@ -1116,19 +1108,6 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
       saveState();
 
       return super.okToLeave();
-   }
-
-   private void onResizeImageColumn() {
-
-      final int newImageWidth = getImageColumnWidth();
-
-      // check if the width has changed
-      if (newImageWidth == _oldImageWidth) {
-         return;
-      }
-
-      // recreate images
-      disposeProfileImages();
    }
 
    private void onViewerCheckStateChange(final CheckStateChangedEvent event) {
@@ -1443,6 +1422,7 @@ public class PrefPageMap25_Map3_Color extends PreferencePage implements IWorkben
 
    /**
     * @param selectedColorProvider
+    *
     * @return Returns <code>true</code> when a new color provider is set, otherwise
     *         <code>false</code>.
     */

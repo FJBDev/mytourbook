@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2020, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -90,6 +94,8 @@ public class CSVExport {
    private static final String HEADER_POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES     = "POWERTRAIN Cadence - Slow vs Fast (rpm)";          //$NON-NLS-1$
    private static final String HEADER_POWERTRAIN_SLOW_VS_FAST_CADENCE_ZONES_DELIMITER = "POWERTRAIN Cadence - Zones Delimiter (%)";         //$NON-NLS-1$
 
+   private static final String HEADER_RADAR_PASSED_VEHICLES                           = "RADAR Vehicle Count";                              //$NON-NLS-1$
+
    private static final String HEADER_RUN_DYN_STANCE_TIME_MIN                         = "RUNDYN Stance Time - Minimum (ms)";                //$NON-NLS-1$
    private static final String HEADER_RUN_DYN_STANCE_TIME_MAX                         = "RUNDYN Stance Time - Maximum (ms)";                //$NON-NLS-1$
    private static final String HEADER_RUN_DYN_STANCE_TIME_AVG                         = "RUNDYN Stance Time - Average (ms)";                //$NON-NLS-1$
@@ -128,6 +134,7 @@ public class CSVExport {
    private static final String HEADER_TIME_WEEKDAY                                    = "TIME Weekday";                                     //$NON-NLS-1$
    private static final String HEADER_TIME_YEAR                                       = "TIME Year";                                        //$NON-NLS-1$
 
+   private static final String HEADER_TOUR_DESCRIPTION                                = "TOUR Description";                                 //$NON-NLS-1$
    private static final String HEADER_TOUR_LOCATION_START                             = "TOUR Start Location";                              //$NON-NLS-1$
    private static final String HEADER_TOUR_LOCATION_END                               = "TOUR End Location";                                //$NON-NLS-1$
    private static final String HEADER_TOUR_NUMBER_OF_MARKER                           = "TOUR Number of markers";                           //$NON-NLS-1$
@@ -252,6 +259,7 @@ public class CSVExport {
          export_240_Header_Powertrain(sb);
          export_260_Header_Training(sb);
          export_280_Header_RunningDynamics(sb);
+         export_290_Header_Radar(sb);
          export_300_Header_Surfing(sb);
          export_320_Header_Device(sb);
          export_340_Header_Data(sb);
@@ -296,6 +304,7 @@ public class CSVExport {
                         export_640_Value_Powertrain(sb, tviItem);
                         export_660_Value_Training(sb, tviItem);
                         export_680_Value_RunningDynamics(sb, tviItem);
+                        export_690_Value_Radar(sb, tviItem);
                         export_700_Value_Surfing(sb, tviItem);
                         export_720_Value_Device(sb, isTour, tviItem);
                         export_740_Value_Data(sb, isTour, tviItem);
@@ -335,6 +344,7 @@ public class CSVExport {
                   export_640_Value_Powertrain(sb, tviItem);
                   export_660_Value_Training(sb, tviItem);
                   export_680_Value_RunningDynamics(sb, tviItem);
+                  export_690_Value_Radar(sb, tviItem);
                   export_700_Value_Surfing(sb, tviItem);
                   export_720_Value_Device(sb, isTour, tviItem);
                   export_740_Value_Data(sb, isTour, tviItem);
@@ -587,6 +597,7 @@ public class CSVExport {
       csvHeader(sb,                 HEADER_TOUR_TYPE_ID);
       csvHeader(sb,                 HEADER_TOUR_TYPE_NAME);
       csvHeader(sb,                 HEADER_TOUR_TITLE);
+      csvHeader(sb,                 HEADER_TOUR_DESCRIPTION);
       csvHeader(sb,                 HEADER_TOUR_LOCATION_START);
       csvHeader(sb,                 HEADER_TOUR_LOCATION_END);
       csvHeader(sb,                 HEADER_TOUR_TAGS);
@@ -801,6 +812,18 @@ public class CSVExport {
 
    }
 
+   private void export_290_Header_Radar(final StringBuilder sb) {
+
+// SET_FORMATTING_OFF
+
+//    defineColumn_Radar_PassedVehicles();
+
+      csvHeader(sb,                 HEADER_RADAR_PASSED_VEHICLES);
+
+// SET_FORMATTING_ON
+
+   }
+
    private void export_300_Header_Surfing(final StringBuilder sb) {
 
 // SET_FORMATTING_OFF
@@ -1008,7 +1031,7 @@ public class CSVExport {
 
          final long colElapsedTime = (tviItem).colTourDeviceTime_Elapsed;
          if (colElapsedTime != 0) {
-            sb.append(net.tourbook.common.UI.format_hh_mm_ss(colElapsedTime));
+            sb.append(UI.format_hh_mm_ss(colElapsedTime));
          }
          sb.append(SEPARATOR);
       }
@@ -1017,7 +1040,7 @@ public class CSVExport {
 
          final long colTourDeviceTime_Recorded = (tviItem).colTourDeviceTime_Recorded;
          if (colTourDeviceTime_Recorded != 0) {
-            sb.append(net.tourbook.common.UI.format_hh_mm_ss(colTourDeviceTime_Recorded));
+            sb.append(UI.format_hh_mm_ss(colTourDeviceTime_Recorded));
          }
          sb.append(SEPARATOR);
       }
@@ -1026,7 +1049,7 @@ public class CSVExport {
 
          final long colTourDeviceTime_Paused = (tviItem).colTourDeviceTime_Paused;
          if (colTourDeviceTime_Paused != 0) {
-            sb.append(net.tourbook.common.UI.format_hh_mm_ss(colTourDeviceTime_Paused));
+            sb.append(UI.format_hh_mm_ss(colTourDeviceTime_Paused));
          }
          sb.append(SEPARATOR);
       }
@@ -1035,7 +1058,7 @@ public class CSVExport {
 
          final long colMovingTime = tviItem.colTourComputedTime_Moving;
          if (colMovingTime != 0) {
-            sb.append(net.tourbook.common.UI.format_hh_mm_ss(colMovingTime));
+            sb.append(UI.format_hh_mm_ss(colMovingTime));
          }
          sb.append(SEPARATOR);
       }
@@ -1044,7 +1067,7 @@ public class CSVExport {
 
          final long colBreakTime = tviItem.colTourComputedTime_Break;
          if (colBreakTime != 0) {
-            sb.append(net.tourbook.common.UI.format_hh_mm_ss(colBreakTime));
+            sb.append(UI.format_hh_mm_ss(colBreakTime));
          }
          sb.append(SEPARATOR);
       }
@@ -1075,6 +1098,7 @@ public class CSVExport {
 //    csvField_Str(sb,                 HEADER_TOUR_TYPE_ID);
 //    csvField_Str(sb,                 HEADER_TOUR_TYPE_NAME);
 //    csvField_Str(sb,                 HEADER_TOUR_TITLE);
+//    csvField_Str(sb,                 HEADER_TOUR_DESCRIPTION);
 //    csvField_Str(sb,                 HEADER_TOUR_LOCATION_START);
 //    csvField_Str(sb,                 HEADER_TOUR_LOCATION_END);
 //    csvField_Str(sb,                 HEADER_TOUR_TAGS);
@@ -1108,9 +1132,10 @@ public class CSVExport {
          sb.append(SEPARATOR);
       }
 
-      csvField(sb, tviItem.colTourTitle); // HEADER_TOUR_TITLE
-      csvField(sb, tviItem.colTourLocation_Start); // HEADER_TOUR_LOCATION_START
-      csvField(sb, tviItem.colTourLocation_End); // HEADER_TOUR_LOCATION_END
+      csvField(sb, tviItem.colTourTitle); //                         HEADER_TOUR_TITLE
+      csvField(sb, getFullTourDescription(tviItem.getTourId())); //  HEADER_TOUR_DESCRIPTION
+      csvField(sb, tviItem.colTourLocation_Start); //                HEADER_TOUR_LOCATION_START
+      csvField(sb, tviItem.colTourLocation_End); //                  HEADER_TOUR_LOCATION_END
 
       { // HEADER_TOUR_TAGS
 
@@ -1187,7 +1212,7 @@ public class CSVExport {
 
          final float pace = tviItem.colAvgPace * UI.UNIT_VALUE_DISTANCE;
          if (pace != 0) {
-            sb.append(net.tourbook.common.UI.format_mm_ss((long) pace));
+            sb.append(UI.format_mm_ss((long) pace));
          }
          sb.append(SEPARATOR);
       }
@@ -1546,6 +1571,11 @@ public class CSVExport {
 // SET_FORMATTING_ON
    }
 
+   private void export_690_Value_Radar(final StringBuilder sb, final TVITourBookItem tviItem) {
+
+      csvField(sb, tviItem.colRadar_PassedVehicles); // HEADER_RADAR_PASSED_VEHICLES
+   }
+
    private void export_700_Value_Surfing(final StringBuilder sb,
                                          final TVITourBookItem tviItem) {
 
@@ -1709,6 +1739,48 @@ public class CSVExport {
          }
          sb.append(SEPARATOR);
       }
+   }
+
+   private String getFullTourDescription(final Long tourId) {
+
+      String description = null;
+
+      final String select = "SELECT TourDescription" + NL //      //$NON-NLS-1$
+
+            + " FROM " + TourDatabase.TABLE_TOUR_DATA + NL //     //$NON-NLS-1$
+            + " WHERE TourId = ?" + NL; //                        //$NON-NLS-1$
+
+      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+
+         final PreparedStatement statement = conn.prepareStatement(select);
+
+         statement.setLong(1, tourId);
+         final ResultSet result = statement.executeQuery();
+
+         while (result.next()) {
+
+            description = result.getString(1);
+         }
+
+      } catch (final SQLException e) {
+
+         StatusUtil.logError(select);
+         UI.showSQLException(e);
+      }
+
+      if (description != null) {
+
+         // escape new lines
+         description = description.replaceAll("(\r\n|\n|\r)", "\\\n"); //$NON-NLS-1$ //$NON-NLS-2$
+
+         // escape double quotes
+         description = description.replace(UI.SYMBOL_QUOTATION_MARK, "\"\""); //$NON-NLS-1$
+
+         // enclose in double quotes as string delimiter
+         description = UI.SYMBOL_QUOTATION_MARK + description + UI.SYMBOL_QUOTATION_MARK;
+      }
+
+      return description;
    }
 
    /**

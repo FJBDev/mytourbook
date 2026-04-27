@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,12 +34,11 @@ public class ActionFilterOneHistoryTour extends Action {
       setToolTipText(Messages.Action_PhotosAndTours_FilterNoTours_Tooltip);
 
       setImageDescriptor(PhotoActivator.getThemedImageDescriptor(PhotoImages.PhotoFilter_OneHistoryTour));
-      setDisabledImageDescriptor(PhotoActivator.getThemedImageDescriptor(PhotoImages.PhotoFilter_OneHistoryTour_Disabled));
    }
 
    @Override
    public void run() {
-      _photosAndToursView.actionFilterOneHistoryTour();
+      _photosAndToursView.actionFilter_OneHistoryTour();
    }
 
 }

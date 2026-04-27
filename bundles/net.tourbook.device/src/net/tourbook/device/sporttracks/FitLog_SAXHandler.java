@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -567,11 +567,15 @@ class FitLog_SAXHandler extends DefaultHandler {
                //If there is already content in the notes fields, then we insert a new line
                tourNotes.append(UI.NEW_LINE);
             }
+<<<<<<< HEAD
             tourNotes.append("\"" + key + "\" : \"" + value + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             if (key.toUpperCase().equalsIgnoreCase(FitLogEx_SAXHandler.ATTRIB_CUSTOM_DATA_FIELD_DEFINITION_TRIMP)) {
                tourData.setTrainingStress_Device(Float.valueOf(value));
             }
+=======
+            tourNotes.append(UI.SYMBOL_QUOTATION_MARK + key + "\" : \"" + value + UI.SYMBOL_QUOTATION_MARK); //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
          });
 
          tourData.setTourDescription(tourNotes.toString());
@@ -589,8 +593,7 @@ class FitLog_SAXHandler extends DefaultHandler {
          tourData.setTourDeviceTime_Elapsed(_currentActivity.duration);
          tourData.setTourComputedTime_Moving(_currentActivity.duration);
 
-         tourData.setTourAltUp(_currentActivity.elevationUp);
-         tourData.setTourAltDown(_currentActivity.elevationDown);
+         tourData.setElevationGainLoss(_currentActivity.elevationUp, _currentActivity.elevationDown);
 
          // We set the tour as manual since it was a manual tour created in SportTracks in the first place.
          tourData.setDeviceId(TourData.DEVICE_ID_FOR_MANUAL_TOUR);

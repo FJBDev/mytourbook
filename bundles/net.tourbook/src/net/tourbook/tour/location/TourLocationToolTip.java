@@ -27,7 +27,6 @@ import net.tourbook.common.util.ToolTip;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourLocation;
 import net.tourbook.map.location.LocationType;
-import net.tourbook.map2.view.SlideoutMap2_MapPoints;
 import net.tourbook.tour.TourManager;
 import net.tourbook.tour.location.TourLocationView.LocationItem;
 import net.tourbook.ui.Messages;
@@ -90,11 +89,11 @@ public class TourLocationToolTip extends ToolTip {
     */
    private Composite _ttContainer;
 
-   public TourLocationToolTip(final SlideoutMap2_MapPoints slideoutMapLocation) {
+   public TourLocationToolTip(final CommonLocationView commonLocationViewer) {
 
-      super(slideoutMapLocation.getLocationViewer().getTable(), NO_RECREATE, false);
+      super(commonLocationViewer.getLocationViewer().getTable(), NO_RECREATE, false);
 
-      final TableViewer locationViewer = slideoutMapLocation.getLocationViewer();
+      final TableViewer locationViewer = commonLocationViewer.getLocationViewer();
 
       _ttControl = locationViewer.getTable();
       _columnViewer = locationViewer;
@@ -178,6 +177,7 @@ public class TourLocationToolTip extends ToolTip {
       {
          _ttContainer = new Composite(shellContainer, SWT.NONE);
          GridLayoutFactory.fillDefaults().margins(SHELL_MARGIN, SHELL_MARGIN).applyTo(_ttContainer);
+//         _ttContainer.setBackground(UI.SYS_COLOR_YELLOW);
          {
             createUI_10_Info(_ttContainer);
          }
@@ -195,12 +195,12 @@ public class TourLocationToolTip extends ToolTip {
 
    private void createUI_10_Info(final Composite parent) {
 
-      final GridDataFactory headerIndent = GridDataFactory.fillDefaults()
+      final GridDataFactory gdHeaderIndent = GridDataFactory.fillDefaults()
 
             .span(2, 1)
 
             // indent to the left that this text is aligned with the labels
-            .indent(-4, 0);
+            .indent(UI.IS_4K_DISPLAY ? -2 : -4, 0);
 
       final Composite container = new Composite(parent, SWT.NONE);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
@@ -215,18 +215,18 @@ public class TourLocationToolTip extends ToolTip {
             String locationTitle;
 
             switch (_locationType) {
-            case Common    -> locationTitle = Messages.Tour_Location_Label_CommonLocation; //   Common Location
-            case TourStart -> locationTitle = Messages.Tour_Tooltip_Label_LocationStart; //     Start Location
-            case TourEnd   -> locationTitle = Messages.Tour_Tooltip_Label_LocationEnd; //       End Location
-            default        -> locationTitle = Messages.Tour_Location_Tooltip_Title; //          Tour Location
+            case Common    -> locationTitle = Messages.Tour_Location_Label_CommonLocation;
+            case TourStart -> locationTitle = Messages.Tour_Tooltip_Label_TourLocation_Start;
+            case TourEnd   -> locationTitle = Messages.Tour_Tooltip_Label_TourLocation_End;
+            default        -> locationTitle = Messages.Tour_Location_Tooltip_Title;
             }
 
             // using text control that & is not displayed as mnemonic
             final Text headerText = new Text(container, SWT.READ_ONLY);
-            headerIndent.applyTo(headerText);
-            MTFont.setBannerFont(headerText);
-
             headerText.setText(locationTitle);
+
+            gdHeaderIndent.applyTo(headerText);
+            MTFont.setBannerFont(headerText);
          }
 
          if (_isTourBookView) {
@@ -249,10 +249,9 @@ public class TourLocationToolTip extends ToolTip {
                UI.createSpacer_Vertical(container, 8, 2);
 
                final Text text = new Text(container, SWT.READ_ONLY | SWT.WRAP);
-               headerIndent.applyTo(text);
-
                text.setText(isShowStartLocation ? _hoveredLocation_Start : _hoveredLocation_End);
 
+               gdHeaderIndent.applyTo(text);
                setMaxContentWidth(text);
             }
          }
@@ -269,10 +268,9 @@ public class TourLocationToolTip extends ToolTip {
             if (displayName != null && displayName.length() > 0) {
 
                final Text text = new Text(container, SWT.READ_ONLY | SWT.WRAP);
-               headerIndent.applyTo(text);
-
                text.setText(displayName);
 
+               gdHeaderIndent.applyTo(text);
                setMaxContentWidth(text);
             }
          }
@@ -353,7 +351,14 @@ public class TourLocationToolTip extends ToolTip {
    private Point getLocation_10(final Point tipSize, final int mouseX, final Rectangle cellBounds) {
 
       final int cellWidth2 = (int) (cellBounds.width * 0.5);
-      final int cellHeight = cellBounds.height;
+      int cellHeight = cellBounds.height;
+
+      if (UI.IS_4K_DISPLAY) {
+
+         // this adjustment is needed otherwise the tooltip is difficult to hover
+
+         cellHeight -= 1;
+      }
 
       final int devXDefault = cellBounds.x + cellWidth2;
       final int devY = cellBounds.y + cellHeight;
@@ -455,7 +460,9 @@ public class TourLocationToolTip extends ToolTip {
 
             _isStartLocation = tooltipLabelProvider.isStartLocation;
 
-            _locationType = _isStartLocation ? LocationType.TourStart : LocationType.TourEnd;
+            _locationType = _isStartLocation
+                  ? LocationType.TourStart
+                  : LocationType.TourEnd;
 
             _isShowTooltip = tooltipLabelProvider.isShowTooltip();
 
@@ -482,9 +489,9 @@ public class TourLocationToolTip extends ToolTip {
                _tourLocation = locationItem.tourLocation;
             }
 
-         } else if (labelProvider instanceof SlideoutMap2_MapPoints.TooltipLabelProvider) {
+         } else if (labelProvider instanceof CommonLocationView.TooltipLabelProvider) {
 
-            // slideout map location
+            // common location view
 
             final Object cellElement = _colViewerCell.getElement();
 

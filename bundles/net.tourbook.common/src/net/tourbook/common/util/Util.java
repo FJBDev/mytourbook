@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,6 @@
  *******************************************************************************/
 package net.tourbook.common.util;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -44,13 +43,12 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import javax.imageio.ImageIO;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
@@ -62,7 +60,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.widgets.Combo;
@@ -157,7 +154,7 @@ public class Util {
     * @return
     */
    public static String addLineNumbers(final String text, final int startLineNumer) {
- 
+
       final String[] lines = StringUtils.splitIntoLines(text);
 
       final StringBuilder sb = new StringBuilder();
@@ -1568,6 +1565,16 @@ public class Util {
       return newItems.toArray(new String[newItems.size()]);
    }
 
+   /**
+    * @param value
+    *
+    * @return Returns the fraction of the value
+    */
+   public static double getValueFraction(final double value) {
+
+      return value - (int) value;
+   }
+
    public static long getValueScaling(final double graphUnit) {
 
       if (graphUnit > 1 || graphUnit < 1) {
@@ -1738,9 +1745,9 @@ public class Util {
     * @param key
     * @param defaultValue
     * @param minValue
-    *           Float min value.
+    *           Float min value
     * @param maxValue
-    *           Float max value.
+    *           Float max value
     *
     * @return
     */
@@ -2094,23 +2101,7 @@ public class Util {
       return year;
    }
 
-   public static String imageToBase64(final Image image) {
 
-      byte[] imageBytes = null;
-      final BufferedImage bufferedImage = ImageConverter.convertIntoAWT(image);
-
-      try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-
-         ImageIO.write(bufferedImage, "png", output); //$NON-NLS-1$
-         imageBytes = output.toByteArray();
-
-      } catch (final IOException e) {
-         StatusUtil.log(e);
-      }
-
-      final byte[] encoded = Base64.getEncoder().encode(imageBytes);
-      return new String(encoded);
-   }
 
    /**
     * @param event
@@ -2143,7 +2134,9 @@ public class Util {
       return file.isDirectory();
    }
 
-   public static void logSystemProperty_IsEnabled(final Class<?> clazz, final String propertyName, final String propertyDescription) {
+   public static void logSystemProperty_IsEnabled(final Class<?> clazz,
+                                                  final String propertyName,
+                                                  final String propertyDescription) {
 
       StatusUtil.logInfo(String.format("%s [System Property - %s] - \"%s\" is enabled -> %s", //$NON-NLS-1$
             UI.timeStampNano(),
@@ -3243,6 +3236,11 @@ public class Util {
     */
    public static void setXmlLongArray(final IMemento memento, final String listKeyName, final long[] values) {
 
+      // fix NPE
+      if (values == null) {
+         return;
+      }
+
       final IMemento mementoList = memento.createChild(TAG_LIST);
 
       mementoList.putString(ATTR_KEY, listKeyName);
@@ -3383,7 +3381,25 @@ public class Util {
       return serializeObject(object).length;
    }
 
+   /**
+    * Waits until all task are done
+    *
+    * @param allTasks
+    */
+   public static void waitTasks(final Future<?>[] allTasks) {
 
+      for (final Future<?> future : allTasks) {
+
+         try {
+
+            future.get();
+
+         } catch (InterruptedException | ExecutionException e) {
+
+            StatusUtil.showStatus(e);
+         }
+      }
+   }
 
    /**
     * Writes a XML memento into a XML file.

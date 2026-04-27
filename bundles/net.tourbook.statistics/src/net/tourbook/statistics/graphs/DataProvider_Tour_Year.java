@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,9 +34,7 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.statistic.DurationTime;
-import net.tourbook.tag.tour.filter.TourTagFilterManager;
-import net.tourbook.tag.tour.filter.TourTagFilterSqlJoinBuilder;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.ui.AppFilter;
 import net.tourbook.ui.TourTypeFilter;
 
 class DataProvider_Tour_Year extends DataProvider {
@@ -258,6 +260,7 @@ class DataProvider_Tour_Year extends DataProvider {
 
          _tourYearData = new TourStatisticData_Year();
 
+<<<<<<< HEAD
          String fromTourData;
 
          final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
@@ -322,6 +325,9 @@ class DataProvider_Tour_Year extends DataProvider {
 
             ;
          }
+=======
+         final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
+>>>>>>> refs/remotes/Wolfgang/main
 
          sql = NL +
 
@@ -350,7 +356,11 @@ class DataProvider_Tour_Year extends DataProvider {
                + "   SUM(trainingStress_bikeScore)," + NL //               14  //$NON-NLS-1$
                + "   SUM(trainingStress_swimScore)" + NL //                15  //$NON-NLS-1$
 
-               + fromTourData
+               + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                              //$NON-NLS-1$
+
+               + "WHERE StartYear IN (" + getYearList(lastYear, numYears) + ")" + NL //      //$NON-NLS-1$ //$NON-NLS-2$
+
+               + appFilter.getWhereClause()
 
                + "GROUP BY StartYear, tourType_typeId " + NL //               //$NON-NLS-1$
                + "ORDER BY StartYear" + NL //                                 //$NON-NLS-1$
@@ -401,12 +411,12 @@ class DataProvider_Tour_Year extends DataProvider {
 
          final PreparedStatement prepStmt = conn.prepareStatement(sql);
 
-         int paramIndex = 1;
-         paramIndex = tagFilterSqlJoinBuilder.setParameters(prepStmt, paramIndex);
+         int nextIndex = 1;
 
-         sqlAppFilter.setParameters(prepStmt, paramIndex);
+         nextIndex = appFilter.setParameters(prepStmt, nextIndex);
 
          final ResultSet result = prepStmt.executeQuery();
+
          while (result.next()) {
 
 // SET_FORMATTING_OFF

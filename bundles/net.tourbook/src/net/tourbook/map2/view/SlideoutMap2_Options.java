@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,10 +16,12 @@
 package net.tourbook.map2.view;
 
 import net.tourbook.Messages;
+import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.action.ActionResetToDefaults;
 import net.tourbook.common.action.IActionResetToDefault;
+import net.tourbook.common.color.ColorSelectorExtended;
 import net.tourbook.common.color.IColorSelectorListener;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.tooltip.ToolbarSlideout;
@@ -40,6 +42,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
 
 /**
@@ -54,9 +57,9 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
    private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
    private static IDialogSettings        _state;
 
-   private IPropertyChangeListener       _defaultChangePropertyListener;
-   private SelectionListener             _defaultSelectionListener;
+   private IPropertyChangeListener       _defaultPropertyChangeListener;
    private MouseWheelListener            _defaultMouseWheelListener;
+   private SelectionListener             _defaultSelectionListener;
 
    private ActionResetToDefaults         _actionRestoreDefaults;
 
@@ -65,9 +68,19 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
    /*
     * UI controls
     */
-   private Button _chkIsToggleKeyboardPanning;
-   private Button _chkSelectInbetweenTimeSlices;
-   private Button _chkShowValuePointTooltip;
+   private Button                _chkIsDimMap;
+   private Button                _chkIsToggleKeyboardPanning;
+   private Button                _chkSelectInbetweenTimeSlices;
+   private Button                _chkShowGeoGridBorder;
+   private Button                _chkShowTileInfo;
+   private Button                _chkShowTileBorder;
+   private Button                _chkShowValuePointTooltip;
+   private Button                _chkUseMapDimColor;
+
+   private Spinner               _spinnerMapDimValue;
+
+   private ColorSelectorExtended _colorMapDimColor;
+   private ColorSelectorExtended _colorMapTransparencyColor;
 
    /**
     * @param ownerControl
@@ -198,22 +211,120 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
             _chkIsToggleKeyboardPanning.addSelectionListener(_defaultSelectionListener);
             gdSpan2.applyTo(_chkIsToggleKeyboardPanning);
          }
+         {
+            /*
+             * Dim map
+             */
+            final Composite dimContainer = new Composite(container, SWT.NONE);
+            GridLayoutFactory.fillDefaults().numColumns(2).applyTo(dimContainer);
+            {
+               // checkbox
+               _chkIsDimMap = new Button(dimContainer, SWT.CHECK);
+               _chkIsDimMap.setText(Messages.Slideout_Map_Options_Checkbox_DimMap);
+               _chkIsDimMap.addSelectionListener(_defaultSelectionListener);
+
+               // spinner
+               _spinnerMapDimValue = new Spinner(dimContainer, SWT.BORDER);
+               _spinnerMapDimValue.setToolTipText(Messages.Slideout_Map_Options_Spinner_DimValue_Tooltip);
+               _spinnerMapDimValue.setMinimum(0);
+               _spinnerMapDimValue.setMaximum(Map2View.MAX_DIM_STEPS);
+               _spinnerMapDimValue.setIncrement(1);
+               _spinnerMapDimValue.setPageIncrement(4);
+               _spinnerMapDimValue.addSelectionListener(_defaultSelectionListener);
+               _spinnerMapDimValue.addMouseWheelListener(_defaultMouseWheelListener);
+               GridDataFactory.fillDefaults().indent(10, 0).applyTo(_spinnerMapDimValue);
+            }
+
+            // dimming color
+            _colorMapDimColor = new ColorSelectorExtended(container);
+            _colorMapDimColor.setToolTipText(Messages.Slideout_Map_Options_Color_DimColor_Tooltip);
+            _colorMapDimColor.addListener(_defaultPropertyChangeListener);
+            _colorMapDimColor.addOpenListener(this);
+         }
+         {
+            /*
+             * Map transparency color
+             */
+            {
+               final Label label = new Label(container, SWT.NONE);
+               label.setText(Messages.Slideout_MapPoints_Label_MapTransparencyColor);
+               label.setToolTipText(Messages.Slideout_MapPoints_Label_MapTransparencyColor_Tooltip);
+               GridDataFactory.fillDefaults()
+                     .align(SWT.BEGINNING, SWT.CENTER)
+                     .applyTo(label);
+
+               _colorMapTransparencyColor = new ColorSelectorExtended(container);
+               _colorMapTransparencyColor.setToolTipText(Messages.Slideout_MapPoints_Label_MapTransparencyColor_Tooltip);
+               _colorMapTransparencyColor.addListener(_defaultPropertyChangeListener);
+               _colorMapTransparencyColor.addOpenListener(this);
+            }
+            {
+               /*
+                * Use map dim color
+                */
+               _chkUseMapDimColor = new Button(container, SWT.CHECK);
+               _chkUseMapDimColor.setText(Messages.Slideout_MapPoints_Checkbox_UseMapDimColor);
+               _chkUseMapDimColor.addSelectionListener(_defaultSelectionListener);
+               GridDataFactory.fillDefaults().span(2, 1).indent(16, 0).applyTo(_chkUseMapDimColor);
+            }
+         }
+         {
+            /*
+             * Tile info
+             */
+            _chkShowTileInfo = new Button(container, SWT.CHECK);
+            _chkShowTileInfo.setText(OtherMessages.MAP_PROPERTIES_SHOW_TILE_INFO);
+            _chkShowTileInfo.addSelectionListener(_defaultSelectionListener);
+            gdSpan2.applyTo(_chkShowTileInfo);
+         }
+         {
+            /*
+             * Tile border
+             */
+            _chkShowTileBorder = new Button(container, SWT.CHECK);
+            _chkShowTileBorder.setText(OtherMessages.MAP_PROPERTIES_SHOW_TILE_BORDER);
+            _chkShowTileBorder.addSelectionListener(_defaultSelectionListener);
+            gdSpan2.applyTo(_chkShowTileBorder);
+         }
+         {
+            /*
+             * Geo grid border
+             */
+            _chkShowGeoGridBorder = new Button(container, SWT.CHECK);
+            _chkShowGeoGridBorder.setText(OtherMessages.MAP_PROPERTIES_SHOW_GEO_GRID);
+            _chkShowGeoGridBorder.addSelectionListener(_defaultSelectionListener);
+            gdSpan2.applyTo(_chkShowGeoGridBorder);
+         }
       }
    }
 
    private void enableControls() {
 
+      final boolean isDimMap = _chkIsDimMap.getSelection();
+      final boolean isUseMapDimColor = _chkUseMapDimColor.getSelection();
+      final boolean isUseTransparencyColor = isUseMapDimColor == false;
+
+// SET_FORMATTING_OFF
+
+      // map dimming
+      _chkUseMapDimColor            .setEnabled(isDimMap);
+      _spinnerMapDimValue           .setEnabled(isDimMap);
+
+      _colorMapDimColor             .setEnabled(isDimMap);
+      _colorMapTransparencyColor    .setEnabled(isDimMap == false || isUseTransparencyColor);
+
+// SET_FORMATTING_ON
    }
 
    private void initUI(final Composite parent) {
 
       _defaultSelectionListener = SelectionListener.widgetSelectedAdapter(selectionEvent -> onChangeUI_UpdateMap());
 
-      _defaultChangePropertyListener = propertyChangeEvent -> onChangeUI_UpdateMap();
+      _defaultPropertyChangeListener = propertyChangeEvent -> onChangeUI_UpdateMap();
 
       _defaultMouseWheelListener = mouseEvent -> {
 
-         UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+         UI.adjustSpinnerValueOnMouseScroll(mouseEvent, 1);
          onChangeUI_UpdateMap();
       };
    }
@@ -229,6 +340,8 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
       saveState();
 
       enableControls();
+
+      Map2PointManager.updateMapPointSlideout();
 
       _map2View.updateState_Map2_Options();
    }
@@ -263,6 +376,21 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
       _chkSelectInbetweenTimeSlices .setSelection( _prefStore.getBoolean(ITourbookPreferences.GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES));
       _chkShowValuePointTooltip     .setSelection( _prefStore.getBoolean(ITourbookPreferences.VALUE_POINT_TOOL_TIP_IS_VISIBLE_MAP2));
 
+      // tile debug info/border
+      _chkShowGeoGridBorder             .setSelection(_prefStore.getBoolean(Map2View.PREF_DEBUG_MAP_SHOW_GEO_GRID));
+      _chkShowTileInfo                  .setSelection(_prefStore.getBoolean(Map2View.PREF_SHOW_TILE_INFO));
+      _chkShowTileBorder                .setSelection(_prefStore.getBoolean(Map2View.PREF_SHOW_TILE_BORDER));
+
+      /*
+       * Map dimming & transparency
+       */
+      _chkIsDimMap                  .setSelection(    Util.getStateBoolean(_state,  Map2View.STATE_IS_MAP_DIMMED,                       Map2View.STATE_IS_MAP_DIMMED_DEFAULT));
+      _chkUseMapDimColor            .setSelection(    Util.getStateBoolean(_state,  Map2View.STATE_MAP_TRANSPARENCY_USE_MAP_DIM_COLOR,  Map2View.STATE_MAP_TRANSPARENCY_USE_MAP_DIM_COLOR_DEFAULT));
+      _spinnerMapDimValue           .setSelection(    Util.getStateInt(    _state,  Map2View.STATE_DIM_MAP_VALUE,                       Map2View.STATE_DIM_MAP_VALUE_DEFAULT));
+
+      _colorMapDimColor             .setColorValue(   Util.getStateRGB(    _state,  Map2View.STATE_DIM_MAP_COLOR,                       Map2View.STATE_DIM_MAP_COLOR_DEFAULT));
+      _colorMapTransparencyColor    .setColorValue(   Util.getStateRGB(    _state,  Map2View.STATE_MAP_TRANSPARENCY_COLOR,              Map2View.STATE_MAP_TRANSPARENCY_COLOR_DEFAULT));
+
 // SET_FORMATTING_ON
 
    }
@@ -275,8 +403,22 @@ public class SlideoutMap2_Options extends ToolbarSlideout implements
 
       _prefStore.setValue(ITourbookPreferences.GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES, _chkSelectInbetweenTimeSlices.getSelection());
 
-// SET_FORMATTING_ON
+      // tile debug info/border
+      _prefStore.setValue(Map2View.PREF_DEBUG_MAP_SHOW_GEO_GRID,  _chkShowGeoGridBorder.getSelection());
+      _prefStore.setValue(Map2View.PREF_SHOW_TILE_BORDER,         _chkShowTileBorder.getSelection());
+      _prefStore.setValue(Map2View.PREF_SHOW_TILE_INFO,           _chkShowTileInfo.getSelection());
 
+      /*
+       * Map dimming & transparency
+       */
+      _state.put(Map2View.STATE_IS_MAP_DIMMED,                     _chkIsDimMap               .getSelection());
+      _state.put(Map2View.STATE_MAP_TRANSPARENCY_USE_MAP_DIM_COLOR,_chkUseMapDimColor         .getSelection());
+      _state.put(Map2View.STATE_DIM_MAP_VALUE,                     _spinnerMapDimValue        .getSelection());
+
+      Util.setState(_state, Map2View.STATE_DIM_MAP_COLOR,          _colorMapDimColor          .getColorValue());
+      Util.setState(_state, Map2View.STATE_MAP_TRANSPARENCY_COLOR, _colorMapTransparencyColor .getColorValue());
+
+// SET_FORMATTING_ON
    }
 
    private void saveState_ValuePointTooltip() {

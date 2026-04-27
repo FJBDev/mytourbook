@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.sf.swtaddons.autocomplete.combo.AutocompleteComboInput;
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
+import net.tourbook.common.autocomplete.AutoComplete_ComboInputMT;
 import net.tourbook.common.util.ColumnDefinition;
 import net.tourbook.common.util.ColumnDefinitionFor1stVisibleAlignmentColumn;
 import net.tourbook.common.util.ColumnManager;
@@ -128,7 +128,7 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
    private IPropertyChangeListener   _prefChangeListener;
    private SelectionListener         _columnSortListener;
 
-   private AutocompleteComboInput    _autocompleteProductSearchHistory;
+   private AutoComplete_ComboInputMT _autocompleteProductSearchHistory;
 
    private ControlDecoration         _decorator_InvalidBarCode;
 
@@ -157,7 +157,7 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
 
    private Menu      _tableContextMenu;
 
-   private Image     _imageDialog;
+   private Image     _imageDialog = TourbookPlugin.getImageDescriptor(Images.TourNutrition).createImage();
 
    private class ActionAddProduct extends Action {
 
@@ -369,7 +369,6 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
       setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
 
       // set icon for the window
-      _imageDialog = TourbookPlugin.getImageDescriptor(Images.TourNutrition).createImage();
       setDefaultImage(_imageDialog);
 
       _tourId = tourId;
@@ -773,7 +772,7 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
       _comboSearchType.add(Messages.Dialog_SearchProduct_Combo_SearchType_ByCode);
       _comboSearchType.select(0);
 
-      _autocompleteProductSearchHistory = new AutocompleteComboInput(_comboSearchQuery);
+      _autocompleteProductSearchHistory = new AutoComplete_ComboInputMT(_comboSearchQuery);
    }
 
    @Override
@@ -843,7 +842,10 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
          final Set<TourNutritionProduct> tourNutritionProducts = tourData.getTourNutritionProducts();
 
          // Before adding the selected product, we need to check if it doesn't already exist
-         if (tourNutritionProducts.stream().anyMatch(tourNutritionProduct -> tourNutritionProduct.getProductCode().equals(selectedProduct.code))) {
+         // An existing product can only be added when the existing ones are
+         // attached to a beverage container
+         if (tourNutritionProducts.stream().anyMatch(tourNutritionProduct -> tourNutritionProduct.getProductCode().equals(selectedProduct.code) &&
+               tourNutritionProduct.getTourBeverageContainer() == null)) {
 
             setErrorMessage(Messages.Dialog_SearchProduct_Label_AlreadyExists);
             return;
@@ -861,6 +863,7 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
    private void onDispose() {
 
       UI.disposeResource(_imageDialog);
+
       _prefStore.removePropertyChangeListener(_prefChangeListener);
 
       _nutritionQuery.removePropertyChangeListener(this);
@@ -896,7 +899,7 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
       // start product search
       final ProductSearchType productSearchType = getProductSearchType();
       if (productSearchType == ProductSearchType.ByCode &&
-            searchText.length() < 12) {
+            searchText.length() == 11) {
          searchText = StringUtils.leftPad(searchText, 12, '0');
       }
       _nutritionQuery.asyncFind(searchText, productSearchType);
@@ -1042,7 +1045,8 @@ public class DialogSearchProduct extends TitleAreaDialog implements ITourViewer,
    }
 
    @Override
-   public void updateColumnHeader(final ColumnDefinition colDef) {}
+   public void updateColumnHeader(final ColumnDefinition colDef) { // Not implemented because the format can't change
+   }
 
    private void validateFields() {
 

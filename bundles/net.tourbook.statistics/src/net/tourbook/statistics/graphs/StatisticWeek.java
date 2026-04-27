@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,6 +35,7 @@ import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourPerson;
@@ -122,7 +127,11 @@ abstract class StatisticWeek extends TourbookStatistic {
       _chart.setShowZoomActions(true);
       _chart.setToolBarManager(viewSite.getActionBars().getToolBarManager(), false);
 
-      _chartInfoProvider = StatisticWeek.this::createToolTipUI;
+      _chartInfoProvider = (toolTipProvider, parent1, serieIndex, valueIndex) -> createToolTipUI(
+            toolTipProvider,
+            parent1,
+            serieIndex,
+            valueIndex);
    }
 
    /**
@@ -133,10 +142,10 @@ abstract class StatisticWeek extends TourbookStatistic {
     * @param hoveredBar_HorizontalIndex
     *           valueIndex
     */
-   private void createToolTipUI(final IToolTipProvider toolTipProvider,
-                                final Composite parent,
-                                final int colorIndex,
-                                final int weekIndex) {
+   private ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                           final Composite parent,
+                                           final int colorIndex,
+                                           final int weekIndex) {
 
       /*
        * Get calendar week from year/weekindex
@@ -179,7 +188,7 @@ abstract class StatisticWeek extends TourbookStatistic {
        * Create tooltip title
        */
       final String toolTip_Title = String.format(Messages.Statistic_Week_Tooltip_Title, weekOfYear, weekYear);
-      final String totalColumnHeaderTitel = String.format(Messages.Statistic_Week_Tooltip_ColumnHeaderTitle, weekOfYear);
+      final String totalColumnHeaderTitle = String.format(Messages.Statistic_Week_Tooltip_ColumnHeaderTitle, weekOfYear);
 
       String toolTip_SubTitle;
       if (isShowSummaryValues && isShowPercentageValues) {
@@ -198,9 +207,11 @@ abstract class StatisticWeek extends TourbookStatistic {
             weekIndex,
             toolTip_Title,
             toolTip_SubTitle,
-            totalColumnHeaderTitel,
+            totalColumnHeaderTitle,
             isShowSummaryValues,
             isShowPercentageValues);
+
+      return null;
    }
 
    private double[] createWeekData() {
@@ -453,7 +464,7 @@ abstract class StatisticWeek extends TourbookStatistic {
 
    private void getPreferences() {
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
    }
 
    @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -35,6 +36,7 @@ import utils.Utils;
 public class TourNutritionViewTests extends UITest {
 
    @Test
+   @Disabled("Skipped because the OpenFoodFacts API is unreliable")
    void testAddTourNutritionItem() {
 
       /*
@@ -61,9 +63,9 @@ public class TourNutritionViewTests extends UITest {
       final SWTBotTable productsSearchTable = bot.table();
 
       // Act - Search for a food in the OpenFoodFacts database
-      bot.comboBox(0).setText("bobo"); //$NON-NLS-1$
+      bot.comboBox(0).setText("larabar"); //$NON-NLS-1$
       bot.button(Messages.Dialog_SearchProduct_Button_Search).click();
-      bot.sleep(5000);
+      bot.sleep(20000);
       bot.button(Messages.Dialog_SearchProduct_Button_Add).click();
 
       // Sort the products by name
@@ -77,9 +79,9 @@ public class TourNutritionViewTests extends UITest {
       productsSearchTable.header(Messages.Tour_Nutrition_Column_Quantity).click();
 
       // Act - Search for a beverage in the OpenFoodFacts database
-      bot.comboBox(0).setText("coca"); //$NON-NLS-1$
+      bot.comboBox(0).setText("tailwind"); //$NON-NLS-1$
       bot.button(Messages.Dialog_SearchProduct_Button_Search).click();
-      bot.sleep(5000);
+      bot.sleep(20000);
       // Act - Add the product via the button in the context menu
       productsSearchTable.click(0, 1);
       productsSearchTable.contextMenu(Messages.Dialog_SearchProduct_Button_Add).click();
@@ -88,7 +90,7 @@ public class TourNutritionViewTests extends UITest {
       bot.comboBox(1).setSelection(Messages.Dialog_SearchProduct_Combo_SearchType_ByCode);
       bot.comboBox(0).setText("829262000333"); //$NON-NLS-1$
       bot.button(Messages.Dialog_SearchProduct_Button_Search).click();
-      bot.sleep(5000);
+      bot.sleep(20000);
       bot.button(Messages.Dialog_SearchProduct_Button_Add).click();
 
       // Act - Search for a food by code in the OpenFoodFacts database that
@@ -96,7 +98,7 @@ public class TourNutritionViewTests extends UITest {
       bot.comboBox(1).setSelection(Messages.Dialog_SearchProduct_Combo_SearchType_ByCode);
       bot.comboBox(0).setText("0829262000340"); //$NON-NLS-1$
       bot.button(Messages.Dialog_SearchProduct_Button_Search).click();
-      bot.sleep(5000);
+      bot.sleep(20000);
       bot.button(Messages.Dialog_SearchProduct_Button_Add).click();
 
       // Close the {@link DialogSearchProduct}
@@ -109,6 +111,9 @@ public class TourNutritionViewTests extends UITest {
 
       // Make sure that the table now contains 4 products
       assertEquals(initialTableRowCount + 4, productsTable.rowCount());
+
+      // Act - Update all the products
+      bot.button(Messages.Tour_Nutrition_Button_UpdateProducts).click();
 
       // Act - Add a manual product
       bot.button(Messages.Tour_Nutrition_Button_AddCustomProduct).click();

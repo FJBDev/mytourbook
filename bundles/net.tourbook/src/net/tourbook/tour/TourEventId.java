@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -82,15 +82,20 @@ public enum TourEventId {
    NOTIFY_TAG_VIEW,
 
    /**
+    * Structure of equipment are changed
+    */
+   EQUIPMENT_STRUCTURE_CHANGED,
+
+   /**
     * structure of the tags changed, this includes add/remove of tags and categories and
     * tag/category renaming
     */
    TAG_STRUCTURE_CHANGED,
 
    /**
-    * Tag content has changed, e.g. tag image size
+    * Equipment or tag content has changed, e.g. tag image size
     */
-   TAG_CONTENT_CHANGED,
+   CONTENT_LAYOUT_CHANGED,
 
    /**
     * Sliders in the tour chart moved. Property data contains {@link SelectionChartInfo} or
@@ -160,5 +165,10 @@ public enum TourEventId {
     * Tour locations are selected, event data contains a list with all {@link TourLocation}
     */
    TOUR_LOCATION_SELECTION,
+
+   /**
+    * Fulltext was searched, the event data is containing a list with all tour ID's
+    */
+   FULLTEXT_SEARCH_TOURS,
 
 }

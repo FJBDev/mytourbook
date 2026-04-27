@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,11 +18,31 @@ package net.tourbook.application;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import net.tourbook.common.UI;
-import net.tourbook.common.util.Util;
+import net.tourbook.common.measurement_system.MeasurementSystem_Manager;
+import net.tourbook.common.swimming.SwimStrokeManager;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentMenuManager;
+import net.tourbook.equipment.tour.filter.TourEquipmentFilterManager;
+import net.tourbook.map.bookmark.MapBookmarkManager;
+import net.tourbook.map.player.ModelPlayerManager;
+import net.tourbook.map3.view.Map3Manager;
+import net.tourbook.map3.view.Map3State;
 import net.tourbook.preferences.PrefPageGeneral;
+import net.tourbook.search.FTSearchManager;
+import net.tourbook.tag.TagMenuManager;
+import net.tourbook.tag.tour.filter.TourTagFilterManager;
 import net.tourbook.tour.TourManager;
+import net.tourbook.tour.TourTypeFilterManager;
+import net.tourbook.tour.TourTypeMenuManager;
+import net.tourbook.tour.filter.TourFilterManager;
+import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
+import net.tourbook.tour.location.CommonLocationManager;
+import net.tourbook.tour.location.TourLocationManager;
+import net.tourbook.tour.photo.TourPhotoManager;
+import net.tourbook.tourType.TourTypeManager;
+import net.tourbook.ui.action.TourActionManager;
+import net.tourbook.ui.views.referenceTour.ElevationCompareManager;
+import net.tourbook.web.WebContentServer;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
@@ -34,31 +54,32 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
-   private static final String SYS_PROP__SET_ALL_VIEWS_CLOSABLE = "setAllViewsClosable";                               //$NON-NLS-1$
+   public static boolean isFixViewCloseButton;
+   public static boolean isFixViewIconImage;
 
    /**
-    * When <code>false</code> then all views will not be set closable in workbench.xmi
-    * <p>
-    * Sometimes the attribute "closeable=true" for views do disappear and a view cannot be closed
-    * anymore with the mouse.
-    * <p>
-    * Commandline parameter: <code>-DsetAllViewsClosable=false</code>
+    * Copied from org.eclipse.e4.ui.internal.workbench.ResourceHandler.getBaseLocation()
+    *
+    * @return
     */
-   private static String       SET_ALL_VIEWS_CLOSABLE           = System.getProperty(SYS_PROP__SET_ALL_VIEWS_CLOSABLE);
-   private static boolean      IS_SET_ALL_VIEWS_CLOSABLE        = UI.FALSE.equals(SET_ALL_VIEWS_CLOSABLE) == false;
+   public static File getWorkbenchFolderPath() {
 
-   static {
+      File baseLocation;
+      try {
+         baseLocation = new File(URIUtil.toURI(Platform.getInstanceLocation().getURL()));
+      } catch (final URISyntaxException e) {
+         throw new RuntimeException(e);
+      }
 
-      Util.logSystemProperty_Value(ApplicationWorkbenchAdvisor.class,
-            SYS_PROP__SET_ALL_VIEWS_CLOSABLE,
-            SET_ALL_VIEWS_CLOSABLE,
-            String.format(
-                  "When \"false\" then all views will not be set closeable=\"true\" in workbench.xmi when the app closes, recognized value: \"%s\"", //$NON-NLS-1$
-                  Boolean.toString(IS_SET_ALL_VIEWS_CLOSABLE)));
+      baseLocation = new File(baseLocation, ".metadata"); //$NON-NLS-1$
+      baseLocation = new File(baseLocation, ".plugins"); //$NON-NLS-1$
+
+      return new File(baseLocation, "org.eclipse.e4.workbench"); //$NON-NLS-1$
    }
 
    @Override
    public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(final IWorkbenchWindowConfigurer configurer) {
+
       return new ApplicationWorkbenchWindowAdvisor(this, configurer);
    }
 
@@ -76,26 +97,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
       return PrefPageGeneral.ID;
    }
 
-   /**
-    * Copied from org.eclipse.e4.ui.internal.workbench.ResourceHandler.getBaseLocation()
-    *
-    * @return
-    */
-   private File getWorkbenchFolderPath() {
-
-      File baseLocation;
-      try {
-         baseLocation = new File(URIUtil.toURI(Platform.getInstanceLocation().getURL()));
-      } catch (final URISyntaxException e) {
-         throw new RuntimeException(e);
-      }
-
-      baseLocation = new File(baseLocation, ".metadata"); //$NON-NLS-1$
-      baseLocation = new File(baseLocation, ".plugins"); //$NON-NLS-1$
-
-      return new File(baseLocation, "org.eclipse.e4.workbench"); //$NON-NLS-1$
-   }
-
    @Override
    public void initialize(final IWorkbenchConfigurer configurer) {
 
@@ -105,12 +106,18 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
    @Override
    public void postShutdown() {
 
-      if (IS_SET_ALL_VIEWS_CLOSABLE) {
+      if (isFixViewCloseButton || isFixViewIconImage) {
 
          // when the timer delay is 100 ms then the task is not run
          Display.getDefault().timerExec(0, () -> {
 
-            ApplicationTools.fixClosableAttribute(getWorkbenchFolderPath());
+            ApplicationTools.fixAllIssues(
+
+                  true,
+                  getWorkbenchFolderPath(),
+
+                  isFixViewCloseButton,
+                  isFixViewIconImage);
          });
       }
 
@@ -124,6 +131,47 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
    @Override
    public boolean preShutdown() {
 
-      return TourManager.getInstance().saveTours();
+      if (TourManager.getInstance().saveTours() == false) {
+         return false;
+      }
+
+      ApplicationWorkbenchWindowAdvisor.getApplicationActionBarAdvisor().getPersonSelector().saveState();
+
+      MeasurementSystem_Manager.saveState();
+
+      TagMenuManager.saveTagState();
+      TourTagFilterManager.saveState();
+
+      EquipmentMenuManager.saveState();
+      TourEquipmentFilterManager.saveState();
+
+      TourTypeFilterManager.saveState();
+      TourTypeMenuManager.saveState();
+      TourTypeManager.saveState();
+
+      CommonLocationManager.saveState();
+      ElevationCompareManager.saveState();
+      TourFilterManager.saveState();
+      TourGeoFilter_Manager.saveState();
+      TourPhotoManager.saveState();
+      MapBookmarkManager.saveState();
+      ModelPlayerManager.saveState();
+      SwimStrokeManager.saveState();
+      TourLocationManager.saveState();
+      TourActionManager.saveState();
+
+      FTSearchManager.closeIndexReaderSuggester();
+      WebContentServer.stop();
+
+      /**
+       * Save map3 state only when map is initialized (displayed). When this state is not checked
+       * and map is not yet initialized, the map will be initialized which produces an annoying
+       * delay when the application is being closing.
+       */
+      if (Map3State.isMapInitialized) {
+         Map3Manager.saveState();
+      }
+
+      return true;
    }
 }

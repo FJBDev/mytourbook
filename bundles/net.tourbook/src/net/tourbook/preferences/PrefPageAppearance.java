@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2008, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2008, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,10 +15,12 @@
  *******************************************************************************/
 package net.tourbook.preferences;
 
-import static org.eclipse.jface.viewers.LabelProvider.createTextProvider;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import de.byteholder.geoclipse.preferences.IMappingPreferences;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.OtherMessages;
@@ -28,13 +30,18 @@ import net.tourbook.common.UI;
 import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.font.FontFieldEditorExtended;
 import net.tourbook.common.preferences.ICommonPreferences;
+import net.tourbook.common.util.Util;
 import net.tourbook.statistic.StatisticValuesView;
+import net.tourbook.tag.TagManager;
+import net.tourbook.tag.TagMenuManager;
+import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.css.swt.theme.ITheme;
 import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -45,6 +52,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseWheelListener;
@@ -69,6 +77,8 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private static final IPreferenceStore _prefStore        = TourbookPlugin.getPrefStore();
    private static final IPreferenceStore _prefStore_Common = CommonActivator.getPrefStore();
 
+   private static final IDialogSettings  _state            = TourbookPlugin.getState(TourDataEditorView.ID);
+
    private boolean                       _isShowInApp_MemoryMonitor;
    private boolean                       _isShowInApp_RestartApp;
    private boolean                       _isShowInApp_ScrambleData;
@@ -83,9 +93,16 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private String                        _defaultThemeId;
    private IThemeEngine                  _themeEngine;
 
-   private ComboViewer                   _comboViewerTheme;
+   private DisabledIcons                 _currentDisabledIcons;
+   private DisabledIcons                 _prefDisabledIcons;
+   private List<DisabledIcons>           _allDisabledIcons;
+
+   private ComboViewer                   _comboViewer_DisabledIcons;
+   private ComboViewer                   _comboViewer_Theme;
+   private ControlDecoration             _comboDecorator_DisabledIcons;
    private ControlDecoration             _comboDecorator_Theme;
 
+   private FontFieldEditorExtended       _uiFontEditor;
    private FontFieldEditorExtended       _logMessageFontEditor;
 
    /*
@@ -94,6 +111,7 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private Button  _btnResetAllToggleDialogs;
 
    private Button  _chkAutoOpenTagging;
+   private Button  _chkShowInApp_ExtendedVersion;
    private Button  _chkShowInApp_MemoryMonitor;
    private Button  _chkShowInApp_RestartApp;
    private Button  _chkShowInApp_ScrambleData;
@@ -104,8 +122,21 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private Label   _lblAutoTagDelay;
 
    private Spinner _spinnerAutoOpenDelay;
+   private Spinner _spinnerContentImageSize;
    private Spinner _spinnerNotificationMessagesDuration;
    private Spinner _spinnerRecentTags;
+
+   public class DisabledIcons {
+
+      private String label;
+      private String property;
+
+      public DisabledIcons(final String label, final String property) {
+
+         this.label = label;
+         this.property = property;
+      }
+   }
 
    public PrefPageAppearance() {
 
@@ -143,124 +174,136 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
 //      GridDataFactory.fillDefaults().grab(true, false).applyTo(_uiContainer);
       GridLayoutFactory.fillDefaults().applyTo(container);
       {
-         createUI_10_Theme(container);
-         createUI_20_Tagging(container);
+         createUI_10_UI(container);
          createUI_30_LogFont(container);
-         createUI_40_OtherOptions(container);
+         createUI_50_Tagging(container);
+         createUI_80_OtherOptions(container);
       }
 
       return container;
    }
 
-   private void createUI_10_Theme(final Composite parent) {
+   private void createUI_10_UI(final Composite parent) {
+
+      final int verticalSpacing = 5;
 
       final Group group = new Group(parent, SWT.NONE);
-      group.setText(Messages.Pref_Appearance_Group_Theme);
+      group.setText(Messages.Pref_Appearance_Group_UI);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
       GridLayoutFactory.swtDefaults()
+
             .numColumns(2)
 
             // more horizontal space is needed that the decorator is not clipped
             .spacing(10, 5)
 
             .applyTo(group);
+//      group.setBackground(UI.SYS_COLOR_MAGENTA);
       {
-         UI.createLabel(group, Messages.Pref_Appearance_Label_Theme);
-
-         _comboViewerTheme = new ComboViewer(group, SWT.READ_ONLY);
-
-         final Combo combo = _comboViewerTheme.getCombo();
-         combo.setToolTipText(Messages.Pref_Appearance_Combo_Theme_Tooltip);
-
-         _comboViewerTheme.setLabelProvider(createTextProvider(element -> ((ITheme) element).getLabel()));
-         _comboViewerTheme.setContentProvider(ArrayContentProvider.getInstance());
-         _comboViewerTheme.setInput(ThemeUtil.getAllThemes());
-         _comboViewerTheme.addSelectionChangedListener(selectionChangedEvent -> onSelectTheme());
-
-         _comboDecorator_Theme = new ControlDecoration(combo, SWT.TOP | SWT.LEFT);
-      }
-
-      {
-         /*
-          * Checkbox: Show theme selector in app toolbar
-          */
-         _chkShowInApp_ThemeSelector = new Button(group, SWT.CHECK);
-         _chkShowInApp_ThemeSelector.setText(Messages.Pref_Appearance_Check_ShowThemeSelectorInAppToolbar);
-         GridDataFactory.fillDefaults()
-               .span(2, 1)
-               .applyTo(_chkShowInApp_ThemeSelector);
-      }
-   }
-
-   private void createUI_20_Tagging(final Composite parent) {
-
-      final Group group = new Group(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
-      group.setText(Messages.Pref_Appearance_Group_Tagging);
-      GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
-      {
-         /*
-          * number of recent tags
-          */
-         final Label label = UI.createLabel(group, Messages.pref_appearance_number_of_recent_tags);
-         label.setToolTipText(Messages.pref_appearance_number_of_recent_tags_tooltip);
-
-         // spinner
-         _spinnerRecentTags = new Spinner(group, SWT.BORDER);
-         _spinnerRecentTags.setToolTipText(Messages.pref_appearance_number_of_recent_tags_tooltip);
-         _spinnerRecentTags.setMinimum(0);
-         _spinnerRecentTags.setMaximum(9);
-         _spinnerRecentTags.addSelectionListener(_defaultSelectionListener);
-         _spinnerRecentTags.addMouseWheelListener(_defaultMouseWheelListener);
-         GridDataFactory.fillDefaults()
-               .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
-               .align(SWT.BEGINNING, SWT.CENTER)
-               .applyTo(_spinnerRecentTags);
-
-         /*
-          * autoopen tagging
-          */
-//				eclipse 3.7 supports this feature
-//				if (UI.IS_OSX) {
-//					// label: OSX is not supported, feature is not working
-//					final Label label = new Label(container, SWT.WRAP);
-//					GridDataFactory.fillDefaults().span(3, 1).applyTo(label);
-//					label.setText(Messages.Pref_Appearance_Label_NoOSXSupport);
-//				}
-         _chkAutoOpenTagging = new Button(group, SWT.CHECK);
-         _chkAutoOpenTagging.setText(Messages.Pref_Appearance_Check_AutoOpenTagging);
-         _chkAutoOpenTagging.addSelectionListener(_defaultSelectionListener);
-         _chkAutoOpenTagging.setToolTipText(Messages.Pref_Appearance_Label_AutoOpenTagging_Tooltip);
-         GridDataFactory.fillDefaults().span(2, 1).applyTo(_chkAutoOpenTagging);
-
-         final Composite autoTagContainer = new Composite(group, SWT.NONE);
-         GridDataFactory.fillDefaults().grab(false, false).indent(16, 0).span(2, 1).applyTo(autoTagContainer);
-         GridLayoutFactory.fillDefaults().numColumns(3).applyTo(autoTagContainer);
          {
+            /*
+             * Theme
+             */
 
-            // label: delay
-            _lblAutoTagDelay = UI.createLabel(autoTagContainer, Messages.Pref_Appearance_Label_AutoOpenTaggingDelay);
-            _lblAutoTagDelay.setToolTipText(Messages.Pref_Appearance_Label_AutoOpenTagging_Tooltip);
+            {
+               UI.createLabel(group, Messages.Pref_Appearance_Label_Theme);
+
+               _comboViewer_Theme = new ComboViewer(group, SWT.READ_ONLY);
+
+               final Combo combo = _comboViewer_Theme.getCombo();
+               combo.setToolTipText(Messages.Pref_Appearance_Combo_Theme_Tooltip);
+
+               _comboViewer_Theme.setLabelProvider(LabelProvider.createTextProvider(element -> ((ITheme) element).getLabel()));
+               _comboViewer_Theme.setContentProvider(ArrayContentProvider.getInstance());
+               _comboViewer_Theme.setInput(ThemeUtil.getAllThemes());
+               _comboViewer_Theme.addSelectionChangedListener(selectionChangedEvent -> onSelectTheme());
+
+               _comboDecorator_Theme = new ControlDecoration(combo, SWT.TOP | SWT.LEFT);
+            }
+            {
+               /*
+                * Checkbox: Show theme selector in app toolbar
+                */
+               UI.createSpacer_Horizontal(group);
+
+               _chkShowInApp_ThemeSelector = new Button(group, SWT.CHECK);
+               _chkShowInApp_ThemeSelector.setText(Messages.Pref_Appearance_Check_ShowThemeSelectorInAppToolbar);
+               GridDataFactory.fillDefaults().applyTo(_chkShowInApp_ThemeSelector);
+            }
+         }
+         {
+            /*
+             * Disabled icons
+             */
+
+            final Label label = UI.createLabel(group, Messages.Pref_Appearance_Label_DisabledIcons);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).indent(0, verticalSpacing).applyTo(label);
+
+            _comboViewer_DisabledIcons = new ComboViewer(group, SWT.READ_ONLY);
+
+            final Combo combo = _comboViewer_DisabledIcons.getCombo();
+            combo.setToolTipText(Messages.Pref_Appearance_Label_DisabledIcons_Tooltip);
+            GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).indent(0, verticalSpacing).applyTo(combo);
+
+            _comboViewer_DisabledIcons.setLabelProvider(LabelProvider.createTextProvider(element -> ((DisabledIcons) element).label));
+            _comboViewer_DisabledIcons.setContentProvider(ArrayContentProvider.getInstance());
+            _comboViewer_DisabledIcons.addSelectionChangedListener(selectionChangedEvent -> onSelectDisabledIcons());
+            _comboViewer_DisabledIcons.setInput(_allDisabledIcons);
+
+            _comboDecorator_DisabledIcons = new ControlDecoration(combo, SWT.TOP | SWT.LEFT);
+         }
+         {
+            /*
+             * Font
+             */
+
+            final Label label = UI.createLabel(group, Messages.Pref_Appearance_Label_UIFont);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).indent(0, verticalSpacing).applyTo(label);
+
+            final Composite container = new Composite(group, SWT.NONE);
+            GridDataFactory.fillDefaults().grab(true, false).indent(0, verticalSpacing).applyTo(container);
+            GridLayoutFactory.swtDefaults().numColumns(1).applyTo(container);
+//            container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
+            {
+               _uiFontEditor = new FontFieldEditorExtended(
+
+                     ICommonPreferences.UI_DRAWING_FONT,
+                     UI.EMPTY_STRING,
+                     Messages.Pref_Appearance_Label_UIFontExample,
+                     container);
+
+               _uiFontEditor.setTooltipText(Messages.Pref_Appearance_FontEditor_Tooltip);
+               _uiFontEditor.setPropertyChangeListener(propertyChangeEvent -> {
+
+                  // this will fire the pref value
+                  _uiFontEditor.store();
+               });
+            }
+         }
+         {
+            /*
+             * Tag image size
+             */
+
+            // label
+            final Label label = new Label(group, SWT.NONE);
+            label.setText(Messages.Pref_Appearance_Label_ImageSize);
+            label.setToolTipText(Messages.Pref_Appearance_Label_ImageSize_Tooltip);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
 
             // spinner
-            _spinnerAutoOpenDelay = new Spinner(autoTagContainer, SWT.BORDER);
-            _spinnerAutoOpenDelay.setMinimum(0);
-            _spinnerAutoOpenDelay.setMaximum(3000);
-            _spinnerAutoOpenDelay.addSelectionListener(_defaultSelectionListener);
-            _spinnerAutoOpenDelay.addMouseWheelListener(_defaultMouseWheelListener);
+            _spinnerContentImageSize = new Spinner(group, SWT.BORDER);
+            _spinnerContentImageSize.setMinimum(TourDataEditorView.STATE_CONTENT_IMAGE_SIZE_MIN);
+            _spinnerContentImageSize.setMaximum(TourDataEditorView.STATE_CONTENT_IMAGE_SIZE_MAX);
+            _spinnerContentImageSize.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSelect_ContentImageLayout()));
+            _spinnerContentImageSize.addMouseWheelListener(mouseEvent -> {
+               UI.adjustSpinnerValueOnMouseScroll(mouseEvent, 10);
+               onSelect_ContentImageLayout();
+            });
             GridDataFactory.fillDefaults()
-                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
-                  .align(SWT.BEGINNING, SWT.CENTER)
-                  .applyTo(_spinnerAutoOpenDelay);
-
-            // label: ms
-            _lblAutoOpenMS = UI.createLabel(autoTagContainer, UI.UNIT_MS);
-
-            // check: show animation
-            _chkTaggingAnimation = new Button(autoTagContainer, SWT.CHECK);
-            _chkTaggingAnimation.setText(Messages.Pref_Appearance_Check_TaggingAnimation);
-            _chkTaggingAnimation.addSelectionListener(_defaultSelectionListener);
-            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkTaggingAnimation);
+                  .hint(_pc.convertWidthInCharsToPixels(5), SWT.DEFAULT)
+                  .align(SWT.BEGINNING, SWT.FILL)
+                  .applyTo(_spinnerContentImageSize);
          }
       }
    }
@@ -286,14 +329,101 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
                      OtherMessages.THEME_FONT_LOGGING_PREVIEW_TEXT,
                      fontContainer);
 
-               _logMessageFontEditor.setPropertyChangeListener(propertyChangeEvent -> onChangeFontInEditor());
+               _logMessageFontEditor.setPropertyChangeListener(propertyChangeEvent -> onChangeFontInEditor_LogMessages());
             }
          }
       }
    }
 
-   private void createUI_40_OtherOptions(final Composite parent) {
+   private void createUI_50_Tagging(final Composite parent) {
 
+      final Group group = new Group(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
+      group.setText(Messages.Pref_Appearance_Group_Tagging);
+      GridLayoutFactory.swtDefaults().numColumns(3).applyTo(group);
+      {
+         {
+            /*
+             * Number of recent tags
+             */
+            final Label label = UI.createLabel(group, Messages.pref_appearance_number_of_recent_tags);
+            label.setToolTipText(Messages.pref_appearance_number_of_recent_tags_tooltip);
+
+            // spinner
+            _spinnerRecentTags = new Spinner(group, SWT.BORDER);
+            _spinnerRecentTags.setToolTipText(Messages.pref_appearance_number_of_recent_tags_tooltip);
+            _spinnerRecentTags.setMinimum(0);
+            _spinnerRecentTags.setMaximum(9);
+            _spinnerRecentTags.addSelectionListener(_defaultSelectionListener);
+            _spinnerRecentTags.addMouseWheelListener(_defaultMouseWheelListener);
+            GridDataFactory.fillDefaults()
+                  .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                  .align(SWT.BEGINNING, SWT.CENTER)
+                  .applyTo(_spinnerRecentTags);
+
+            // button: Remove recent tags
+            final Button btnRemoveRecentTags = new Button(group, SWT.PUSH);
+            btnRemoveRecentTags.setText(Messages.Pref_Appearance_Button_RemoveRecentTags);
+            btnRemoveRecentTags.setToolTipText(Messages.Pref_Appearance_Button_RemoveRecentTags_Tooltip);
+            btnRemoveRecentTags.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+                  selectionEvent -> TagMenuManager.clearRecentTags()));
+         }
+         {
+            /*
+             * Autoopen tagging
+             */
+//				eclipse 3.7 supports this feature
+//				if (UI.IS_OSX) {
+//					// label: OSX is not supported, feature is not working
+//					final Label label = new Label(container, SWT.WRAP);
+//					GridDataFactory.fillDefaults().span(3, 1).applyTo(label);
+//					label.setText(Messages.Pref_Appearance_Label_NoOSXSupport);
+//				}
+            _chkAutoOpenTagging = new Button(group, SWT.CHECK);
+            _chkAutoOpenTagging.setText(Messages.Pref_Appearance_Check_AutoOpenTagging);
+            _chkAutoOpenTagging.addSelectionListener(_defaultSelectionListener);
+            _chkAutoOpenTagging.setToolTipText(Messages.Pref_Appearance_Label_AutoOpenTagging_Tooltip);
+            GridDataFactory.fillDefaults().span(3, 1).applyTo(_chkAutoOpenTagging);
+
+            {
+               // label: delay
+               _lblAutoTagDelay = UI.createLabel(group, Messages.Pref_Appearance_Label_AutoOpenTaggingDelay);
+               _lblAutoTagDelay.setToolTipText(Messages.Pref_Appearance_Label_AutoOpenTagging_Tooltip);
+               GridDataFactory.fillDefaults().indent(16, 0).applyTo(_lblAutoTagDelay);
+
+               // spinner
+               _spinnerAutoOpenDelay = new Spinner(group, SWT.BORDER);
+               _spinnerAutoOpenDelay.setMinimum(0);
+               _spinnerAutoOpenDelay.setMaximum(3000);
+               _spinnerAutoOpenDelay.addSelectionListener(_defaultSelectionListener);
+               _spinnerAutoOpenDelay.addMouseWheelListener(_defaultMouseWheelListener);
+               GridDataFactory.fillDefaults()
+                     .hint(_hintDefaultSpinnerWidth, SWT.DEFAULT)
+                     .align(SWT.BEGINNING, SWT.CENTER)
+                     .applyTo(_spinnerAutoOpenDelay);
+
+               // label: ms
+               _lblAutoOpenMS = UI.createLabel(group, UI.UNIT_MS);
+
+               // check: show animation
+               _chkTaggingAnimation = new Button(group, SWT.CHECK);
+               _chkTaggingAnimation.setText(Messages.Pref_Appearance_Check_TaggingAnimation);
+               _chkTaggingAnimation.addSelectionListener(_defaultSelectionListener);
+               GridDataFactory.fillDefaults().span(3, 1).indent(16, 0).applyTo(_chkTaggingAnimation);
+            }
+         }
+      }
+   }
+
+   private void createUI_80_OtherOptions(final Composite parent) {
+
+      {
+         /*
+          * Extended version in app title
+          */
+         _chkShowInApp_ExtendedVersion = new Button(parent, SWT.CHECK);
+         _chkShowInApp_ExtendedVersion.setText(Messages.Pref_Appearance_Check_ShowAppVersionQualifierInAppTitle);
+      }
       {
          /*
           * Checkbox: Show restart app action in app toolbar
@@ -314,7 +444,6 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
           */
          _chkShowInApp_MemoryMonitor = new Button(parent, SWT.CHECK);
          _chkShowInApp_MemoryMonitor.setText(Messages.pref_appearance_showMemoryMonitor);
-//         GridDataFactory.fillDefaults().indent(0, 10).applyTo(_chkMemMonitor);
       }
       {
          /*
@@ -349,9 +478,8 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
          _btnResetAllToggleDialogs = new Button(parent, SWT.PUSH);
          _btnResetAllToggleDialogs.setText(Messages.Pref_Appearance_Button_ResetAllToggleDialogs);
          _btnResetAllToggleDialogs.setToolTipText(Messages.Pref_Appearance_Button_ResetAllToggleDialogs_Tooltip);
-         _btnResetAllToggleDialogs.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onResetAllToggleDialogs()));
+         _btnResetAllToggleDialogs.addSelectionListener(SelectionListener.widgetSelectedAdapter(selectionEvent -> onResetAllToggleDialogs()));
          GridDataFactory.fillDefaults()
-//               .indent(0, 10)
                .align(SWT.BEGINNING, SWT.FILL)
                .applyTo(_btnResetAllToggleDialogs);
       }
@@ -371,11 +499,38 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
       _spinnerAutoOpenDelay.setEnabled(isEnabled && isTagAutoOpen);
    }
 
+   private DisabledIcons getPrefDisabledIcons(final boolean isDefault) {
+
+      final String prefDisabledIcons = isDefault
+
+            ? _prefStore_Common.getDefaultString(ICommonPreferences.UI_DISABLED_ICONS)
+            : _prefStore_Common.getString(ICommonPreferences.UI_DISABLED_ICONS);
+
+      for (final DisabledIcons disabledIcons : _allDisabledIcons) {
+
+         if (disabledIcons.property.equals(prefDisabledIcons)) {
+
+            return disabledIcons;
+         }
+      }
+
+      return _allDisabledIcons.get(0);
+   }
+
    /**
-    * @return the currently selected theme or null if there are no themes
+    * @return the currently selected disabled icon
+    */
+   private DisabledIcons getSelectedDisabledIcon() {
+
+      return (DisabledIcons) (_comboViewer_DisabledIcons.getStructuredSelection().getFirstElement());
+   }
+
+   /**
+    * @return the currently selected theme or <code>null</code> if there are no themes
     */
    private ITheme getSelectedTheme() {
-      return (ITheme) (_comboViewerTheme.getStructuredSelection().getFirstElement());
+
+      return (ITheme) (_comboViewer_Theme.getStructuredSelection().getFirstElement());
    }
 
    @Override
@@ -397,18 +552,26 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
    private void initUI(final Composite parent) {
 
       _pc = new PixelConverter(parent);
+
       _hintDefaultSpinnerWidth = UI.IS_LINUX ? SWT.DEFAULT : _pc.convertWidthInCharsToPixels(UI.IS_OSX ? 10 : 5);
 
-      _defaultSelectionListener = widgetSelectedAdapter(selectionEvent -> {
-         enableControls();
-      });
+      _defaultSelectionListener = SelectionListener.widgetSelectedAdapter(selectionEvent -> enableControls());
 
-      _defaultMouseWheelListener = mouseEvent -> {
-         UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
-      };
+      _defaultMouseWheelListener = mouseEvent -> UI.adjustSpinnerValueOnMouseScroll(mouseEvent);
+
+// SET_FORMATTING_OFF
+
+      // https://eclipse.dev/eclipse/markdown/?f=news/4.36/platform.md#themes-and-styling
+      _allDisabledIcons = new ArrayList<>();
+
+      _allDisabledIcons.add(new DisabledIcons(Messages.Pref_Appearance_DisabledIcons_Grayed,        UI.DISABLED_ICONS_GRAYED));
+      _allDisabledIcons.add(new DisabledIcons(Messages.Pref_Appearance_DisabledIcons_Desaturated,   UI.DISABLED_ICONS_DESATURATED));
+      _allDisabledIcons.add(new DisabledIcons(Messages.Pref_Appearance_DisabledIcons_GTK,           UI.DISABLED_ICONS_GTK));
+
+// SET_FORMATTING_ON
    }
 
-   private void onChangeFontInEditor() {
+   private void onChangeFontInEditor_LogMessages() {
 
       // update state, this will fire IMappingPreferences.THEME_FONT_LOGGING event which will recreate the font
       _logMessageFontEditor.store();
@@ -432,11 +595,46 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
             Messages.Pref_Appearance_Dialog_ResetAllToggleDialogs_Message);
    }
 
+   private void onSelect_ContentImageLayout() {
+
+      _state.put(TourDataEditorView.STATE_CONTENT_IMAGE_SIZE, _spinnerContentImageSize.getSelection());
+
+      enableControls();
+
+      // run async because it can take time to reload the tag images
+      _spinnerContentImageSize.getDisplay().asyncExec(() -> TagManager.updateTagContent());
+   }
+
+   private void onSelectDisabledIcons() {
+
+      final DisabledIcons selectedDisabledIcon = getSelectedDisabledIcon();
+
+      if (selectedDisabledIcon != _prefDisabledIcons) {
+
+         // another disabled icons is selected
+
+         _currentDisabledIcons = selectedDisabledIcon;
+
+         final Image decorationImage = FieldDecorationRegistry.getDefault()
+               .getFieldDecoration(FieldDecorationRegistry.DEC_WARNING)
+               .getImage();
+
+         // a restart is required for the theme change to take full effect
+         _comboDecorator_DisabledIcons.setDescriptionText(Messages.Pref_Appearance_Dialog_RestartAfter_ChangeDisabledIcons_Message);
+         _comboDecorator_DisabledIcons.setImage(decorationImage);
+         _comboDecorator_DisabledIcons.show();
+
+      } else {
+
+         _comboDecorator_DisabledIcons.hide();
+      }
+   }
+
    private void onSelectTheme() {
 
       final ITheme selectedTheme = getSelectedTheme();
 
-      if (!selectedTheme.equals(_currentTheme)) {
+      if (selectedTheme.equals(_currentTheme) == false) {
 
          // another theme is selected
 
@@ -499,13 +697,11 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
          // update UI
          final ITheme activeTheme = _themeEngine.getActiveTheme();
          if (activeTheme != null) {
-            _comboViewerTheme.setSelection(new StructuredSelection(activeTheme));
+            _comboViewer_Theme.setSelection(new StructuredSelection(activeTheme));
          }
       }
 
-      /*
-       * Other
-       */
+      _currentDisabledIcons = getPrefDisabledIcons(true);
 
 // SET_FORMATTING_OFF
 
@@ -516,16 +712,22 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
       _chkTaggingAnimation                .setSelection(_prefStore.getDefaultBoolean(ITourbookPreferences.APPEARANCE_IS_TAGGING_ANIMATION));
       _spinnerAutoOpenDelay               .setSelection(_prefStore.getDefaultInt(ITourbookPreferences.APPEARANCE_TAGGING_AUTO_OPEN_DELAY));
 
+      _chkShowInApp_ExtendedVersion       .setSelection(false);
       _chkShowInApp_MemoryMonitor         .setSelection(false);
       _chkShowInApp_RestartApp            .setSelection(false);
       _chkShowInApp_ScrambleData          .setSelection(false);
       _chkShowInApp_ThemeSelector         .setSelection(false);
+
+      _comboViewer_DisabledIcons          .setSelection(new StructuredSelection(_currentDisabledIcons));
 
 // SET_FORMATTING_ON
 
       // set font editor default values
       _logMessageFontEditor.loadDefault();
       _logMessageFontEditor.store();
+
+      _uiFontEditor.loadDefault();
+      _uiFontEditor.store();
 
       super.performDefaults();
 
@@ -577,6 +779,21 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
          // field is modified, ask for restart
 
          isRestartNow = requestForRestart(Messages.Pref_Appearance_Dialog_RestartAfterThemeSelectorIsInToolbar_Message);
+      }
+
+      /*
+       * Disabled icons
+       */
+      if (_currentDisabledIcons != _prefDisabledIcons) {
+
+         _prefStore_Common.setValue(ICommonPreferences.UI_DISABLED_ICONS, _currentDisabledIcons.property);
+
+         // an app restart is required for the disabled icons change to take full effect
+
+         if (isRestartNow == false) {
+
+            isRestartNow = requestForRestart(Messages.Pref_Appearance_Dialog_RestartAfter_ChangeDisabledIcons_Message);
+         }
       }
 
       /*
@@ -649,13 +866,23 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
        */
       _currentTheme = _themeEngine.getActiveTheme();
       if (_currentTheme != null) {
-         _comboViewerTheme.setSelection(new StructuredSelection(_currentTheme));
+         _comboViewer_Theme.setSelection(new StructuredSelection(_currentTheme));
       }
 
+      _currentDisabledIcons = _prefDisabledIcons = getPrefDisabledIcons(false);
+
       /*
-       * Other
+       * Content image
        */
+      _spinnerContentImageSize.setSelection(Util.getStateInt(_state,
+            TourDataEditorView.STATE_CONTENT_IMAGE_SIZE,
+            TourDataEditorView.STATE_CONTENT_IMAGE_SIZE_DEFAULT,
+            TourDataEditorView.STATE_CONTENT_IMAGE_SIZE_MIN,
+            TourDataEditorView.STATE_CONTENT_IMAGE_SIZE_MAX));
+
 // SET_FORMATTING_OFF
+
+      final boolean isShowExtendedVersion = _prefStore_Common.getBoolean(ICommonPreferences.APPEARANCE_IS_SHOW_EXTENDED_VERSION_IN_APP_TITLE);
 
       _isShowInApp_MemoryMonitor = _prefStore_Common.getBoolean(ICommonPreferences.APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP);
       _isShowInApp_RestartApp    = _prefStore_Common.getBoolean(ICommonPreferences.APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP);
@@ -664,6 +891,7 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
 
       _spinnerNotificationMessagesDuration.setSelection(_prefStore_Common.getInt(ICommonPreferences.APPEARANCE_NOTIFICATION_MESSAGES_DURATION));
 
+      _chkShowInApp_ExtendedVersion       .setSelection(isShowExtendedVersion);
       _chkShowInApp_MemoryMonitor         .setSelection(_isShowInApp_MemoryMonitor);
       _chkShowInApp_RestartApp            .setSelection(_isShowInApp_RestartApp);
       _chkShowInApp_ScrambleData          .setSelection(_isShowInApp_ScrambleData);
@@ -674,8 +902,12 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
       _spinnerAutoOpenDelay               .setSelection(_prefStore.getInt(ITourbookPreferences.APPEARANCE_TAGGING_AUTO_OPEN_DELAY));
       _spinnerRecentTags                  .setSelection(_prefStore.getInt(ITourbookPreferences.APPEARANCE_NUMBER_OF_RECENT_TAGS));
 
-      _logMessageFontEditor.setPreferenceStore(_prefStore);
-      _logMessageFontEditor.load();
+      _comboViewer_DisabledIcons          .setSelection(new StructuredSelection(_currentDisabledIcons));
+
+      _logMessageFontEditor   .setPreferenceStore(_prefStore);
+      _logMessageFontEditor   .load();
+      _uiFontEditor           .setPreferenceStore(_prefStore_Common);
+      _uiFontEditor           .load();
    }
 
    private void saveState() {
@@ -686,11 +918,12 @@ public class PrefPageAppearance extends PreferencePage implements IWorkbenchPref
       _prefStore.setValue(ITourbookPreferences.APPEARANCE_IS_TAGGING_ANIMATION,     _chkTaggingAnimation.getSelection());
       _prefStore.setValue(ITourbookPreferences.APPEARANCE_TAGGING_AUTO_OPEN_DELAY,  _spinnerAutoOpenDelay.getSelection());
 
-      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP,         _chkShowInApp_MemoryMonitor.getSelection());
-      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP,     _chkShowInApp_RestartApp.getSelection());
-      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP,   _chkShowInApp_ScrambleData.getSelection());
-      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_NOTIFICATION_MESSAGES_DURATION,        _spinnerNotificationMessagesDuration.getSelection());
-      _prefStore_Common.setValue(ICommonPreferences.THEME_IS_SHOW_THEME_SELECTOR_IN_APP,              _chkShowInApp_ThemeSelector.getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_EXTENDED_VERSION_IN_APP_TITLE, _chkShowInApp_ExtendedVersion          .getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_MEMORY_MONITOR_IN_APP,         _chkShowInApp_MemoryMonitor            .getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_RESTART_APP_ACTION_IN_APP,     _chkShowInApp_RestartApp               .getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_IS_SHOW_SCRAMBLE_DATA_ACTION_IN_APP,   _chkShowInApp_ScrambleData             .getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.APPEARANCE_NOTIFICATION_MESSAGES_DURATION,        _spinnerNotificationMessagesDuration   .getSelection());
+      _prefStore_Common.setValue(ICommonPreferences.THEME_IS_SHOW_THEME_SELECTOR_IN_APP,              _chkShowInApp_ThemeSelector            .getSelection());
 
 // SET_FORMATTING_ON
    }

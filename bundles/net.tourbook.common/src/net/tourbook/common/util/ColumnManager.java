@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -67,6 +67,7 @@ import org.eclipse.nebula.widgets.nattable.print.command.TurnViewportOnCommand;
 import org.eclipse.nebula.widgets.nattable.reorder.ColumnReorderLayer;
 import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
 import org.eclipse.nebula.widgets.nattable.util.GCFactory;
+import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -141,6 +142,12 @@ public class ColumnManager {
     * 1000 would be too small on high-dpi displays
     */
    static final int            COLUMN_WIDTH_MAXIMUM                      = 5_000;
+
+   /**
+    * This is needed to adjust 4k display column widths, otherwise they get smaler and smaler every
+    * time when they are retrieved from the NatTable
+    */
+   private static float        _dpiScaleFactor                           = -1;
 
    /*
     * Value formatter
@@ -548,7 +555,7 @@ public class ColumnManager {
       _allDefinedColumnDefinitions.clear();
    }
 
-   private String createColumnLabel(final ColumnDefinition colDef, final boolean isWithCategory) {
+   private String createColumnLabel(final ColumnDefinition colDef) {
 
       final String category = colDef.getColumnCategory();
       final String label = colDef.getColumnLabel();
@@ -557,13 +564,13 @@ public class ColumnManager {
       final StringBuilder sb = new StringBuilder();
 
       // add category
-      if (isWithCategory && _isCategoryAvailable && _isShowCategory && category != null) {
+      if (_isCategoryAvailable && _isShowCategory && category != null) {
          sb.append(category);
       }
 
       // add label
       if (label != null) {
-         if (isWithCategory && sb.length() > 0) {
+         if (sb.length() > 0) {
             sb.append(COLUMN_CATEGORY_SEPARATOR);
          }
          sb.append(label);
@@ -588,7 +595,7 @@ public class ColumnManager {
 
          final MenuItem colMenuItem = new MenuItem(contextMenu, SWT.CHECK);
 
-         final String columnLabel = createColumnLabel(colDef, true);
+         final String columnLabel = createColumnLabel(colDef);
 
          colMenuItem.setText(columnLabel);
          colMenuItem.setEnabled(colDef.canModifyVisibility());
@@ -1226,7 +1233,7 @@ public class ColumnManager {
           */
 
          // create menu item text
-         final String menuItemText = NLS.bind(Messages.Action_ColumnManager_ColumnActions_Info, createColumnLabel(colDef, false));
+         final String menuItemText = NLS.bind(Messages.Action_ColumnManager_ColumnActions_Info, createColumnLabel(colDef));
 
          final MenuItem menuItem = new MenuItem(contextMenu, SWT.PUSH);
          menuItem.setText(menuItemText);
@@ -1552,11 +1559,10 @@ public class ColumnManager {
             final ColumnDefinition colDef = getColDef_ByCreateIndex(colIndexByPos);
             if (colDef != null) {
 
-               final int colWidthByPos = dataLayer.getColumnWidthByPosition(reorderColIndex);
-
+               final int columnWidth = getColumnWidth_NatTable(dataLayer, reorderColIndex);
                final String columnId = colDef.getColumnId();
 
-               setColumnIdAndWidth(allColumnIdsAndWidth, columnId, colWidthByPos);
+               setColumnIdAndWidth(allColumnIdsAndWidth, columnId, columnWidth);
             }
          }
 
@@ -1727,6 +1733,25 @@ public class ColumnManager {
       }
 
       return columnWidth;
+   }
+
+   private int getColumnWidth_NatTable(final DataLayer dataLayer, final int createdColumnIndex) {
+
+      int colWidthByPos = dataLayer.getColumnWidthByPosition(createdColumnIndex);
+
+      if (UI.IS_4K_DISPLAY) {
+
+         if (_dpiScaleFactor == -1) {
+
+            final int displayDpi = Display.getDefault().getDPI().x;
+
+            _dpiScaleFactor = GUIHelper.getDpiFactor(displayDpi);
+         }
+
+         colWidthByPos = (int) (colWidthByPos / _dpiScaleFactor);
+      }
+
+      return colWidthByPos;
    }
 
    /**
@@ -2094,6 +2119,7 @@ public class ColumnManager {
             _allProfiles);
 
       if (_slideoutShell != null) {
+
          // prevent that the column dialog will freeze the app
          _slideoutShell.setIsAnotherDialogOpened(true);
       }
@@ -2101,6 +2127,7 @@ public class ColumnManager {
       columnDialog.open();
 
       if (_slideoutShell != null) {
+
          _slideoutShell.setIsAnotherDialogOpened(false);
       }
    }
@@ -2323,16 +2350,16 @@ public class ColumnManager {
       final ArrayList<String> allOrderedColumnIds = new ArrayList<>();
       final ArrayList<String> allColumnIdsAndWidth = new ArrayList<>();
 
-// TODO
-      System.out.println("All columns in _allDefinedColumnDefinitions, number of entries: " + _allDefinedColumnDefinitions.size()); //$NON-NLS-1$
-      System.out.println();
-
-      for (final ColumnDefinition colDefLog : _allDefinedColumnDefinitions) {
-         System.out.println("  \"" + colDefLog.getColumnId() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-      }
-
-      System.out.println();
-      System.out.println();
+//// TODO
+//      System.out.println("All columns in _allDefinedColumnDefinitions, number of entries: " + _allDefinedColumnDefinitions.size()); //$NON-NLS-1$
+//      System.out.println();
+//
+//      for (final ColumnDefinition colDefLog : _allDefinedColumnDefinitions) {
+//         System.out.println("  \"" + colDefLog.getColumnId() + UI.SYMBOL_QUOTATION_MARK); //$NON-NLS-1$ //$NON-NLS-2$
+//      }
+//
+//      System.out.println();
+//      System.out.println();
 
       for (int uiColumnPos = 0; uiColumnPos < numColumns; uiColumnPos++) {
 
@@ -2355,12 +2382,11 @@ public class ColumnManager {
          final ColumnDefinition colDef = getColDef_ByCreateIndex(colIndexByPos);
          if (colDef != null) {
 
-            final int colWidthByPos = dataLayer.getColumnWidthByPosition(createdColumnIndex);
-
+            final int columnWidth = getColumnWidth_NatTable(dataLayer, createdColumnIndex);
             final String columnId = colDef.getColumnId();
 
             allOrderedColumnIds.add(columnId);
-            setColumnIdAndWidth(allColumnIdsAndWidth, columnId, colWidthByPos);
+            setColumnIdAndWidth(allColumnIdsAndWidth, columnId, columnWidth);
          }
       }
 
@@ -2481,7 +2507,7 @@ public class ColumnManager {
          System.out.println(errorMessage);
 // TODO remove SYSTEM.OUT.PRINTLN
 
-//         StatusUtil.log(new Throwable(errorMessage));
+//       StatusUtil.log(new Throwable(errorMessage));
 
          return;
       }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,13 +17,13 @@ package net.tourbook.common.weather;
 
 import net.tourbook.common.Messages;
 import net.tourbook.common.UI;
-import net.tourbook.common.color.ThemeUtil;
 
 import org.eclipse.swt.graphics.Color;
 
 public interface IWeather {
 
    public static final String   WEATHER_ID_CLEAR                = "weather-sunny";             //$NON-NLS-1$
+   public static final String   WEATHER_ID_FOG                  = "weather-fog";               //$NON-NLS-1$
    public static final String   WEATHER_ID_PART_CLOUDS          = "weather-cloudy";            //$NON-NLS-1$
    public static final String   WEATHER_ID_OVERCAST             = "weather-clouds";            //$NON-NLS-1$
    public static final String   WEATHER_ID_LIGHTNING            = "weather-lightning";         //$NON-NLS-1$
@@ -186,7 +186,7 @@ public interface IWeather {
     */
 
    /**
-    * Text for the weather
+    * Text for the weather, must be in sync with {@link #CLOUD_ICON}
     */
    public static final String[] CLOUD_TEXT                      = new String[] {
 
@@ -195,6 +195,7 @@ public interface IWeather {
          Messages.Weather_Clouds_Sunny,
          Messages.Weather_Clouds_Cloudy,
          Messages.Weather_Clouds_Clouds,
+         Messages.Weather_Clouds_Fog,
          Messages.Weather_Clouds_Drizzle,
          Messages.Weather_Clouds_ScatteredShowers,
          Messages.Weather_Clouds_Rain,
@@ -203,6 +204,25 @@ public interface IWeather {
          Messages.Weather_Clouds_SevereWeatherAlert
    };
 
+   /**
+    * Icons for the weather, must be in sync with {@link #CLOUD_TEXT}
+    */
+   public static final String[] CLOUD_ICON                      = new String[] {
+
+         UI.IMAGE_EMPTY_16,
+
+         WEATHER_ID_CLEAR,
+         WEATHER_ID_PART_CLOUDS,
+         WEATHER_ID_OVERCAST,
+         WEATHER_ID_FOG,
+         WEATHER_ID_DRIZZLE,
+         WEATHER_ID_SCATTERED_SHOWERS,
+         WEATHER_ID_RAIN,
+         WEATHER_ID_LIGHTNING,
+         WEATHER_ID_SNOW,
+         WEATHER_ID_SEVERE_WEATHER_ALERT,
+
+   };
    /**
     *
     * Texts for the weather's air quality, must be in sync with
@@ -243,9 +263,8 @@ public interface IWeather {
     */
    public static final Color[]  AIR_QUALITY_COLORS_BRIGHT_THEME = new Color[] {
 
-         // not defined
-         ThemeUtil.getDefaultForegroundColor_Combo(),
-         ThemeUtil.getDefaultBackgroundColor_Combo(),
+         // <not defined>
+         UI.SYS_COLOR_BLACK, UI.SYS_COLOR_WHITE,
 
          // 1 Good - green
          UI.SYS_COLOR_WHITE, new Color(0, 175, 0),
@@ -269,11 +288,8 @@ public interface IWeather {
     */
    public static final Color[]  AIR_QUALITY_COLORS_DARK_THEME   = new Color[] {
 
-         // not defined
-//         ThemeUtil.getDefaultForegroundColor_Combo(),
-//         ThemeUtil.getDefaultBackgroundColor_Combo(),
-         null,
-         null,
+         // <not defined>
+         UI.SYS_COLOR_WHITE, new Color(63, 68, 71),
 
          // 1 Good - green
          UI.SYS_COLOR_WHITE, new Color(0, 175, 0),
@@ -289,25 +305,6 @@ public interface IWeather {
 
          // 5 Very poor - pink
          UI.SYS_COLOR_WHITE, new Color(227, 0, 227),
-   };
-
-   /**
-    * Icons for the weather
-    */
-   public static final String[] CLOUD_ICON                      = new String[] {
-
-         UI.IMAGE_EMPTY_16,
-
-         WEATHER_ID_CLEAR,
-         WEATHER_ID_PART_CLOUDS,
-         WEATHER_ID_OVERCAST,
-         WEATHER_ID_DRIZZLE,
-         WEATHER_ID_SCATTERED_SHOWERS,
-         WEATHER_ID_RAIN,
-         WEATHER_ID_LIGHTNING,
-         WEATHER_ID_SNOW,
-         WEATHER_ID_SEVERE_WEATHER_ALERT,
-
    };
 
    /**

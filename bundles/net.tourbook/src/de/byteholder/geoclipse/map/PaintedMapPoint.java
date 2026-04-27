@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,6 @@
 package de.byteholder.geoclipse.map;
 
 import net.tourbook.common.UI;
-import net.tourbook.data.TourMarker;
 import net.tourbook.map2.view.Map2Point;
 
 import org.eclipse.swt.graphics.Rectangle;
@@ -26,25 +25,37 @@ public class PaintedMapPoint {
    private static final char NL = UI.NEW_LINE;
 
    /**
-    * Contains the {@link TourMarker}
+    * Contains the different map points
     */
    public Map2Point          mapPoint;
 
    /**
-    * Rectangle of the painted marker label
+    * Rectangle of the painted label or photo, 4k scaled
     */
    public Rectangle          labelRectangle;
 
    /**
-    * Rectangle of the painted marker location symbol
+    * Unscaled rectangle to fix UI scaling
+    */
+   public Rectangle          labelRectangle_Unscaled;
+
+   /**
+    * Rectangle of the painted location symbol
     */
    public Rectangle          symbolRectangle;
 
+   /**
+    * Unscaled rectangle to fix UI scaling
+    */
+   public Rectangle          symbolRectangle_Unscaled;
+
    public PaintedMapPoint(final Map2Point mapPoint,
-                          final Rectangle labelRectangle) {
+                          final Rectangle labelRectangle,
+                          final Rectangle labelRectangle_Unscaled) {
 
       this.mapPoint = mapPoint;
       this.labelRectangle = labelRectangle;
+      this.labelRectangle_Unscaled = labelRectangle_Unscaled;
    }
 
    @Override
@@ -52,11 +63,11 @@ public class PaintedMapPoint {
 
       return UI.EMPTY_STRING
 
-            + "PaintedMapPoint" + NL //                                      //$NON-NLS-1$
+            + "PaintedMapPoint" + NL //                           //$NON-NLS-1$
 
-            + " mapMarker  = " + mapPoint.tourMarker.getLabel() + NL //   //$NON-NLS-1$
-            + " x          = " + mapPoint.geoPointDevX + NL //            //$NON-NLS-1$
-            + " y          = " + mapPoint.geoPointDevY + NL //            //$NON-NLS-1$
+            + " mapPoint = " + mapPoint //                   //$NON-NLS-1$
+//            + " x        = " + mapPoint.geoPointDevX + NL //      //$NON-NLS-1$
+//            + " y        = " + mapPoint.geoPointDevY + NL //      //$NON-NLS-1$
 
       ;
    }

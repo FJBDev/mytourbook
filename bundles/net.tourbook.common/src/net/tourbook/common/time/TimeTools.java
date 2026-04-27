@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +58,7 @@ import org.shredzone.commons.suncalc.SunTimes;
 
 public class TimeTools {
 
+   private static final String                   YEAR_Y                = "y";                                  //$NON-NLS-1$
    private static final String                   YEAR_YY               = "yy";                                 //$NON-NLS-1$
    private static final String                   YEAR_YYY              = "yyy";                                //$NON-NLS-1$
    private static final String                   YEAR_YYYY             = "yyyy";                               //$NON-NLS-1$
@@ -80,9 +81,14 @@ public class TimeTools {
    private static final int                      SECONDS_PER_HOUR      = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
    /**
-    * Number of millisecond for one day
+    * Number of seconds for one day
     */
-   public static final int                       DAY_MILLISECONDS      = 86400_000;
+   public static final int                       DAY_SECONDS           = 86400;
+
+   /**
+    * Number of milliseconds for one day
+    */
+   public static final int                       DAY_MILLISECONDS      = DAY_SECONDS * 1000;
 
    private static final PeriodFormatter          DURATION_FORMATTER;
 
@@ -111,16 +117,17 @@ public class TimeTools {
 
 // SET_FORMATTING_OFF
 
+   public static final DateTimeFormatter   Formatter_Date_NoYear;
    public static final DateTimeFormatter   Formatter_Date_S;
    public static final DateTimeFormatter   Formatter_Date_M             = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
    public static final DateTimeFormatter   Formatter_Date_L             = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
    public static final DateTimeFormatter   Formatter_Date_F             = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
-   public static final DateTimeFormatter   Formatter_Time_S             = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
+   public static final DateTimeFormatter   Formatter_Time_S             = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
    public static final DateTimeFormatter   Formatter_Time_M             = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
    public static final DateTimeFormatter   Formatter_Time_F             = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL);
-   public static final DateTimeFormatter   Formatter_DateTime_S;
 
+   public static final DateTimeFormatter   Formatter_DateTime_S;
    public static final DateTimeFormatter   Formatter_DateTime_SM;
    public static final DateTimeFormatter   Formatter_DateTime_M         = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
    public static final DateTimeFormatter   Formatter_DateTime_MS        = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT);
@@ -128,11 +135,10 @@ public class TimeTools {
    public static final DateTimeFormatter   Formatter_DateTime_LL        = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG,   FormatStyle.LONG);
    public static final DateTimeFormatter   Formatter_DateTime_F         = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
    public static final DateTimeFormatter   Formatter_DateTime_FL        = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL,   FormatStyle.LONG);
+
    public static final DateTimeFormatter   Formatter_FileName           = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");    //$NON-NLS-1$
 
-
    public static final DateTimeFormatter   Formatter_Day                = DateTimeFormatter.ofPattern("d");                      //$NON-NLS-1$
-
    public static final DateTimeFormatter   Formatter_DayMonth           = DateTimeFormatter.ofPattern("d MMM");                  //$NON-NLS-1$
    public static final DateTimeFormatter   Formatter_DayMonthYear       = DateTimeFormatter.ofPattern("d MMM uu");               //$NON-NLS-1$
    public static final DateTimeFormatter   Formatter_Month              = DateTimeFormatter.ofPattern("MMM");                    //$NON-NLS-1$
@@ -163,7 +169,11 @@ public class TimeTools {
 
    private static final Object            TIME_ZONE_LOCK       = new Object();
 
+   public static final long               MAX_TIME_IN_EPOCH_MILLI;
+
    static {
+
+      MAX_TIME_IN_EPOCH_MILLI = TimeTools.toEpochMilli(LocalDateTime.of(9999, 12, 31, 23, 59, 59));
 
       /**
        * Force 4 year digits, for some locales e.g. german the short formatting for a year has 2
@@ -175,6 +185,12 @@ public class TimeTools {
       final Locale defaultLocale = Locale.getDefault();
 
       String shortDatePattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            FormatStyle.SHORT, //      date
+            null, //                   time
+            IsoChronology.INSTANCE,
+            defaultLocale);
+
+      String shortDatePatternNoYear = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
             FormatStyle.SHORT, //      date
             null, //                   time
             IsoChronology.INSTANCE,
@@ -204,11 +220,22 @@ public class TimeTools {
          shortDateMediumTimePattern = shortDateMediumTimePattern.replace(YEAR_YY, YEAR_YYYY);
       }
 
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_Y, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YY, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YYY, UI.EMPTY_STRING);
+      shortDatePatternNoYear = shortDatePatternNoYear.replace(YEAR_YYYY, UI.EMPTY_STRING);
+
+      // remove trailing slash /
+      if (shortDatePatternNoYear.endsWith(UI.SLASH)) {
+         shortDatePatternNoYear = shortDatePatternNoYear.subSequence(0, shortDatePatternNoYear.length() - 1).toString();
+      }
+
 // SET_FORMATTING_OFF
 
       Formatter_Date_S        = DateTimeFormatter.ofPattern(shortDatePattern,             defaultLocale);
       Formatter_DateTime_S    = DateTimeFormatter.ofPattern(shortDateTimePattern,         defaultLocale);
       Formatter_DateTime_SM   = DateTimeFormatter.ofPattern(shortDateMediumTimePattern,   defaultLocale);
+      Formatter_Date_NoYear   = DateTimeFormatter.ofPattern(shortDatePatternNoYear,       defaultLocale);
 
 // SET_FORMATTING_ON
 
@@ -686,9 +713,9 @@ public class TimeTools {
       return tzIndex;
    }
 
-   public static String getUTCISODateTime(final long date) {
+   public static String getUTCISODateTime(final long epochOfMilli) {
 
-      return Instant.ofEpochMilli(date)
+      return Instant.ofEpochMilli(epochOfMilli)
             .atZone(TimeTools.UTC)
             .format(DateTimeFormatter.ISO_DATE_TIME);
    }
@@ -709,15 +736,44 @@ public class TimeTools {
    /**
     * @param epochOfMilli
     *           The number of milliseconds from 1970-01-01T00:00:00Z
-    * @param timeZone
+    * @param timeZoneText
+    *           Can be <code>null</code> then the default timezome is used
     *
     * @return Returns a zoned date time from epochOfMilli
     */
-   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final ZoneId timeZone) {
+   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final String timeZoneText) {
+
+      ZoneId timeZoneID = getDefaultTimeZone();
+
+      if (timeZoneText != null) {
+
+         timeZoneID = ZoneId.of(timeZoneText);
+      }
 
       return ZonedDateTime.ofInstant(
             Instant.ofEpochMilli(epochOfMilli),
-            timeZone);
+            timeZoneID);
+   }
+
+   /**
+    * @param epochOfMilli
+    *           The number of milliseconds from 1970-01-01T00:00:00Z
+    * @param timeZoneID
+    *           Can be <code>null</code> then the default timezome is used
+    *
+    * @return Returns a zoned date time from epochOfMilli
+    */
+   public static ZonedDateTime getZonedDateTime(final long epochOfMilli, final ZoneId timeZoneID) {
+
+      ZoneId timeZoneChecked = timeZoneID;
+
+      if (timeZoneID == null) {
+         timeZoneChecked = getDefaultTimeZone();
+      }
+
+      return ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(epochOfMilli),
+            timeZoneChecked);
    }
 
    /**
@@ -731,6 +787,13 @@ public class TimeTools {
       return ZonedDateTime.ofInstant(
             Instant.ofEpochMilli(epochOfMilli),
             ZoneOffset.UTC);
+   }
+
+   public static boolean isTimeSliceAtNight(final ZonedDateTime sunsetTimes,
+                                            final ZonedDateTime sunriseTimes,
+                                            final long time) {
+
+      return time >= sunsetTimes.toEpochSecond() || time <= sunriseTimes.toEpochSecond();
    }
 
    /**
@@ -844,6 +907,12 @@ public class TimeTools {
       _defaultTimeZoneId = ZoneId.of(selectedTimeZoneId);
    }
 
+   public static long toEpochMilli(final LocalDate localDate) {
+
+      return localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
+
+   }
+
    /**
     * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
     * 1970-01-01T00:00:00Z.
@@ -863,10 +932,46 @@ public class TimeTools {
    }
 
    /**
-    * @param epochOfMilli
-    *           The number of milliseconds from 1970-01-01T00:00:00Z
+    * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
+    * 1970-01-01T00:00:00Z by using the default time zone
     *
-    * @return Returns a date from epochOfMilli.
+    * @param localDate
+    *
+    * @return
+    */
+   public static long toEpochMilliWithDefaultTimeZone(final LocalDate localDate) {
+
+      final LocalDateTime localDateTime = localDate.atStartOfDay();
+      final ZoneId zoneId = getDefaultTimeZone();
+      final ZoneOffset offsetForZone = zoneId.getRules().getOffset(localDateTime);
+
+      return localDateTime.toInstant(offsetForZone).toEpochMilli();
+   }
+
+   /**
+    * Converts a {@link LocalDateTime} to the number of milliseconds from the epoch of
+    * 1970-01-01T00:00:00Z by using the default time zone
+    *
+    * @param localDateTime
+    *
+    * @return
+    */
+   public static long toEpochMilliWithDefaultTimeZone(final LocalDateTime localDateTime) {
+
+      final ZoneId zoneId = getDefaultTimeZone();
+      final ZoneOffset offsetForZone = zoneId.getRules().getOffset(localDateTime);
+
+      return localDateTime.toInstant(offsetForZone).toEpochMilli();
+   }
+
+   /**
+    * @param epochOfMilli
+    *           The number of milliseconds from 1970-01-01T00:00:00Z.
+    *           <p>
+    *           When epoch days are provided, they had to be multiplied with
+    *           {@link #DAY_MILLISECONDS}
+    *
+    * @return Returns a date from epochOfMilli
     */
    public static LocalDate toLocalDate(final long epochOfMilli) {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2015, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
 import java.text.NumberFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,11 +45,13 @@ import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.TreeColumnDefinition;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.data.TourData;
-import net.tourbook.data.TourType;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.ViewContext;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tour.ActionOpenAdjustAltitudeDialog;
 import net.tourbook.tour.ActionOpenMarkerDialog;
@@ -79,13 +82,14 @@ import net.tourbook.ui.action.ActionOpenTour;
 import net.tourbook.ui.action.ActionRefreshView;
 import net.tourbook.ui.action.ActionSetElevationValuesFromSRTM;
 import net.tourbook.ui.action.ActionSetPerson;
-import net.tourbook.ui.action.ActionSetTourTypeMenu;
+import net.tourbook.ui.action.TourActionCategory;
+import net.tourbook.ui.action.TourActionManager;
 import net.tourbook.ui.views.TourInfoToolTipCellLabelProvider;
 import net.tourbook.ui.views.TourInfoToolTipStyledCellLabelProvider;
 import net.tourbook.ui.views.TreeViewerTourInfoToolTip;
+import net.tourbook.ui.views.ViewNames;
 import net.tourbook.ui.views.rawData.ActionMergeTour;
 import net.tourbook.ui.views.rawData.ActionReimportTours;
-import net.tourbook.ui.views.tourBook.TVITourBookTour;
 
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.jface.action.IMenuManager;
@@ -128,7 +132,12 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.part.ViewPart;
 
-public class CollatedToursView extends ViewPart implements ITourProvider, ITourViewer3, ITourProviderByID, ITreeViewer {
+public class CollatedToursView extends ViewPart implements
+
+      ITourProvider,
+      ITourProviderByID,
+      ITourViewer3,
+      ITreeViewer {
 
    public static final String ID = "net.tourbook.ui.views.collateTours.CollatedToursView"; //$NON-NLS-1$
 
@@ -181,6 +190,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    //
    private boolean                                    _isToolTipInCollation;
+   private boolean                                    _isToolTipInEquipment;
    private boolean                                    _isToolTipInTags;
    private boolean                                    _isToolTipInTime;
    private boolean                                    _isToolTipInTitle;
@@ -189,7 +199,9 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    private final TourDoubleClickState                 _tourDoubleClickState      = new TourDoubleClickState();
    private TreeViewerTourInfoToolTip                  _tourInfoToolTip;
    //
+   private EquipmentMenuManager                       _equipmentMenuManager;
    private TagMenuManager                             _tagMenuManager;
+   private TourTypeMenuManager                        _tourTypeMenuManager;
    private MenuManager                                _viewerMenuManager;
    private IContextMenuProvider                       _viewerContextMenuProvider = new TreeContextMenuProvider();
    //
@@ -200,9 +212,13 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    private int                                        _columnWidth_TourTypeImage;
    private int                                        _columnWidth_WeatherClouds;
    //
+   private HashMap<String, Object>                    _allTourActions_Adjust;
+   private HashMap<String, Object>                    _allTourActions_Edit;
+   private HashMap<String, Object>                    _allTourActions_Export;
+   //
    private ActionCollapseAll                          _actionCollapseAll;
    private ActionCollapseOthers                       _actionCollapseOthers;
-   private ActionComputeDistanceValuesFromGeoposition _actionComputeDistanceValuesFromGeoposition;
+   private ActionComputeDistanceValuesFromGeoposition _actionComputeDistanceValuesFromGeoPosition;
    private ActionComputeElevationGain                 _actionComputeElevationGain;
    private ActionEditQuick                            _actionEditQuick;
    private ActionExpandSelection                      _actionExpandSelection;
@@ -217,7 +233,6 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    private ActionRefreshView                          _actionRefreshView;
    private ActionReimportTours                        _actionReimport_Tours;
    private ActionSetElevationValuesFromSRTM           _actionSetElevationFromSRTM;
-   private ActionSetTourTypeMenu                      _actionSetTourType;
    private ActionSetPerson                            _actionSetOtherPerson;
 
    private CollateTourContributionItem                _contribItem_CollatedTours;
@@ -232,6 +247,35 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    private Composite _viewerContainer;
 
    private Menu      _treeContextMenu;
+
+   private class ContentProvider implements ITreeContentProvider {
+
+      @Override
+      public void dispose() {}
+
+      @Override
+      public Object[] getChildren(final Object parentElement) {
+         return ((TreeViewerItem) parentElement).getFetchedChildrenAsArray();
+      }
+
+      @Override
+      public Object[] getElements(final Object inputElement) {
+         return _rootItem.getFetchedChildrenAsArray();
+      }
+
+      @Override
+      public Object getParent(final Object element) {
+         return ((TreeViewerItem) element).getParentItem();
+      }
+
+      @Override
+      public boolean hasChildren(final Object element) {
+         return ((TreeViewerItem) element).hasChildren();
+      }
+
+      @Override
+      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
+   }
 
    private static class ItemComparer implements IElementComparer {
 
@@ -270,35 +314,6 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       public int hashCode(final Object element) {
          return 0;
       }
-   }
-
-   private class TourBookContentProvider implements ITreeContentProvider {
-
-      @Override
-      public void dispose() {}
-
-      @Override
-      public Object[] getChildren(final Object parentElement) {
-         return ((TreeViewerItem) parentElement).getFetchedChildrenAsArray();
-      }
-
-      @Override
-      public Object[] getElements(final Object inputElement) {
-         return _rootItem.getFetchedChildrenAsArray();
-      }
-
-      @Override
-      public Object getParent(final Object element) {
-         return ((TreeViewerItem) element).getParentItem();
-      }
-
-      @Override
-      public boolean hasChildren(final Object element) {
-         return ((TreeViewerItem) element).hasChildren();
-      }
-
-      @Override
-      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {}
    }
 
    public class TreeContextMenuProvider implements IContextMenuProvider {
@@ -415,6 +430,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
             reloadViewer();
 
          } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED
+               || eventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED
                || eventId == TourEventId.ALL_TOURS_ARE_MODIFIED) {
 
             reloadViewer();
@@ -434,33 +450,75 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    private void createActions() {
 
-      _actionCollapseAll = new ActionCollapseAll(this);
-      _actionCollapseOthers = new ActionCollapseOthers(this);
-      _contribItem_CollatedTours = new CollateTourContributionItem(this);
-      _actionComputeDistanceValuesFromGeoposition = new ActionComputeDistanceValuesFromGeoposition(this);
-      _actionComputeElevationGain = new ActionComputeElevationGain(this);
-      _actionEditQuick = new ActionEditQuick(this);
-      _actionEditTour = new ActionEditTour(this);
-      _actionExpandSelection = new ActionExpandSelection(this);
-      _actionExportTour = new ActionExport(this);
-      _actionJoinTours = new ActionJoinTours(this);
-      _actionOpenMarkerDialog = new ActionOpenMarkerDialog(this, true);
-      _actionOpenAdjustAltitudeDialog = new ActionOpenAdjustAltitudeDialog(this);
-      _actionMergeTour = new ActionMergeTour(this);
-      _actionOpenTour = new ActionOpenTour(this);
-      _actionPrintTour = new ActionPrint(this);
-      _actionRefreshView = new ActionRefreshView(this);
-      _actionReimport_Tours = new ActionReimportTours(this);
-      _actionSetElevationFromSRTM = new ActionSetElevationValuesFromSRTM(this);
-      _actionSetOtherPerson = new ActionSetPerson(this);
-      _actionSetTourType = new ActionSetTourTypeMenu(this);
+// SET_FORMATTING_OFF
+
+      _actionCollapseAll                           = new ActionCollapseAll(this);
+      _actionCollapseOthers                        = new ActionCollapseOthers(this);
+      _contribItem_CollatedTours                   = new CollateTourContributionItem(this);
+      _actionComputeDistanceValuesFromGeoPosition  = new ActionComputeDistanceValuesFromGeoposition(this);
+      _actionComputeElevationGain                  = new ActionComputeElevationGain(this);
+      _actionEditQuick                             = new ActionEditQuick(this);
+      _actionEditTour                              = new ActionEditTour(this);
+      _actionExpandSelection                       = new ActionExpandSelection(this);
+      _actionExportTour                            = new ActionExport(this);
+      _actionJoinTours                             = new ActionJoinTours(this);
+      _actionOpenMarkerDialog                      = new ActionOpenMarkerDialog(this, true);
+      _actionOpenAdjustAltitudeDialog              = new ActionOpenAdjustAltitudeDialog(this);
+      _actionMergeTour                             = new ActionMergeTour(this);
+      _actionOpenTour                              = new ActionOpenTour(this);
+      _actionPrintTour                             = new ActionPrint(this);
+      _actionRefreshView                           = new ActionRefreshView(this);
+      _actionReimport_Tours                        = new ActionReimportTours(this);
+      _actionSetElevationFromSRTM                  = new ActionSetElevationValuesFromSRTM(this);
+      _actionSetOtherPerson                        = new ActionSetPerson(this);
+
+      _allTourActions_Adjust  = new HashMap<>();
+      _allTourActions_Edit    = new HashMap<>();
+      _allTourActions_Export  = new HashMap<>();
+
+      _allTourActions_Edit.put(_actionEditQuick                   .getClass().getName(),  _actionEditQuick);
+      _allTourActions_Edit.put(_actionEditTour                    .getClass().getName(),  _actionEditTour);
+      _allTourActions_Edit.put(_actionOpenMarkerDialog            .getClass().getName(),  _actionOpenMarkerDialog);
+      _allTourActions_Edit.put(_actionOpenAdjustAltitudeDialog    .getClass().getName(),  _actionOpenAdjustAltitudeDialog);
+//    _allTourActions_Edit.put(_actionSetStartEndLocation         .getClass().getName(),  _actionSetStartEndLocation);
+      _allTourActions_Edit.put(_actionOpenTour                    .getClass().getName(),  _actionOpenTour);
+//    _allTourActions_Edit.put(_actionDuplicateTour               .getClass().getName(),  _actionDuplicateTour);
+//    _allTourActions_Edit.put(_actionCreateTourMarkers           .getClass().getName(),  _actionCreateTourMarkers);
+      _allTourActions_Edit.put(_actionMergeTour                   .getClass().getName(),  _actionMergeTour);
+      _allTourActions_Edit.put(_actionJoinTours                   .getClass().getName(),  _actionJoinTours);
+
+//    _allTourActions_Export.put(_actionUploadTour                .getClass().getName(),  _actionUploadTour);
+      _allTourActions_Export.put(_actionExportTour                .getClass().getName(),  _actionExportTour);
+//    _allTourActions_Export.put(_actionExportViewCSV             .getClass().getName(),  _actionExportViewCSV);
+      _allTourActions_Export.put(_actionPrintTour                 .getClass().getName(),  _actionPrintTour);
+
+//    _allTourActions_Adjust.put(_actionAdjustTourValues          .getClass().getName(),  _actionAdjustTourValues);
+//    _allTourActions_Adjust.put(_actionDeleteTourValues          .getClass().getName(),  _actionDeleteTourValues);
+      _allTourActions_Adjust.put(_actionReimport_Tours            .getClass().getName(),  _actionReimport_Tours);
+      _allTourActions_Adjust.put(_actionSetOtherPerson            .getClass().getName(),  _actionSetOtherPerson);
+//    _allTourActions_Adjust.put(_actionDeleteTourMenu            .getClass().getName(),  _actionDeleteTourMenu);
+
+      TourActionManager.setAllViewActions(ID,
+
+            _allTourActions_Edit.keySet(),
+            _allTourActions_Export.keySet(),
+            _allTourActions_Adjust.keySet(),
+
+            _tourTypeMenuManager    .getAllTourTypeActions()   .keySet(),
+            _tagMenuManager         .getAllTagActions()        .keySet(),
+            _equipmentMenuManager   .getAllEquipmentActions()  .keySet()
+      );
+
+// SET_FORMATTING_ON
 
       fillActionBars();
    }
 
    private void createMenuManager() {
 
+      _equipmentMenuManager = new EquipmentMenuManager(this, true, true);
       _tagMenuManager = new TagMenuManager(this, true);
+      _tourTypeMenuManager = new TourTypeMenuManager(this);
 
       _viewerMenuManager = new MenuManager("#PopupMenu"); //$NON-NLS-1$
       _viewerMenuManager.setRemoveAllWhenShown(true);
@@ -534,7 +592,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       _tourViewer = new TreeViewer(tree);
       _columnManager.createColumns(_tourViewer);
 
-      _tourViewer.setContentProvider(new TourBookContentProvider());
+      _tourViewer.setContentProvider(new ContentProvider());
       _tourViewer.setComparer(new ItemComparer());
       _tourViewer.setUseHashlookup(true);
 
@@ -681,6 +739,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       defineColumn_Tour_Photos();
       defineColumn_Tour_Title();
       defineColumn_Tour_Tags();
+      defineColumn_Tour_Equipment();
 
       defineColumn_Motion_Distance();
       defineColumn_Motion_MaxSpeed();
@@ -1487,6 +1546,42 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    }
 
    /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager, _pc);
+      colDef.setLabelProvider(new TourInfoToolTipCellLabelProvider() {
+
+         @Override
+         public Long getTourId(final ViewerCell cell) {
+
+            if (_isToolTipInEquipment == false) {
+               return null;
+            }
+
+            return getCellTourId(cell);
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            if (element instanceof final TVICollatedTour_Tour tourItem) {
+
+               cell.setText(EquipmentManager.getEquipmentNames(tourItem.getEquipmentIds()));
+               setCellColor(cell, element);
+
+            } else if (element instanceof final TVICollatedTour_Event eventItem) {
+
+               cell.setText(EquipmentManager.getEquipmentNames(eventItem.getEquipmentIds()));
+            }
+         }
+      });
+   }
+
+   /**
     * column: markers
     */
    private void defineColumn_Tour_Marker() {
@@ -1677,7 +1772,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
             final Object element = cell.getElement();
             final float value = UI.convertTemperatureFromMetric(((TVICollatedTour) element).colAvgTemperature_Device);
 
-            colDef.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+            colDef.printDoubleValue(cell, value, element instanceof TVICollatedTour_Tour);
 
             setCellColor(cell, element);
          }
@@ -1752,15 +1847,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       final ITreeSelection selection = (ITreeSelection) _tourViewer.getSelection();
 
       /*
-       * count number of selected items
+       * Count number of selected items
        */
-      int tourItems = 0;
+      int numTourItems = 0;
 
-      TVICollatedTour firstTour = null;
+      TVICollatedTour firstTourItem = null;
 
       for (final Object treeItem : selection) {
 
-         if (treeItem instanceof final TVICollatedTour tviCollatedTour) {
+         if (treeItem instanceof final TVICollatedTour collatedTourItem) {
 
             boolean isDummyTour = false;
 
@@ -1772,67 +1867,77 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
                }
             }
 
-            if (firstTour == null && !isDummyTour) {
-               firstTour = tviCollatedTour;
+            if (isDummyTour == false) {
+
+               numTourItems++;
+
+               if (firstTourItem == null) {
+                  firstTourItem = collatedTourItem;
+               }
             }
-            tourItems++;
          }
       }
 
       final int selectedItems = selection.size();
-      final boolean isTourSelected = tourItems > 0;
-      final boolean isOneTour = tourItems == 1;
+      final boolean isTourSelected = numTourItems > 0;
+      final boolean isOneTour = numTourItems == 1;
       boolean isDeviceTour = false;
-
-      final ArrayList<TourType> tourTypes = TourDatabase.getAllTourTypes();
 
       final TVICollatedTour firstElement = (TVICollatedTour) selection.getFirstElement();
       final boolean firstElementHasChildren = firstElement == null ? false : firstElement.hasChildren();
       TourData firstSavedTour = null;
 
-      if (isOneTour && firstTour != null) {
-         firstSavedTour = TourManager.getInstance().getTourData(firstTour.getTourId());
+      if (isOneTour && firstTourItem != null) {
+         firstSavedTour = TourManager.getInstance().getTourData(firstTourItem.getTourId());
          isDeviceTour = firstSavedTour.isManualTour() == false;
       }
 
       /*
-       * enable actions
+       * Enable actions
        */
-      _tourDoubleClickState.canEditTour = isOneTour;
-      _tourDoubleClickState.canOpenTour = isOneTour;
-      _tourDoubleClickState.canQuickEditTour = isOneTour;
-      _tourDoubleClickState.canEditMarker = isOneTour;
-      _tourDoubleClickState.canAdjustAltitude = isOneTour;
+// SET_FORMATTING_OFF
 
-      _actionComputeDistanceValuesFromGeoposition.setEnabled(isTourSelected);
-      _actionComputeElevationGain.setEnabled(true);
-      _actionEditQuick.setEnabled(isOneTour);
-      _actionEditTour.setEnabled(isOneTour);
-      _actionExportTour.setEnabled(isTourSelected);
-      _actionJoinTours.setEnabled(tourItems > 1);
-      _actionMergeTour.setEnabled(isOneTour && isDeviceTour && firstSavedTour.getMergeSourceTourId() != null);
-      _actionOpenAdjustAltitudeDialog.setEnabled(isOneTour && isDeviceTour);
-      _actionOpenMarkerDialog.setEnabled(isOneTour && isDeviceTour);
-      _actionOpenTour.setEnabled(isOneTour);
-      _actionPrintTour.setEnabled(isTourSelected);
-      _actionReimport_Tours.setEnabled(isTourSelected);
-      _actionSetElevationFromSRTM.setEnabled(isTourSelected);
-      _actionSetOtherPerson.setEnabled(isTourSelected);
-      _actionSetTourType.setEnabled(isTourSelected && tourTypes.size() > 0);
+      _tourDoubleClickState.canEditTour            = isOneTour;
+      _tourDoubleClickState.canOpenTour            = isOneTour;
+      _tourDoubleClickState.canQuickEditTour       = isOneTour;
+      _tourDoubleClickState.canEditMarker          = isOneTour;
+      _tourDoubleClickState.canAdjustAltitude      = isOneTour;
+
+      _actionComputeDistanceValuesFromGeoPosition  .setEnabled(isTourSelected);
+      _actionComputeElevationGain                  .setEnabled(isTourSelected);
+      _actionEditQuick                             .setEnabled(isOneTour);
+      _actionEditTour                              .setEnabled(isOneTour);
+      _actionExportTour                            .setEnabled(isTourSelected);
+      _actionJoinTours                             .setEnabled(numTourItems > 1);
+      _actionMergeTour                             .setEnabled(isOneTour && isDeviceTour && firstSavedTour.getMergeSourceTourId() != null);
+      _actionOpenAdjustAltitudeDialog              .setEnabled(isOneTour && isDeviceTour);
+      _actionOpenMarkerDialog                      .setEnabled(isOneTour && isDeviceTour);
+      _actionOpenTour                              .setEnabled(isOneTour);
+      _actionPrintTour                             .setEnabled(isTourSelected);
+      _actionReimport_Tours                        .setEnabled(isTourSelected);
+      _actionSetElevationFromSRTM                  .setEnabled(isTourSelected);
+      _actionSetOtherPerson                        .setEnabled(isTourSelected);
+
+// SET_FORMATTING_ON
 
       _actionCollapseOthers.setEnabled(selectedItems == 1 && firstElementHasChildren);
       _actionExpandSelection.setEnabled(
-            firstElement == null //
+            firstElement == null
                   ? false
-                  : selectedItems == 1 //
+                  : selectedItems == 1
                         ? firstElementHasChildren
                         : true);
 
-      _tagMenuManager.enableTagActions(isTourSelected, isOneTour, firstTour == null ? null : firstTour.getTagIds());
+      _tagMenuManager.enableTagActions(
+            isTourSelected,
+            isOneTour,
+            firstTourItem == null
+                  ? null
+                  : firstTourItem.getTagIds());
 
-//      TourTypeMenuManager.enableRecentTourTypeActions(isTourSelected, isOneTour
-//            ? firstTour.getTourTypeId()
-//            : TourDatabase.ENTITY_IS_NOT_SAVED);
+      _tourTypeMenuManager.enableTourTypeActions(isTourSelected, TourDatabase.ENTITY_IS_NOT_SAVED);
+
+      _equipmentMenuManager.enableActions(getSelectedToursAsList());
    }
 
    private void fillActionBars() {
@@ -1861,38 +1966,39 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    private void fillContextMenu(final IMenuManager menuMgr) {
 
-      menuMgr.add(_actionEditQuick);
-      menuMgr.add(_actionEditTour);
-      menuMgr.add(_actionOpenMarkerDialog);
-      menuMgr.add(_actionOpenAdjustAltitudeDialog);
-      menuMgr.add(_actionOpenTour);
-      menuMgr.add(_actionMergeTour);
-      menuMgr.add(_actionJoinTours);
+      // edit actions
+      TourActionManager.fillContextMenu(menuMgr, TourActionCategory.EDIT, _allTourActions_Edit, this);
+
+      // tour type actions
+      _tourTypeMenuManager.fillContextMenu_WithActiveActions(menuMgr, this);
+
+      // tag actions
+      _tagMenuManager.fillTagMenu_WithActiveActions(menuMgr, this);
+
+      // equipment actions
+      _equipmentMenuManager.fillEquipmentMenu_WithActiveActions(menuMgr, this);
 
       menuMgr.add(new Separator());
       menuMgr.add(_actionComputeElevationGain);
-      menuMgr.add(_actionComputeDistanceValuesFromGeoposition);
+      menuMgr.add(_actionComputeDistanceValuesFromGeoPosition);
       menuMgr.add(_actionSetElevationFromSRTM);
-
-      _tagMenuManager.fillTagMenu(menuMgr, true);
-
-      // tour type actions
-      menuMgr.add(new Separator());
-      menuMgr.add(_actionSetTourType);
-      TourTypeMenuManager.fillMenuWithRecentTourTypes(menuMgr, this, true);
 
       menuMgr.add(new Separator());
       menuMgr.add(_actionCollapseOthers);
       menuMgr.add(_actionExpandSelection);
       menuMgr.add(_actionCollapseAll);
 
-      menuMgr.add(new Separator());
-      menuMgr.add(_actionExportTour);
-      menuMgr.add(_actionReimport_Tours);
-      menuMgr.add(_actionPrintTour);
+      // export actions
+      TourActionManager.fillContextMenu(menuMgr, TourActionCategory.EXPORT, _allTourActions_Export, this);
 
-      menuMgr.add(new Separator());
-      menuMgr.add(_actionSetOtherPerson);
+      // adjust actions
+      TourActionManager.fillContextMenu(menuMgr, TourActionCategory.ADJUST, _allTourActions_Adjust, this);
+
+      // customize this context menu
+      TourActionManager.fillContextMenu_CustomizeAction(menuMgr)
+
+            // set pref page custom data that actions from this view can be identified
+            .setPrefData(new ViewContext(ID, ViewNames.VIEW_NAME_TAGGED_TOURS));
 
       enableActions();
    }
@@ -1902,8 +2008,11 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       final Object element = cell.getElement();
 
       if (element instanceof final TVICollatedTour_Tour tviCollatedTour_Tour) {
+
          return tviCollatedTour_Tour.getTourId();
+
       } else if (element instanceof final TVICollatedTour_Event tviCollatedTour_Event) {
+
          return tviCollatedTour_Event.getTourId();
       }
 
@@ -1931,9 +2040,10 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       return _postSelectionProvider;
    }
 
-   private void getSelectedTourData(final ArrayList<TourData> selectedTourData, final Set<Long> tourIdSet) {
-      for (final Long tourId : tourIdSet) {
-         selectedTourData.add(TourManager.getInstance().getTourData(tourId));
+   private void getSelectedTourData(final List<Object> allSelectedTourData, final Set<Long> allTourIDs) {
+
+      for (final Long tourId : allTourIDs) {
+         allSelectedTourData.add(TourManager.getInstance().getTourData(tourId));
       }
    }
 
@@ -1946,8 +2056,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
       for (final Object viewItem : selectedTours) {
 
-         if (viewItem instanceof final TVICollatedTour tviCollatedTour) {
-            tourIds.add(tviCollatedTour.getTourId());
+         if (viewItem instanceof final TVICollatedTour_Event tviCollatedTour) {
+
+            final Long tourId = tviCollatedTour.getTourId();
+
+            // the last "tour" is not a real tour -> prevent that a wrong tour id is returned
+            if (tviCollatedTour.isLastEvent == false) {
+
+               tourIds.add(tourId);
+            }
          }
       }
 
@@ -1957,6 +2074,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
    @Override
    public ArrayList<TourData> getSelectedTours() {
 
+      // casting is very tricky
+      @SuppressWarnings("unchecked")
+      final ArrayList<TourData> allSelectedTourData = (ArrayList<TourData>) (List<?>) getSelectedToursAsList();
+
+      return allSelectedTourData;
+   }
+
+   public List<Object> getSelectedToursAsList() {
+
       // get selected tour id's
 
       final Set<Long> tourIds = getSelectedTourIDs();
@@ -1964,7 +2090,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
       /*
        * show busy indicator when multiple tours needs to be retrieved from the database
        */
-      final ArrayList<TourData> selectedTourData = new ArrayList<>();
+      final List<Object> selectedTourData = new ArrayList<>();
 
       if (tourIds.size() > 1) {
          BusyIndicator.showWhile(Display.getCurrent(), () -> getSelectedTourData(selectedTourData, tourIds));
@@ -2034,9 +2160,13 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
          if (image != null) {
 
-            final int alignment = _colDef_TourTypeImage.getColumnStyle();
+            UI.paintImage(
 
-            UI.paintImage(event, image, _columnWidth_TourTypeImage, alignment);
+                  event,
+                  image,
+                  _columnWidth_TourTypeImage,
+                  _colDef_TourTypeImage.getColumnStyle(), // horizontal alignment
+                  TourTypeImage.getHorizontalOffset());
          }
       }
    }
@@ -2066,7 +2196,7 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
                final int alignment = _colDef_WeatherClouds.getColumnStyle();
 
-               UI.paintImage(event, image, _columnWidth_WeatherClouds, alignment);
+               UI.paintImage(event, image, _columnWidth_WeatherClouds, alignment, 0);
             }
          }
       }
@@ -2233,10 +2363,15 @@ public class CollatedToursView extends ViewPart implements ITourProvider, ITourV
 
    private void updateToolTipState() {
 
-      _isToolTipInCollation = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION);
-      _isToolTipInTime = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME);
-      _isToolTipInWeekDay = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY);
-      _isToolTipInTitle = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE);
-      _isToolTipInTags = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS);
+// SET_FORMATTING_OFF
+
+      _isToolTipInCollation   = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION);
+      _isToolTipInEquipment   = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_EQUIPMENT);
+      _isToolTipInTags        = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS);
+      _isToolTipInTime        = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME);
+      _isToolTipInTitle       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE);
+      _isToolTipInWeekDay     = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY);
+
+// SET_FORMATTING_ON
    }
 }

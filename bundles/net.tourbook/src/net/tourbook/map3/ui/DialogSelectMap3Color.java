@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,9 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.map3.ui;
-
-import static org.eclipse.swt.events.ControlListener.controlResizedAdapter;
-import static org.eclipse.swt.events.MouseTrackListener.mouseExitAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +65,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -222,7 +221,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
    private void addListener(final ToolBar toolBar) {
 
       // prevent to open the tooltip
-      toolBar.addMouseTrackListener(mouseExitAdapter(mouseEvent -> _canOpenToolTip = false));
+      toolBar.addMouseTrackListener(MouseTrackListener.mouseExitAdapter(mouseEvent -> _canOpenToolTip = false));
 
 //		ownerControl.addDisposeListener(new DisposeListener() {
 //			@Override
@@ -271,7 +270,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
             actionAddColor();
          }
       };
-      _actionAddColor.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Add));
+      _actionAddColor.setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Add));
       _actionAddColor.setToolTipText(Messages.Map3SelectColor_Dialog_Action_AddColor_Tooltip);
 
       /*
@@ -454,7 +453,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
          }
       });
 
-      _colorViewer.addCheckStateListener(this::onViewerCheckStateChange);
+      _colorViewer.addCheckStateListener(event -> onViewerCheckStateChange(event));
 
       _colorViewer.addSelectionChangedListener(selectionChangedEvent -> onViewerSelectColor());
 
@@ -584,7 +583,7 @@ public class DialogSelectMap3Color extends AnimatedToolTipShell implements IMap3
       _tableColumn_ProfileImage = tc;
       _columnIndexProfileImage = _colorViewer.getTable().getColumnCount() - 1;
 
-      tc.addControlListener(controlResizedAdapter(controlEvent -> onResizeImageColumn()));
+      tc.addControlListener(ControlListener.controlResizedAdapter(controlEvent -> onResizeImageColumn()));
 
       tvc.setLabelProvider(new CellLabelProvider() {
 

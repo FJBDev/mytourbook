@@ -362,7 +362,8 @@ public class TourChartView extends ViewPart implements
                   clearView();
                }
 
-            } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED) {
+            } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED
+                  || eventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED) {
 
                /*
                 * A tag was saved, when this view was hidden and then unhidden, it can cause an
@@ -505,9 +506,9 @@ public class TourChartView extends ViewPart implements
 
       _tourChartConfig.canUseGeoCompareTool = true;
 
-      _tourChart.addHoveredValueListener(this::chartListener_HoveredValue);
-      _tourChart.addSliderMoveListener(this::chartListener_SliderMoved);
-      _tourChart.addTourModifyListener(this::chartListener_TourIsModified);
+      _tourChart.addHoveredValueListener(hoveredValuePointIndex -> chartListener_HoveredValue(hoveredValuePointIndex));
+      _tourChart.addSliderMoveListener(chartInfo -> chartListener_SliderMoved(chartInfo));
+      _tourChart.addTourModifyListener(tourData -> chartListener_TourIsModified(tourData));
    }
 
    @Override
@@ -722,7 +723,6 @@ public class TourChartView extends ViewPart implements
 
       final SelectionChartXSliderPosition xSliderPosition = new SelectionChartXSliderPosition(
             _tourChart,
-            SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION,
             mapSelection.getValueIndex1(),
             mapSelection.getValueIndex2());
 
@@ -787,7 +787,6 @@ public class TourChartView extends ViewPart implements
 
             final SelectionChartXSliderPosition xSliderPosition = new SelectionChartXSliderPosition(
                   _tourChart,
-                  SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION,
                   leftSliderValueIndex,
                   rightSliderValueIndex);
 

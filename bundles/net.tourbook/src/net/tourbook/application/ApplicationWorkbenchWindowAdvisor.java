@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,7 @@
  *******************************************************************************/
 package net.tourbook.application;
 
+import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.ProxySelector;
@@ -32,16 +33,15 @@ import net.tourbook.common.formatter.FormatManager;
 import net.tourbook.common.measurement_system.DialogSelectMeasurementSystem;
 import net.tourbook.common.measurement_system.MeasurementSystem_Manager;
 import net.tourbook.common.preferences.ICommonPreferences;
-import net.tourbook.common.swimming.SwimStrokeManager;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.data.TourPerson;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.map.bookmark.MapBookmarkManager;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
+import net.tourbook.equipment.tour.filter.TourEquipmentFilterManager;
 import net.tourbook.map.player.ModelPlayerManager;
-import net.tourbook.map3.view.Map3Manager;
-import net.tourbook.map3.view.Map3State;
 import net.tourbook.photo.PhotoUI;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPagePeople;
@@ -55,20 +55,22 @@ import net.tourbook.tour.TourTypeFilterManager;
 import net.tourbook.tour.TourTypeMenuManager;
 import net.tourbook.tour.filter.TourFilterManager;
 import net.tourbook.tour.filter.geo.TourGeoFilter_Manager;
-import net.tourbook.tour.location.CommonLocationManager;
 import net.tourbook.tour.location.TourLocationManager;
 import net.tourbook.tour.photo.TourPhotoManager;
+import net.tourbook.tourMarker.TourMarkerTypeManager;
 import net.tourbook.tourType.TourTypeImage;
 import net.tourbook.tourType.TourTypeManager;
+import net.tourbook.ui.action.TourActionManager;
 import net.tourbook.ui.views.rawData.RawDataView;
 import net.tourbook.ui.views.referenceTour.ElevationCompareManager;
-import net.tourbook.web.WebContentServer;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.P2_Activator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Point;
@@ -102,21 +104,23 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 @SuppressWarnings("restriction")
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
-   private static IPreferenceStore           _prefStore        = TourbookPlugin.getPrefStore();
-   private static IPreferenceStore           _prefStore_Common = CommonActivator.getPrefStore();
+   private static IPreferenceStore            _prefStore        = TourbookPlugin.getPrefStore();
+   private static IPreferenceStore            _prefStore_Common = CommonActivator.getPrefStore();
 
-   private ApplicationActionBarAdvisor       _applicationActionBarAdvisor;
-   private IPerspectiveDescriptor            _lastPerspective;
+   private static ApplicationActionBarAdvisor _applicationActionBarAdvisor;
 
-   private IWorkbenchPage                    _lastActivePage;
-   private IWorkbenchPart                    _lastActivePart;
-   private String                            _lastPartTitle    = UI.EMPTY_STRING;
+   private IPerspectiveDescriptor             _lastPerspective;
 
-   private String                            _appTitle;
+   private IWorkbenchPage                     _lastActivePage;
+   private IWorkbenchPart                     _lastActivePart;
+   private String                             _lastPartTitle    = UI.EMPTY_STRING;
 
-   private final ApplicationWorkbenchAdvisor _wbAdvisor;
+   private String                             _appTitle;
+   private String                             _appTitle_Extended;
 
-   private IPropertyListener                 _partPropertyListener;
+   private final ApplicationWorkbenchAdvisor  _wbAdvisor;
+
+   private IPropertyListener                  _partPropertyListener;
 
    ApplicationWorkbenchWindowAdvisor(final ApplicationWorkbenchAdvisor wbAdvisor,
                                      final IWorkbenchWindowConfigurer configurer) {
@@ -127,6 +131,14 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       _appTitle = Messages.App_Title + UI.DASH_WITH_SPACE
             + ApplicationVersion.getVersionSimple()
             + ApplicationVersion.getDevelopmentId();
+
+      _appTitle_Extended = Messages.App_Title + UI.DASH_WITH_SPACE
+            + ApplicationVersion.getVersionFull()
+            + ApplicationVersion.getDevelopmentId();
+   }
+
+   public static ApplicationActionBarAdvisor getApplicationActionBarAdvisor() {
+      return _applicationActionBarAdvisor;
    }
 
    public static void setupProxy() {
@@ -172,7 +184,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 //			title = UI.EMPTY_STRING;
 //		}
 
-      String title = _appTitle;
+      final boolean isShowExtendedAppVersion = _prefStore_Common.getBoolean(ICommonPreferences.APPEARANCE_IS_SHOW_EXTENDED_VERSION_IN_APP_TITLE);
+
+      String title = isShowExtendedAppVersion ? _appTitle_Extended : _appTitle;
 
       if (currentPage != null) {
 
@@ -435,7 +449,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
       // do last cleanup, this dispose causes NPE in e4 when run in dispose() method
 
+      EquipmentManager.disposeAllEquipmentImages();
       TagManager.disposeTagImages();
+      TourMarkerTypeManager.dispose();
       TourTypeImage.dispose();
    }
 
@@ -459,10 +475,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       TourTypeFilterManager.restoreState();
 
       ElevationCompareManager.restoreState();
+      TourEquipmentFilterManager.restoreState();
       TourFilterManager.restoreState();
       TourGeoFilter_Manager.restoreState();
       TourTagFilterManager.restoreState();
       TourLocationManager.restoreState();
+      TourActionManager.restoreState();
    }
 
    @Override
@@ -470,6 +488,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
       Display.getDefault().asyncExec(() -> {
 
+         EquipmentMenuManager.restoreState();
          TagMenuManager.restoreTagState();
          TourTypeMenuManager.restoreState();
 
@@ -478,6 +497,73 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
          setupProxy();
       });
+   }
+
+   private IPreferenceNode prefPages_GetRoot(final PreferenceManager pm) {
+
+      try {
+
+         final Method method = PreferenceManager.class.getDeclaredMethod("getRoot", (Class[]) null); //$NON-NLS-1$
+
+         method.setAccessible(true);
+
+         return (IPreferenceNode) method.invoke(pm);
+
+      } catch (final Exception e) {
+
+         StatusUtil.log("Could not get the root node for the preferences, and will not be able to prune unwanted prefs pages", e); //$NON-NLS-1$
+      }
+
+      return null;
+   }
+
+   @SuppressWarnings("unused")
+   private void prefPages_LogPrefsNode(final IPreferenceNode prefNode, final int level) {
+
+      final StringBuilder sbIndent = new StringBuilder();
+      for (int i = 0; i < level; i++) {
+         sbIndent.append(UI.SPACE3);
+      }
+
+      System.out.println(UI.timeStamp() + " %-70s  %s%s ".formatted( //$NON-NLS-1$
+
+            prefNode.getId(),
+            sbIndent.toString(),
+            prefNode.getLabelText()
+
+      ));
+   }
+
+   private void prefPages_Remove(final IPreferenceNode root, final String id, final int level) {
+
+      for (final IPreferenceNode node : root.getSubNodes()) {
+
+// log pref page names
+//
+//       prefPages_LogPrefsNode(node, level);
+
+         if (node.getId().equals(id)) {
+
+            root.remove(node);
+
+            StatusUtil.logInfo("Removed preference page '%s' (ID:%s)".formatted(node.getLabelText(), node.getId())); //$NON-NLS-1$
+
+         } else {
+
+            prefPages_Remove(node, id, level + 1);
+         }
+      }
+   }
+
+   /**
+    * Source: https://hirt.se/blog/?p=171
+    */
+   private void prefPages_RemoveUnwantedPreferencesPages() {
+
+      final PreferenceManager pm = PlatformUI.getWorkbench().getPreferenceManager();
+      final IPreferenceNode root = prefPages_GetRoot(pm);
+
+      prefPages_Remove(root, "org.eclipse.equinox.security.ui.category", 0); //$NON-NLS-1$
    }
 
    @Override
@@ -495,6 +581,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 //		configurer.setShowStatusLine(false);
 
       configurer.setTitle(_appTitle);
+
+      prefPages_RemoveUnwantedPreferencesPages();
 
       final IPreferenceStore uiPrefStore = PlatformUI.getPreferenceStore();
 
@@ -531,44 +619,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
       PhotoUI.setupThemedImages();
    }
 
-   @Override
-   public boolean preWindowShellClose() {
-
-      MeasurementSystem_Manager.saveState();
-      _applicationActionBarAdvisor.getPersonSelector().saveState();
-
-      TagMenuManager.saveTagState();
-      TourTagFilterManager.saveState();
-
-      TourTypeFilterManager.saveState();
-      TourTypeMenuManager.saveState();
-      TourTypeManager.saveState();
-
-      CommonLocationManager.saveState();
-      ElevationCompareManager.saveState();
-      TourFilterManager.saveState();
-      TourGeoFilter_Manager.saveState();
-      TourPhotoManager.saveState();
-      MapBookmarkManager.saveState();
-      ModelPlayerManager.saveState();
-      SwimStrokeManager.saveState();
-      TourLocationManager.saveState();
-
-      FTSearchManager.closeIndexReaderSuggester();
-      WebContentServer.stop();
-
-      /**
-       * Save map3 state only when map is initialized (displayed). When this state is not checked
-       * and map is not yet initialized, the map will be initialized which produces an annoying
-       * delay when the application is being closing.
-       */
-      if (Map3State.isMapInitialized) {
-         Map3Manager.saveState();
-      }
-
-      return super.preWindowShellClose();
-   }
-
    private void recomputeTitle() {
 
       final IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
@@ -603,7 +653,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
             .getActiveWorkbenchWindow()
             .getSelectionService();
 
-      selectionService.addPostSelectionListener(this::onPostSelectionChanged);
+      selectionService.addPostSelectionListener((part, selection) -> onPostSelectionChanged(part, selection));
    }
 
    /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2023 Matthias Helmling and Contributors
+ * Copyright (C) 2011, 2026 Matthias Helmling and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -799,11 +799,11 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
          }
       });
 
-      addMouseMoveListener(this::onMouse_Move);
+      addMouseMoveListener(event -> onMouse_Move(event));
 
       addMouseTrackListener(MouseTrackListener.mouseExitAdapter(mouseEvent -> onMouse_Exit()));
 
-      addListener(SWT.MouseVerticalWheel, this::onMouse_Wheel);
+      addListener(SWT.MouseVerticalWheel, event -> onMouse_Wheel(event));
 
       _parent.getVerticalBar().addSelectionListener(widgetSelectedAdapter(selectionEvent -> scrollBar_onScroll()));
    }
@@ -1354,14 +1354,12 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
                final Rectangle weekRec = new Rectangle(devX, rowTop, summaryColumnWidth, weekHeight);
 
-               final CalendarTourData weekSummary = _dataProvider.getCalendarWeekSummaryData(
-                     week1stDay);
+               final CalendarTourData weekSummary = _dataProvider.getCalendarWeekSummaryData(week1stDay);
 
                if (weekSummary.loadingState == LoadingState.IS_LOADED && weekSummary.numTours > 0) {
                   drawWeek_Summary(gc, weekSummary, weekRec);
                }
             }
-
          }
       }
 
@@ -1386,7 +1384,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
          // graph is dirty again, this can occur when data are loaded -> reschedule a new update
 
-         getDisplay().timerExec(5, this::redraw);
+         getDisplay().timerExec(5, () -> redraw());
       }
    }
 
@@ -1491,6 +1489,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
     * Tour background
     *
     * @param data
+    *
     * @return Background RGB or <code>null</code> when background is not painted
     */
    private void drawDay_TourBackground(final GC gc,

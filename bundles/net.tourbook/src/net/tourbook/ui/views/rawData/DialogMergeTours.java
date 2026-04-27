@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -32,12 +32,13 @@ import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.PrefPageTourType_Definitions;
 import net.tourbook.tour.TourEvent;
 import net.tourbook.tour.TourEventId;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider2;
 import net.tourbook.ui.action.ActionSetTourTypeMenu;
-import net.tourbook.ui.tourChart.ChartLayer2ndAltiSerie;
+import net.tourbook.ui.tourChart.ChartLayerAdditionalValueSeries;
 import net.tourbook.ui.tourChart.I2ndAltiLayer;
 import net.tourbook.ui.tourChart.TourChart;
 import net.tourbook.ui.tourChart.TourChartConfiguration;
@@ -177,10 +178,11 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
    private ActionOpenPrefDialog          _actionOpenTourTypePrefs;
 
-   private final NumberFormat            _nf          = NumberFormat.getNumberInstance();
+   private final NumberFormat            _nf              = NumberFormat.getNumberInstance();
 
-   private final Image                   _iconPlaceholder;
-   private final HashMap<Integer, Image> _graphImages = new HashMap<>();
+   private final Image                   _iconPlaceholder = TourbookPlugin.getImageDescriptor(Images.App_IconPlaceholder).createImage();
+   private final Image                   _imageDialog     = TourbookPlugin.getThemedImageDescriptor(Images.MergeTours).createImage();
+   private final HashMap<Integer, Image> _graphImages     = new HashMap<>();
 
    private final int                     _tourStartTimeSynchOffset;
    private int                           _tourTimeOffsetBackup;
@@ -205,9 +207,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
       setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
 
       // set icon for the window
-      setDefaultImage(TourbookPlugin.getImageDescriptor(Images.MergeTours).createImage());
-
-      _iconPlaceholder = TourbookPlugin.getImageDescriptor(Images.App_EmptyIcon_Placeholder).createImage();
+      setDefaultImage(_imageDialog);
 
       _sourceTour = mergeSourceTour;
       _targetTour = mergeTargetTour;
@@ -285,15 +285,15 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
       final float[] newSourceAltitudeSerie = tourMerger.getNewSourceAltitudeSerie();
       if (isSourceAltitude) {
-         _sourceTour.dataSerie2ndAlti = newSourceAltitudeSerie;
+         _sourceTour.dataSerie2nd = newSourceAltitudeSerie;
       } else {
-         _sourceTour.dataSerie2ndAlti = null;
+         _sourceTour.dataSerie2nd = null;
       }
 
       if (isSourceAltitude && isTargetAltitude) {
-         _sourceTour.dataSerieDiffTo2ndAlti = tourMerger.getNewSourceAltitudeDifferencesSerie();
+         _sourceTour.dataSerieDiffTo2nd = tourMerger.getNewSourceAltitudeDifferencesSerie();
       } else {
-         _sourceTour.dataSerieDiffTo2ndAlti = null;
+         _sourceTour.dataSerieDiffTo2nd = null;
       }
 
       if (_chkMergeCadence.getSelection()) {
@@ -529,7 +529,7 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
    }
 
    @Override
-   public ChartLayer2ndAltiSerie create2ndAltiLayer() {
+   public ChartLayerAdditionalValueSeries create2ndAltiLayer() {
 
       if (_targetTour == null) {
          return null;
@@ -557,14 +557,14 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
             _targetTour.getTimeSerieDouble()
             : _targetTour.getDistanceSerieDouble();
 
-      return new ChartLayer2ndAltiSerie(layerTourData, xDataSerie, _tourChartConfig, null);
+      return new ChartLayerAdditionalValueSeries(layerTourData, xDataSerie, _tourChartConfig, null);
    }
 
    private void createActions() {
 
       _actionOpenTourTypePrefs = new ActionOpenPrefDialog(
             Messages.action_tourType_modify_tourTypes,
-            ITourbookPreferences.PREF_PAGE_TOUR_TYPE);
+            PrefPageTourType_Definitions.ID);
    }
 
    @Override
@@ -1370,7 +1370,8 @@ public class DialogMergeTours extends TitleAreaDialog implements ITourProvider2,
 
    private void onDispose() {
 
-      _iconPlaceholder.dispose();
+      UI.disposeResource(_iconPlaceholder);
+      UI.disposeResource(_imageDialog);
 
       _graphImages.values().forEach(Image::dispose);
 

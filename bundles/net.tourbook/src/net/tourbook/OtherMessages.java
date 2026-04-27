@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,25 +39,31 @@ public class OtherMessages {
    //
    // net.tourbook.Messages
    //
-  public static final String   APP_BTN_BROWSE                           = net.tourbook.Messages.app_btn_browse;
+   public static final String ACTION_PHOTOS_AND_TOURS_REMOVE_PHOTO         = net.tourbook.Messages.Action_PhotosAndTours_RemovePhoto;
 
+   public static final String APP_ACTION_SAVE                              = net.tourbook.Messages.App_Action_Save;
+   public static final String APP_BTN_BROWSE                               = net.tourbook.Messages.app_btn_browse;
+   public static final String APP_TRUE                                     = net.tourbook.Messages.App__True;
    public static final String APP_UNIT_HHMMSS                              = net.tourbook.Messages.App_Unit_HHMMSS;
    public static final String APP_UNIT_SECONDS_SMALL                       = net.tourbook.Messages.App_Unit_Seconds_Small;
 
-  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES         = net.tourbook.Messages.dialog_export_chk_overwriteFiles;
-  public static final String   DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP = net.tourbook.Messages.dialog_export_chk_overwriteFiles_tooltip;
-  public static final String   DIALOG_EXPORT_DIR_DIALOG_MESSAGE         = net.tourbook.Messages.dialog_export_dir_dialog_message;
-  public static final String   DIALOG_EXPORT_DIR_DIALOG_TEXT            = net.tourbook.Messages.dialog_export_dir_dialog_text;
-  public static final String   DIALOG_EXPORT_GROUP_EXPORTFILENAME       = net.tourbook.Messages.dialog_export_group_exportFileName;
-  public static final String   DIALOG_EXPORT_LABEL_EXPORTFILEPATH       = net.tourbook.Messages.dialog_export_label_exportFilePath;
-  public static final String   DIALOG_EXPORT_LABEL_FILENAME             = net.tourbook.Messages.dialog_export_label_fileName;
-  public static final String   DIALOG_EXPORT_LABEL_FILEPATH             = net.tourbook.Messages.dialog_export_label_filePath;
-  public static final String   DIALOG_EXPORT_MSG_FILEALREADYEXISTS      = net.tourbook.Messages.dialog_export_msg_fileAlreadyExists;
-  public static final String   DIALOG_EXPORT_MSG_FILENAMEISINVALID      = net.tourbook.Messages.dialog_export_msg_fileNameIsInvalid;
-  public static final String   DIALOG_EXPORT_MSG_PATHISNOTAVAILABLE     = net.tourbook.Messages.dialog_export_msg_pathIsNotAvailable;
-  public static final String   DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP       = net.tourbook.Messages.dialog_export_txt_filePath_tooltip;
+   public static final String DIALOG_EXPORT_CHK_OVERWRITEFILES             = net.tourbook.Messages.dialog_export_chk_overwriteFiles;
+   public static final String DIALOG_EXPORT_CHK_OVERWRITEFILES_TOOLTIP     = net.tourbook.Messages.dialog_export_chk_overwriteFiles_tooltip;
+   public static final String DIALOG_EXPORT_DIR_DIALOG_MESSAGE             = net.tourbook.Messages.dialog_export_dir_dialog_message;
+   public static final String DIALOG_EXPORT_DIR_DIALOG_TEXT                = net.tourbook.Messages.dialog_export_dir_dialog_text;
+   public static final String DIALOG_EXPORT_GROUP_EXPORTFILENAME           = net.tourbook.Messages.dialog_export_group_exportFileName;
+   public static final String DIALOG_EXPORT_LABEL_EXPORTFILEPATH           = net.tourbook.Messages.dialog_export_label_exportFilePath;
+   public static final String DIALOG_EXPORT_LABEL_FILENAME                 = net.tourbook.Messages.dialog_export_label_fileName;
+   public static final String DIALOG_EXPORT_LABEL_FILEPATH                 = net.tourbook.Messages.dialog_export_label_filePath;
+   public static final String DIALOG_EXPORT_MSG_FILEALREADYEXISTS          = net.tourbook.Messages.dialog_export_msg_fileAlreadyExists;
+   public static final String DIALOG_EXPORT_MSG_FILENAMEISINVALID          = net.tourbook.Messages.dialog_export_msg_fileNameIsInvalid;
+   public static final String DIALOG_EXPORT_MSG_PATHISNOTAVAILABLE         = net.tourbook.Messages.dialog_export_msg_pathIsNotAvailable;
+   public static final String DIALOG_EXPORT_TXT_FILEPATH_TOOLTIP           = net.tourbook.Messages.dialog_export_txt_filePath_tooltip;
 
    public static final String LOG_TOUR_LOCATION_RETRIEVE_LOCATION_POINT    = net.tourbook.Messages.Log_TourLocation_Retrieve_LocationPoint;
+
+   public static final String SLIDEOUT_ACTION_COLLAPSE_SLIDEOUT_TOOLTIP    = net.tourbook.Messages.Slideout_Action_CollapseSlideout_Tooltip;
+   public static final String SLIDEOUT_ACTION_EXPAND_SLIDEOUT_TOOLTIP      = net.tourbook.Messages.Slideout_Action_ExpandSlideout_Tooltip;
 
    public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_DESCENT  = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Descent;
    public static final String TOUR_SEGMENTER_LABEL_VERTICAL_SPEED_ASCENT   = net.tourbook.Messages.Tour_Segmenter_Label_VerticalSpeed_Ascent;
@@ -67,13 +73,23 @@ public class OtherMessages {
    // net.tourbook.common.Messages
    //
 
+   public static final String APP_ACTION_ADD_WITH_CONFIRM                  = net.tourbook.common.Messages.App_Action_Add_WithConfirm;
    public static final String APP_ACTION_APPLY_AND_CLOSE                   = net.tourbook.common.Messages.App_Action_ApplyAndClose;
    public static final String APP_ACTION_CLOSE_TOOLTIP                     = net.tourbook.common.Messages.App_Action_Close_Tooltip;
    public static final String APP_ACTION_RESTORE_DEFAULT                   = net.tourbook.common.Messages.App_Action_RestoreDefault;
 
-   public static final String APP_SIZE_LARGE                               = net.tourbook.common.Messages.App_Size_Large;
-   public static final String APP_SIZE_MEDIUM                              = net.tourbook.common.Messages.App_Size_Medium;
-   public static final String APP_SIZE_SMALL                               = net.tourbook.common.Messages.App_Size_Small;
+   public static final String APP_SIZE_LARGE_LABEL                         = net.tourbook.common.Messages.App_Size_Large_Label;
+   public static final String APP_SIZE_LARGE_SHORTCUT                      = net.tourbook.common.Messages.App_Size_Large_Shortcut;
+   public static final String APP_SIZE_LARGE_TEXT                          = net.tourbook.common.Messages.App_Size_Large_Text;
+   public static final String APP_SIZE_MEDIUM_LABEL                        = net.tourbook.common.Messages.App_Size_Medium_Label;
+   public static final String APP_SIZE_MEDIUM_SHORTCUT                     = net.tourbook.common.Messages.App_Size_Medium_Shortcut;
+   public static final String APP_SIZE_MEDIUM_TEXT                         = net.tourbook.common.Messages.App_Size_Medium_Text;
+   public static final String APP_SIZE_SMALL_LABEL                         = net.tourbook.common.Messages.App_Size_Small_Label;
+   public static final String APP_SIZE_SMALL_SHORTCUT                      = net.tourbook.common.Messages.App_Size_Small_Shortcut;
+   public static final String APP_SIZE_SMALL_TEXT                          = net.tourbook.common.Messages.App_Size_Small_Text;
+   public static final String APP_SIZE_TINY_LABEL                          = net.tourbook.common.Messages.App_Size_Tiny_Label;
+   public static final String APP_SIZE_TINY_SHORTCUT                       = net.tourbook.common.Messages.App_Size_Tiny_Shortcut;
+   public static final String APP_SIZE_TINY_TEXT                           = net.tourbook.common.Messages.App_Size_Tiny_Text;
 
    public static final String APP_THEME_BACKGROUND_COLOR_DARK_TOOLTIP      = net.tourbook.common.Messages.App_Theme_BackgroundColor_Dark_Tooltip;
    public static final String APP_THEME_BACKGROUND_COLOR_LIGHT_TOOLTIP     = net.tourbook.common.Messages.App_Theme_BackgroundColor_Light_Tooltip;
@@ -95,7 +111,8 @@ public class OtherMessages {
    public static final String GRAPH_LABEL_CADENCE_UNIT_SPM                 = net.tourbook.common.Messages.Graph_Label_Cadence_Unit_Spm;
    public static final String GRAPH_LABEL_DISTANCE                         = net.tourbook.common.Messages.Graph_Label_Distance;
    public static final String GRAPH_LABEL_ELEVATION_GAIN                   = net.tourbook.common.Messages.Graph_Label_ElevationGain;
-   public static final String GRAPH_LABEL_GEARS                            = net.tourbook.common.Messages.Graph_Label_Gears;
+   public static final String GRAPH_LABEL_GEAR_RATIO                       = net.tourbook.common.Messages.Graph_Label_Gears;
+   public static final String GRAPH_LABEL_GEAR_NUMBER                      = net.tourbook.common.Messages.Graph_Label_GearNumber;
    public static final String GRAPH_LABEL_GEO_COMPARE_UNIT                 = net.tourbook.common.Messages.Graph_Label_Geo_Compare_Unit;
    public static final String GRAPH_LABEL_GRADIENT                         = net.tourbook.common.Messages.Graph_Label_Gradient;
    public static final String GRAPH_LABEL_GRADIENT_UNIT                    = net.tourbook.common.Messages.Graph_Label_Gradient_Unit;
@@ -111,9 +128,14 @@ public class OtherMessages {
    public static final String GRAPH_LABEL_PACE_SUMMARIZED                  = net.tourbook.common.Messages.Graph_Label_Pace_Summarized;
    public static final String GRAPH_LABEL_POWER                            = net.tourbook.common.Messages.Graph_Label_Power;
    public static final String GRAPH_LABEL_POWER_UNIT                       = net.tourbook.common.Messages.Graph_Label_Power_Unit;
+   public static final String GRAPH_LABEL_PREFIX_RADAR                     = net.tourbook.common.Messages.Graph_Label_Prefix_Radar;
    public static final String GRAPH_LABEL_PREFIX_RUNNING_DYNAMICS          = net.tourbook.common.Messages.Graph_Label_Prefix_RunningDynamics;
    public static final String GRAPH_LABEL_PREFIX_SWIMMING                  = net.tourbook.common.Messages.Graph_Label_Prefix_Swimming;
    public static final String GRAPH_LABEL_PREFIX_TRAINING                  = net.tourbook.common.Messages.Graph_Label_Prefix_Training;
+   public static final String GRAPH_LABEL_RADAR_PASSED_VEHICLES            = net.tourbook.common.Messages.Graph_Label_Radar_PassedVehicles;
+   public static final String GRAPH_LABEL_RADAR_DISTANCE_TO_VEHICLE        = net.tourbook.common.Messages.Graph_Label_Radar_DistanceToVehicle;
+   public static final String GRAPH_LABEL_RADAR_PASSING_SPEED_ABSOLUTE     = net.tourbook.common.Messages.Graph_Label_Radar_PassingSpeed_Absolute;
+   public static final String GRAPH_LABEL_RADAR_PASSING_SPEED_RELATIVE     = net.tourbook.common.Messages.Graph_Label_Radar_PassingSpeed_Relative;
    public static final String GRAPH_LABEL_RUN_DYN_STANCE_TIME              = net.tourbook.common.Messages.Graph_Label_RunDyn_StanceTime;
    public static final String GRAPH_LABEL_RUN_DYN_STANCE_TIME_BALANCE      = net.tourbook.common.Messages.Graph_Label_RunDyn_StanceTimeBalance;
    public static final String GRAPH_LABEL_RUN_DYN_STEP_LENGTH              = net.tourbook.common.Messages.Graph_Label_RunDyn_StepLength;
@@ -173,12 +195,31 @@ public class OtherMessages {
    public static final String WEATHER_CLOUDS_SUNNY                         = net.tourbook.common.Messages.Weather_Clouds_Sunny;
 
    //
+   // net.tourbook.map2.Messages
+   //
+
+   public static final String MAP_ACTION_EXTERNAL_APP_DOUBLE_CLICK_START   = net.tourbook.map2.Messages.Map_Action_ExternalApp_DoubleClickStart;
+   public static final String MAP_ACTION_EXTERNAL_APP_OPEN_PHOTO_IMAGE     = net.tourbook.map2.Messages.Map_Action_ExternalApp_OpenPhotoImage;
+   public static final String MAP_ACTION_EXTERNAL_APP_SETUP                = net.tourbook.map2.Messages.Map_Action_ExternalApp_Setup;
+   public static final String MAP_ACTION_SHOW_TOUR_IN_MAP                  = net.tourbook.map2.Messages.map_action_show_tour_in_map;
+   public static final String MAP_ACTION_TOUR_COLOR_ALTITUDE_TOOLTIP       = net.tourbook.map2.Messages.map_action_tour_color_altitude_tooltip;
+   public static final String MAP_ACTION_TOUR_COLOR_GRADIENT_TOOLTIP       = net.tourbook.map2.Messages.map_action_tour_color_gradient_tooltip;
+   public static final String MAP_ACTION_TOUR_COLOR_PACE_TOOLTIP           = net.tourbook.map2.Messages.map_action_tour_color_pace_tooltip;
+   public static final String MAP_ACTION_TOUR_COLOR_PULSE_TOOLTIP          = net.tourbook.map2.Messages.map_action_tour_color_pulse_tooltip;
+   public static final String MAP_ACTION_TOUR_COLOR_SPEED_TOOLTIP          = net.tourbook.map2.Messages.map_action_tour_color_speed_tooltip;
+   public static final String MAP_ACTION_SYNCH_WITH_SLIDER                 = net.tourbook.map2.Messages.Map_Action_SynchWith_TourPosition;
+   public static final String MAP_ACTION_SYNCH_WITH_SLIDER_CENTERED        = net.tourbook.map2.Messages.Map_Action_SynchWithSlider_Centered;
+   public static final String MAP_PROPERTIES_SHOW_GEO_GRID                 = net.tourbook.map2.Messages.Map_Properties_ShowGeoGrid;
+   public static final String MAP_PROPERTIES_SHOW_TILE_BORDER              = net.tourbook.map2.Messages.Map_Properties_ShowTileBorder;
+   public static final String MAP_PROPERTIES_SHOW_TILE_INFO                = net.tourbook.map2.Messages.Map_Properties_ShowTileInfo;
+   public static final String TOUR_ACTION_SHOW_HR_ZONES_TOOLTIP            = net.tourbook.map2.Messages.Tour_Action_ShowHrZones_Tooltip;
+
+   //
    // net.tourbook.map3.Messages
    //
 
    public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT_TOOLTIP = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default_Tooltip;
    public static final String TOUR_TRACK_PROPERTIES_BUTTON_DEFAULT         = net.tourbook.map3.Messages.TourTrack_Properties_Button_Default;
-
 
    //
    // net.tourbook.ui.Messages
@@ -221,8 +262,8 @@ public class OtherMessages {
    public static final String TOUR_TOOLTIP_FORMAT_DATE_WEEK_TIME           = net.tourbook.ui.Messages.Tour_Tooltip_Format_DateWeekTime;
    public static final String TOUR_TOOLTIP_LABEL_DISTANCE                  = net.tourbook.ui.Messages.Tour_Tooltip_Label_Distance;
    public static final String TOUR_TOOLTIP_LABEL_ELEVATION_UP              = net.tourbook.ui.Messages.Tour_Tooltip_Label_AltitudeUp;
-   public static final String TOUR_TOOLTIP_LABEL_LOCATION_START            = net.tourbook.ui.Messages.Tour_Tooltip_Label_LocationStart;
-   public static final String TOUR_TOOLTIP_LABEL_LOCATION_END              = net.tourbook.ui.Messages.Tour_Tooltip_Label_LocationEnd;
+   public static final String TOUR_TOOLTIP_LABEL_LOCATION_START            = net.tourbook.ui.Messages.Tour_Tooltip_Label_TourLocation_Start;
+   public static final String TOUR_TOOLTIP_LABEL_LOCATION_END              = net.tourbook.ui.Messages.Tour_Tooltip_Label_TourLocation_End;
    public static final String TOUR_TOOLTIP_LABEL_MOVING_TIME               = net.tourbook.ui.Messages.Tour_Tooltip_Label_MovingTime;
    public static final String TOUR_TOOLTIP_LABEL_NO_GEO_TOUR               = net.tourbook.ui.Messages.Tour_Tooltip_Label_NoGeoTour;
    public static final String TOUR_TOOLTIP_LABEL_RECORDED_TIME             = net.tourbook.ui.Messages.Tour_Tooltip_Label_RecordedTime;
@@ -232,6 +273,20 @@ public class OtherMessages {
    public static final String VALUE_UNIT_CADENCE_SPM                       = net.tourbook.ui.Messages.Value_Unit_Cadence_Spm;
    public static final String VALUE_UNIT_K_CALORIES                        = net.tourbook.ui.Messages.Value_Unit_KCalories;
    public static final String VALUE_UNIT_PULSE                             = net.tourbook.ui.Messages.Value_Unit_Pulse;
+
+   //
+   // net.tourbook.web.Messages
+   //
+
+   public static final String APP_WEB_LABEL_DEFAULT_FONT_SIZE              = net.tourbook.web.Messages.App_Web_Label_ContentFontSize;
+   public static final String APP_WEB_LABEL_DEFAULT_FONT_SIZE_TOOLTIP      = net.tourbook.web.Messages.App_Web_Label_ContentFontSize_Tooltip;
+
+   //
+   // tourbook.search.nls.Messages
+   //
+
+   public static final String SEARCH_APP_ACTION_EDIT_MARKER                = tourbook.search.nls.Messages.Search_App_Action_EditMarker;
+   public static final String SEARCH_APP_ACTION_EDIT_TOUR                  = tourbook.search.nls.Messages.Search_App_Action_EditTour;
 
 // SET_FORMATTING_ON
 }

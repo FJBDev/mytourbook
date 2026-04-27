@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.nutrition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -87,6 +88,15 @@ public class NutritionUtils {
       return averageCaloriesPerHourFormatted;
    }
 
+   public static String computeAverageCarbohydratesPerHour(final TourData tourData) {
+
+      final int totalCarbohydrates = getTotalCarbohydrates(tourData.getTourNutritionProducts());
+      final float averageCarbohydratesPerHour = computeAveragePerHour(tourData, totalCarbohydrates);
+      final String averageCarbohydratesPerHourFormatted = FormatManager.formatNumber_0(averageCarbohydratesPerHour);
+
+      return averageCarbohydratesPerHourFormatted;
+   }
+
    public static String computeAverageFluidsPerHour(final TourData tourData) {
 
       final float totalFluids = getTotalFluids(tourData.getTourNutritionProducts()) * 100 / 100;
@@ -103,7 +113,7 @@ public class NutritionUtils {
 
       long tourDeviceTime_Elapsed = tourData.getTourDeviceTime_Elapsed();
 
-      if (tourDeviceTime_Elapsed > 3600 && _prefStore.getBoolean(ITourbookPreferences.NUTRITION_IGNORE_FIRST_HOUR)) {
+      if (tourDeviceTime_Elapsed > 7200 && _prefStore.getBoolean(ITourbookPreferences.NUTRITION_IGNORE_FIRST_HOUR)) {
          tourDeviceTime_Elapsed -= 3600;
       } else if (tourDeviceTime_Elapsed <= 3600) {
          return totalAmount;
@@ -125,6 +135,7 @@ public class NutritionUtils {
    private static List<Product> deserializeResponse(final String body, final ProductSearchType productSearchType) {
 
       final ObjectMapper mapper = new ObjectMapper();
+      mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
       List<Product> deserializedProductsResults = new ArrayList<>();
 
@@ -177,6 +188,29 @@ public class NutritionUtils {
       }
 
       return totalCalories;
+   }
+
+   public static int getTotalCarbohydrates(final Set<TourNutritionProduct> tourNutritionProducts) {
+
+      int totalCarbohydrates = 0;
+
+      for (final TourNutritionProduct tourNutritionProduct : tourNutritionProducts) {
+
+         switch (tourNutritionProduct.getQuantityType()) {
+
+         case Servings:
+
+            totalCarbohydrates += tourNutritionProduct.getCarbohydrates_Serving() * tourNutritionProduct.getConsumedQuantity();
+            break;
+
+         case Products:
+
+            totalCarbohydrates += tourNutritionProduct.getCarbohydrates() * tourNutritionProduct.getConsumedQuantity();
+            break;
+         }
+      }
+
+      return totalCarbohydrates;
    }
 
    /**
@@ -246,7 +280,7 @@ public class NutritionUtils {
       }
    }
 
-   static List<Product> searchProduct(final String searchText, final ProductSearchType productSearchType) {
+   public static List<Product> searchProduct(final String searchText, final ProductSearchType productSearchType) {
 
       String searchUrl = UI.EMPTY_STRING;
 

@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,11 +25,13 @@ import net.tourbook.Messages;
 import net.tourbook.ui.ITourProvider2;
 import net.tourbook.ui.ITourProviderByID;
 import net.tourbook.ui.action.ActionComputeDistanceValuesFromGeoposition;
+import net.tourbook.ui.action.ActionComputeTourBreakTimes;
 import net.tourbook.ui.action.ActionMultiplyCaloriesBy1000;
 import net.tourbook.ui.action.ActionRetrieveWeatherData;
 import net.tourbook.ui.action.ActionSetTimeZone;
 import net.tourbook.ui.action.SubMenu_Cadence;
 import net.tourbook.ui.action.SubMenu_Elevation;
+import net.tourbook.ui.action.SubMenu_InterpolatedValues;
 import net.tourbook.ui.action.SubMenu_Pauses;
 import net.tourbook.ui.action.SubMenu_TrainingLoad;
 import net.tourbook.ui.action.SubMenu_Weather;
@@ -40,12 +46,14 @@ import org.eclipse.swt.widgets.MenuItem;
 public class SubMenu_AdjustTourValues extends Action implements IMenuCreator {
 
    private SubMenu_Cadence                            _subMenu_Cadence;
+   private SubMenu_InterpolatedValues                 _subMenu_InterpolatedValues;
    private SubMenu_Elevation                          _subMenu_Elevation;
    private SubMenu_TrainingLoad                       _subMenu_TrainingLoad;
    private SubMenu_Pauses                             _subMenu_Pauses;
    private SubMenu_Weather                            _subMenu_Weather;
 
    private ActionComputeDistanceValuesFromGeoposition _action_ComputeDistanceValuesFromGeoposition;
+   private ActionComputeTourBreakTimes                _action_ComputeTourBreakTimes;
    private ActionMultiplyCaloriesBy1000               _action_MultiplyCaloriesBy1000;
    private ActionSetTimeZone                          _action_SetTimeZone;
 
@@ -60,15 +68,28 @@ public class SubMenu_AdjustTourValues extends Action implements IMenuCreator {
 
       setMenuCreator(this);
 
+<<<<<<< HEAD
       _subMenu_Cadence = new SubMenu_Cadence(tourProvider);
       _subMenu_Elevation = new SubMenu_Elevation(tourProvider, tourProviderById);
       _subMenu_TrainingLoad = new SubMenu_TrainingLoad(tourProvider);
       _subMenu_Pauses = new SubMenu_Pauses(tourProvider);
       _subMenu_Weather = new SubMenu_Weather(tourProvider);
+=======
+// SET_FORMATTING_OFF
+>>>>>>> refs/remotes/Wolfgang/main
 
-      _action_ComputeDistanceValuesFromGeoposition = new ActionComputeDistanceValuesFromGeoposition(tourProvider);
-      _action_MultiplyCaloriesBy1000 = new ActionMultiplyCaloriesBy1000(tourProvider);
-      _action_SetTimeZone = new ActionSetTimeZone(tourProvider);
+      _subMenu_Cadence              = new SubMenu_Cadence(tourProvider);
+      _subMenu_Elevation            = new SubMenu_Elevation(tourProvider, tourProviderById);
+      _subMenu_InterpolatedValues   = new SubMenu_InterpolatedValues(tourProvider);
+      _subMenu_Pauses               = new SubMenu_Pauses(tourProvider, tourProviderById);
+      _subMenu_Weather              = new SubMenu_Weather(tourProvider);
+
+      _action_ComputeDistanceValuesFromGeoposition    = new ActionComputeDistanceValuesFromGeoposition(tourProvider);
+      _action_ComputeTourBreakTimes                   = new ActionComputeTourBreakTimes(tourProviderById);
+      _action_MultiplyCaloriesBy1000                  = new ActionMultiplyCaloriesBy1000(tourProvider);
+      _action_SetTimeZone                             = new ActionSetTimeZone(tourProvider);
+
+// SET_FORMATTING_ON
    }
 
    @Override
@@ -83,25 +104,32 @@ public class SubMenu_AdjustTourValues extends Action implements IMenuCreator {
 
    public void enableSubMenu_Cadence() {
 
-      final boolean enableSubMenu = _subMenu_Cadence.enableSubMenu();
-      _subMenu_Cadence.setEnabled(enableSubMenu);
+      final boolean isEnableSubMenu = _subMenu_Cadence.enableSubMenu();
+
+      _subMenu_Cadence.setEnabled(isEnableSubMenu);
    }
 
    public void enableSubMenu_Pauses() {
 
-      final boolean enableSubMenu = _subMenu_Pauses.enableSubMenu();
-      _subMenu_Pauses.setEnabled(enableSubMenu);
+      final boolean isEnableSubMenu = _subMenu_Pauses.enableSubMenu();
+
+      _subMenu_Pauses.setEnabled(isEnableSubMenu);
    }
 
    private void fillMenu(final Menu menu) {
 
+      new ActionContributionItem(_action_ComputeTourBreakTimes).fill(menu, -1);
       new ActionContributionItem(_action_ComputeDistanceValuesFromGeoposition).fill(menu, -1);
       new ActionContributionItem(_action_MultiplyCaloriesBy1000).fill(menu, -1);
       new ActionContributionItem(_action_SetTimeZone).fill(menu, -1);
 
       new ActionContributionItem(_subMenu_Cadence).fill(menu, -1);
       new ActionContributionItem(_subMenu_Elevation).fill(menu, -1);
+<<<<<<< HEAD
       new ActionContributionItem(_subMenu_TrainingLoad).fill(menu, -1);
+=======
+      new ActionContributionItem(_subMenu_InterpolatedValues).fill(menu, -1);
+>>>>>>> refs/remotes/Wolfgang/main
       new ActionContributionItem(_subMenu_Pauses).fill(menu, -1);
       new ActionContributionItem(_subMenu_Weather).fill(menu, -1);
    }

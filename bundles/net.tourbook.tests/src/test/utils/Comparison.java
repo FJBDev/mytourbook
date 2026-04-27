@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2024 Frédéric Bard
+ * Copyright (C) 2020, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,13 +35,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.tourbook.common.UI;
 import net.tourbook.common.util.FileUtils;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourData;
+import net.tourbook.data.TourMarker;
 
 import org.skyscreamer.jsonassert.ArrayValueMatcher;
 import org.skyscreamer.jsonassert.Customization;
@@ -81,20 +86,30 @@ public class Comparison {
          final String genericSoftwareVersion = "software_version,"; //$NON-NLS-1$
          final String genericApplicationVersion = "application_version,"; //$NON-NLS-1$
 
-         controlFileContentArray.replaceAll(line -> line = line.replace("software_version,\"24.1\"", genericSoftwareVersion)); //$NON-NLS-1$
-         controlFileContentArray.replaceAll(line -> line = line.replace("application_version,\"2410\"", genericApplicationVersion)); //$NON-NLS-1$
+         controlFileContentArray.replaceAll(line -> line = line.replace("software_version,\"24.11\"", genericSoftwareVersion)); //$NON-NLS-1$
+         controlFileContentArray.replaceAll(line -> line = line.replace("application_version,\"2411\"", genericApplicationVersion)); //$NON-NLS-1$
 
-         testFileContentArray.replaceAll(line -> line.replaceFirst("software_version,\"\\d\\d\\.\\d\"", genericSoftwareVersion)); //$NON-NLS-1$
+         // Regular expression to match the version pattern
+         final String regex = "(software_version,)\\" + "\"\\d+\\.\\d+\\" + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+         final Pattern pattern = Pattern.compile(regex);
+
+         for (int index = 0; index < testFileContentArray.size(); index++) {
+
+            final String line = testFileContentArray.get(index);
+            final Matcher matcher = pattern.matcher(line);
+            final String result = matcher.replaceAll("$1"); //$NON-NLS-1$
+            testFileContentArray.set(index, result);
+         }
          testFileContentArray.replaceAll(line -> line.replaceFirst("application_version,\"\\d\\d\\d\\d\"", genericApplicationVersion)); //$NON-NLS-1$
 
          // Modify the session/activity messages to remove/ignore their creation timestamps
          // since it will be different at every test run
-         String timeCreatedData = "Data,0,activity,num_sessions,";
+         final String timeCreatedData = "Data,0,activity,num_sessions,"; //$NON-NLS-1$
 
          List<String> timeCreatedLine = controlFileContentArray.stream().filter(s -> s.startsWith(timeCreatedData))
                .toList();
          // Retrieve the value of "time_created"
-         String controlTimeCreatedValue = timeCreatedLine.get(0).split(",")[7];
+         final String controlTimeCreatedValue = timeCreatedLine.get(0).split(",")[7]; //$NON-NLS-1$
          //Replace all the values by an empty string
          controlFileContentArray.replaceAll(line -> line = line.replace(
                controlTimeCreatedValue,
@@ -102,7 +117,7 @@ public class Comparison {
 
          timeCreatedLine = testFileContentArray.stream().filter(s -> s.startsWith(timeCreatedData)).toList();
          // Retrieve the value of "time_created"
-         String testTimeCreatedValue = timeCreatedLine.get(0).split(",")[7];
+         final String testTimeCreatedValue = timeCreatedLine.get(0).split(",")[7]; //$NON-NLS-1$
          //Replace all the values by an empty string
          testFileContentArray.replaceAll(line -> line = line.replace(
                testTimeCreatedValue,
@@ -149,7 +164,8 @@ public class Comparison {
 
       final String controlDocument = readFileContent(controlFileName + JSON);
 
-      testTourData.getTourMarkersSorted();
+      final ArrayList<TourMarker> sortedMarkers = testTourData.getTourMarkersSorted();
+      testTourData.setTourMarkers(new LinkedHashSet<>(sortedMarkers));
       final String testJson = convertTourDataToJson(testTourData);
 
       final JSONCompareResult result = JSONCompare.compareJSON(controlDocument, testJson, customArrayValueComparator);
@@ -230,7 +246,7 @@ public class Comparison {
       try {
          jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tourData);
       } catch (final JsonProcessingException e) {
-         e.printStackTrace();
+         StatusUtil.log(e);
       }
       return jsonString;
    }
