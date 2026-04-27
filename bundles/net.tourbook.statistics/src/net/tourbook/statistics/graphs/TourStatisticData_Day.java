@@ -75,22 +75,11 @@ public class TourStatisticData_Day {
    float[]                  allAthleteBodyFat_Low;
    float[]                  allAthleteBodyFat_High;
 
-<<<<<<< HEAD
    float[]                        allTraining_Load_PredictedPerformance_Low;
    float[]                        allTraining_Load_PredictedPerformance_High;
    float[]                        allTraining_Load_TrainingStress_Low;
    float[]                        allTraining_Load_TrainingStress_High;
 
-   float[]                        allTraining_Effect_Aerob;
-   float[]                        allTraining_Effect_Aerob_Low;
-   float[]                        allTraining_Effect_Aerob_High;
-   float[]                        allTraining_Effect_Anaerob;
-   float[]                        allTraining_Effect_Anaerob_Low;
-   float[]                        allTraining_Effect_Anaerob_High;
-   float[]                        allTraining_Performance;
-   float[]                        allTraining_Performance_Low;
-   float[]                        allTraining_Performance_High;
-=======
    float[]                  allTraining_Effect_Aerob;
    float[]                  allTraining_Effect_Aerob_Low;
    float[]                  allTraining_Effect_Aerob_High;
@@ -100,7 +89,6 @@ public class TourStatisticData_Day {
    float[]                  allTraining_Performance;
    float[]                  allTraining_Performance_Low;
    float[]                  allTraining_Performance_High;
->>>>>>> refs/remotes/Wolfgang/main
 
    ArrayList<String>        allTourTitles;
    ArrayList<String>        allTourDescriptions;
