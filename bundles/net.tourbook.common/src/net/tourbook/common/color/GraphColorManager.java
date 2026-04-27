@@ -48,38 +48,6 @@ import org.w3c.dom.Element;
  */
 public class GraphColorManager {
 
-<<<<<<< HEAD
-   public static final String  PREF_GRAPH_ALTIMETER                    = "altimeter";                  //$NON-NLS-1$
-   public static final String  PREF_GRAPH_ALTITUDE                     = "altitude";                   //$NON-NLS-1$
-   public static final String  PREF_GRAPH_CADENCE                      = "cadence";                    //$NON-NLS-1$
-   public static final String  PREF_GRAPH_GEAR                         = "gear";                       //$NON-NLS-1$
-   public static final String  PREF_GRAPH_DISTANCE                     = "distance";                   //$NON-NLS-1$
-   public static final String  PREF_GRAPH_HEARTBEAT                    = "heartbeat";                  //$NON-NLS-1$
-   public static final String  PREF_GRAPH_HISTORY                      = "History";                    //$NON-NLS-1$
-   public static final String  PREF_GRAPH_GRADIENT                     = "gradient";                   //$NON-NLS-1$
-   public static final String  PREF_GRAPH_PACE                         = "pace";                       //$NON-NLS-1$
-   public static final String  PREF_GRAPH_POWER                        = "power";                      //$NON-NLS-1$
-   public static final String  PREF_GRAPH_SENSOR                       = "Sensor";                     //$NON-NLS-1$
-   public static final String  PREF_GRAPH_SPEED                        = "speed";                      //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TEMPERATURE                  = "tempterature";               //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TIME                         = "duration";                   //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TOUR                         = "tour";                       //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TOUR_COMPARE                 = "tourCompare";                //$NON-NLS-1$
-   public static final String  PREF_GRAPH_RUN_DYN_STANCE_TIME          = "RunDyn_StanceTime";          //$NON-NLS-1$
-   public static final String  PREF_GRAPH_RUN_DYN_STANCE_TIME_BALANCED = "RunDyn_StanceTime_Balanced"; //$NON-NLS-1$
-   public static final String  PREF_GRAPH_RUN_DYN_STEP_LENGTH          = "RunDyn_StepLength";          //$NON-NLS-1$
-   public static final String  PREF_GRAPH_RUN_DYN_VERTICAL_OSCILLATION = "RunDyn_VerticalOscillation"; //$NON-NLS-1$
-   public static final String  PREF_GRAPH_RUN_DYN_VERTICAL_RATIO       = "RunDyn_VerticalRatio";       //$NON-NLS-1$
-   public static final String  PREF_GRAPH_SWIM_STROKES                 = "Swim_Strokes";               //$NON-NLS-1$
-   public static final String  PREF_GRAPH_SWIM_SWOLF                   = "Swim_Swolf";                 //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TRAINING_EFFECT_AEROB        = "Training_Effect_Aerob";      //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TRAINING_EFFECT_ANAEROB      = "Training_Effect_Anaerob";    //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";       //$NON-NLS-1$
-   public static final String  PREF_GRAPH_BODYFAT                      = "BodyFat";                    //$NON-NLS-1$
-   public static final String  PREF_GRAPH_BODYWEIGHT                   = "BodyWeight";                 //$NON-NLS-1$
-   public static final String  PREF_GRAPH_PREDICTED_PERFORMANCE        = "Predicted_Performance";      //$NON-NLS-1$
-   public static final String  PREF_GRAPH_TRAINING_STRESS              = "Training_Stress";            //$NON-NLS-1$
-=======
    public static final String  PREF_GRAPH_ALTIMETER                    = "altimeter";                   //$NON-NLS-1$
    public static final String  PREF_GRAPH_ALTITUDE                     = "altitude";                    //$NON-NLS-1$
    public static final String  PREF_GRAPH_CADENCE                      = "cadence";                     //$NON-NLS-1$
@@ -112,7 +80,8 @@ public class GraphColorManager {
    public static final String  PREF_GRAPH_TRAINING_EFFECT_AEROB        = "Training_Effect_Aerob";       //$NON-NLS-1$
    public static final String  PREF_GRAPH_TRAINING_EFFECT_ANAEROB      = "Training_Effect_Anaerob";     //$NON-NLS-1$
    public static final String  PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";        //$NON-NLS-1$
->>>>>>> refs/remotes/Wolfgang/main
+   public static final String  PREF_GRAPH_PREDICTED_PERFORMANCE        = "Predicted_Performance";       //$NON-NLS-1$
+   public static final String  PREF_GRAPH_TRAINING_STRESS              = "Training_Stress";             //$NON-NLS-1$
 
    public static final String  PREF_COLOR_GRADIENT_BRIGHT              = "bright";                      //$NON-NLS-1$
    public static final String  PREF_COLOR_GRADIENT_DARK                = "dark";                        //$NON-NLS-1$
@@ -140,19 +109,11 @@ public class GraphColorManager {
    static final String         TAG_BRIGHTNESS_MAX                      = "max";                         //$NON-NLS-1$
    static final String         TAG_BRIGHTNESS_MAX_FACTOR               = "maxFactor";                   //$NON-NLS-1$
 
-<<<<<<< HEAD
-   private static final String MEMENTO_CHILD_MIN_MAX_VALUE             = "minmaxValue";                //$NON-NLS-1$
-   private static final String TAG_IS_MIN_VALUE_OVERWRITE              = "isMinOverwrite";             //$NON-NLS-1$
-   private static final String TAG_MIN_VALUE_OVERWRITE                 = "minValueOverwrite";          //$NON-NLS-1$
-   private static final String TAG_IS_MAX_VALUE_OVERWRITE              = "isMaxOverwrite";             //$NON-NLS-1$
-   private static final String TAG_MAX_VALUE_OVERWRITE                 = "maxValueOverwrite";          //$NON-NLS-1$
-=======
    static final String         MEMENTO_CHILD_MIN_MAX_VALUE             = "minmaxValue";                 //$NON-NLS-1$
    static final String         TAG_IS_MIN_VALUE_OVERWRITE              = "isMinOverwrite";              //$NON-NLS-1$
    static final String         TAG_MIN_VALUE_OVERWRITE                 = "minValueOverwrite";           //$NON-NLS-1$
    static final String         TAG_IS_MAX_VALUE_OVERWRITE              = "isMaxOverwrite";              //$NON-NLS-1$
    static final String         TAG_MAX_VALUE_OVERWRITE                 = "maxValueOverwrite";           //$NON-NLS-1$
->>>>>>> refs/remotes/Wolfgang/main
 
 // SET_FORMATTING_OFF
 

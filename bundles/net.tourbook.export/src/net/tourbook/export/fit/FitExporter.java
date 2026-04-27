@@ -768,25 +768,14 @@ public class FitExporter {
       sessionMesg.setMaxPower(                     _tourData.getPower_Max());
 
       // Misc
-<<<<<<< HEAD
-      sessionMesg.setNormalizedPower(_tourData.getPower_Normalized());
-      sessionMesg.setLeftRightBalance(_tourData.getPower_PedalLeftRightBalance());
-      sessionMesg.setAvgLeftTorqueEffectiveness(_tourData.getPower_AvgLeftTorqueEffectiveness());
-      sessionMesg.setAvgRightTorqueEffectiveness(_tourData.getPower_AvgRightTorqueEffectiveness());
-      sessionMesg.setAvgLeftPedalSmoothness(_tourData.getPower_AvgLeftPedalSmoothness());
-      sessionMesg.setAvgRightPedalSmoothness(_tourData.getPower_AvgRightPedalSmoothness());
-      sessionMesg.setTrainingStressScore(_tourData.getTrainingStress_Device());
-      sessionMesg.setIntensityFactor(_tourData.getPower_IntensityFactor());
-      sessionMesg.setThresholdPower(_tourData.getPower_FTP());
-      sessionMesg.setTotalTrainingEffect(_tourData.getTraining_TrainingEffect_Aerob());
-=======
       sessionMesg.setNormalizedPower(              _tourData.getPower_Normalized());
       sessionMesg.setLeftRightBalance(             _tourData.getPower_PedalLeftRightBalance());
       sessionMesg.setAvgLeftTorqueEffectiveness(   _tourData.getPower_AvgLeftTorqueEffectiveness());
       sessionMesg.setAvgRightTorqueEffectiveness(  _tourData.getPower_AvgRightTorqueEffectiveness());
       sessionMesg.setAvgLeftPedalSmoothness(       _tourData.getPower_AvgLeftPedalSmoothness());
       sessionMesg.setAvgRightPedalSmoothness(      _tourData.getPower_AvgRightPedalSmoothness());
-      sessionMesg.setTrainingStressScore(          _tourData.getPower_TrainingStressScore());
+      sessionMesg.setTrainingStressScore(_tourData.getTrainingStress_Device());
+   //todo fb   sessionMesg.setTrainingStressScore(          _tourData.getPower_TrainingStressScore());
       sessionMesg.setIntensityFactor(              _tourData.getPower_IntensityFactor());
       sessionMesg.setThresholdPower(               _tourData.getPower_FTP());
       sessionMesg.setTotalTrainingEffect(          _tourData.getTraining_TrainingEffect_Aerob());
@@ -797,6 +786,5 @@ public class FitExporter {
       sessionMesg.setTotalStrokes(                 _tourData.getTotalStrokes());
 
 // SET_FORMATTING_ON
->>>>>>> refs/remotes/Wolfgang/main
    }
 }
