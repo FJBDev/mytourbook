@@ -95,6 +95,12 @@ public class StatisticDay_TrainingLoad extends StatisticDay {
       return GRID_DAY_TRAININGLOAD;
    }
 
+   @Override
+   protected String getLayoutPrefPrefix() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    private void getPreferences() {
 
       _isShowAltitude = _prefStore.getBoolean(ITourbookPreferences.STAT_TRAINING_MODEL_DEVICE);

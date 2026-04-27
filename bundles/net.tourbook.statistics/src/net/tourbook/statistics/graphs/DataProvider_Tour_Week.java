@@ -1,9 +1,5 @@
 /*******************************************************************************
-<<<<<<< HEAD
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
-=======
  * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
->>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -331,74 +327,7 @@ class DataProvider_Tour_Week extends DataProvider {
          int numTourTypes = allActiveTourTypes.length;
          numTourTypes = numTourTypes == 0 ? 1 : numTourTypes; // ensure that at least 1 is available
 
-<<<<<<< HEAD
-         String fromTourData;
-
-         final SQLFilter sqlAppFilter = new SQLFilter(SQLFilter.ANY_APP_FILTERS);
-
-         final TourTagFilterSqlJoinBuilder tagFilterSqlJoinBuilder = new TourTagFilterSqlJoinBuilder(true);
-
-         if (TourTagFilterManager.isTourTagFilterEnabled()) {
-
-            // with tag filter
-
-            fromTourData = NL
-
-                  + "FROM (" + NL //                                                                     //$NON-NLS-1$
-
-                  + "   SELECT" + NL //                                                                  //$NON-NLS-1$
-
-                  // this is necessary otherwise tours can occur multiple times when a tour contains multiple tags !!!
-                  + "      DISTINCT TourId," + NL //                                                     //$NON-NLS-1$
-
-                  + "      StartWeekYear," + NL //                                                       //$NON-NLS-1$
-                  + "      StartWeek," + NL //                                                           //$NON-NLS-1$
-
-                  + "      TourDeviceTime_Elapsed," + NL //                                              //$NON-NLS-1$
-                  + "      TourDeviceTime_Recorded," + NL //                                             //$NON-NLS-1$
-                  + "      TourDeviceTime_Paused," + NL //                                               //$NON-NLS-1$
-                  + "      TourComputedTime_Moving," + NL //                                             //$NON-NLS-1$
-
-                  + "      TourDistance," + NL //                                                        //$NON-NLS-1$
-                  + "      TourAltUp," + NL //                                                           //$NON-NLS-1$
-                  + "      TourAltDown," + NL //                                                           //$NON-NLS-1$
-
-                  + "      TourType_TypeId," + NL //                                                      //$NON-NLS-1$
-
-                  + "      BodyWeight,         " + NL //       //$NON-NLS-1$
-                  + "      BodyFat,         " + NL //       //$NON-NLS-1$
-                  + "      trainingStress_Govss," + NL //                   //$NON-NLS-1$
-                  + "      trainingStress_BikeScore," + NL //                   //$NON-NLS-1$
-                  + "      trainingStress_SwimScore" + NL //                   //$NON-NLS-1$
-
-                  + "   FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                                    //$NON-NLS-1$
-
-                  // get/filter tag id's
-                  + "   " + tagFilterSqlJoinBuilder.getSqlTagJoinTable() + " jTdataTtag" //              //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   ON TourData.tourId = jTdataTtag.TourData_tourId" + NL //                         //$NON-NLS-1$
-
-                  + "   WHERE StartWeekYear IN (" + getYearList(lastYear, numberOfYears) + ")" + NL //   //$NON-NLS-1$ //$NON-NLS-2$
-                  + "      " + sqlAppFilter.getWhereClause() + NL //                                     //$NON-NLS-1$
-
-                  + ") NecessaryNameOtherwiseItDoNotWork" + NL //                                        //$NON-NLS-1$
-            ;
-
-         } else {
-
-            // without tag filter
-
-            fromTourData = NL
-
-                  + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //                                       //$NON-NLS-1$
-
-                  + "WHERE StartWeekYear IN (" + getYearList(lastYear, numberOfYears) + ")" + NL //      //$NON-NLS-1$ //$NON-NLS-2$
-                  + "   " + sqlAppFilter.getWhereClause() //$NON-NLS-1$
-
-            ;
-         }
-=======
          final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
->>>>>>> refs/remotes/Wolfgang/main
 
          sql = UI.EMPTY_STRING
 
