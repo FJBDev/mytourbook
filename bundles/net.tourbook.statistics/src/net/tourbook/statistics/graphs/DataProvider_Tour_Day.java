@@ -1,9 +1,5 @@
 /*******************************************************************************
-<<<<<<< HEAD
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
-=======
  * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
->>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -40,6 +36,7 @@ import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.statistic.DurationTime;
+import net.tourbook.trainingload.PredictedPerformance;
 import net.tourbook.ui.AppFilter;
 import net.tourbook.ui.TourTypeFilter;
 
@@ -281,7 +278,7 @@ class DataProvider_Tour_Day extends DataProvider {
       // reset cached values
       statistic_RawStatisticValues = null;
 
-      final String sql = null;
+      String sql = null;
 
       try (final Connection conn = TourDatabase.getInstance().getConnection()) {
 
@@ -470,92 +467,6 @@ class DataProvider_Tour_Day extends DataProvider {
 
             int durationTimeValue = 0;
 
-<<<<<<< HEAD
-               if (isDurationTime_Break) {
-                  durationTimeValue = dbElapsedTime - dbMovingTime;
-               } else if (isDurationTime_Elapsed) {
-                  durationTimeValue = dbElapsedTime;
-               } else if (isDurationTime_Recorded) {
-                  durationTimeValue = dbRecordedTime;
-               } else if (isDurationTime_Paused) {
-                  durationTimeValue = dbPausedTime;
-               } else {
-                  // moving time, this is also the old implementation for the duration value
-                  durationTimeValue = dbMovingTime == 0 ? dbElapsedTime : dbMovingTime;
-               }
-
-               dbAllTourIds.add(dbTourId);
-
-               dbAllYears.add(dbTourYear);
-               dbAllMonths.add(zonedStartDateTime.getMonthValue());
-               dbAllDays.add(zonedStartDateTime.getDayOfMonth());
-               dbAllYearsDOY.add(yearDOYs + tourDOY);
-               dbAllTourStartWeek.add(dbTourStartWeek);
-
-               dbAllTourStartDateTime.add(zonedStartDateTime);
-               dbAllTourStartTime.add(startDayTime);
-               dbAllTourEndTime.add((startDayTime + dbElapsedTime));
-
-               dbAllTourDeviceTime_Elapsed.add(dbElapsedTime);
-               dbAllTourDeviceTime_Recorded.add(dbRecordedTime);
-               dbAllTourDeviceTime_Paused.add(dbPausedTime);
-               dbAllTourComputedTime_Moving.add(dbMovingTime);
-
-               dbAllTourDurationTimes.add(durationTimeValue);
-
-               dbAllBodyWeight.add(bodyWeight);
-               dbAllBodyFat.add(bodyFat);
-
-               dbAllTrainingStress.add(govss + bikeScore + swimScore);
-               computeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, dbAllTrainingStress);
-
-               // round distance
-               final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;
-
-               dbAllDistance.add(distance);
-               dbAllElevationUp.add(dbAltitudeUp / UI.UNIT_VALUE_ELEVATION);
-               dbAllElevationDown.add(dbAltitudeDown / UI.UNIT_VALUE_ELEVATION);
-
-               dbAllAvgPace.add(distance == 0 ? 0 : dbMovingTime * 1000f / distance / 60.0f);
-               dbAllAvgSpeed.add(dbMovingTime == 0 ? 0 : 3.6f * distance / dbMovingTime);
-
-               dbAllTrain_Effect_Aerob.add(trainingEffect);
-               dbAllTrain_Effect_Anaerob.add(trainingEffect_Anaerobic);
-               dbAllTrain_Performance.add(trainingPerformance);
-
-               dbAllTourTitle.add(dbTourTitle);
-               dbAllTourDescription.add(dbDescription == null ? UI.EMPTY_STRING : dbDescription);
-
-               if (dbTagId instanceof final Long tagId) {
-
-                  tagIds = new ArrayList<>();
-                  tagIds.add(tagId);
-
-                  allTagIds.put(dbTourId, tagIds);
-               }
-
-               /*
-                * Convert type id to the type index in the tour types list which is also the color
-                * index
-                */
-               int colorIndex = 0;
-               long dbTypeId = TourDatabase.ENTITY_IS_NOT_SAVED;
-
-               if (dbValue_TourTypeIdObject instanceof Long) {
-
-                  dbTypeId = dbValue_TourTypeIdObject;
-
-                  for (int typeIndex = 0; typeIndex < tourTypes.length; typeIndex++) {
-                     if (dbTypeId == tourTypes[typeIndex].getTypeId()) {
-                        colorIndex = typeIndex;
-                        break;
-                     }
-                  }
-               }
-
-               allTypeColorIndex.add(colorIndex);
-               allTypeIds.add(dbTypeId);
-=======
             if (isDurationTime_Break) {
                durationTimeValue = dbElapsedTime - dbMovingTime;
             } else if (isDurationTime_Elapsed) {
@@ -567,7 +478,6 @@ class DataProvider_Tour_Day extends DataProvider {
             } else {
                // moving time, this is also the old implementation for the duration value
                durationTimeValue = dbMovingTime == 0 ? dbElapsedTime : dbMovingTime;
->>>>>>> refs/remotes/Wolfgang/main
             }
 
             dbAllTourIds.add(dbTourId);
@@ -591,6 +501,9 @@ class DataProvider_Tour_Day extends DataProvider {
 
             dbAllBodyWeight.add(bodyWeight);
             dbAllBodyFat.add(bodyFat);
+
+            dbAllTrainingStress.add(govss + bikeScore + swimScore);
+            computeAndAddPredictedPerformanceValue(dbAllPredictedPerformance, dbAllTrainingStress);
 
             // round distance
             final float distance = dbDistance / UI.UNIT_VALUE_DISTANCE;
