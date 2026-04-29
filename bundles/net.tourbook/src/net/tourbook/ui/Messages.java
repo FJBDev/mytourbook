@@ -212,12 +212,14 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Category_AddressOther;
    public static String        ColumnFactory_Category_AddressRoad;
    public static String        ColumnFactory_Category_AddressState;
+   public static String        ColumnFactory_Category_Equipment;
    public static String        ColumnFactory_Category_Marker;
    public static String        ColumnFactory_Category_Motion;
    public static String        ColumnFactory_Category_Nutrition;
    public static String        ColumnFactory_Category_Photo;
    public static String        ColumnFactory_Category_Power;
    public static String        ColumnFactory_Category_Powertrain;
+   public static String        ColumnFactory_Category_Radar;
    public static String        ColumnFactory_Category_RunDyn;
    public static String        ColumnFactory_Category_Sensor;
    public static String        ColumnFactory_Category_State;
@@ -260,6 +262,47 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Elevation_LossDiff_Tooltip;
    public static String        ColumnFactory_Elevation_LossDelta_Label;
    public static String        ColumnFactory_Elevation_LossDelta_Tooltip;
+
+   public static String        ColumnFactory_Equipment_Brand;
+   public static String        ColumnFactory_Equipment_Collate_Label;
+   public static String        ColumnFactory_Equipment_Collate_Tooltip;
+   public static String        ColumnFactory_Equipment_CollateBetween_Header;
+   public static String        ColumnFactory_Equipment_CollateBetween_Label;
+   public static String        ColumnFactory_Equipment_CollateBetween_Tooltip;
+   public static String        ColumnFactory_Equipment_Date_Header;
+   public static String        ColumnFactory_Equipment_Date_Label;
+   public static String        ColumnFactory_Equipment_Date_Tooltip;
+   public static String        ColumnFactory_Equipment_DateBuilt;
+   public static String        ColumnFactory_Equipment_DateBuilt_Tooltip;
+   public static String        ColumnFactory_Equipment_DateCollate_From_Header;
+   public static String        ColumnFactory_Equipment_DateCollate_From_Label;
+   public static String        ColumnFactory_Equipment_DateCollate_From_Tooltip;
+   public static String        ColumnFactory_Equipment_DateCollate_Until_Header;
+   public static String        ColumnFactory_Equipment_DateCollate_Until_Label;
+   public static String        ColumnFactory_Equipment_DateCollate_Until_Tooltip;
+   public static String        ColumnFactory_Equipment_DateDuration;
+   public static String        ColumnFactory_Equipment_DateDuration_Tooltip;
+   public static String        ColumnFactory_Equipment_DateRetired_Label;
+   public static String        ColumnFactory_Equipment_DateRetired_Tooltip;
+   public static String        ColumnFactory_Equipment_Equipment;
+   public static String        ColumnFactory_Equipment_Equipment_Tooltip;
+   public static String        ColumnFactory_Equipment_ID;
+   public static String        ColumnFactory_Equipment_ID_Tootip;
+   public static String        ColumnFactory_Equipment_ImageFile_Tooltip;
+   public static String        ColumnFactory_Equipment_InitialDistance;
+   public static String        ColumnFactory_Equipment_InitialDistance_Tooltip;
+   public static String        ColumnFactory_Equipment_Model;
+   public static String        ColumnFactory_Equipment_Price;
+   public static String        ColumnFactory_Equipment_PriceCurrency_Header;
+   public static String        ColumnFactory_Equipment_PriceCurrency_Label;
+   public static String        ColumnFactory_Equipment_PriceCurrency_Tooltip;
+   public static String        ColumnFactory_Equipment_Size;
+   public static String        ColumnFactory_Equipment_TourStructure_Header;
+   public static String        ColumnFactory_Equipment_TourStructure_Label;
+   public static String        ColumnFactory_Equipment_TourStructure_Tooltip;
+   public static String        ColumnFactory_Equipment_Type;
+   public static String        ColumnFactory_Equipment_Weight;
+
    public static String        ColumnFactory_GearFrontShiftCount_Header;
    public static String        ColumnFactory_GearFrontShiftCount_Label;
    public static String        ColumnFactory_GearFrontShiftCount_Tooltip;
@@ -420,7 +463,8 @@ public class Messages extends NLS {
    public static String        ColumnFactory_restpulse_label;
    public static String        ColumnFactory_restpulse;
    public static String        ColumnFactory_restpulse_tooltip;
-
+   public static String        ColumnFactory_Radar_PassedVehicles;
+   public static String        ColumnFactory_Radar_PassedVehicles_Header;
    public static String        ColumnFactory_RunDyn_StanceTime_Avg;
    public static String        ColumnFactory_RunDyn_StanceTime_Avg_Header;
    public static String        ColumnFactory_RunDyn_StanceTime_Max;
@@ -455,6 +499,12 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Sensor_BatteryState_Voltage_Header;
    public static String        ColumnFactory_Sensor_BatteryState_Voltage_Label;
    public static String        ColumnFactory_Sensor_Description;
+   public static String        ColumnFactory_Sensor_DeviceName_Header;
+   public static String        ColumnFactory_Sensor_DeviceName_Label;
+   public static String        ColumnFactory_Sensor_DeviceName_Tooltip;
+   public static String        ColumnFactory_Sensor_DeviceType_Header;
+   public static String        ColumnFactory_Sensor_DeviceType_Label;
+   public static String        ColumnFactory_Sensor_DeviceType_Tooltip;
    public static String        ColumnFactory_Sensor_ManufacturerName;
    public static String        ColumnFactory_Sensor_ManufacturerNumber;
    public static String        ColumnFactory_Sensor_ManufacturerNumber_Header;
@@ -462,11 +512,14 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Sensor_Name_Tooltip;
    public static String        ColumnFactory_Sensor_NameKey;
    public static String        ColumnFactory_Sensor_NameKey_Tooltip;
+   public static String        ColumnFactory_Sensor_NumberOfTours;
+   public static String        ColumnFactory_Sensor_NumberOfTours_Header;
    public static String        ColumnFactory_Sensor_ProductName;
    public static String        ColumnFactory_Sensor_ProductNumber;
    public static String        ColumnFactory_Sensor_ProductNumber_Header;
    public static String        ColumnFactory_Sensor_SerialNumber;
    public static String        ColumnFactory_Sensor_SerialNumber_Header;
+
    public static String        ColumnFactory_Sensor_Time_FirstUsed;
    public static String        ColumnFactory_Sensor_Time_LastUsed;
    public static String        ColumnFactory_Sensor_Type;
@@ -567,6 +620,8 @@ public class Messages extends NLS {
    public static String        ColumnFactory_TourEndTime_Header;
    public static String        ColumnFactory_TourEndTime_Label;
    public static String        ColumnFactory_TourEndTime_Tooltip;
+   public static String        ColumnFactory_TourEquipment_Label;
+   public static String        ColumnFactory_TourEquipment_Tooltip;
    public static String        ColumnFactory_TourId;
    public static String        ColumnFactory_TourMarkerId;
    public static String        ColumnFactory_TourPerson;
@@ -808,6 +863,8 @@ public class Messages extends NLS {
    public static String        Tour_Tooltip_Label_NoGeoTour;
    public static String        Tour_Tooltip_Label_NoTour;
    public static String        Tour_Tooltip_Label_ElapsedTime;
+   public static String        Tour_Tooltip_Label_Equipment;
+   public static String        Tour_Tooltip_Label_PassedVehicles;
    public static String        Tour_Tooltip_Label_PausedTime;
    public static String        Tour_Tooltip_Label_RecordedTime;
    public static String        Tour_Tooltip_Label_RestPulse;

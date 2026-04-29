@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -145,8 +145,8 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
    /**
     * this value has been evaluated by some test
     */
-   private int           _textMinThumbSize  = 50;
-   private int           _fontHeight        = -1;
+   private int           _textMinThumbSize = 50;
+   private int           _fontHeight       = -1;
    private boolean       _isShowPhotoName;
    private boolean       _isShowAnnotations;
 
@@ -161,26 +161,25 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
    private ImageGallery  _imageGallery;
 
    private GalleryMT20   _galleryMT;
-   private int           _gridBorderSize    = 1;
-   private int           _imageBorderSize   = 5;
+   private int           _gridBorderSize   = 1;
+   private int           _imageBorderSize  = 5;
 
    /**
     * photo dimension without grid border but including image border
     */
    private int           _photoWidth;
    private int           _photoHeight;
-   /*
-    * position and size where the photo image is painted
-    */
-   private int           _photoImageWidth;
-   private int           _photoImageHeight;
-   private int           _paintedDest_DevX;
-   private int           _paintedDest_DevY;
+
+   /* Position and size where the photo image is painted */
+   private int _photoImageWidth;
+   private int _photoImageHeight;
+   private int _paintedDest_DevX;
+   private int _paintedDest_DevY;
 
    /**
     * Width for the painted image or <code>-1</code> when not initialized.
     */
-   private int           _paintedDest_Width = -1;
+   private int _paintedDest_Width = -1;
 
 //   private int                     _devYAnnotation;
 //   private int                     _devXAnnotationGps;
@@ -201,6 +200,7 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
 
    private double  _imagePaintedZoomFactor;
 
+   /** Width of the photo image, may be scaled when painted */
    private int     _paintedImageWidth;
    private int     _paintedImageHeight;
    private int     _paintedStatusTextX;
@@ -333,21 +333,6 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
          return;
       }
 
-//      System.out.println(UI.timeStampNano()
-//            + (" \t" + photo.imageFileName)
-//            + ("\tratingStars=" + photo.ratingStars)
-//            + ("\t" + System.identityHashCode(photo)));
-//      photo.dumpTourReferences();
-//
-////      PhotoCache.dumpAllPhotos();
-//      // TODO remove SYSTEM.OUT.PRINTLN
-
-//      if (photo.imageFileName.equals("P1000641.JPG")) { //$NON-NLS-1$
-//
-//         System.out.println(UI.timeStampNano() + " photo\t" + photo.imageFileName); //$NON-NLS-1$
-//         // TODO remove SYSTEM.OUT.PRINTLN
-//      }
-
       _isFocusActive = isFocusActive;
 
       // init fontheight
@@ -380,21 +365,29 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
       final int itemImageX = galleryItem.paintedX_Photo + (isBorder ? border2 : 0);
       final int itemImageY = galleryItem.paintedY_Photo + (isBorder ? border2 : 0);
 
-      final float scaledCanvasWidth = DPIUtil.autoScaleUp(canvasWidth);
+      final int deviceZoom = DPIUtil.getDeviceZoom();
+      final float scalingFactor = DPIUtil.getScalingFactor(deviceZoom);
+      final float scaledCanvasWidth = canvasWidth * scalingFactor;
+
       final boolean isThumbImage = scaledCanvasWidth <= PhotoLoadManager.IMAGE_SIZE_THUMBNAIL;
+      final boolean isHqImage = scaledCanvasWidth > PhotoLoadManager.IMAGE_SIZE_THUMBNAIL;
 
       final ImageQuality requestedImageQuality = isThumbImage
             ? ImageQuality.THUMB
             : ImageQuality.HQ;
 
+      final ImageQuality lowerImageQuality = isHqImage
+            ? ImageQuality.THUMB
+            : ImageQuality.HQ;
+
       // painted image can have different sizes for 1 photo: original, HQ and thumb
-      Image paintedImage = null;
+      Image photoImage = null;
       boolean isRequestedQuality = false;
       final boolean isImageFileAvailable = photo.isImageFileAvailable();
 
       if (isImageFileAvailable) {
 
-         // check if image has an loading error
+         // check if image has a loading error
          final PhotoLoadingState photoLoadingState = photo.getLoadingState(requestedImageQuality);
 
          if (photoLoadingState != PhotoLoadingState.IMAGE_IS_INVALID) {
@@ -402,9 +395,9 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
             // image is not yet loaded
 
             // check if image is in the cache
-            paintedImage = PhotoImageCache.getImage_SWT(photo, requestedImageQuality);
+            photoImage = PhotoImageCache.getImage_SWT(photo, requestedImageQuality);
 
-            if ((paintedImage == null || paintedImage.isDisposed())
+            if ((photoImage == null || photoImage.isDisposed())
                   && photoLoadingState == PhotoLoadingState.IMAGE_IS_IN_LOADING_QUEUE == false) {
 
                // requested image is not available in the image cache -> image must be loaded
@@ -414,23 +407,20 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
                PhotoLoadManager.putImageInLoadingQueueThumb_Gallery(
                      galleryItem,
                      photo,
+                     (int) scaledCanvasWidth,
                      requestedImageQuality,
                      imageLoadCallback);
             }
 
             isRequestedQuality = true;
 
-            if (paintedImage == null || paintedImage.isDisposed()) {
+            if (photoImage == null || photoImage.isDisposed()) {
 
                // requested size is not available, try to get image with lower quality
 
                isRequestedQuality = false;
 
-               final ImageQuality lowerImageQuality = galleryItemWidth > PhotoLoadManager.IMAGE_SIZE_THUMBNAIL
-                     ? ImageQuality.THUMB
-                     : ImageQuality.HQ;
-
-               paintedImage = PhotoImageCache.getImage_SWT(photo, lowerImageQuality);
+               photoImage = PhotoImageCache.getImage_SWT(photo, lowerImageQuality);
             }
          }
       }
@@ -438,7 +428,7 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
       gc.setForeground(_fgColor);
       gc.setBackground(_bgColor);
 
-      if (paintedImage != null && paintedImage.isDisposed() == false) {
+      if (photoImage != null && photoImage.isDisposed() == false) {
 
          /*
           * draw photo image, when photo height is smaller than min photo height, only the
@@ -450,18 +440,18 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
           */
          try {
 
-            final Rectangle imageBounds = paintedImage.getBounds();
-            
+            final Rectangle imageBounds = photoImage.getBounds();
+
             _paintedImageWidth = imageBounds.width;
             _paintedImageHeight = imageBounds.height;
-            
+
          } catch (final Exception e1) {
             StatusUtil.log(e1);
          }
 
          final boolean isPainted = draw_Image(gc,
                photo,
-               paintedImage,
+               photoImage,
                galleryItem,
 
                itemImageX,
@@ -718,7 +708,7 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
    }
 
    /**
-    * Draw photo image centered in the photo canvas.
+    * Draw photo image centered in the photo canvas
     *
     * @param gc
     * @param photo
@@ -814,14 +804,49 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
             galleryItem.imagePaintedWidth = _paintedDest_Width;
             galleryItem.imagePaintedHeight = _paintedDest_Height;
 
+         } catch (final IllegalArgumentException e) {
+
+            // this can happen with a scaled image
+
+            /**
+             * <code>
+             *
+             *    Rectangle src = DPIUtil.scaleUp(drawable, new Rectangle(srcX, srcY, srcWidth, srcHeight), scaledImageZoom);
+             *    Rectangle dest = DPIUtil.scaleUp(drawable, new Rectangle(destX, destY, destWidth, destHeight), imageZoom);
+             *    if (scaledImageZoom != 100) {
+             *
+             *       /*
+             *        * This is a HACK! Due to rounding errors at fractional scale factors,
+             *        * the coordinates may be slightly off. The workaround is to restrict
+             *        * coordinates to the allowed bounds.
+             *        *
+             *
+             *       Rectangle b = image.getBounds(scaledImageZoom);
+             *       int errX = src.x + src.width - b.width;
+             *       int errY = src.y + src.height - b.height;
+             *       if (errX != 0 || errY != 0) {
+             *          if (errX <= scaledImageZoom / 100 && errY <= scaledImageZoom / 100) {
+             *             src.intersect(b);
+             *          } else {
+             *             SWT.error (SWT.ERROR_INVALID_ARGUMENT);
+             *          }
+             *       }
+             *
+             * </code>
+             */
+            System.out.println("IllegalArgumentException: %s - Photo: %s".formatted(e.getMessage(), photo.imageFilePathName)); //$NON-NLS-1$
+
+            return false;
+
          } catch (final Exception e) {
 
-            System.out.println("SWT exception occurred when painting valid image " //$NON-NLS-1$
+            PhotoLoadManager.putPhotoInLoadingErrorMap(photo.imageFilePathName);
+
+            System.out.println("SWT exception occurred when painting valid image (2) " //$NON-NLS-1$
                   + photo.imageFilePathName
                   + " it's potentially this bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=375845"); //$NON-NLS-1$
 
-            // ensure image is valid after reloading
-//             photoImage.dispose();
+            System.out.println(e);
 
             PhotoImageCache.disposeAll();
 
@@ -1282,10 +1307,10 @@ public class PhotoRenderer extends AbstractGalleryMT20ItemRenderer {
 
          draw_StatusText(gc,
                galleryItem, //
-               0, //                         x
-               canvasHeight - _fontHeight - 1, //   y
-               canvasWidth, //                width
-               _fontHeight + 1, //             height
+               0, //                                  x
+               canvasHeight - _fontHeight - 1, //     y
+               canvasWidth, //                        width
+               _fontHeight + 1, //                    height
                requestedImageQuality,
                false,
                false,

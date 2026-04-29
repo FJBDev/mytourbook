@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,13 @@ import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.action.ActionOpenPrefDialog;
 import net.tourbook.common.util.Util;
+import net.tourbook.equipment.ActionAddEquipment_SubMenu;
+import net.tourbook.equipment.ActionAddRecentEquipment;
+import net.tourbook.equipment.ActionRemoveEquipment_SubMenu;
+import net.tourbook.equipment.EquipmentMenuManager.ActionAddEquipmentGroups_SubMenu;
+import net.tourbook.equipment.EquipmentMenuManager.ActionClipboard_CopyEquipment;
+import net.tourbook.equipment.EquipmentMenuManager.ActionClipboard_PasteEquipment;
+import net.tourbook.equipment.EquipmentMenuManager.ActionRemoveEquipmentAll;
 import net.tourbook.extension.export.ActionExport;
 import net.tourbook.extension.upload.ActionUpload;
 import net.tourbook.preferences.PrefPageAppearance_TourActions;
@@ -34,6 +41,7 @@ import net.tourbook.tag.ActionAddRecentTags;
 import net.tourbook.tag.ActionAddRecentTourTypes;
 import net.tourbook.tag.ActionAddTourTag_SubMenu;
 import net.tourbook.tag.Action_RemoveTourTag_SubMenu;
+import net.tourbook.tag.TagMenuManager;
 import net.tourbook.tag.TagMenuManager.ActionClipboard_CopyTags;
 import net.tourbook.tag.TagMenuManager.ActionClipboard_PasteTags;
 import net.tourbook.tag.TagMenuManager.ActionShowTourTagsView;
@@ -49,6 +57,7 @@ import net.tourbook.ui.views.rawData.ActionReimportTours;
 import net.tourbook.ui.views.rawData.SubMenu_AdjustTourValues;
 import net.tourbook.ui.views.tourBook.ActionDeleteTourMenu;
 import net.tourbook.ui.views.tourBook.ActionExportViewCSV;
+import net.tourbook.ui.views.tourBook.TourBookView.ActionCreateTourMarkers;
 
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -58,7 +67,9 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 
 public class TourActionManager {
 
-   public static final String              AUTO_OPEN                            = "#AutoOpen";                                //$NON-NLS-1$
+   public static final String              AUTO_OPEN_DEFAULT                    = "#AutoOpen_Default";                        //$NON-NLS-1$
+   public static final String              AUTO_OPEN_FLAT                       = "#AutoOpen_Flat";                           //$NON-NLS-1$
+   public static final String              AUTO_OPEN_TREE                       = "#AutoOpen_Tree";                           //$NON-NLS-1$
 
    private static final String             ID                                   = "net.tourbook.ui.action.TourActionManager"; //$NON-NLS-1$
 
@@ -69,7 +80,7 @@ public class TourActionManager {
 
    private static final IDialogSettings    _state                               = TourbookPlugin.getState(ID);
 
-   /** Contains all defined actions */
+   /** Contains all defined actions in the sequence how they are displayed */
    private static List<TourAction>         _allDefinedActions;
 
    /** Key is the action class name or in special cases a modified class name */
@@ -104,8 +115,9 @@ public class TourActionManager {
       _allDefinedActionsMap = new HashMap<>();
 
       createActions_10_Edit();
-      createActions_20_Tags();
-      createActions_30_TourTypes();
+      createActions_20_TourTypes();
+      createActions_30_Tags();
+      createActions_32_Equipment();
       createActions_40_Export();
       createActions_50_Adjust();
 
@@ -130,63 +142,60 @@ public class TourActionManager {
             ActionEditQuick.class.getName(),
             Messages.app_action_quick_edit,
             TourbookPlugin.getThemedImageDescriptor(Images.App_Edit),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionEditTour                    = new TourAction(
             ActionEditTour.class.getName(),
             Messages.App_Action_edit_tour,
             TourbookPlugin.getThemedImageDescriptor(Images.EditTour),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionOpenMarkerDialog            = new TourAction(
             ActionOpenMarkerDialog.class.getName(),
             Messages.app_action_edit_tour_marker,
             TourbookPlugin.getThemedImageDescriptor(Images.TourMarker),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionOpenAdjustAltitudeDialog    = new TourAction(
             ActionOpenAdjustAltitudeDialog.class.getName(),
             Messages.app_action_edit_adjust_altitude,
             TourbookPlugin.getThemedImageDescriptor(Images.AdjustElevation),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionSetStartEndLocation         = new TourAction(
             ActionSetStartEndLocation.class.getName(),
             Messages.Tour_Location_Action_ManageStartEndLocation,
             TourbookPlugin.getThemedImageDescriptor(Images.Tour_StartEnd),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionOpenTour                    = new TourAction(
             ActionOpenTour.class.getName(),
             Messages.app_action_open_tour,
             TourbookPlugin.getThemedImageDescriptor(Images.TourViewer),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionDuplicateTour               = new TourAction(
             ActionDuplicateTour.class.getName(),
             Messages.Tour_Action_DuplicateTour,
             TourbookPlugin.getThemedImageDescriptor(Images.Tour_Duplicate),
-            null,
+            TourActionCategory.EDIT);
+
+      final TourAction actionCreateTourMarkers           = new TourAction(
+            ActionCreateTourMarkers.class.getName(),
+            Messages.Tour_Action_CreateTourMarkers,
+            TourbookPlugin.getThemedImageDescriptor(Images.TourMarker_New),
             TourActionCategory.EDIT);
 
       final TourAction actionMergeTour                   = new TourAction(
             ActionMergeTour.class.getName(),
             Messages.app_action_merge_tour,
             TourbookPlugin.getThemedImageDescriptor(Images.MergeTours),
-            null,
             TourActionCategory.EDIT);
 
       final TourAction actionJoinTours                   = new TourAction(
             ActionJoinTours.class.getName(),
             Messages.App_Action_JoinTours,
             TourActionCategory.EDIT);
-
 
       _allDefinedActions.add(categoryAction_Edit);
 
@@ -197,6 +206,7 @@ public class TourActionManager {
       _allDefinedActions.add(actionSetStartEndLocation);
       _allDefinedActions.add(actionOpenTour);
       _allDefinedActions.add(actionDuplicateTour);
+      _allDefinedActions.add(actionCreateTourMarkers);
       _allDefinedActions.add(actionMergeTour);
       _allDefinedActions.add(actionJoinTours);
 
@@ -209,6 +219,7 @@ public class TourActionManager {
       _allDefinedActionsMap.put(ActionSetStartEndLocation       .class.getName(),          actionSetStartEndLocation);
       _allDefinedActionsMap.put(ActionOpenTour                  .class.getName(),          actionOpenTour);
       _allDefinedActionsMap.put(ActionDuplicateTour             .class.getName(),          actionDuplicateTour);
+      _allDefinedActionsMap.put(ActionCreateTourMarkers         .class.getName(),          actionCreateTourMarkers);
       _allDefinedActionsMap.put(ActionMergeTour                 .class.getName(),          actionMergeTour);
       _allDefinedActionsMap.put(ActionJoinTours                 .class.getName(),          actionJoinTours);
 
@@ -216,95 +227,9 @@ public class TourActionManager {
    }
 
    /**
-    * TAG ACTIONS
-    */
-   private static void createActions_20_Tags() {
-
-// SET_FORMATTING_OFF
-
-      final TourAction categoryAction_Tag             = new TourAction(
-            Messages.Tour_Action_Category_Tags,
-            TourActionCategory.TAG);
-
-      final TourAction actionSetTags                  = new TourAction(
-            ActionShowTourTagsView.class.getName(),
-            Messages.Action_Tag_SetTags,
-            TourbookPlugin.getImageDescriptor(Images.TourTags),
-            null,
-            TourActionCategory.TAG);
-
-      final TourAction actionAddTag_AutoOpen          = new TourAction(
-            ActionAddTourTag_SubMenu.class.getName() + AUTO_OPEN,
-            Messages.Action_Tag_Add_AutoOpen,
-            TourActionCategory.TAG);
-
-      final TourAction actionAddTag                   = new TourAction(
-            ActionAddTourTag_SubMenu.class.getName(),
-            Messages.action_tag_add,
-            TourActionCategory.TAG);
-
-      final TourAction actionAddRecentTags            = new TourAction(
-            ActionAddRecentTags.class.getName(),
-            Messages.Action_Tag_AddRecentTags,
-            TourActionCategory.TAG);
-
-      final TourAction actionAddTagGroups             = new TourAction(
-            ActionTagGroups_SubMenu.class.getName(),
-            Messages.Action_Tag_AddGroupedTags,
-            TourActionCategory.TAG);
-
-      final TourAction actionClipboard_CopyTags       = new TourAction(
-            ActionClipboard_CopyTags.class.getName(),
-            Messages.Action_Tag_CopyTags,
-            TourActionCategory.TAG);
-
-      final TourAction actionClipboard_PasteTags      = new TourAction(
-            ActionClipboard_PasteTags.class.getName(),
-            Messages.Action_Tag_PasteTags,
-            TourActionCategory.TAG);
-
-      final TourAction actionRemoveTourTag            = new TourAction(
-            Action_RemoveTourTag_SubMenu.class.getName(),
-            Messages.action_tag_remove,
-            TourActionCategory.TAG);
-
-      final TourAction actionRemoveAllTags            = new TourAction(
-            Action_RemoveAllTags.class.getName(),
-            Messages.action_tag_remove_all,
-            TourActionCategory.TAG);
-
-      _allDefinedActions.add(categoryAction_Tag);
-
-      _allDefinedActions.add(actionSetTags);
-      _allDefinedActions.add(actionAddTag_AutoOpen);
-      _allDefinedActions.add(actionAddTagGroups);
-      _allDefinedActions.add(actionAddTag);
-      _allDefinedActions.add(actionAddRecentTags);
-      _allDefinedActions.add(actionRemoveTourTag);
-      _allDefinedActions.add(actionRemoveAllTags);
-      _allDefinedActions.add(actionClipboard_CopyTags);
-      _allDefinedActions.add(actionClipboard_PasteTags);
-
-      _allDefinedActionsMap.put(categoryAction_Tag              .getCategoryClassName(),      categoryAction_Tag);
-
-      _allDefinedActionsMap.put(ActionShowTourTagsView          .class.getName(),             actionSetTags);
-      _allDefinedActionsMap.put(ActionAddTourTag_SubMenu        .class.getName() + AUTO_OPEN, actionAddTag_AutoOpen);
-      _allDefinedActionsMap.put(ActionTagGroups_SubMenu         .class.getName(),             actionAddTagGroups);
-      _allDefinedActionsMap.put(ActionAddTourTag_SubMenu        .class.getName(),             actionAddTag);
-      _allDefinedActionsMap.put(ActionAddRecentTags             .class.getName(),             actionAddRecentTags);
-      _allDefinedActionsMap.put(ActionClipboard_CopyTags        .class.getName(),             actionClipboard_CopyTags);
-      _allDefinedActionsMap.put(ActionClipboard_PasteTags       .class.getName(),             actionClipboard_PasteTags);
-      _allDefinedActionsMap.put(Action_RemoveTourTag_SubMenu    .class.getName(),             actionRemoveTourTag);
-      _allDefinedActionsMap.put(Action_RemoveAllTags            .class.getName(),             actionRemoveAllTags);
-
-// SET_FORMATTING_ON
-
-   }
-
-   /**
     * TOUR TYPE ACTIONS
     */
-   private static void createActions_30_TourTypes() {
+   private static void createActions_20_TourTypes() {
 
 // SET_FORMATTING_OFF
 
@@ -339,6 +264,168 @@ public class TourActionManager {
 
    }
 
+   /**
+    * TAG ACTIONS
+    */
+   private static void createActions_30_Tags() {
+
+// SET_FORMATTING_OFF
+
+      final TourAction categoryAction_Tag             = new TourAction( Messages.Tour_Action_Category_Tags,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionSetTags                  = new TourAction( ActionShowTourTagsView.class.getName(),
+                                                                        Messages.Action_Tag_SetTags,
+                                                                        TourbookPlugin.getImageDescriptor(Images.TourTags),
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddTag_AutoOpen_Default  = new TourAction( TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_DEFAULT,
+                                                                        Messages.Action_Tag_Add_AutoOpen_Default,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddTag_AutoOpen_Flat     = new TourAction( TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_FLAT,
+                                                                        Messages.Action_Tag_Add_AutoOpen_Flat,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddTag_AutoOpen_Tree     = new TourAction( TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_TREE,
+                                                                        Messages.Action_Tag_Add_AutoOpen_Categorized,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddTag                   = new TourAction( ActionAddTourTag_SubMenu.class.getName(),
+                                                                        Messages.action_tag_add,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddRecentTags            = new TourAction( ActionAddRecentTags.class.getName(),
+                                                                        Messages.Action_Tag_AddRecentTags,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionAddTagGroups             = new TourAction( ActionTagGroups_SubMenu.class.getName(),
+                                                                        Messages.Action_Tag_AddGroupedTags,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionClipboard_CopyTags       = new TourAction( ActionClipboard_CopyTags.class.getName(),
+                                                                        Messages.Action_Tag_CopyTags,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionClipboard_PasteTags      = new TourAction( ActionClipboard_PasteTags.class.getName(),
+                                                                        Messages.Action_Tag_PasteTags,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionRemoveTourTag            = new TourAction( Action_RemoveTourTag_SubMenu.class.getName(),
+                                                                        Messages.action_tag_remove,
+                                                                        TourActionCategory.TAG);
+
+      final TourAction actionRemoveAllTags            = new TourAction( Action_RemoveAllTags.class.getName(),
+                                                                        Messages.action_tag_remove_all,
+                                                                        TourActionCategory.TAG);
+
+      _allDefinedActions.add(categoryAction_Tag);
+
+      _allDefinedActions.add(actionSetTags);
+      _allDefinedActions.add(actionAddTag_AutoOpen_Default);
+      _allDefinedActions.add(actionAddTag_AutoOpen_Flat);
+      _allDefinedActions.add(actionAddTag_AutoOpen_Tree);
+      _allDefinedActions.add(actionAddTag);
+      _allDefinedActions.add(actionAddRecentTags);
+      _allDefinedActions.add(actionAddTagGroups);
+
+      _allDefinedActions.add(actionRemoveTourTag);
+      _allDefinedActions.add(actionRemoveAllTags);
+      _allDefinedActions.add(actionClipboard_CopyTags);
+      _allDefinedActions.add(actionClipboard_PasteTags);
+
+
+
+      _allDefinedActionsMap.put(categoryAction_Tag              .getCategoryClassName(),      categoryAction_Tag);
+
+      _allDefinedActionsMap.put(ActionShowTourTagsView          .class.getName(),             actionSetTags);
+      _allDefinedActionsMap.put(ActionAddTourTag_SubMenu        .class.getName(),             actionAddTag);
+      _allDefinedActionsMap.put(ActionAddRecentTags             .class.getName(),             actionAddRecentTags);
+      _allDefinedActionsMap.put(ActionTagGroups_SubMenu         .class.getName(),             actionAddTagGroups);
+
+      _allDefinedActionsMap.put(ActionClipboard_CopyTags        .class.getName(),             actionClipboard_CopyTags);
+      _allDefinedActionsMap.put(ActionClipboard_PasteTags       .class.getName(),             actionClipboard_PasteTags);
+      _allDefinedActionsMap.put(Action_RemoveTourTag_SubMenu    .class.getName(),             actionRemoveTourTag);
+      _allDefinedActionsMap.put(Action_RemoveAllTags            .class.getName(),             actionRemoveAllTags);
+
+      _allDefinedActionsMap.put(TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_DEFAULT,  actionAddTag_AutoOpen_Default);
+      _allDefinedActionsMap.put(TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_FLAT,     actionAddTag_AutoOpen_Flat);
+      _allDefinedActionsMap.put(TagMenuManager.ACTION_KEY__ADD_TAG_AUTO_OPEN_TREE,     actionAddTag_AutoOpen_Tree);
+
+// SET_FORMATTING_ON
+
+   }
+
+   /**
+    * EQUIPMENT Actions
+    */
+   private static void createActions_32_Equipment() {
+
+// SET_FORMATTING_OFF
+
+      final TourAction categoryAction_Equipment          = new TourAction(    Messages.Tour_Action_Category_Equipment,
+                                                                              TourActionCategory.EQUIPMENT);
+
+
+      final TourAction actionAddEquipment                = new TourAction(    ActionAddEquipment_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_AddEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionAddEquipment_Groups         = new TourAction(    ActionAddEquipmentGroups_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_AddEquipment_Groups,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionAddRecentEquipment          = new TourAction(    ActionAddRecentEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_AddRecentEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionRemoveEquipment             = new TourAction(    ActionRemoveEquipment_SubMenu.class.getName(),
+                                                                              Messages.Equipment_Action_RemoveEquipment,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionRemoveEquipment_All         = new TourAction(    ActionRemoveEquipmentAll.class.getName(),
+                                                                              Messages.Equipment_Action_RemoveEquipment_All,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionClipboard_CopyEquipment     = new TourAction(    ActionClipboard_CopyEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_ClipboardCopy,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      final TourAction actionClipboard_PasteEquipment    = new TourAction(    ActionClipboard_PasteEquipment.class.getName(),
+                                                                              Messages.Equipment_Action_ClipboardPaste,
+                                                                              TourActionCategory.EQUIPMENT);
+
+      // -----------------------------------------------------------------
+
+      _allDefinedActions.add(categoryAction_Equipment);
+
+      _allDefinedActions.add(actionAddEquipment);
+      _allDefinedActions.add(actionAddRecentEquipment);
+      _allDefinedActions.add(actionAddEquipment_Groups);
+
+      _allDefinedActions.add(actionRemoveEquipment);
+      _allDefinedActions.add(actionRemoveEquipment_All);
+
+      _allDefinedActions.add(actionClipboard_CopyEquipment);
+      _allDefinedActions.add(actionClipboard_PasteEquipment);
+
+      // -----------------------------------------------------------------
+
+      _allDefinedActionsMap.put(categoryAction_Equipment          .getCategoryClassName(),   categoryAction_Equipment);
+
+      _allDefinedActionsMap.put(ActionAddEquipment_SubMenu        .class.getName(),          actionAddEquipment);
+      _allDefinedActionsMap.put(ActionAddRecentEquipment          .class.getName(),          actionAddRecentEquipment);
+      _allDefinedActionsMap.put(ActionAddEquipmentGroups_SubMenu  .class.getName(),          actionAddEquipment_Groups);
+
+      _allDefinedActionsMap.put(ActionRemoveEquipment_SubMenu     .class.getName(),          actionRemoveEquipment);
+      _allDefinedActionsMap.put(ActionRemoveEquipmentAll          .class.getName(),          actionRemoveEquipment_All);
+
+      _allDefinedActionsMap.put(ActionClipboard_CopyEquipment     .class.getName(),          actionClipboard_CopyEquipment);
+      _allDefinedActionsMap.put(ActionClipboard_PasteEquipment    .class.getName(),          actionClipboard_PasteEquipment);
+
+// SET_FORMATTING_ON
+   }
+
    private static void createActions_40_Export() {
 
 // SET_FORMATTING_OFF
@@ -361,7 +448,6 @@ public class TourActionManager {
             ActionExportViewCSV.class.getName(),
             Messages.App_Action_ExportViewCSV,
             TourbookPlugin.getImageDescriptor(Images.CSVFormat),
-            null,
             TourActionCategory.EXPORT);
 
       final TourAction actionPrintTour                   = new TourAction(
@@ -419,7 +505,6 @@ public class TourActionManager {
             ActionDeleteTourMenu.class.getName(),
             Messages.Tour_Book_Action_delete_selected_tours_menu,
             TourbookPlugin.getImageDescriptor(Images.App_Trash),
-            null,
             TourActionCategory.ADJUST);
 
 
@@ -565,7 +650,7 @@ public class TourActionManager {
     */
    public static void fillContextMenu(final IMenuManager menuMgr,
                                       final TourActionCategory actionCategory,
-                                      final HashMap<String, Object> allCategoryActions,
+                                      final Map<String, Object> allCategoryActions,
                                       final ITourProvider tourProvider) {
 
       final List<TourAction> allActiveActions = getActiveActions();

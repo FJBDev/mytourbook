@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -351,6 +351,9 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES;
    public static final String             POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES_ID     = "POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES";     //$NON-NLS-1$
 
+   public static final TableColumnFactory RADAR_PASSED_VEHICLES;
+   public static final String             RADAR_PASSED_VEHICLES_ID                           = "RADAR_PASSED_VEHICLES";                           //$NON-NLS-1$
+
    public static final TableColumnFactory RUN_DYN_STANCE_TIME_AVG;
    public static final String             RUN_DYN_STANCE_TIME_AVG_ID                         = "RUN_DYN_STANCE_TIME_AVG";                         //$NON-NLS-1$
    public static final TableColumnFactory RUN_DYN_STANCE_TIME_MIN;
@@ -392,10 +395,16 @@ public abstract class TableColumnFactory {
    public static final String             SENSOR_NAME_KEY_ID                                 = "SENSOR_NAME_KEY";                                 //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_DESCRIPTION;
    public static final String             SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_DEVICE_NAME;
+   public static final String             SENSOR_DEVICE_NAME_ID                              = "SENSOR_DEVICE_NAME";                              //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_DEVICE_TYPE;
+   public static final String             SENSOR_DEVICE_TYPE_ID                              = "SENSOR_DEVICE_TYPE";                              //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NAME;
    public static final String             SENSOR_MANUFACTURER_NAME_ID                        = "SENSOR_MANUFACTURER_NAME";                        //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NUMBER;
    public static final String             SENSOR_MANUFACTURER_NUMBER_ID                      = "SENSOR_MANUFACTURER_NUMBER";                      //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_NUMBER_OF_TOURS;
+   public static final String             SENSOR_NUMBER_OF_TOURS_ID                          = "SENSOR_NUMBER_OF_TOURS";                          //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NAME;
    public static final String             SENSOR_PRODUCT_NAME_ID                             = "SENSOR_PRODUCT_NAME";                             //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NUMBER;
@@ -483,6 +492,8 @@ public abstract class TableColumnFactory {
 
    public static final TableColumnFactory TOUR_DESCRIPTION;
    public static final String             TOUR_DESCRIPTION_ID                                = "TOUR_DESCRIPTION";                                //$NON-NLS-1$
+   public static final TableColumnFactory TOUR_EQUIPMENT;
+   public static final String             TOUR_EQUIPMENT_ID                                  = "TOUR_EQUIPMENT";                                  //$NON-NLS-1$
    public static final TableColumnFactory TOUR_LOCATION_START;
    public static final String             TOUR_LOCATION_START_ID                             = "TOUR_LOCATION_START";                             //$NON-NLS-1$
    public static final TableColumnFactory TOUR_LOCATION_END;
@@ -3060,6 +3071,30 @@ public abstract class TableColumnFactory {
       };
 
       /*
+       * Radar
+       */
+
+      RADAR_PASSED_VEHICLES = new TableColumnFactory() {
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, RADAR_PASSED_VEHICLES_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Radar);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Radar_PassedVehicles);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Radar_PassedVehicles);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Radar_PassedVehicles_Header);
+            colDef.setColumnUnit(               UI.SYMBOL_NUMBER_SIGN);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(5));
+
+            return colDef;
+         }
+      };
+
+      /*
        * Running dynamics
        */
 
@@ -3624,6 +3659,26 @@ public abstract class TableColumnFactory {
          }
       };
 
+      SENSOR_NUMBER_OF_TOURS = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_NUMBER_OF_TOURS_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_NumberOfTours);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_NumberOfTours_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_NumberOfTours);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
       SENSOR_PRODUCT_NAME = new TableColumnFactory() {
 
          @Override
@@ -3800,6 +3855,47 @@ public abstract class TableColumnFactory {
             return colDef;
          }
       };
+
+      SENSOR_DEVICE_NAME = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_DEVICE_NAME_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_DeviceName_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_DeviceName_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_DeviceName_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
+      SENSOR_DEVICE_TYPE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_DEVICE_TYPE_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_DeviceType_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_DeviceType_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_DeviceType_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
 
       /*
        * States
@@ -4699,6 +4795,30 @@ public abstract class TableColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
 
+            return colDef;
+         }
+      };
+
+      TOUR_EQUIPMENT = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, TOUR_EQUIPMENT_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TourEquipment_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TourEquipment_Label);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_TourEquipment_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+
+            colDef.setValueFormats(             ValueFormatSet.Equipment,
+                                                ValueFormat.EQUIPMENT_BRAND_MODEL,
+                                                columnManager);
             return colDef;
          }
       };

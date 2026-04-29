@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -52,6 +52,8 @@ import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentGroup;
+import net.tourbook.equipment.EquipmentGroupManager;
 import net.tourbook.tour.CadenceMultiplier;
 import net.tourbook.tour.TourLogManager;
 import net.tourbook.tour.TourLogState;
@@ -83,20 +85,25 @@ public class EasyImportManager {
    private static final String      TAG_DASH_CONFIG                                       = "DashConfig";                                             //$NON-NLS-1$
    private static final String      TAG_IMPORT_CONFIG                                     = "ImportConfig";                                           //$NON-NLS-1$
    private static final String      TAG_LAUNCHER_CONFIG                                   = "LauncherConfig";                                         //$NON-NLS-1$
-   private static final String      TAG_TOUR_TYPE_BY_SPEED                                = "Speed";                                                  //$NON-NLS-1$
+   //                                                                                        preserve old name
+   private static final String      TAG_SPEED_TOUR_TYPE                                   = "Speed";                                                  //$NON-NLS-1$
+   private static final String      TAG_SPEED_CADENCE                                     = "SpeedCadence";                                           //$NON-NLS-1$
+   private static final String      TAG_SPEED_EQUIPMENT                                   = "SpeedEquipment";                                         //$NON-NLS-1$
    //
    private static final String      ATTR_AVG_SPEED                                        = "avgSpeed";                                               //$NON-NLS-1$
    private static final String      ATTR_BACKUP_FOLDER                                    = "backupFolder";                                           //$NON-NLS-1$
    private static final String      ATTR_DEVICE_FILES                                     = "deviceFiles";                                            //$NON-NLS-1$
    private static final String      ATTR_DEVICE_FOLDER                                    = "deviceFolder";                                           //$NON-NLS-1$
    private static final String      ATTR_DEVICE_TYPE                                      = "deviceType";                                             //$NON-NLS-1$
+   private static final String      ATTR_EQUIPMENT_GROUP_ID                               = "equipmentGroupId";                                       //$NON-NLS-1$
+   private static final String      ATTR_EQUIPMENT_GROUP_NAME                             = "equipmentGroupName";                                     //$NON-NLS-1$
    private static final String      ATTR_IS_ACTIVE_CONFIG                                 = "isActiveConfig";                                         //$NON-NLS-1$
    private static final String      ATTR_IS_CREATE_BACKUP                                 = "isCreateBackup";                                         //$NON-NLS-1$
    private static final String      ATTR_IS_DELETE_DEVICE_FILES                           = "isDeleteDeviceFiles";                                    //$NON-NLS-1$
    private static final String      ATTR_IS_TURN_OFF_WATCHING                             = "isTurnOffWatching";                                      //$NON-NLS-1$
    private static final String      ATTR_NAME                                             = "name";                                                   //$NON-NLS-1$
-   private static final String      ATTR_TOUR_TYPE_CONFIG                                 = "tourTypeConfig";                                         //$NON-NLS-1$
    private static final String      ATTR_TOUR_TYPE_ID                                     = "tourTypeId";                                             //$NON-NLS-1$
+   private static final String      ATTR_TOUR_TYPE_NAME                                   = "tourTypeName";                                           //$NON-NLS-1$
    //
    private static final String      ATTR_DASH_BACKGROUND_OPACITY                          = "backgroundOpacity";                                      //$NON-NLS-1$
    private static final String      ATTR_DASH_ANIMATION_CRAZY_FACTOR                      = "animationCrazyFactor";                                   //$NON-NLS-1$
@@ -123,15 +130,21 @@ public class EasyImportManager {
    private static final String      ATTR_IL_IS_SAVE_TOUR                                  = "isSaveTour";                                             //$NON-NLS-1$
    private static final String      ATTR_IL_IS_SHOW_IN_DASHBOARD                          = "isShowInDashBoard";                                      //$NON-NLS-1$
    private static final String      ATTR_IL_IS_SET_LAST_MARKER                            = "isSetLastMarker";                                        //$NON-NLS-1$
+   private static final String      ATTR_IL_IS_SET_TOUR_CADENCE                           = "isSetTourCadence";                                       //$NON-NLS-1$
+   private static final String      ATTR_IL_IS_SET_TOUR_EQUIPMENT                         = "isSetTourEquipment";                                     //$NON-NLS-1$
    private static final String      ATTR_IL_IS_SET_TOUR_TYPE                              = "isSetTourType";                                          //$NON-NLS-1$
    private static final String      ATTR_IL_IS_SET_TOUR_TAG_GROUP                         = "isSetTourTagGroup";                                      //$NON-NLS-1$
    private static final String      ATTR_IL_LAST_MARKER_TEXT                              = "lastMarkerText";                                         //$NON-NLS-1$
    private static final String      ATTR_IL_LAST_MARKER_DISTANCE                          = "lastMarkerDistance";                                     //$NON-NLS-1$
    private static final String      ATTR_IL_TEMPERATURE_ADJUSTMENT_DURATION               = "temperatureAdjustmentDuration";                          //$NON-NLS-1$
    private static final String      ATTR_IL_TEMPERATURE_TOUR_AVG_TEMPERATURE              = "tourAverageTemperature";                                 //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_CADENCE                                  = "tourCadence";                                            //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_CADENCE_CONFIG                           = "tourCadenceConfig";                                      //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_EQUIPMENT_CONFIG                         = "tourEquipmentConfig";                                    //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_EQUIPMENT_ONE_GROUP_ID                   = "tourEquipmentOneGroupID";                                //$NON-NLS-1$
    private static final String      ATTR_IL_TOUR_TAG_GROUP_ID                             = "tourTagGroupID";                                         //$NON-NLS-1$
    private static final String      ATTR_IL_TOUR_LOCATION_PROFILE_NAME                    = "tourLocationProfileName";                                //$NON-NLS-1$
-   private static final String      ATTR_IL_TOUR_TYPE_CADENCE                             = "tourTypeCadence";                                        //$NON-NLS-1$
+   private static final String      ATTR_IL_TOUR_TYPE_CONFIG                              = "tourTypeConfig";                                         //$NON-NLS-1$
    //
    public static final String       LOG_EASY_IMPORT_000_IMPORT_START                      = Messages.Log_EasyImport_000_ImportStart;
    private static final String      LOG_EASY_IMPORT_001_BACKUP_TOUR_FILES                 = Messages.Log_EasyImport_001_BackupTourFiles;
@@ -146,6 +159,8 @@ public class EasyImportManager {
    public static final String       LOG_EASY_IMPORT_006_ADJUST_ELEVATION                  = Messages.Log_EasyImport_006_AdjustElevation;
    public static final String       LOG_EASY_IMPORT_007_REPLACE_ELEVATION_FROM_SRTM       = Messages.Log_EasyImport_006_ReplaceElevationFromSRTM;
    public static final String       LOG_EASY_IMPORT_008_SET_TOUR_TAGS                     = Messages.Log_EasyImport_008_SetTourTags;
+   public static final String       LOG_EASY_IMPORT_009_SET_EQUIPMENT                     = Messages.Log_EasyImport_009_SetEquipment;
+   public static final String       LOG_EASY_IMPORT_010_SET_CADENCE                       = "10. Set cadence - %s";
    public static final String       LOG_EASY_IMPORT_050_RETRIEVE_WEATHER_DATA             = Messages.Log_EasyImport_050_RetrieveWeatherData;
    public static final String       LOG_EASY_IMPORT_051_RETRIEVE_TOUR_LOCATION            = Messages.Log_EasyImport_051_RetrieveTourLocation;
    public static final String       LOG_EASY_IMPORT_099_SAVE_TOUR                         = Messages.Log_EasyImport_099_SaveTour;
@@ -792,114 +807,240 @@ public class EasyImportManager {
       }
    }
 
-   private void loadEasyConfig_40_Launcher(final XMLMemento xmlConfig, final EasyConfig dashConfig) {
+   private void loadEasyConfig_40_Launcher(final XMLMemento xmlLauncherConfig, final EasyConfig dashConfig) {
 
       final ImportLauncher importLauncher = new ImportLauncher();
 
       dashConfig.importLaunchers.add(importLauncher);
 
-      importLauncher.name = Util.getXmlString(xmlConfig, ATTR_NAME, UI.EMPTY_STRING);
-      importLauncher.description = Util.getXmlString(xmlConfig, ATTR_IL_DESCRIPTION, UI.EMPTY_STRING);
-      importLauncher.isSaveTour = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SAVE_TOUR, false);
-      importLauncher.isShowInDashboard = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SHOW_IN_DASHBOARD, true);
+// SET_FORMATTING_OFF
+
+      importLauncher.name                 = Util.getXmlString(xmlLauncherConfig, ATTR_NAME, UI.EMPTY_STRING);
+      importLauncher.description          = Util.getXmlString(xmlLauncherConfig, ATTR_IL_DESCRIPTION, UI.EMPTY_STRING);
+      importLauncher.isSaveTour           = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_SAVE_TOUR, false);
+      importLauncher.isShowInDashboard    = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_SHOW_IN_DASHBOARD, true);
 
       // 2nd last timeslice
-      importLauncher.isRemove2ndLastTimeSliceMarker = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_REMOVE_2ND_LAST_TIME_SLICE_MARKER, false);
+      importLauncher.isRemove2ndLastTimeSliceMarker = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_REMOVE_2ND_LAST_TIME_SLICE_MARKER, false);
 
       // last marker
-      importLauncher.isSetLastMarker = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SET_LAST_MARKER, false);
-      importLauncher.lastMarkerText = Util.getXmlString(xmlConfig, ATTR_IL_LAST_MARKER_TEXT, UI.EMPTY_STRING);
-      importLauncher.lastMarkerDistance = Util.getXmlInteger(
-            xmlConfig,
+      importLauncher.isSetLastMarker      = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_SET_LAST_MARKER, false);
+      importLauncher.lastMarkerText       = Util.getXmlString(xmlLauncherConfig, ATTR_IL_LAST_MARKER_TEXT, UI.EMPTY_STRING);
+      importLauncher.lastMarkerDistance   = Util.getXmlInteger(
+            xmlLauncherConfig,
             ATTR_IL_LAST_MARKER_DISTANCE,
             EasyConfig.LAST_MARKER_DISTANCE_DEFAULT,
             EasyConfig.LAST_MARKER_DISTANCE_MIN,
             EasyConfig.LAST_MARKER_DISTANCE_MAX);
 
       // adjust temperature
-      importLauncher.isAdjustTemperature = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_ADJUST_TEMPERATURE, false);
+      importLauncher.isAdjustTemperature           = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_ADJUST_TEMPERATURE, false);
       importLauncher.temperatureAdjustmentDuration = Util.getXmlInteger(
-            xmlConfig,
+            xmlLauncherConfig,
             ATTR_IL_TEMPERATURE_ADJUSTMENT_DURATION,
             EasyConfig.TEMPERATURE_ADJUSTMENT_DURATION_DEFAULT);
-      importLauncher.tourAvgTemperature = Util.getXmlFloatInt(
-            xmlConfig,
+      importLauncher.tourAvgTemperature            = Util.getXmlFloatInt(
+            xmlLauncherConfig,
             ATTR_IL_TEMPERATURE_TOUR_AVG_TEMPERATURE,
             EasyConfig.TEMPERATURE_AVG_TEMPERATURE_DEFAULT,
             EasyConfig.TEMPERATURE_AVG_TEMPERATURE_MIN,
             EasyConfig.TEMPERATURE_AVG_TEMPERATURE_MAX);
 
       // retrieve weather data
-      importLauncher.isRetrieveWeatherData = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_RETRIEVE_WEATHER_DATA, false);
+      importLauncher.isRetrieveWeatherData      = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_RETRIEVE_WEATHER_DATA, false);
 
       // retrieve tour locations
-      importLauncher.isRetrieveTourLocation = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_RETRIEVE_TOUR_LOCATIONS, false);
-      importLauncher.tourLocationProfile = TourLocationManager.getProfile(Util.getXmlString(xmlConfig, ATTR_IL_TOUR_LOCATION_PROFILE_NAME, null));
+      importLauncher.isRetrieveTourLocation     = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_RETRIEVE_TOUR_LOCATIONS, false);
+      importLauncher.tourLocationProfile        = TourLocationManager.getProfile(Util.getXmlString(xmlLauncherConfig, ATTR_IL_TOUR_LOCATION_PROFILE_NAME, null));
 
       // set tour tag group
-      importLauncher.isSetTourTagGroup = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SET_TOUR_TAG_GROUP, false);
-      importLauncher.tourTagGroupID = Util.getXmlString(xmlConfig, ATTR_IL_TOUR_TAG_GROUP_ID, null);
+      importLauncher.isSetTourTagGroup          = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_SET_TOUR_TAG_GROUP, false);
+      importLauncher.tourTagGroupID             = Util.getXmlString(xmlLauncherConfig, ATTR_IL_TOUR_TAG_GROUP_ID, null);
 
       // adjust elevation
-      importLauncher.isReplaceFirstTimeSliceElevation = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_REPLACE_FIRST_TIME_SLICE_ELEVATION, false);
+      importLauncher.isReplaceFirstTimeSliceElevation = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_REPLACE_FIRST_TIME_SLICE_ELEVATION, false);
 
       // replace elevation from SRTM
-      importLauncher.isReplaceElevationFromSRTM = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_REPLACE_ELEVATION_FROM_SRTM, false);
+      importLauncher.isReplaceElevationFromSRTM = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_REPLACE_ELEVATION_FROM_SRTM, false);
+
+      loadEasyConfig_41_Laucher_Cadence   (xmlLauncherConfig, importLauncher);
+      loadEasyConfig_42_Laucher_Equipment (xmlLauncherConfig, importLauncher);
+      loadEasyConfig_43_Laucher_TourType  (xmlLauncherConfig, importLauncher);
+
+// SET_FORMATTING_ON
+
+      importLauncher.setupItemImage();
+   }
+
+   private void loadEasyConfig_41_Laucher_Cadence(final XMLMemento xmlConfig,
+                                                  final ImportLauncher importLauncher) {
+
+      // set cadence
+      importLauncher.isSetCadence = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SET_TOUR_CADENCE, false);
+
+      final Enum<CadenceConfig> cadConfig = Util.getXmlEnum(
+            xmlConfig,
+            ATTR_IL_TOUR_CADENCE_CONFIG,
+            CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL);
+
+      importLauncher.cadenceConfig = cadConfig;
+
+      if (CadenceConfig.CADENCE_CONFIG_BY_SPEED.equals(cadConfig)) {
+
+         final List<SpeedCadence> allCadSpeeds = importLauncher.allCadenceSpeeds;
+
+         for (final IMemento memento : xmlConfig.getChildren()) {
+
+            final XMLMemento xmlChild = (XMLMemento) memento;
+            final String xmlType = xmlChild.getType();
+
+            if (TAG_SPEED_CADENCE.equals(xmlType)) {
+
+               final XMLMemento xmlSpeed = (XMLMemento) memento;
+
+               final SpeedCadence cadSpeed = new SpeedCadence();
+
+               cadSpeed.cadenceMultiplier = (CadenceMultiplier) Util.getXmlEnum(xmlSpeed,
+                     ATTR_IL_TOUR_CADENCE,
+                     RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
+
+               cadSpeed.avgSpeed = Util.getXmlFloatFloat(
+                     xmlSpeed,
+                     ATTR_AVG_SPEED,
+                     EasyConfig.TOUR_AVG_SPEED_DEFAULT,
+                     EasyConfig.TOUR_AVG_SPEED_MIN,
+                     EasyConfig.TOUR_AVG_SPEED_MAX);
+
+               allCadSpeeds.add(cadSpeed);
+            }
+         }
+
+      } else if (CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL.equals(cadConfig)) {
+
+         importLauncher.cadenceOne = (CadenceMultiplier) Util.getXmlEnum(xmlConfig,
+               ATTR_IL_TOUR_CADENCE,
+               RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
+
+      } else {
+
+         // cadence is not set
+      }
+   }
+
+   private void loadEasyConfig_42_Laucher_Equipment(final XMLMemento xmlConfig,
+                                                    final ImportLauncher importLauncher) {
+
+      // set equipment
+      importLauncher.isSetEquipment = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SET_TOUR_EQUIPMENT, false);
+
+      final Enum<EquipmentConfig> eqConfig = Util.getXmlEnum(
+            xmlConfig,
+            ATTR_IL_TOUR_EQUIPMENT_CONFIG,
+            EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL);
+
+      importLauncher.equipmentConfig = eqConfig;
+
+      if (EquipmentConfig.EQUIPMENT_CONFIG_BY_SPEED.equals(eqConfig)) {
+
+         final List<SpeedEquipment> allEqSpeeds = importLauncher.allEquipmentSpeeds;
+
+         for (final IMemento memento : xmlConfig.getChildren()) {
+
+            final XMLMemento xmlChild = (XMLMemento) memento;
+            final String xmlType = xmlChild.getType();
+
+            if (TAG_SPEED_EQUIPMENT.equals(xmlType)) {
+
+               final XMLMemento xmlSpeed = (XMLMemento) memento;
+
+               // check if group id is valid
+               final String xmlEqGroupId = Util.getXmlString(xmlSpeed, ATTR_EQUIPMENT_GROUP_ID, null);
+               final EquipmentGroup validEqGroup = EquipmentGroupManager.getEquipmentGroup(xmlEqGroupId);
+
+               if (validEqGroup != null) {
+
+                  final SpeedEquipment eqSpeed = new SpeedEquipment();
+
+                  eqSpeed.equipmentGroupID = xmlEqGroupId;
+
+                  eqSpeed.avgSpeed = Util.getXmlFloatFloat(
+                        xmlSpeed,
+                        ATTR_AVG_SPEED,
+                        EasyConfig.TOUR_AVG_SPEED_DEFAULT,
+                        EasyConfig.TOUR_AVG_SPEED_MIN,
+                        EasyConfig.TOUR_AVG_SPEED_MAX);
+
+                  allEqSpeeds.add(eqSpeed);
+               }
+            }
+         }
+
+      } else if (EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL.equals(eqConfig)) {
+
+         importLauncher.equipmentOneGroupID = Util.getXmlString(xmlConfig, ATTR_IL_TOUR_EQUIPMENT_ONE_GROUP_ID, null);
+
+      } else {
+
+         // equipment is not set
+      }
+   }
+
+   private void loadEasyConfig_43_Laucher_TourType(final XMLMemento xmlLauncherConfig,
+                                                   final ImportLauncher importLauncher) {
 
       // set your type, default is true to preserve previous saved tour types before this field was introduced
-      importLauncher.isSetTourType = Util.getXmlBoolean(xmlConfig, ATTR_IL_IS_SET_TOUR_TYPE, true);
+      importLauncher.isSetTourType = Util.getXmlBoolean(xmlLauncherConfig, ATTR_IL_IS_SET_TOUR_TYPE, true);
 
       final Enum<TourTypeConfig> ttConfig = Util.getXmlEnum(
-            xmlConfig,
-            ATTR_TOUR_TYPE_CONFIG,
+            xmlLauncherConfig,
+            ATTR_IL_TOUR_TYPE_CONFIG,
             TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL);
 
       importLauncher.tourTypeConfig = ttConfig;
 
       if (TourTypeConfig.TOUR_TYPE_CONFIG_BY_SPEED.equals(ttConfig)) {
 
-         final ArrayList<SpeedTourType> speedVertices = importLauncher.speedTourTypes;
+         final List<SpeedTourType> speedVertices = importLauncher.allTourTypeSpeeds;
 
-         for (final IMemento memento : xmlConfig.getChildren()) {
+         for (final IMemento memento : xmlLauncherConfig.getChildren()) {
 
-            final XMLMemento xmlSpeed = (XMLMemento) memento;
+            final XMLMemento xmlChild = (XMLMemento) memento;
+            final String xmlType = xmlChild.getType();
 
-            final Long xmlTourTypeId = Util.getXmlLong(xmlSpeed, ATTR_TOUR_TYPE_ID, null);
+            if (TAG_SPEED_TOUR_TYPE.equals(xmlType)) {
 
-            /*
-             * Check if the loaded tour type id is valid
-             */
-            final TourType tourType = TourDatabase.getTourType(xmlTourTypeId);
+               final XMLMemento xmlSpeed = (XMLMemento) memento;
 
-            if (tourType != null) {
+               final Long xmlTourTypeId = Util.getXmlLong(xmlSpeed, ATTR_TOUR_TYPE_ID, null);
 
-               final SpeedTourType speedVertex = new SpeedTourType();
+               /*
+                * Check if the loaded tour type id is valid
+                */
+               final TourType tourType = TourDatabase.getTourType(xmlTourTypeId);
 
-               speedVertex.tourTypeId = xmlTourTypeId;
+               if (tourType != null) {
 
-               speedVertex.avgSpeed = Util.getXmlFloatFloat(
-                     xmlSpeed,
-                     ATTR_AVG_SPEED,
-                     EasyConfig.TOUR_TYPE_AVG_SPEED_DEFAULT,
-                     EasyConfig.TOUR_TYPE_AVG_SPEED_MIN,
-                     EasyConfig.TOUR_TYPE_AVG_SPEED_MAX);
+                  final SpeedTourType speedVertex = new SpeedTourType();
 
-               speedVertex.cadenceMultiplier = (CadenceMultiplier) Util.getXmlEnum(xmlSpeed,
-                     ATTR_IL_TOUR_TYPE_CADENCE,
-                     RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
+                  speedVertex.tourTypeId = xmlTourTypeId;
 
-               speedVertices.add(speedVertex);
+                  speedVertex.avgSpeed = Util.getXmlFloatFloat(
+                        xmlSpeed,
+                        ATTR_AVG_SPEED,
+                        EasyConfig.TOUR_AVG_SPEED_DEFAULT,
+                        EasyConfig.TOUR_AVG_SPEED_MIN,
+                        EasyConfig.TOUR_AVG_SPEED_MAX);
+
+                  speedVertices.add(speedVertex);
+               }
             }
          }
 
       } else if (TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL.equals(ttConfig)) {
 
-         final Long xmlTourTypeId = Util.getXmlLong(xmlConfig, ATTR_TOUR_TYPE_ID, null);
+         final Long xmlTourTypeId = Util.getXmlLong(xmlLauncherConfig, ATTR_TOUR_TYPE_ID, null);
 
          importLauncher.oneTourType = TourDatabase.getTourType(xmlTourTypeId);
-         importLauncher.oneTourTypeCadence = (CadenceMultiplier) Util.getXmlEnum(xmlConfig,
-               ATTR_IL_TOUR_TYPE_CADENCE,
-               RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT);
 
       } else {
 
@@ -1179,26 +1320,26 @@ public class EasyImportManager {
        * Dashboard config
        */
       {
-         final IMemento xmlConfig = xmlMemento.createChild(TAG_DASH_CONFIG);
+         final IMemento xmlDashConfig = xmlMemento.createChild(TAG_DASH_CONFIG);
 
-         xmlConfig.putInteger(ATTR_DASH_ANIMATION_CRAZY_FACTOR,                     dashConfig.animationCrazinessFactor);
-         xmlConfig.putInteger(ATTR_DASH_ANIMATION_DURATION,                         dashConfig.animationDuration);
-         xmlConfig.putInteger(ATTR_DASH_BACKGROUND_OPACITY,                         dashConfig.backgroundOpacity);
-         xmlConfig.putBoolean(ATTR_DASH_IS_LIVE_UPDATE,                             dashConfig.isLiveUpdate);
-         xmlConfig.putBoolean(ATTR_DASH_IS_LOG_DETAILS,                             dashConfig.isLogDetails);
-         xmlConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_CLOUD_APPS,                    dashConfig.isShowTile_CloudApps);
-         xmlConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_FILES,                         dashConfig.isShowTile_Files);
-         xmlConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_FOSSIL_UI,                     dashConfig.isShowTile_FossilUI);
-         xmlConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_SERIAL_PORT,                   dashConfig.isShowTile_SerialPort);
-         xmlConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_SERIAL_PORT_WITH_CONFIG,       dashConfig.isShowTile_SerialPortWithConfig);
-         xmlConfig.putInteger(ATTR_DASH_NUM_UI_COLUMNS,                             dashConfig.numHorizontalTiles);
-         xmlConfig.putBoolean(ATTR_DASH_STATE_TOOLTIP_DISPLAY_ABSOLUTE_FILE_PATH,   dashConfig.stateToolTipDisplayAbsoluteFilePath);
-         xmlConfig.putInteger(ATTR_DASH_STATE_TOOLTIP_WIDTH,                        dashConfig.stateToolTipWidth);
-         xmlConfig.putInteger(ATTR_DASH_TILE_SIZE,                                  dashConfig.tileSize);
+         xmlDashConfig.putInteger(ATTR_DASH_ANIMATION_CRAZY_FACTOR,                     dashConfig.animationCrazinessFactor);
+         xmlDashConfig.putInteger(ATTR_DASH_ANIMATION_DURATION,                         dashConfig.animationDuration);
+         xmlDashConfig.putInteger(ATTR_DASH_BACKGROUND_OPACITY,                         dashConfig.backgroundOpacity);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_LIVE_UPDATE,                             dashConfig.isLiveUpdate);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_LOG_DETAILS,                             dashConfig.isLogDetails);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_CLOUD_APPS,                    dashConfig.isShowTile_CloudApps);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_FILES,                         dashConfig.isShowTile_Files);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_FOSSIL_UI,                     dashConfig.isShowTile_FossilUI);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_SERIAL_PORT,                   dashConfig.isShowTile_SerialPort);
+         xmlDashConfig.putBoolean(ATTR_DASH_IS_SHOW_TILE_SERIAL_PORT_WITH_CONFIG,       dashConfig.isShowTile_SerialPortWithConfig);
+         xmlDashConfig.putInteger(ATTR_DASH_NUM_UI_COLUMNS,                             dashConfig.numHorizontalTiles);
+         xmlDashConfig.putBoolean(ATTR_DASH_STATE_TOOLTIP_DISPLAY_ABSOLUTE_FILE_PATH,   dashConfig.stateToolTipDisplayAbsoluteFilePath);
+         xmlDashConfig.putInteger(ATTR_DASH_STATE_TOOLTIP_WIDTH,                        dashConfig.stateToolTipWidth);
+         xmlDashConfig.putInteger(ATTR_DASH_TILE_SIZE,                                  dashConfig.tileSize);
       }
 
       /*
-       * Import configs
+       * All import config
        */
       final ImportConfig activeImportConfig = dashConfig.getActiveImportConfig();
 
@@ -1206,85 +1347,92 @@ public class EasyImportManager {
 
          final boolean isActiveConfig = activeImportConfig.equals(importConfig);
 
-         final IMemento xmlConfig = xmlMemento.createChild(TAG_IMPORT_CONFIG);
+         final IMemento xmlImportConfig = xmlMemento.createChild(TAG_IMPORT_CONFIG);
 
-         xmlConfig.putString(ATTR_NAME, importConfig.name);
+         xmlImportConfig.putString( ATTR_NAME,                    importConfig.name);
 
-         xmlConfig.putBoolean(ATTR_IS_ACTIVE_CONFIG,        isActiveConfig);
-         xmlConfig.putBoolean(ATTR_IS_CREATE_BACKUP,        importConfig.isCreateBackup);
-         xmlConfig.putBoolean(ATTR_IS_DELETE_DEVICE_FILES,  importConfig.isDeleteDeviceFiles);
-         xmlConfig.putBoolean(ATTR_IS_TURN_OFF_WATCHING,    importConfig.isTurnOffWatching);
+         xmlImportConfig.putBoolean(ATTR_IS_ACTIVE_CONFIG,        isActiveConfig);
+         xmlImportConfig.putBoolean(ATTR_IS_CREATE_BACKUP,        importConfig.isCreateBackup);
+         xmlImportConfig.putBoolean(ATTR_IS_DELETE_DEVICE_FILES,  importConfig.isDeleteDeviceFiles);
+         xmlImportConfig.putBoolean(ATTR_IS_TURN_OFF_WATCHING,    importConfig.isTurnOffWatching);
 
-         xmlConfig.putString(ATTR_BACKUP_FOLDER,            importConfig.getBackupFolder());
-         xmlConfig.putString(ATTR_DEVICE_FOLDER,            importConfig.getDeviceFolder());
-         xmlConfig.putInteger(ATTR_DEVICE_TYPE,             importConfig.getDeviceType());
+         xmlImportConfig.putString( ATTR_BACKUP_FOLDER,           importConfig.getBackupFolder());
+         xmlImportConfig.putString( ATTR_DEVICE_FOLDER,           importConfig.getDeviceFolder());
+         xmlImportConfig.putInteger(ATTR_DEVICE_TYPE,             importConfig.getDeviceType());
 
-         xmlConfig.putString(ATTR_DEVICE_FILES,             importConfig.fileGlobPattern);
+         xmlImportConfig.putString( ATTR_DEVICE_FILES,            importConfig.fileGlobPattern);
       }
 
       /*
-       * Import launcher configs
+       * All import launcher
        */
       for (final ImportLauncher importLauncher : dashConfig.importLaunchers) {
 
-         final IMemento xmlConfig = xmlMemento.createChild(TAG_LAUNCHER_CONFIG);
+         final IMemento xmlLauncherConfig = xmlMemento.createChild(TAG_LAUNCHER_CONFIG);
 
-         xmlConfig.putString(ATTR_NAME,                                 importLauncher.name);
-         xmlConfig.putString(ATTR_IL_DESCRIPTION,                       importLauncher.description);
-         xmlConfig.putBoolean(ATTR_IL_IS_SAVE_TOUR,                     importLauncher.isSaveTour);
-         xmlConfig.putBoolean(ATTR_IL_IS_SHOW_IN_DASHBOARD,             importLauncher.isShowInDashboard);
+         xmlLauncherConfig.putString( ATTR_NAME,                                importLauncher.name);
+         xmlLauncherConfig.putString( ATTR_IL_DESCRIPTION,                      importLauncher.description);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_SAVE_TOUR,                     importLauncher.isSaveTour);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_SHOW_IN_DASHBOARD,             importLauncher.isShowInDashboard);
 
          // 2nd last timeslice
-         xmlConfig.putBoolean(ATTR_IL_IS_REMOVE_2ND_LAST_TIME_SLICE_MARKER,   importLauncher.isRemove2ndLastTimeSliceMarker);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_REMOVE_2ND_LAST_TIME_SLICE_MARKER,   importLauncher.isRemove2ndLastTimeSliceMarker);
 
          // last marker
-         xmlConfig.putBoolean(ATTR_IL_IS_SET_LAST_MARKER,               importLauncher.isSetLastMarker);
-         xmlConfig.putString(ATTR_IL_LAST_MARKER_TEXT,                  importLauncher.lastMarkerText);
-         xmlConfig.putInteger(ATTR_IL_LAST_MARKER_DISTANCE,             importLauncher.lastMarkerDistance);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_SET_LAST_MARKER,               importLauncher.isSetLastMarker);
+         xmlLauncherConfig.putString( ATTR_IL_LAST_MARKER_TEXT,                 importLauncher.lastMarkerText);
+         xmlLauncherConfig.putInteger(ATTR_IL_LAST_MARKER_DISTANCE,             importLauncher.lastMarkerDistance);
 
          // adjust temperature
-         xmlConfig.putBoolean(ATTR_IL_IS_ADJUST_TEMPERATURE,            importLauncher.isAdjustTemperature);
-         xmlConfig.putInteger(ATTR_IL_TEMPERATURE_ADJUSTMENT_DURATION,  importLauncher.temperatureAdjustmentDuration);
-         xmlConfig.putFloat(ATTR_IL_TEMPERATURE_TOUR_AVG_TEMPERATURE,   importLauncher.tourAvgTemperature);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_ADJUST_TEMPERATURE,            importLauncher.isAdjustTemperature);
+         xmlLauncherConfig.putInteger(ATTR_IL_TEMPERATURE_ADJUSTMENT_DURATION,  importLauncher.temperatureAdjustmentDuration);
+         xmlLauncherConfig.putFloat(  ATTR_IL_TEMPERATURE_TOUR_AVG_TEMPERATURE, importLauncher.tourAvgTemperature);
 
          // Retrieve weather data
-         xmlConfig.putBoolean(ATTR_IL_IS_RETRIEVE_WEATHER_DATA,         importLauncher.isRetrieveWeatherData);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_RETRIEVE_WEATHER_DATA,         importLauncher.isRetrieveWeatherData);
 
          // retrieve tour locations
-         xmlConfig.putBoolean(ATTR_IL_IS_RETRIEVE_TOUR_LOCATIONS,       importLauncher.isRetrieveTourLocation);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_RETRIEVE_TOUR_LOCATIONS,       importLauncher.isRetrieveTourLocation);
          if (importLauncher.tourLocationProfile != null) {
-            xmlConfig.putString(ATTR_IL_TOUR_LOCATION_PROFILE_NAME,     importLauncher.tourLocationProfile.getName());
+            xmlLauncherConfig.putString(ATTR_IL_TOUR_LOCATION_PROFILE_NAME,     importLauncher.tourLocationProfile.getName());
          }
 
          // retrieve tour tag group
-         xmlConfig.putBoolean(ATTR_IL_IS_SET_TOUR_TAG_GROUP,            importLauncher.isSetTourTagGroup);
-         xmlConfig.putString(ATTR_IL_TOUR_TAG_GROUP_ID,                 importLauncher.tourTagGroupID);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_SET_TOUR_TAG_GROUP,            importLauncher.isSetTourTagGroup);
+         xmlLauncherConfig.putString(ATTR_IL_TOUR_TAG_GROUP_ID,                 importLauncher.tourTagGroupID);
 
          // adjust elevation
-         xmlConfig.putBoolean(ATTR_IL_IS_REPLACE_FIRST_TIME_SLICE_ELEVATION, importLauncher.isReplaceFirstTimeSliceElevation);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_REPLACE_FIRST_TIME_SLICE_ELEVATION, importLauncher.isReplaceFirstTimeSliceElevation);
 
          // replace elevation from SRTM
-         xmlConfig.putBoolean(ATTR_IL_IS_REPLACE_ELEVATION_FROM_SRTM, importLauncher.isReplaceElevationFromSRTM);
+         xmlLauncherConfig.putBoolean(ATTR_IL_IS_REPLACE_ELEVATION_FROM_SRTM,   importLauncher.isReplaceElevationFromSRTM);
 
-         // Set tour type
-         xmlConfig.putBoolean(ATTR_IL_IS_SET_TOUR_TYPE, importLauncher.isSetTourType);
-
+         /*
+          * Set tour type
+          */
          final Enum<TourTypeConfig> ttConfig = importLauncher.tourTypeConfig;
-         Util.setXmlEnum(xmlConfig, ATTR_TOUR_TYPE_CONFIG, ttConfig);
+
+         xmlLauncherConfig.putBoolean(      ATTR_IL_IS_SET_TOUR_TYPE,           importLauncher.isSetTourType);
+         Util.setXmlEnum(xmlLauncherConfig, ATTR_IL_TOUR_TYPE_CONFIG,           ttConfig);
 
          if (TourTypeConfig.TOUR_TYPE_CONFIG_BY_SPEED.equals(ttConfig)) {
 
-            for (final SpeedTourType speedVertex : importLauncher.speedTourTypes) {
+            for (final SpeedTourType speedVertex : importLauncher.allTourTypeSpeeds) {
 
-               final IMemento memento = xmlConfig.createChild(TAG_TOUR_TYPE_BY_SPEED);
+               final IMemento memento = xmlLauncherConfig.createChild(TAG_SPEED_TOUR_TYPE);
 
                if (memento instanceof XMLMemento) {
 
+                  final long tourTypeId = speedVertex.tourTypeId;
+                  final String tourTypeName = TourDatabase.getTourTypeName(tourTypeId);
+
                   final XMLMemento xmlSpeedVertex = (XMLMemento) memento;
 
-                  Util.setXmlLong(xmlSpeedVertex, ATTR_TOUR_TYPE_ID, speedVertex.tourTypeId);
+                  Util.setXmlLong(xmlSpeedVertex, ATTR_TOUR_TYPE_ID, tourTypeId);
                   xmlSpeedVertex.putFloat(ATTR_AVG_SPEED, speedVertex.avgSpeed);
-                  Util.setXmlEnum(xmlSpeedVertex, ATTR_IL_TOUR_TYPE_CADENCE, speedVertex.cadenceMultiplier);
+
+                  // this is just for info when the xml is debugged
+                  xmlSpeedVertex.putString(ATTR_TOUR_TYPE_NAME, tourTypeName);
                }
             }
 
@@ -1293,13 +1441,95 @@ public class EasyImportManager {
             final TourType oneTourType = importLauncher.oneTourType;
 
             if (oneTourType != null) {
-               Util.setXmlLong(xmlConfig, ATTR_TOUR_TYPE_ID,            oneTourType.getTypeId());
-               Util.setXmlEnum(xmlConfig, ATTR_IL_TOUR_TYPE_CADENCE,    importLauncher.oneTourTypeCadence);
+
+               final long tourTypeId = oneTourType.getTypeId();
+               final String tourTypeName = TourDatabase.getTourTypeName(tourTypeId);
+
+               Util.setXmlLong(xmlLauncherConfig, ATTR_TOUR_TYPE_ID,            tourTypeId);
+
+               // this is just for info when the xml is debugged
+               xmlLauncherConfig.putString(ATTR_TOUR_TYPE_NAME, tourTypeName);
             }
 
          } else {
 
-            // this is the default, a tour type is not set
+            // a tour type is not set
+         }
+
+         /*
+          * Set equipment
+          */
+         final Enum<EquipmentConfig> eqConfig = importLauncher.equipmentConfig;
+
+         xmlLauncherConfig.putBoolean(      ATTR_IL_IS_SET_TOUR_EQUIPMENT,      importLauncher.isSetEquipment);
+         Util.setXmlEnum(xmlLauncherConfig, ATTR_IL_TOUR_EQUIPMENT_CONFIG,      eqConfig);
+
+         if (EquipmentConfig.EQUIPMENT_CONFIG_BY_SPEED.equals(eqConfig)) {
+
+            for (final SpeedEquipment eqSpeed : importLauncher.allEquipmentSpeeds) {
+
+               final IMemento memento = xmlLauncherConfig.createChild(TAG_SPEED_EQUIPMENT);
+
+               if (memento instanceof XMLMemento) {
+
+                  final String equipmentGroupID = eqSpeed.equipmentGroupID;
+                  final String equipmentGroupName = EquipmentGroupManager.getEquipmentGroupName(equipmentGroupID);
+
+                  final XMLMemento xmlSpeedVertex = (XMLMemento) memento;
+
+                  xmlSpeedVertex.putFloat(ATTR_AVG_SPEED,               eqSpeed.avgSpeed);
+                  xmlSpeedVertex.putString(ATTR_EQUIPMENT_GROUP_ID,     equipmentGroupID);
+
+                  // this is just for info when the xml is debugged
+                  xmlSpeedVertex.putString(ATTR_EQUIPMENT_GROUP_NAME,   equipmentGroupName);
+               }
+            }
+
+         } else if (EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL.equals(eqConfig)) {
+
+            final String equipmentGroupID = importLauncher.equipmentOneGroupID;
+            final String equipmentGroupName = EquipmentGroupManager.getEquipmentGroupName(equipmentGroupID);
+
+            xmlLauncherConfig.putString(ATTR_IL_TOUR_EQUIPMENT_ONE_GROUP_ID,     equipmentGroupID);
+
+            // this is just for info when the xml is debugged
+            xmlLauncherConfig.putString(ATTR_EQUIPMENT_GROUP_NAME,               equipmentGroupName);
+
+         } else {
+
+            // an equipment is not set
+         }
+
+         /*
+          * Set cadence
+          */
+         final Enum<CadenceConfig> cadConfig = importLauncher.cadenceConfig;
+
+         xmlLauncherConfig.putBoolean(      ATTR_IL_IS_SET_TOUR_CADENCE,      importLauncher.isSetCadence);
+         Util.setXmlEnum(xmlLauncherConfig, ATTR_IL_TOUR_CADENCE_CONFIG,      cadConfig);
+
+         if (CadenceConfig.CADENCE_CONFIG_BY_SPEED.equals(cadConfig)) {
+
+            for (final SpeedCadence cadSpeed : importLauncher.allCadenceSpeeds) {
+
+               final IMemento memento = xmlLauncherConfig.createChild(TAG_SPEED_CADENCE);
+
+               if (memento instanceof XMLMemento) {
+
+                  final XMLMemento xmlSpeedVertex = (XMLMemento) memento;
+
+                  xmlSpeedVertex.putFloat(ATTR_AVG_SPEED,                  cadSpeed.avgSpeed);
+                  Util.setXmlEnum(xmlSpeedVertex, ATTR_IL_TOUR_CADENCE,    cadSpeed.cadenceMultiplier);
+               }
+            }
+
+         } else if (CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL.equals(cadConfig)) {
+
+            Util.setXmlEnum(xmlLauncherConfig, ATTR_IL_TOUR_CADENCE,       importLauncher.cadenceOne);
+
+         } else {
+
+            // a cadence is not set
          }
       }
 // SET_FORMATTING_ON
@@ -1314,7 +1544,6 @@ public class EasyImportManager {
    private void setTourType(final TourData tourData, final ImportLauncher importLauncher) {
 
       String tourTypeName = UI.EMPTY_STRING;
-      CadenceMultiplier tourTypeCadence = RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER_DEFAULT;
 
       final Enum<TourTypeConfig> ttConfig = importLauncher.tourTypeConfig;
 
@@ -1331,7 +1560,7 @@ public class EasyImportManager {
             tourAvgSpeed = tourDistanceKm / movingTime * 3.6;
          }
 
-         final ArrayList<SpeedTourType> speedTourTypes = importLauncher.speedTourTypes;
+         final List<SpeedTourType> speedTourTypes = importLauncher.allTourTypeSpeeds;
          long tourTypeId = -1;
 
          // find tour type for the tour avg speed
@@ -1340,7 +1569,6 @@ public class EasyImportManager {
             if (tourAvgSpeed <= speedTourType.avgSpeed) {
 
                tourTypeId = speedTourType.tourTypeId;
-               tourTypeCadence = speedTourType.cadenceMultiplier;
                break;
             }
          }
@@ -1351,11 +1579,6 @@ public class EasyImportManager {
             tourTypeName = tourType.getName();
 
             tourData.setTourType(tourType);
-            final float[] cadenceSerie = tourData.getCadenceSerie();
-            if (cadenceSerie != null && cadenceSerie.length > 0) {
-
-               tourData.setCadenceMultiplier(tourTypeCadence.getMultiplier());
-            }
          }
 
       } else if (TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL.equals(ttConfig)) {
@@ -1367,10 +1590,8 @@ public class EasyImportManager {
          if (tourType != null) {
 
             tourTypeName = tourType.getName();
-            tourTypeCadence = importLauncher.oneTourTypeCadence;
 
             tourData.setTourType(tourType);
-            tourData.setCadenceMultiplier(tourTypeCadence.getMultiplier());
          }
 
       } else {
@@ -1381,6 +1602,6 @@ public class EasyImportManager {
       TourLogManager.subLog_DEFAULT(String.format(
             LOG_EASY_IMPORT_003_TOUR_TYPE_ITEM,
             TourManager.getTourDateTimeShort(tourData),
-            String.format("%s (%s)", tourTypeName, tourTypeCadence.getNlsLabel())));//$NON-NLS-1$
+            String.format("%s", tourTypeName)));//$NON-NLS-1$
    }
 }

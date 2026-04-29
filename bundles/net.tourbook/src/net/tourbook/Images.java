@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,14 +24,14 @@ public class Images {
     * These images are currently translated
     */
 
-//   Image_Action_ShowSliderInMap         = map-marker-slider-right-action_it.png
-//   Image_Action_ShowSliderInMap_Left    = map-marker-slider-left-action.png
-//   Image_Action_ShowStartEndInMap       = map-marker-start-action_it.png
+//   Image_Action_ShowSliderInMap         = map-marker-slider-right-action_it.svg
+//   Image_Action_ShowSliderInMap_Left    = map-marker-slider-left-action.svg
+//   Image_Action_ShowStartEndInMap       = map-marker-start-action_it.svg
 
-//   Image_Map_MarkerSliderLeft           = map-marker-slider-left_it.png
-//   Image_Map_MarkerSliderRight          = map-marker-slider-right_it.png
-//   Image_Map_TourEndMarker              = map-marker-end_it.png
-//   Image_Map_TourStartMarker            = map-marker-start_it.png
+//   Image_Map_MarkerSliderLeft           = map-marker-slider-left_it.svg
+//   Image_Map_MarkerSliderRight          = map-marker-slider-right_it.svg
+//   Image_Map_TourEndMarker              = map-marker-end_it.svg
+//   Image_Map_TourStartMarker            = map-marker-start_it.svg
 
    /*
     * These images are not translated
@@ -70,12 +70,31 @@ public class Images {
    public static final String Checkbox_Uncheck                     = "checkbox-unchecked.svg";                      //$NON-NLS-1$
    public static final String ConconiChart                         = "conconi-chart.svg";                           //$NON-NLS-1$
    public static final String CSVFormat                            = "app-csv-format.svg";                          //$NON-NLS-1$
-   public static final String Cursor_Photo_Move                    = "cursor-photo-move.png";                       //$NON-NLS-1$
-   public static final String Cursor_Photo_Select                  = "cursor-photo-select.png";                     //$NON-NLS-1$
-   public static final String Cursor_Select                        = "cursor-select.png";                           //$NON-NLS-1$
+   public static final String Cursor_Photo_Move                    = "cursor-photo-move.svg";                       //$NON-NLS-1$
+   public static final String Cursor_Photo_Select                  = "cursor-photo-select.svg";                     //$NON-NLS-1$
+   public static final String Cursor_Select                        = "cursor-select.svg";                           //$NON-NLS-1$
    public static final String EasyImport_Harddrive                 = "hard-drive.svg";                              //$NON-NLS-1$
    public static final String EditRow                              = "edit-row.svg";                                //$NON-NLS-1$
    public static final String EditTour                             = "tour-editor.svg";                             //$NON-NLS-1$
+
+   public static final String Equipment                            = "equipment.svg";                               //$NON-NLS-1$
+   public static final String Equipment_Asset_Collated             = "equipment-asset-collated.svg";                //$NON-NLS-1$
+   public static final String Equipment_Checked                    = "equipment-checked.svg";                       //$NON-NLS-1$
+   public static final String Equipment_Collated                   = "equipment-collated.svg";                      //$NON-NLS-1$
+   public static final String Equipment_Duplicate                  = "equipment-duplicate.svg";                     //$NON-NLS-1$
+   public static final String Equipment_Filter                     = "equipment-filter.svg";                        //$NON-NLS-1$
+   public static final String Equipment_Filter_NoTours             = "equipment-filter-no-tours.svg";               //$NON-NLS-1$
+   public static final String Equipment_Only                       = "equipment-only.svg";                          //$NON-NLS-1$
+   public static final String Equipment_New                        = "equipment-new.svg";                           //$NON-NLS-1$
+   public static final String Equipment_Part                       = "equipment-part.svg";                          //$NON-NLS-1$
+   public static final String Equipment_Part_Collated              = "equipment-part-collated.svg";                 //$NON-NLS-1$
+   public static final String Equipment_Part_Duplicate             = "equipment-part-duplicate.svg";                //$NON-NLS-1$
+   public static final String Equipment_Part_New                   = "equipment-part-new.svg";                      //$NON-NLS-1$
+   public static final String Equipment_Service                    = "equipment-service.svg";                       //$NON-NLS-1$
+   public static final String Equipment_Service_Collated           = "equipment-service-collated.svg";              //$NON-NLS-1$
+   public static final String Equipment_Service_Duplicate          = "equipment-service-duplicate.svg";             //$NON-NLS-1$
+   public static final String Equipment_Service_New                = "equipment-service-new.svg";                   //$NON-NLS-1$
+
    public static final String GeoCompare_PinComparedTour           = "geo-compare-pin-compared-tour.svg";           //$NON-NLS-1$
    public static final String GeoCompare_SelectComparedTour        = "geo-compare-select-compared-tour.svg";        //$NON-NLS-1$
 
@@ -94,6 +113,10 @@ public class Images {
    public static final String Graph_Pace_Interval                  = "graph-pace-interval.svg";                     //$NON-NLS-1$
    public static final String Graph_Pace_Summarized                = "graph-pace-summarized.svg";                   //$NON-NLS-1$
    public static final String Graph_Power                          = "graph-power.svg";                             //$NON-NLS-1$
+   public static final String Graph_Radar_PassedVehicles           = "graph-radar-passed-vehicles.svg";             //$NON-NLS-1$
+   public static final String Graph_Radar_DistanceToVehicle        = "graph-radar-distance-to-vehicle.svg";         //$NON-NLS-1$
+   public static final String Graph_Radar_PassingSpeed_Absolute    = "graph-radar-passing-speed-absolute.svg";      //$NON-NLS-1$
+   public static final String Graph_Radar_PassingSpeed_Relative    = "graph-radar-passing-speed-relative.svg";      //$NON-NLS-1$
    public static final String Graph_RunDyn_StanceTime              = "graph-run-dyn-stance-time.svg";               //$NON-NLS-1$
    public static final String Graph_RunDyn_StanceTimeBalance       = "graph-run-dyn-stance-time-balance.svg";       //$NON-NLS-1$
    public static final String Graph_RunDyn_StepLength              = "graph-run-dyn-step-length.svg";               //$NON-NLS-1$
@@ -203,10 +226,11 @@ public class Images {
    public static final String State_Copy                           = "state-copy.svg";                              //$NON-NLS-1$
    public static final String State_Deleted_Backup                 = "state-delete-backup.svg";                     //$NON-NLS-1$
    public static final String State_Deleted_Device                 = "state-delete-device.svg";                     //$NON-NLS-1$
+   public static final String State_Equipment                      = "state-equipment.svg";                         //$NON-NLS-1$
    public static final String State_Error                          = "state-error.svg";                             //$NON-NLS-1$
    public static final String State_Info                           = "state-info.svg";                              //$NON-NLS-1$
    public static final String State_MovedTour                      = "state-moved-tour.svg";                        //$NON-NLS-1$
-   public static final String State_MovedTour_View                 = "state-moved-tour-view.png";                   //$NON-NLS-1$
+   public static final String State_MovedTour_View                 = "state-moved-tour-view.svg";                   //$NON-NLS-1$
    public static final String State_OK                             = "state-ok.svg";                                //$NON-NLS-1$
    public static final String State_RetrieveTourLocation           = "state-tour-location.svg";                     //$NON-NLS-1$
    public static final String State_RetrieveWeatherData            = "state-weather.svg";                           //$NON-NLS-1$
@@ -267,6 +291,7 @@ public class Images {
    public static final String TourGeoFilter                        = "tour-geo-filter.svg";                         //$NON-NLS-1$
    public static final String TourInfo                             = "tour-info.svg";                               //$NON-NLS-1$
    public static final String TourInfo_Hovered                     = "tour-info-hovered.svg";                       //$NON-NLS-1$
+   public static final String TourInView                           = "tour-in-view.svg";                            //$NON-NLS-1$
    public static final String TourLog                              = "tour-log.svg";                                //$NON-NLS-1$
    public static final String TourLog_Layout_Color                 = "tour-log-layout-color.svg";                   //$NON-NLS-1$
    public static final String TourLog_Layout_Simple                = "tour-log-layout-simple.svg";                  //$NON-NLS-1$

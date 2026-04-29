@@ -179,6 +179,7 @@ public class Messages extends NLS {
    public static String        Graph_Label_Distance;
    public static String        Graph_Label_ElevationGain;
    public static String        Graph_Label_Gears;
+   public static String        Graph_Label_GearNumber;
    public static String        Graph_Label_Gradient;
    public static String        Graph_Label_Gradient_Unit;
    public static String        Graph_Label_Heartbeat;
@@ -210,9 +211,14 @@ public class Messages extends NLS {
    public static String        Graph_Label_Tour_Compare_Unit;
    public static String        Graph_Label_Geo_Compare_Unit;
    public static String        Graph_Label_Prefix_AthleteData;
+   public static String        Graph_Label_Prefix_Radar;
    public static String        Graph_Label_Prefix_RunningDynamics;
    public static String        Graph_Label_Prefix_Swimming;
    public static String        Graph_Label_Prefix_Training;
+   public static String        Graph_Label_Radar_PassedVehicles;
+   public static String        Graph_Label_Radar_DistanceToVehicle;
+   public static String        Graph_Label_Radar_PassingSpeed_Absolute;
+   public static String        Graph_Label_Radar_PassingSpeed_Relative;
    public static String        Graph_Label_RunDyn_StanceTime;
    public static String        Graph_Label_RunDyn_StanceTimeBalance;
    public static String        Graph_Label_RunDyn_StepLength;
@@ -421,6 +427,8 @@ public class Messages extends NLS {
    public static String        Value_Formatter_Number_1_2;
    public static String        Value_Formatter_Number_1_3;
    public static String        Value_Formatter_Pace_MM_SS;
+   public static String        Value_Formatter_Time_DD_MM_YYY;
+   public static String        Value_Formatter_Time_DD_MM_YYY__HH_MM_SS;
    public static String        Value_Formatter_Time_HH;
    public static String        Value_Formatter_Time_HH_MM;
    public static String        Value_Formatter_Time_HH_MM_SS;

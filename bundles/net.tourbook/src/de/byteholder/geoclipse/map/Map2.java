@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -89,20 +89,19 @@ import java.util.regex.Pattern;
 import net.tourbook.Images;
 import net.tourbook.OtherMessages;
 import net.tourbook.application.TourbookPlugin;
-import net.tourbook.common.DPITools;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorCacheSWT;
 import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.formatter.FormatManager;
 import net.tourbook.common.map.GeoPosition;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.CustomScalingImageDataProvider;
 import net.tourbook.common.util.HoveredAreaContext;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.ITourToolTipProvider;
 import net.tourbook.common.util.ImageConverter;
 import net.tourbook.common.util.ImageUtils;
 import net.tourbook.common.util.MtMath;
-import net.tourbook.common.util.NoAutoScalingImageDataProvider;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.TourToolTip;
@@ -357,6 +356,9 @@ public class Map2 extends Canvas {
    private boolean                       _isShowDebug_TileBorder;
    private boolean                       _isShowDebug_GeoGrid;
 
+   @SuppressWarnings("unused")
+   private final StringBuilder           _debugLog                  = new StringBuilder();
+
    /**
     * Factory used by this component to grab the tiles necessary for painting the map.
     */
@@ -425,7 +427,7 @@ public class Map2 extends Canvas {
    private Future<?>                       _mapPointPainter_Task;
 
    /**
-    * The {@link #_mapPointPainter_Executor} is drawing into this image.
+    * The {@link #_mapPointPainter_Executor} is drawing into this image
     */
    private Image                           _mapPointImage;
 
@@ -433,7 +435,7 @@ public class Map2 extends Canvas {
     * Cleanup images, they cannot be disposed in the UI thread otherwise there are tons of
     * exceptions when the map image is resized
     */
-   private List<Image>                     _disposableMapPointImagesSWT     = new ArrayList<>();
+   private List<Image>                     _allDisposableMapPointImages_SWT = new ArrayList<>();
 
    /**
     * It looks like that onResize() is not called very early from the swtbot to initialize this
@@ -1379,9 +1381,7 @@ public class Map2 extends Canvas {
 
    private Cursor createCursorFromImage(final String imageName) {
 
-      final String imageName4k = DPITools.get4kImageName(imageName);
-
-      return UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(imageName4k));
+      return UI.createCursorFromImage(TourbookPlugin.getImageDescriptor(imageName));
    }
 
    private void createLabelSpreaderLabels(final Graphics2D g2d,
@@ -2260,7 +2260,7 @@ public class Map2 extends Canvas {
 
          if (pauseWorldPixelPosition == null) {
 
-            // this happend but it should not
+            // this happened but it should not
 
             continue;
          }
@@ -5871,7 +5871,8 @@ public class Map2 extends Canvas {
     */
    private void paint_40_MapPoints(final GC gcMapImage) {
 
-      if (_mapConfig == null
+      if (_isMapPointVisible == false
+            || _mapConfig == null
             || _mapConfig.isShowTourMarker == false
                   && _mapConfig.isShowTourLocation == false
                   && _mapConfig.isShowCommonLocation == false
@@ -6082,7 +6083,7 @@ public class Map2 extends Canvas {
 
       // show different color when adjusted
       if (isAdjusted) {
-         gc.setForeground(_display.getSystemColor(SWT.COLOR_RED));
+         gc.setForeground(_display.getSystemColor(SWT.COLOR_BLUE));
       } else {
          gc.setForeground(UI.SYS_COLOR_DARK_GRAY);
       }
@@ -7139,7 +7140,7 @@ public class Map2 extends Canvas {
 
       if (_mapPointPainter_Task != null) {
 
-         // an overlay task is currently running
+         // a task is currently running
 
          final boolean isDone = _mapPointPainter_Task.isDone();
 
@@ -7231,7 +7232,7 @@ public class Map2 extends Canvas {
 
       if (_mapPointImageSize.width == 0 || _mapPointImageSize.height == 0) {
 
-         // this happend, the UI is propably not yet fully initialized
+         // this happened, the UI is probably not yet fully initialized
 
          return;
       }
@@ -7331,19 +7332,113 @@ public class Map2 extends Canvas {
             }
 
          } finally {
+
             g2d.dispose();
          }
 
-         final Image swtImage = new Image(getDisplay(), new NoAutoScalingImageDataProvider(awtImage));
-
          /*
-          * This may be needed to be synchronized ?
+          * Convert AWT -> SWT image
           */
-         final Image oldImage = _mapPointImage;
 
-         _mapPointImage = swtImage;
+         /**
+          * Cleanup images, they cannot be disposed in the UI thread otherwise there are tons of
+          * exceptions when the map image is resized.
+          * <p>
+          */
+         synchronized (_allDisposableMapPointImages_SWT) {
 
-         UI.disposeResource(oldImage);
+            final CustomScalingImageDataProvider imageDataProvider = new CustomScalingImageDataProvider(awtImage);
+
+            _mapPointImage = new Image(getDisplay(), imageDataProvider);
+
+            _allDisposableMapPointImages_SWT.add(_mapPointImage);
+
+            /**
+             * Starting with Eclipse 4.37. the below exception occurs.
+             * <p>
+             * The below code "_mapPointImage.getImageData();" has "fixed" the below exception, no
+             * exceptions where discovered with this code. However this code causes that the map
+             * point image "jumps" when the map is panned.
+             * <p>
+             * When debugging the code, and a smaller map image of about 1000x1000 is fastly panned,
+             * then image.dispose() will interrupt the thread and a new runnable is run.
+             *
+             * <code>
+             *
+             * java.lang.Error: SWT Resource was not properly disposed
+             *    at org.eclipse.swt.graphics.Resource.initNonDisposeTracking(Resource.java:191)
+             *    at org.eclipse.swt.graphics.Resource.<init>(Resource.java:124)
+             *    at org.eclipse.swt.graphics.Image.<init>(Image.java:231)
+             *    at org.eclipse.swt.graphics.GC$ImageOperation.setCopyOfImage(GC.java:508)
+             *    at org.eclipse.swt.graphics.Image.lambda$4(Image.java:1026)
+             *    at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+             *    at org.eclipse.swt.graphics.Image.dispose(Image.java:1026)
+             *    at de.byteholder.geoclipse.map.Map2.paint_MapPointImage_10_Runnable(Map2.java:7372)
+             *    at de.byteholder.geoclipse.map.Map2.lambda$13(Map2.java:7168)
+             *    at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+             *
+             *
+             *  08:09:40.498 - 1 -    702 -   14889067 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@23c2a091}}
+             *  08:09:40.498 - 2 -    702 -   14889067 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@23c2a091}}
+             *  08:09:40.499 - 3 -    702 -   14889067 - Image {*DISPOSED*}
+             *  08:09:40.499 - 1 -    702 -  976994261 - Image {{}}
+             *
+             *  08:09:40.557 - 1 -    708 -  976994261 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@65cc513}}
+             *  08:09:40.557 - 2 -    708 -  976994261 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@65cc513}}
+             *  08:09:40.614 - 1 -    715 -  976994261 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@65cc513}}
+             *  08:09:40.614 - 2 -    715 -  976994261 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@65cc513}}
+             *  08:09:40.615 - 3 -    715 -  976994261 - Image {*DISPOSED*}
+             *  08:09:40.615 - 1 -    715 - 1644039150 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@32954a7b}}
+             *  08:09:40.615 - 2 -    715 - 1644039150 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@32954a7b}}
+             *  08:09:40.615 - 3 -    715 - 1644039150 - Image {*DISPOSED*}
+             *  08:09:40.615 - 1 -    715 -  589661322 - Image {{}}
+             *
+             *  08:09:40.670 - 1 -    721 -  589661322 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@ca9fe5f}}
+             *  08:09:40.670 - 2 -    721 -  589661322 - Image {{200=org.eclipse.swt.graphics.Image$ImageHandle@ca9fe5f}}
+             *  08:09:40.670 - 3 -    721 -  589661322 - Image {*DISPOSED*}
+             *  08:09:40.670 - 1 -    721 -   52898661 - Image {{}}
+             *
+             * </code>
+             */
+            // 17 is used because a "correct" zoom level would cause an exception
+            _mapPointImage.getImageData(17);
+
+            for (final Image image : _allDisposableMapPointImages_SWT) {
+
+//               _debugLog.append(String.format("%s - 1 - %6d - %10d - %s\n",
+//                     UI.timeStampNano(),
+//                     _mapPointPainter_RunnableCounter.get(),
+//                     image.hashCode(),
+//                     image));
+
+               if (image == _mapPointImage) {
+                  continue;
+               }
+
+//               _debugLog.append(String.format("%s - 2 - %6d - %10d - %s\n",
+//                     UI.timeStampNano(),
+//                     _mapPointPainter_RunnableCounter.get(),
+//                     image.hashCode(),
+//                     image));
+
+               if (image != null) {
+                  image.dispose();
+               }
+
+//               _debugLog.append(String.format("%s - 3 - %6d - %10d - %s\n",
+//                     UI.timeStampNano(),
+//                     _mapPointPainter_RunnableCounter.get(),
+//                     image.hashCode(),
+//                     image));
+            }
+
+            _allDisposableMapPointImages_SWT.clear();
+            _allDisposableMapPointImages_SWT.add(_mapPointImage);
+
+//            System.out.println(_debugLog.toString());
+//            _debugLog.setLength(0);
+//            // TODO remove SYSTEM.OUT.PRINTLN
+         }
 
          _mapPointPainter_Viewport_WhenPainted = _mapPointPainter_Viewport_DuringPainting;
 
@@ -7359,22 +7454,6 @@ public class Map2 extends Canvas {
          // reset state which can happen when map is moved and no cluster is displayed
          if (_isMarkerClusterSelected && allPaintedMarkerClusters.size() == 0) {
             _isMarkerClusterSelected = false;
-         }
-
-         /*
-          * Cleanup images, they cannot be disposed in the UI thread otherwise there are tons of
-          * exceptions when the map image is resized
-          */
-         if (_disposableMapPointImagesSWT.size() > 0) {
-
-            synchronized (_disposableMapPointImagesSWT) {
-
-               for (final Image image : _disposableMapPointImagesSWT) {
-                  if (image != null) {
-                     image.dispose();
-                  }
-               }
-            }
          }
 
          /*
@@ -9658,7 +9737,7 @@ public class Map2 extends Canvas {
       final float scaledTilePixelSize = _tilePixelSize * UI.HIDPI_SCALING * 2;
       final ImageData transparentImageData = MapUtils.createTransparentImageData((int) scaledTilePixelSize);
 
-      final NoAutoScalingImageDataProvider imageDataProvider = new NoAutoScalingImageDataProvider(transparentImageData);
+      final CustomScalingImageDataProvider imageDataProvider = new CustomScalingImageDataProvider(transparentImageData);
 
       final Image overlayImage = new Image(_display, imageDataProvider);
       final GC gcTile = new GC(overlayImage);
@@ -9676,7 +9755,6 @@ public class Map2 extends Canvas {
                gcTile,
                Map2.this,
                tile,
-               1,
                _isFastMapPainting && _isFastMapPainting_Active,
                _fastMapPainting_skippedValues);
 
@@ -10130,6 +10208,7 @@ public class Map2 extends Canvas {
       if (_isShowDebug_TileBorder) {
 
          // draw tile border
+         gc.setLineWidth(1);
          gc.setForeground(_isMapBackgroundDark ? UI.SYS_COLOR_YELLOW : UI.SYS_COLOR_RED);
          gc.drawRectangle(devTileViewport.x, devTileViewport.y, _tilePixelSize, _tilePixelSize);
       }
@@ -10381,7 +10460,7 @@ public class Map2 extends Canvas {
 
       if (serieIndex >= tourData.latitudeSerie.length) {
 
-         // this happened, propably a wrong tour was set
+         // this happened, probably a wrong tour was set
 
          return;
       }

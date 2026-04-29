@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2012, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2012, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,9 +14,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
 package net.tourbook.data;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -39,6 +36,9 @@ import net.tourbook.photo.PhotoAdjustments;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
 /**
  * Contains a photo for a tour
  *
@@ -47,24 +47,22 @@ import org.eclipse.core.runtime.Path;
 @Entity
 public class TourPhoto implements Serializable {
 
-   private static final long          serialVersionUID    = 1L;
+   private static final long          serialVersionUID = 1L;
 
-   private static final char          NL                  = UI.NEW_LINE;
-
-   public static final int            DB_LENGTH_FILE_PATH = 260;
+   private static final char          NL               = UI.NEW_LINE;
 
    /**
     * Manually created marker or imported marker create a unique id to identify them, saved marker
     * are compared with the marker id
     */
-   private static final AtomicInteger _createCounter      = new AtomicInteger();
+   private static final AtomicInteger _createCounter   = new AtomicInteger();
 
    /**
     * Unique id for the {@link TourPhoto} entity
     */
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private long                       photoId             = TourDatabase.ENTITY_IS_NOT_SAVED;
+   private long                       photoId          = TourDatabase.ENTITY_IS_NOT_SAVED;
 
    /**
     * A photo label can be displayed in the 2D map
@@ -139,7 +137,7 @@ public class TourPhoto implements Serializable {
     * not persisted
     */
    @Transient
-   private long                       _createId           = 0;
+   private long                       _createId        = 0;
 
    @Transient
    private PhotoAdjustments           _photoAdjustments;
@@ -364,7 +362,7 @@ public class TourPhoto implements Serializable {
 
             return photoAdjustments;
 
-         } catch (final JsonProcessingException e) {
+         } catch (final JacksonException e) {
 
             StatusUtil.log(e);
          }
@@ -529,7 +527,7 @@ public class TourPhoto implements Serializable {
             StatusUtil.logError("Cannot save photoAdjustmentsJSON because it is > %d".formatted(TourDatabase.VARCHAR_MAX_LENGTH)); //$NON-NLS-1$
          }
 
-      } catch (final JsonProcessingException e) {
+      } catch (final JacksonException e) {
 
          StatusUtil.log(e);
       }

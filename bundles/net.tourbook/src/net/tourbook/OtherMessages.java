@@ -111,7 +111,8 @@ public class OtherMessages {
    public static final String GRAPH_LABEL_CADENCE_UNIT_SPM                 = net.tourbook.common.Messages.Graph_Label_Cadence_Unit_Spm;
    public static final String GRAPH_LABEL_DISTANCE                         = net.tourbook.common.Messages.Graph_Label_Distance;
    public static final String GRAPH_LABEL_ELEVATION_GAIN                   = net.tourbook.common.Messages.Graph_Label_ElevationGain;
-   public static final String GRAPH_LABEL_GEARS                            = net.tourbook.common.Messages.Graph_Label_Gears;
+   public static final String GRAPH_LABEL_GEAR_RATIO                       = net.tourbook.common.Messages.Graph_Label_Gears;
+   public static final String GRAPH_LABEL_GEAR_NUMBER                      = net.tourbook.common.Messages.Graph_Label_GearNumber;
    public static final String GRAPH_LABEL_GEO_COMPARE_UNIT                 = net.tourbook.common.Messages.Graph_Label_Geo_Compare_Unit;
    public static final String GRAPH_LABEL_GRADIENT                         = net.tourbook.common.Messages.Graph_Label_Gradient;
    public static final String GRAPH_LABEL_GRADIENT_UNIT                    = net.tourbook.common.Messages.Graph_Label_Gradient_Unit;
@@ -127,9 +128,14 @@ public class OtherMessages {
    public static final String GRAPH_LABEL_PACE_SUMMARIZED                  = net.tourbook.common.Messages.Graph_Label_Pace_Summarized;
    public static final String GRAPH_LABEL_POWER                            = net.tourbook.common.Messages.Graph_Label_Power;
    public static final String GRAPH_LABEL_POWER_UNIT                       = net.tourbook.common.Messages.Graph_Label_Power_Unit;
+   public static final String GRAPH_LABEL_PREFIX_RADAR                     = net.tourbook.common.Messages.Graph_Label_Prefix_Radar;
    public static final String GRAPH_LABEL_PREFIX_RUNNING_DYNAMICS          = net.tourbook.common.Messages.Graph_Label_Prefix_RunningDynamics;
    public static final String GRAPH_LABEL_PREFIX_SWIMMING                  = net.tourbook.common.Messages.Graph_Label_Prefix_Swimming;
    public static final String GRAPH_LABEL_PREFIX_TRAINING                  = net.tourbook.common.Messages.Graph_Label_Prefix_Training;
+   public static final String GRAPH_LABEL_RADAR_PASSED_VEHICLES            = net.tourbook.common.Messages.Graph_Label_Radar_PassedVehicles;
+   public static final String GRAPH_LABEL_RADAR_DISTANCE_TO_VEHICLE        = net.tourbook.common.Messages.Graph_Label_Radar_DistanceToVehicle;
+   public static final String GRAPH_LABEL_RADAR_PASSING_SPEED_ABSOLUTE     = net.tourbook.common.Messages.Graph_Label_Radar_PassingSpeed_Absolute;
+   public static final String GRAPH_LABEL_RADAR_PASSING_SPEED_RELATIVE     = net.tourbook.common.Messages.Graph_Label_Radar_PassingSpeed_Relative;
    public static final String GRAPH_LABEL_RUN_DYN_STANCE_TIME              = net.tourbook.common.Messages.Graph_Label_RunDyn_StanceTime;
    public static final String GRAPH_LABEL_RUN_DYN_STANCE_TIME_BALANCE      = net.tourbook.common.Messages.Graph_Label_RunDyn_StanceTimeBalance;
    public static final String GRAPH_LABEL_RUN_DYN_STEP_LENGTH              = net.tourbook.common.Messages.Graph_Label_RunDyn_StepLength;
@@ -203,6 +209,9 @@ public class OtherMessages {
    public static final String MAP_ACTION_TOUR_COLOR_SPEED_TOOLTIP          = net.tourbook.map2.Messages.map_action_tour_color_speed_tooltip;
    public static final String MAP_ACTION_SYNCH_WITH_SLIDER                 = net.tourbook.map2.Messages.Map_Action_SynchWith_TourPosition;
    public static final String MAP_ACTION_SYNCH_WITH_SLIDER_CENTERED        = net.tourbook.map2.Messages.Map_Action_SynchWithSlider_Centered;
+   public static final String MAP_PROPERTIES_SHOW_GEO_GRID                 = net.tourbook.map2.Messages.Map_Properties_ShowGeoGrid;
+   public static final String MAP_PROPERTIES_SHOW_TILE_BORDER              = net.tourbook.map2.Messages.Map_Properties_ShowTileBorder;
+   public static final String MAP_PROPERTIES_SHOW_TILE_INFO                = net.tourbook.map2.Messages.Map_Properties_ShowTileInfo;
    public static final String TOUR_ACTION_SHOW_HR_ZONES_TOOLTIP            = net.tourbook.map2.Messages.Tour_Action_ShowHrZones_Tooltip;
 
    //

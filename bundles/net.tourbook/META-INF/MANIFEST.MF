@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Application_Name
 Bundle-SymbolicName: net.tourbook;singleton:=true
-Bundle-Version: 25.8.0.qualifier
+Bundle-Version: 26.3.0.qualifier
 Bundle-Activator: net.tourbook.application.TourbookPlugin
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-21
@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.services,
  org.eclipse.jface,
- org.eclipse.collections,
+ org.eclipse.collections;bundle-version="[11.0.0,12.0.0)",
  org.eclipse.nebula.widgets.nattable.core,
  org.eclipse.nebula.widgets.opal.commons,
  org.eclipse.nebula.widgets.tablecombo,
@@ -76,8 +76,8 @@ Export-Package: de.byteholder.geoclipse,
  net.tourbook.weather.openweathermap,
  net.tourbook.weather.weatherapi,
  net.tourbook.weather.worldweatheronline
-Import-Package: com.fasterxml.jackson.core.type,
- com.fasterxml.jackson.databind,
+Import-Package: tools.jackson.core.type,
+ tools.jackson.databind,
  com.javadocmd.simplelatlng,
  com.jhlabs.image,
  cop.swt.widgets.viewers.table.celleditors,

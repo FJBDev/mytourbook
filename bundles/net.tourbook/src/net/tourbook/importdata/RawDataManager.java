@@ -62,6 +62,7 @@ import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.common.widgets.ComboEnumEntry;
 import net.tourbook.data.DeviceSensor;
+import net.tourbook.data.DeviceSensorImport;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourTag;
@@ -139,6 +140,8 @@ public class RawDataManager {
 
    public static final int               ADJUST_IMPORT_YEAR_IS_DISABLED   = -1;
 
+   static final ComboEnumEntry<?>[]      ALL_IMPORT_CADENCE_CONFIG;
+   static final ComboEnumEntry<?>[]      ALL_IMPORT_EQUIPMENT_CONFIG;
    static final ComboEnumEntry<?>[]      ALL_IMPORT_TOUR_TYPE_CONFIG;
 
    private static boolean                _importState_IsIgnoreInvalidFile = RawDataView.STATE_IS_IGNORE_INVALID_FILE_DEFAULT;
@@ -147,12 +150,28 @@ public class RawDataManager {
 
    static {
 
+// SET_FORMATTING_OFF
+
+      ALL_IMPORT_CADENCE_CONFIG = new ComboEnumEntry<?>[] {
+
+            new ComboEnumEntry<>("Set one cadence for all imported tours",       CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL),
+            new ComboEnumEntry<>("Set cadence by average speed",                 CadenceConfig.CADENCE_CONFIG_BY_SPEED)
+      };
+
+      ALL_IMPORT_EQUIPMENT_CONFIG = new ComboEnumEntry<?>[] {
+
+         new ComboEnumEntry<>("Set one equipment group for all imported tours",  EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL),
+         new ComboEnumEntry<>("Set equipment group by average speed",            EquipmentConfig.EQUIPMENT_CONFIG_BY_SPEED)
+      };
+
+
       ALL_IMPORT_TOUR_TYPE_CONFIG = new ComboEnumEntry<?>[] {
 
-            new ComboEnumEntry<>(Messages.Import_Data_TourTypeConfig_OneForAll, TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL),
-            new ComboEnumEntry<>(Messages.Import_Data_TourTypeConfig_BySpeed, TourTypeConfig.TOUR_TYPE_CONFIG_BY_SPEED)
-
+            new ComboEnumEntry<>(Messages.Import_Data_TourTypeConfig_OneForAll,  TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL),
+            new ComboEnumEntry<>(Messages.Import_Data_TourTypeConfig_BySpeed,    TourTypeConfig.TOUR_TYPE_CONFIG_BY_SPEED)
       };
+
+// SET_FORMATTING_ON
 
       _importState_DefaultCadenceMultiplier = (CadenceMultiplier) Util.getStateEnum(_state_RawDataView,
             RawDataView.STATE_DEFAULT_CADENCE_MULTIPLIER,
@@ -184,61 +203,56 @@ public class RawDataManager {
     * <p>
     * Only the KeySet is used
     */
-   private static final ConcurrentHashMap<String, Object>       _allInvalidFiles                          = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, Object>       _allInvalidFiles                         = new ConcurrentHashMap<>();
 
    /**
     * Contains alternative filepaths from previous re-imported tours, the key is the {@link IPath}.
     * <p>
     * Only the KeySet is used
     */
-   private static final ConcurrentHashMap<IPath, Object>        _allPreviousReimportFolders               = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<IPath, Object>        _allPreviousReimportFolders              = new ConcurrentHashMap<>();
 
    private static volatile IPath                                _previousReimportFolder;
 
    /**
     * Contains tours which are imported or received and displayed in the import view.
     */
-   private static final ConcurrentHashMap<Long, TourData>       _allImported_Tours                        = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<Long, TourData>       _allImported_Tours                       = new ConcurrentHashMap<>();
 
    /**
     * Contains the filenames for all imported files which are displayed in the import view
     */
-   private static final ConcurrentHashMap<String, String>       _allImported_FileNames                    = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, String>       _allImported_FileNames                   = new ConcurrentHashMap<>();
 
    /**
     * Contains filenames which are not directly imported but is imported from other imported files
     */
-   private static final ConcurrentHashMap<String, String>       _allImported_FileNamesChildren            = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, String>       _allImported_FileNamesChildren           = new ConcurrentHashMap<>();
 
    /**
     * Contains {@link TourType}'s which are imported and could be saved or not, key is the tour type
     * name in UPPERCASE
     */
-   private static final ConcurrentHashMap<String, TourType>     _allImported_NewTourTypes                 = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, TourType>     _allImported_NewTourTypes                = new ConcurrentHashMap<>();
 
    /**
     * Contains {@link TourTag}'s which are imported and could be saved or not, key is the tour tag
     * name in UPPERCASE
     */
-   private static final ConcurrentHashMap<String, TourTag>      _allImported_NewTourTags                  = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, TourTag>      _allImported_NewTourTags                 = new ConcurrentHashMap<>();
 
    /**
     * Contains {@link TourTag}'s which are imported and could be saved or not, key is the tour tag
     * name + contained id in notes, all is in UPPERCASE
     */
-   private static final ConcurrentHashMap<String, TourTag>      _allImported_NewTourTags_WithContainedId  = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, TourTag>      _allImported_NewTourTags_WithContainedId = new ConcurrentHashMap<>();
 
    /**
     * Contains {@link DeviceSensor}'s which are imported and could be saved or not, key is the
-    * device name in UPPERCASE
+    * sensor key {@link DeviceSensor#_sensorKey} which is created with
+    * {@link DeviceSensor#createSensorKey(Integer, String, Integer, String, String, Short)}
     */
-   private static final ConcurrentHashMap<String, DeviceSensor> _allImported_NewDeviceSensors_ByName      = new ConcurrentHashMap<>();
-
-   /**
-    * Contains {@link DeviceSensor}'s which are imported and could be saved or not, key is the
-    * serial number name in UPPERCASE
-    */
-   private static final ConcurrentHashMap<String, DeviceSensor> _allImported_NewDeviceSensors_BySerialNum = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, DeviceSensor> _allImported_NewDeviceSensors            = new ConcurrentHashMap<>();
 
    //
    /**
@@ -348,6 +362,7 @@ public class RawDataManager {
       TIME_SLICES__GEAR, //
       TIME_SLICES__POWER_AND_SPEED, //
       TIME_SLICES__POWER_AND_PULSE, //
+      TIME_SLICES__RADAR, //
       TIME_SLICES__RUNNING_DYNAMICS, //
       TIME_SLICES__SWIMMING, //
       TIME_SLICES__TEMPERATURE_FROMDEVICE, //
@@ -381,145 +396,6 @@ public class RawDataManager {
       for (final TourbookDevice device : _allDevices_BySortPriority) {
          _allDevices_ByExtension.put(device.fileExtension.toLowerCase(), device);
       }
-   }
-
-   /**
-    * SYNCHRONIZED: Create new device sensor and keep it in
-    * {@link #_allImported_NewDeviceSensors_BySerialNum} or
-    * {@value #_allImported_NewDeviceSensors_ByName} or use an already created sensor
-    *
-    * @param manufacturerNumber
-    * @param manufacturerName
-    * @param productNumber
-    * @param productName
-    * @param serialNumber
-    *
-    * @return Returns the new device sensor
-    */
-   public static synchronized DeviceSensor createDeviceSensor(final int manufacturerNumber,
-                                                              final String manufacturerName,
-
-                                                              final int productNumber,
-                                                              final String productName,
-
-                                                              final String serialNumber) {
-
-      if (serialNumber == null) {
-
-         final DeviceSensor newSensor = createDeviceSensor_ByName(
-
-               manufacturerNumber,
-               manufacturerName,
-               productNumber,
-               productName);
-
-         return newSensor;
-
-      } else {
-
-         return createDeviceSensor_BySerialNum(
-
-               manufacturerNumber,
-               manufacturerName,
-               productNumber,
-               productName,
-               serialNumber);
-      }
-   }
-
-   private static DeviceSensor createDeviceSensor_ByName(final int manufacturerNumber,
-                                                         final String manufacturerName,
-                                                         final int productNumber,
-                                                         final String productName) {
-
-      final String deviceKeyByName = DeviceSensor.createSensorKeyByName(
-            manufacturerName,
-            manufacturerNumber,
-            productNumber,
-            productName);
-
-      /*
-       * Check imported sensors
-       */
-      final DeviceSensor importedSensor = _allImported_NewDeviceSensors_ByName.get(deviceKeyByName);
-      if (importedSensor != null) {
-
-         return importedSensor;
-      }
-
-      /*
-       * Check if sensor is still unavailable in the database
-       */
-      final Collection<DeviceSensor> allDeviceSensor = TourDatabase.getAllDeviceSensors_BySensorID().values();
-      for (final DeviceSensor deviceSensor : allDeviceSensor) {
-
-         final String sensorNameKey = deviceSensor.getSensorKeyByName();
-
-         if (sensorNameKey.equals(deviceKeyByName)) {
-
-            return deviceSensor;
-         }
-      }
-
-      /*
-       * Sensor is for sure not available -> create it now
-       */
-      final DeviceSensor newSensor = new DeviceSensor(
-
-            manufacturerNumber,
-            manufacturerName,
-
-            productNumber,
-            productName,
-
-            null);
-
-      _allImported_NewDeviceSensors_ByName.put(deviceKeyByName, newSensor);
-
-      return newSensor;
-   }
-
-   private static DeviceSensor createDeviceSensor_BySerialNum(final int manufacturerNumber,
-                                                              final String manufacturerName,
-                                                              final int productNumber,
-                                                              final String productName,
-                                                              final String serialNumber) {
-      final String serialNumberKey = serialNumber.toUpperCase();
-
-      /*
-       * Check imported sensors
-       */
-      final DeviceSensor importedSensor = _allImported_NewDeviceSensors_ByName.get(serialNumberKey);
-      if (importedSensor != null) {
-
-         return importedSensor;
-      }
-
-      /*
-       * Check if sensor is still unavailable in the database
-       */
-      final DeviceSensor deviceSensor = TourDatabase.getAllDeviceSensors_BySerialNum().get(serialNumberKey);
-      if (deviceSensor != null) {
-
-         return deviceSensor;
-      }
-
-      /*
-       * Sensor is for sure not available -> create it now
-       */
-      final DeviceSensor newSensor = new DeviceSensor(
-
-            manufacturerNumber,
-            manufacturerName,
-
-            productNumber,
-            productName,
-
-            serialNumber);
-
-      _allImported_NewDeviceSensors_BySerialNum.put(serialNumberKey, newSensor);
-
-      return newSensor;
    }
 
    /**
@@ -946,6 +822,104 @@ public class RawDataManager {
     */
    public static CadenceMultiplier getCadenceMultiplierDefaultValue() {
       return _importState_DefaultCadenceMultiplier;
+   }
+
+   /**
+    * <b>SYNCHRONIZED</b>
+    * <p>
+    * Use an already created sensor or create a new device sensor and keep it in
+    * {@link #_allImported_NewDeviceSensors}
+    * <p>
+    * New sensors are saved in {@link TourDatabase#saveTransientInstances_Sensors(TourData)}
+    *
+    * @param importedSensor
+    *
+    * @return Returns a new or existing device sensor
+    */
+   public static synchronized DeviceSensor getDeviceSensor(final DeviceSensorImport importedSensor) {
+
+      // create a unique key to identify a device sensor
+
+// SET_FORMATTING_OFF
+
+      final Integer  productNumber           = importedSensor.productNumber;
+      final String   productName             = importedSensor.getProductName();
+      final Integer  manufacturerNumber      = importedSensor.manufacturerNumber;
+      final String   manufacturerName        = importedSensor.getManufacturerName();
+      final Short    deviceType              = importedSensor.deviceType;
+      final String   deviceName              = importedSensor.getDeviceName();
+      final String   serialNumber            = importedSensor.serialNumber;
+
+// SET_FORMATTING_ON
+
+      final String sensorKey_WithDevType = DeviceSensor.createSensorKey(
+
+            manufacturerNumber,
+            manufacturerName,
+
+            productNumber,
+            productName,
+
+            serialNumber,
+            deviceType);
+
+      final String sensorKey_NoDevType = DeviceSensor.createSensorKey(
+
+            manufacturerNumber,
+            manufacturerName,
+
+            productNumber,
+            productName,
+
+            serialNumber,
+            null);
+
+      /*
+       * Check newly imported sensors, new sensors will be created also with a device type in the
+       * key
+       */
+      final DeviceSensor newDeviceSensor = _allImported_NewDeviceSensors.get(sensorKey_WithDevType);
+      if (newDeviceSensor != null) {
+
+         return newDeviceSensor;
+      }
+
+      /*
+       * Check if sensor is still unavailable in the database
+       */
+      final Map<String, DeviceSensor> allDeviceSensors_BySensorKey_WithDevType = TourDatabase.getAllDeviceSensors_BySensorKey_WithDevType();
+      DeviceSensor dbDeviceSensor = allDeviceSensors_BySensorKey_WithDevType.get(sensorKey_WithDevType);
+      if (dbDeviceSensor != null) {
+
+         return dbDeviceSensor;
+      }
+
+      final Map<String, DeviceSensor> allDeviceSensors_BySensorKey_NoDevType = TourDatabase.getAllDeviceSensors_BySensorKey_NoDevType();
+      dbDeviceSensor = allDeviceSensors_BySensorKey_NoDevType.get(sensorKey_NoDevType);
+      if (dbDeviceSensor != null) {
+
+         return dbDeviceSensor;
+      }
+
+      /*
+       * Sensor is for sure not available -> create it now
+       */
+      final DeviceSensor newSensor = new DeviceSensor(
+
+            manufacturerNumber == null ? -1 : manufacturerNumber,
+            manufacturerName,
+
+            productNumber == null ? -1 : productNumber,
+            productName,
+
+            serialNumber,
+            deviceType == null ? -1 : deviceType);
+
+      newSensor.setDeviceName(deviceName);
+
+      _allImported_NewDeviceSensors.put(sensorKey_WithDevType, newSensor);
+
+      return newSensor;
    }
 
    private static EasyConfig getEasyConfig() {
@@ -1674,9 +1648,9 @@ public class RawDataManager {
 
             if (isEntireTour_OR_AllTimeSlices || tourValueType == TourValueType.TIME_SLICES__ELEVATION) {
 
-               tourDataDummyClone.setTourAltDown(oldTourData.getTourAltDown());
-               tourDataDummyClone.setTourAltUp(oldTourData.getTourAltUp());
-
+               final int elevationGain = oldTourData.getTourAltUp();
+               final int elevationLoss = oldTourData.getTourAltDown();
+               tourDataDummyClone.setElevationGainLoss(elevationGain, elevationLoss);
             }
 
             if (isEntireTour_OR_AllTimeSlices || tourValueType == TourValueType.TIME_SLICES__GEAR) {
@@ -1770,6 +1744,11 @@ public class RawDataManager {
          // Speed
          if (isAllTimeSlices || tourValueType == TourValueType.TIME_SLICES__POWER_AND_SPEED) {
             dataToModifyDetails.add(Messages.Tour_Data_Text_SpeedValues);
+         }
+
+         // Radar
+         if (isAllTimeSlices || tourValueType == TourValueType.TIME_SLICES__RADAR) {
+            dataToModifyDetails.add(Messages.Tour_Data_Text_RadarValues);
          }
 
          // Running Dynamics
@@ -1970,12 +1949,12 @@ public class RawDataManager {
 
             case TIME_SLICES__ELEVATION:
 
-               clonedTourData.setTourAltDown(tourData.getTourAltDown());
-               clonedTourData.setTourAltUp(tourData.getTourAltUp());
+               final int elevationGain = tourData.getTourAltUp();
+               final int elevationLoss = tourData.getTourAltDown();
+               clonedTourData.setElevationGainLoss(elevationGain, elevationLoss);
 
                tourData.altitudeSerie = null;
-               tourData.setTourAltUp(0);
-               tourData.setTourAltDown(0);
+               tourData.setElevationGainLoss(0, 0);
                break;
 
             case TIME_SLICES__GEAR:
@@ -2008,6 +1987,17 @@ public class RawDataManager {
                tourData.setPowerSerie(null);
                tourData.setPower_Avg(0);
                tourData.setSpeedSerie(null);
+               break;
+
+            case TIME_SLICES__RADAR:
+
+               tourData.radar_DistanceToVehicle = null;
+               tourData.radar_PassedVehicles = null;
+               tourData.radar_PassingSpeed_Absolute = null;
+               tourData.radar_PassingSpeed_Relative = null;
+
+               tourData.setRadarValues();
+
                break;
 
             case TIME_SLICES__TEMPERATURE_FROMDEVICE:
@@ -2294,12 +2284,12 @@ public class RawDataManager {
 
          final List<ImportFile> allImportFilePaths = new ArrayList<>();
 
-         final List<OSFile> notSkipedFiles = skipFitLogFiles(allImportFiles);
+         final List<OSFile> notSkippedFiles = skipFitLogFiles(allImportFiles);
 
          /*
           * Convert to IPath because NIO Path DO NOT SUPPORT EXTENSIONS :-(((
           */
-         for (final OSFile osFile : notSkipedFiles) {
+         for (final OSFile osFile : notSkippedFiles) {
 
             final String absolutePath = osFile.getPath().toString();
             final org.eclipse.core.runtime.Path iPath = new org.eclipse.core.runtime.Path(absolutePath);
@@ -3638,6 +3628,7 @@ public class RawDataManager {
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__GEAR)
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__POWER_AND_PULSE)
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__POWER_AND_SPEED)
+                  || tourValueTypes.contains(TourValueType.TIME_SLICES__RADAR)
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__RUNNING_DYNAMICS)
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__SWIMMING)
                   || tourValueTypes.contains(TourValueType.TIME_SLICES__TEMPERATURE_FROMDEVICE)
@@ -3753,16 +3744,18 @@ public class RawDataManager {
 
          // re-import elevation only
 
+         final int elevationGain = reimportedTourData.getTourAltUp();
+         final int elevationLoss = reimportedTourData.getTourAltDown();
+
          oldTourData.altitudeSerie = reimportedTourData.altitudeSerie;
-         oldTourData.setTourAltUp(reimportedTourData.getTourAltUp());
-         oldTourData.setTourAltDown(reimportedTourData.getTourAltDown());
+         oldTourData.setElevationGainLoss(elevationGain, elevationLoss);
       }
 
       // Gear
       if (isAllTimeSlices || allTourValueTypes.contains(TourValueType.TIME_SLICES__GEAR)) {
 
          // re-import gear only
-         oldTourData.gearSerie = reimportedTourData.gearSerie;
+         oldTourData.gearSerieCombined = reimportedTourData.gearSerieCombined;
          oldTourData.setFrontShiftCount(reimportedTourData.getFrontShiftCount());
          oldTourData.setRearShiftCount(reimportedTourData.getRearShiftCount());
       }
@@ -3827,16 +3820,31 @@ public class RawDataManager {
          }
       }
 
+// SET_FORMATTING_OFF
+
+      // Radar
+      if (isAllTimeSlices || allTourValueTypes.contains(TourValueType.TIME_SLICES__RADAR)) {
+
+         // re-import only radar
+
+         oldTourData.radar_DistanceToVehicle       = reimportedTourData.radar_DistanceToVehicle;
+         oldTourData.radar_PassedVehicles          = reimportedTourData.radar_PassedVehicles;
+         oldTourData.radar_PassingSpeed_Absolute   = reimportedTourData.radar_PassingSpeed_Absolute;
+         oldTourData.radar_PassingSpeed_Relative   = reimportedTourData.radar_PassingSpeed_Relative;
+
+         oldTourData.setRadarValues();
+      }
+
       // Running Dynamics
       if (isAllTimeSlices || allTourValueTypes.contains(TourValueType.TIME_SLICES__RUNNING_DYNAMICS)) {
 
          // re-import only running dynamics
 
-         oldTourData.runDyn_StanceTime = reimportedTourData.runDyn_StanceTime;
-         oldTourData.runDyn_StanceTimeBalance = reimportedTourData.runDyn_StanceTimeBalance;
-         oldTourData.runDyn_StepLength = reimportedTourData.runDyn_StepLength;
-         oldTourData.runDyn_VerticalOscillation = reimportedTourData.runDyn_VerticalOscillation;
-         oldTourData.runDyn_VerticalRatio = reimportedTourData.runDyn_VerticalRatio;
+         oldTourData.runDyn_StanceTime             = reimportedTourData.runDyn_StanceTime;
+         oldTourData.runDyn_StanceTimeBalance      = reimportedTourData.runDyn_StanceTimeBalance;
+         oldTourData.runDyn_StepLength             = reimportedTourData.runDyn_StepLength;
+         oldTourData.runDyn_VerticalOscillation    = reimportedTourData.runDyn_VerticalOscillation;
+         oldTourData.runDyn_VerticalRatio          = reimportedTourData.runDyn_VerticalRatio;
       }
 
       // Swimming
@@ -3844,7 +3852,6 @@ public class RawDataManager {
 
          // re-import only swimming
 
-// SET_FORMATTING_OFF
 
          oldTourData.swim_LengthType      = reimportedTourData.swim_LengthType;
          oldTourData.swim_Cadence         = reimportedTourData.swim_Cadence;
@@ -3947,8 +3954,7 @@ public class RawDataManager {
       _allImported_NewTourTags_WithContainedId.clear();
       _allImported_NewTourTypes.clear();
 
-      _allImported_NewDeviceSensors_ByName.clear();
-      _allImported_NewDeviceSensors_BySerialNum.clear();
+      _allImported_NewDeviceSensors.clear();
    }
 
    public void removeTours(final TourData[] removedTours) {
@@ -4263,8 +4269,7 @@ public class RawDataManager {
       // wait until all re-imports are performed
       _loadingTour_CountDownLatch.await();
 
-      TourDatabase.saveTour_PostSaveActions_Concurrent_2_ForAllTours(
-            allSavedTourIds.stream().toList());
+      TourDatabase.saveTour_PostSaveActions_Concurrent_2_ForAllTours(allSavedTourIds.stream().toList());
 
       // prevent async error
       Display.getDefault().syncExec(() -> TourManager.fireEvent(TourEventId.CLEAR_DISPLAYED_TOUR, null, null));

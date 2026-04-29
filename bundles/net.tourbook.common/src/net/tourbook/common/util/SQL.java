@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2014, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,11 +27,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * SQL utilities.
+ * SQL utilities
  */
 public final class SQL {
 
-   private static final char   SQL_PARAMETERS_FIRST = '?';
+   private static final String SQL_PARAMETERS_FIRST = "?";   //$NON-NLS-1$
    private static final String SQL_PARAMETERS_OTHER = ", ?"; //$NON-NLS-1$
    public static final String  SQL_STRING_SEPARATOR = "'";   //$NON-NLS-1$
 
@@ -191,6 +191,7 @@ public final class SQL {
                + sqlStatementWithNumber + UI.NEW_LINE2
                + Util.getSQLExceptionText(exception);
 
+         // log in app
          StatusUtil.logError(message);
          StatusUtil.log(exception);
 

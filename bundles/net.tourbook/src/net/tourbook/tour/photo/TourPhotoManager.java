@@ -59,10 +59,8 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.SelectionTourId;
 import net.tourbook.tour.TourManager;
 import net.tourbook.tour.photo.TourPhotoLinkView.TimeAdjustmentType;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.ui.AppFilter;
 
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.ImageWriteException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
@@ -1122,7 +1120,7 @@ public class TourPhotoManager implements IPhotoServiceProvider {
 
          if (_sqlConnection == null) {
 
-            final SQLFilter sqlFilter = new SQLFilter(SQLFilter.NO_PHOTOS);
+            final AppFilter sqlFilter = new AppFilter(AppFilter.NO_PHOTOS);
 
             final String sql = UI.EMPTY_STRING
 
@@ -1759,8 +1757,7 @@ public class TourPhotoManager implements IPhotoServiceProvider {
    private void setExifGPSTag_IntoImageFile_WithExifRewriter(final File jpegImageFile,
                                                              final File destinationFile,
                                                              final double latitude,
-                                                             final double longitude) throws IOException,
-         ImageReadException, ImageWriteException {
+                                                             final double longitude) throws IOException {
 
       OutputStream os = null;
 
@@ -1805,7 +1802,7 @@ public class TourPhotoManager implements IPhotoServiceProvider {
 //            final double latitude = 40 + 43 / 60.0; // 40 degrees N (in Degrees
             // North)
 
-            outputSet.setGPSInDegrees(longitude, latitude);
+            outputSet.setGpsInDegrees(longitude, latitude);
          }
 
          os = new FileOutputStream(destinationFile);

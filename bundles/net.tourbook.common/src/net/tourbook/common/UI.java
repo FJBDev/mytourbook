@@ -27,7 +27,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.formatter.FormatManager;
@@ -199,6 +201,10 @@ public class UI {
     *          at org.eclipse.jdt.ui.actions.ExternalizeStringsAction.run(ExternalizeStringsAction.java:156)
     *          at org.eclipse.jdt.ui.actions.SelectionDispatchAction.dispatchRun(SelectionDispatchAction.java:278)
     * </pre>
+    *
+    * @see <a href=
+    *      "https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/1803">https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/1803</a>
+    *
     */
 // public static final String       SYMBOL_QUOTA                         = "\"";
    public static final String       SYMBOL_QUOTATION_MARK                = new StringBuilder().append('"').toString();
@@ -327,20 +333,29 @@ public class UI {
    public static final boolean   IS_OSX      = "carbon".equals(SWT.getPlatform())   || "cocoa".equals(SWT.getPlatform());                        //$NON-NLS-1$ //$NON-NLS-2$
    public static final boolean   IS_WIN      = "win32".equals(SWT.getPlatform())    || "wpf".equals(SWT.getPlatform());                           //$NON-NLS-1$ //$NON-NLS-2$
 
+
 // SET_FORMATTING_ON
 
-   public static final String TRUE  = Boolean.toString(true);
-   public static final String FALSE = Boolean.toString(false);
+   public static final String  TRUE              = Boolean.toString(true);
+   public static final String  FALSE             = Boolean.toString(false);
 
    /**
     * Is <code>true</code> when the dark theme in the UI is selected
     */
-   public static boolean      IS_DARK_THEME;
+   public static boolean       IS_DARK_THEME;
 
    /**
     * Is <code>true</code> when the bright theme in the UI is selected
     */
-   public static boolean      IS_BRIGHT_THEME;
+   public static boolean       IS_BRIGHT_THEME;
+
+   /**
+    * When <code>true</code> then HRD images are displayed on windows when the dark theme is
+    * selected.
+    * <p>
+    * This is a central switch to enable/disable it which is more or less used for debugging
+    */
+   public static final boolean IS_USE_HDR_IMAGES = true;
 
    // https://eclipse.dev/eclipse/markdown/?f=news/4.36/platform.md#themes-and-styling
    public static String        DISABLED_ICONS_DESATURATED     = "desaturated";               //$NON-NLS-1$
@@ -450,6 +465,12 @@ public class UI {
    public static final float   UNIT_METER_TO_INCHES           = 39.37007874f;
 
    public static final float   UNIT_KILOGRAM_TO_POUND         = 2.204623f;
+
+   /**
+    * 1 lbs = 16 oz
+    * 1 oz = 0.0625 lbs
+    */
+   public static final float   UNIT_OZ_TO_POUND               = 16.0f;
 
    /**
     * Hash code including all system measurement data. This can be used to easily find out if the
@@ -595,6 +616,7 @@ public class UI {
    public static String       UNIT_LABEL_PACE;
    public static String       UNIT_LABEL_PACE_SWIMMING;
    public static String       UNIT_LABEL_WEIGHT;
+   public static String       UNIT_LABEL_WEIGHT_SMALL;
 
    public static final String UNIT_LABEL_TIME      = "h";      //$NON-NLS-1$
    public static final String UNIT_LABEL_DIRECTION = "\u00B0"; //$NON-NLS-1$
@@ -644,6 +666,7 @@ public class UI {
    public static final String                   UNIT_WEIGHT_KG             = "kg";                       //$NON-NLS-1$
    public static final String                   UNIT_WEIGHT_LBS            = "lbs";                      //$NON-NLS-1$
    public static final String                   UNIT_WEIGHT_MG             = "mg";                       //$NON-NLS-1$
+   public static final String                   UNIT_WEIGHT_OZ             = "oz";                       //$NON-NLS-1$
 
    private static final String                  DISTANCE_MILES_1_8         = "1/8";                      //$NON-NLS-1$
    private static final String                  DISTANCE_MILES_1_4         = "1/4";                      //$NON-NLS-1$
@@ -655,6 +678,7 @@ public class UI {
    //
    public static final PeriodFormatter          DEFAULT_DURATION_FORMATTER;
    public static final PeriodFormatter          DEFAULT_DURATION_FORMATTER_SHORT;
+   public static final PeriodFormatter          DURATION_FORMATTER_YEAR_MONTH_DAY;
 
    private static StringBuilder                 _formatterSB               = new StringBuilder();
    private static Formatter                     _formatter                 = new Formatter(_formatterSB);
@@ -772,6 +796,7 @@ public class UI {
    public static Color           SYS_COLOR_DARK_GRAY;
    public static Color           SYS_COLOR_DARK_GREEN;
    public static Color           SYS_COLOR_DARK_RED;
+   public static Color           SYS_COLOR_DARK_YELLOW;
 
    public static Color           SYS_COLOR_LIST_BACKGROUND;
 
@@ -795,7 +820,34 @@ public class UI {
 
    private static final IPreferenceStore _prefStore_Common           = CommonActivator.getPrefStore();
 
+   private static final String           SYS_PROP__SWT_AUTOSCALE     = "swt.autoScale";                                              //$NON-NLS-1$
+   private static final String           SYS_PROP__SWT_AUTOSCALE_NO  = "noAutoScale";                                                //$NON-NLS-1$
+   private static final String           _swtAutoScale               = System.getProperty(SYS_PROP__SWT_AUTOSCALE);
+   private static final String           _swtAutoScale_No            = System.getProperty(SYS_PROP__SWT_AUTOSCALE_NO);
+
    static {
+
+      if (_swtAutoScale == null) {
+
+         if (_swtAutoScale_No == null) {
+
+            System.setProperty(SYS_PROP__SWT_AUTOSCALE, "100"); //$NON-NLS-1$
+
+            StatusUtil.logInfo(UI.EMPTY_STRING
+                  + "\"swt.autoScale\" is not set externally, " //$NON-NLS-1$
+                  + " therefore the default value is used \"swt.autoScale=100\"." //$NON-NLS-1$
+                  + " The default can be prevented by setting \"noAutoScale\"");//$NON-NLS-1$
+         } else {
+
+            StatusUtil.logInfo(UI.EMPTY_STRING
+                  + "\"swt.autoScale\" is not set externally," //$NON-NLS-1$
+                  + " the default value was prevented with \"noAutoScale\"");//$NON-NLS-1$
+         }
+
+      } else {
+
+         StatusUtil.logInfo("\"swt.autoScale=%s\" is set externally".formatted(_swtAutoScale));//$NON-NLS-1$
+      }
 
       /**
        * This creates a display which may contain also sleak options, otherwise sleak would not
@@ -862,6 +914,7 @@ public class UI {
       SYS_COLOR_DARK_GRAY           = display.getSystemColor(SWT.COLOR_DARK_GRAY);
       SYS_COLOR_DARK_GREEN          = display.getSystemColor(SWT.COLOR_DARK_GREEN);
       SYS_COLOR_DARK_RED            = display.getSystemColor(SWT.COLOR_DARK_RED);
+      SYS_COLOR_DARK_YELLOW         = display.getSystemColor(SWT.COLOR_DARK_YELLOW);
 
       SYS_COLOR_LIST_BACKGROUND     = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
       SYS_COLOR_WIDGET_BACKGROUND   = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
@@ -885,12 +938,14 @@ public class UI {
 
       final String commaSpace = Messages.Period_Format_CommaSpace;
       final String space2 = Messages.Period_Format_SpaceAndSpace;
+
       final String[] variants = {
 
             Messages.Period_Format_Space,
             Messages.Period_Format_Comma,
             Messages.Period_Format_CommaAndAnd,
-            Messages.Period_Format_CommaSpaceAnd };
+            Messages.Period_Format_CommaSpaceAnd
+      };
 
       DEFAULT_DURATION_FORMATTER = new PeriodFormatterBuilder()
 
@@ -962,7 +1017,23 @@ public class UI {
 
             .toFormatter();
 
+      DURATION_FORMATTER_YEAR_MONTH_DAY = new PeriodFormatterBuilder()
+
+            .appendYears()
+            .appendSuffix(Messages.Period_Format_Year_Short, Messages.Period_Format_Year_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .appendMonths()
+            .appendSuffix(Messages.Period_Format_Month_Short, Messages.Period_Format_Month_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .appendDays()
+            .appendSuffix(Messages.Period_Format_Day_Short, Messages.Period_Format_Day_Short)
+            .appendSeparator(commaSpace, commaSpace, variants)
+
+            .toFormatter();
    }
+
    /**
     * Number of horizontal dialog units per character, value <code>4</code>.
     */
@@ -1772,7 +1843,9 @@ public class UI {
     *
     * @return
     */
-   public static Composite createPage(final FormToolkit formToolkit, final Composite parent, final String labelText) {
+   public static Composite createPage(final FormToolkit formToolkit,
+                                      final Composite parent,
+                                      final String labelText) {
 
       final Composite container = formToolkit.createComposite(parent);
       GridDataFactory.fillDefaults().grab(true, false).applyTo(container);
@@ -1806,7 +1879,35 @@ public class UI {
       return label;
    }
 
-   public static void createSpacer_Vertical(final Composite parent, final int height, final int spanHorizontal) {
+   public static Label createSpacer_Horizontal(final Composite parent,
+                                               final int width,
+                                               final int columns) {
+
+      final Label label = new Label(parent, SWT.NONE);
+
+      GridDataFactory.fillDefaults()
+            .hint(width, SWT.DEFAULT)
+            .span(columns, 1)
+            .applyTo(label);
+
+      return label;
+   }
+
+   public static Label createSpacer_Horizontal(final Composite parent,
+                                               final int columns,
+                                               final int alignHorizontal,
+                                               final int alignVertical) {
+
+      final Label label = new Label(parent, SWT.NONE);
+
+      GridDataFactory.fillDefaults().align(alignHorizontal, alignVertical).span(columns, 1).applyTo(label);
+
+      return label;
+   }
+
+   public static void createSpacer_Vertical(final Composite parent,
+                                            final int height,
+                                            final int spanHorizontal) {
 
       final Label label = new Label(parent, SWT.NONE);
 
@@ -2074,6 +2175,15 @@ public class UI {
    public static String escapeAmpersand(final String text) {
 
       return text.replace(SYMBOL_AMPERSAND, SYMBOL_AMPERSAND_AMPERSAND);
+   }
+
+   public static void fillUI_Combobox(final Combo combo, final ConcurrentSkipListSet<String> allValues) {
+
+      for (final String value : allValues) {
+         if (value != null) {
+            combo.add(value);
+         }
+      }
    }
 
    public static String format_hh(final long time) {
@@ -2460,32 +2570,34 @@ public class UI {
 
    /**
     * @param allVisibleItems
-    * @param allExpandedItems
+    * @param allExpandedPaths
     *
     * @return Returns {@link TreePath}'s which are expanded and open (not hidden).
     */
-   public static TreePath[] getExpandedOpenedItems(final Object[] allVisibleItems, final TreePath[] allExpandedItems) {
+   public static TreePath[] getExpandedAndOpenedItems(final Object[] allVisibleItems,
+                                                      final TreePath[] allExpandedPaths) {
 
-      final ArrayList<TreePath> expandedOpened = new ArrayList<>();
+      final List<TreePath> allExpandedAndOpenedPaths = new ArrayList<>();
 
-      for (final TreePath expandedPath : allExpandedItems) {
+      for (final TreePath expandedPath : allExpandedPaths) {
 
          /*
-          * The last expanded segment must be in the visible list otherwise it is hidden.
+          * The last expanded segment must be in the visible list otherwise it is hidden
           */
-         final Object lastExpandedItem = expandedPath.getLastSegment();
+         final Object lastExpandedSegment = expandedPath.getLastSegment();
 
          for (final Object visibleItem : allVisibleItems) {
 
-            if (lastExpandedItem == visibleItem) {
+            if (lastExpandedSegment == visibleItem) {
 
-               expandedOpened.add(expandedPath);
+               allExpandedAndOpenedPaths.add(expandedPath);
+
                break;
             }
          }
       }
 
-      return expandedOpened.toArray(new TreePath[expandedOpened.size()]);
+      return allExpandedAndOpenedPaths.toArray(new TreePath[allExpandedAndOpenedPaths.size()]);
    }
 
    /**
@@ -3328,7 +3440,39 @@ public class UI {
     * @param backgroundColor
     *           Background color
     */
-   public static void setColorForAllChildren(final Control parent, final Color foregroundColor, final Color backgroundColor) {
+   public static void setColorForAllChildren(final Control parent,
+                                             final Color foregroundColor,
+                                             final Color backgroundColor) {
+
+      setColorForAllChildren(parent, foregroundColor, backgroundColor, null);
+   }
+
+   /**
+    * Set color for all children controls of the parent.
+    *
+    * @param parent
+    * @param foregroundColor
+    *           Foreground color
+    * @param backgroundColor
+    *           Background color
+    * @param allSkippedControls
+    *           Contains all controls which must be skipped
+    *
+    */
+   public static void setColorForAllChildren(final Control parent,
+                                             final Color foregroundColor,
+                                             final Color backgroundColor,
+                                             final Object[] allSkippedControls) {
+
+      if (allSkippedControls != null) {
+
+         for (final Object skippedControl : allSkippedControls) {
+
+            if (parent == skippedControl) {
+               return;
+            }
+         }
+      }
 
       parent.setForeground(foregroundColor);
       parent.setBackground(backgroundColor);
@@ -3340,15 +3484,15 @@ public class UI {
          for (final Control child : children) {
 
             if (child != null
-                  && child.isDisposed() == false //
+                  && child.isDisposed() == false
 
                   // exclude controls which look ugly
                   && !child.getClass().equals(Combo.class)
                   && !child.getClass().equals(Spinner.class)
-            //
+
             ) {
 
-               setColorForAllChildren(child, foregroundColor, backgroundColor);
+               setColorForAllChildren(child, foregroundColor, backgroundColor, allSkippedControls);
             }
          }
       }
@@ -4210,7 +4354,10 @@ public class UI {
          UNIT_IS_WEIGHT_POUND             = true;
 
          UNIT_LABEL_WEIGHT                = UNIT_WEIGHT_LBS;
+         UNIT_LABEL_WEIGHT_SMALL          = UNIT_WEIGHT_OZ;
+
          UNIT_VALUE_WEIGHT                = UNIT_POUND;
+
 
       } else {
 
@@ -4219,6 +4366,8 @@ public class UI {
          UNIT_IS_WEIGHT_KILOGRAM         = true;
 
          UNIT_LABEL_WEIGHT                = UNIT_WEIGHT_KG;
+         UNIT_LABEL_WEIGHT_SMALL          = UNIT_WEIGHT_G;
+
          UNIT_VALUE_WEIGHT                = 1;
       }
 

@@ -1,0 +1,526 @@
+/*******************************************************************************
+ * Copyright (C) 2025, 2026 Wolfgang Schramm and Contributors
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+ *******************************************************************************/
+package net.tourbook.equipment;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import net.tourbook.Messages;
+import net.tourbook.common.UI;
+import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.SQL;
+import net.tourbook.common.util.TreeViewerItem;
+import net.tourbook.data.Equipment;
+import net.tourbook.data.EquipmentPart;
+import net.tourbook.database.TourDatabase;
+import net.tourbook.ui.AppFilter;
+
+import org.eclipse.jface.viewers.TreeViewer;
+
+public class TVIEquipmentView_Equipment extends TVIEquipmentView_Item {
+
+   private static final String TEXT_FORMATTING = "%s"; //$NON-NLS-1$
+
+   private Equipment           _equipment;
+
+   private long                _equipmentID;
+
+   private boolean             _isMonthCategory;
+
+   public TVIEquipmentView_Equipment(final TreeViewer equipViewer,
+                                     final Equipment equipment,
+                                     final EquipmentViewerType equipmentType) {
+
+      super(equipViewer, equipmentType);
+
+// SET_FORMATTING_OFF
+
+      _equipment     = equipment;
+      _equipmentID   = equipment.getEquipmentId();
+
+      firstColumn    = equipment.getName();
+
+      type           = equipment.getType();
+      dateUsed       = equipment.getDateUsed_Local();
+
+      price          = equipment.getPrice();
+      priceUnit      = equipment.getPriceUnit();
+
+// SET_FORMATTING_ON
+
+      long durationMS = equipment.getDuration();
+      String durationText = TEXT_FORMATTING;
+
+      final long dateCollateUntil = equipment.getDateCollateUntil();
+
+      if (dateCollateUntil == TimeTools.MAX_TIME_IN_EPOCH_MILLI) {
+
+         // this is the last collated equipment
+
+         durationMS = TimeTools.nowInMilliseconds() - equipment.getDateUsed();
+         durationText = Messages.Equipment_View_Label_UntilNow;
+      }
+
+      usageDurationMS = durationMS;
+      usageDurationText = durationText;
+
+      if (UI.IS_SCRAMBLE_DATA) {
+         firstColumn = UI.scrambleText(firstColumn);
+      }
+
+      _isMonthCategory = equipment.getExpandType() == EquipmentManager.EXPAND_TYPE_YEAR_MONTH_TOUR;
+   }
+
+   @Override
+   protected void fetchChildren() {
+
+      loadChildren_Parts();
+
+      /*
+       * Load equipment children which are collated
+       */
+      if (_equipment.isCollate()) {
+
+         switch (getExpandType()) {
+
+         case EquipmentManager.EXPAND_TYPE_FLAT:
+            loadChildren_Tours();
+            break;
+
+         case EquipmentManager.EXPAND_TYPE_YEAR_TOUR:
+            loadChildren_Years(false);
+            break;
+
+         case EquipmentManager.EXPAND_TYPE_YEAR_MONTH_TOUR:
+            loadChildren_Years(true);
+            break;
+
+         default:
+            break;
+         }
+      }
+   }
+
+   public Equipment getEquipment() {
+      return _equipment;
+   }
+
+   public long getEquipmentID() {
+      return _equipmentID;
+   }
+
+   int getExpandType() {
+      return _equipment.getExpandType();
+   }
+
+   @Override
+   public boolean hasChildren() {
+
+      final EquipmentViewerType viewerType = getViewerType();
+
+      final List<TreeViewerItem> unfetchedChildren = getUnfetchedChildren();
+      final boolean is0UnfetchedChildren = unfetchedChildren != null && unfetchedChildren.size() == 0;
+
+      if (viewerType == EquipmentViewerType.IS_EQUIPMENT_FILTER) {
+
+         if (_equipment.isCollate()) {
+
+            // hide the expand icon in the view
+
+            return false;
+
+         } else {
+
+            if (is0UnfetchedChildren) {
+
+               // hide the expand icon in the view
+
+               return false;
+            }
+         }
+
+      } else if (viewerType == EquipmentViewerType.IS_EQUIPMENT_VIEWER) {
+
+         if (is0UnfetchedChildren) {
+
+            // hide the expand icon in the view
+
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   private void loadChildren_Parts() {
+
+      final boolean isFilterEnabled = EquipmentManager.isEquipmentFilterEnabled();
+      final int equipmentFilter_Retired = EquipmentManager.getEquipmentFilter_Retired();
+
+      final boolean useRetiredFilter = equipmentFilter_Retired != EquipmentManager.FILTER_RETIRED_IGNORE;
+      final boolean useFilter = isFilterEnabled && useRetiredFilter;
+
+      final Set<EquipmentPart> allParts = _equipment.getParts();
+
+      final ArrayList<TreeViewerItem> allPartItems = new ArrayList<>();
+
+      for (final EquipmentPart part : allParts) {
+
+         if (useFilter) {
+
+            final boolean isPartRetired = part.isRetired();
+
+            if (equipmentFilter_Retired == EquipmentManager.FILTER_RETIRED_IS_RETIRED) {
+
+               // display retired parts
+
+               if (isPartRetired == false) {
+
+                  // ignore part
+
+                  continue;
+               }
+
+            } else if (equipmentFilter_Retired == EquipmentManager.FILTER_RETIRED_IS_ACTIVE) {
+
+               // display active parts
+
+               if (isPartRetired) {
+
+                  // ignore part
+
+                  continue;
+               }
+            }
+         }
+
+         long durationMS = part.getDuration();
+         String durationText = TEXT_FORMATTING;
+
+         final long dateCollateUntil = part.getDateCollateUntil();
+
+         if (dateCollateUntil == TimeTools.MAX_TIME_IN_EPOCH_MILLI) {
+
+            // this is the last collated part
+
+            durationMS = TimeTools.nowInMilliseconds() - part.getDateUsed();
+            durationText = Messages.Equipment_View_Label_UntilNow;
+         }
+
+         final TVIEquipmentView_Part partItem = new TVIEquipmentView_Part(
+
+               this,
+               part,
+               getEquipmentViewer(),
+               getViewerType());
+
+// SET_FORMATTING_OFF
+
+         partItem.firstColumn          = part.getName_Combined();
+
+         partItem.type                 = part.getPartType();
+         partItem.dateUsed             = part.getDateUsed_Local();
+
+         partItem.price                = part.getPrice();
+         partItem.priceUnit            = part.getPriceUnit();
+
+         partItem.usageDurationMS      = durationMS;
+         partItem.usageDurationText    = durationText;
+
+// SET_FORMATTING_ON
+
+         allPartItems.add(partItem);
+
+         EquipmentLoader.loadSummarizedValues_Part(partItem);
+      }
+
+      setChildren(allPartItems);
+   }
+
+   /**
+    * Get all tours for this equipment
+    */
+   private void loadChildren_Tours() {
+
+      final ArrayList<TreeViewerItem> allTourItems = new ArrayList<>();
+
+      String sql = null;
+
+      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+
+         final AppFilter appFilter = createAppFilter();
+
+         /*
+          * Load: Equipment, Tour
+          */
+         sql = UI.EMPTY_STRING
+
+               + "--" + NL //                                                                   //$NON-NLS-1$
+               + NL
+               + "--------------------" + NL //                                                 //$NON-NLS-1$
+               + "-- equipment - tours" + NL //                                                 //$NON-NLS-1$
+               + "--------------------" + NL //                                                 //$NON-NLS-1$
+               + NL
+
+               + "SELECT" + NL //                                                               //$NON-NLS-1$
+
+               + TVIEquipmentView_Tour.SQL_TOUR_COLUMNS
+
+               + "FROM " + TourDatabase.TABLE_EQUIPMENT + " AS equipment" + NL //               //$NON-NLS-1$ //$NON-NLS-2$
+
+               + "JOIN " + TourDatabase.JOINTABLE__TOURDATA__EQUIPMENT + " AS j_td_eq" + NL //  //$NON-NLS-1$ //$NON-NLS-2$
+               + "  ON j_td_eq.equipment_equipmentid = equipment.EQUIPMENTID" + NL //           //$NON-NLS-1$
+
+               + "JOIN " + TourDatabase.TABLE_TOUR_DATA + " AS TourData" + NL //                //$NON-NLS-1$ //$NON-NLS-2$
+               + "  ON TourData.tourid = j_td_eq.tourdata_tourid" + NL //                       //$NON-NLS-1$
+               + "  AND TourData.tourstarttime >= equipment.dateCollateFrom" + NL //            //$NON-NLS-1$
+               + "  AND TourData.tourstarttime <  equipment.dateCollateUntil" + NL //           //$NON-NLS-1$
+
+               // get all equipment ids
+               + "LEFT JOIN " + TourDatabase.JOINTABLE__TOURDATA__EQUIPMENT + " AS jTdataEq" + NL //   //$NON-NLS-1$ //$NON-NLS-2$
+               + "  ON TourData.TOURID = jTdataEq.TOURDATA_TOURID" + NL //                             //$NON-NLS-1$
+
+               // get tag ids
+               + "LEFT JOIN " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " AS jTdataTtag" // //$NON-NLS-1$ //$NON-NLS-2$
+               + "  ON TourData.tourId = jTdataTtag.TourData_tourId" + NL //                    //$NON-NLS-1$
+
+               // get marker ids
+               + "LEFT JOIN " + TourDatabase.TABLE_TOUR_MARKER + " AS Tmarker" //               //$NON-NLS-1$ //$NON-NLS-2$
+               + "  ON TourData.tourId = Tmarker.TourData_tourId" + NL //                       //$NON-NLS-1$
+
+               + "WHERE equipment.isCollate = TRUE" + NL //                                     //$NON-NLS-1$
+               + "   AND equipment.equipmentID = ?" + NL //                                     //$NON-NLS-1$
+
+               + appFilter.getWhereClause()
+
+               + "ORDER BY TourData.TOURSTARTTIME" + NL //                                      //$NON-NLS-1$
+
+               + NL;
+
+         final PreparedStatement statement = conn.prepareStatement(sql);
+
+         int nextIndex = 1;
+
+         statement.setLong(nextIndex++, _equipmentID);
+
+         nextIndex = appFilter.setParameters(statement, nextIndex);
+
+         final ResultSet result = statement.executeQuery();
+
+         long prevTourId = -1;
+         Set<Long> allEquipmentIDs = null;
+         Set<Long> allTagIDs = null;
+         Set<Long> allMarkerIDs = null;
+
+         while (result.next()) {
+
+// SET_FORMATTING_OFF
+
+            final long dbTourId     = result.getLong(1);
+            final Object dbTagId    = result.getObject(6);
+            final Object dbMarkerId = result.getObject(7);
+            final Object dbEquipmentID = result.getObject(8);
+
+// SET_FORMATTING_ON
+
+            if (dbTourId == prevTourId) {
+
+               // additional resultsets for the same tour
+
+               // get equipment from left join
+               if (dbEquipmentID instanceof final Long equipmentID) {
+                  allEquipmentIDs.add(equipmentID);
+               }
+
+               // get tags from left join
+               if (dbTagId instanceof final Long tagId) {
+                  allTagIDs.add(tagId);
+               }
+
+               // get markers from left join
+               if (dbMarkerId instanceof final Long markerId) {
+                  allMarkerIDs.add(markerId);
+               }
+
+            } else {
+
+               // first resultset for a new tour
+
+               final TVIEquipmentView_Tour tourItem = new TVIEquipmentView_Tour(
+
+                     this,
+                     this,
+                     getEquipmentViewer(),
+                     getViewerType());
+
+               allTourItems.add(tourItem);
+
+               tourItem.readColumnValues_Tour(result);
+
+               if (UI.IS_SCRAMBLE_DATA) {
+                  tourItem.firstColumn = UI.scrambleText(tourItem.firstColumn);
+               }
+
+               // get first equipment id
+               if (dbEquipmentID instanceof final Long equipmentID) {
+
+                  allEquipmentIDs = new HashSet<>();
+                  allEquipmentIDs.add(equipmentID);
+
+                  tourItem.setEquipmentIds(allEquipmentIDs);
+               }
+
+               // get first tag id
+               if (dbTagId instanceof Long) {
+
+                  allTagIDs = new HashSet<>();
+                  allTagIDs.add((Long) dbTagId);
+
+                  tourItem.setTagIds(allTagIDs);
+               }
+
+               // get first marker id
+               if (dbMarkerId instanceof Long) {
+
+                  allMarkerIDs = new HashSet<>();
+                  allMarkerIDs.add((Long) dbMarkerId);
+
+                  tourItem.setMarkerIds(allMarkerIDs);
+               }
+            }
+
+            prevTourId = dbTourId;
+         }
+
+      } catch (final SQLException e) {
+
+         SQL.showException(e, sql);
+      }
+
+      setChildren(allTourItems);
+   }
+
+   /**
+    * Get all years for this part
+    *
+    * @param isMonth
+    */
+   private void loadChildren_Years(final boolean isMonth) {
+
+      final ArrayList<TreeViewerItem> allTourItems = new ArrayList<>();
+
+      String sql = null;
+
+      try (Connection conn = TourDatabase.getInstance().getConnection()) {
+
+         final AppFilter appFilter = createAppFilter();
+
+         sql = UI.EMPTY_STRING
+
+               + "--" + NL //                                                                   //$NON-NLS-1$
+               + NL
+               + "--------------------" + NL //                                                 //$NON-NLS-1$
+               + "-- equipment - years" + NL //                                                 //$NON-NLS-1$
+               + "--------------------" + NL //                                                 //$NON-NLS-1$
+               + NL
+
+               + "SELECT" + NL //                                                               //$NON-NLS-1$
+               + "   TourData.STARTYEAR," + NL //                                               //$NON-NLS-1$
+               + "   COUNT(*) AS num_Tours," + NL //                                            //$NON-NLS-1$
+
+               + getSQL_SUM_COLUMNS("TourData", 3) //                                           //$NON-NLS-1$
+
+               + "FROM " + TourDatabase.TABLE_EQUIPMENT + " AS equipment" + NL //               //$NON-NLS-1$ //$NON-NLS-2$
+
+               + "JOIN " + TourDatabase.JOINTABLE__TOURDATA__EQUIPMENT + " AS j_td_eq" + NL //  //$NON-NLS-1$ //$NON-NLS-2$
+               + "   ON j_td_eq.equipment_equipmentid = equipment.EQUIPMENTID" + NL //          //$NON-NLS-1$
+
+               + "JOIN " + TourDatabase.TABLE_TOUR_DATA + " AS TourData" + NL //                //$NON-NLS-1$ //$NON-NLS-2$
+               + "   ON TourData.tourid = j_td_eq.tourdata_tourid" + NL //                      //$NON-NLS-1$
+               + "   AND TourData.tourstarttime >= equipment.dateCollateFrom" + NL //           //$NON-NLS-1$
+               + "   AND TourData.tourstarttime <  equipment.dateCollateUntil" + NL //          //$NON-NLS-1$
+
+               + appFilter.getWhereClause()
+
+               + "WHERE equipment.iscollate = TRUE" + NL //                                     //$NON-NLS-1$
+               + "   AND equipment.equipmentID = ?" + NL //                                     //$NON-NLS-1$
+
+               + "GROUP BY TourData.STARTYEAR" + NL //                                          //$NON-NLS-1$
+
+               + NL;
+
+         final PreparedStatement statement = conn.prepareStatement(sql);
+
+         int nextIndex = 1;
+
+         nextIndex = appFilter.setParameters(statement, nextIndex);
+
+         statement.setLong(nextIndex++, _equipmentID);
+
+         final ResultSet result = statement.executeQuery();
+
+         while (result.next()) {
+
+            final int year = result.getInt(1);
+            final long numTours = result.getLong(2);
+
+            final TVIEquipmentView_Equipment_Year yearItem = new TVIEquipmentView_Equipment_Year(
+
+                  this,
+                  year,
+                  _isMonthCategory,
+                  getEquipmentViewer(),
+                  getViewerType());
+
+            allTourItems.add(yearItem);
+
+            yearItem.numTours_IsCollated = numTours;
+
+            yearItem.firstColumn = Integer.toString(year);
+
+            yearItem.readCommonValues(result, 3);
+
+            if (UI.IS_SCRAMBLE_DATA) {
+               yearItem.firstColumn = UI.scrambleText(yearItem.firstColumn);
+            }
+         }
+
+      } catch (final SQLException e) {
+
+         SQL.showException(e, sql);
+      }
+
+      setChildren(allTourItems);
+   }
+
+   @Override
+   public String toString() {
+
+      return UI.EMPTY_STRING
+
+            + "TVIEquipmentView_Equipment" + NL //       //$NON-NLS-1$
+
+            + " _equipment = " + _equipment + NL //      //$NON-NLS-1$
+      ;
+   }
+
+}

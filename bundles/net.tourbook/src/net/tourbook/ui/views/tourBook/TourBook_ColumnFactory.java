@@ -39,6 +39,7 @@ import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.TourData;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageViews;
 import net.tourbook.ui.TableColumnFactory;
@@ -147,6 +148,7 @@ class TourBook_ColumnFactory {
       defineColumn_Tour_Marker();
       defineColumn_Tour_Photos();
       defineColumn_Tour_Tags();
+      defineColumn_Tour_Equipment();
       defineColumn_Tour_Location_Start();
       defineColumn_Tour_Location_End();
       defineColumn_Tour_LocationID_Start(); //  // for debugging
@@ -243,6 +245,9 @@ class TourBook_ColumnFactory {
       defineColumn_Surfing_MinSpeed_Surfing();
       defineColumn_Surfing_MinTimeDuration();
       defineColumn_Surfing_MinDistance();
+
+      // Radar
+      defineColumn_Radar_PassedVehicles();
 
       // Device
       defineColumn_Device_Name();
@@ -1855,6 +1860,38 @@ class TourBook_ColumnFactory {
    }
 
    /**
+    * Column: Radar - Number of passed vehicles
+    */
+   private void defineColumn_Radar_PassedVehicles() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.RADAR_PASSED_VEHICLES.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final double value = ((TVITourBookItem) element).colRadar_PassedVehicles;
+
+            return colDef_NatTable.printValue_0(value);
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.RADAR_PASSED_VEHICLES.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final double value = ((TVITourBookItem) element).colRadar_PassedVehicles;
+
+            colDef_Tree.printValue_0(cell, value);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
+   /**
     * Column: Running Dynamics - Stance time max
     */
    private void defineColumn_RunDyn_StanceTime_Avg() {
@@ -3247,6 +3284,49 @@ class TourBook_ColumnFactory {
                   cell.setText(colTourDescription);
                }
 
+               setCellColor(cell, element);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final List<Long> allEquipmentIDs = ((TVITourBookTour) element).getEquipmentIds();
+
+            final ValueFormat valueFormat = colDef_NatTable.getValueFormat_Detail();
+
+            final String text = EquipmentManager.getEquipmentNames(allEquipmentIDs, valueFormat);
+
+            return text;
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            if (element instanceof final TVITourBookTour tourItem) {
+
+               final List<Long> allEquipmentIDs = tourItem.getEquipmentIds();
+
+               final ValueFormat valueFormat = colDef_Tree.getValueFormat_Detail();
+
+               final String text = EquipmentManager.getEquipmentNames(allEquipmentIDs, valueFormat);
+
+               cell.setText(text);
                setCellColor(cell, element);
             }
          }

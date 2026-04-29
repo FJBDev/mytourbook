@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -358,7 +358,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       store.setDefault(ITourbookPreferences.VALUE_POINT_TOOL_TIP_IS_VISIBLE_MAP2, true);
 
       /*
-       * graph smoothing
+       * Graph smoothing
        */
       // algorithm
       store.setDefault(ITourbookPreferences.GRAPH_SMOOTHING_SMOOTHING_ALGORITHM, ISmoothingAlgorithm.SMOOTHING_ALGORITHM_JAMET);
@@ -379,6 +379,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
       // speed
       store.setDefault(ITourbookPreferences.GRAPH_JAMET_SMOOTHING_SPEED_TAU, 10.0);
+
+      /*
+       * Elevation adjustment smoothing
+       */
+      store.setDefault(ITourbookPreferences.ADJUST_ELEVATION_GRAPH_JAMET_SMOOTHING_REPEATED_SMOOTHING, 1);
+      store.setDefault(ITourbookPreferences.ADJUST_ELEVATION_GRAPH_JAMET_SMOOTHING_REPEATED_TAU, 1.0);
+      store.setDefault(ITourbookPreferences.ADJUST_ELEVATION_GRAPH_JAMET_SMOOTHING_GRADIENT_TAU, 10.0);
 
       /*
        * Display formats
@@ -478,35 +485,50 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       // Cadence zones delimiter
       store.setDefault(ITourbookPreferences.CADENCE_ZONES_DELIMITER, 70);
 
+// SET_FORMATTING_OFF
+
       /*
-       * view column tooltip
+       * View column tooltip
        */
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_COLLATION,              true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TIME,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TITLE,                  true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_TAGS,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_EQUIPMENT,              true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_COLLATED_WEEKDAY,                true);
 
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_DATE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TIME, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TITLE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TAGS, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_WEEKDAY, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_DATE,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TIME,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TITLE,                  true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_TAGS,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_EQUIPMENT,              true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURBOOK_WEEKDAY,                true);
 
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TAG, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TITLE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TAGS, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TAG,                     true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TITLE,                   true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_TAGS,                    true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TAGGING_EQUIPMENT,               true);
 
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_REFTOUR, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TITLE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TAGS, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_EQUIPMENT_EQUIPMENT_1ST_COLUMN,  true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_EQUIPMENT_TITLE,                 true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_EQUIPMENT_TAGS,                  true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_EQUIPMENT_EQUIPMENT,             true);
 
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_DATE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TIME, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TITLE, true);
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TAGS, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_REFTOUR,             true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TITLE,               true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TAGS,                true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_EQUIPMENT,           true);
 
-      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCOMPARERESULT_TIME, true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_DATE,                 true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_EQUIPMENT,            true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TIME,                 true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TITLE,                true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_TAGS,                 true);
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURIMPORT_EQUIPMENT,            true);
+
+      store.setDefault(ITourbookPreferences.VIEW_TOOLTIP_TOURCOMPARERESULT_TIME,          true);
+
+// SET_FORMATTING_ON
 
       /*
        * view actions
@@ -566,6 +588,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
        * Tour Nutrition
        */
       store.setDefault(ITourbookPreferences.NUTRITION_IGNORE_FIRST_HOUR, false);
+
+      /*
+       * Equipment
+       */
+      store.setDefault(ITourbookPreferences.EQUIPMENT_NUMBER_OF_RECENT_EQUIPMENT, 3);
    }
 
 }

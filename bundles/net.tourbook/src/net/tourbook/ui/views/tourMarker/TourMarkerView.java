@@ -577,10 +577,11 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
       defineColumn_Marker_IsVisible();
 
       defineColumn_Time_MarkerDate();
-      defineColumn_Time_MarkerTime();
+      defineColumn_Time_MarkerClockTime();
 
       defineColumn_Time_RelativeTime();
       defineColumn_Time_TimeDelta();
+      defineColumn_Time_TimeInSeconds();
 
       defineColumn_Motion_Distance();
       defineColumn_Motion_DistanceDelta();
@@ -918,6 +919,31 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
    }
 
    /**
+    * Column: Marker day time
+    */
+   private void defineColumn_Time_MarkerClockTime() {
+
+      final ColumnDefinition colDef = TableColumnFactory.TIME_TOUR_TIME_OF_DAY_HH_MM_SS.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourMarker tourMarker = (TourMarker) cell.getElement();
+
+            final TourData tourData = tourMarker.getTourData();
+            final ZonedDateTime tourStartTime = tourData.getTourStartTime();
+            final ZonedDateTime markerTime = TimeTools.getZonedDateTime(
+                  tourMarker.getTourTime(),
+                  tourStartTime.getZone());
+
+            cell.setText(TimeTools.Formatter_Time_M.format(markerTime));
+         }
+      });
+   }
+
+   /**
     * Column: Marker date
     */
    private void defineColumn_Time_MarkerDate() {
@@ -938,31 +964,6 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
                   tourStartTime.getZone());
 
             cell.setText(TimeTools.Formatter_Date_S.format(markerTime));
-         }
-      });
-   }
-
-   /**
-    * Column: Marker time
-    */
-   private void defineColumn_Time_MarkerTime() {
-
-      final ColumnDefinition colDef = TableColumnFactory.TIME_TOUR_TIME.createColumn(_columnManager, _pc);
-
-      colDef.setLabelProvider(new CellLabelProvider() {
-
-         @Override
-         public void update(final ViewerCell cell) {
-
-            final TourMarker tourMarker = (TourMarker) cell.getElement();
-
-            final TourData tourData = tourMarker.getTourData();
-            final ZonedDateTime tourStartTime = tourData.getTourStartTime();
-            final ZonedDateTime markerTime = TimeTools.getZonedDateTime(
-                  tourMarker.getTourTime(),
-                  tourStartTime.getZone());
-
-            cell.setText(TimeTools.Formatter_Time_S.format(markerTime));
          }
       });
    }
@@ -1053,6 +1054,25 @@ public class TourMarkerView extends ViewPart implements ITourProvider, ITourView
 
                cell.setFont(_boldFont);
             }
+         }
+      });
+   }
+
+   /**
+    * Column: Time in seconds
+    */
+   private void defineColumn_Time_TimeInSeconds() {
+
+      final ColumnDefinition colDef = TableColumnFactory.TIME_TOUR_TIME.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourMarker marker = (TourMarker) cell.getElement();
+            final long time = marker.getTime();
+
+            cell.setText(Long.toString(time));
          }
       });
    }

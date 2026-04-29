@@ -43,11 +43,13 @@ import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.data.DeviceSensor;
 import net.tourbook.data.DeviceSensorValue;
+import net.tourbook.data.Equipment;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPersonHRZone;
 import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.statistic.StatisticView;
 import net.tourbook.tag.TagManager;
@@ -139,8 +141,10 @@ public class TourInfoUI implements ICanHideTooltip {
       _nf3.setMaximumFractionDigits(3);
    }
 
+   private boolean        _hasEquipment;
    private boolean        _hasRecordingDeviceBattery;
    private boolean        _hasGears;
+   private boolean        _hasRadar;
    private boolean        _hasRunDyn;
    private boolean        _hasSensorValues;
    private boolean        _hasTags;
@@ -194,7 +198,7 @@ public class TourInfoUI implements ICanHideTooltip {
     */
    private TourData                       _tourData;
 
-   private ArrayList<DeviceSensorValue>   _allSensorValuesWithData;
+   private List<DeviceSensorValue>        _allSensorValuesWithData;
 
    private String                         _noTourTooltipText = Messages.Tour_Tooltip_Label_NoTour;
 
@@ -218,16 +222,12 @@ public class TourInfoUI implements ICanHideTooltip {
     * UI controls
     */
    private Composite        _parent;
-   private Composite        _lowerPartContainer;
+   private Composite        _lowerPartContainer1;
+   private Composite        _lowerPartContainer2;
    private Composite        _shellContainer;
    private Composite        _ttContainer;
 
-   private Text             _txtDescription;
-   private Text             _txtLocationEnd;
-   private Text             _txtLocationStart;
-   private Text             _txtWeather;
-
-   private CLabel           _lblClouds;
+   private CLabel           _lblCloud_Image;
    private CLabel           _lblTourType_Image;
 
    private Label            _lblAirQuality;
@@ -264,14 +264,18 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblDescription;
    private Label            _lblDistance;
    private Label            _lblDistance_Unit;
+   private Label            _lblElapsedTime;
+   private Label            _lblElapsedTime_Unit;
    private Label            _lblElevationUp;
    private Label            _lblElevationUp_Unit;
    private Label            _lblElevationDown;
    private Label            _lblElevationDown_Unit;
+   private Label            _lblEquipment;
+   private Label            _lblEquipment_Value;
    private Label            _lblGear;
-   private Label            _lblGear_Spacer;
    private Label            _lblGear_GearShifts;
    private Label            _lblGear_GearShifts_Spacer;
+   private Label            _lblGearRadar_Spacer;
    private Label            _lblMaxElevation;
    private Label            _lblMaxElevation_Unit;
    private Label            _lblMaxPace;
@@ -282,10 +286,11 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblMaxSpeed_Unit;
    private Label            _lblMovingTime;
    private Label            _lblMovingTime_Unit;
-   private Label            _lblElapsedTime;
-   private Label            _lblElapsedTime_Unit;
    private Label            _lblLocationStart;
    private Label            _lblLocationEnd;
+   private Label            _lblRadar;
+   private Label            _lblRadar_PassedVehicles;
+   private Label            _lblRadar_PassedVehicles_Spacer;
    private Label            _lblPausedTime;
    private Label            _lblPausedTime_Unit;
    private Label            _lblRecordedTime;
@@ -298,7 +303,6 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblTimeZone_Value;
    private Label            _lblTimeZoneDifference;
    private Label            _lblTimeZoneDifference_Value;
-   private Label            _lblTitle;
    private Label            _lblTourTags;
    private Label            _lblTourTags_Value;
    private Label            _lblTourType;
@@ -370,6 +374,13 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblVerticalSpeed_Time_Relative_Loss;
 
    private Link             _linkBattery;
+
+   private Text             _txtDescription;
+   private Text             _txtLocationEnd;
+   private Text             _txtLocationStart;
+   private Text             _txtTitle;
+   private Text             _txtWeather;
+
    private ArrayList<Link>  _allSensorValue_Link;
 
    private ArrayList<Label> _allSensorValue_Level;
@@ -478,7 +489,15 @@ public class TourInfoUI implements ICanHideTooltip {
 
       enableControls();
 
-      updateUI_Background(parent);
+      // run async otherwise the background is not properly set for the most controls in the bright theme
+      parent.getDisplay().asyncExec(() -> {
+
+         if (parent.isDisposed()) {
+            return;
+         }
+
+         updateUI_Background(parent);
+      });
 
       return container;
    }
@@ -539,7 +558,8 @@ public class TourInfoUI implements ICanHideTooltip {
             }
          }
 
-         createUI_90_LowerPart(_ttContainer);
+         createUI_90_LowerPart1(_ttContainer);
+         createUI_90_LowerPart2(_ttContainer);
          createUI_99_CreateModifyTime(_ttContainer);
       }
    }
@@ -569,13 +589,14 @@ public class TourInfoUI implements ICanHideTooltip {
             /*
              * Title
              */
-            _lblTitle = new Label(container, SWT.LEAD | SWT.WRAP);
+            _txtTitle = new Text(container, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
+
             GridDataFactory.fillDefaults()
                   .hint(MAX_DATA_WIDTH, SWT.DEFAULT)
                   .grab(true, false)
                   .align(SWT.FILL, SWT.CENTER)
-                  .applyTo(_lblTitle);
-            MTFont.setBannerFont(_lblTitle);
+                  .applyTo(_txtTitle);
+            MTFont.setBannerFont(_txtTitle);
          }
          {
             /*
@@ -600,7 +621,7 @@ public class TourInfoUI implements ICanHideTooltip {
 
       final ToolBar toolbar = new ToolBar(container, SWT.FLAT);
       GridDataFactory.fillDefaults().applyTo(toolbar);
-      toolbar.setBackground(UI.SYS_COLOR_GREEN);
+//      toolbar.setBackground(UI.SYS_COLOR_GREEN);
 
       final ToolBarManager tbm = new ToolBarManager(toolbar);
 
@@ -651,9 +672,11 @@ public class TourInfoUI implements ICanHideTooltip {
 
          if (_isShowSensorValues) {
 
-            // gear data
-            _lblGear_Spacer = createUI_Spacer(container);
+            // gear / radar data
+            _lblGearRadar_Spacer = createUI_Spacer(container);
+
             createUI_38_Gears(container);
+            createUI_39_Radar(container);
          }
       }
    }
@@ -892,6 +915,17 @@ public class TourInfoUI implements ICanHideTooltip {
 
       _lblGear_GearShifts = createUI_LabelValue(parent, SWT.TRAIL);
       _lblGear_GearShifts_Spacer = createUI_LabelValue(parent, SWT.LEAD);
+   }
+
+   private void createUI_39_Radar(final Composite parent) {
+
+      /*
+       * Passed vehicles
+       */
+      _lblRadar = createUI_Label(parent, Messages.Tour_Tooltip_Label_PassedVehicles);
+
+      _lblRadar_PassedVehicles = createUI_LabelValue(parent, SWT.TRAIL);
+      _lblRadar_PassedVehicles_Spacer = createUI_LabelValue(parent, SWT.LEAD);
    }
 
    private void createUI_40_Column_2(final Composite parent) {
@@ -1178,8 +1212,8 @@ public class TourInfoUI implements ICanHideTooltip {
       createUI_Label(parent, Messages.Tour_Tooltip_Label_Clouds);
 
       // Icon: clouds
-      _lblClouds = new CLabel(parent, SWT.TRAIL);
-      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblClouds);
+      _lblCloud_Image = new CLabel(parent, SWT.TRAIL);
+      GridDataFactory.fillDefaults().align(SWT.END, SWT.FILL).applyTo(_lblCloud_Image);
 
       // text: clouds
       _lblCloudsUnit = createUI_LabelValue(parent, SWT.LEAD);
@@ -1430,30 +1464,40 @@ public class TourInfoUI implements ICanHideTooltip {
       }
    }
 
-   private void createUI_90_LowerPart(final Composite parent) {
+   private void createUI_90_LowerPart1(final Composite parent) {
 
       final int numColumns = 4;
 
-      _lowerPartContainer = new Composite(parent, SWT.NONE);
-      GridDataFactory.fillDefaults().grab(true, false).applyTo(_lowerPartContainer);
-      GridLayoutFactory.fillDefaults().numColumns(numColumns).spacing(16, 0).applyTo(_lowerPartContainer);
-//      _lowerPartContainer.setBackground(UI.SYS_COLOR_CYAN);
+      _lowerPartContainer1 = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(_lowerPartContainer1);
+      GridLayoutFactory.fillDefaults().numColumns(numColumns).spacing(16, 0).applyTo(_lowerPartContainer1);
+//      _lowerPartContainer1.setBackground(UI.SYS_COLOR_MAGENTA);
       {
-
          if (_isShowSensorValues) {
-            createUI_92_SensorValues(_lowerPartContainer);
+            createUI_95_SensorValues(_lowerPartContainer1);
          }
+      }
+   }
 
+   private void createUI_90_LowerPart2(final Composite parent) {
+
+      final int numColumns = 4;
+
+      _lowerPartContainer2 = new Composite(parent, SWT.NONE);
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(_lowerPartContainer2);
+      GridLayoutFactory.fillDefaults().numColumns(numColumns).spacing(16, 0).applyTo(_lowerPartContainer2);
+//      _lowerPartContainer2.setBackground(UI.SYS_COLOR_MAGENTA);
+      {
          {
             /*
              * Tour type
              */
-            _lblTourType = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_TourType);
+            _lblTourType = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_TourType);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING)
                   .indent(0, 5)
                   .applyTo(_lblTourType);
 
-            _lblTourType_Value = createUI_LabelValue(_lowerPartContainer, SWT.LEAD | SWT.WRAP);
+            _lblTourType_Value = createUI_LabelValue(_lowerPartContainer2, SWT.LEAD | SWT.WRAP);
             GridDataFactory.fillDefaults()
                   .span(numColumns - 1, 1)
                   .indent(0, 5)
@@ -1463,13 +1507,25 @@ public class TourInfoUI implements ICanHideTooltip {
             /*
              * Tags
              */
-            _lblTourTags = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_Tags);
+            _lblTourTags = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_Tags);
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(_lblTourTags);
 
-            _lblTourTags_Value = createUI_LabelValue(_lowerPartContainer, SWT.LEAD | SWT.WRAP);
+            _lblTourTags_Value = createUI_LabelValue(_lowerPartContainer2, SWT.LEAD | SWT.WRAP);
             GridDataFactory.fillDefaults()
                   .span(numColumns - 1, 1)
                   .applyTo(_lblTourTags_Value);
+         }
+         {
+            /*
+             * Equipment
+             */
+            _lblEquipment = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_Equipment);
+            GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(_lblEquipment);
+
+            _lblEquipment_Value = createUI_LabelValue(_lowerPartContainer2, SWT.LEAD | SWT.WRAP);
+            GridDataFactory.fillDefaults()
+                  .span(numColumns - 1, 1)
+                  .applyTo(_lblEquipment_Value);
          }
 
          if (_isShowWeatherDescription && _hasWeatherDescription) {
@@ -1477,14 +1533,14 @@ public class TourInfoUI implements ICanHideTooltip {
             /*
              * Weather
              */
-            _lblWeather = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_Weather);
+            _lblWeather = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_Weather);
             _lblWeather.setFont(_boldFont);
             GridDataFactory.fillDefaults()
                   .span(numColumns, 1)
                   .indent(0, 10)
                   .applyTo(_lblWeather);
 
-            _txtWeather = new Text(_lowerPartContainer, SWT.MULTI | SWT.READ_ONLY);
+            _txtWeather = new Text(_lowerPartContainer2, SWT.MULTI | SWT.READ_ONLY);
             GridDataFactory.fillDefaults().span(numColumns, 1).applyTo(_txtWeather);
          }
          {
@@ -1493,7 +1549,7 @@ public class TourInfoUI implements ICanHideTooltip {
              */
 
             // label
-            _lblDescription = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_Description);
+            _lblDescription = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_Description);
             _lblDescription.setFont(_boldFont);
             GridDataFactory.fillDefaults()
                   .span(numColumns, 1)
@@ -1508,7 +1564,7 @@ public class TourInfoUI implements ICanHideTooltip {
                style |= SWT.V_SCROLL;
             }
 
-            _txtDescription = new Text(_lowerPartContainer, style);
+            _txtDescription = new Text(_lowerPartContainer2, style);
 
             GridDataFactory.fillDefaults().span(numColumns, 1).applyTo(_txtDescription);
             if (_descriptionLineCount > _descriptionScroll_Lines) {
@@ -1523,35 +1579,35 @@ public class TourInfoUI implements ICanHideTooltip {
                /*
                 * Start location
                 */
-               _lblLocationStart = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_TourLocation_Start);
+               _lblLocationStart = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_TourLocation_Start);
                _lblLocationStart.setFont(_boldFont);
                GridDataFactory.fillDefaults()
                      .span(numColumns, 1)
                      .indent(0, 10)
                      .applyTo(_lblLocationStart);
 
-               _txtLocationStart = new Text(_lowerPartContainer, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
+               _txtLocationStart = new Text(_lowerPartContainer2, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
                GridDataFactory.fillDefaults().span(numColumns, 1).applyTo(_txtLocationStart);
             }
             {
                /*
                 * End location
                 */
-               _lblLocationEnd = createUI_Label(_lowerPartContainer, Messages.Tour_Tooltip_Label_TourLocation_End);
+               _lblLocationEnd = createUI_Label(_lowerPartContainer2, Messages.Tour_Tooltip_Label_TourLocation_End);
                _lblLocationEnd.setFont(_boldFont);
                GridDataFactory.fillDefaults()
                      .span(numColumns, 1)
                      .indent(0, 10)
                      .applyTo(_lblLocationEnd);
 
-               _txtLocationEnd = new Text(_lowerPartContainer, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
+               _txtLocationEnd = new Text(_lowerPartContainer2, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
                GridDataFactory.fillDefaults().span(numColumns, 1).applyTo(_txtLocationEnd);
             }
          }
       }
    }
 
-   private void createUI_92_SensorValues(final Composite parent) {
+   private void createUI_95_SensorValues(final Composite parent) {
 
       /*
        * Setup sensor value data BEFORE returning, otherwise old data could cause widget dispose
@@ -1809,14 +1865,17 @@ public class TourInfoUI implements ICanHideTooltip {
             ? null
             : TourDatabase.getTourTypeName(tourType.getTypeId());
 
-      final Set<TourTag> tourTags = _tourData.getTourTags();
-
 // SET_FORMATTING_OFF
 
+      final Set<TourTag> allTags          = _tourData.getTourTags();
+      final Set<Equipment> allEquipment   = _tourData.getEquipment();
+
+      _hasEquipment                 = allEquipment != null && allEquipment.size() > 0;
       _hasGears                     = _tourData.getFrontShiftCount() > 0 || _tourData.getRearShiftCount() > 0;
+      _hasRadar                     = _tourData.getNumberOfPassedVehicles() > 0;
       _hasRecordingDeviceBattery    = tourData.getBattery_Percentage_Start() != -1;
       _hasRunDyn                    = _tourData.isRunDynAvailable();
-      _hasTags                      = tourTags != null && tourTags.size() > 0;
+      _hasTags                      = allTags != null && allTags.size() > 0;
       _hasTourType                  = tourType != null;
       _hasSensorValues              = _tourData.getDeviceSensorValues().size() > 0;
 
@@ -2016,17 +2075,21 @@ public class TourInfoUI implements ICanHideTooltip {
             tourTitle = _uiTourTypeName;
          }
       }
-      _lblTitle.setText(tourTitle);
+      _txtTitle.setText(tourTitle);
 
       /*
-       * Lower part container contains sensor values, weather, tour type, tags and description
+       * Lower part containers contains sensor values, weather, tour type, tags and description
        */
-      UI.showHideControl(_lowerPartContainer,
+      UI.showHideControl(_lowerPartContainer1, _hasSensorValues);
 
-            _hasSensorValues
+      UI.showHideControl(_lowerPartContainer2,
+
+            false
+
                   || _hasWeatherDescription
                   || _hasTourType
                   || _hasTags
+                  || _hasEquipment
                   || _hasTourDescription
                   || _hasLocationStart
                   || _hasLocationEnd);
@@ -2060,6 +2123,15 @@ public class TourInfoUI implements ICanHideTooltip {
       }
       UI.showHideControl(_lblTourTags, _hasTags);
       UI.showHideControl(_lblTourTags_Value, _hasTags);
+
+      /*
+       * Equipment
+       */
+      if (_hasEquipment) {
+         EquipmentManager.updateUI_Equipment(_tourData, _lblEquipment_Value, true);
+      }
+      UI.showHideControl(_lblEquipment, _hasEquipment);
+      UI.showHideControl(_lblEquipment_Value, _hasEquipment);
 
       /*
        * Tour description
@@ -2316,7 +2388,7 @@ public class TourInfoUI implements ICanHideTooltip {
          final String cloudText = IWeather.CLOUD_TEXT[weatherIndex];
          final String cloudImageName = IWeather.CLOUD_ICON[weatherIndex];
 
-         _lblClouds.setImage(UI.IMAGE_REGISTRY.get(cloudImageName));
+         _lblCloud_Image.setImage(UI.IMAGE_REGISTRY.get(cloudImageName));
          _lblCloudsUnit.setText(cloudText.equals(IWeather.cloudIsNotDefined) ? UI.EMPTY_STRING : cloudText);
       }
 
@@ -2522,10 +2594,20 @@ public class TourInfoUI implements ICanHideTooltip {
                   _tourData.getRearShiftCount()));
          }
 
-         UI.showHideControl(_lblGear_Spacer,             _hasGears);
+         UI.showHideControl(_lblGearRadar_Spacer,        _hasGears || _hasRadar);
+
          UI.showHideControl(_lblGear,                    _hasGears);
          UI.showHideControl(_lblGear_GearShifts,         _hasGears);
          UI.showHideControl(_lblGear_GearShifts_Spacer,  _hasGears);
+
+         if (_hasRadar) {
+
+            _lblRadar_PassedVehicles.setText(Integer.toString(_tourData.getNumberOfPassedVehicles()));
+         }
+
+         UI.showHideControl(_lblRadar,                         _hasRadar);
+         UI.showHideControl(_lblRadar_PassedVehicles,          _hasRadar);
+         UI.showHideControl(_lblRadar_PassedVehicles_Spacer,   _hasRadar);
       }
 
       /*
@@ -2640,6 +2722,11 @@ public class TourInfoUI implements ICanHideTooltip {
          UI.setColorForAllChildren(parent,
                display.getSystemColor(SWT.COLOR_INFO_FOREGROUND),
                display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+
+// For debugging
+//         UI.setColorForAllChildren(parent,
+//               UI.SYS_COLOR_RED,
+//               UI.SYS_COLOR_GREEN);
       }
    }
 

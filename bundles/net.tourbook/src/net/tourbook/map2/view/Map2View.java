@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -668,7 +668,7 @@ public class Map2View extends ViewPart implements
 
       public ActionMap2_MapPoints() {
 
-         super(_actionImageDescriptor, _actionImageDescriptor);
+         super(_actionImageDescriptor);
 
          isToggleAction = true;
          notSelectedTooltip = Messages.Map_Action_ShowMapPoints_Tooltip;
@@ -4201,11 +4201,13 @@ public class Map2View extends ViewPart implements
           */
          _externalValuePointIndex = -1;
 
+         final TourData tourData = _allTourData.size() == 0 ? null : _allTourData.get(0);
+
          // repaint map
          _directMappingPainter.setPaintingOptions(
 
                _isShowTour,
-               _allTourData.get(0),
+               tourData,
 
                _currentSliderValueIndex_Left,
                _currentSliderValueIndex_Right,

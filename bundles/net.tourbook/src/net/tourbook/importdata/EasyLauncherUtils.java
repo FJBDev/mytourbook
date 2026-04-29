@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -25,8 +25,11 @@ import net.tourbook.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.ColumnManager;
 import net.tourbook.common.util.TableColumnDefinition;
+import net.tourbook.data.Equipment;
 import net.tourbook.data.TourTag;
 import net.tourbook.data.TourType;
+import net.tourbook.equipment.EquipmentGroup;
+import net.tourbook.equipment.EquipmentGroupManager;
 import net.tourbook.tag.TagGroup;
 import net.tourbook.tag.TagGroupManager;
 import net.tourbook.tour.CadenceMultiplier;
@@ -67,7 +70,118 @@ public class EasyLauncherUtils {
       _nf1.setMaximumFractionDigits(1);
    }
 
-   public static void getTagGroupText(final ImportLauncher importLauncher, final StringBuilder sb) {
+   public static void createTooltipText_Cadence(final ImportLauncher importLauncher, final StringBuilder sb) {
+
+      final Enum<CadenceConfig> cadConfig = importLauncher.cadenceConfig;
+
+      if (CadenceConfig.CADENCE_CONFIG_BY_SPEED.equals(cadConfig)) {
+
+         final List<SpeedCadence> allCadSpeeds = importLauncher.allCadenceSpeeds;
+
+         final StringBuilder sbSpeed = new StringBuilder();
+
+         for (final SpeedCadence cadSpeed : allCadSpeeds) {
+
+            final double avgSpeed = (cadSpeed.avgSpeed / UI.UNIT_VALUE_DISTANCE) + 0.0001;
+
+            sbSpeed.append(UI.SPACE3);
+            sbSpeed.append((int) avgSpeed);
+            sbSpeed.append(UI.SPACE);
+            sbSpeed.append(UI.UNIT_LABEL_SPEED);
+            sbSpeed.append(UI.DASH_WITH_DOUBLE_SPACE);
+            sbSpeed.append(cadSpeed.cadenceMultiplier.getNlsLabel());
+            sbSpeed.append(NL);
+         }
+
+         sb.append("Set cadence . . . By Speed\n\n%s".formatted(sbSpeed.toString()));
+         sb.append(NL);
+
+      } else if (CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL.equals(cadConfig)) {
+
+         final CadenceMultiplier oneCadence = importLauncher.cadenceOne;
+
+         String cadLabel = "NO";
+
+         if (oneCadence != null) {
+            cadLabel = oneCadence.getNlsLabel();
+         }
+
+         sb.append("Set cadence . . . %s".formatted(cadLabel));
+         sb.append(NL);
+      }
+   }
+
+   public static void createTooltipText_Equipment(final ImportLauncher importLauncher, final StringBuilder sb) {
+
+      final Enum<EquipmentConfig> eqConfig = importLauncher.equipmentConfig;
+
+      if (EquipmentConfig.EQUIPMENT_CONFIG_BY_SPEED == eqConfig) {
+
+         final List<SpeedEquipment> allEqSpeeds = importLauncher.allEquipmentSpeeds;
+
+         final StringBuilder sbSpeed = new StringBuilder();
+
+         for (final SpeedEquipment eqSpeed : allEqSpeeds) {
+
+            final String eqGroupId = eqSpeed.equipmentGroupID;
+            final int avgSpeed = Math.round(eqSpeed.avgSpeed / UI.UNIT_VALUE_DISTANCE);
+
+            final EquipmentGroup eqGroup = EquipmentGroupManager.getEquipmentGroup(eqGroupId);
+            final Set<Equipment> allEquipment = EquipmentGroupManager.getEquipment(eqGroupId);
+
+            if (eqGroup == null || allEquipment == null) {
+               continue;
+            }
+
+            sbSpeed.append(UI.SPACE3);
+            sbSpeed.append(avgSpeed);
+            sbSpeed.append(UI.SPACE);
+            sbSpeed.append(UI.UNIT_LABEL_SPEED);
+            sbSpeed.append(UI.DASH_WITH_DOUBLE_SPACE);
+            sbSpeed.append(eqGroup.name);
+            sbSpeed.append(NL);
+            sbSpeed.append(NL);
+            sbSpeed.append(createTooltipText_Equipment_OneGroup(allEquipment, UI.SPACE8));
+            sbSpeed.append(NL);
+         }
+
+         sb.append("Set equipment . . . By Speed\n\n%s".formatted(sbSpeed.toString()));
+
+      } else if (EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL == eqConfig) {
+
+         final String eqGroupId = importLauncher.equipmentOneGroupID;
+
+         final EquipmentGroup eqGroup = EquipmentGroupManager.getEquipmentGroup(eqGroupId);
+         final Set<Equipment> allEquipment = EquipmentGroupManager.getEquipment(eqGroupId);
+
+         if (eqGroup == null || allEquipment == null) {
+            return;
+         }
+
+         final String eqText = createTooltipText_Equipment_OneGroup(allEquipment, UI.SPACE3);
+
+         sb.append(Messages.Import_Data_HTML_SetEquipment_YES.formatted(eqGroup.name, eqText));
+         sb.append(NL);
+      }
+   }
+
+   private static String createTooltipText_Equipment_OneGroup(final Set<Equipment> allEquipment,
+                                                              final String horizontalIndent) {
+
+      final List<Equipment> sortedEquipment = new ArrayList<>(allEquipment);
+      Collections.sort(sortedEquipment);
+
+      final StringBuilder sb = new StringBuilder();
+
+      for (final Equipment equipment : sortedEquipment) {
+
+         sb.append(horizontalIndent + equipment.getName() + NL);
+      }
+
+      return sb.toString();
+   }
+
+   public static void createTooltipText_Tags(final ImportLauncher importLauncher, final StringBuilder sb) {
 
       final TagGroup tagGroup = TagGroupManager.getTagGroup(importLauncher.tourTagGroupID);
       final Set<TourTag> allTags = TagGroupManager.getTags(importLauncher.tourTagGroupID);
@@ -87,71 +201,68 @@ public class EasyLauncherUtils {
          sbTags.append(UI.SPACE3 + tourTag.getTagName() + NL);
       }
 
-      sb.append(NL);
       sb.append(Messages.Import_Data_HTML_SetTourTags_YES.formatted(tagGroup.name, sbTags.toString()));
+      sb.append(NL);
    }
 
-   public static String getTourTypeText(final ImportLauncher importLauncher, final String tileName) {
+   public static void createTooltipText_TourType(final ImportLauncher importLauncher,
+                                                 final String tileName,
+                                                 final StringBuilder sb) {
 
-      final StringBuilder ttText = new StringBuilder();
       final Enum<TourTypeConfig> ttConfig = importLauncher.tourTypeConfig;
 
       if (TourTypeConfig.TOUR_TYPE_CONFIG_BY_SPEED.equals(ttConfig)) {
 
-         final ArrayList<SpeedTourType> speedTourTypes = importLauncher.speedTourTypes;
-         boolean isSpeedAdded = false;
+         final List<SpeedTourType> allSpeedTourTypes = importLauncher.allTourTypeSpeeds;
 
-         for (final SpeedTourType speedTT : speedTourTypes) {
+         final StringBuilder sbSpeed = new StringBuilder();
 
-            if (isSpeedAdded) {
-               ttText.append(NL);
-            }
+         for (final SpeedTourType speedTT : allSpeedTourTypes) {
 
             final long tourTypeId = speedTT.tourTypeId;
             final double avgSpeed = (speedTT.avgSpeed / UI.UNIT_VALUE_DISTANCE) + 0.0001;
 
-            ttText.append(UI.SPACE3);
-            ttText.append((int) avgSpeed);
-            ttText.append(UI.SPACE);
-            ttText.append(UI.UNIT_LABEL_SPEED);
-            ttText.append(UI.DASH_WITH_DOUBLE_SPACE);
-            ttText.append(net.tourbook.ui.UI.getTourTypeLabel(tourTypeId));
-
-            isSpeedAdded = true;
+            sbSpeed.append(UI.SPACE3);
+            sbSpeed.append((int) avgSpeed);
+            sbSpeed.append(UI.SPACE);
+            sbSpeed.append(UI.UNIT_LABEL_SPEED);
+            sbSpeed.append(UI.DASH_WITH_DOUBLE_SPACE);
+            sbSpeed.append(net.tourbook.ui.UI.getTourTypeLabel(tourTypeId));
+            sbSpeed.append(NL);
          }
+
+         sb.append("Set tour type . . . By Speed\n\n%s".formatted(sbSpeed.toString()));
+         sb.append(NL);
 
       } else if (TourTypeConfig.TOUR_TYPE_CONFIG_ONE_FOR_ALL.equals(ttConfig)) {
 
          final TourType oneTourType = importLauncher.oneTourType;
+
+         String ttName = "NO";
+
          if (oneTourType != null) {
-
-            final String ttName = oneTourType.getName();
-            final CadenceMultiplier ttCadence = importLauncher.oneTourTypeCadence;
-
-            // show this text only when the name is different
-            if (!tileName.equals(ttName)) {
-               ttText.append(String.format("%s (%s)", ttName, ttCadence.getNlsLabel()));//$NON-NLS-1$
-            }
+            ttName = oneTourType.getName();
          }
-      }
 
-      return ttText.toString();
+         sb.append("Set tour type . . . %s".formatted(ttName));
+         sb.append(NL);
+      }
    }
 
    private String createLauncherTooltip(final ImportLauncher importLauncher) {
 
       final StringBuilder sb = new StringBuilder();
 
-      final String tileName = importLauncher.name.trim();
+      final String launcherName = importLauncher.name.trim();
       final String tileDescription = importLauncher.description.trim();
-      final String tourTypeText = getTourTypeText(importLauncher, tileName);
 
       {
-         // tour type name
+         // launcher name
 
-         if (tileName.length() > 0) {
+         if (launcherName.length() > 0) {
 
-            sb.append(tileName);
+            sb.append(launcherName);
+            sb.append(NL);
             sb.append(NL);
          }
       }
@@ -160,19 +271,17 @@ public class EasyLauncherUtils {
 
          if (tileDescription.length() > 0) {
 
-            sb.append(NL);
             sb.append(tileDescription);
+            sb.append(NL);
             sb.append(NL);
          }
       }
       {
          // tour type text
 
-         if (tourTypeText.length() > 0) {
+         if (importLauncher.isSetTourType) {
 
-            sb.append(NL);
-            sb.append(tourTypeText);
-            sb.append(NL);
+            createTooltipText_TourType(importLauncher, launcherName, sb);
          }
       }
       {
@@ -180,12 +289,38 @@ public class EasyLauncherUtils {
 
          if (importLauncher.isSetTourTagGroup) {
 
-            getTagGroupText(importLauncher, sb);
+            createTooltipText_Tags(importLauncher, sb);
 
          } else {
 
+            sb.append(Messages.Import_Data_HTML_SetTourTags_NO);
             sb.append(NL);
-            sb.append(Messages.Import_Data_HTML_SetTourTags_NO.formatted());
+         }
+      }
+      {
+         // equipment
+
+         if (importLauncher.isSetEquipment) {
+
+            createTooltipText_Equipment(importLauncher, sb);
+
+         } else {
+
+            sb.append(Messages.Import_Data_HTML_SetEquipment_NO);
+            sb.append(NL);
+         }
+      }
+      {
+         // cadence
+
+         if (importLauncher.isSetCadence) {
+
+            createTooltipText_Cadence(importLauncher, sb);
+
+         } else {
+
+            sb.append("Set cadence . . . NO");
+            sb.append(NL);
          }
       }
       {
@@ -195,16 +330,14 @@ public class EasyLauncherUtils {
 
          final String distanceValue = _nf1.format(distance) + UI.SPACE1 + UI.UNIT_LABEL_DISTANCE;
 
-         sb.append(NL);
-
          sb.append(importLauncher.isSetLastMarker
                ? NLS.bind(Messages.Import_Data_HTML_LastMarker_Yes, distanceValue, importLauncher.lastMarkerText)
                : Messages.Import_Data_HTML_LastMarker_No);
+
+         sb.append(NL);
       }
       {
          // adjust temperature
-
-         sb.append(NL);
 
          if (importLauncher.isAdjustTemperature) {
 
@@ -222,51 +355,53 @@ public class EasyLauncherUtils {
 
             sb.append(Messages.Import_Data_HTML_AdjustTemperature_No);
          }
+
+         sb.append(NL);
       }
       {
          // adjust elevation
 
-         sb.append(NL);
-
          sb.append(importLauncher.isReplaceFirstTimeSliceElevation
                ? Messages.Import_Data_HTML_ReplaceFirstTimeSliceElevation_Yes
                : Messages.Import_Data_HTML_ReplaceFirstTimeSliceElevation_No);
+
+         sb.append(NL);
       }
       {
          // set elevation from SRTM
 
-         sb.append(NL);
-
          sb.append(importLauncher.isReplaceElevationFromSRTM
                ? Messages.Import_Data_HTML_ReplaceElevationFromSRTM_Yes
                : Messages.Import_Data_HTML_ReplaceElevationFromSRTM_No);
+
+         sb.append(NL);
       }
       {
          // retrieve weather data
 
-         sb.append(NL);
-
          sb.append(importLauncher.isRetrieveWeatherData
                ? Messages.Import_Data_HTML_RetrieveWeatherData_Yes
                : Messages.Import_Data_HTML_RetrieveWeatherData_No);
+
+         sb.append(NL);
       }
       {
          // retrieve tour location
 
-         sb.append(NL);
-
          sb.append(importLauncher.isRetrieveTourLocation
                ? Messages.Import_Data_HTML_RetrieveTourLocation_Yes
                : Messages.Import_Data_HTML_RetrieveTourLocation_No);
+
+         sb.append(NL);
       }
       {
          // save tour
 
-         sb.append(NL);
-
          sb.append(importLauncher.isSaveTour
                ? Messages.Import_Data_HTML_SaveTour_Yes
                : Messages.Import_Data_HTML_SaveTour_No);
+
+         sb.append(NL);
       }
 
       return sb.toString();
@@ -280,6 +415,9 @@ public class EasyLauncherUtils {
       defineColumn_10_LauncherName();
       defineColumn_50_03_TourTypeImage();
       defineColumn_50_08_TourTags();
+      defineColumn_50_09_Equipment();
+      defineColumn_50_10_Cadence();
+      defineColumn_90_IsShowInDashboard();
       defineColumn_50_041_Remove2ndLastTimeSliceMarker();
       defineColumn_50_042_LastMarkerDistance();
       defineColumn_50_05_AdjustTemperature();
@@ -287,7 +425,6 @@ public class EasyLauncherUtils {
       defineColumn_50_50_RetrieveWeatherData();
       defineColumn_50_51_RetrieveTourLocation();
       defineColumn_50_99_IsSaveTour();
-      defineColumn_90_IsShowInDashboard();
       defineColumn_99_Description();
    }
 
@@ -328,7 +465,7 @@ public class EasyLauncherUtils {
     */
    private void defineColumn_50_03_TourTypeImage() {
 
-      final TableColumnDefinition colDef = new TableColumnDefinition(_columnManager, "colorImage", SWT.LEAD); //$NON-NLS-1$
+      final TableColumnDefinition colDef = new TableColumnDefinition(_columnManager, "tourTypeImage", SWT.LEAD); //$NON-NLS-1$
       _colDef_TourTypeImage = colDef;
 
       colDef.setColumnLabel(Messages.Dialog_ImportConfig_Column_TourType);
@@ -435,10 +572,7 @@ public class EasyLauncherUtils {
     */
    private void defineColumn_50_05_AdjustTemperature() {
 
-      final TableColumnDefinition colDef = new TableColumnDefinition(
-            _columnManager,
-            "isAdjustTemperature", //$NON-NLS-1$
-            SWT.CENTER);
+      final TableColumnDefinition colDef = new TableColumnDefinition(_columnManager, "isAdjustTemperature", SWT.CENTER); //$NON-NLS-1$
 
       colDef.setColumnLabel(Messages.Dialog_ImportConfig_Column_AdjustTemperature_Label);
       colDef.setColumnHeaderText(Messages.Dialog_ImportConfig_Column_AdjustTemperature_Header);
@@ -547,6 +681,117 @@ public class EasyLauncherUtils {
                final TagGroup tagGroup = TagGroupManager.getTagGroup(importLauncher.tourTagGroupID);
 
                cell.setText(tagGroup == null ? UI.EMPTY_STRING : tagGroup.name);
+
+            } else {
+
+               cell.setText(UI.EMPTY_STRING);
+            }
+         }
+      });
+   }
+
+   private void defineColumn_50_09_Equipment() {
+
+      final TableColumnDefinition colDef = new TableColumnDefinition(_columnManager, "equipment", SWT.LEAD); //$NON-NLS-1$
+
+      colDef.setColumnLabel(Messages.Dialog_ImportConfig_Column_Equipment);
+      colDef.setColumnHeaderText(Messages.Dialog_ImportConfig_Column_Equipment);
+
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(10));
+      colDef.setColumnWeightData(new ColumnWeightData(7));
+
+      colDef.setIsDefaultColumn();
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public String getToolTipText(final Object element) {
+
+            return createLauncherTooltip((ImportLauncher) element);
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ImportLauncher importLauncher = (ImportLauncher) cell.getElement();
+
+            if (importLauncher.isSetEquipment) {
+
+               final Enum<EquipmentConfig> eqConfig = importLauncher.equipmentConfig;
+
+               String eqText = UI.EMPTY_STRING;
+
+               if (EquipmentConfig.EQUIPMENT_CONFIG_ONE_FOR_ALL == eqConfig) {
+
+                  final EquipmentGroup eqGroup = EquipmentGroupManager.getEquipmentGroup(importLauncher.equipmentOneGroupID);
+
+                  eqText = eqGroup == null ? UI.EMPTY_STRING : eqGroup.name;
+
+               } else if (EquipmentConfig.EQUIPMENT_CONFIG_BY_SPEED == eqConfig) {
+
+                  final List<SpeedEquipment> allEqSpeeds = importLauncher.allEquipmentSpeeds;
+
+                  eqText = "Speed #" + allEqSpeeds.size();
+               }
+
+               cell.setText(eqText);
+
+            } else {
+
+               cell.setText(UI.EMPTY_STRING);
+            }
+         }
+      });
+   }
+
+   private void defineColumn_50_10_Cadence() {
+
+      final TableColumnDefinition colDef = new TableColumnDefinition(_columnManager, "cadence", SWT.LEAD); //$NON-NLS-1$
+
+      colDef.setColumnLabel("Cadence");
+      colDef.setColumnHeaderText("Cadence");
+
+      colDef.setDefaultColumnWidth(_pc.convertWidthInCharsToPixels(10));
+      colDef.setColumnWeightData(new ColumnWeightData(7));
+
+      colDef.setIsDefaultColumn();
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public String getToolTipText(final Object element) {
+
+            return createLauncherTooltip((ImportLauncher) element);
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final ImportLauncher importLauncher = (ImportLauncher) cell.getElement();
+
+            if (importLauncher.isSetCadence) {
+
+               final Enum<CadenceConfig> cadConfig = importLauncher.cadenceConfig;
+
+               String eqText = UI.EMPTY_STRING;
+
+               if (CadenceConfig.CADENCE_CONFIG_ONE_FOR_ALL == cadConfig) {
+
+                  final CadenceMultiplier cadenceOne = importLauncher.cadenceOne;
+
+                  if (cadenceOne != null) {
+
+                     eqText = cadenceOne.getNlsLabel();
+                  }
+
+               } else if (CadenceConfig.CADENCE_CONFIG_BY_SPEED == cadConfig) {
+
+                  final List<SpeedCadence> allCadSpeeds = importLauncher.allCadenceSpeeds;
+
+                  eqText = "Speed #" + allCadSpeeds.size();
+               }
+
+               cell.setText(eqText);
 
             } else {
 

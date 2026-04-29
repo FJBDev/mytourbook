@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,7 +17,9 @@ package net.tourbook.photo;
 
 import java.util.Optional;
 
+import net.tourbook.common.UI;
 import net.tourbook.common.color.ThemeUtil;
+import net.tourbook.common.util.StatusUtil;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -56,6 +58,7 @@ public class PhotoActivator extends AbstractUIPlugin {
     *
     * @param path
     *           the path
+    *
     * @return the axisImage descriptor
     */
    public static ImageDescriptor getImageDescriptor(final String path) {
@@ -64,22 +67,71 @@ public class PhotoActivator extends AbstractUIPlugin {
       return imageDescriptor.isPresent() ? imageDescriptor.get() : null;
    }
 
+   private static ImageDescriptor getImageDescriptor_Dark_Win(final String imageName) {
+
+      if (UI.IS_DARK_THEME && UI.IS_WIN) {
+
+         /**
+          * Since windows 11, a hovered or selected action are displaying a very bright background
+          * which makes it very difficult to see the dark images which content is mostly very
+          * bright.
+          * <p>
+          * Because of this reason, the HDR images were created and are displayed on windows 11 in
+          * the dark theme and when available.
+          */
+
+         if (UI.IS_USE_HDR_IMAGES) {
+
+            final ImageDescriptor hdrImageDescriptor = getImageDescriptor(ThemeUtil.getThemedImageName_HDR(imageName));
+
+            if (hdrImageDescriptor != null) {
+
+               return hdrImageDescriptor;
+            }
+         }
+
+         // display bright theme image
+
+         return getImageDescriptor(imageName);
+      }
+
+      return null;
+   }
+
    public static IPreferenceStore getPrefStore() {
       return getDefault().getPreferenceStore();
    }
 
    /**
     * @param imageName
-    * @return Returns the themed image descriptor from the photo {@link PhotoActivator} plugin
-    *         images
+    *
+    * @return Returns the themed image descriptor from this plugin images
     */
    public static ImageDescriptor getThemedImageDescriptor(final String imageName) {
 
-      return getImageDescriptor(ThemeUtil.getThemedImageName(imageName));
+      final ImageDescriptor winDarkImageDescriptor = getImageDescriptor_Dark_Win(imageName);
+
+      if (winDarkImageDescriptor != null) {
+         return winDarkImageDescriptor;
+      }
+
+      final ImageDescriptor themedImageDescriptor = getImageDescriptor(ThemeUtil.getThemedImageName(imageName));
+
+      if (themedImageDescriptor == null) {
+
+         StatusUtil.logError("Cannot get themed image descriptor for '%s'".formatted(imageName)); //$NON-NLS-1$
+
+      } else {
+
+         return themedImageDescriptor;
+      }
+
+      return getImageDescriptor(imageName);
    }
 
    /**
     * @param sectionName
+    *
     * @return Returns the dialog setting section for the sectionName, a section is always returned
     *         even when it's empty
     */

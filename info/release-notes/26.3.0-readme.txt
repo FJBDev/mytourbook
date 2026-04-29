@@ -1,0 +1,70 @@
+26.3                                                 31. March 2026
+
+
+New / Improvements
+==================
+
+* Equipment
+  https://github.com/mytourbook/mytourbook/issues/777
+  
+  Equipment and tags have almost equal features but tags have been "misused" for an equipment because of missing a real equipment.
+  These are the feature which do not have the other:
+
+  - Equipment
+    - Equipment items are created directly in the equipment view
+    - Parts and services are collating tours by a type and time until the next or previous part or service
+
+  - Tags
+    - Categorize tags
+    - Floating tag context menu
+    
+
+* Tour Blog
+  - Display time for each tour blog entry
+    https://github.com/mytourbook/mytourbook/issues/1602
+
+
+* Photo
+  - Display svg images in the photo gallery
+    https://github.com/mytourbook/mytourbook/issues/1642
+
+Changes
+=======
+
+* Easy Import Dialog
+  - Splitted import launcher configuration into tabs
+  - Added equipment configuration
+
+* Tour Actions
+  - Moved tour type actions in the context menu before the tag actions
+
+* Tag 
+  - Moved tag content image size into pref page "Appearance" 
+
+
+
+Bugfix
+======
+  
+See milestone 26.3 https://github.com/mytourbook/mytourbook/milestone/28?closed=1
+ 
+
+
+Translation    
+===========
+
+- Dutch (Maarten)
+- French (Frederic)
+- German
+- Italian (Doriano)
+
+ 
+System   
+======
+
+* Java 21                        https://adoptium.net/temurin/releases/?version=21
+* Eclipse 2025-12 (4.38)         https://download.eclipse.org/releases/2025-12/202512101000/
+* NatTable 2.6.0                 https://eclipse.dev/nattable/download
+* Nebula Widgets                 https://download.eclipse.org/nebula/releases/latest
+* FIT SDK 21.195.0               https://forums.garmin.com/developer/fit-sdk/b/news-announcements
+* WorldWind 2.2.1                https://github.com/NASAWorldWind/WorldWindJava/releases/tag/v2.2.1

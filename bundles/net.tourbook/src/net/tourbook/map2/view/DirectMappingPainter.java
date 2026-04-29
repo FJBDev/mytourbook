@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,7 +30,7 @@ import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorProviderConfig;
 import net.tourbook.common.map.GeoPosition;
-import net.tourbook.common.util.NoAutoScalingImageDataProvider;
+import net.tourbook.common.util.CustomScalingImageDataProvider;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourPhoto;
 import net.tourbook.map2.Messages;
@@ -126,7 +126,7 @@ public class DirectMappingPainter implements IDirectPainter {
 
 //    final ImageData imageData = imageDescriptor.getImageData(100);
 
-      _imageMapLocation_Hovered = new Image(Display.getDefault(), new NoAutoScalingImageDataProvider(imageData));
+      _imageMapLocation_Hovered = new Image(Display.getDefault(), new CustomScalingImageDataProvider(imageData));
 
 // SET_FORMATTING_OFF
 
@@ -444,10 +444,10 @@ public class DirectMappingPainter implements IDirectPainter {
 
       if (photo == null
 
-            // this happend when the photo was not yet painted
+            // this happened when the photo was not yet painted
             || photo.paintedPhoto == null
 
-            // this happend also
+            // this happened also
             || photo.paintedRatingStars == null
 
       ) {

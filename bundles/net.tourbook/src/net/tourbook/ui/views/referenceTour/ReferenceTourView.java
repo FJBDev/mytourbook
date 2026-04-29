@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,8 @@ import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.tourbook.Images;
@@ -47,9 +49,9 @@ import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourReference;
-import net.tourbook.data.TourTag;
-import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.equipment.EquipmentMenuManager;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.ViewContext;
 import net.tourbook.tag.TagMenuManager;
@@ -62,6 +64,7 @@ import net.tourbook.tour.TourTypeMenuManager;
 import net.tourbook.tourType.TourTypeImage;
 import net.tourbook.ui.IReferenceTourProvider;
 import net.tourbook.ui.ITourProvider;
+import net.tourbook.ui.ITourProviderByID;
 import net.tourbook.ui.TreeColumnFactory;
 import net.tourbook.ui.action.ActionCollapseAll;
 import net.tourbook.ui.action.ActionCollapseOthers;
@@ -135,6 +138,7 @@ public class ReferenceTourView extends ViewPart implements
 
       ITourViewer,
       ITourProvider,
+      ITourProviderByID,
       IReferenceTourProvider,
       ITreeViewer {
 
@@ -189,9 +193,10 @@ public class ReferenceTourView extends ViewPart implements
     */
    private boolean                             _isToolbarCreated;
 
-   private boolean                             _isToolTipInRefTour;
-   private boolean                             _isToolTipInTitle;
-   private boolean                             _isToolTipInTags;
+   private boolean                             _isShowToolTipInEquipment;
+   private boolean                             _isShowToolTipInRefTour;
+   private boolean                             _isShowToolTipInTags;
+   private boolean                             _isShowToolTipInTitle;
 
    private boolean                             _isMouseContextMenu;
    private boolean                             _isSelectedWithKeyboard;
@@ -200,6 +205,7 @@ public class ReferenceTourView extends ViewPart implements
    private boolean                             _isInCollapseAll;
    private boolean                             _isInExpandingSelection;
    private boolean                             _isInRestore;
+   private boolean                             _isInSelection;
    private boolean                             _isPartVisible;
    private int                                 _expandRunnableCounter;
    private long                                _lastExpandSelectionTime;
@@ -207,6 +213,7 @@ public class ReferenceTourView extends ViewPart implements
    private TreeViewerTourInfoToolTip           _tourInfoToolTip;
    private TourDoubleClickState                _tourDoubleClickState                    = new TourDoubleClickState();
 
+   private EquipmentMenuManager                _equipmentMenuManager;
    private TagMenuManager                      _tagMenuManager;
    private TourTypeMenuManager                 _tourTypeMenuManager;
    private MenuManager                         _viewerMenuManager;
@@ -664,15 +671,9 @@ public class ReferenceTourView extends ViewPart implements
                   }
                }
 
-            } else if (eventId == TourEventId.TOUR_CHANGED && eventData instanceof TourEvent) {
-
-               // get a clone of the modified tours because the tours are removed from the list
-               final ArrayList<TourData> modifiedTours = ((TourEvent) eventData).getModifiedTours();
-               if (modifiedTours != null) {
-                  updateTourViewer(_rootItem, modifiedTours);
-               }
-
-            } else if (eventId == TourEventId.TAG_STRUCTURE_CHANGED) {
+            } else if (eventId == TourEventId.TOUR_CHANGED
+                  || eventId == TourEventId.TAG_STRUCTURE_CHANGED
+                  || eventId == TourEventId.EQUIPMENT_STRUCTURE_CHANGED) {
 
                reloadViewer();
 
@@ -749,16 +750,21 @@ public class ReferenceTourView extends ViewPart implements
 //    _allTourActions_Adjust.put(_actionSetOtherPerson            .getClass().getName(),  _actionSetOtherPerson);
 //    _allTourActions_Adjust.put(_actionDeleteTourMenu            .getClass().getName(),  _actionDeleteTourMenu);
 
-// SET_FORMATTING_ON
-
       TourActionManager.setAllViewActions(ID,
-            _allTourActions_Edit.keySet(),
-            _tagMenuManager.getAllTagActions().keySet(),
-            _tourTypeMenuManager.getAllTourTypeActions().keySet());
+
+            _allTourActions_Edit    .keySet(),
+
+            _tourTypeMenuManager    .getAllTourTypeActions()   .keySet(),
+            _tagMenuManager         .getAllTagActions()        .keySet(),
+            _equipmentMenuManager   .getAllEquipmentActions()  .keySet()
+      );
+
+// SET_FORMATTING_ON
    }
 
    private void createMenuManager() {
 
+      _equipmentMenuManager = new EquipmentMenuManager(this, true, true);
       _tagMenuManager = new TagMenuManager(this, true);
       _tourTypeMenuManager = new TourTypeMenuManager(this);
 
@@ -965,6 +971,7 @@ public class ReferenceTourView extends ViewPart implements
       defineColumn_TourType();
       defineColumn_Title();
       defineColumn_Tags();
+      defineColumn_Tour_Equipment();
       defineColumn_Time_ElapsedTime();
       defineColumn_AvgSpeed();
       defineColumn_AvgPace();
@@ -986,23 +993,23 @@ public class ReferenceTourView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInRefTour == false) {
+            if (_isShowToolTipInRefTour == false) {
                return null;
             }
 
             final Object element = cell.getElement();
 
-            if ((element instanceof TVIRefTour_RefTourItem)) {
+            if ((element instanceof final TVIRefTour_RefTourItem refTourItem)) {
 
                // ref tour item
 
-               return ((TVIRefTour_RefTourItem) element).getTourId();
+               return refTourItem.getTourId();
 
-            } else if (element instanceof TVIRefTour_ComparedTour) {
+            } else if (element instanceof final TVIRefTour_ComparedTour compareTourItem) {
 
                // compared tour item
 
-               return ((TVIRefTour_ComparedTour) element).getTourId();
+               return compareTourItem.getTourId();
 
             }
 
@@ -1248,23 +1255,26 @@ public class ReferenceTourView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInTags == false) {
+            if (_isShowToolTipInTags == false) {
                return null;
             }
 
-            final Object element = cell.getElement();
-            if (element instanceof TVIRefTour_ComparedTour) {
-               return ((TVIRefTour_ComparedTour) element).getTourId();
-            }
-
-            return null;
+            return getCellTourId(cell);
          }
 
          @Override
          public void update(final ViewerCell cell) {
+
             final Object element = cell.getElement();
-            if (element instanceof TVIRefTour_ComparedTour) {
-               cell.setText(TourDatabase.getTagNames(((TVIRefTour_ComparedTour) element).tagIds));
+
+            if (element instanceof final TVIRefTour_ComparedTour tourItem) {
+
+               final Set<Long> allTagIDs = tourItem.allTagIDs;
+
+               if (allTagIDs != null) {
+
+                  cell.setText(TourDatabase.getTagNames(new ArrayList<>(allTagIDs)));
+               }
             }
          }
       });
@@ -1304,23 +1314,58 @@ public class ReferenceTourView extends ViewPart implements
          @Override
          public Long getTourId(final ViewerCell cell) {
 
-            if (_isToolTipInTitle == false) {
+            if (_isShowToolTipInTitle == false) {
                return null;
             }
 
-            final Object element = cell.getElement();
-            if (element instanceof TVIRefTour_ComparedTour) {
-               return ((TVIRefTour_ComparedTour) element).getTourId();
-            }
-
-            return null;
+            return getCellTourId(cell);
          }
 
          @Override
          public void update(final ViewerCell cell) {
+
             final Object element = cell.getElement();
-            if (element instanceof TVIRefTour_ComparedTour) {
-               cell.setText(((TVIRefTour_ComparedTour) element).tourTitle);
+
+            if (element instanceof final TVIRefTour_ComparedTour tourItem) {
+               cell.setText(tourItem.tourTitle);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Tour - Equipment
+    */
+   private void defineColumn_Tour_Equipment() {
+
+      final TreeColumnDefinition colDef = TreeColumnFactory.TOUR_EQUIPMENT.createColumn(_columnManager, _pc);
+      colDef.setLabelProvider(new TourInfoToolTipCellLabelProvider() {
+
+         @Override
+         public Long getTourId(final ViewerCell cell) {
+
+            if (_isShowToolTipInEquipment == false) {
+               return null;
+            }
+
+            return getCellTourId(cell);
+         }
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            if (element instanceof final TVIRefTour_ComparedTour tourItem) {
+
+               final Set<Long> allEquipmentIDs = tourItem.allEquipmentIDs;
+
+               if (allEquipmentIDs != null) {
+
+                  final ArrayList<Long> allEquipmentIDsList = new ArrayList<>(allEquipmentIDs);
+
+                  cell.setText(EquipmentManager.getEquipmentNames(allEquipmentIDsList));
+               }
             }
          }
       });
@@ -1366,36 +1411,48 @@ public class ReferenceTourView extends ViewPart implements
 
       TVIRefTour_ComparedTour firstTourItem = null;
 
+      final List<Object> allTourItems = new ArrayList<>();
+
       // count number of items
       for (final Object treeItem : selection) {
 
          if (treeItem instanceof TVIRefTour_RefTourItem) {
+
             numRefItems++;
-         } else if (treeItem instanceof TVIRefTour_ComparedTour) {
+
+         } else if (treeItem instanceof final TVIRefTour_ComparedTour tourItem) {
+
             if (numTourItems == 0) {
-               firstTourItem = (TVIRefTour_ComparedTour) treeItem;
+               firstTourItem = tourItem;
             }
+
             numTourItems++;
+
+            allTourItems.add(tourItem);
+
          } else if (treeItem instanceof TVIRefTour_YearItem) {
+
             numYearItems++;
          }
       }
 
-      final boolean isTourSelected = numTourItems > 0;
-      final boolean isRefItemSelected = numRefItems > 0;
-      final boolean isOneTour = numTourItems == 1 && numRefItems == 0 && numYearItems == 0;
-      final boolean isOneRefTour = numRefItems == 1 && numYearItems == 0 && numTourItems == 0;
-      final boolean isEditableTour = isOneTour || isOneRefTour;
+// SET_FORMATTING_OFF
 
-      final int numSelectedItems = selection.size();
-      final boolean isOnly1SelectedItem = numSelectedItems == 1;
-      final TreeViewerItem firstElement = (TreeViewerItem) selection.getFirstElement();
-      final boolean firstElementHasChildren = firstElement == null ? false : firstElement.hasChildren();
+      final boolean isTourSelected           = numTourItems > 0;
+      final boolean isRefItemSelected        = numRefItems > 0;
+      final boolean isOneTour                = numTourItems == 1 && numRefItems == 0 && numYearItems == 0;
+      final boolean isOneRefTour             = numRefItems == 1 && numYearItems == 0 && numTourItems == 0;
+      final boolean isEditableTour           = isOneTour || isOneRefTour;
+
+      final int numSelectedItems             = selection.size();
+      final boolean isOnly1SelectedItem      = numSelectedItems == 1;
+      final TreeViewerItem firstElement      = (TreeViewerItem) selection.getFirstElement();
+      final boolean firstElementHasChildren  = firstElement == null ? false : firstElement.hasChildren();
 
       // enable remove button only, when one type of the item is selected
-      final boolean canRemoveTours = numYearItems == 0 &&
-            ((isRefItemSelected && numTourItems == 0)
-                  || (numRefItems == 0 && numTourItems > 0));
+      final boolean canRemoveTours = numYearItems == 0
+            && ((isRefItemSelected && numTourItems == 0)
+             || (numRefItems == 0 && numTourItems > 0));
 
       final boolean canExpandSelection = firstElement == null
             ? false
@@ -1403,7 +1460,6 @@ public class ReferenceTourView extends ViewPart implements
                   ? firstElementHasChildren
                   : true;
 
-// SET_FORMATTING_OFF
 
       _tourDoubleClickState.canEditTour         = isEditableTour;
       _tourDoubleClickState.canOpenTour         = isEditableTour;
@@ -1425,11 +1481,20 @@ public class ReferenceTourView extends ViewPart implements
       _actionCollapseOthers       .setEnabled(isOnly1SelectedItem && firstElementHasChildren);
       _actionExpandSelection      .setEnabled(canExpandSelection);
 
-      _tagMenuManager.enableTagActions(isTourSelected, isOneTour, firstTourItem == null ? null : firstTourItem.tagIds);
-
 // SET_FORMATTING_ON
 
+      List<Long> allTagIDs = null;
+
+      if (firstTourItem != null && firstTourItem.allTagIDs != null) {
+         allTagIDs = new ArrayList<>(firstTourItem.allTagIDs);
+      }
+
+      _tagMenuManager.enableTagActions(isTourSelected, isOneTour, allTagIDs);
+
+      _equipmentMenuManager.enableActions(allTourItems);
+
       _tourTypeMenuManager.enableTourTypeActions(
+
             isTourSelected,
             isOneTour
                   ? firstTourItem.tourTypeId
@@ -1494,11 +1559,14 @@ public class ReferenceTourView extends ViewPart implements
       // edit actions
       TourActionManager.fillContextMenu(menuMgr, TourActionCategory.EDIT, _allTourActions_Edit, this);
 
+      // tour type actions
+      _tourTypeMenuManager.fillContextMenu_WithActiveActions(menuMgr, this);
+
       // tag actions
       _tagMenuManager.fillTagMenu_WithActiveActions(menuMgr, this);
 
-      // tour type actions
-      _tourTypeMenuManager.fillContextMenu_WithActiveActions(menuMgr, this);
+      // equipment actions
+      _equipmentMenuManager.fillEquipmentMenu_WithActiveActions(menuMgr, this);
 
       menuMgr.add(new Separator());
       menuMgr.add(_actionRemoveComparedTours);
@@ -1543,6 +1611,18 @@ public class ReferenceTourView extends ViewPart implements
 
    void fireSelection(final ISelection selection) {
       _postSelectionProvider.setSelection(selection);
+   }
+
+   private Long getCellTourId(final ViewerCell cell) {
+
+      final Object element = cell.getElement();
+
+      if (element instanceof final TVIRefTour_ComparedTour tourItem) {
+
+         return tourItem.getTourId();
+      }
+
+      return null;
    }
 
    @Override
@@ -1640,12 +1720,33 @@ public class ReferenceTourView extends ViewPart implements
    }
 
    @Override
+   public Set<Long> getSelectedTourIDs() {
+
+      // get selected tour ids
+
+      final ITreeSelection selectedTours = _tourViewer.getStructuredSelection();
+
+      final Set<Long> allSelectedTourIDs = new HashSet<>();
+
+      // loop: all selected items
+      for (final Object treeItem : selectedTours) {
+
+         if (treeItem instanceof final TVIRefTour_ComparedTour tourItem) {
+
+            allSelectedTourIDs.add(tourItem.getTourId());
+         }
+      }
+
+      return allSelectedTourIDs;
+   }
+
+   @Override
    public ArrayList<TourData> getSelectedTours() {
 
       // get selected tours
 
       final IStructuredSelection selectedTours = ((IStructuredSelection) _tourViewer.getSelection());
-      final ArrayList<TourData> selectedTourData = new ArrayList<>();
+      final ArrayList<TourData> allSelectedTourData = new ArrayList<>();
 
       // loop: all selected items
       for (final Object treeItem : selectedTours) {
@@ -1656,7 +1757,7 @@ public class ReferenceTourView extends ViewPart implements
 
             final TourData tourData = TourManager.getInstance().getTourData(tourItem.getTourId());
             if (tourData != null) {
-               selectedTourData.add(tourData);
+               allSelectedTourData.add(tourData);
             }
 
          } else if (treeItem instanceof TVIRefTour_RefTourItem) {
@@ -1665,12 +1766,12 @@ public class ReferenceTourView extends ViewPart implements
 
             final TourData tourData = TourManager.getInstance().getTourData(refItem.getTourId());
             if (tourData != null) {
-               selectedTourData.add(tourData);
+               allSelectedTourData.add(tourData);
             }
          }
       }
 
-      return selectedTourData;
+      return allSelectedTourData;
    }
 
    public TreeViewer getTourViewer() {
@@ -2032,7 +2133,7 @@ public class ReferenceTourView extends ViewPart implements
     */
    private void onTourViewer_Selection(final SelectionChangedEvent selectionChangedEvent) {
 
-      if (_isInRestore || _isMouseContextMenu) {
+      if (_isInRestore || _isMouseContextMenu || _isInSelection) {
          return;
       }
 
@@ -2126,6 +2227,12 @@ public class ReferenceTourView extends ViewPart implements
    @Override
    public void reloadViewer() {
 
+      if (_isInSelection) {
+         return;
+      }
+
+      _isInSelection = true;
+
       final Tree tree = _tourViewer.getTree();
       tree.setRedraw(false);
       {
@@ -2138,6 +2245,8 @@ public class ReferenceTourView extends ViewPart implements
          _tourViewer.setSelection(selection, true);
       }
       tree.setRedraw(true);
+      
+      _isInSelection = false;
    }
 
    private void restoreState() {
@@ -2222,9 +2331,14 @@ public class ReferenceTourView extends ViewPart implements
 
    private void updateToolTipState() {
 
-      _isToolTipInRefTour = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_REFTOUR);
-      _isToolTipInTitle = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TITLE);
-      _isToolTipInTags = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TAGS);
+// SET_FORMATTING_OFF
+
+      _isShowToolTipInRefTour    = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_REFTOUR);
+      _isShowToolTipInEquipment  = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_EQUIPMENT);
+      _isShowToolTipInTitle      = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TITLE);
+      _isShowToolTipInTags       = _prefStore.getBoolean(ITourbookPreferences.VIEW_TOOLTIP_TOURCATALOG_TAGS);
+
+// SET_FORMATTING_ON
    }
 
    /**
@@ -2271,71 +2385,6 @@ public class ReferenceTourView extends ViewPart implements
 
                   break;
                }
-            }
-         }
-      }
-   }
-
-   /**
-    * !!!Recursive !!! update all tour items with new data
-    *
-    * @param rootItem
-    * @param modifiedTours
-    */
-   private void updateTourViewer(final TreeViewerItem parentItem, final ArrayList<TourData> modifiedTours) {
-
-      final ArrayList<TreeViewerItem> children = parentItem.getUnfetchedChildren();
-
-      if (children == null) {
-         return;
-      }
-
-      // loop: all children
-      for (final Object object : children) {
-         if (object instanceof TreeViewerItem) {
-
-            final TreeViewerItem treeItem = (TreeViewerItem) object;
-            if (treeItem instanceof TVIRefTour_ComparedTour) {
-
-               final TVIRefTour_ComparedTour tourItem = (TVIRefTour_ComparedTour) treeItem;
-               final long tourItemId = tourItem.getTourId();
-
-               for (final TourData modifiedTourData : modifiedTours) {
-                  if (modifiedTourData.getTourId().longValue() == tourItemId) {
-
-                     // update tree item
-
-                     final TourType tourType = modifiedTourData.getTourType();
-                     if (tourType != null) {
-                        tourItem.tourTypeId = tourType.getTypeId();
-                     }
-
-                     // update item title
-                     tourItem.tourTitle = modifiedTourData.getTourTitle();
-
-                     // update item tags
-                     final Set<TourTag> tourTags = modifiedTourData.getTourTags();
-                     final ArrayList<Long> tagIds;
-
-                     if (tourItem.tagIds != null) {
-                        tourItem.tagIds.clear();
-                     }
-
-                     tourItem.tagIds = tagIds = new ArrayList<>();
-                     for (final TourTag tourTag : tourTags) {
-                        tagIds.add(tourTag.getTagId());
-                     }
-
-                     // update item in the viewer
-                     _tourViewer.update(tourItem, null);
-
-                     break;
-                  }
-               }
-
-            } else {
-               // update children
-               updateTourViewer(treeItem, modifiedTours);
             }
          }
       }
