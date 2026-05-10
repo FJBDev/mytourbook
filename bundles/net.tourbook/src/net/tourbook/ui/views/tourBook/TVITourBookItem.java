@@ -509,6 +509,12 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    boolean colHasGeoData;
 
    //
+   // ----------- NUTRITION ---------
+   //
+   //TODO FB: Maybe compute it via a TOurManager method ???
+   short colAvgCarbohydrates_PerHour;
+
+   //
    TVITourBookItem(final TourBookView view) {
 
       tourBookView = view;
