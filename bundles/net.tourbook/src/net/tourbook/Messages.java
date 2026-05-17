@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -612,8 +612,8 @@ public class Messages extends NLS {
    public static String        Dialog_Equipment_Label_Price;
    public static String        Dialog_Equipment_Label_Size;
    public static String        Dialog_Equipment_Label_Type;
-   public static String        Dialog_Equipment_Label_Website;
    public static String        Dialog_Equipment_Label_Weight;
+   public static String        Dialog_Equipment_Link_Website;
    public static String        Dialog_Equipment_Tooltip_1;
    public static String        Dialog_Equipment_Tooltip_2;
 
@@ -845,7 +845,6 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Label_BackgroundOpacity_Tooltip;
    public static String        Dialog_ImportConfig_Label_BackupFolder;
    public static String        Dialog_ImportConfig_Label_BackupFolder_Tooltip;
-   public static String        Dialog_ImportConfig_Label_ConfigDescription;
    public static String        Dialog_ImportConfig_Label_ConfigName;
    public static String        Dialog_ImportConfig_Label_ConfigTileSize;
    public static String        Dialog_ImportConfig_Label_ConfigTileSize_Tooltip;
@@ -1170,7 +1169,6 @@ public class Messages extends NLS {
    public static String        Equipment_Action_EditEquipment;
    public static String        Equipment_Action_EditPart;
    public static String        Equipment_Action_EditService;
-   public static String        Equipment_Action_EquipmentFilter_Tooltip;
    public static String        Equipment_Action_EquipmentFilterInfo_Tooltip;
    public static String        Equipment_Action_EquipmentPreferences;
    public static String        Equipment_Action_ManageEquipment;
@@ -1544,6 +1542,7 @@ public class Messages extends NLS {
    public static String        Log_Tour_CopyTour;
    public static String        Log_Tour_DeleteTours;
    public static String        Log_Tour_MoveTour;
+   public static String        Log_Tour_Nutrition_ProductRetrieval_Error;
    public static String        Log_Tour_SaveTours;
    public static String        Log_Tour_SaveTours_End;
    public static String        Log_TourLocation_Retrieve_End;
@@ -3629,6 +3628,7 @@ public class Messages extends NLS {
    public static String        Tour_Filter_Field_ComputedTime_Moving;
    public static String        Tour_Filter_Field_DeviceTime_Elapsed;
    public static String        Tour_Filter_Field_Distance;
+   public static String        Tour_Filter_Field_NutritionProductsList;
    public static String        Tour_Filter_Field_ManualTour;
    public static String        Tour_Filter_Field_Photos;
    public static String        Tour_Filter_Field_Season;

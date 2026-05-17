@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,7 +33,7 @@ public enum TourFilterFieldId {
     */
    TIME_SEASON_DATE,
 
-//	TOUR_MARKERS, //
+// TOUR_MARKERS, //
    TOUR_PHOTOS, //
    TOUR_TITLE, //
    TOUR_LOCATION_START, //
@@ -42,21 +42,23 @@ public enum TourFilterFieldId {
 
    MOTION_DISTANCE, //
 
+   NUTRITION_PRODUCTSLIST, //
+
    POWER_AVERAGE, //
    POWER_MAX, //
    POWER_NORMALIZED, //
    POWER_TOTAL_WORK, //
 
-//	// Powertrain - Antrieb/Pedal
-//	defineColumn_Powertrain_AvgCadence();
-//	defineColumn_Powertrain_CadenceMultiplier();
-//	defineColumn_Powertrain_Gear_FrontShiftCount();
-//	defineColumn_Powertrain_Gear_RearShiftCount();
-//	defineColumn_Powertrain_AvgLeftPedalSmoothness();
-//	defineColumn_Powertrain_AvgLeftTorqueEffectiveness();
-//	defineColumn_Powertrain_AvgRightPedalSmoothness();
-//	defineColumn_Powertrain_AvgRightTorqueEffectiveness();
-//	defineColumn_Powertrain_PedalLeftRightBalance();
+// // Powertrain - Antrieb/Pedal
+// defineColumn_Powertrain_AvgCadence();
+// defineColumn_Powertrain_CadenceMultiplier();
+// defineColumn_Powertrain_Gear_FrontShiftCount();
+// defineColumn_Powertrain_Gear_RearShiftCount();
+// defineColumn_Powertrain_AvgLeftPedalSmoothness();
+// defineColumn_Powertrain_AvgLeftTorqueEffectiveness();
+// defineColumn_Powertrain_AvgRightPedalSmoothness();
+// defineColumn_Powertrain_AvgRightTorqueEffectiveness();
+// defineColumn_Powertrain_PedalLeftRightBalance();
 
    POWERTRAIN_AVG_CADENCE, //
    POWERTRAIN_GEAR_FRONT_SHIFT_COUNT, //
