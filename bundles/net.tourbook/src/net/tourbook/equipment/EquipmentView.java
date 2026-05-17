@@ -482,7 +482,7 @@ public class EquipmentView extends ViewPart implements
 
          super(UI.EMPTY_STRING, AS_CHECK_BOX);
 
-         final String tooltip = Messages.Equipment_Action_EquipmentFilter_Tooltip;
+         final String tooltip = "Messages.Equipment_Action_EquipmentFilter_Tooltip";
 
          setToolTipText(tooltip);
 

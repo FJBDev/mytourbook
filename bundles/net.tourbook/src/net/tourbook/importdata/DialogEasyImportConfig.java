@@ -1951,7 +1951,7 @@ public class DialogEasyImportConfig extends TitleAreaDialog implements IActionRe
 
          // label
          _lblIL_ConfigDescription = new Label(parent, SWT.NONE);
-         _lblIL_ConfigDescription.setText(Messages.Dialog_ImportConfig_Label_ConfigDescription);
+         _lblIL_ConfigDescription.setText("Messages.Dialog_ImportConfig_Label_ConfigDescription");
          GridDataFactory.fillDefaults()
                .align(SWT.FILL, SWT.BEGINNING)
                .applyTo(_lblIL_ConfigDescription);

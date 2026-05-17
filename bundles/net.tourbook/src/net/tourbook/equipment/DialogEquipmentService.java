@@ -446,7 +446,7 @@ public class DialogEquipmentService extends TitleAreaDialog {
             /*
              * Website
              */
-            final Label label = UI.createLabel(_container, Messages.Dialog_Equipment_Label_Website);
+            final Label label = UI.createLabel(_container, "Messages.Dialog_Equipment_Label_Website");
             GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(label);
 
             _txtUrlAddress = new Text(_container, SWT.BORDER);

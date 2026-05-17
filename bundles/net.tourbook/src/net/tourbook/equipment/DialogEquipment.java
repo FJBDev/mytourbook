@@ -208,7 +208,7 @@ public class DialogEquipment extends TitleAreaDialog {
             ? Messages.Dialog_Equipment_Dialog_Message_Eqipment_Duplicate
             : _isNewEquipment
 
-                  ? Messages.Dialog_Equipment_Dialog_Message_Eqipment_New
+                  ? "Messages.Dialog_Equipment_Dialog_Message_Eqipment_New"
                   : Messages.Dialog_Equipment_Dialog_Message_Eqipment_Edit;
 
       setTitle(messageTitle);
@@ -511,7 +511,7 @@ public class DialogEquipment extends TitleAreaDialog {
             /*
              * Website
              */
-            UI.createLabel(_container, Messages.Dialog_Equipment_Label_Website);
+            UI.createLabel(_container, "Messages.Dialog_Equipment_Label_Website");
 
             _txtUrlAddress = new Text(_container, SWT.BORDER);
             _txtUrlAddress.addModifyListener(e -> onModify());
