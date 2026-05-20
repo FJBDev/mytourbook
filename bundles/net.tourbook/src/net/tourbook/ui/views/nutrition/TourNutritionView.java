@@ -123,7 +123,6 @@ import org.eclipse.ui.part.ViewPart;
 import cop.swt.widgets.viewers.table.celleditors.RangeContent;
 import cop.swt.widgets.viewers.table.celleditors.SpinnerCellEditor;
 
-
 public class TourNutritionView extends ViewPart implements ITourViewer {
 
    public static final String            ID                             = "net.tourbook.ui.views.nutrition.TourNutritionView"; //$NON-NLS-1$
