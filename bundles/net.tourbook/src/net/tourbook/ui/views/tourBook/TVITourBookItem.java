@@ -518,7 +518,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 // That field can be computed from the preference page (cf. compute elevation gain button)
 // Take into account if the first hour is to be ignored
 // It will be recomputed every time there is a nutrition product change (cf. elevationGain & Loss fields)
-// Display it in the calendar
+// Display it in the calendar and in the tour book (but only for each tour, not for the month)
 
    //
    TVITourBookItem(final TourBookView view) {
