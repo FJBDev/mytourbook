@@ -514,6 +514,11 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    //TODO FB: Maybe compute it via a TOurManager method ???
    short colAvgCarbohydrates_PerHour;
 
+// todo fb Add a field in TOurData averageCarbohydratesPerHour
+// That field will be computed during the next 26.X database update
+// It will be recomputed every time there is a nutrition product change (cf. elevationGain & Loss fields)
+// Display it in the calendar and in the tourbook
+
    //
    TVITourBookItem(final TourBookView view) {
 
