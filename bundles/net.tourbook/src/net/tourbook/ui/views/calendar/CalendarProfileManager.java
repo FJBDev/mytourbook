@@ -1119,20 +1119,22 @@ class CalendarProfileManager {
             GraphColorManager.PREF_GRAPH_POWER) {
 
          @Override
-         String format(final CalendarTourData data, final ValueFormat valueFormat, final boolean isShowValueUnit) {
+         String format(final CalendarTourData data,
+                       final ValueFormat valueFormat,
+                       final boolean isShowValueUnit) {
 
-            if (data.power_Avg > 0) {
-
-               final String valueText = valueFormatter.printDouble(data.carbohydrates_Avg);
-
-               return isShowValueUnit
-                     ? valueText + UI.SPACE + UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_POWER_SHORT
-                           + UI.SPACE
-                     : valueText + UI.SPACE;
-
-            } else {
+            final int carbohydrates_Avg = data.carbohydrates_Avg;
+            if (carbohydrates_Avg == 0) {
                return UI.EMPTY_STRING;
             }
+
+            final String valueText = valueFormatter.printDouble(carbohydrates_Avg);
+
+            return isShowValueUnit
+                  ? valueText + UI.SPACE + UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_POWER_SHORT
+                        + UI.SPACE
+                  : valueText + UI.SPACE;
+
          }
 
          @Override
@@ -1140,8 +1142,7 @@ class CalendarProfileManager {
 
             return new ValueFormat[] {
 
-                  ValueFormat.NUMBER_1_0,
-                  ValueFormat.NUMBER_1_1 };
+                  ValueFormat.NUMBER_1_0 };
          }
       };
 
