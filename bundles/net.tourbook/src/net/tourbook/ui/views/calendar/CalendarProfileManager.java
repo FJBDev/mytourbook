@@ -1112,11 +1112,10 @@ class CalendarProfileManager {
 
    private static DataFormatter createFormatter_Nutrition_Avg_Carbohydrates() {
 
-      //todo fb
       final NumberDataFormatter dataFormatter = new NumberDataFormatter(
             FormatterID.NUTRITION_AVG_CARBS,
             Messages.Calendar_Profile_Value_Nutrition_Carbohydrates_Avg,
-            GraphColorManager.PREF_GRAPH_POWER) {
+            GraphColorManager.PREF_GRAPH_TOUR) {
 
          @Override
          String format(final CalendarTourData data,
