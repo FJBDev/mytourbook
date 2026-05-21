@@ -334,6 +334,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_Value_MovingTime;
    public static String        Calendar_Profile_Value_Pace;
    public static String        Calendar_Profile_Value_PausedTime;
+   public static String        Calendar_Profile_Value_Nutrition_Carbohydrates_Avg;
    public static String        Calendar_Profile_Value_PowerAvg;
    public static String        Calendar_Profile_Value_PulseAvg;
    public static String        Calendar_Profile_Value_RecordedTime;
