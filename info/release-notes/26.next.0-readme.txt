@@ -36,6 +36,7 @@ New / Improvements
 
 * Tour Nutrition (Frederic)
   - Select a product from a list of the most recent products used
+  - Added the display of average carbohydrates/h in the Tour Book view (tour, month, year) and in the Calendar view
 
 * Equipment
   - Add a contextual menu to add several equiments at a time
