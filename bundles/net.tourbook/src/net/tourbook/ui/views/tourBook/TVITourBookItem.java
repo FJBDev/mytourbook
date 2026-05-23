@@ -228,6 +228,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
             // -------- RADAR -----------
             + "$i_$db_numberOfPassedVehicles " + NL //                                 99    //$NON-NLS-1$
+
+            // -------- NUTRITION -----------
+            + "$i_$db_nutrition_TotalCarbohydrates " + NL //                           100   //$NON-NLS-1$
       ;
 
       //  v v v v v v v v v v v v v v v v v v v v v v
@@ -512,7 +515,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
    // ----------- NUTRITION ---------
    //
    //TODO FB: Maybe compute it via a TOurManager method ???
-   short colAvgCarbohydrates_PerHour;
+   int colAvgCarbohydrates_PerHour;
+
+   //use colTourDeviceTime_Elapsed
 
 // todo fb Add a field in TOurData averageCarbohydratesPerHour
 // That field can be computed from the preference page (cf. compute elevation gain button)
@@ -755,6 +760,10 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       // -------- RADAR -----------
 
       tourItem.colRadar_PassedVehicles                = result.getInt(99);
+
+      // -------- NUTRITION -----------
+
+      tourItem.colAvgCarbohydrates_PerHour           = result.getInt(100);
 
 
       // -----------------------------------------------

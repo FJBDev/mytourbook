@@ -946,11 +946,15 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    // ############################################# SWIMMING #############################################
 
    /**
-    * Swim pool length in mm that a length in feets can also be saved correctly.
+    * Swim pool length in mm that a length in feet can also be saved correctly.
     *
     * When this value is not 0 then there should also be swimming data
     */
    private int                   poolLength;
+
+// ############################################# NUTRITION #############################################
+
+   private int                 nutrition_TotalCarbohydrates     ;
 
    // ############################################# UNUSED FIELDS - START #############################################
    /**
@@ -14341,6 +14345,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    public void setTourNutritionProducts(final Set<TourNutritionProduct> tourNutritionProducts) {
       this.tourNutritionProducts = tourNutritionProducts;
+
+      //todo fb
+      //compute totalcarbohydrateAmount();
    }
 
    /**
