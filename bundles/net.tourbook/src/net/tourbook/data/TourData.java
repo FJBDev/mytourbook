@@ -2208,6 +2208,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public void addNutritionProduct(final TourNutritionProduct nutritionProduct) {
 
       tourNutritionProducts.add(nutritionProduct);
+      this.computeNutritionData();
    }
 
    /**
@@ -5681,6 +5682,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       if (distanceSerie != null) {
          computeDataSeries();
       }
+   }
+
+   private void computeNutritionData() {
+     this.nutrition_TotalCarbohydrates = 12;
+
    }
 
    /**

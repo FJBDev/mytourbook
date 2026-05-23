@@ -433,6 +433,8 @@ class CalendarTourDataProvider {
 
          final ArrayList<Boolean> allIsManualTour        = new ArrayList<>();
 
+         final List<Integer> allTotalCarbohydrates        = new ArrayList<>();
+
 // SET_FORMATTING_ON
 
          final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
@@ -462,7 +464,8 @@ class CalendarTourDataProvider {
                + "   AvgPulse," + NL //                           18 //$NON-NLS-1$
                + "   Power_Avg," + NL //                          19 //$NON-NLS-1$
                + "   TourDeviceTime_Recorded," + NL //            20 //$NON-NLS-1$
-               + "   weather_Clouds" + NL //                      21 //$NON-NLS-1$
+               + "   weather_Clouds," + NL //                     21 //$NON-NLS-1$
+               + "   nutrition_TotalCarbohydrates" + NL //        22 //$NON-NLS-1$
 
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //      //$NON-NLS-1$
 
@@ -532,6 +535,8 @@ class CalendarTourDataProvider {
 
                   allIsManualTour               .clear();
 
+                  allTotalCarbohydrates         .clear();
+
 // SET_FORMATTING_ON
 
                   firstTourOfDay = false;
@@ -583,6 +588,7 @@ class CalendarTourDataProvider {
                allPulseAvg                .add(result.getFloat(18));
                allPowerAvg                .add(result.getFloat(19));
                allTourWeatherClouds       .add(result.getString(21));
+               allTotalCarbohydrates      .add(result.getInt(22));
 
 // SET_FORMATTING_ON
 
@@ -654,6 +660,8 @@ class CalendarTourDataProvider {
                data.dayOfWeek       = tourDate.getDayOfWeek().getValue();
 
                data.isManualTour    = allIsManualTour       .get(tourIndex);
+
+               data.carbohydrates_Avg = allTotalCarbohydrates.get(tourIndex);
 
                dayData[tourIndex] = data;
 
@@ -734,6 +742,8 @@ class CalendarTourDataProvider {
 
                + " SUM(power_TrainingStressScore)" + NL //           11 //$NON-NLS-1$
 
+               + " SUM(nutrition_TotalCarbohydrates)" + NL //        12 //$NON-NLS-1$
+
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 
                + "WHERE StartWeekYear = ?" + NL //                      //$NON-NLS-1$
@@ -776,6 +786,8 @@ class CalendarTourDataProvider {
             weekData.recordedTime         = result.getInt(10);
 
             weekData.trainingLoad_Tss     = result.getInt(11);
+
+            weekData.carbohydrates_Avg    = result.getInt(12);
 
             if (UI.IS_SCRAMBLE_DATA) {
 

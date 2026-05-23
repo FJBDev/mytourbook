@@ -1130,7 +1130,7 @@ class CalendarProfileManager {
             final String valueText = valueFormatter.printDouble(carbohydrates_Avg);
 
             return isShowValueUnit
-                  ? valueText + UI.SPACE + UI.SYMBOL_AVERAGE_WITH_SPACE + UI.UNIT_POWER_SHORT
+                  ? valueText + UI.SPACE + UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME
                         + UI.SPACE
                   : valueText + UI.SPACE;
 
