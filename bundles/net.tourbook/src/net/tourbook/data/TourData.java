@@ -2209,7 +2209,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public void addNutritionProduct(final TourNutritionProduct nutritionProduct) {
 
       tourNutritionProducts.add(nutritionProduct);
-      this.computeNutritionData();
+      this.computeTourNutritionData();
    }
 
    /**
@@ -5685,11 +5685,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
    }
 
-   private void computeNutritionData() {
-
-      this.nutrition_TotalCarbohydrates = NutritionUtils.getTotalCarbohydrates(tourNutritionProducts);
-   }
-
    /**
     * Time adjustment in seconds, this is an average value for all photos
     */
@@ -6615,6 +6610,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
          tourComputedTime_Moving = Math.max(0, tourMovingTimeRaw);
       }
+   }
+
+   public void computeTourNutritionData() {
+
+      this.nutrition_TotalCarbohydrates =
+            NutritionUtils.getTotalCarbohydrates(tourNutritionProducts);
    }
 
    /**
@@ -14354,7 +14355,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       this.tourNutritionProducts = tourNutritionProducts;
 
-      this.computeNutritionData();
+      this.computeTourNutritionData();
    }
 
    /**
@@ -15534,7 +15535,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       if (tourNutritionProductsUpdated) {
 
-         this.computeNutritionData();
+         this.computeTourNutritionData();
       }
 
       return tourNutritionProductsUpdated;

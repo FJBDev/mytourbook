@@ -7493,6 +7493,8 @@ public class TourDatabase {
 
          updateDb_060_To_061_DataUpdate(conn, splashManager); //                                   61 - 26.3+++?
 
+         updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_061_to_062()); //     62 - 26.61
+
       } catch (final SQLException e) {
 
          UI.showSQLException(e);
