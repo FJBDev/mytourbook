@@ -50,7 +50,7 @@ public class CalendarTourData {
    float        power_Avg;
    float        pulse_Avg;
 
-   float        carbohydrates_Avg_Per_Hour;
+   float        nutrition_TotalCarbohydrates;
 
    String       tourTitle;
    String       tourDescription;

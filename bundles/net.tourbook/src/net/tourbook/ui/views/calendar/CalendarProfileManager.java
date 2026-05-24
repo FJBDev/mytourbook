@@ -31,6 +31,7 @@ import net.tourbook.common.formatter.ValueFormat;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
+import net.tourbook.nutrition.NutritionUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.tour.TourManager;
 import net.tourbook.weather.WeatherUtils;
@@ -1122,7 +1123,9 @@ class CalendarProfileManager {
                        final ValueFormat valueFormat,
                        final boolean isShowValueUnit) {
 
-            final float carbohydrates_Avg = data.carbohydrates_Avg_Per_Hour;
+            final float carbohydrates_Avg = NutritionUtils.computeAveragePerHour(
+                  data.elapsedTime,
+                  data.nutrition_TotalCarbohydrates);
             if (carbohydrates_Avg > 0) {
 
                final String valueText = valueFormatter.printDouble(carbohydrates_Avg);

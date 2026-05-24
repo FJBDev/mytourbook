@@ -661,7 +661,7 @@ class CalendarTourDataProvider {
 
                data.isManualTour               = allIsManualTour       .get(tourIndex);
 
-               data.carbohydrates_Avg_Per_Hour = allTotalCarbohydrates .get(tourIndex);
+               data.nutrition_TotalCarbohydrates = allTotalCarbohydrates .get(tourIndex);
 
                dayData[tourIndex] = data;
 
@@ -787,7 +787,7 @@ class CalendarTourDataProvider {
 
             weekData.trainingLoad_Tss     = result.getInt(11);
 
-            weekData.carbohydrates_Avg_Per_Hour    = result.getInt(12);
+            weekData.nutrition_TotalCarbohydrates    = result.getInt(12);
 
             if (UI.IS_SCRAMBLE_DATA) {
 
