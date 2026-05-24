@@ -1114,7 +1114,7 @@ class CalendarProfileManager {
    private static DataFormatter createFormatter_Nutrition_Avg_Carbohydrates() {
 
       final NumberDataFormatter dataFormatter = new NumberDataFormatter(
-            FormatterID.NUTRITION_AVG_CARBS_PER_HOUR,
+            FormatterID.NUTRITION_CARBS_AVG_PER_HOUR,
             Messages.Calendar_Profile_Value_Nutrition_Carbohydrates_Avg_Per_Hour,
             GraphColorManager.PREF_GRAPH_TOUR) {
 
@@ -3458,7 +3458,7 @@ class CalendarProfileManager {
             _tourFormatter_Energy_MJ.setValueFormat(valueFormat);
             break;
 
-         case NUTRITION_AVG_CARBS_PER_HOUR:
+         case NUTRITION_CARBS_AVG_PER_HOUR:
             _tourFormatter_Nutrition_Carbohydrates_Avg_Per_Hour.setValueFormat(valueFormat);
             break;
 

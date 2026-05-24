@@ -37,7 +37,7 @@ public enum FormatterID {
    ENERGY_KCAL, //
    ENERGY_MJ, //
 
-   NUTRITION_AVG_CARBS_PER_HOUR, //
+   NUTRITION_CARBS_AVG_PER_HOUR, //
 
    TIME_ELAPSED, //
    TIME_RECORDED, //
