@@ -11812,6 +11812,7 @@ public class TourDatabase {
          SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
          stmt.close();
       }
+      //todo fb run an update to compute that value for each tour. Example: ???
 
       logDbUpdate_End(newDbVersion);
 

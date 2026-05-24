@@ -92,6 +92,7 @@ import net.tourbook.importdata.ImportState_Process;
 import net.tourbook.importdata.RawDataManager;
 import net.tourbook.importdata.TourbookDevice;
 import net.tourbook.math.Smooth;
+import net.tourbook.nutrition.NutritionUtils;
 import net.tourbook.photo.Photo;
 import net.tourbook.photo.PhotoAdjustments;
 import net.tourbook.photo.PhotoCache;
@@ -5686,7 +5687,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    private void computeNutritionData() {
 
-      this.nutrition_TotalCarbohydrates = 12;
+      this.nutrition_TotalCarbohydrates = NutritionUtils.getTotalCarbohydrates(tourNutritionProducts);
    }
 
    /**
