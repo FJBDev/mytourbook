@@ -1122,17 +1122,18 @@ class CalendarProfileManager {
                        final ValueFormat valueFormat,
                        final boolean isShowValueUnit) {
 
-            final int carbohydrates_Avg = data.carbohydrates_Avg_Per_Hour;
-            if (carbohydrates_Avg == 0) {
-               return UI.EMPTY_STRING;
+            final float carbohydrates_Avg = data.carbohydrates_Avg_Per_Hour;
+            if (carbohydrates_Avg > 0) {
+
+               final String valueText = valueFormatter.printDouble(carbohydrates_Avg);
+
+               return isShowValueUnit
+                     ? valueText + UI.SPACE + UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME
+                           + UI.SPACE
+                     : valueText + UI.SPACE;
             }
 
-            final String valueText = valueFormatter.printDouble(carbohydrates_Avg);
-
-            return isShowValueUnit
-                  ? valueText + UI.SPACE + UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME
-                        + UI.SPACE
-                  : valueText + UI.SPACE;
+            return UI.EMPTY_STRING;
 
          }
 
