@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.tourbook.Images;
+import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
@@ -28,6 +30,7 @@ import net.tourbook.common.util.Util;
 import net.tourbook.web.WEB;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 public class TourLogManager {
@@ -49,6 +52,16 @@ public class TourLogManager {
    private static Boolean                             _isDisplayLogInfoInTheStatusLine;
 
    private static AtomicInteger                       _tourLogCounter                          = new AtomicInteger();
+
+   /*
+    * UI resources
+    */
+   private static Image _imageTourLogView = TourbookPlugin.getThemedImageDescriptor(Images.TourLog).createImage();
+
+   static {
+
+      restoreState();
+   }
 
    public enum AutoOpenEvent {
 
@@ -96,7 +109,7 @@ public class TourLogManager {
 
                   final int logCounterRunnable = _tourLogCounter.getAndSet(0);
 
-                  UI.showStatusLineMessage("New tour log entries: " + logCounterRunnable);
+                  UI.showStatusLineMessage(Messages.Tour_Log_StatusLineMessage_NewEntries + logCounterRunnable, _imageTourLogView);
                }
             };
 
@@ -137,27 +150,15 @@ public class TourLogManager {
 
    static Set<AutoOpenEvent> getAutoOpenEvents() {
 
-      if (_autoOpenEvents == null) {
-         restoreState();
-      }
-
       return _autoOpenEvents;
    }
 
    static AutoOpenWhen getAutoOpenWhen() {
 
-      if (_autoOpenWhen == null) {
-         restoreState();
-      }
-
       return _autoOpenWhen;
    }
 
    static Boolean getIsShowInfoInStatusLine() {
-
-      if (_isDisplayLogInfoInTheStatusLine == null) {
-         restoreState();
-      }
 
       return _isDisplayLogInfoInTheStatusLine;
    }
