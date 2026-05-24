@@ -1115,7 +1115,7 @@ class CalendarProfileManager {
 
       final NumberDataFormatter dataFormatter = new NumberDataFormatter(
             FormatterID.NUTRITION_AVG_CARBS_PER_HOUR,
-            Messages.Calendar_Profile_Value_Nutrition_Carbohydrates_Avg,
+            Messages.Calendar_Profile_Value_Nutrition_Carbohydrates_Avg_Per_Hour,
             GraphColorManager.PREF_GRAPH_TOUR) {
 
          @Override
