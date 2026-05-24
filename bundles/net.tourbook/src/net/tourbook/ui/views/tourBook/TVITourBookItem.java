@@ -227,7 +227,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "$i_SUBSTR($db_TourDescription, 1, 100) AS TourDescription," + NL //     98    //$NON-NLS-1$
 
             // -------- RADAR -----------
-            + "$i_$db_numberOfPassedVehicles " + NL //                                 99    //$NON-NLS-1$
+            + "$i_$db_numberOfPassedVehicles, " + NL //                                99    //$NON-NLS-1$
 
             // -------- NUTRITION -----------
             + "$i_$db_nutrition_TotalCarbohydrates " + NL //                           100   //$NON-NLS-1$
