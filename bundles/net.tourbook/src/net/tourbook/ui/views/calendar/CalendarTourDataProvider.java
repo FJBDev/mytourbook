@@ -625,43 +625,43 @@ class CalendarTourDataProvider {
 
 // SET_FORMATTING_OFF
 
-               data.tourId          = allTourIDs            .get(tourIndex);
+               data.tourId                     = allTourIDs            .get(tourIndex);
 
-               data.typeId          = allTypeIds            .get(tourIndex);
-               data.typeColorIndex  = allTypeColorIndex     .get(tourIndex);
+               data.typeId                     = allTypeIds            .get(tourIndex);
+               data.typeColorIndex             = allTypeColorIndex     .get(tourIndex);
 
-               data.year            = allTourYear           .get(tourIndex);
-               data.month           = allTourMonth          .get(tourIndex);
-               data.day             = allTourDay            .get(tourIndex);
-               data.week            = allTourStartWeek      .get(tourIndex);
+               data.year                       = allTourYear           .get(tourIndex);
+               data.month                      = allTourMonth          .get(tourIndex);
+               data.day                        = allTourDay            .get(tourIndex);
+               data.week                       = allTourStartWeek      .get(tourIndex);
 
-               data.startTime       = allTourStartTime      .get(tourIndex);
-               data.endTime         = allTourEndTime        .get(tourIndex);
+               data.startTime                  = allTourStartTime      .get(tourIndex);
+               data.endTime                    = allTourEndTime        .get(tourIndex);
 
-               data.distance        = allDistance           .get(tourIndex);
-               data.elevationGain   = allElevationGain      .get(tourIndex);
-               data.elevationLoss   = allElevationLoss      .get(tourIndex);
+               data.distance                   = allDistance           .get(tourIndex);
+               data.elevationGain              = allElevationGain      .get(tourIndex);
+               data.elevationLoss              = allElevationLoss      .get(tourIndex);
 
-               data.elapsedTime     = allTourElapsedTime    .get(tourIndex);
-               data.recordedTime    = allTourDeviceTime_Recorded.get(tourIndex);
-               data.movingTime      = allTourMovingTime     .get(tourIndex);
+               data.elapsedTime                = allTourElapsedTime    .get(tourIndex);
+               data.recordedTime               = allTourDeviceTime_Recorded.get(tourIndex);
+               data.movingTime                 = allTourMovingTime     .get(tourIndex);
 
-               data.calories        = allCalories           .get(tourIndex);
-               data.power_Avg       = allPowerAvg           .get(tourIndex);
-               data.pulse_Avg       = allPulseAvg           .get(tourIndex);
+               data.calories                   = allCalories           .get(tourIndex);
+               data.power_Avg                  = allPowerAvg           .get(tourIndex);
+               data.pulse_Avg                  = allPulseAvg           .get(tourIndex);
 
-               data.tourTitle       = allTourTitle          .get(tourIndex);
-               data.tourDescription = allTourDescription    .get(tourIndex);
+               data.tourTitle                  = allTourTitle          .get(tourIndex);
+               data.tourDescription            = allTourDescription    .get(tourIndex);
 
-               data.weatherClouds   = allTourWeatherClouds  .get(tourIndex);
+               data.weatherClouds              = allTourWeatherClouds  .get(tourIndex);
 
                final LocalDate tourDate = LocalDate.of(year, month, data.day);
-               data.tourDate        = tourDate;
-               data.dayOfWeek       = tourDate.getDayOfWeek().getValue();
+               data.tourDate                   = tourDate;
+               data.dayOfWeek                  = tourDate.getDayOfWeek().getValue();
 
-               data.isManualTour    = allIsManualTour       .get(tourIndex);
+               data.isManualTour               = allIsManualTour       .get(tourIndex);
 
-               data.carbohydrates_Avg_Per_Hour = allTotalCarbohydrates.get(tourIndex);
+               data.carbohydrates_Avg_Per_Hour = allTotalCarbohydrates .get(tourIndex);
 
                dayData[tourIndex] = data;
 
