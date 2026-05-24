@@ -275,7 +275,7 @@ class CalendarProfileManager {
    private static final DataFormatter _tourFormatter_Elevation_Change;
    private static final DataFormatter _tourFormatter_Energy_kcal;
    private static final DataFormatter _tourFormatter_Energy_MJ;
-   private static final DataFormatter _tourFormatter_Nutrition_Avg_Carbohydrates;
+   private static final DataFormatter _tourFormatter_Nutrition_Carbohydrates_Avg_Per_Hour;
    private static final DataFormatter _tourFormatter_Pace;
    private static final DataFormatter _tourFormatter_Power_Avg;
    private static final DataFormatter _tourFormatter_Pulse_Avg;
@@ -333,7 +333,7 @@ class CalendarProfileManager {
       _tourFormatter_Energy_kcal                 = createFormatter_Energy_kcal();
       _tourFormatter_Energy_MJ                   = createFormatter_Energy_MJ();
 
-      _tourFormatter_Nutrition_Avg_Carbohydrates = createFormatter_Nutrition_Avg_Carbohydrates();
+      _tourFormatter_Nutrition_Carbohydrates_Avg_Per_Hour = createFormatter_Nutrition_Avg_Carbohydrates();
 
       _tourFormatter_Time_Elapsed                = createFormatter_Time_Elapsed();
       _tourFormatter_Time_Recorded               = createFormatter_Time_Recorded();
@@ -363,7 +363,7 @@ class CalendarProfileManager {
             _tourFormatter_Energy_kcal,
             _tourFormatter_Energy_MJ,
 
-            _tourFormatter_Nutrition_Avg_Carbohydrates,
+            _tourFormatter_Nutrition_Carbohydrates_Avg_Per_Hour,
 
             _tourFormatter_Time_Elapsed,
             _tourFormatter_Time_Recorded,
@@ -3459,7 +3459,7 @@ class CalendarProfileManager {
             break;
 
          case NUTRITION_AVG_CARBS_PER_HOUR:
-            _tourFormatter_Nutrition_Avg_Carbohydrates.setValueFormat(valueFormat);
+            _tourFormatter_Nutrition_Carbohydrates_Avg_Per_Hour.setValueFormat(valueFormat);
             break;
 
          case PACE:
