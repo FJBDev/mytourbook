@@ -267,6 +267,7 @@ class TourBook_ColumnFactory {
 
       // Nutrition
       defineColumn_Nutrition_NumProducts();
+      defineColumn_Nutrition_Carbohydrates_Avg_Per_Hour();
    }
 
    /**
@@ -1310,12 +1311,45 @@ class TourBook_ColumnFactory {
       });
    }
 
+   /*
+    * Column: Tour - Nutrition Total energy
+    */
+   private void defineColumn_Nutrition_Carbohydrates_Avg_Per_Hour() {
+
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable, _pc);
+      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+
+         @Override
+         public String getValueText(final Object element) {
+
+            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
+
+            return colDef_NatTable.printDoubleValue(value);
+         }
+      });
+
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
+      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
+
+            colDef_Tree.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+
+            setCellColor(cell, element);
+         }
+      });
+   }
+
    /**
     * Column: Tour - Nutrition Products
     */
    private void defineColumn_Nutrition_NumProducts() {
 
-      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_NUM_PRODUCTS.createColumn(_columnManager_NatTable, _pc);
+      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable,
+            _pc);
       colDef_NatTable.setIsDefaultColumn();
       colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
 
@@ -1331,7 +1365,7 @@ class TourBook_ColumnFactory {
          }
       });
 
-      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_NUM_PRODUCTS.createColumn(_columnManager_Tree, _pc);
+      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
       colDef_Tree.setIsDefaultColumn();
       colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
          @Override

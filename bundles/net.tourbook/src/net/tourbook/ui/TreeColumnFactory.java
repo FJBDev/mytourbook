@@ -117,6 +117,8 @@ public abstract class TreeColumnFactory {
 
    public static final TreeColumnFactory NUTRITION_NUM_PRODUCTS;
    private static final String           NUTRITION_NUM_PRODUCTS_ID        = "NUTRITION_NUM_PRODUCTS";           //$NON-NLS-1$
+   public static final TableColumnFactory NUTRITION_CARBOHYDRATES_AVG_PER_HOUR;
+   public static final String             NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID = "NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID"; //$NON-NLS-1$
 
    public static final TreeColumnFactory POWER_AVG;
    public static final TreeColumnFactory POWER_MAX;
