@@ -5349,11 +5349,11 @@ public class TourDatabase {
 
             // version 59 end
 
-            // version 61 start  -  26.6
+            // version 62 start  -  26.6
 
             + "   nutrition_TotalCarbohydrates           FLOAT DEFAULT 0,            " + NL //$NON-NLS-1$
 
-            // version 61 end
+            // version 62 end
 
             // version 5 start
             /**

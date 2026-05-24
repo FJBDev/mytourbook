@@ -10386,7 +10386,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    /**
-    * @return Returns the swim pool length in mm that a length in feets can also be saved correctly.
+    * @return Returns the swim pool length in mm that a length in feet can also be saved correctly.
     *         When this value is not 0 then there should also be swimming data
     */
    public int getPoolLength() {
