@@ -952,9 +952,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    private int                   poolLength;
 
-// ############################################# NUTRITION #############################################
+   // ############################################# NUTRITION #############################################
 
-   private int                 nutrition_TotalCarbohydrates     ;
+   private int                 nutrition_TotalCarbohydrates;
 
    // ############################################# UNUSED FIELDS - START #############################################
    /**
@@ -5685,8 +5685,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    private void computeNutritionData() {
-     this.nutrition_TotalCarbohydrates = 12;
 
+      this.nutrition_TotalCarbohydrates = 12;
    }
 
    /**
@@ -14350,10 +14350,10 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    public void setTourNutritionProducts(final Set<TourNutritionProduct> tourNutritionProducts) {
+
       this.tourNutritionProducts = tourNutritionProducts;
 
-      //todo fb
-      //compute totalcarbohydrateAmount();
+      this.computeNutritionData();
    }
 
    /**
@@ -15529,6 +15529,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          if (existingProduct.updateProductInfo(updatedProduct)) {
             tourNutritionProductsUpdated = true;
          }
+      }
+
+      if (tourNutritionProductsUpdated) {
+
+         this.computeNutritionData();
       }
 
       return tourNutritionProductsUpdated;
