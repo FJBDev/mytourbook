@@ -252,6 +252,7 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblBattery_Spacer;
    private Label            _lblBattery_Start;
    private Label            _lblBattery_End;
+   private Label            _lblBikeScore;
    private Label            _lblBodyWeight;
    private Label            _lblBreakTime;
    private Label            _lblBreakTime_Unit;
@@ -275,7 +276,11 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblGear;
    private Label            _lblGear_GearShifts;
    private Label            _lblGear_GearShifts_Spacer;
+<<<<<<< HEAD
+   private Label            _lblGovss;
+=======
    private Label            _lblGearRadar_Spacer;
+>>>>>>> refs/remotes/Wolfgang/main
    private Label            _lblMaxElevation;
    private Label            _lblMaxElevation_Unit;
    private Label            _lblMaxPace;
@@ -296,6 +301,7 @@ public class TourInfoUI implements ICanHideTooltip {
    private Label            _lblRecordedTime;
    private Label            _lblRecordedTime_Unit;
    private Label            _lblRestPulse;
+   private Label            _lblSwimScore;
    private Label            _lblTemperature_Part1;
    private Label            _lblTemperature_Part2;
    private Label            _lblTimeDuringDay_Value;
@@ -661,6 +667,12 @@ public class TourInfoUI implements ICanHideTooltip {
       {
          createUI_32_Time(container);
          createUI_34_DistanceElevation(container);
+<<<<<<< HEAD
+         createUI_35_TrainingStress(container);
+         createUI_36_Misc(container);
+         createUI_37_HeartRateZones(container);
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 
          if (_isShowBodyValues) {
             createUI_36_Body(container);
@@ -828,7 +840,44 @@ public class TourInfoUI implements ICanHideTooltip {
       createUI_Spacer(container);
    }
 
+<<<<<<< HEAD
+   private void createUI_35_TrainingStress(final Composite parent) {
+
+      /*
+       * BikeScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_BikeScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblBikeScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * GOVSS
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_Govss);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblGovss = createUI_LabelValue(parent, SWT.TRAIL);
+
+      /*
+       * SwimScore
+       */
+      createUI_Label(parent, Messages.Tour_Tooltip_Label_SwimScore);
+      // spacer
+      createUI_LabelValue(parent, SWT.TRAIL);
+
+      _lblSwimScore = createUI_LabelValue(parent, SWT.TRAIL);
+
+      // spacer
+      createUI_Spacer(parent);
+   }
+
+   private void createUI_36_Misc(final Composite container) {
+=======
    private void createUI_36_Body(final Composite container) {
+>>>>>>> refs/remotes/Wolfgang/main
 
       {
          /*
@@ -2067,7 +2116,7 @@ public class TourInfoUI implements ICanHideTooltip {
       }
 
       String tourTitle = _tourData.getTourTitle();
-      if (tourTitle == null || tourTitle.trim().length() == 0) {
+      if (StringUtils.isNullOrEmpty(tourTitle)) {
 
          if (_uiTourTypeName == null) {
             tourTitle = Messages.Tour_Tooltip_Label_DefaultTitle;
@@ -2547,6 +2596,19 @@ public class TourInfoUI implements ICanHideTooltip {
       final double avgPower = _tourData.getPower_Avg();
       _lblAvg_Power.setText(FormatManager.formatPower(avgPower));
       _lblAvg_PowerUnit.setText(UI.UNIT_POWER);
+
+      /*
+       * Training Stress
+       */
+      // BikeScore
+      final int bikeScore = _tourData.getTrainingStress_BikeScore();
+      _lblBikeScore.setText(String.valueOf(bikeScore));
+      // GOVSS
+      final int govss = _tourData.getTrainingStress_Govss();
+      _lblGovss.setText(String.valueOf(govss));
+      // SwimScore
+      final int swimScore = _tourData.getTrainingStress_SwimScore();
+      _lblSwimScore.setText(String.valueOf(swimScore));
 
       // Average elevation
       final double avgElevation = _tourData.getElevation_Avg();

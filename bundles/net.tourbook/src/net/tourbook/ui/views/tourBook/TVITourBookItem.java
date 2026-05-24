@@ -122,9 +122,15 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "$i_$db_power_Normalized," + NL //                                       37    //$NON-NLS-1$
             + "$i_$db_power_FTP," + NL //                                              38    //$NON-NLS-1$
 
+<<<<<<< HEAD
+            + "power_TotalWork, " //                              39    //$NON-NLS-1$
+            + "trainingStress_Device, " //                        40    //$NON-NLS-1$
+            + "power_IntensityFactor, " //                        41    //$NON-NLS-1$
+=======
             + "$i_$db_power_TotalWork," + NL //                                        39    //$NON-NLS-1$
             + "$i_$db_power_TrainingStressScore," + NL //                              40    //$NON-NLS-1$
             + "$i_$db_power_IntensityFactor," + NL //                                  41    //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
             + "$i_$db_power_PedalLeftRightBalance," + NL //                            42    //$NON-NLS-1$
             + "$i_$db_power_AvgLeftTorqueEffectiveness," + NL //                       43    //$NON-NLS-1$
@@ -342,7 +348,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 // SET_FORMATTING_ON
    }
 
-   protected static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
    //
    //
    TourBookView tourBookView;

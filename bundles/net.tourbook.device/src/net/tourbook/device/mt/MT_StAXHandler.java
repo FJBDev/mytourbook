@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2022, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -208,6 +208,7 @@ class MT_StAXHandler {
     * Convert "values=..." into a string array
     *
     * @param startElement
+    *
     * @return
     */
    private String[] getValuesFromAttribute(final StartElement startElement) {
@@ -385,6 +386,7 @@ class MT_StAXHandler {
     *
     * @param eventReader
     * @param startElement_Parent
+    *
     * @throws XMLStreamException
     */
    private void parseXML_010_Tour(final XMLEventReader eventReader, final StartElement startElement_Parent) throws XMLStreamException {
@@ -439,6 +441,7 @@ class MT_StAXHandler {
     * Parse {@code <tourType>...</tourType>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_020_TourType(final XMLEventReader eventReader) throws XMLStreamException {
@@ -480,6 +483,7 @@ class MT_StAXHandler {
     *
     * @param eventReader
     * @param startElement_
+    *
     * @throws XMLStreamException
     */
    private void parseXML_030_Tags(final XMLEventReader eventReader) throws XMLStreamException {
@@ -519,6 +523,7 @@ class MT_StAXHandler {
     * Parse {@code <markers>...</markers>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_040_Markers(final XMLEventReader eventReader) throws XMLStreamException {
@@ -591,6 +596,7 @@ class MT_StAXHandler {
     * Parse {@code <waypoints>...</waypoints>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_050_Waypoints(final XMLEventReader eventReader) throws XMLStreamException {
@@ -663,6 +669,7 @@ class MT_StAXHandler {
     * Parse {@code <photos>...</photos>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_060_Photos(final XMLEventReader eventReader) throws XMLStreamException {
@@ -735,6 +742,7 @@ class MT_StAXHandler {
     * Parse {@code <sensorvalues>...</sensorvalues>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_070_SensorValues(final XMLEventReader eventReader) throws XMLStreamException {
@@ -783,6 +791,7 @@ class MT_StAXHandler {
     * Parse {@code <tourreferences>...</tourreferences>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_080_TourReferences(final XMLEventReader eventReader) throws XMLStreamException {
@@ -855,6 +864,7 @@ class MT_StAXHandler {
     * Parse {@code <dataseries>...</dataseries>}
     *
     * @param eventReader
+    *
     * @throws XMLStreamException
     */
    private void parseXML_100_DataSeries(final XMLEventReader eventReader) throws XMLStreamException {
@@ -1096,8 +1106,8 @@ class MT_StAXHandler {
       case "power_Normalized":                     _tourData.setPower_Normalized(                  Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "power_PedalLeftRightBalance":          _tourData.setPower_PedalLeftRightBalance(       Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "power_TotalWork":                      _tourData.setPower_TotalWork(                   Util.parseLong_0(value));     break; //$NON-NLS-1$
-      case "power_TrainingStressScore":            _tourData.setPower_TrainingStressScore(         Util.parseFloat_0(value));    break; //$NON-NLS-1$
-
+      case "power_TrainingStressScore":            _tourData.setTrainingStress_Device(             Util.parseFloat_0(value));     //$NON-NLS-1$
+                                                   _tourData.setTrainingStress_Device(             Util.parseFloat_0(value));    break;
       case "rearShiftCount":                       _tourData.setRearShiftCount(                    Util.parseInt_0(value));      break; //$NON-NLS-1$
       case "restPulse":                            _tourData.setRestPulse(                         Util.parseInt_0(value));      break; //$NON-NLS-1$
 

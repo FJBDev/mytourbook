@@ -49,6 +49,7 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_MONTH_SUMMARY           = "STATE_BAR_ORDERING_MONTH_SUMMARY";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_TIME              = "STATE_BAR_ORDERING_MONTH_TIME";              //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_MONTH_ATHLETEDATA       = "STATE_BAR_ORDERING_MONTH_ATHLETEDATA";       //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_MONTH_TRAINING_LOAD     = "STATE_BAR_ORDERING_MONTH_TRAINING_LOAD";     //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_YEAR_DISTANCE           = "STATE_BAR_ORDERING_YEAR_DISTANCE";           //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_ELEVATION_UP       = "STATE_BAR_ORDERING_YEAR_ELEVATION_UP";       //$NON-NLS-1$
@@ -56,6 +57,7 @@ public abstract class TourbookStatistic {
    protected static final String STATE_BAR_ORDERING_YEAR_SUMMARY            = "STATE_BAR_ORDERING_YEAR_SUMMARY";            //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_TIME               = "STATE_BAR_ORDERING_YEAR_TIME";               //$NON-NLS-1$
    protected static final String STATE_BAR_ORDERING_YEAR_ATHLETEDATA        = "STATE_BAR_ORDERING_YEAR_ATHLETEDATA";        //$NON-NLS-1$
+   protected static final String STATE_BAR_ORDERING_YEAR_TRAINING_LOAD      = "STATE_BAR_ORDERING_YEAR_TRAINING_LOAD";      //$NON-NLS-1$
 
    protected static final String STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH = "STATE_BAR_ORDERING_HR_ZONE_START_FOR_MONTH"; ////$NON-NLS-1$
 
@@ -65,33 +67,73 @@ public abstract class TourbookStatistic {
    protected static final String GRID_BATTERY              = "GRID_BATTERY__";              //$NON-NLS-1$
    protected static final String GRID_SENSOR               = "GRID_SENSOR__";               //$NON-NLS-1$
 
+<<<<<<< HEAD
+   protected static final String    GRID_DAY_DISTANCE         = "GRID_DAY_DISTANCE__";         //$NON-NLS-1$
+   protected static final String    GRID_DAY_ELEVATION_UP     = "GRID_DAY_ELEVATION_UP__";     //$NON-NLS-1$
+   protected static final String    GRID_DAY_ELEVATION_DOWN   = "GRID_DAY_ELEVATION_DOWN__";   //$NON-NLS-1$
+   protected static final String    GRID_DAY_SUMMARY          = "GRID_DAY_SUMMARY__";          //$NON-NLS-1$
+   protected static final String    GRID_DAY_TIME             = "GRID_DAY_TIME__";             //$NON-NLS-1$
+   protected static final String    GRID_DAY_ATHLETE_DATA     = "GRID_DAY_ATHLETE_DATA__";     //$NON-NLS-1$
+   protected static final String    GRID_DAY_TRAININGLOAD     = "GRID_DAY_TRAININGLOAD__";     //$NON-NLS-1$
+=======
    protected static final String GRID_DAY_DISTANCE         = "GRID_DAY_DISTANCE__";         //$NON-NLS-1$
    protected static final String GRID_DAY_ELEVATION_UP     = "GRID_DAY_ELEVATION_UP__";     //$NON-NLS-1$
    protected static final String GRID_DAY_ELEVATION_DOWN   = "GRID_DAY_ELEVATION_DOWN__";   //$NON-NLS-1$
    protected static final String GRID_DAY_SUMMARY          = "GRID_DAY_SUMMARY__";          //$NON-NLS-1$
    protected static final String GRID_DAY_TIME             = "GRID_DAY_TIME__";             //$NON-NLS-1$
    protected static final String GRID_DAY_ATHLETE_DATA     = "GRID_DAY_ATHLETE_DATA__";     //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
+<<<<<<< HEAD
+   protected static final String    GRID_WEEK_DISTANCE        = "GRID_WEEK_DISTANCE__";        //$NON-NLS-1$
+   protected static final String    GRID_WEEK_ELEVATION_UP    = "GRID_WEEK_ELEVATION_UP__";    //$NON-NLS-1$
+   protected static final String    GRID_WEEK_ELEVATION_DOWN  = "GRID_WEEK_ELEVATION_DOWN__";  //$NON-NLS-1$
+   protected static final String    GRID_WEEK_SUMMARY         = "GRID_WEEK_SUMMARY__";         //$NON-NLS-1$
+   protected static final String    GRID_WEEK_TIME            = "GRID_WEEK_TIME__";            //$NON-NLS-1$
+   protected static final String    GRID_WEEK_ATHLETE_DATA    = "GRID_WEEK_ATHLETE_DATA__";    //$NON-NLS-1$
+   protected static final String    GRID_WEEK_TRAININGLOAD    = "GRID_WEEK_TRAININGLOAD__";    //$NON-NLS-1$
+=======
    protected static final String GRID_WEEK_DISTANCE        = "GRID_WEEK_DISTANCE__";        //$NON-NLS-1$
    protected static final String GRID_WEEK_ELEVATION_UP    = "GRID_WEEK_ELEVATION_UP__";    //$NON-NLS-1$
    protected static final String GRID_WEEK_ELEVATION_DOWN  = "GRID_WEEK_ELEVATION_DOWN__";  //$NON-NLS-1$
    protected static final String GRID_WEEK_SUMMARY         = "GRID_WEEK_SUMMARY__";         //$NON-NLS-1$
    protected static final String GRID_WEEK_TIME            = "GRID_WEEK_TIME__";            //$NON-NLS-1$
    protected static final String GRID_WEEK_ATHLETE_DATA    = "GRID_WEEK_ATHLETE_DATA__";    //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
+<<<<<<< HEAD
+   protected static final String    GRID_MONTH_TRAININGLOAD = "GRID_MONTH_TRAININGLOAD__";   //$NON-NLS-1$
+   protected static final String    GRID_MONTH_DISTANCE       = "GRID_MONTH_DISTANCE__";       //$NON-NLS-1$
+   protected static final String    GRID_MONTH_ELEVATION_UP   = "GRID_MONTH_ELEVATION_UP__";   //$NON-NLS-1$
+   protected static final String    GRID_MONTH_ELEVATION_DOWN = "GRID_MONTH_ELEVATION_DOWN__"; //$NON-NLS-1$
+   protected static final String    GRID_MONTH_SUMMARY        = "GRID_MONTH_SUMMARY__";        //$NON-NLS-1$
+   protected static final String    GRID_MONTH_TIME           = "GRID_MONTH_TIME__";           //$NON-NLS-1$
+   protected static final String    GRID_MONTH_ATHLETE_DATA   = "GRID_MONTH_ATHLETE_DATA__";   //$NON-NLS-1$
+=======
    protected static final String GRID_MONTH_DISTANCE       = "GRID_MONTH_DISTANCE__";       //$NON-NLS-1$
    protected static final String GRID_MONTH_ELEVATION_UP   = "GRID_MONTH_ELEVATION_UP__";   //$NON-NLS-1$
    protected static final String GRID_MONTH_ELEVATION_DOWN = "GRID_MONTH_ELEVATION_DOWN__"; //$NON-NLS-1$
    protected static final String GRID_MONTH_SUMMARY        = "GRID_MONTH_SUMMARY__";        //$NON-NLS-1$
    protected static final String GRID_MONTH_TIME           = "GRID_MONTH_TIME__";           //$NON-NLS-1$
    protected static final String GRID_MONTH_ATHLETE_DATA   = "GRID_MONTH_ATHLETE_DATA__";   //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
+<<<<<<< HEAD
+   protected static final String    GRID_YEAR_TRAININGLOAD  = "GRID_YEAR_TRAININGLOAD__";    //$NON-NLS-1$
+   protected static final String    GRID_YEAR_DISTANCE        = "GRID_YEAR_DISTANCE__";        //$NON-NLS-1$
+   protected static final String    GRID_YEAR_ELEVATION_UP    = "GRID_YEAR_ELEVATION_UP__";    //$NON-NLS-1$
+   protected static final String    GRID_YEAR_ELEVATION_DOWN  = "GRID_YEAR_ELEVATION_DOWN__";  //$NON-NLS-1$
+   protected static final String    GRID_YEAR_SUMMARY         = "GRID_YEAR_SUMMARY__";         //$NON-NLS-1$
+   protected static final String    GRID_YEAR_TIME            = "GRID_YEAR_TIME__";            //$NON-NLS-1$
+   protected static final String    GRID_YEAR_ATHLETE_DATA    = "GRID_YEAR_ATHLETE_DATA__";    //$NON-NLS-1$
+=======
    protected static final String GRID_YEAR_DISTANCE        = "GRID_YEAR_DISTANCE__";        //$NON-NLS-1$
    protected static final String GRID_YEAR_ELEVATION_UP    = "GRID_YEAR_ELEVATION_UP__";    //$NON-NLS-1$
    protected static final String GRID_YEAR_ELEVATION_DOWN  = "GRID_YEAR_ELEVATION_DOWN__";  //$NON-NLS-1$
    protected static final String GRID_YEAR_SUMMARY         = "GRID_YEAR_SUMMARY__";         //$NON-NLS-1$
    protected static final String GRID_YEAR_TIME            = "GRID_YEAR_TIME__";            //$NON-NLS-1$
    protected static final String GRID_YEAR_ATHLETE_DATA    = "GRID_YEAR_ATHLETE_DATA__";    //$NON-NLS-1$
+>>>>>>> refs/remotes/Wolfgang/main
 
    protected static final String GRID_WEEK_HR_ZONE         = "GRID_WEEK_HR_ZONE__";         //$NON-NLS-1$
    protected static final String GRID_MONTH_HR_ZONE        = "GRID_MONTH_HR_ZONE__";        //$NON-NLS-1$
@@ -202,7 +244,6 @@ public abstract class TourbookStatistic {
 
          ) {
 
-            _isInPrefUpdate = true;
             {
                // update chart
                preferencesHasChanged();
@@ -289,10 +330,9 @@ public abstract class TourbookStatistic {
          return ChartDataYSerie.BAR_LAYOUT_BESIDE;
 
       case ChartDataSerie.CHART_TYPE_BAR_STACKED:
+      default:
          return ChartDataYSerie.BAR_LAYOUT_STACKED;
       }
-
-      return ChartDataYSerie.BAR_LAYOUT_STACKED;
    }
 
    /**

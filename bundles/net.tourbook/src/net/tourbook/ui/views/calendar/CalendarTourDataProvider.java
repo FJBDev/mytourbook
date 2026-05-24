@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
+ * Copyright (C) 2011, 2024 Matthias Helmling and Contributors
+=======
  * Copyright (C) 2011, 2026 Matthias Helmling and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -734,11 +738,67 @@ class CalendarTourDataProvider {
 
                + " SUM(power_TrainingStressScore)" + NL //           11 //$NON-NLS-1$
 
+                  + "      TourDistance," + NL //                                      //$NON-NLS-1$
+                  + "      TourDeviceTime_Elapsed," + NL //                            //$NON-NLS-1$
+                  + "      TourComputedTime_Moving," + NL //                           //$NON-NLS-1$
+                  + "      TourAltUp," + NL //                                         //$NON-NLS-1$
+                  + "      TourAltDown," + NL //                                       //$NON-NLS-1$
+                  + "      calories," + NL //                                          //$NON-NLS-1$
+                  + "      cadenceZone_SlowTime," + NL //                              //$NON-NLS-1$
+                  + "      cadenceZone_FastTime," + NL //                              //$NON-NLS-1$
+                  + "      TourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
+                  + "      trainingStress_Device" + NL //                          //$NON-NLS-1$
                + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //         //$NON-NLS-1$
 
                + "WHERE StartWeekYear = ?" + NL //                      //$NON-NLS-1$
                + "  AND StartWeek     = ?" + NL //                      //$NON-NLS-1$
 
+                  // get tag id's
+                  + "   " + tagFilterSqlJoinBuilder.getSqlTagJoinTable() //$NON-NLS-1$
+
+                  + "   AS jTdataTtag" //                                              //$NON-NLS-1$
+                  + "   ON tourId = jTdataTtag.TourData_tourId" + NL //                //$NON-NLS-1$
+
+                  + "   WHERE  startWeekYear=?" + NL //                                //$NON-NLS-1$
+                  + "      AND startWeek=?" + NL //                                    //$NON-NLS-1$
+                  + "      " + sqlAppFilter.getWhereClause() + NL //$NON-NLS-1$
+
+                  + ") NecessaryNameOtherwiseItDoNotWork" //                           //$NON-NLS-1$
+
+            ;
+
+         } else {
+
+            sqlFromTourData = NL
+
+                  + "FROM " + TourDatabase.TABLE_TOUR_DATA + NL //$NON-NLS-1$
+
+                  + "   WHERE  startWeekYear=?" + NL //                                //$NON-NLS-1$
+                  + "      AND startWeek=?" + NL //                                    //$NON-NLS-1$
+                  + "      " + sqlAppFilter.getWhereClause(); //$NON-NLS-1$
+         }
+
+         sql = "SELECT" + NL //                                                        //$NON-NLS-1$
+
+               + " SUM(1)," + NL //                                                 1  //$NON-NLS-1$
+               + " SUM(TourDistance)," + NL //                                      2  //$NON-NLS-1$
+
+               + " SUM(TourDeviceTime_Elapsed)," + NL //                            3  //$NON-NLS-1$
+               + " SUM(TourComputedTime_Moving)," + NL //                           4  //$NON-NLS-1$
+
+               + " SUM(TourAltUp)," + NL //                                         5  //$NON-NLS-1$
+               + " SUM(TourAltDown)," + NL //                                       6  //$NON-NLS-1$
+
+               + " SUM(calories)," + NL //                                          7  //$NON-NLS-1$
+
+               + " SUM(cadenceZone_SlowTime)," + NL //                              8  //$NON-NLS-1$
+               + " SUM(cadenceZone_FastTime)," + NL //                              9  //$NON-NLS-1$
+
+               + " SUM(TourDeviceTime_Recorded)," + NL //                           10 //$NON-NLS-1$
+
+               + " SUM(trainingStress_Device)" + NL //                          11 //$NON-NLS-1$
+
+               + sqlFromTourData;
                + appFilter.getWhereClause();
 
          final PreparedStatement prepStmt = conn.prepareStatement(sql);

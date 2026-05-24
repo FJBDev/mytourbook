@@ -87,6 +87,7 @@ import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
 import net.tourbook.common.weather.IWeather;
 import net.tourbook.database.FIELD_VALIDATION;
+import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.importdata.ImportState_Process;
 import net.tourbook.importdata.RawDataManager;
@@ -109,6 +110,8 @@ import net.tourbook.tour.TourManager;
 import net.tourbook.tour.location.TourLocationData;
 import net.tourbook.tour.photo.TourPhotoLink;
 import net.tourbook.tour.photo.TourPhotoManager;
+import net.tourbook.trainingload.Govss;
+import net.tourbook.trainingload.TrainingStressType;
 import net.tourbook.ui.tourChart.ChartLabelMarker;
 import net.tourbook.ui.tourChart.ChartLayerAdditionalValueSeries;
 import net.tourbook.ui.tourChart.TourChart;
@@ -673,8 +676,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    @JsonProperty
    private long                  power_TotalWork;
    @JsonProperty
-   private float                 power_TrainingStressScore;
-   @JsonProperty
    private float                 power_IntensityFactor;
 
    @JsonProperty
@@ -798,6 +799,27 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * 0 == false, 1 == true
     */
    private short                  isStrideSensorPresent            = 0;
+
+   // ############################################# TRAINING STRESS DATA #############################################
+
+   @JsonProperty
+   private float              trainingStress_Device;
+
+   /**
+    * GOVSS (Gravity Ordered Velocity Stress Score)
+    */
+   private int                trainingStress_Govss;
+
+   /**
+    * BikeScore
+    */
+   private int                trainingStress_BikeScore;
+
+   /**
+    * SwimScore
+    */
+   private int                trainingStress_SwimScore;
+
 
    // ############################################# MERGED DATA #############################################
 
@@ -2252,6 +2274,69 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
          weather = weatherDescription;
       }
+   }
+
+   public boolean canBikeScoreBeComputed() {
+
+      if (!canTrainingStressBeComputed()) {
+         return false;
+      }
+
+      if (timeSerie == null || altitudeSerie == null || distanceSerie == null ||
+            tourPerson.getWeight() <= 0f || tourPerson.getHeight() <= 0f ||
+            tourType == null ||
+            !tourPerson.isTourTypeForTrainingStress(TrainingStressType.BIKESCORE, tourType.getTypeId())) {
+         //In case the govss was previously computed and the tour is not considered a tour for
+         //which the govss should be computed anymore
+         setTrainingStress_BikeScore(0);
+         return false;
+      }
+
+      return true;
+   }
+
+   public boolean canGovssBeComputed() {
+
+      if (!canTrainingStressBeComputed()) {
+         return false;
+      }
+
+      if (timeSerie == null || altitudeSerie == null || distanceSerie == null ||
+            tourPerson.getWeight() <= 0f || tourPerson.getHeight() <= 0f ||
+            tourType == null ||
+            !tourPerson.isTourTypeForTrainingStress(TrainingStressType.GOVSS, tourType.getTypeId())) {
+         //In case the govss was previously computed and the tour is not considered a tour for
+         //which the govss should be computed anymore
+         setTrainingStress_Govss(0);
+         return false;
+
+      }
+
+      return true;
+   }
+
+   public boolean canSwimScoreBeComputed() {
+      // TODO Auto-generated method stub
+      return false;
+   }
+
+   private boolean canTrainingStressBeComputed() {
+
+      if (tourPerson == null) {
+         return false;
+      }
+
+      // We make sure to retrieve the latest version of the tour's TourPerson in case it has been modified recently
+      // Note : It's not a "pretty" solution but that is the best I found as of today
+      final ArrayList<TourPerson> tourPersons = PersonManager.getTourPeople();
+      for (final TourPerson currentTourPerson : tourPersons) {
+         if (currentTourPerson.getPersonId() == tourPerson.getPersonId()) {
+            tourPerson = currentTourPerson;
+            break;
+         }
+      }
+
+      return true;
    }
 
    /**
@@ -4245,12 +4330,20 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
    }
 
+<<<<<<< HEAD
+   private void computeBikeScore() {
+      // TODO Auto-generated method stub
+
+   }
+
+=======
    /**
     * @param startIndex
     * @param endIndex
     *
     * @return Returns the break time in seconds between start and end index
     */
+>>>>>>> refs/remotes/Wolfgang/main
    private int computeBreakTime(final int startIndex, int endIndex) {
 
       int totalBreakTime = 0;
@@ -4450,6 +4543,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       computeGeo_Bounds();
       computeGeo_Grid();
+
+      computeTrainingStressData();
    }
 
    private void computeDataSeries() {
@@ -5317,6 +5412,17 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       return returnData;
    }
 
+   public boolean computeGovss() {
+
+      if (!canGovssBeComputed()) {
+         return false;
+      }
+
+      setTrainingStress_Govss(new Govss(tourPerson, this).Compute());
+
+      return true;
+   }
+
    /**
     * Interpolate geo positions
     */
@@ -5679,9 +5785,25 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
    }
 
+<<<<<<< HEAD
+   public double computeNormalizedPace(final int startIndex, final int endIndex) {
+
+      double result = 0;
+
+      if (!canGovssBeComputed()) {
+         return result;
+      }
+
+      result = new Govss(tourPerson, this).computeNormalizedPace(startIndex, endIndex);
+
+      return result;
+   }
+
+=======
    /**
     * Time adjustment in seconds, this is an average value for all photos
     */
+>>>>>>> refs/remotes/Wolfgang/main
    private void computePhotoTimeAdjustment() {
 
       _allPhotoTimeAdjustments = new HashMap<>();
@@ -6578,6 +6700,11 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       computeSpeedPaceSeries_Summarized(numTimeSlices, distanceSerie);
    }
 
+   private void computeSwimScore() {
+      // TODO Auto-generated method stub
+
+   }
+
    /**
     * Computes the tour moving time in seconds, this is the tour elapsed time - tour break time.
     * This value is store in {@link #tourComputedTime_Moving}.
@@ -6604,6 +6731,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
          tourComputedTime_Moving = Math.max(0, tourMovingTimeRaw);
       }
+   }
+
+   private void computeTrainingStressData() {
+
+      computeGovss();
+      computeBikeScore();
+      computeSwimScore();
    }
 
    /**
@@ -10432,10 +10566,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       return power_TotalWork;
    }
 
-   public float getPower_TrainingStressScore() {
-      return power_TrainingStressScore;
-   }
-
    public float[] getPowerSerie() {
 
       if (powerSerie != null || isPowerSerieFromDevice) {
@@ -12319,6 +12449,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       return training_TrainingPerformance;
    }
 
+   public int getTrainingStress_BikeScore() {
+      return trainingStress_BikeScore;
+   }
+
+   public float getTrainingStress_Device() {
+      return trainingStress_Device;
+   }
+
+   public int getTrainingStress_Govss() {
+      return trainingStress_Govss;
+   }
+
+   public int getTrainingStress_SwimScore() {
+      return trainingStress_SwimScore;
+   }
+
    /**
     * @return Returns weather description or an empty string when weather description is not set.
     */
@@ -13955,10 +14101,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       this.power_TotalWork = totalWork;
    }
 
-   public void setPower_TrainingStressScore(final float trainingStressScore) {
-      this.power_TrainingStressScore = trainingStressScore;
-   }
-
    /**
     * Sets the power data serie and set's a flag that the data serie is from a device
     *
@@ -14533,6 +14675,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    public void setTourType(final TourType tourType) {
       this.tourType = tourType;
+
+      computeTrainingStressData();
    }
 
    public void setTraining_TrainingEffect_Aerob(final float trainingEffect) {
@@ -14545,6 +14689,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    public void setTraining_TrainingPerformance(final float trainingPerformance) {
       this.training_TrainingPerformance = trainingPerformance;
+   }
+
+   public void setTrainingStress_BikeScore(final int bikeScore) {
+      this.trainingStress_BikeScore = bikeScore;
+   }
+
+   public void setTrainingStress_Device(final float trainingStressScore) {
+      this.trainingStress_Device = trainingStressScore;
+   }
+
+   public void setTrainingStress_Govss(final int govss) {
+      this.trainingStress_Govss = govss;
+   }
+
+   public void setTrainingStress_SwimScore(final int swimScore) {
+      this.trainingStress_SwimScore = swimScore;
    }
 
    public void setupHistoryTour() {

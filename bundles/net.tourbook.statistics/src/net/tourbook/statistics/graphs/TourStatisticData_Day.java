@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+=======
  * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -70,6 +74,11 @@ public class TourStatisticData_Day {
    float[]                  allAthleteBodyWeight_High;
    float[]                  allAthleteBodyFat_Low;
    float[]                  allAthleteBodyFat_High;
+
+   float[]                        allTraining_Load_PredictedPerformance_Low;
+   float[]                        allTraining_Load_PredictedPerformance_High;
+   float[]                        allTraining_Load_TrainingStress_Low;
+   float[]                        allTraining_Load_TrainingStress_High;
 
    float[]                  allTraining_Effect_Aerob;
    float[]                  allTraining_Effect_Aerob_Low;

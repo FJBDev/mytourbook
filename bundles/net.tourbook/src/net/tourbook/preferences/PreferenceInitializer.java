@@ -485,7 +485,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       // Cadence zones delimiter
       store.setDefault(ITourbookPreferences.CADENCE_ZONES_DELIMITER, 70);
 
+<<<<<<< HEAD
+      // Predicted performance decay values
+      store.setDefault(ITourbookPreferences.FITNESS_DECAY, 45);
+      store.setDefault(ITourbookPreferences.FATIGUE_DECAY, 15);
+=======
 // SET_FORMATTING_OFF
+>>>>>>> refs/remotes/Wolfgang/main
 
       /*
        * View column tooltip

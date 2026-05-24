@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -80,6 +80,8 @@ public class GraphColorManager {
    public static final String  PREF_GRAPH_TRAINING_EFFECT_AEROB        = "Training_Effect_Aerob";       //$NON-NLS-1$
    public static final String  PREF_GRAPH_TRAINING_EFFECT_ANAEROB      = "Training_Effect_Anaerob";     //$NON-NLS-1$
    public static final String  PREF_GRAPH_TRAINING_PERFORMANCE         = "Training_Performance";        //$NON-NLS-1$
+   public static final String  PREF_GRAPH_PREDICTED_PERFORMANCE        = "Predicted_Performance";       //$NON-NLS-1$
+   public static final String  PREF_GRAPH_TRAINING_STRESS              = "Training_Stress";             //$NON-NLS-1$
 
    public static final String  PREF_COLOR_GRADIENT_BRIGHT              = "bright";                      //$NON-NLS-1$
    public static final String  PREF_COLOR_GRADIENT_DARK                = "dark";                        //$NON-NLS-1$
