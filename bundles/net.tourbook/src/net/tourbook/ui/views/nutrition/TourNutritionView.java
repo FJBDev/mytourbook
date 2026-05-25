@@ -626,6 +626,9 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       _actionDeleteProducts = new ActionDeleteProducts();
       _actionEditCustomProduct = new ActionEditCustomProduct();
       _actionOpenProductsWebsite = new ActionOpenProductsWebsite();
+      _actionTitle_RecentTourNutritionProducts =
+            new Action(Messages.Tour_Nutrition_Action_Title_RecentlyAddedProducts) {};
+      _actionTitle_RecentTourNutritionProducts.setEnabled(false);
       _actionUpdateProduct = new ActionUpdateProduct();
    }
 
@@ -1363,8 +1366,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
          menuManager.add(_actionDeleteProducts);
       }
 
-      _actionTitle_RecentTourNutritionProducts = new Action(Messages.Equipment_Action_Title_RecentlyAddedEquipment) {};
-      _actionTitle_RecentTourNutritionProducts.setEnabled(false);
+      menuManager.add(_actionTitle_RecentTourNutritionProducts);
 
       _tourNutritionProductMenuManager.fillMenuWithRecentTourNutritionProducts(
             menuManager,
