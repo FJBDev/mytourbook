@@ -1316,31 +1316,31 @@ class TourBook_ColumnFactory {
     */
    private void defineColumn_Nutrition_Carbohydrates_Avg_Per_Hour() {
 
-      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable, _pc);
-      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+//      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable, _pc);
+//      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+//
+//         @Override
+//         public String getValueText(final Object element) {
+//
+//            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
+//
+//            return colDef_NatTable.printDoubleValue(value);
+//         }
+//      });
+//
+//      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
+//      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+//         @Override
+//         public void update(final ViewerCell cell) {
+//
+//            final Object element = cell.getElement();
+//            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
 
-         @Override
-         public String getValueText(final Object element) {
-
-            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
-
-            return colDef_NatTable.printDoubleValue(value);
-         }
-      });
-
-      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
-      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
-         @Override
-         public void update(final ViewerCell cell) {
-
-            final Object element = cell.getElement();
-            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
-
-            colDef_Tree.printDoubleValue(cell, value, element instanceof TVITourBookTour);
-
-            setCellColor(cell, element);
-         }
-      });
+//            colDef_Tree.printDoubleValue(cell, value, element instanceof TVITourBookTour);
+//
+//            setCellColor(cell, element);
+//         }
+//      });
    }
 
    /**
@@ -1348,43 +1348,43 @@ class TourBook_ColumnFactory {
     */
    private void defineColumn_Nutrition_NumProducts() {
 
-      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable,
-            _pc);
-      colDef_NatTable.setIsDefaultColumn();
-      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
-
-         @Override
-         public String getValueText(final Object element) {
-
-            final List<Long> nutritionProductsIds = ((TVITourBookTour) element).getNutritionProductsIds();
-            if (nutritionProductsIds == null) {
-               return UI.EMPTY_STRING;
-            } else {
-               return _nf0.format(nutritionProductsIds.size());
-            }
-         }
-      });
-
-      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
-      colDef_Tree.setIsDefaultColumn();
-      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
-         @Override
-         public void update(final ViewerCell cell) {
-
-            final Object element = cell.getElement();
-            if (element instanceof final TVITourBookTour tviTourBookTour) {
-
-               final List<Long> nutritionProductsIds = tviTourBookTour.getNutritionProductsIds();
-               if (nutritionProductsIds == null) {
-                  cell.setText(UI.EMPTY_STRING);
-               } else {
-                  cell.setText(_nf0.format(nutritionProductsIds.size()));
-               }
-
-               setCellColor(cell, element);
-            }
-         }
-      });
+//      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable,
+//            _pc);
+//      colDef_NatTable.setIsDefaultColumn();
+//      colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
+//
+//         @Override
+//         public String getValueText(final Object element) {
+//
+//            final List<Long> nutritionProductsIds = ((TVITourBookTour) element).getNutritionProductsIds();
+//            if (nutritionProductsIds == null) {
+//               return UI.EMPTY_STRING;
+//            } else {
+//               return _nf0.format(nutritionProductsIds.size());
+//            }
+//         }
+//      });
+//
+//      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
+//      colDef_Tree.setIsDefaultColumn();
+//      colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
+//         @Override
+//         public void update(final ViewerCell cell) {
+//
+//            final Object element = cell.getElement();
+//            if (element instanceof final TVITourBookTour tviTourBookTour) {
+//
+//               final List<Long> nutritionProductsIds = tviTourBookTour.getNutritionProductsIds();
+//               if (nutritionProductsIds == null) {
+//                  cell.setText(UI.EMPTY_STRING);
+//               } else {
+//                  cell.setText(_nf0.format(nutritionProductsIds.size()));
+//               }
+//
+//               setCellColor(cell, element);
+//            }
+//         }
+//      });
    }
 
    /**

@@ -217,6 +217,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
    private ActionDeleteProducts            _actionDeleteProducts;
    private ActionEditCustomProduct         _actionEditCustomProduct;
    private ActionOpenProductsWebsite       _actionOpenProductsWebsite;
+   private Action                          _actionTitle_RecentTourNutritionProducts;
    private ActionUpdateProduct             _actionUpdateProduct;
 
    private class ActionDeleteProducts extends Action {
@@ -1361,6 +1362,9 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
          menuManager.add(_actionEditCustomProduct);
          menuManager.add(_actionDeleteProducts);
       }
+
+      _actionTitle_RecentTourNutritionProducts = new Action(Messages.Equipment_Action_Title_RecentlyAddedEquipment) {};
+      _actionTitle_RecentTourNutritionProducts.setEnabled(false);
 
       _tourNutritionProductMenuManager.fillMenuWithRecentTourNutritionProducts(
             menuManager,
