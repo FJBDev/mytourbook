@@ -278,14 +278,6 @@
 			name="Suunto 3">
 		</device>
 		
-		<!-- Suunto Spartan/9 -->
-		<device
-			class="net.tourbook.device.suunto.Suunto9_DeviceDataReader"
-			fileextension="gz"
-			id="net.tourbook.device.Suunto9"
-			name="Suunto Spartan/9">
-		</device>
-		
 		<!-- Suunto Quest -->
 		<device
 			class="net.tourbook.device.suunto.SuuntoQuestDeviceDataReader"
