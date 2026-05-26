@@ -246,16 +246,6 @@
       </page>
    </extension>
    
-   <!-- Suunto 9/Spartan  -->
-   <extension	point="org.eclipse.ui.preferencePages">
-      <page
-            category="net.tourbook.preferences.PrefPageImport"
-            class="net.tourbook.device.suunto.PrefPageSuunto9"
-            id="net.tourbook.device.suunto.PrefPageSuunto9"
-            name="Suunto Spartan/9">
-      </page>
-   </extension>
-   
    <extension	point="org.eclipse.core.runtime.preferences">
       <initializer
             class="net.tourbook.device.polar.hrm.PreferenceInitializer">
