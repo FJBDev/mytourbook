@@ -226,6 +226,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
          super(Messages.Tour_Nutrition_Button_DeleteProduct, AS_PUSH_BUTTON);
          setToolTipText(Messages.Tour_Nutrition_Button_DeleteProduct_Tooltip);
+         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete));
       }
 
       @Override
@@ -1352,7 +1353,8 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
 
    private void fillContextMenu(final IMenuManager menuManager) {
 
-      if (!getSelectedProducts().isEmpty()) {
+      final boolean isSelectedProductsEmpty = getSelectedProducts().isEmpty();
+      if (!isSelectedProductsEmpty) {
 
          _actionOpenProductsWebsite.setTourNutritionProducts(getSelectedProductsCodes());
          menuManager.add(_actionOpenProductsWebsite);
@@ -1363,7 +1365,6 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
          }
          menuManager.add(_actionUpdateProduct);
          menuManager.add(_actionEditCustomProduct);
-         menuManager.add(_actionDeleteProducts);
       }
 
       menuManager.add(_actionTitle_RecentTourNutritionProducts);
@@ -1371,6 +1372,10 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       _tourNutritionProductMenuManager.fillMenuWithRecentTourNutritionProducts(
             menuManager,
             _tourData);
+
+      if (!isSelectedProductsEmpty) {
+         menuManager.add(_actionDeleteProducts);
+      }
 
       enableActions();
    }
