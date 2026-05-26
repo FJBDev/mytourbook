@@ -38,8 +38,6 @@ import utils.FilesUtils;
 public class CadenceTests {
 
    private static final String               GARMIN_IMPORT_PATH      = GarminTCX_DeviceDataReaderTests.FILES_PATH;
-   private static final String               SUUNTO_IMPORT_FILE_PATH = FilesUtils.rootPath + "device/suunto/files/"; //$NON-NLS-1$
-   private static final String               JSON_GZ                 = ".json.gz";                                   //$NON-NLS-1$
 
    private static HashMap<Long, TourData>    newlyImportedTours;
    private static GarminTCX_DeviceDataReader garminDeviceDataReader;
