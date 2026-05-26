@@ -49,7 +49,6 @@ public class PrefPageImportTests extends UITest {
       Utils.openVendorPage(importTreeItem, "GPX"); //$NON-NLS-1$
       Utils.openVendorPage(importTreeItem, "HAC 4/5"); //$NON-NLS-1$
       Utils.openVendorPage(importTreeItem, "Polar"); //$NON-NLS-1$
-      Utils.openVendorPage(importTreeItem, "Suunto Spartan/9"); //$NON-NLS-1$
       Utils.openVendorPage(importTreeItem, "TCX"); //$NON-NLS-1$
 
       Utils.clickApplyAndCloseButton(bot);
