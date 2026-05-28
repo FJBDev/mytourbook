@@ -1335,7 +1335,7 @@ class TourBook_ColumnFactory {
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
-            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
+            final double value = ((TVITourBookItem) element).computeTourNutritionData();
 
             colDef_Tree.printDoubleValue(cell, value, element instanceof TVITourBookTour);
 
