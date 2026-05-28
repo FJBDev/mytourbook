@@ -1400,9 +1400,9 @@ public abstract class TreeColumnFactory {
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Nutrition);
 
-            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_Carbohydrates_Avg_Per_Hour_Label);
-            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_Carbohydrates_Avg_Per_Hour_Header);
-            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_Carbohydrates_Avg_Per_Hour_Tooltip);
+            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 

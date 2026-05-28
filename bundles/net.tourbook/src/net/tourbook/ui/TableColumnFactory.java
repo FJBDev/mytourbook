@@ -2500,18 +2500,18 @@ public abstract class TableColumnFactory {
 
             final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID, SWT.TRAIL);
 
-//            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Nutrition);
-//
-//            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Label);
-//            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Header);
-//            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Tooltip);
-//            colDef.setColumnUnit(               UI.UNIT_LABEL_CARBOHYDRATES + UI.SLASH + UI.UNIT_LABEL_HOUR);
-//
-//            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
-//            colDef.setValueFormats(
-//                  ValueFormatSet.Number,
-//                  ValueFormat.NUMBER_1_1,
-//                  columnManager);
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Nutrition);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Tooltip);
+            colDef.setColumnUnit(               UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+            colDef.setValueFormats(
+                  ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_1,
+                  columnManager);
 
             return colDef;
          }
