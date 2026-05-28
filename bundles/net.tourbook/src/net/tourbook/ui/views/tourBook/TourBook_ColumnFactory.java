@@ -40,6 +40,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.equipment.EquipmentManager;
+import net.tourbook.nutrition.NutritionUtils;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageViews;
 import net.tourbook.ui.TableColumnFactory;
@@ -1316,26 +1317,41 @@ class TourBook_ColumnFactory {
     */
    private void defineColumn_Nutrition_Carbohydrates_Avg_Per_Hour() {
 
-      final TableColumnDefinition colDef_NatTable = TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_NatTable,
-            _pc);
+      final TableColumnDefinition colDef_NatTable =
+            TableColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(
+                  _columnManager_NatTable,
+                  _pc);
       colDef_NatTable.setLabelProvider_NatTable(new NatTable_LabelProvider() {
 
          @Override
          public String getValueText(final Object element) {
 
-            final double value = ((TVITourBookItem) element).colNutritionCarbohydrates_AvgPerHour;
+            final TVITourBookItem item = (TVITourBookItem) element;
+            final float totalCarbohydrates = item.nutrition_TotalCarbohydrates;
+            final long dbElapsedTime = item.colTourDeviceTime_Elapsed;
+            final float value = NutritionUtils.computeAveragePerHour(
+                  dbElapsedTime,
+                  totalCarbohydrates);
 
             return colDef_NatTable.printDoubleValue(value);
          }
       });
 
-      final TreeColumnDefinition colDef_Tree = TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(_columnManager_Tree, _pc);
+      final TreeColumnDefinition colDef_Tree =
+            TreeColumnFactory.NUTRITION_CARBOHYDRATES_AVG_PER_HOUR.createColumn(
+                  _columnManager_Tree,
+                  _pc);
       colDef_Tree.setLabelProvider(new SelectionCellLabelProvider() {
          @Override
          public void update(final ViewerCell cell) {
 
             final Object element = cell.getElement();
-            final double value = ((TVITourBookItem) element).computeTourNutritionData();
+            final TVITourBookItem item = (TVITourBookItem) element;
+            final float totalCarbohydrates = item.nutrition_TotalCarbohydrates;
+            final long dbElapsedTime = item.colTourDeviceTime_Elapsed;
+            final float value = NutritionUtils.computeAveragePerHour(
+                  dbElapsedTime,
+                  totalCarbohydrates);
 
             colDef_Tree.printDoubleValue(cell, value, element instanceof TVITourBookTour);
 

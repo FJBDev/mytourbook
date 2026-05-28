@@ -291,7 +291,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
             + "$i_$db_tourDeviceTime_Recorded," + NL //                           //$NON-NLS-1$
             + "$i_$db_tourDeviceTime_Paused," + NL //                             //$NON-NLS-1$
 
-            + "$i_$db_numberOfPassedVehicles" + NL //                             //$NON-NLS-1$
+            + "$i_$db_numberOfPassedVehicles," + NL //                            //$NON-NLS-1$
+
+            + "$i_$db_nutrition_TotalCarbohydrates" + NL //                       //$NON-NLS-1$
       ;
 
 // SET_FORMATTING_OFF
@@ -340,7 +342,9 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
             + "$i_AVG( CASE WHEN $db_weather_Temperature_Average = 0          THEN NULL ELSE DOUBLE($db_weather_Temperature_Average) / TemperatureScale END)," + NL // 29 //$NON-NLS-1$
 
-            + "$i_SUM( CAST($db_numberOfPassedVehicles AS BIGINT))" + NL //      30 //$NON-NLS-1$
+            + "$i_SUM( CAST($db_numberOfPassedVehicles AS BIGINT))," + NL //     30 //$NON-NLS-1$
+
+            + "$i_SUM( CAST($db_nutrition_TotalCarbohydrates AS BIGINT))" + NL //      31 //$NON-NLS-1$
       ;
 // SET_FORMATTING_ON
    }
@@ -873,6 +877,8 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       colTemperature_Average           = result.getFloat(startIndex + 29);
 
       colRadar_PassedVehicles          = result.getInt(startIndex + 30);
+
+      nutrition_TotalCarbohydrates     = result.getFloat(startIndex + 31);
 
       colTourDeviceTime_Paused         = colTourDeviceTime_Elapsed - colTourDeviceTime_Recorded;
       colTourComputedTime_Break        = colTourDeviceTime_Elapsed - colTourComputedTime_Moving;

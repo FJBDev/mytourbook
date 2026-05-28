@@ -307,7 +307,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory NUTRITION_NUM_PRODUCTS;
    public static final String             NUTRITION_NUM_PRODUCTS_ID                          = "NUTRITION_NUM_PRODUCTS";                          //$NON-NLS-1$
    public static final TableColumnFactory NUTRITION_CARBOHYDRATES_AVG_PER_HOUR;
-   public static final String             NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID            = "NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID";         //$NON-NLS-1$
+   public static final String             NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID            = "NUTRITION_CARBOHYDRATES_AVG_PER_HOUR";            //$NON-NLS-1$
 
    public static final TableColumnFactory PHOTO_FILE_PATH;
    public static final TableColumnFactory PHOTO_NUMBER_OF_GPS_PHOTOS;
