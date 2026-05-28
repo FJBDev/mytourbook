@@ -7497,9 +7497,9 @@ public class TourDatabase {
          updateDb_058_To_059_DataUpdate(conn, splashManager); //                                   59 - 25.11
          updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_058_to_059()); //     59 - 25.11
 
-         updateDb_060_To_061_DataUpdate(conn, splashManager); //                                   61 - 26.3+++?
+         updateDb_060_To_061_DataUpdate(conn, splashManager); //                                   61 - 26.6
 
-         updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_061_to_062()); //     62 - 26.61
+         updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_061_to_062()); //     62 - 26.6++
 
       } catch (final SQLException e) {
 
@@ -11911,17 +11911,17 @@ public class TourDatabase {
       logDbUpdate_Start(newDbVersion);
       updateMonitor(splashManager, newDbVersion);
 
-         final Statement stmt = conn.createStatement();
-         {
+      final Statement stmt = conn.createStatement();
+      {
 
 // SET_FORMATTING_OFF
 
          SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
-         }
+      }
 
-         stmt.close();
+      stmt.close();
 
       logDbUpdate_End(newDbVersion);
 
