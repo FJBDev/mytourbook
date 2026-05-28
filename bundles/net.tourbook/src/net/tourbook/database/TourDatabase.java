@@ -125,10 +125,11 @@ public class TourDatabase {
     * <li>/net.tourbook.export/format-templates/mt-1.0.vm</li>
     * <li>net.tourbook.device.mt.MT_StAXHandler</li>
     */
-   private static final int TOURBOOK_DB_VERSION = 61;
+   private static final int TOURBOOK_DB_VERSION = 62;
 
-//   private static final int TOURBOOK_DB_VERSION = 61; // 26.3+
+//   private static final int TOURBOOK_DB_VERSION = 62; // 26.6+
 
+//   private static final int TOURBOOK_DB_VERSION = 61; // 26.6
 //   private static final int TOURBOOK_DB_VERSION = 60; // 26.3
 //   private static final int TOURBOOK_DB_VERSION = 59; // 25.11
 //   private static final int TOURBOOK_DB_VERSION = 58; // 25.6
@@ -5349,7 +5350,7 @@ public class TourDatabase {
 
             // version 59 end
 
-            // version 62 start  -  26.6
+            // version 62 start  -  26.next
 
             + "   nutrition_TotalCarbohydrates           FLOAT DEFAULT 0,            " + NL //$NON-NLS-1$
 
