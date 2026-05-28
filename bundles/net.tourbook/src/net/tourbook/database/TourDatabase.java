@@ -7419,9 +7419,14 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_059_To_060(conn, splashManager);
          }
 
-         // 60 -> 61    26.3+++
+         // 60 -> 61    26.6
          if (currentDbVersion == 60) {
             currentDbVersion = _dbDesignVersion_New = updateDb_060_To_061(conn, splashManager);
+         }
+
+         // 61 -> 62    26.6+++
+         if (currentDbVersion == 60) {
+            currentDbVersion = _dbDesignVersion_New = updateDb_061_To_062(conn, splashManager);
          }
 
          // update db design version number
@@ -11810,13 +11815,6 @@ public class TourDatabase {
          stmt.close();
       }
 
-      final Statement stmt = conn.createStatement();
-      {
-         SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
-         stmt.close();
-      }
-      //todo fb run an update to compute that value for each tour. Example: ???
-
       logDbUpdate_End(newDbVersion);
 
       return newDbVersion;
@@ -11904,6 +11902,30 @@ public class TourDatabase {
       }
 
       updateVersionNumber_20_AfterDataUpdate(conn, dbDataVersion, startTime);
+   }
+
+   private int updateDb_061_To_062(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 62;
+
+      logDbUpdate_Start(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+         final Statement stmt = conn.createStatement();
+         {
+
+// SET_FORMATTING_OFF
+
+         SQL.addColumn_Int(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
+
+// SET_FORMATTING_ON
+         }
+
+         stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
    }
 
    private void updateMonitor(final SplashManager splashManager, final int newDbVersion) {

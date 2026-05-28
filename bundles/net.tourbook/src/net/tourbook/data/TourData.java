@@ -955,7 +955,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    // ############################################# NUTRITION #############################################
 
-   private int                 nutrition_TotalCarbohydrates;
+   private float                 nutrition_TotalCarbohydrates;
 
    // ############################################# UNUSED FIELDS - START #############################################
    /**
