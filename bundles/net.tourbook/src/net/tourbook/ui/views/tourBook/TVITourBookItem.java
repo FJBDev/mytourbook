@@ -754,7 +754,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
 
       // -------- NUTRITION -----------
 
-      tourItem.nutrition_TotalCarbohydrates           = result.getInt(100);
+      tourItem.nutrition_TotalCarbohydrates           = result.getFloat(100);
 
 
       // -----------------------------------------------

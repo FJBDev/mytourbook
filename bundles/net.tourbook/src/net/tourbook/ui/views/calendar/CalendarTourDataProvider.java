@@ -433,7 +433,7 @@ class CalendarTourDataProvider {
 
          final ArrayList<Boolean> allIsManualTour        = new ArrayList<>();
 
-         final List<Integer> allTotalCarbohydrates        = new ArrayList<>();
+         final List<Float> allTotalCarbohydrates        = new ArrayList<>();
 
 // SET_FORMATTING_ON
 
@@ -588,7 +588,7 @@ class CalendarTourDataProvider {
                allPulseAvg                .add(result.getFloat(18));
                allPowerAvg                .add(result.getFloat(19));
                allTourWeatherClouds       .add(result.getString(21));
-               allTotalCarbohydrates      .add(result.getInt(22));
+               allTotalCarbohydrates      .add(result.getFloat(22));
 
 // SET_FORMATTING_ON
 
@@ -787,7 +787,7 @@ class CalendarTourDataProvider {
 
             weekData.trainingLoad_Tss     = result.getInt(11);
 
-            weekData.nutrition_TotalCarbohydrates    = result.getInt(12);
+            weekData.nutrition_TotalCarbohydrates    = result.getFloat(12);
 
             if (UI.IS_SCRAMBLE_DATA) {
 
