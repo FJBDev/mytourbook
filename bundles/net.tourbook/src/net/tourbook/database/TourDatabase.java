@@ -11916,7 +11916,7 @@ public class TourDatabase {
 
 // SET_FORMATTING_OFF
 
-         SQL.addColumn_Float(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", SQL_FLOAT_MIN_VALUE); //$NON-NLS-1$
+         SQL.addColumn_Float(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
 
 // SET_FORMATTING_ON
       }
