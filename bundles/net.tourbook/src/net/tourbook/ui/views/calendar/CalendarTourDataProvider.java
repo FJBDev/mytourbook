@@ -740,7 +740,7 @@ class CalendarTourDataProvider {
 
                + " SUM(TourDeviceTime_Recorded)," + NL //            10 //$NON-NLS-1$
 
-               + " SUM(power_TrainingStressScore)" + NL //           11 //$NON-NLS-1$
+               + " SUM(power_TrainingStressScore)," + NL / 11 //$NON-NLS-1$
 
                + " SUM(nutrition_TotalCarbohydrates)" + NL //        12 //$NON-NLS-1$
 
