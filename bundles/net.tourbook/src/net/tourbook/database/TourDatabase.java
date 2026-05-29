@@ -11811,7 +11811,6 @@ public class TourDatabase {
 
 // SET_FORMATTING_ON
          }
-
          stmt.close();
       }
 
