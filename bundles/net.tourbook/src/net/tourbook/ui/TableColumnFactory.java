@@ -2510,7 +2510,7 @@ public abstract class TableColumnFactory {
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
             colDef.setValueFormats(
                   ValueFormatSet.Number,
-                  ValueFormat.NUMBER_1_1,
+                  ValueFormat.NUMBER_1_0,
                   columnManager);
 
             return colDef;
