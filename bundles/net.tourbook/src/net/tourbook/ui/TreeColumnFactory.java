@@ -1406,6 +1406,12 @@ public abstract class TreeColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 
+            colDef.setValueFormats(             ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_0,
+                  ValueFormat.NUMBER_1_0,
+                  columnManager);
+
+
             return colDef;
          }
       };
