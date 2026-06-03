@@ -30,7 +30,7 @@ Changes
 
 * Easy Import
   - Changed launcher layout
-  - Cadence settings needs to be recreated, they are not related any more with the tour type configurations
+  - Cadence settings needs to be checked, they are not related any more with the tour type configurations
 
 * Tour Nutrition (Frederic)
   - The update button is now in the contextual menu of each product and is limited to 1 product at a time since the OpenFoodFacts database is very limited
@@ -42,6 +42,9 @@ Changes
   - The equipment tour filter operator is now supporting also the NOT operator. 
     This needed to rewrite the code and the old OR or AND operator have to be checked.
   
+* Strava
+  - Strava upload in MyTourbook to end as of June 30th 2026
+    https://github.com/mytourbook/mytourbook/discussions/1698  
 
 Bugfix
 ======
