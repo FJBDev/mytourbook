@@ -27,6 +27,7 @@ import net.tourbook.map.bookmark.MapBookmarkManager;
 import net.tourbook.map.player.ModelPlayerManager;
 import net.tourbook.map3.view.Map3Manager;
 import net.tourbook.map3.view.Map3State;
+import net.tourbook.nutrition.TourNutritionProductMenuManager;
 import net.tourbook.preferences.PrefPageGeneral;
 import net.tourbook.search.FTSearchManager;
 import net.tourbook.tag.TagMenuManager;
@@ -56,6 +57,12 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
    public static boolean isFixViewCloseButton;
    public static boolean isFixViewIconImage;
+
+   /**
+    * This is <code>true</code> when the db design update is stopped to prevent the pre shutdown
+    * event which can cause issues e.g. https://github.com/mytourbook/mytourbook/issues/1695
+    */
+   public static boolean isInDbUpdateShutdown;
 
    /**
     * Copied from org.eclipse.e4.ui.internal.workbench.ResourceHandler.getBaseLocation()
@@ -131,6 +138,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
    @Override
    public boolean preShutdown() {
 
+      if (isInDbUpdateShutdown) {
+         return true;
+      }
+
       if (TourManager.getInstance().saveTours() == false) {
          return false;
       }
@@ -144,6 +155,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
       EquipmentMenuManager.saveState();
       TourEquipmentFilterManager.saveState();
+
+      TourNutritionProductMenuManager.saveState();
 
       TourTypeFilterManager.saveState();
       TourTypeMenuManager.saveState();

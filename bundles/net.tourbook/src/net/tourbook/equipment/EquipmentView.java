@@ -562,9 +562,9 @@ public class EquipmentView extends ViewPart implements
 
       public ActionToggleRetiredAsset() {
 
-         super("Toggle &Retired Asset", AS_PUSH_BUTTON);
+         super(Messages.Equipment_Action_ToggleRetiredAsset, AS_PUSH_BUTTON);
 
-         setToolTipText("Set if this asset is retired or not");
+         setToolTipText(Messages.Equipment_Action_ToggleRetiredAsset_Tooltip);
       }
 
       @Override
@@ -586,31 +586,28 @@ public class EquipmentView extends ViewPart implements
             final Equipment equipment1 = item1.getEquipment();
             final Equipment equipment2 = item2.getEquipment();
 
-            int compareDiff = 0;
+//            // 1st sort by collation type
+//            int compareDiff = equipment1.getTypeEmptyChecked().compareTo(equipment2.getTypeEmptyChecked());
+//
+//            // 2nd sort by date
+//            if (compareDiff == 0) {
+//
+//               final long date1 = equipment1.getDateUsed();
+//               final long date2 = equipment2.getDateUsed();
+//
+//               final long dateDiff = date1 - date2;
+//
+//               // diff value can be larger than Integer.MAX_VALUE
+//               if (dateDiff > 0) {
+//                  compareDiff = 1;
+//               } else if (dateDiff < 0) {
+//                  compareDiff = -1;
+//               }
+//            }
+//
+//            return compareDiff;
 
-            // 1st sort by collation type
-            if (compareDiff == 0) {
-
-               compareDiff = equipment1.getTypeEmptyChecked().compareTo(equipment2.getTypeEmptyChecked());
-            }
-
-            // 2nd sort by date
-            if (compareDiff == 0) {
-
-               final long date1 = equipment1.getDateUsed();
-               final long date2 = equipment2.getDateUsed();
-
-               final long dateDiff = date1 - date2;
-
-               // diff value can be larger than Integer.MAX_VALUE
-               if (dateDiff > 0) {
-                  compareDiff = 1;
-               } else if (dateDiff < 0) {
-                  compareDiff = -1;
-               }
-            }
-
-            return compareDiff;
+            return equipment1.getName().compareToIgnoreCase(equipment2.getName());
 
          } else if (obj1 instanceof final TVIEquipmentView_Part item1
                && obj2 instanceof final TVIEquipmentView_Part item2) {
@@ -1015,7 +1012,7 @@ public class EquipmentView extends ViewPart implements
       parent.getDisplay().asyncExec(() -> {
 
          // async is needed otherwise it is NOT selected
-         _actionEquipmentFilter.setSelection(EquipmentManager.isEquipmentFilterEnabled());
+         _actionEquipmentFilter.setSelection(EquipmentManager.isEquipmentTourViewerFilter());
 
       });
    }
@@ -1025,11 +1022,11 @@ public class EquipmentView extends ViewPart implements
       _viewerContainer = new Composite(parent, SWT.NONE);
       GridLayoutFactory.fillDefaults().applyTo(_viewerContainer);
       {
-         createUI_10_EqipmentViewer(_viewerContainer);
+         createUI_10_EquipmentViewer(_viewerContainer);
       }
    }
 
-   private void createUI_10_EqipmentViewer(final Composite parent) {
+   private void createUI_10_EquipmentViewer(final Composite parent) {
 
       /*
        * Create tree
@@ -1242,7 +1239,7 @@ public class EquipmentView extends ViewPart implements
       // system columns
       defineColumn_Equipment_ID();
       defineColumn_Equipment_TypeRaw();
-      defineColumn_Equipment_ExpandType();
+      defineColumn_Equipment_TourStructure();
    }
 
    /**
@@ -1256,7 +1253,6 @@ public class EquipmentView extends ViewPart implements
       colDef.setCanModifyVisibility(false);
 
       colDef.setLabelProvider(new TourInfoToolTipStyledCellLabelProvider() {
-
 
          @Override
          public Long getTourId(final ViewerCell cell) {
@@ -1282,6 +1278,7 @@ public class EquipmentView extends ViewPart implements
             final TVIEquipmentView_Item viewItem = (TVIEquipmentView_Item) element;
 
             final long numTours = viewItem.numTours_IsCollated;
+            final long numToursNotCollated = viewItem.numTours_IsNotCollated;
 
             final StyledString styledString = new StyledString();
 
@@ -1303,18 +1300,33 @@ public class EquipmentView extends ViewPart implements
                 * Equipment
                 */
 
+               final long id = equipmentItem.getEquipmentID();
+               if (id == 0) {
+                  int a = 0;
+                  a++;
+               }
+
                styledString.append(viewItem.firstColumn, net.tourbook.ui.UI.CONTENT_CATEGORY_STYLER);
 
                if (numTours > 0) {
                   styledString.append(UI.SPACE3 + numTours, net.tourbook.ui.UI.TOTAL_STYLER);
                }
 
+               if (numToursNotCollated > 0) {
+                  styledString.append(UI.SPACE3 + numToursNotCollated, net.tourbook.ui.UI.CONTENT_SUB_CATEGORY_STYLER);
+               }
+
                final long numTours_All = viewItem.numTours_All;
 
-               if (numTours_All > 0) {
+               // display num tours only when the values are different
+               final boolean isNumToursDiff = numTours > 0 && numTours != numTours_All;
+               final boolean isNumToursNCDiff = numToursNotCollated > 0 && numToursNotCollated != numTours_All;
 
-                  styledString.append(UI.SPACE3 + numTours_All, net.tourbook.ui.UI.TOUR_STYLER);
+               if (numTours_All > 0 && (isNumToursDiff || isNumToursNCDiff)) {
+
                }
+
+               styledString.append(UI.SPACE3 + numTours_All, net.tourbook.ui.UI.TOUR_STYLER);
 
                if (equipmentItem.getEquipment().isCollate()) {
                   cell.setImage(_imgEquipment_Collated);
@@ -1913,46 +1925,6 @@ public class EquipmentView extends ViewPart implements
    }
 
    /**
-    * Column: Expand type
-    */
-   private void defineColumn_Equipment_ExpandType() {
-
-      final ColumnDefinition colDef = TreeColumnFactory.EQUIPMENT_EXPAND_TYPE.createColumn(_columnManager, _pc);
-
-      colDef.setLabelProvider(new CellLabelProvider() {
-
-         @Override
-         public void update(final ViewerCell cell) {
-
-            final Object element = cell.getElement();
-
-            int expandType;
-            String label = null;
-
-            if (element instanceof final TVIEquipmentView_Equipment equipmentItem) {
-
-               if (equipmentItem.getEquipment().isCollate()) {
-
-                  expandType = equipmentItem.getExpandType();
-                  label = EquipmentManager.EXPAND_TYPE_LABEL[expandType];
-               }
-
-            } else if (element instanceof final TVIEquipmentView_Part partItem) {
-
-               expandType = partItem.getExpandType();
-               label = EquipmentManager.EXPAND_TYPE_LABEL[expandType];
-            }
-
-            if (label != null) {
-
-               cell.setText(label);
-               setCellColor(cell, element);
-            }
-         }
-      });
-   }
-
-   /**
     * Column: ID
     */
    private void defineColumn_Equipment_ID() {
@@ -2249,6 +2221,46 @@ public class EquipmentView extends ViewPart implements
             if (size != null) {
 
                cell.setText(size);
+               setCellColor(cell, element);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Tour structure
+    */
+   private void defineColumn_Equipment_TourStructure() {
+
+      final ColumnDefinition colDef = TreeColumnFactory.EQUIPMENT_TOUR_STRUCTURE.createColumn(_columnManager, _pc);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final Object element = cell.getElement();
+
+            int expandType;
+            String label = null;
+
+            if (element instanceof final TVIEquipmentView_Equipment equipmentItem) {
+
+               if (equipmentItem.getEquipment().isCollate()) {
+
+                  expandType = equipmentItem.getExpandType();
+                  label = EquipmentManager.EXPAND_TYPE_LABEL[expandType];
+               }
+
+            } else if (element instanceof final TVIEquipmentView_Part partItem) {
+
+               expandType = partItem.getExpandType();
+               label = EquipmentManager.EXPAND_TYPE_LABEL[expandType];
+            }
+
+            if (label != null) {
+
+               cell.setText(label);
                setCellColor(cell, element);
             }
          }
@@ -3179,7 +3191,7 @@ public class EquipmentView extends ViewPart implements
     */
    private boolean isInEquipmentFilter(final Object item) {
 
-      if (EquipmentManager.isEquipmentFilterEnabled() == false) {
+      if (EquipmentManager.isEquipmentTourViewerFilter() == false) {
 
          // nothing is filtered
 
@@ -4032,7 +4044,7 @@ public class EquipmentView extends ViewPart implements
 
          _equipmentViewer.getTree().dispose();
 
-         createUI_10_EqipmentViewer(_viewerContainer);
+         createUI_10_EquipmentViewer(_viewerContainer);
          _viewerContainer.layout();
 
          reloadViewer_SetContent();
@@ -4063,7 +4075,7 @@ public class EquipmentView extends ViewPart implements
 
    private void reloadViewer_SetContent() {
 
-      EquipmentLoader.startUpdate();
+      EquipmentLoader.startAnUpdate();
 
       BusyIndicator.showWhile(_parent.getDisplay(), () -> {
 

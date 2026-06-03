@@ -27,7 +27,9 @@ import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.SQLData;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.equipment.EquipmentPartFilter;
+import net.tourbook.equipment.EquipmentPartFilter_AND_OR;
+import net.tourbook.equipment.EquipmentPartFilter_NOT;
+import net.tourbook.equipment.EquipmentViewerType;
 import net.tourbook.ui.AppFilter;
 
 public class TVITourBookRoot extends TVITourBookItem {
@@ -64,7 +66,8 @@ public class TVITourBookRoot extends TVITourBookItem {
                : "GROUP BY StartYear" + NL; //                 //$NON-NLS-1$
 
          final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
-         final SQLData partFilter = new EquipmentPartFilter().getSqlData();
+         final SQLData partFilter_AND_OR = new EquipmentPartFilter_AND_OR(EquipmentViewerType.IS_EQUIPMENT_VIEWER).getSqlData();
+         final SQLData partFilter_NOT = new EquipmentPartFilter_NOT(EquipmentViewerType.IS_EQUIPMENT_VIEWER).getSqlData();
 
          sql = UI.EMPTY_STRING
 
@@ -88,11 +91,12 @@ public class TVITourBookRoot extends TVITourBookItem {
 
                + "   FROM TOURDATA AS TourData" + NL //              //$NON-NLS-1$
 
-               + partFilter.getSqlString()
+               + partFilter_AND_OR.getSqlString()
 
                + "   WHERE 1=1" + NL //                              //$NON-NLS-1$
 
                + appFilter.getWhereClause() + NL //
+               + partFilter_NOT.getSqlString()
 
                + ") AS tdFields" + NL //                             //$NON-NLS-1$
 
@@ -105,8 +109,9 @@ public class TVITourBookRoot extends TVITourBookItem {
 
          int nextIndex = 1;
 
-         nextIndex = partFilter.setParameters(prepStmt, nextIndex);
+         nextIndex = partFilter_AND_OR.setParameters(prepStmt, nextIndex);
          nextIndex = appFilter.setParameters(prepStmt, nextIndex);
+         nextIndex = partFilter_NOT.setParameters(prepStmt, nextIndex);
 
          int yearIndex = 0;
          int summaryIndex = 0;
