@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -57,17 +58,15 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
    public static final String                    ID                     = "net.tourbook.preferences.PrefPageStatistic"; //$NON-NLS-1$
 
    private static final HashMap<String, Integer> _sortingByCategoryData = new HashMap<>();
-   private static final HashMap<String, Integer> _sortingByCategoryTime = new HashMap<>();
 
    private TableViewer                           _statViewer;
 
    private boolean                               _isModified            = false;
-   private ArrayList<TourbookStatistic>          _visibleStatistics;
+   private List<TourbookStatistic>               _visibleStatistics;
 
    private Button                                _btnMoveDown;
    private Button                                _btnMoveUp;
    private Button                                _btnSortByData;
-   private Button                                _btnSortByTime;
 
 //   <attribute name="category-data" use="required">
 //   <annotation>
@@ -121,13 +120,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
       _sortingByCategoryData.put("Sensor",      42); //$NON-NLS-1$
       _sortingByCategoryData.put("Other",       99); //$NON-NLS-1$
    }
-   {
-      _sortingByCategoryTime.put("Day",         1); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Week",        2); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Month",       3); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Year",        4); //$NON-NLS-1$
-      _sortingByCategoryTime.put("Other",       99); //$NON-NLS-1$
-   }
 // SET_FORMATTING_ON
 
    private class StatContentProvider implements IStructuredContentProvider {
@@ -159,7 +151,14 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
       final Composite uiContainer = createUI(parent);
 
-      _visibleStatistics = StatisticManager.getStatisticProviders();
+      _visibleStatistics = new ArrayList<>();
+      for (final TourbookStatistic statistic : StatisticManager.getStatisticProviders()) {
+
+         if (_visibleStatistics.stream().noneMatch(o -> o.plugin_VisibleName.equals(statistic.plugin_VisibleName))) {
+
+            _visibleStatistics.add(statistic);
+         }
+      }
 
       // load viewer
       _statViewer.setInput(new Object());
@@ -272,14 +271,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
             setButtonLayoutData(_btnSortByData);
             _btnSortByData.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByData()));
          }
-
-         {
-            // Button: Sort by time
-            _btnSortByTime = new Button(container, SWT.NONE);
-            _btnSortByTime.setText(Messages.Pref_Statistic_Action_SortByTime);
-            setButtonLayoutData(_btnSortByTime);
-            _btnSortByTime.addSelectionListener(widgetSelectedAdapter(selectionEvent -> onSortByTime()));
-         }
       }
    }
 
@@ -359,19 +350,6 @@ public class PrefPageStatistic extends PreferencePage implements IWorkbenchPrefe
 
          final int stat1Sorting = _sortingByCategoryData.get(stat1.plugin_Category_Data);
          final int stat2Sorting = _sortingByCategoryData.get(stat2.plugin_Category_Data);
-
-         return stat1Sorting - stat2Sorting;
-      });
-
-      updateUI_WithReselection();
-   }
-
-   private void onSortByTime() {
-
-      Collections.sort(_visibleStatistics, (stat1, stat2) -> {
-
-         final int stat1Sorting = _sortingByCategoryTime.get(stat1.plugin_Category_Time);
-         final int stat2Sorting = _sortingByCategoryTime.get(stat2.plugin_Category_Time);
 
          return stat1Sorting - stat2Sorting;
       });

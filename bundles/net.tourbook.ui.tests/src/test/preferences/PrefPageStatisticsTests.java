@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023 Frédéric Bard
+ * Copyright (C) 2023, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,7 +34,6 @@ public class PrefPageStatisticsTests extends UITest {
       bot.button(Messages.app_action_button_down).click();
       bot.button(Messages.app_action_button_up).click();
       bot.button(Messages.Pref_Statistic_Action_SortByData).click();
-      bot.button(Messages.Pref_Statistic_Action_SortByTime).click();
 
       Utils.clickApplyAndCloseButton(bot);
    }
