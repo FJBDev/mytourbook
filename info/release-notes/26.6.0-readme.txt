@@ -1,4 +1,4 @@
-26.6.0                                                 ?. June 2026
+26.6.0                                                 8. June 2026
 
 All
 ===
@@ -20,6 +20,9 @@ New / Improvements
 * Equipment
   - Add a contextual menu to add several equiments at a time
     https://github.com/mytourbook/mytourbook/issues/1657
+
+  - Display equipment mileage for equipment containing parts
+    https://github.com/mytourbook/mytourbook/issues/1665
     
 * Tagged Tours View
   - New columns to display the parent of a tag and how tours are sorted/categorized
@@ -31,6 +34,9 @@ Changes
 * Easy Import
   - Changed launcher layout
   - Cadence settings needs to be checked, they are not related any more with the tour type configurations
+  
+* TCX Import
+  - Tour markers are now set at the last time slice of the current lap to fix https://github.com/mytourbook/mytourbook/issues/1702.
 
 * Tour Nutrition (Frederic)
   - The update button is now in the contextual menu of each product and is limited to 1 product at a time since the OpenFoodFacts database is very limited
@@ -53,6 +59,10 @@ Bugfix
   - Fixed an exception when updating the list of products for which a product is not found in the OpenFoodFacts database
   - Fixed the computation of total calories/carbs/sodium for beverages involving beverage containers
   - Fixed a bug where modifying a custom product would remove the associated beverage container
+
+* Weather Retrieval (Weather API)
+  - Fixed a bug that could occur when retrieving weather
+    https://github.com/mytourbook/mytourbook/discussions/1683
 
 
 Translation    

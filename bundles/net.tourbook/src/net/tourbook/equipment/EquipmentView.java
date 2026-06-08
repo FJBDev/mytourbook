@@ -1300,11 +1300,7 @@ public class EquipmentView extends ViewPart implements
                 * Equipment
                 */
 
-               final long id = equipmentItem.getEquipmentID();
-               if (id == 0) {
-                  int a = 0;
-                  a++;
-               }
+               final boolean isCollate = equipmentItem.getEquipment().isCollate();
 
                styledString.append(viewItem.firstColumn, net.tourbook.ui.UI.CONTENT_CATEGORY_STYLER);
 
@@ -1312,23 +1308,19 @@ public class EquipmentView extends ViewPart implements
                   styledString.append(UI.SPACE3 + numTours, net.tourbook.ui.UI.TOTAL_STYLER);
                }
 
-               if (numToursNotCollated > 0) {
+               if (numToursNotCollated > 0
+
+                     // display also 0 for not collated equipment
+                     || isCollate == false) {
+
                   styledString.append(UI.SPACE3 + numToursNotCollated, net.tourbook.ui.UI.CONTENT_SUB_CATEGORY_STYLER);
                }
 
                final long numTours_All = viewItem.numTours_All;
 
-               // display num tours only when the values are different
-               final boolean isNumToursDiff = numTours > 0 && numTours != numTours_All;
-               final boolean isNumToursNCDiff = numToursNotCollated > 0 && numToursNotCollated != numTours_All;
-
-               if (numTours_All > 0 && (isNumToursDiff || isNumToursNCDiff)) {
-
-               }
-
                styledString.append(UI.SPACE3 + numTours_All, net.tourbook.ui.UI.TOUR_STYLER);
 
-               if (equipmentItem.getEquipment().isCollate()) {
+               if (isCollate) {
                   cell.setImage(_imgEquipment_Collated);
                } else {
                   cell.setImage(_imgEquipment_All);
