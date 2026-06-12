@@ -126,10 +126,11 @@ public class TourDatabase {
     * <li>/net.tourbook.export/format-templates/mt-1.0.vm</li>
     * <li>net.tourbook.device.mt.MT_StAXHandler</li>
     */
-   private static final int TOURBOOK_DB_VERSION = 61;
+   private static final int TOURBOOK_DB_VERSION = 62;
 
-//   private static final int TOURBOOK_DB_VERSION = 61; // 26.3+
+//   private static final int TOURBOOK_DB_VERSION = 62; // 26.6+
 
+//   private static final int TOURBOOK_DB_VERSION = 61; // 26.6
 //   private static final int TOURBOOK_DB_VERSION = 60; // 26.3
 //   private static final int TOURBOOK_DB_VERSION = 59; // 25.11
 //   private static final int TOURBOOK_DB_VERSION = 58; // 25.6
@@ -5350,6 +5351,12 @@ public class TourDatabase {
 
             // version 59 end
 
+            // version 62 start  -  26.next
+
+            + "   nutrition_TotalCarbohydrates           FLOAT DEFAULT 0,            " + NL //$NON-NLS-1$
+
+            // version 62 end
+
             // version 5 start
             /**
              * Disabled because when two blob object's are deserialized then the error occurs:
@@ -7415,9 +7422,14 @@ public class TourDatabase {
             currentDbVersion = _dbDesignVersion_New = updateDb_059_To_060(conn, splashManager);
          }
 
-         // 60 -> 61    26.3+++
+         // 60 -> 61    26.6
          if (currentDbVersion == 60) {
             currentDbVersion = _dbDesignVersion_New = updateDb_060_To_061(conn, splashManager);
+         }
+
+         // 61 -> 62    26.6+++
+         if (currentDbVersion == 61) {
+            currentDbVersion = _dbDesignVersion_New = updateDb_061_To_062(conn, splashManager);
          }
 
          // update db design version number
@@ -7488,7 +7500,9 @@ public class TourDatabase {
          updateDb_058_To_059_DataUpdate(conn, splashManager); //                                   59 - 25.11
          updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_058_to_059()); //     59 - 25.11
 
-         updateDb_060_To_061_DataUpdate(conn, splashManager); //                                   61 - 26.3+++?
+         updateDb_060_To_061_DataUpdate(conn, splashManager); //                                   61 - 26.6
+
+         updateDb__3_Data_Concurrent(conn, splashManager, new TourDataUpdate_061_to_062()); //     62 - 26.6++
 
       } catch (final SQLException e) {
 
@@ -11890,6 +11904,30 @@ public class TourDatabase {
       }
 
       updateVersionNumber_20_AfterDataUpdate(conn, dbDataVersion, startTime);
+   }
+
+   private int updateDb_061_To_062(final Connection conn, final SplashManager splashManager) throws SQLException {
+
+      final int newDbVersion = 62;
+
+      logDbUpdate_Start(newDbVersion);
+      updateMonitor(splashManager, newDbVersion);
+
+      final Statement stmt = conn.createStatement();
+      {
+
+// SET_FORMATTING_OFF
+
+         SQL.addColumn_Float(stmt, TABLE_TOUR_DATA, "nutrition_TotalCarbohydrates", DEFAULT_0); //$NON-NLS-1$
+
+// SET_FORMATTING_ON
+      }
+
+      stmt.close();
+
+      logDbUpdate_End(newDbVersion);
+
+      return newDbVersion;
    }
 
    private void updateMonitor(final SplashManager splashManager, final int newDbVersion) {

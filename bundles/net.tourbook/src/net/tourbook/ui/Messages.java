@@ -390,6 +390,9 @@ public class Messages extends NLS {
    public static String        ColumnFactory_Nutrition_NumberOfProducts_Header;
    public static String        ColumnFactory_Nutrition_NumberOfProducts_Label;
    public static String        ColumnFactory_Nutrition_NumberOfProducts_Tooltip;
+   public static String        ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Header;
+   public static String        ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Label;
+   public static String        ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Tooltip;
 
    public static String        ColumnFactory_Photo_FilePath_Label;
    public static String        ColumnFactory_Photo_FilePath_Tooltip;

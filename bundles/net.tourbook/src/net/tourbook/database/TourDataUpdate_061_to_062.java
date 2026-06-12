@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+ * Copyright (C) 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -13,24 +13,35 @@
  * this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
  *******************************************************************************/
-package net.tourbook.device;
+package net.tourbook.database;
 
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.jface.preference.IPreferenceStore;
+import java.util.List;
 
-public class PreferenceInitializer extends AbstractPreferenceInitializer {
+import net.tourbook.data.TourData;
 
-   public PreferenceInitializer() {}
+public class TourDataUpdate_061_to_062 implements ITourDataUpdate {
 
    @Override
-   public void initializeDefaultPreferences() {
+   public int getDatabaseVersion() {
 
-      final IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-
-      /**
-       * Default is absolute distance that the defaults for export/import are the same
-       */
-      store.setDefault(IPreferences.GPX_IS_RELATIVE_DISTANCE_VALUE, false);
+      return 62;
    }
 
+   @Override
+   public List<Long> getTourIDs() {
+
+      return null;
+   }
+
+   @Override
+   public boolean updateTourData(final TourData tourData) {
+
+      if (tourData.getTourNutritionProducts().isEmpty()) {
+         return false;
+      }
+
+      tourData.computeTourNutritionData();
+
+      return true;
+   }
 }
