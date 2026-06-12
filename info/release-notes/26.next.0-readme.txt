@@ -36,6 +36,8 @@ New / Improvements
   - Added new mouse zoom behaviour: keep cursor in place on map
     https://github.com/mytourbook/mytourbook/issues/1706
 
+
+
 Changes
 =======
 
