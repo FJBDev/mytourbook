@@ -1368,6 +1368,7 @@ public class TourNutritionView extends ViewPart implements ITourViewer {
       }
 
       menuManager.add(_actionTitle_RecentTourNutritionProducts);
+
       _tourNutritionProductMenuManager.fillMenuWithRecentTourNutritionProducts(
             menuManager,
             _tourData);

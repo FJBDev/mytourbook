@@ -99,7 +99,6 @@ public class Util {
    public static final String UNIQUE_ID_SUFFIX_SPORT_TRACKS_FITLOG = "24168"; //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_SUUNTO2             = "92145"; //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_SUUNTO3             = "73198"; //$NON-NLS-1$
-   public static final String UNIQUE_ID_SUFFIX_SUUNTO9             = "93281"; //$NON-NLS-1$
    public static final String UNIQUE_ID_SUFFIX_SUUNTOQUEST         = "41502"; //$NON-NLS-1$
 
    /*

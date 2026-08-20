@@ -335,6 +335,7 @@ public class Messages extends NLS {
    public static String        Calendar_Profile_Value_MovingTime;
    public static String        Calendar_Profile_Value_Pace;
    public static String        Calendar_Profile_Value_PausedTime;
+   public static String        Calendar_Profile_Value_Nutrition_Carbohydrates_Avg_Per_Hour;
    public static String        Calendar_Profile_Value_PowerAvg;
    public static String        Calendar_Profile_Value_PulseAvg;
    public static String        Calendar_Profile_Value_RecordedTime;
@@ -1369,7 +1370,7 @@ public class Messages extends NLS {
    public static String        Import_Data_Dialog_GetReimportedFilePath_Message;
    public static String        Import_Data_Dialog_IsCancelTourValuesDeletion_Message;
    public static String        Import_Data_Dialog_IsCancelTourValuesDeletion_Title;
-   public static String        Import_Data_Dialog_NoActivePersion_Message;
+   public static String        Import_Data_Dialog_NoActivePerson_Message;
    public static String        Import_Data_Dialog_Radio_CancelReimport;
    public static String        Import_Data_Dialog_Radio_SelectFile;
    public static String        Import_Data_Dialog_Radio_SkipAllInvalidFiles;
@@ -1549,7 +1550,6 @@ public class Messages extends NLS {
    public static String        Log_Reimport_PreviousFiles_End;
    public static String        Log_Reimport_Text;
    public static String        Log_Reimport_Tour_Skipped;
-   public static String        Log_Reimport_Tour_Skipped_AllInvalidFiles_ByUser;
    public static String        Log_Reimport_Tour_Skipped_FileLocationDialog_Auto;
    public static String        Log_Reimport_Tour_Skipped_FileLocationDialog_ByUser;
    public static String        Log_Reimport_Tour_Skipped_FilePathIsEmpty;
@@ -1764,8 +1764,6 @@ public class Messages extends NLS {
 
    public static String        PrefPage_Import_Checkbox_CreateTourIdWithTime;
    public static String        PrefPage_Import_Checkbox_CreateTourIdWithTime_Tooltip;
-   public static String        PrefPage_Import_Checkbox_IgnoreInvalidFiles;
-   public static String        PrefPage_Import_Checkbox_IgnoreInvalidFiles_Tooltip;
    public static String        PrefPage_Import_Checkbox_SetBodyWeight;
    public static String        PrefPage_Import_Default_Cadence;
    public static String        PrefPage_Import_Default_CadenceValue_Tooltip;
