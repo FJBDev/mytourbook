@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -242,6 +242,35 @@ public class SlideoutDeviceState extends AdvancedSlideout {
             // state
             label = UI.createLabel(parent, NLS.bind(Messages.Import_Data_HTML_MovedFiles, numMovedFiles));
             gd.applyTo(label);
+         }
+      }
+      {
+         /*
+          * Mount/unmount
+          */
+         final String commandMount = activeConfig.commandMount.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+         final String commandUnmount = activeConfig.commandUnmount.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+
+         /*
+          * Mount
+          */
+         {
+            // label
+            UI.createLabel(parent, Messages.Import_Data_HTML_Mount);
+
+            // state
+            UI.createLabel(parent, "%s".formatted(activeConfig.isMountDevice ? commandMount : Messages.Import_Data_HTML_NO)); //$NON-NLS-1$
+         }
+
+         /*
+          * Unmount
+          */
+         {
+            // label
+            UI.createLabel(parent, Messages.Import_Data_HTML_Unmount);
+
+            // state
+            UI.createLabel(parent, "%s".formatted(activeConfig.isUnmountDevice ? commandUnmount : Messages.Import_Data_HTML_NO)); //$NON-NLS-1$
          }
       }
       {

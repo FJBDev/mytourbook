@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019, 2022 Frédéric Bard
+ * Copyright (C) 2019, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ import com.javadocmd.simplelatlng.util.LengthUnit;
 
 import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
+import net.tourbook.common.map.GeoPosition;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourMarker;
 import net.tourbook.map2.Messages;
@@ -59,49 +60,55 @@ public class ActionCreateTourMarkerFromMap extends Action {
          return;
       }
 
-      final double clickedTourPointLatitude = this._mapView.getMap().getMouseMove_GeoPosition().latitude;
-      final double clickedTourPointLongitude = this._mapView.getMap().getMouseMove_GeoPosition().longitude;
+      final double[] latSerie = tourData.latitudeSerie;
+      final double[] lonSerie = tourData.longitudeSerie;
+
+      final GeoPosition mouseGeoPosition = _mapView.getMap().getMouseMove_GeoPosition();
+
+      final double clickedTourPointLatitude = mouseGeoPosition.latitude;
+      final double clickedTourPointLongitude = mouseGeoPosition.longitude;
 
       final LatLng clickedTourPoint = new LatLng(clickedTourPointLatitude, clickedTourPointLongitude);
+
       double closestDistance = Double.MAX_VALUE;
-      int closestLatLongIndex = -1;
-      for (int index = 0; index < tourData.latitudeSerie.length; ++index) {
-         final LatLng currentLocation = new LatLng(tourData.latitudeSerie[index],
-               tourData.longitudeSerie[index]);
+      int closestLatLonIndex = -1;
+
+      for (int index = 0; index < latSerie.length; ++index) {
+
+         final LatLng currentLocation = new LatLng(latSerie[index], lonSerie[index]);
          final double currentDistanceToClickedTourPoint = LatLngTool.distance(clickedTourPoint, currentLocation, LengthUnit.METER);
+
          if (currentDistanceToClickedTourPoint < closestDistance) {
+
             closestDistance = currentDistanceToClickedTourPoint;
-            closestLatLongIndex = index;
+            closestLatLonIndex = index;
          }
       }
 
-      if (closestLatLongIndex == -1) {
+      if (closestLatLonIndex == -1) {
          return;
       }
 
-      final int relativeTourTime = tourData.timeSerie[closestLatLongIndex];
+      final int relativeTourTime = tourData.timeSerie[closestLatLonIndex];
       final float[] altitudeSerie = tourData.altitudeSerie;
       final float[] distSerie = tourData.getMetricDistanceSerie();
-      final double[] latitudeSerie = tourData.latitudeSerie;
-      final double[] longitudeSerie = tourData.longitudeSerie;
 
       // create a new marker
       final TourMarker tourMarker = new TourMarker(tourData, ChartLabelMarker.MARKER_TYPE_CUSTOM);
-      tourMarker.setSerieIndex(closestLatLongIndex);
+
+      tourMarker.setSerieIndex(closestLatLonIndex);
       tourMarker.setTime(relativeTourTime, tourData.getTourStartTimeMS() + (relativeTourTime * 1000));
       tourMarker.setLabel(Messages.Default_Label_NewTourMarker);
 
       if (altitudeSerie != null) {
-         tourMarker.setAltitude(altitudeSerie[closestLatLongIndex]);
+         tourMarker.setAltitude(altitudeSerie[closestLatLonIndex]);
       }
 
       if (distSerie != null) {
-         tourMarker.setDistance(distSerie[closestLatLongIndex]);
+         tourMarker.setDistance(distSerie[closestLatLonIndex]);
       }
 
-      if (latitudeSerie != null) {
-         tourMarker.setGeoPosition(latitudeSerie[closestLatLongIndex], longitudeSerie[closestLatLongIndex]);
-      }
+      tourMarker.setGeoPosition(latSerie[closestLatLonIndex], lonSerie[closestLatLonIndex]);
 
       final DialogMarker markerDialog = new DialogMarker(Display.getCurrent().getActiveShell(), tourData, null);
 

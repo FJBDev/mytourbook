@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,9 +33,6 @@ import org.eclipse.swt.widgets.Display;
 
 public class ActionCreateMarkerFromSlider extends Action {
 
-   /**
-    *
-    */
    private final IChartContextProvider _chartContextProvider;
    private boolean                     _isLeftSlider;
 
@@ -57,6 +54,7 @@ public class ActionCreateMarkerFromSlider extends Action {
     * Creates a new marker
     *
     * @param tourData
+    *
     * @return
     */
    private TourMarker createTourMarker(final TourData tourData) {
@@ -64,9 +62,11 @@ public class ActionCreateMarkerFromSlider extends Action {
       final ChartXSlider leftSlider = _chartContextProvider.getLeftSlider();
       final ChartXSlider rightSlider = _chartContextProvider.getRightSlider();
 
-      final ChartXSlider slider = rightSlider == null ? //
-            leftSlider
-            : _isLeftSlider ? leftSlider : rightSlider;
+      final ChartXSlider slider = rightSlider == null
+            ? leftSlider
+            : _isLeftSlider
+                  ? leftSlider
+                  : rightSlider;
 
       if (slider == null || tourData.timeSerie == null) {
          return null;

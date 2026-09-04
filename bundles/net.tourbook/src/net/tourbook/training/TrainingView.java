@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2011, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -75,6 +75,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -201,10 +202,10 @@ public class TrainingView extends ViewPart {
    private Composite _hrZoneDataContainerContent;
 
    private Canvas    _canvasHrZoneImage;
-   private Label[]   _lblTourMinMaxValue;
+   private Label[]   _lblTourMinMaxBpm;
    private Label[]   _lblTourMinMaxHours;
+   private CLabel[]  _lblHRZoneColor;
    private Label[]   _lblHRZoneName;
-   private Label[]   _lblHRZoneColor;
    private Label[]   _lblHrZonePercent;
 
    /**
@@ -694,7 +695,6 @@ public class TrainingView extends ViewPart {
          createUI_58_HrZoneFields(container);
       }
       _tk.adapt(container);
-//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
 
       return container;
    }
@@ -746,10 +746,10 @@ public class TrainingView extends ViewPart {
       /*
        * fields
        */
-      _lblTourMinMaxValue = new Label[numHrZones];
+      _lblTourMinMaxBpm = new Label[numHrZones];
       _lblTourMinMaxHours = new Label[numHrZones];
       _lblHRZoneName = new Label[numHrZones];
-      _lblHRZoneColor = new Label[numHrZones];
+      _lblHRZoneColor = new CLabel[numHrZones];
       _lblHrZonePercent = new Label[numHrZones];
 
       // set hr zone colors
@@ -797,7 +797,7 @@ public class TrainingView extends ViewPart {
          /*
           * label: tour hr min/max %
           */
-         final Label lblTourMinMaxBpm = _lblTourMinMaxValue[zoneIndex] = _tk.createLabel(
+         final Label lblTourMinMaxBpm = _lblTourMinMaxBpm[zoneIndex] = _tk.createLabel(
                parent,
                null,
                SWT.TRAIL);
@@ -808,7 +808,8 @@ public class TrainingView extends ViewPart {
          /*
           * label: color
           */
-         final Label label = _lblHRZoneColor[zoneIndex] = new Label(parent, SWT.NONE);
+         final CLabel label = _lblHRZoneColor[zoneIndex] = new CLabel(parent, SWT.NONE);
+         label.setText(UI.SYMBOL_FULL_BLOCK);
          GridDataFactory.fillDefaults().hint(16, 16).applyTo(label);
       }
 
@@ -895,7 +896,7 @@ public class TrainingView extends ViewPart {
 
          for (int zoneIndex = 0; zoneIndex < _lblHRZoneColor.length; zoneIndex++) {
 
-            final Label label = _lblHRZoneColor[zoneIndex];
+            final CLabel label = _lblHRZoneColor[zoneIndex];
             final Color zoneColor = _hrZoneColors[zoneIndex];
 
             if (label.isDisposed()) {
@@ -905,6 +906,7 @@ public class TrainingView extends ViewPart {
                continue;
             }
 
+            label.setForeground(zoneColor);
             label.setBackground(zoneColor);
          }
       });
@@ -946,7 +948,6 @@ public class TrainingView extends ViewPart {
 
          onModifyHrBorder();
       };
-
    }
 
    private void onModifyHrBorder() {
@@ -1414,7 +1415,7 @@ public class TrainingView extends ViewPart {
 
    /**
     * @param zoneContext
-    *           Contains age and HR max values.
+    *           Contains age and HR max values
     */
    private void updateUI_42_HrZoneData(final HrZoneContext zoneContext) {
 
@@ -1515,8 +1516,8 @@ public class TrainingView extends ViewPart {
          _lblHrZonePercent[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          // bpm values
-         _lblTourMinMaxValue[tourZoneIndex].setText(((int) zoneMinBpm) + UI.DASH + zoneMaxBpmText);
-         _lblTourMinMaxValue[tourZoneIndex].setToolTipText(hrZoneTooltip);
+         _lblTourMinMaxBpm[tourZoneIndex].setText(((int) zoneMinBpm) + UI.DASH + zoneMaxBpmText);
+         _lblTourMinMaxBpm[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          _lblTourMinMaxHours[tourZoneIndex].setText(UI.format_hh_mm((long) (zoneTime + 30)).toString());
          _lblTourMinMaxHours[tourZoneIndex].setToolTipText(hrZoneTooltip);
