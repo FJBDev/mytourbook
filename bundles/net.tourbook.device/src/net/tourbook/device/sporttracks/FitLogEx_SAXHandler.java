@@ -46,7 +46,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
    private static final String            TAG_EQUIPMENT_BRAND                         = "Brand";                                         //$NON-NLS-1$
 
    private LinkedHashMap<String, Integer> _customDataFieldDefinitions;
-   private ArrayList<Equipment>           _equipments;
+   private ArrayList<Equipment>           _equipment;
 
    private boolean                        _isInCustomDataFieldDefinitions;
 
@@ -67,7 +67,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
    public FitLogEx_SAXHandler() {
 
       _customDataFieldDefinitions = new LinkedHashMap<>();
-      _equipments = new ArrayList<>();
+      _equipment = new ArrayList<>();
    }
 
    @Override
@@ -111,12 +111,12 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
 
    private void endElement_InEquipment(final String name) {
 
-      final int numberOfEquipment = _equipments.size();
+      final int numberOfEquipment = _equipment.size();
       if (numberOfEquipment == 0) {
          return;
       }
 
-      final Equipment currentEquipment = _equipments.get(numberOfEquipment - 1);
+      final Equipment currentEquipment = _equipment.get(numberOfEquipment - 1);
 
       if (name.equals(TAG_EQUIPMENT_BRAND)) {
 
@@ -176,7 +176,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
    }
 
    public List<Equipment> getEquipments() {
-      return _equipments;
+      return _equipment;
    }
 
    @Override
@@ -231,7 +231,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
          final Equipment newEquipment = new Equipment();
          newEquipment.Id = attributes.getValue(FitLog_SAXHandler.ATTRIB_EQUIPMENT_ID);
 
-         _equipments.add(newEquipment);
+         _equipment.add(newEquipment);
 
       } else if (_isInEquipment) {
 
