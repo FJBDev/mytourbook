@@ -15,9 +15,15 @@
  *******************************************************************************/
 package net.tourbook.database;
 
+import java.io.File;
 import java.util.List;
 
+import net.tourbook.common.CommonActivator;
+import net.tourbook.common.util.FileUtils;
 import net.tourbook.data.TourData;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 
 public class TourDataUpdate_062_to_063 implements ITourDataUpdate {
 
@@ -35,6 +41,14 @@ public class TourDataUpdate_062_to_063 implements ITourDataUpdate {
 
    @Override
    public boolean updateTourData(final TourData tourData) {
+
+      final IPath stateLocation =
+            Platform.getStateLocation(CommonActivator.getDefault().getBundle());
+      final File invalidFiles =
+            stateLocation.append("invalidfiles_to_ignore.txt").toFile(); //$NON-NLS-1$
+      if (invalidFiles.exists()) {
+         FileUtils.deleteIfExists(invalidFiles.toPath());
+      }
 
       if (tourData.getTourNutritionProducts().isEmpty()) {
          return false;
