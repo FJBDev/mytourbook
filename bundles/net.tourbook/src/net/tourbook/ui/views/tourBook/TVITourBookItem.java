@@ -236,7 +236,7 @@ public abstract class TVITourBookItem extends TreeViewerItem implements ITourIte
       //  v v v v v v v v v v v v v v v v v v v v v v
       // v v v v v v v v v v v v v v v v v v v v v v v
 
-      SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER = 100;
+      SQL_ALL_OTHER_FIELDS__COLUMN_START_NUMBER = 101;
 
       // ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
       //  ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
