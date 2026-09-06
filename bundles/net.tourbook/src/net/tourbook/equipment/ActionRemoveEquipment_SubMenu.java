@@ -30,7 +30,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Menu;
 
 /**
- * Add equipments from the selected tours
+ * Add equipment from the selected tours
  */
 public class ActionRemoveEquipment_SubMenu extends SubMenu {
 
