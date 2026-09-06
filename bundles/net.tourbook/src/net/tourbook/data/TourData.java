@@ -2209,7 +2209,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public void addNutritionProduct(final TourNutritionProduct nutritionProduct) {
 
       tourNutritionProducts.add(nutritionProduct);
-      this.computeTourNutritionData();
+      computeTourNutritionData();
    }
 
    /**
@@ -14365,7 +14365,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       this.tourNutritionProducts = tourNutritionProducts;
 
-      this.computeTourNutritionData();
+      computeTourNutritionData();
    }
 
    /**
@@ -15545,7 +15545,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       if (tourNutritionProductsUpdated) {
 
-         this.computeTourNutritionData();
+         computeTourNutritionData();
       }
 
       return tourNutritionProductsUpdated;
