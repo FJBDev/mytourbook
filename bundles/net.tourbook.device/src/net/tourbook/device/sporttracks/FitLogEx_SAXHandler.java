@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2021 Frédéric Bard
+ * Copyright (C) 2020, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -111,12 +111,12 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
 
    private void endElement_InEquipment(final String name) {
 
-      final int numberOfEquipments = _equipments.size();
-      if (numberOfEquipments == 0) {
+      final int numberOfEquipment = _equipments.size();
+      if (numberOfEquipment == 0) {
          return;
       }
 
-      final Equipment currentEquipment = _equipments.get(numberOfEquipments - 1);
+      final Equipment currentEquipment = _equipments.get(numberOfEquipment - 1);
 
       if (name.equals(TAG_EQUIPMENT_BRAND)) {
 
@@ -220,7 +220,7 @@ public class FitLogEx_SAXHandler extends DefaultHandler {
       } else if (name.equals(TAG_ACTIVITY_EQUIPMENT)) {
 
          // It's very important to test if we are in an <Equipment>
-         // element as there can be equipments within equipments as below:
+         // element as there can be equipmens within equipmens as below:
          // <Equipment Id="1">
          //    <Equipment Id="2" partOf="1">
          //    </Equipment>
