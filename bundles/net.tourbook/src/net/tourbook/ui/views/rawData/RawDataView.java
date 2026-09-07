@@ -4251,7 +4251,7 @@ public class RawDataView extends ViewPart implements
       _colDef_TourTypeImage.setLabelProvider(new CellLabelProvider() {
 
          // !!! When using cell.setImage() then it is not centered !!!
-         // !!! Set dummy label provider, otherwise an error occures !!!
+         // !!! Set dummy label provider, otherwise an error occurs !!!
          @Override
          public void update(final ViewerCell cell) {}
       });
@@ -4288,7 +4288,7 @@ public class RawDataView extends ViewPart implements
       _colDef_WeatherClouds.setLabelProvider(new CellLabelProvider() {
 
          // !!! When using cell.setImage() then it is not centered !!!
-         // !!! Set dummy label provider, otherwise an error occures !!!
+         // !!! Set dummy label provider, otherwise an error occurs !!!
          @Override
          public void update(final ViewerCell cell) {}
       });
