@@ -2181,7 +2181,7 @@ public class RawDataView extends ViewPart implements
 
             final String nbspFilePathName = UI.EMPTY_STRING
 
-                  // add additonal space before the text otherwise it is too narrow to the previous column
+                  // add additional space before the text otherwise it is too narrow to the previous column
                   + WEB.NONE_BREAKING_SPACE
                   + WEB.NONE_BREAKING_SPACE
 

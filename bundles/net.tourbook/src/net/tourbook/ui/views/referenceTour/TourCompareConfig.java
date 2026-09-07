@@ -84,7 +84,7 @@ public class TourCompareConfig {
 
       /*
        * Ensure to have the correct tour data, load tour data because tour data in the ref tour
-       * could be changed, this is a wrong concept which could be changed but requires additonal
+       * could be changed, this is a wrong concept which could be changed but requires additional
        * work
        */
       return TourManager.getInstance().getTourData(_refTour_TourId);
