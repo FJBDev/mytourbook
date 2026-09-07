@@ -164,7 +164,7 @@ public abstract class PhotoToolTipUI extends AdvancedSlideoutShell implements IT
 
          super(null, Action.AS_PUSH_BUTTON);
 
-         // an image must be set otherwise the toolbar icons can be too small, this happens not allways :-(
+         // an image must be set otherwise the toolbar icons can be too small, this happens not always :-(
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.PhotoGallery_Horizontal));
       }
 

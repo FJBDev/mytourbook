@@ -7281,7 +7281,7 @@ public class RawDataView extends ViewPart implements
    public void setFocus() {
 
       /*
-       * When imported tours are available then the import viewer page will ALLWAYS be displayed.
+       * When imported tours are available then the import viewer page will ALWAYS be displayed.
        */
       final int numImportedTours = _rawDataMgr.getImportedTours().size();
       if (numImportedTours > 0) {
@@ -7862,7 +7862,7 @@ public class RawDataView extends ViewPart implements
    private void updateUI_1_TopPage(final boolean isInStartUp) {
 
       /*
-       * When imported tours are available then the import viewer page will ALLWAYS be displayed.
+       * When imported tours are available then the import viewer page will ALWAYS be displayed.
        */
       final int numImportedTours = _rawDataMgr.getImportedTours().size();
       if (numImportedTours > 0) {

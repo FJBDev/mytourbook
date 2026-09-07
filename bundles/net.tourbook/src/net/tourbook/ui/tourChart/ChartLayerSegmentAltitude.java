@@ -349,7 +349,7 @@ public class ChartLayerSegmentAltitude implements IChartLayer, IChartOverlay {
                   devXSegment,
                   devYSegment);
 
-            // use ALLWAYS the same instance
+            // use ALWAYS the same instance
             segmenterSegment.paintedRGB = paintedRGB;
 
             /*
