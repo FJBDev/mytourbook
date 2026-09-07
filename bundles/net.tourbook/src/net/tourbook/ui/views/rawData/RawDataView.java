@@ -3145,7 +3145,7 @@ public class RawDataView extends ViewPart implements
       return container;
    }
 
-   private Composite createUI_20_Page_EasyImporFancy(final Composite parent) {
+   private Composite createUI_20_Page_EasyImportFancy(final Composite parent) {
 
       final Color bgColor = _display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
@@ -7892,7 +7892,7 @@ public class RawDataView extends ViewPart implements
                 */
                if (_topPage_ImportUI_EasyImport_Fancy == null) {
 
-                  _topPage_ImportUI_EasyImport_Fancy = createUI_20_Page_EasyImporFancy(_topPage_PageBook);
+                  _topPage_ImportUI_EasyImport_Fancy = createUI_20_Page_EasyImportFancy(_topPage_PageBook);
                }
 
                _topPage_PageBook.showPage(_topPage_ImportUI_EasyImport_Fancy);
