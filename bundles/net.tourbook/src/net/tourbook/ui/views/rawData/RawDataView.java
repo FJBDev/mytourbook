@@ -6443,8 +6443,8 @@ public class RawDataView extends ViewPart implements
       for (final TourData tourData : importedTours) {
 
          // check if distance is available
-         final float[] distancSerie = tourData.distanceSerie;
-         if (distancSerie == null || distancSerie.length == 0) {
+         final float[] distanceSerie = tourData.distanceSerie;
+         if (distanceSerie == null || distanceSerie.length == 0) {
             continue;
          }
 
@@ -6461,7 +6461,7 @@ public class RawDataView extends ViewPart implements
 
          final int markerIndex = lastMarker.getSerieIndex();
 
-         final float lastMarkerDistance = distancSerie[markerIndex];
+         final float lastMarkerDistance = distanceSerie[markerIndex];
          final float tourDistance = tourData.getTourDistance();
          final float distanceDiff = tourDistance - lastMarkerDistance;
 
