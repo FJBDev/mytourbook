@@ -2098,10 +2098,10 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
       final Point textSize = gc.stringExtent(yearText);
 
-      final int vertialOffset = 0;
+      final int verticalOffset = 0;
 
       final int posX = headerRect.x + headerRect.width / 2 - textSize.x / 2;
-      final int posY = headerRect.y + vertialOffset;
+      final int posY = headerRect.y + verticalOffset;
 
       gc.drawString(yearText, posX, posY);
 
