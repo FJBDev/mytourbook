@@ -296,7 +296,7 @@ public class ContributionItem_TourType extends CustomControlContribution {
          public void mouseScrolled(final MouseEvent event) {
 
             if (event.time == __lastEventTime) {
-               // prevent doing the same for the same event, this occured when mouse is scrolled -> the event is fired 2x times
+               // prevent doing the same for the same event, this occurred when mouse is scrolled -> the event is fired 2x times
                return;
             }
 
@@ -333,7 +333,7 @@ public class ContributionItem_TourType extends CustomControlContribution {
                if (control.isDisposed()) {
 
                   /**
-                   * This error occures when the customized dialog for the perspective is
+                   * This error occurs when the customized dialog for the perspective is
                    * opened -> needs to be fixed.
                    */
 
@@ -427,7 +427,7 @@ public class ContributionItem_TourType extends CustomControlContribution {
                return;
             }
 
-            // check if a hide event has occured
+            // check if a hide event has occurred
             if (_lastHideTime > _lastOpenTime) {
                return;
             }

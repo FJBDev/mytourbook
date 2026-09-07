@@ -336,7 +336,7 @@ class CollateTourContributionItem extends ControlContribution {
          public void mouseScrolled(final MouseEvent event) {
 
             if (event.time == __lastEventTime) {
-               // prevent doing the same for the same event, this occured when mouse is scrolled -> the event is fired 2x times
+               // prevent doing the same for the same event, this occurred when mouse is scrolled -> the event is fired 2x times
                return;
             }
 
@@ -376,7 +376,7 @@ class CollateTourContributionItem extends ControlContribution {
                if (control.isDisposed()) {
 
                   /**
-                   * This error occures when the customized dialog for the perspective is
+                   * This error occurs when the customized dialog for the perspective is
                    * opened -> needs to be fixed.
                    */
 

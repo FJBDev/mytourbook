@@ -27,7 +27,7 @@ public class ChartPhoto {
 	public final double	xValue;
 
 	/**
-	 * Index in the data serie where a photo occures, there can be multiple photos at the same
+	 * Index in the data serie where a photo occurs, there can be multiple photos at the same
 	 * position.
 	 */
 	public final int	serieIndex;

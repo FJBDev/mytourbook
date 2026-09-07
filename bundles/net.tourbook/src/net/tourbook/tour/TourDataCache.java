@@ -73,7 +73,7 @@ class TourDataCache {
 
             final int fifoQueueSize = _fifoQueue.size();
 
-            // MUST test with >= otherwise a Queue full exceptions occures
+            // MUST test with >= otherwise a Queue full exceptions occurs
             if (fifoQueueSize >= _cacheSize) {
 
 //               final long start = System.nanoTime();

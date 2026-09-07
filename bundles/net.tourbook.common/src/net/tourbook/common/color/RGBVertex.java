@@ -41,7 +41,7 @@ public class RGBVertex implements Comparable<Object>, Cloneable {
 
    /**
     * Created id is needed that vertices can be sorted correctly when the value of two vertices are
-    * the same. This occures when new vertices are created and the value is not yet set.
+    * the same. This occurs when new vertices are created and the value is not yet set.
     */
    private int               _sortId;
 

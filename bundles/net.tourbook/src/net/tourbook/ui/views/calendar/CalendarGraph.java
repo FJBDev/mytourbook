@@ -1124,7 +1124,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                lastWeek = lastWeek.with(getFirstDayOfWeek_SameOrNext());
 
                /*
-                * The algorithm is a litte bit complex, this will fix an issue which occures
+                * The algorithm is a little bit complex, this will fix an issue which occurs
                 */
                if (lastWeek.getDayOfMonth() == 8) {
                   lastWeek = lastWeek.minusWeeks(1);

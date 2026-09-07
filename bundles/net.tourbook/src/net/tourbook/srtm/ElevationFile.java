@@ -85,7 +85,7 @@ public class ElevationFile {
       }
 
       _isFileAvailable = false;
-      // dont return exception
+      // don't return exception
    }
 
    private void initETOPO(final String fileName) throws Exception {
@@ -165,7 +165,7 @@ public class ElevationFile {
                _isLocalFileError = true;
 
                /*
-                * This case occures when an internet connection do not exists. Delete file that
+                * This case occurs when an internet connection do not exists. Delete file that
                 * it is downloaded when an internet connection is available and the application
                 * is restarted
                 */

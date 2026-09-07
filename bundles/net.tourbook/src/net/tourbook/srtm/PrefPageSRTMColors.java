@@ -862,7 +862,7 @@ public final class PrefPageSRTMColors extends PreferencePage implements IWorkben
       colDef.setCanModifyVisibility(false);
       colDef.setLabelProvider(new CellLabelProvider() {
          /*
-          * !!! set dummy label provider, otherwise an error occures !!!
+          * !!! set dummy label provider, otherwise an error occurs !!!
           */
          @Override
          public void update(final ViewerCell cell) {}
