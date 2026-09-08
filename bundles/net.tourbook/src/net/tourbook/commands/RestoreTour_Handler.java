@@ -63,7 +63,7 @@ public class RestoreTour_Handler extends AbstractHandler implements IElementUpda
        * This method will be called from partActivated() with
        * org.eclipse.ui.commands.ICommandService.refreshElements(..)
        * <p>
-       * -> Higly complicated
+       * -> Highly complicated
        */
 
       uiElement.setIcon(_iconRestoreTour);

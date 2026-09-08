@@ -334,7 +334,7 @@ public class TourbookPlugin extends AbstractUIPlugin {
          _version = abstractBundle.getVersion();
       }
 
-      // log version that this info is easier accessable
+      // log version that this info is easier accessible
       final Version version = TourbookPlugin.getDefault().getVersion();
 
       /**
