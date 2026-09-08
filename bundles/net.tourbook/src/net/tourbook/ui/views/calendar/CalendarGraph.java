@@ -1314,11 +1314,11 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                      boolean isDateTransparent = true;
                      Color dayDateForegroundColor;
 
-                     /////////////debugg on
+                     /////////////debug on
 
 //							dayDateLabel = dayDateLabel + " " + dayItem.dayId;
 
-                     /////////////debugg off
+                     /////////////debug off
 
                      if (dayItem.dayId == 0) {
 
@@ -3004,12 +3004,12 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
          return;
       }
 
-      final TourData dragedTourData = TourManager.getInstance().getTourData(tourId);
+      final TourData draggedTourData = TourManager.getInstance().getTourData(tourId);
 
-      Assert.isNotNull(dragedTourData);
+      Assert.isNotNull(draggedTourData);
 
       // adjust tour start date
-      final ZonedDateTime tourStartTime = dragedTourData.getTourStartTime();
+      final ZonedDateTime tourStartTime = draggedTourData.getTourStartTime();
       final ZonedDateTime newTourStartTime = tourStartTime//
             .withYear(_dragOverDate.getYear())
             .withMonth(_dragOverDate.getMonthValue())
@@ -3026,9 +3026,9 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             // move tour to another date
 
-            dragedTourData.setTourStartTime(newTourStartTime);
+            draggedTourData.setTourStartTime(newTourStartTime);
 
-            TourManager.saveModifiedTour(dragedTourData);
+            TourManager.saveModifiedTour(draggedTourData);
 
             TourLogManager.log_DEFAULT(
                   NLS.bind(
@@ -3042,7 +3042,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             try {
 
-               final TourData tourDataCopy = (TourData) dragedTourData.clonePartly();
+               final TourData tourDataCopy = (TourData) draggedTourData.clonePartly();
 
                // set tour start date/time AFTER tour is copied !!!
                tourDataCopy.setTourStartTime(newTourStartTime);
