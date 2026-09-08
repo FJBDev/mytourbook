@@ -872,7 +872,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
 
             /*
              * Complex: Ensure with _isHoveredPainted that the hovered state is also painted
-             * even when _isHoveredModified is set back to false. This problem occured when a
+             * even when _isHoveredModified is set back to false. This problem occurred when a
              * tour tooltip is displayed (and took some hours to fix this problem) !!!
              */
             if (_isHoveredModified || _isHoveredPainted == false) {
@@ -1358,12 +1358,12 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
                         gc.setBackground(_calendarBgColor);
                      }
 
-                     /////////////debugg on
+                     /////////////debug on
 
 //							gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
 //							isDateTransparent = false;
 
-                     /////////////debugg off
+                     /////////////debug off
 
                      // day header label
                      gc.setFont(dayDateFont);
@@ -3739,7 +3739,7 @@ public class CalendarGraph extends Canvas implements ITourProviderAll {
       }
 
       /*
-       * Do a redraw always, it occured when selecting another profile the UI is not updated
+       * Do a redraw always, it occurred when selecting another profile the UI is not updated
        */
       redraw();
 
