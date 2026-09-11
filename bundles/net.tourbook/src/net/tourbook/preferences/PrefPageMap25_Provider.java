@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -76,7 +76,7 @@ public class PrefPageMap25_Provider extends PreferencePage implements IWorkbench
 
    public static final String              ID                               = "net.tourbook.preferences.PrefPageMap25_Provider"; //$NON-NLS-1$
 
-   private static final String             STATE_LAST_SELECTED_MAP_PROVIDER = "STATE_LAST_SELECTED_MAP_PROVIDER";                 //$NON-NLS-1$
+   private static final String             STATE_LAST_SELECTED_MAP_PROVIDER = "STATE_LAST_SELECTED_MAP_PROVIDER";                //$NON-NLS-1$
 
    /**
     * First encoding is the default.
@@ -1424,6 +1424,7 @@ public class PrefPageMap25_Provider extends PreferencePage implements IWorkbench
 
    /**
     * @param isAskToSave
+    *
     * @return Returns <code>false</code> when map provider is not saved.
     */
    private void saveMapProviders(final boolean isAskToSave) {
