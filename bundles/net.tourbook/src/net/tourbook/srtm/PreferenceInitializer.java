@@ -43,7 +43,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
       // apply profile when it's selected in the profile list
       prefStore.setDefault(IPreferences.SRTM_APPLY_WHEN_PROFILE_IS_SELECTED, false);
 
-      // set validation date to be discared
+      // set validation date to be discarded
       prefStore.setDefault(IPreferences.NASA_EARTHDATA_ACCOUNT_VALIDATION_DATE, Long.MIN_VALUE);
    }
 }
