@@ -12032,7 +12032,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
       if (hasGeoData() == false) {
          // the time zone needs a geo position
-         //todo fb ca se passe ici
          return 0;
       }
 
