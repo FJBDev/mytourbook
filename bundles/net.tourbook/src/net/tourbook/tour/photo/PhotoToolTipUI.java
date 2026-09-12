@@ -265,7 +265,7 @@ public abstract class PhotoToolTipUI extends AdvancedSlideoutShell implements IT
       // toggle gallery
       _isVerticalGallery = !_isVerticalGallery;
 
-      updateUI_ToogleAction();
+      updateUI_ToggleAction();
 
       /*
        * set tooltip shell to the correct size, each orientation has it's own size
@@ -642,7 +642,7 @@ public abstract class PhotoToolTipUI extends AdvancedSlideoutShell implements IT
       _isVerticalGallery = Util.getStateBoolean(_state, STATE_PHOTO_GALLERY_IS_VERTICAL, true);
       _toolTipLocationUpDown = Util.getStateInt(_state, STATE_TOOL_TIP_LOCATION, 1);
 
-      updateUI_ToogleAction();
+      updateUI_ToggleAction();
       updateUI_ToolTipLocation();
 
       enableControls();
@@ -717,7 +717,7 @@ public abstract class PhotoToolTipUI extends AdvancedSlideoutShell implements IT
       _photoGallery.updateColors(fgColor, bgColor, selectionFgColor, noFocusSelectionFgColor, true);
    }
 
-   private void updateUI_ToogleAction() {
+   private void updateUI_ToggleAction() {
 
       if (_isVerticalGallery) {
 
