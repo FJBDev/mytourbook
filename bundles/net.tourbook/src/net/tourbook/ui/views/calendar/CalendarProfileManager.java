@@ -196,7 +196,7 @@ class CalendarProfileManager {
    static final RGB               DEFAULT_ALTERNATE_MONTH_RGB            = new RGB(60, 60, 60);
    static final RGB               DEFAULT_ALTERNATE_MONTH2_RGB           = new RGB(80, 80, 80);
    static final RGB               DEFAULT_CALENDAR_BACKGROUND_RGB        = new RGB(40, 40, 40);
-   static final RGB               DEFAULT_CALENDAR_FOREGROUND_RGB    = new RGB(200, 200, 200);
+   static final RGB               DEFAULT_CALENDAR_FOREGROUND_RGB        = new RGB(200, 200, 200);
    static final RGB               DEFAULT_DAY_HOVERED_RGB                = new RGB(255, 255, 255);
    static final RGB               DEFAULT_DAY_SELECTED_RGB               = new RGB(128, 128, 128);
    static final RGB               DEFAULT_DAY_TODAY_RGB                  = new RGB(255, 255, 0);
