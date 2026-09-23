@@ -1,4 +1,4 @@
-26.9.0                                                 ?. September 2026
+26.9.0                                                 22. September 2026
 
 All
 ===
@@ -40,7 +40,8 @@ New / Improvements
 Changes
 =======
 
-* Removed the Suunto 9 import (Frederic)
+* Import
+  - Removed the Suunto 9 import (Frederic)
     
 
 Bugfix
