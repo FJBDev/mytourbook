@@ -89,18 +89,18 @@ public class ChartComponents extends Composite {
 
    private static final String[]    _monthLabels                = {
 
-         Messages.Month_jan,
-         Messages.Month_feb,
-         Messages.Month_mar,
-         Messages.Month_apr,
-         Messages.Month_may,
-         Messages.Month_jun,
-         Messages.Month_jul,
-         Messages.Month_aug,
-         Messages.Month_sep,
-         Messages.Month_oct,
-         Messages.Month_nov,
-         Messages.Month_dec
+         Messages.MonthName_Shortcut_01_Jan,
+         Messages.MonthName_Shortcut_02_Feb,
+         Messages.MonthName_Shortcut_03_Mar,
+         Messages.MonthName_Shortcut_04_Apr,
+         Messages.MonthName_Shortcut_05_May,
+         Messages.MonthName_Shortcut_06_Jun,
+         Messages.MonthName_Shortcut_07_Jul,
+         Messages.MonthName_Shortcut_08_Aug,
+         Messages.MonthName_Shortcut_09_Sep,
+         Messages.MonthName_Shortcut_10_Oct,
+         Messages.MonthName_Shortcut_11_Nov,
+         Messages.MonthName_Shortcut_12_Dec
    };
 
    private static final String[]    _monthShortLabels           = {
@@ -2569,8 +2569,9 @@ public class ChartComponents extends Composite {
    void setXSliderPosition(final SelectionChartXSliderPosition sliderPosition, final boolean isFireEvent) {
 
       if (sliderPosition == null) {
+
          /*
-          * nothing to do when the position was not set, this can happen when the chart was not
+          * Nothing to do when the position was not set, this can happen when the chart was not
           * yet created
           */
          return;
@@ -2583,7 +2584,7 @@ public class ChartComponents extends Composite {
       final ChartXSlider leftSlider = componentGraph.getLeftSlider();
       final ChartXSlider rightSlider = componentGraph.getRightSlider();
 
-      final int slider0ValueIndex = sliderPosition.getBeforeLeftSliderIndex();
+      final int sliderOneSliceValueIndex = sliderPosition.getSliderOneSliceValueIndex();
       final int slider1ValueIndex = sliderPosition.getLeftSliderValueIndex();
       final int slider2ValueIndex = sliderPosition.getRightSliderValueIndex();
 
@@ -2595,7 +2596,9 @@ public class ChartComponents extends Composite {
       /*
        * Move left slider
        */
-      if (slider1ValueIndex == SelectionChartXSliderPosition.SLIDER_POSITION_AT_CHART_BORDER) {
+      if (slider1ValueIndex == SelectionChartXSliderPosition.SLIDER_POSITION_SELECT_WHOLE_TOUR) {
+
+         // move to 1st time slice
 
          componentGraph.moveXSlider(
                leftSlider,
@@ -2619,13 +2622,13 @@ public class ChartComponents extends Composite {
       /*
        * Move right slider
        */
-      if (slider0ValueIndex != SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
+      if (sliderOneSliceValueIndex != SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
 
-         // move second slider before the first slider
+         // move second slider to the same position as the first slider
 
          componentGraph.moveXSlider(
                rightSlider,
-               slider0ValueIndex,
+               sliderOneSliceValueIndex,
                isCenterSliderPosition,
                isMoveChartToShowSlider,
                isFireEvent,
@@ -2634,7 +2637,10 @@ public class ChartComponents extends Composite {
       } else {
 
          // move right slider
-         if (slider2ValueIndex == SelectionChartXSliderPosition.SLIDER_POSITION_AT_CHART_BORDER) {
+
+         if (slider2ValueIndex == SelectionChartXSliderPosition.SLIDER_POSITION_SELECT_WHOLE_TOUR) {
+
+            // move to last time slice
 
             componentGraph.moveXSlider(
                   rightSlider,

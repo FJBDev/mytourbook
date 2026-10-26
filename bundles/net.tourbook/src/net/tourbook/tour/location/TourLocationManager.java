@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2023, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2023, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -865,7 +865,7 @@ public class TourLocationManager {
                                           final boolean isOneAction) {
 
       // ensure that a tour is NOT modified in the tour editor
-      if (TourManager.isTourEditorModified()) {
+      if (TourManager.isTourModified()) {
          return false;
       }
 
@@ -934,7 +934,7 @@ public class TourLocationManager {
    public static boolean deleteTourLocations(final List<TourLocation> allLocations, final boolean isOneAction) {
 
       // ensure that a tour is NOT modified in the tour editor
-      if (TourManager.isTourEditorModified()) {
+      if (TourManager.isTourModified()) {
          return false;
       }
 
@@ -1693,6 +1693,10 @@ public class TourLocationManager {
                                           final boolean isSetStartLocation,
                                           final boolean isSetEndLocation) {
 
+      if (TourManager.isTourModified()) {
+         return;
+      }
+
       final ArrayList<TourData> modifiedTours = new ArrayList<>();
 
       for (final TourData tourData : allTourData) {
@@ -1775,6 +1779,10 @@ public class TourLocationManager {
                                        final boolean isSetStartLocation,
                                        final boolean isSetEndLocation) {
 
+      if (TourManager.isTourModified()) {
+         return;
+      }
+
       final ArrayList<TourData> modifiedTours = new ArrayList<>();
 
       for (final TourData tourData : allTourData) {
@@ -1840,6 +1848,10 @@ public class TourLocationManager {
                                           final boolean isSetStartLocation,
                                           final boolean isSetEndLocation,
                                           final boolean isCompleteRemoval) {
+
+      if (TourManager.isTourModified()) {
+         return;
+      }
 
       final ArrayList<TourData> savedTours = new ArrayList<>();
 
@@ -2230,7 +2242,9 @@ public class TourLocationManager {
                                        final boolean isRemoveLocationAssoc_Start,
                                        final boolean isRemoveLocationAssoc_End) {
 
-      // TODO Auto-generated method stub
+      if (TourManager.isTourModified()) {
+         return;
+      }
 
       final ArrayList<TourData> savedTours = new ArrayList<>();
 
@@ -2324,6 +2338,10 @@ public class TourLocationManager {
 
                                        final boolean isSaveTour,
                                        final boolean isLogLocation) {
+
+      if (TourManager.isTourModified()) {
+         return;
+      }
 
       final ArrayList<TourData> savedTours = new ArrayList<>();
 

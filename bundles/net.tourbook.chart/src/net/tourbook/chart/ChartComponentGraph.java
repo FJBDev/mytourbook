@@ -7804,6 +7804,20 @@ public class ChartComponentGraph extends Canvas {
       }
    }
 
+   void moveLeftSlider_ToStart() {
+
+      final ChartXSlider leftSlider = getLeftSlider();
+      final long xxDevLeftPosition = 0;
+
+      setXSliderValue_FromHoveredValuePoint(leftSlider);
+      leftSlider.moveToXXDevPosition(xxDevLeftPosition, true, true, true, true);
+
+      setZoomInPosition();
+
+      _isSliderDirty = true;
+      redraw();
+   }
+
    /**
     * Move left slider to the mouse down position
     */
@@ -7813,7 +7827,21 @@ public class ChartComponentGraph extends Canvas {
       final long xxDevLeftPosition = _xxDevViewPortLeftBorder + _devXMouseDown;
 
       setXSliderValue_FromHoveredValuePoint(leftSlider);
-      leftSlider.moveToXXDevPosition(xxDevLeftPosition, true, true, false);
+      leftSlider.moveToXXDevPosition(xxDevLeftPosition, true, true);
+
+      setZoomInPosition();
+
+      _isSliderDirty = true;
+      redraw();
+   }
+
+   void moveRightSlider_ToEnd() {
+
+      final ChartXSlider rightSlider = getRightSlider();
+      final long xxDevRightPosition = _xxDevGraphWidth;
+
+      setXSliderValue_FromHoveredValuePoint(rightSlider);
+      rightSlider.moveToXXDevPosition(xxDevRightPosition, true, true, true, true);
 
       setZoomInPosition();
 
@@ -7830,7 +7858,7 @@ public class ChartComponentGraph extends Canvas {
       final long xxDevRightPosition = _xxDevViewPortLeftBorder + _devXMouseDown;
 
       setXSliderValue_FromHoveredValuePoint(rightSlider);
-      rightSlider.moveToXXDevPosition(xxDevRightPosition, true, true, false);
+      rightSlider.moveToXXDevPosition(xxDevRightPosition, true, true);
 
       setZoomInPosition();
 
@@ -7850,27 +7878,39 @@ public class ChartComponentGraph extends Canvas {
    void moveSlidersToBorderWithoutCheck() {
 
       /*
-       * get the sliders first before they are moved
+       * Get the sliders first before they are moved
        */
       final ChartXSlider leftSlider = getLeftSlider();
       final ChartXSlider rightSlider = getRightSlider();
 
-      /*
-       * adjust left slider
-       */
       final long xxDevLeftPosition = _xxDevViewPortLeftBorder;
-
-      setXSliderValue_FromHoveredValuePoint(leftSlider);
-      leftSlider.moveToXXDevPosition(xxDevLeftPosition, true, true, false);
-
-      /*
-       * adjust right slider
-       */
       final long xxDevRightPosition = _xxDevViewPortLeftBorder + getDevVisibleChartWidth() - 1;
 
-      setXSliderValue_FromHoveredValuePoint(rightSlider);
-      rightSlider.moveToXXDevPosition(xxDevRightPosition, true, true, false);
+      /*
+       * Adjust left slider
+       */
+      setXSliderValue_FromHoveredValuePoint(leftSlider);
 
+      // set position ratio
+      leftSlider.moveToXXDevPosition(xxDevLeftPosition, true, true);
+
+      // set value index from ratio
+      setXSliderValue_FromRatio(leftSlider);
+
+      /*
+       * Adjust right slider
+       */
+      setXSliderValue_FromHoveredValuePoint(rightSlider);
+
+      // set position ratio
+      rightSlider.moveToXXDevPosition(xxDevRightPosition, true, true);
+
+      // set value index from ratio
+      setXSliderValue_FromRatio(rightSlider);
+
+      /*
+       * Update UI
+       */
       _isSliderDirty = true;
       redraw();
    }
@@ -7946,7 +7986,7 @@ public class ChartComponentGraph extends Canvas {
 
       // set new slider line position
       final boolean isSliderPositionModified = setXSliderValue_FromHoveredValuePoint(xSlider);
-      xSlider.moveToXXDevPosition(xxDevSliderLinePos, true, true, false);
+      xSlider.moveToXXDevPosition(xxDevSliderLinePos, true, true);
 
       return isSliderPositionModified;
    }
@@ -8047,14 +8087,13 @@ public class ChartComponentGraph extends Canvas {
     */
    private void onKeyDown_MoveXSlider(final Event event) {
 
-      final int keyCode = event.keyCode;
+      final ChartDataXSerie xData = getXData();
 
-      /*
-       * keyboard events behaves different than the mouse event, shift & ctrl can be set in both
-       * event fields
-       */
-      boolean isShift = (event.stateMask & SWT.SHIFT) != 0 || (keyCode & SWT.SHIFT) != 0;
-      boolean isCtrl = (event.stateMask & SWT.CTRL) != 0 || (keyCode & SWT.CTRL) != 0;
+      if (xData == null) {
+
+         // this happened when deleting all time slices and the last was deleted
+         return;
+      }
 
       // ensure a slider is selected
       if (_selectedXSlider == null) {
@@ -8067,14 +8106,40 @@ public class ChartComponentGraph extends Canvas {
          }
       }
 
-      // toggle selected slider with the ctrl key, key changed in 15.10 to select multiple segments which shift
-      if (isCtrl && isShift == false) {
+      final int keyCode = event.keyCode;
+
+      if (keyCode == 't') {
+
+         // toggle selected slider
+
          _selectedXSlider = _selectedXSlider == _xSliderA ? _xSliderB : _xSliderA;
          _isSliderDirty = true;
+
          redraw();
 
          return;
+
+      } else if (keyCode == 'o') {
+
+         // move other slider to the same position
+
+         final ChartXSlider otherXSlider = _selectedXSlider == _xSliderA ? _xSliderB : _xSliderA;
+         final int valueIndex = _selectedXSlider.getValuesIndex();
+
+         _hoveredValuePointIndex = -1;
+
+         moveXSlider(otherXSlider, valueIndex, false, true, true, false);
+
+         redraw();
+         setCursorStyle();
       }
+
+      /*
+       * Keyboard events behaves different than the mouse event, shift & ctrl can be set in both
+       * event fields
+       */
+      boolean isShift = (event.stateMask & SWT.SHIFT) != 0 || (keyCode & SWT.SHIFT) != 0;
+      boolean isCtrl = (event.stateMask & SWT.CTRL) != 0 || (keyCode & SWT.CTRL) != 0;
 
       // accelerate with page up/down
       if (keyCode == SWT.PAGE_UP || keyCode == SWT.PAGE_DOWN) {
@@ -8087,7 +8152,7 @@ public class ChartComponentGraph extends Canvas {
       valueIndexDiff *= isShift ? 10 : 1;
 
       int valueIndex = _selectedXSlider.getValuesIndex();
-      final double[] xValues = getXData().getHighValuesDouble()[0];
+      final double[] xValues = xData.getHighValuesDouble()[0];
 
       boolean isMoveSlider = false;
 
@@ -9977,8 +10042,8 @@ public class ChartComponentGraph extends Canvas {
       _xxDevViewPortLeftBorder = xxDevViewPortOffset;
       _graphZoomRatio = graphZoomRatio;
 
-      _xSliderA.moveToXXDevPosition(xxDevViewPortOffset, false, true, false);
-      _xSliderB.moveToXXDevPosition(xxDevGraphWidth, false, true, false);
+      _xSliderA.moveToXXDevPosition(xxDevViewPortOffset, false, true);
+      _xSliderB.moveToXXDevPosition(xxDevGraphWidth, false, true);
    }
 
    void setHovered_ValuePoint_Index(final int newHoveredValuePointIndex) {
@@ -10385,7 +10450,7 @@ public class ChartComponentGraph extends Canvas {
 
          final double linePos = _xxDevGraphWidth * (xValues[valueIndex] / xValues[xValues.length - 1]);
 
-         slider.moveToXXDevPosition(linePos, true, true, false);
+         slider.moveToXXDevPosition(linePos, true, true);
 
       } catch (final ArrayIndexOutOfBoundsException e) {
          // ignore

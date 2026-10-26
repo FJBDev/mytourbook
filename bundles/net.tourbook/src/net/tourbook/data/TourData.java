@@ -955,6 +955,10 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 
    // ############################################# NUTRITION #############################################
 
+   /**
+    * This field is used but the read access is currently only with SQL
+    */
+   @SuppressWarnings("unused")
    private float                 nutrition_TotalCarbohydrates;
 
    // ############################################# UNUSED FIELDS - START #############################################
@@ -1533,16 +1537,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    private int                _normalizedGeoAccuracy;
 
    /**
-    * Index of the segmented data in the data series
+    * oooo (o) DD-record // offset
+    */
+   @Transient
+   public int                 offsetDDRecord;
+
+   /**
+    * This contains just the indices for the data series of the segmented data
     */
    @Transient
    public int[]               segmentSerieIndex;
-
-   /**
-    *
-    */
-   @Transient
-   public int[]               segmentSerieFilter;
 
    /**
     * 2nd Index of the segmented data in the data series.
@@ -1556,13 +1560,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public int[]               segmentSerieIndex2nd;
 
    /**
-    * oooo (o) DD-record // offset
+    *
     */
    @Transient
-   public int                 offsetDDRecord;
+   public int[]               segmentSerieFilter;
 
    /*
-    * data for the tour segments
+    * Data for the tour segments
     */
    @Transient
    private int[]              segmentSerie_Time_Total;
@@ -1591,6 +1595,10 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public float               segmentSerieTotal_Elevation_Gain;
    @Transient
    public float               segmentSerieTotal_Elevation_Loss;
+   @Transient
+   public float               segmentSerieTotal_Elevation_InBreak_Gain;
+   @Transient
+   public float               segmentSerieTotal_Elevation_InBreak_Loss;
 
    @Transient
    public float[]             segmentSerie_Speed;
@@ -1612,6 +1620,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    @Transient
    public float               segmentSerie_FlatGainLoss_Gradient     = -1;
+
+   @Transient
+   public boolean             segmentSerie_IsUpdateChart;
 
    /**
     * Keep original import file path, this is used when the tour file should be deleted.
@@ -2603,20 +2614,22 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     */
    public void clearComputedSeries() {
 
+// SET_FORMATTING_OFF
+
       if (isSpeedSerieFromDevice == false) {
          speedSerie = null;
       }
 
-      speedSerie_Mile = null;
-      speedSerie_NauticalMile = null;
+      speedSerie_Mile                              = null;
+      speedSerie_NauticalMile                      = null;
 
-      speedSerie_Interval = null;
-      speedSerie_Interval_Mile = null;
-      speedSerie_Interval_NauticalMile = null;
+      speedSerie_Interval                          = null;
+      speedSerie_Interval_Mile                     = null;
+      speedSerie_Interval_NauticalMile             = null;
 
-      speedSerie_Summarized = null;
-      speedSerie_Summarized_Mile = null;
-      speedSerie_Summarized_NauticalMile = null;
+      speedSerie_Summarized                        = null;
+      speedSerie_Summarized_Mile                   = null;
+      speedSerie_Summarized_NauticalMile           = null;
 
       verticalSpeed_DPTolerance = -1;
 
@@ -2624,71 +2637,71 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          powerSerie = null;
       }
 
-      timeSerieDouble = null;
-      timeSerieWithTimeZoneAdjustment = null;
+      timeSerieDouble                              = null;
+      timeSerieWithTimeZoneAdjustment              = null;
 
-      distanceSerieDouble_Kilometer = null;
-      distanceSerieDouble_Mile = null;
-      distanceSerieDouble_NauticalMile = null;
+      distanceSerieDouble_Kilometer                = null;
+      distanceSerieDouble_Mile                     = null;
+      distanceSerieDouble_NauticalMile             = null;
 
-      breakTimeSerie = null;
-      pausedTimeSerie = null;
-      movingTimeSerie = null;
-      recordedTimeSerie = null;
+      breakTimeSerie                               = null;
+      pausedTimeSerie                              = null;
+      movingTimeSerie                              = null;
+      recordedTimeSerie                            = null;
 
-      _pulseSerie_Smoothed = null;
-      pulseSerie_FromTime = null;
-      pulseSerie_RRIntervals = null;
+      _pulseSerie_Smoothed                         = null;
+      pulseSerie_FromTime                          = null;
+      pulseSerie_RRIntervals                       = null;
 
-      gradientSerie = null;
+      gradientSerie                                = null;
 
-      paceSerie_Seconds = null;
-      paceSerie_Seconds_Imperial = null;
-      paceSerie_Minute = null;
-      paceSerie_Minute_Imperial = null;
+      paceSerie_Seconds                            = null;
+      paceSerie_Seconds_Imperial                   = null;
+      paceSerie_Minute                             = null;
+      paceSerie_Minute_Imperial                    = null;
 
-      paceSerie_Interval_Seconds = null;
-      paceSerie_Interval_Seconds_Imperial = null;
+      paceSerie_Interval_Seconds                   = null;
+      paceSerie_Interval_Seconds_Imperial          = null;
 
-      paceSerie_Summarized_Seconds = null;
-      paceSerie_Summarized_Seconds_Imperial = null;
+      paceSerie_Summarized_Seconds                 = null;
+      paceSerie_Summarized_Seconds_Imperial        = null;
 
-      altimeterSerie = null;
-      altimeterSerieImperial = null;
+      altimeterSerie                               = null;
+      altimeterSerieImperial                       = null;
 
-      altitudeSerieSmoothed = null;
-      altitudeSerieImperial = null;
-      altitudeSerieImperialSmoothed = null;
+      altitudeSerieSmoothed                        = null;
+      altitudeSerieImperial                        = null;
+      altitudeSerieImperialSmoothed                = null;
 
-      cadenceSerieWithMultiplier = null;
+      cadenceSerieWithMultiplier                   = null;
 
-      _radar_VehicleStates = null;
-      _radar_PassedVehicles_UI = null;
+      _radar_VehicleStates                         = null;
+      _radar_PassedVehicles_UI                     = null;
 
-      _radar_DistanceToVehicle_Meter = null;
-      _radar_DistanceToVehicle_Yard = null;
+      _radar_DistanceToVehicle_Meter               = null;
+      _radar_DistanceToVehicle_Yard                = null;
 
-      _radar_PassingSpeed_Absolute_Kilometer = null;
-      _radar_PassingSpeed_Absolute_Mile = null;
-      _radar_PassingSpeed_Absolute_NauticalMile = null;
+      _radar_PassingSpeed_Absolute_Kilometer       = null;
+      _radar_PassingSpeed_Absolute_Mile            = null;
+      _radar_PassingSpeed_Absolute_NauticalMile    = null;
 
-      _radar_PassingSpeed_Relative_Kilometer = null;
-      _radar_PassingSpeed_Relative_Mile = null;
-      _radar_PassingSpeed_Relative_NauticalMile = null;
+      _radar_PassingSpeed_Relative_Kilometer       = null;
+      _radar_PassingSpeed_Relative_Mile            = null;
+      _radar_PassingSpeed_Relative_NauticalMile    = null;
 
-      _runDyn_StanceTime_UI = null;
-      _runDyn_StanceTimeBalance_UI = null;
-      _runDyn_StepLength_UI = null;
-      _runDyn_StepLength_UI_Imperial = null;
-      _runDyn_VerticalOscillation_UI = null;
-      _runDyn_VerticalOscillation_UI_Imperial = null;
-      _runDyn_VerticalRatio_UI = null;
+      _runDyn_StanceTime_UI                        = null;
+      _runDyn_StanceTimeBalance_UI                 = null;
+      _runDyn_StepLength_UI                        = null;
+      _runDyn_StepLength_UI_Imperial               = null;
+      _runDyn_VerticalOscillation_UI               = null;
+      _runDyn_VerticalOscillation_UI_Imperial      = null;
+      _runDyn_VerticalRatio_UI                     = null;
 
-      _swim_LengthType_UI = null;
-      _swim_Cadence_UI = null;
-      _swim_Strokes_UI = null;
-      _swim_StrokeStyle_UI = null;
-      _swim_Swolf = null;
+      _swim_LengthType_UI                          = null;
+      _swim_Cadence_UI                             = null;
+      _swim_Strokes_UI                             = null;
+      _swim_StrokeStyle_UI                         = null;
+      _swim_Swolf                                  = null;
 
       if (swim_Cadence != null) {
 
@@ -2696,23 +2709,25 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          cadenceSerie = null;
       }
 
-      srtmSerie = null;
-      srtmSerieImperial = null;
-      _isSRTM1Values = false;
+      srtmSerie                                    = null;
+      srtmSerieImperial                            = null;
+      _isSRTM1Values                               = false;
 
-      _geoBounds = null;
-      _worldPixelBounds = null;
-      _isGeoBoundsChecked = false;
+      _geoBounds                                   = null;
+      _worldPixelBounds                            = null;
+      _isGeoBoundsChecked                          = false;
 
-      _rasterizedLatLon = null;
-      geoGrid = null;
+      _rasterizedLatLon                            = null;
+      geoGrid                                      = null;
 
-      _hrZones = null;
-      _hrZoneContext = null;
+      _hrZones                                     = null;
+      _hrZoneContext                               = null;
 
-      _gearValues = null;
+      _gearValues                                  = null;
 
-      _cadenceGaps = null;
+      _cadenceGaps                                 = null;
+
+// SET_FORMATTING_ON
    }
 
    /**
@@ -2751,6 +2766,30 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 // SET_FORMATTING_ON
 
       return tourDataCopy;
+   }
+
+   private boolean[] cloneSerie(final boolean[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
+   }
+
+   private double[] cloneSerie(final double[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
+   }
+
+   private float[] cloneSerie(final float[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
+   }
+
+   private int[] cloneSerie(final int[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
+   }
+
+   private long[] cloneSerie(final long[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
+   }
+
+   private short[] cloneSerie(final short[] valueSerie) {
+      return valueSerie == null ? null : valueSerie.clone();
    }
 
    /**
@@ -2847,6 +2886,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          computeDataSeries_NotSmoothed();
 
       } else {
+
+         // SMOOTHING_ALGORITHM_INITIAL
 
          if (deviceTimeInterval == -1) {
             computeAltimeterGradientSerieWithVariableInterval();
@@ -7187,7 +7228,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
     * Create the tour segment list from the segment index array {@link #segmentSerieIndex}
     *
     * @param breakTimeConfig
-    * @param flatGainLoss_Gradient
     *
     * @return
     */
@@ -7211,9 +7251,9 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       final float[] localPowerSerie = getPowerSerie();
       final boolean isPowerDataAvailable = (localPowerSerie != null) && (localPowerSerie.length > 0);
 
-      final int segmentSerieLength = segmentSerieIndex.length;
+      final int numSegments = segmentSerieIndex.length;
 
-      final ArrayList<TourSegment> tourSegments = new ArrayList<>(segmentSerieLength);
+      final ArrayList<TourSegment> allSegments = new ArrayList<>(numSegments);
       final int firstSerieIndex = segmentSerieIndex[0];
 
       /*
@@ -7243,26 +7283,26 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
             ? 0
             : tourComputedTime_Moving * 1000 / (tourDistance * UI.UNIT_VALUE_DISTANCE);
 
-      segmentSerie_Time_Elapsed = new int[segmentSerieLength];
-      segmentSerie_Time_Recorded = new int[segmentSerieLength];
-      segmentSerie_Time_Paused = new int[segmentSerieLength];
-      segmentSerie_Time_Moving = new int[segmentSerieLength];
-      segmentSerie_Time_Break = new int[segmentSerieLength];
-      segmentSerie_Time_Total = new int[segmentSerieLength];
+      segmentSerie_Time_Elapsed = new int[numSegments];
+      segmentSerie_Time_Recorded = new int[numSegments];
+      segmentSerie_Time_Paused = new int[numSegments];
+      segmentSerie_Time_Moving = new int[numSegments];
+      segmentSerie_Time_Break = new int[numSegments];
+      segmentSerie_Time_Total = new int[numSegments];
 
-      segmentSerie_Distance_Diff = new float[segmentSerieLength];
-      segmentSerie_Distance_Total = new float[segmentSerieLength];
+      segmentSerie_Distance_Diff = new float[numSegments];
+      segmentSerie_Distance_Total = new float[numSegments];
 
-      segmentSerie_Elevation_Diff = new float[segmentSerieLength];
-      segmentSerie_Elevation_GainLoss_Hour = new float[segmentSerieLength];
+      segmentSerie_Elevation_Diff = new float[numSegments];
+      segmentSerie_Elevation_GainLoss_Hour = new float[numSegments];
 
-      segmentSerie_Speed = new float[segmentSerieLength];
-      segmentSerie_Pace = new float[segmentSerieLength];
+      segmentSerie_Speed = new float[numSegments];
+      segmentSerie_Pace = new float[numSegments];
 
-      segmentSerie_Cadence = new float[segmentSerieLength];
-      segmentSerie_Gradient = new float[segmentSerieLength];
-      segmentSerie_Power = new float[segmentSerieLength];
-      segmentSerie_Pulse = new float[segmentSerieLength];
+      segmentSerie_Cadence = new float[numSegments];
+      segmentSerie_Gradient = new float[numSegments];
+      segmentSerie_Power = new float[numSegments];
+      segmentSerie_Pulse = new float[numSegments];
 
       int segmentIndex2nd = 0;
 
@@ -7275,17 +7315,19 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       float totalDistance = 0;
       float totalElevation_Gain = 0;
       float totalElevation_Loss = 0;
+      float totalElevation_InBreak_Gain = 0;
+      float totalElevation_InBreak_Loss = 0;
 
       final boolean is2ndSerieIndex = segmentSerieIndex2nd != null;
 
       // compute segment values between tour start and tour end
-      for (int segmentIndex = 1; segmentIndex < segmentSerieLength; segmentIndex++) {
+      for (int segmentIndex = 1; segmentIndex < numSegments; segmentIndex++) {
 
          final int segmentStartIndex = segmentSerieIndex[segmentIndex - 1];
          final int segmentEndIndex = segmentSerieIndex[segmentIndex];
 
          final TourSegment segment = new TourSegment();
-         tourSegments.add(segment);
+         allSegments.add(segment);
 
          segment.sequence = segmentIndex;
 
@@ -7367,12 +7409,23 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
             final float elevationEnd = segmenterElevationSerie[segmentEndIndex];
             final float elevationDiff = elevationEnd - elevationStart;
 
-            final float altiUpDownHour = segmentTime == 0
+            final float elevationUpDownHour = segmentTime == 0
                   ? 0
                   : elevationDiff / segmentTime * 3600;
 
+            final float[] elevationInBreakTime = getElevationInBreakTime(segmentStartIndex, segmentEndIndex);
+
+            final float elevationInBreak_Gain = elevationInBreakTime[0];
+            final float elevationInBreak_Loss = elevationInBreakTime[1];
+
+            segment.elevationGain_InBreakTime = elevationInBreak_Gain;
+            segment.elevationLoss_InBreakTime = elevationInBreak_Loss;
+
+            totalElevation_InBreak_Gain += elevationInBreak_Gain;
+            totalElevation_InBreak_Loss += elevationInBreak_Loss;
+
             segmentSerie_Elevation_Diff[segmentIndex] = segment.altitude_Segment_Border_Diff = elevationDiff;
-            segmentSerie_Elevation_GainLoss_Hour[segmentIndex] = altiUpDownHour;
+            segmentSerie_Elevation_GainLoss_Hour[segmentIndex] = elevationUpDownHour;
 
             if (elevationDiff > 0) {
 
@@ -7450,7 +7503,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
                }
             }
 
-            // end point of the current segment is the start of the next segment
+            // the end point of the current segment is the start of the next segment
             elevationStart = elevationEnd;
          }
 
@@ -7537,12 +7590,18 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       totalSegment.altitude_Segment_Down = totalElevation_Loss;
       totalSegment.altitude_Segment_Up = totalElevation_Gain;
 
-      tourSegments.add(totalSegment);
+      totalSegment.elevationGain_InBreakTime = totalElevation_InBreak_Gain;
+      totalSegment.elevationLoss_InBreakTime = totalElevation_InBreak_Loss;
+
+      allSegments.add(totalSegment);
 
       segmentSerieTotal_Elevation_Gain = totalElevation_Gain;
       segmentSerieTotal_Elevation_Loss = totalElevation_Loss;
 
-      return tourSegments;
+      segmentSerieTotal_Elevation_InBreak_Gain = totalElevation_InBreak_Gain;
+      segmentSerieTotal_Elevation_InBreak_Loss = totalElevation_InBreak_Loss;
+
+      return allSegments;
    }
 
    private void createSRTMDataSerie(final boolean isUseSrtm1Values) {
@@ -9588,6 +9647,45 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    public double getElevation_Avg() {
 
       return StreamUtils.computeAverage(getAltitudeSerie());
+   }
+
+   private float[] getElevationInBreakTime(final int segmentStartIndex, final int segmentEndIndex) {
+
+      if (altitudeSerie == null || breakTimeSerie == null) {
+         return new float[] { 0, 0 };
+      }
+
+      /*
+       * Computes elevation gain/loss in break times
+       */
+      float elevationGain_InBreak = 0;
+      float elevationLoss_InBreak = 0;
+
+      float elevationPrev = altitudeSerie[segmentStartIndex];
+
+      for (int serieIndex = segmentStartIndex + 1; serieIndex <= segmentEndIndex; serieIndex++) {
+
+         final float elevation = altitudeSerie[serieIndex];
+         final boolean isBreakTime = breakTimeSerie[serieIndex];
+
+         if (isBreakTime) {
+
+            final float elevationDiff = elevation - elevationPrev;
+
+            if (elevationDiff >= 0) {
+
+               elevationGain_InBreak += elevationDiff;
+
+            } else {
+
+               elevationLoss_InBreak -= elevationDiff;
+            }
+         }
+
+         elevationPrev = elevation;
+      }
+
+      return new float[] { elevationGain_InBreak, elevationLoss_InBreak };
    }
 
    /**
@@ -12987,7 +13085,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       battery_Percentage            = serieData.battery_Percentage;
       battery_Time                  = serieData.battery_Time;
 
-
       // radar
       radar_PassedVehicles          = serieData.radar_PassedVehicles;
       radar_DistanceToVehicle       = serieData.radar_DistanceToVehicle;
@@ -14312,6 +14409,29 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    }
 
    /**
+    * Set tour end and elapsed time from the time slices, it requires that the tour start time is
+    * already set
+    *
+    * @param tourData
+    */
+   public void setTourEndAndElapsedTime() {
+
+      if (timeSerie == null) {
+         return;
+      }
+
+      final int numSlices = timeSerie.length;
+
+      long elapsedTime = 0;
+
+      if (numSlices > 0) {
+         elapsedTime = timeSerie[numSlices - 1];
+      }
+
+      setTourDeviceTime_Elapsed(elapsedTime);
+   }
+
+   /**
     * @param tourEndPlace
     *           Set tour end location text
     */
@@ -15487,6 +15607,167 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       }
 
       return null;
+   }
+
+   /**
+    * This is needed for the undo/redo feature
+    */
+   public TourData undoRedo_CloneData() {
+
+      final TourData clonedTourData = new TourData();
+
+      clonedTourData.setTourStartTime(getTourStartTime());
+
+// SET_FORMATTING_OFF
+
+      clonedTourData.tourMarkers                   = undoRedo_CloneTourMarkers();
+
+      // clone value series
+
+      clonedTourData.timeSerie                     = cloneSerie(timeSerie);
+      clonedTourData.altitudeSerie                 = cloneSerie(altitudeSerie);
+      clonedTourData.cadenceSerie                  = cloneSerie(cadenceSerie);
+      clonedTourData.distanceSerie                 = cloneSerie(distanceSerie);
+      clonedTourData.pulseSerie                    = cloneSerie(pulseSerie);
+      clonedTourData.temperatureSerie              = cloneSerie(temperatureSerie);
+      clonedTourData.powerSerie                    = cloneSerie(powerSerie);
+      clonedTourData.speedSerie                    = cloneSerie(speedSerie);
+      clonedTourData.pausedTime_Start              = cloneSerie(pausedTime_Start);
+      clonedTourData.pausedTime_End                = cloneSerie(pausedTime_End);
+      clonedTourData.pausedTime_Data               = cloneSerie(pausedTime_Data);
+
+      if (latitudeSerie != null) {
+
+         clonedTourData.latitudeSerie              = cloneSerie(latitudeSerie);
+         clonedTourData.longitudeSerie             = cloneSerie(longitudeSerie);
+      }
+
+      clonedTourData.gearSerieCombined             = cloneSerie(gearSerieCombined);
+
+      clonedTourData.pulseTime_Milliseconds        = cloneSerie(pulseTime_Milliseconds);
+      clonedTourData.pulseTime_TimeIndex           = cloneSerie(pulseTime_TimeIndex);
+
+      // running dynamics
+      clonedTourData.runDyn_StanceTime             = cloneSerie(runDyn_StanceTime);
+      clonedTourData.runDyn_StanceTimeBalance      = cloneSerie(runDyn_StanceTimeBalance);
+      clonedTourData.runDyn_StepLength             = cloneSerie(runDyn_StepLength);
+      clonedTourData.runDyn_VerticalOscillation    = cloneSerie(runDyn_VerticalOscillation);
+      clonedTourData.runDyn_VerticalRatio          = cloneSerie(runDyn_VerticalRatio);
+
+      // swimming
+      clonedTourData.swim_LengthType               = cloneSerie(swim_LengthType);
+      clonedTourData.swim_Cadence                  = cloneSerie(swim_Cadence);
+      clonedTourData.swim_Strokes                  = cloneSerie(swim_Strokes);
+      clonedTourData.swim_StrokeStyle              = cloneSerie(swim_StrokeStyle);
+      clonedTourData.swim_Time                     = cloneSerie(swim_Time);
+
+      // currently only surfing data can be made visible
+      clonedTourData.visibleDataPointSerie         = cloneSerie(visiblePoints_ForSurfing);
+
+      // battery
+      clonedTourData.battery_Percentage            = cloneSerie(battery_Percentage);
+      clonedTourData.battery_Time                  = cloneSerie(battery_Time);
+
+      // radar
+      clonedTourData.radar_PassedVehicles          = cloneSerie(radar_PassedVehicles);
+      clonedTourData.radar_DistanceToVehicle       = cloneSerie(radar_DistanceToVehicle);
+      clonedTourData.radar_PassingSpeed_Absolute   = cloneSerie(radar_PassingSpeed_Absolute);
+      clonedTourData.radar_PassingSpeed_Relative   = cloneSerie(radar_PassingSpeed_Relative);
+
+// SET_FORMATTING_ON
+
+      return clonedTourData;
+   }
+
+   private Set<TourMarker> undoRedo_CloneTourMarkers() {
+
+      final Set<TourMarker> allClonedTourMarkers = new HashSet<>();
+
+      for (final TourMarker tourMarker : tourMarkers) {
+         allClonedTourMarkers.add(tourMarker.clone());
+      }
+
+      return allClonedTourMarkers;
+   }
+
+   public void undoRedo_RevertTourData(final TourData clonedTourData,
+                                       final int firstIndex,
+                                       final int lastIndex) {
+
+// SET_FORMATTING_OFF
+
+      tourMarkers                   = undoRedo_RevertTourMarkers(clonedTourData, firstIndex, lastIndex);
+
+      // clone value series
+
+      timeSerie                     = clonedTourData.timeSerie;
+      altitudeSerie                 = clonedTourData.altitudeSerie;
+      cadenceSerie                  = clonedTourData.cadenceSerie;
+      distanceSerie                 = clonedTourData.distanceSerie;
+      pulseSerie                    = clonedTourData.pulseSerie;
+      temperatureSerie              = clonedTourData.temperatureSerie;
+      powerSerie                    = clonedTourData.powerSerie;
+      speedSerie                    = clonedTourData.speedSerie;
+      pausedTime_Start              = clonedTourData.pausedTime_Start;
+      pausedTime_End                = clonedTourData.pausedTime_End;
+      pausedTime_Data               = clonedTourData.pausedTime_Data;
+
+      if (latitudeSerie != null) {
+
+         latitudeSerie              = clonedTourData.latitudeSerie;
+         longitudeSerie             = clonedTourData.longitudeSerie;
+      }
+
+      gearSerieCombined             = clonedTourData.gearSerieCombined;
+
+      pulseTime_Milliseconds        = clonedTourData.pulseTime_Milliseconds;
+      pulseTime_TimeIndex           = clonedTourData.pulseTime_TimeIndex;
+
+      // running dynamics
+      runDyn_StanceTime             = clonedTourData.runDyn_StanceTime;
+      runDyn_StanceTimeBalance      = clonedTourData.runDyn_StanceTimeBalance;
+      runDyn_StepLength             = clonedTourData.runDyn_StepLength;
+      runDyn_VerticalOscillation    = clonedTourData.runDyn_VerticalOscillation;
+      runDyn_VerticalRatio          = clonedTourData.runDyn_VerticalRatio;
+
+      // swimming
+      swim_LengthType               = clonedTourData.swim_LengthType;
+      swim_Cadence                  = clonedTourData.swim_Cadence;
+      swim_Strokes                  = clonedTourData.swim_Strokes;
+      swim_StrokeStyle              = clonedTourData.swim_StrokeStyle;
+      swim_Time                     = clonedTourData.swim_Time;
+
+      // currently only surfing data can be made visible
+      visibleDataPointSerie         = clonedTourData.visibleDataPointSerie;
+
+      // battery
+      battery_Percentage            = clonedTourData.battery_Percentage;
+      battery_Time                  = clonedTourData.battery_Time;
+
+      // radar
+      radar_PassedVehicles          = clonedTourData.radar_PassedVehicles;
+      radar_DistanceToVehicle       = clonedTourData.radar_DistanceToVehicle;
+      radar_PassingSpeed_Absolute   = clonedTourData.radar_PassingSpeed_Absolute;
+      radar_PassingSpeed_Relative   = clonedTourData.radar_PassingSpeed_Relative;
+
+// SET_FORMATTING_ON
+
+      setTourStartTime(clonedTourData.getTourStartTime());
+      setTourEndAndElapsedTime();
+
+      clearWorldPositions();
+      clearComputedSeries();
+   }
+
+   private Set<TourMarker> undoRedo_RevertTourMarkers(final TourData clonedTourData,
+                                                      final int firstIndex,
+                                                      final int lastIndex) {
+
+      final Set<TourMarker> allTourMarkers = new HashSet<>();
+
+      allTourMarkers.addAll(clonedTourData.tourMarkers);
+
+      return allTourMarkers;
    }
 
    /**

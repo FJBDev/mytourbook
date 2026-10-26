@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+ * Copyright (C) 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ import java.util.Map;
 import net.tourbook.Images;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.tour.TourManager;
+import net.tourbook.ui.tourChart.TourChartView;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -30,18 +31,18 @@ import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.menus.UIElement;
 
-public class RestoreTour_Handler extends AbstractHandler implements IElementUpdater {
+public class SaveTour_Handler_InChart extends AbstractHandler implements IElementUpdater {
 
-   private static final ImageDescriptor _iconRestoreTour = TourbookPlugin.getThemedImageDescriptor(Images.RestoreTour);
+   private static final ImageDescriptor _iconSaveTour = TourbookPlugin.getThemedImageDescriptor(Images.SaveTour);
 
    @Override
    public Object execute(final ExecutionEvent event) throws ExecutionException {
 
       final IWorkbenchPart part = HandlerUtil.getActivePart(event);
 
-      if (part instanceof ISaveAndRestorePart) {
+      if (part instanceof final TourChartView chartView) {
 
-         ((ISaveAndRestorePart) part).doRestore();
+         chartView.doSave(null);
       }
 
       return null;
@@ -50,7 +51,7 @@ public class RestoreTour_Handler extends AbstractHandler implements IElementUpda
    @Override
    public boolean isEnabled() {
 
-      return TourManager.isTourModified();
+      return TourManager.isTourModified_InChart();
    }
 
    @SuppressWarnings("rawtypes")
@@ -63,9 +64,10 @@ public class RestoreTour_Handler extends AbstractHandler implements IElementUpda
        * This method will be called from partActivated() with
        * org.eclipse.ui.commands.ICommandService.refreshElements(..)
        * <p>
-       * -> Highly complicated
+       * -> Higly complicated
        */
 
-      uiElement.setIcon(_iconRestoreTour);
+      uiElement.setIcon(_iconSaveTour);
    }
+
 }

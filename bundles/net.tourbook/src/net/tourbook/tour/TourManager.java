@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -100,6 +100,7 @@ import net.tourbook.ui.tourChart.TourChart;
 import net.tourbook.ui.tourChart.TourChartConfiguration;
 import net.tourbook.ui.tourChart.TourChartView;
 import net.tourbook.ui.tourChart.X_AXIS_START_TIME;
+import net.tourbook.ui.views.ISmoothingAlgorithm;
 import net.tourbook.ui.views.IWeatherProvider;
 import net.tourbook.ui.views.TourChartAnalyzerInfo;
 import net.tourbook.ui.views.collateTours.CollatedToursView;
@@ -111,6 +112,9 @@ import net.tourbook.weather.TourWeatherRetriever;
 import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList;
+import org.eclipse.core.commands.operations.IOperationHistory;
+import org.eclipse.core.commands.operations.IUndoContext;
+import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -305,10 +309,16 @@ public class TourManager {
 
    //
    /**
-    * contains the instance of the {@link TourDataEditorView} or <code>null</code> when this part is
+    * Contains the instance of the {@link TourDataEditorView} or <code>null</code> when this part is
     * not opened
     */
-   private static TourDataEditorView       _tourDataEditorInstance;
+   private static TourDataEditorView       _tourDataEditor;
+   //
+   /**
+    * Contains the instance of the {@link TourChartView} or <code>null</code> when this part is
+    * not opened
+    */
+   private static TourChartView            _tourChartView;
    //
    private static LabelProviderMMSS        _labelProviderMMSS = new LabelProviderMMSS();
    private static LabelProviderInt         _labelProviderInt  = new LabelProviderInt();
@@ -1867,18 +1877,18 @@ public class TourManager {
     *         part is not opened
     */
    public static TourDataEditorView getTourDataEditor() {
-      return _tourDataEditorInstance;
+      return _tourDataEditor;
    }
 
    private static TourData getTourDataEditorTour(final List<TourData> allToursAsList) {
 
       final TourData defaultTourData = allToursAsList.get(0);
 
-      if (_tourDataEditorInstance == null) {
+      if (_tourDataEditor == null) {
          return defaultTourData;
       }
 
-      final TourData tourDataInEditor = _tourDataEditorInstance.getTourData();
+      final TourData tourDataInEditor = _tourDataEditor.getTourData();
 
       if (tourDataInEditor == null) {
          return defaultTourData;
@@ -2109,40 +2119,48 @@ public class TourManager {
    }
 
    /**
-    * Checks if a tour in the {@link TourDataEditorView} is modified and shows the editor when it's
-    * modified. A message dialog informs the user about the modified tour and that the requested
-    * actions cannot be done.
+    * Checks if a tour is modified in {@link TourDataEditorView} or {@link TourChartView} and
+    * shows the editor when it is modified.
+    * <p>
+    * A message dialog informs the user about the modified tour.
     *
     * @return Returns <code>true</code> when the tour is modified in the {@link TourDataEditorView}
     */
-   public static boolean isTourEditorModified() {
-      return isTourEditorModified(true);
+   public static boolean isTourModified() {
+      return isTourModified(true);
    }
 
    /**
-    * Checks if a tour in the {@link TourDataEditorView} is modified and shows the editor when it's
-    * modified. A message dialog informs the user about the modified tour and that the requested
-    * actions cannot be done.
+    * Checks if a tour in the {@link TourDataEditorView} or {@link TourChartView} is modified and
+    * shows the editor when its modified. A message dialog informs the user about the modified tour
+    * and that the requested actions cannot be done.
     *
-    * @param isOpenEditor
-    *           When <code>true</code> then the tour editor is displayed.
+    * @param isOpenView
+    *           When <code>true</code> then the view is displayed
     *
     * @return Returns <code>true</code> when the tour is modified in the {@link TourDataEditorView}
     */
-   public static boolean isTourEditorModified(final boolean isOpenEditor) {
+   public static boolean isTourModified(final boolean isOpenView) {
 
-      final TourDataEditorView tourDataEditor = getTourDataEditor();
+      if (isTourModified_InEditor_WithInfo(isOpenView)) {
+         return true;
+      }
 
-      if (tourDataEditor != null && tourDataEditor.isDirty()) {
+      if (isTourModified_InChart_WithInfo(isOpenView)) {
+         return true;
+      }
 
-         if (isOpenEditor) {
-            openTourEditor(true);
-         }
+      return false;
+   }
 
-         MessageDialog.openInformation(
-               Display.getCurrent().getActiveShell(),
-               Messages.dialog_is_tour_editor_modified_title,
-               Messages.dialog_is_tour_editor_modified_message);
+   /**
+    * Is just checking the {@link TourChartView} if dirty or not
+    *
+    * @return
+    */
+   public static boolean isTourModified_InChart() {
+
+      if (_tourChartView != null && _tourChartView.isDirty()) {
 
          return true;
       }
@@ -2150,11 +2168,100 @@ public class TourManager {
       return false;
    }
 
-   public static boolean isTourModified() {
+   /**
+    * @return Returns <code>true</code> when the tour chart has items in the undo history
+    */
+   public static boolean isTourModified_InChart_History() {
 
-      final TourDataEditorView tourDataEditor = getTourDataEditor();
+      if (_tourChartView != null) {
 
-      if (tourDataEditor != null && tourDataEditor.isDirty()) {
+         final IUndoContext undoContext = _tourChartView.getUndoContext();
+
+         final IOperationHistory opHistory = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory();
+         final IUndoableOperation[] undoHistory = opHistory.getUndoHistory(undoContext);
+         final IUndoableOperation[] redoHistory = opHistory.getRedoHistory(undoContext);
+
+         final boolean isUndoAvailable = undoHistory.length > 0 || redoHistory.length > 0;
+
+         return isUndoAvailable;
+      }
+
+      return false;
+   }
+
+   /**
+    * The user is notified with an info dialog when the tour chart is modified
+    *
+    * @param isOpenView
+    *
+    * @return
+    */
+   private static boolean isTourModified_InChart_WithInfo(final boolean isOpenView) {
+
+      if (isTourModified_InChart()) {
+
+         if (isOpenView) {
+            openTourChart();
+         }
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.TourManager_Dialog_TourChartIsModified_Title,
+               Messages.TourManager_Dialog_TourChartIsModified_SaveOrRevert_Message);
+
+         return true;
+
+      } else if (isTourModified_InChart_History()) {
+
+         if (isOpenView) {
+            openTourChart();
+         }
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.TourManager_Dialog_TourChartIsModified_Title,
+               Messages.TourManager_Dialog_TourChartIsModified_ClearUndoHistory_Message);
+
+         return true;
+      }
+
+      return false;
+   }
+
+   /**
+    * Is just checking the {@link TourDataEditorView} if dirty or not
+    *
+    * @return
+    */
+   public static boolean isTourModified_InEditor() {
+
+      if (_tourDataEditor != null && _tourDataEditor.isDirty()) {
+
+         return true;
+      }
+
+      return false;
+   }
+
+   /**
+    * The user is notified with an info dialog when the tour editor is modified
+    *
+    * @param isOpenView
+    *
+    * @return
+    */
+   public static boolean isTourModified_InEditor_WithInfo(final boolean isOpenView) {
+
+      if (isTourModified_InEditor()) {
+
+         if (isOpenView) {
+            openTourEditor(true);
+         }
+
+         MessageDialog.openInformation(
+               Display.getCurrent().getActiveShell(),
+               Messages.TourManager_Dialog_TourEditorIsModified_Title,
+               Messages.TourManager_Dialog_TourEditorIsModified_Message);
 
          return true;
       }
@@ -2446,6 +2553,38 @@ public class TourManager {
    }
 
    /**
+    *
+    * @return
+    */
+   private static void openTourChart() {
+
+      /*
+       * Must be run in the UI thread because PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+       * returns null in none UI threads
+       */
+      Display.getDefault().syncExec(() -> {
+
+         try {
+
+            final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            final IWorkbenchPage page = activeWorkbenchWindow.getActivePage();
+            final IViewPart viewPart = page.showView(TourChartView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+
+            if (viewPart instanceof TourChartView) {
+
+               if (page.isPartVisible(viewPart) == false) {
+
+                  page.bringToTop(viewPart);
+               }
+            }
+
+         } catch (final PartInitException e) {
+            StatusUtil.log(e);
+         }
+      });
+   }
+
+   /**
     * @param isActive
     *
     * @return
@@ -2463,9 +2602,7 @@ public class TourManager {
          try {
 
             final IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
             final IWorkbenchPage page = activeWorkbenchWindow.getActivePage();
-
             final IViewPart viewPart = page.showView(TourDataEditorView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 
             if (viewPart instanceof final TourDataEditorView tourDataEditorViewPart) {
@@ -2499,7 +2636,7 @@ public class TourManager {
    }
 
    /**
-    * Remove time slices from {@link TourData}
+    * Remove time slices from {@link TourData} which includes the first and the last index
     *
     * @param tourData
     * @param firstIndex
@@ -2636,6 +2773,8 @@ public class TourManager {
       tourData.segmentSerieIndex2nd = null;
 
       removeTimeSlices_TourMarkers(tourData, firstIndex, lastIndex, isRemoveTime);
+
+      tourData.setTourEndAndElapsedTime();
    }
 
    private static double[] removeTimeSlices_Double(final double[] dataSerie,
@@ -2833,9 +2972,10 @@ public class TourManager {
       final boolean isRemovePhotoSlices = isAdjustTourStartTime && firstIndex == 0;
 
       final boolean isRemoveTimeValues = isRemoveTime || isRemovePhotoSlices;
+      final int nextIndex = lastIndex + 1;
 
       final int timeFirstIndex = timeSerie[firstIndex];
-      final int timeNextIndex = timeSerie[lastIndex + 1];
+      final int timeNextIndex = timeSerie[nextIndex];
 
       int timeDiff = 0;
       if (isRemoveTimeValues) {
@@ -2844,11 +2984,11 @@ public class TourManager {
 
       float distDiff = -1;
       if (isRemoveDistance && distSerie != null) {
-         distDiff = distSerie[lastIndex + 1] - distSerie[firstIndex];
+         distDiff = distSerie[nextIndex] - distSerie[firstIndex];
       }
 
       // update remaining time and distance data series
-      for (int serieIndex = lastIndex + 1; serieIndex < timeSerie.length; serieIndex++) {
+      for (int serieIndex = nextIndex; serieIndex < timeSerie.length; serieIndex++) {
 
          if (isRemoveTimeValues) {
             timeSerie[serieIndex] = timeSerie[serieIndex] - timeDiff;
@@ -3301,7 +3441,7 @@ public class TourManager {
       boolean doSaveTour = false;
       TourData savedTour = null;
 
-      final TourDataEditorView tourDataEditor = getTourDataEditor();
+      final TourDataEditorView tourDataEditor = _tourDataEditor;
       if (tourDataEditor != null) {
 
          final TourData tourDataInEditor = tourDataEditor.getTourData();
@@ -3509,8 +3649,14 @@ public class TourManager {
 
    }
 
+   public static void setTourChartEditor(final TourChartView tourChartView) {
+
+      _tourChartView = tourChartView;
+   }
+
    public static void setTourDataEditor(final TourDataEditorView tourDataEditorView) {
-      _tourDataEditorInstance = tourDataEditorView;
+
+      _tourDataEditor = tourDataEditorView;
    }
 
    private static void setupMultiTourMarker(final TourData tourData) {
@@ -3562,7 +3708,7 @@ public class TourManager {
     */
    public static void tourPhoto_Add(final PhotoGallery photoGallery) {
 
-      if (isTourEditorModified()) {
+      if (isTourModified()) {
          return;
       }
 
@@ -3658,7 +3804,7 @@ public class TourManager {
 
    public static void tourPhoto_Remove(final PaintedMapPoint hoveredMapPoint) {
 
-      if (isTourEditorModified()) {
+      if (isTourModified()) {
          return;
       }
 
@@ -3789,7 +3935,7 @@ public class TourManager {
     */
    public static void tourPhoto_Remove(final PhotoGallery photoGallery, final ITourProviderByID tourProvider) {
 
-      if (isTourEditorModified()) {
+      if (isTourModified()) {
          return;
       }
 
@@ -4142,9 +4288,9 @@ public class TourManager {
 
       _tourDataCache.clear();
 
-      if (_tourDataEditorInstance != null && _tourDataEditorInstance.isDirty()) {
+      if (_tourDataEditor != null && _tourDataEditor.isDirty()) {
 
-         final TourData tourDataInEditor = _tourDataEditorInstance.getTourData();
+         final TourData tourDataInEditor = _tourDataEditor.getTourData();
          if (tourDataInEditor != null) {
 
             // keep modified tour in cache
@@ -4580,14 +4726,14 @@ public class TourManager {
 
    public ChartDataModel createChartDataModel(final TourData tourData,
                                               final TourChartConfiguration tcc,
-                                              final boolean hasPropertyChanged) {
+                                              final boolean isClearComputedSeries) {
 
-      return createChartDataModel_10(tourData, tcc, hasPropertyChanged);
+      return createChartDataModel_10(tourData, tcc, isClearComputedSeries);
    }
 
    private ChartDataModel createChartDataModel_10(final TourData tourData,
                                                   final TourChartConfiguration tcc,
-                                                  final boolean hasPropertyChanged) {
+                                                  final boolean isClearComputedSeries) {
 
       final ChartDataModel chartDataModel = new ChartDataModel(ChartType.LINE);
 
@@ -4613,14 +4759,17 @@ public class TourManager {
       final RGB rgbText_Distance = PreferenceConverter.getColor(_prefStore_Common, prefColorName_Distance + prefColorTextThemed);
       final RGB rgbText_Time = PreferenceConverter.getColor(_prefStore_Common, prefColorName_Time + prefColorTextThemed);
 
-      if (hasPropertyChanged) {
+      if (isClearComputedSeries) {
          tourData.clearComputedSeries();
       }
 
       tourData.computeSpeedSeries();
       tourData.computeAltimeterGradientSerie();
 
-      computeValueClipping(tourData);
+      final String smoothingAlgo = _prefStore.getString(ITourbookPreferences.GRAPH_SMOOTHING_SMOOTHING_ALGORITHM);
+      if (smoothingAlgo.equals(ISmoothingAlgorithm.SMOOTHING_ALGORITHM_INITIAL)) {
+         computeValueClipping(tourData);
+      }
 
       /*
        * Distance
@@ -6666,9 +6815,9 @@ public class TourManager {
       /*
        * get tour from tour editor when it contains the requested tour
        */
-      if (_tourDataEditorInstance != null) {
+      if (_tourDataEditor != null) {
 
-         final TourData tourDataInEditor = _tourDataEditorInstance.getTourData();
+         final TourData tourDataInEditor = _tourDataEditor.getTourData();
          if (tourDataInEditor != null && tourDataInEditor.getTourId().equals(requestedTourId)) {
 
             // cache tour data
@@ -6808,11 +6957,11 @@ public class TourManager {
     */
    private void replaceTourInTourEditor(final TourData tourDataForEditor) {
 
-      if (tourDataForEditor == null || _tourDataEditorInstance == null) {
+      if (tourDataForEditor == null || _tourDataEditor == null) {
          return;
       }
 
-      final TourData tourDataInEditor = _tourDataEditorInstance.getTourData();
+      final TourData tourDataInEditor = _tourDataEditor.getTourData();
       if (tourDataInEditor == null) {
          return;
       }
@@ -6835,7 +6984,7 @@ public class TourManager {
       /*
        * tour editor contains the wrong tour data instance
        */
-      if (_tourDataEditorInstance.isDirty()) {
+      if (_tourDataEditor.isDirty()) {
 
          MessageDialog.openError(Display.getCurrent().getActiveShell(),
                Messages.TourManager_Dialog_OutOfSyncError_Title,
@@ -6848,7 +6997,7 @@ public class TourManager {
          /*
           * silently replace tour data in editor
           */
-         _tourDataEditorInstance.setTourData(tourDataForEditor);
+         _tourDataEditor.setTourData(tourDataForEditor);
       }
    }
 

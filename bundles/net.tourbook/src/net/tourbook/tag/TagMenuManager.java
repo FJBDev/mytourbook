@@ -166,6 +166,10 @@ public class TagMenuManager implements IActionProvider {
       @Override
       public void run() {
 
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
+
          BusyIndicator.showWhile(Display.getCurrent(), () -> removeAllTags());
       }
    }
@@ -196,6 +200,10 @@ public class TagMenuManager implements IActionProvider {
       @Override
       public void run() {
 
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
+
          clipboard_PasteTags();
       }
    }
@@ -213,6 +221,10 @@ public class TagMenuManager implements IActionProvider {
 
       @Override
       public void run() {
+
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
 
          if (_isAdvMenu) {
 
@@ -271,6 +283,10 @@ public class TagMenuManager implements IActionProvider {
 
       @Override
       public void run() {
+
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
 
          saveTourTags(__tagGroup);
       }
@@ -333,6 +349,10 @@ public class TagMenuManager implements IActionProvider {
 
       @Override
       public void run() {
+
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
 
          if (_isAdvMenu) {
 
@@ -1144,7 +1164,13 @@ public class TagMenuManager implements IActionProvider {
    }
 
    ITourProvider getTourProvider() {
+
       return _tourProvider;
+   }
+
+   boolean isSaveTour() {
+
+      return _isSaveTour;
    }
 
    /**

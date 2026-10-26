@@ -125,6 +125,7 @@ import net.tourbook.ui.action.ActionSetTourTypeMenu;
 import net.tourbook.ui.action.ActionSplitTour;
 import net.tourbook.ui.tourChart.ChartLabelMarker;
 import net.tourbook.ui.tourChart.TourChart;
+import net.tourbook.ui.tourChart.TourChartView;
 import net.tourbook.ui.views.WeatherProvider;
 import net.tourbook.ui.views.WeatherProvidersUI;
 import net.tourbook.ui.views.referenceTour.SelectionReferenceTourView;
@@ -229,6 +230,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
@@ -285,12 +287,12 @@ public class TourDataEditorView extends ViewPart implements
    //
    static final String                   STATE_DESCRIPTION_NUMBER_OF_LINES                = "STATE_DESCRIPTION_NUMBER_OF_LINES";              //$NON-NLS-1$
    static final int                      STATE_DESCRIPTION_NUMBER_OF_LINES_DEFAULT        = 3;
-   static final String                   STATE_IS_ADJUST_TOUR_START_TIME                  = "STATE_IS_ADJUST_TOUR_START_TIME";                //$NON-NLS-1$
-   static final boolean                  STATE_IS_ADJUST_TOUR_START_TIME_DEFAULT          = true;
-   static final String                   STATE_IS_DELETE_KEEP_DISTANCE                    = "STATE_IS_DELETE_KEEP_DISTANCE";                  //$NON-NLS-1$
-   static final boolean                  STATE_IS_DELETE_KEEP_DISTANCE_DEFAULT            = false;
-   static final String                   STATE_IS_DELETE_KEEP_TIME                        = "STATE_IS_DELETE_KEEP_TIME";                      //$NON-NLS-1$
-   static final boolean                  STATE_IS_DELETE_KEEP_TIME_DEFAULT                = false;
+   public static final String            STATE_DELETE_IS_KEEP_TIME                        = "STATE_IS_DELETE_KEEP_TIME";                      //$NON-NLS-1$
+   public static final boolean           STATE_DELETE_IS_KEEP_TIME_DEFAULT                = false;
+   public static final String            STATE_DELETE_IS_KEEP_DISTANCE                    = "STATE_IS_DELETE_KEEP_DISTANCE";                  //$NON-NLS-1$
+   public static final boolean           STATE_DELETE_IS_KEEP_DISTANCE_DEFAULT            = false;
+   public static final String            STATE_DELETE_IS_ADJUST_TOUR_START_TIME           = "STATE_IS_ADJUST_TOUR_START_TIME";                //$NON-NLS-1$
+   public static final boolean           STATE_DELETE_IS_ADJUST_TOUR_START_TIME_DEFAULT   = true;
    static final String                   STATE_IS_ELEVATION_FROM_DEVICE                   = "STATE_IS_ELEVATION_FROM_DEVICE";                 //$NON-NLS-1$
    static final boolean                  STATE_IS_ELEVATION_FROM_DEVICE_DEFAULT           = true;
    static final String                   STATE_IS_RECOMPUTE_ELEVATION_UP_DOWN             = "STATE_IS_RECOMPUTE_ELEVATION_UP_DOWN";           //$NON-NLS-1$
@@ -351,7 +353,6 @@ public class TourDataEditorView extends ViewPart implements
    //
    private static final boolean          IS_LINUX                                         = UI.IS_LINUX;
    private static final boolean          IS_OSX                                           = UI.IS_OSX;
-   private static final boolean          IS_DARK_THEME                                    = UI.IS_DARK_THEME;
    /**
     * this width is used as a hint for the width of the description field, this value also
     * influences the width of the columns in this editor
@@ -2572,6 +2573,7 @@ public class TourDataEditorView extends ViewPart implements
             isAdjustTourStartTime);
 
       getDataSeriesFromTourData();
+      updateMarkerMap();
 
       // update UI
       _isSetField = true;
@@ -2619,6 +2621,173 @@ public class TourDataEditorView extends ViewPart implements
          // fire selection position
          _timeSlice_Viewer.setSelection(_timeSlice_Viewer.getSelection());
       }
+   }
+
+   /**
+    * Edit time slices values :
+    * Altitude, Heartbeat, Temperature, Cadence
+    */
+   void actionEditTimeSlicesValues() {
+
+      if (isRowSelectionMode() == false) {
+         return;
+      }
+
+      // get selected time slices
+      final StructuredSelection selection = (StructuredSelection) _timeSlice_Viewer.getSelection();
+      if (selection.isEmpty()) {
+         return;
+      }
+
+      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData);
+
+      if (dialogEditTimeSlicesValues.open() != Window.OK) {
+         return;
+      }
+
+      BusyIndicator.showWhile(Display.getCurrent(), () -> {
+
+// SET_FORMATTING_OFF
+
+         final boolean isAltitudeValueOffset       = dialogEditTimeSlicesValues.getIsAltitudeValueOffset();
+         final boolean isCadenceValueOffset        = dialogEditTimeSlicesValues.getIsCadenceValueOffset();
+         final boolean isPowerValueOffset          = dialogEditTimeSlicesValues.getIsPowerValueOffset();
+         final boolean isPulseValueOffset          = dialogEditTimeSlicesValues.getIsPulseValueOffset();
+         final boolean isTemperatureValueOffset    = dialogEditTimeSlicesValues.getIsTemperatureValueOffset();
+
+         final float replaceAltitudeValue          = dialogEditTimeSlicesValues.getReplaceAltitudeValue();
+         final float replaceCadenceValue           = dialogEditTimeSlicesValues.getReplaceCadenceValue();
+         final float replacePowerValue             = dialogEditTimeSlicesValues.getReplacePowerValue();
+         final float replacePulseValue             = dialogEditTimeSlicesValues.getReplacePulseValue();
+         final float replaceTemperatureValue       = dialogEditTimeSlicesValues.getReplaceTemperatureValue();
+
+// SET_FORMATTING_ON
+
+         final Object[] allSelectedTimeSlices = selection.toArray();
+         final int numTimeSlices = allSelectedTimeSlices.length;
+
+         final int[] allSelectedSliceIndices = new int[numTimeSlices];
+
+         boolean isModified = false;
+
+         for (int sliceIndex = 0; sliceIndex < numTimeSlices; ++sliceIndex) {
+
+            final TimeSlice timeSlice = (TimeSlice) allSelectedTimeSlices[sliceIndex];
+
+            final int currentTimeSliceIndex = timeSlice.serieIndex;
+
+            allSelectedSliceIndices[sliceIndex] = currentTimeSliceIndex;
+
+            if (replaceAltitudeValue != Float.MIN_VALUE && _serieAltitude != null) {
+
+               if (isAltitudeValueOffset) {
+                  _serieAltitude[currentTimeSliceIndex] += replaceAltitudeValue;
+               } else {
+                  _serieAltitude[currentTimeSliceIndex] = replaceAltitudeValue;
+               }
+
+               isModified = true;
+            }
+
+            if (replaceCadenceValue != Integer.MIN_VALUE && _serieCadence != null) {
+
+               if (isCadenceValueOffset) {
+                  _serieCadence[currentTimeSliceIndex] += replaceCadenceValue;
+               } else {
+                  _serieCadence[currentTimeSliceIndex] = replaceCadenceValue;
+               }
+
+               _tourData.setCadenceSerie(_serieCadence);
+               isModified = true;
+            }
+
+            if (replacePowerValue != Integer.MIN_VALUE && _seriePower != null) {
+
+               if (isPowerValueOffset) {
+                  _seriePower[currentTimeSliceIndex] += replacePowerValue;
+               } else {
+                  _seriePower[currentTimeSliceIndex] = replacePowerValue;
+               }
+
+               isModified = true;
+            }
+
+            if (replacePulseValue != Integer.MIN_VALUE && _seriePulse != null) {
+
+               if (isPulseValueOffset) {
+                  _seriePulse[currentTimeSliceIndex] += replacePulseValue;
+               } else {
+                  _seriePulse[currentTimeSliceIndex] = replacePulseValue;
+               }
+
+               isModified = true;
+            }
+
+            if (replaceTemperatureValue != Float.MIN_VALUE && _serieTemperature != null) {
+
+               if (isTemperatureValueOffset) {
+
+                  //If we are currently in imperial system, we can't just convert the offset as it will lead to errors.
+                  // For example : If the user has asked for an offset of 1°F, then it could offset the metric temperature to -17.22222 °C!!!
+
+                  if (UI.UNIT_IS_TEMPERATURE_FAHRENHEIT) {
+
+                     final float currentTemperatureMetric = _serieTemperature[currentTimeSliceIndex];
+                     float currentTemperatureFahrenheit = (currentTemperatureMetric * UI.UNIT_FAHRENHEIT_MULTI) + UI.UNIT_FAHRENHEIT_ADD;
+
+                     currentTemperatureFahrenheit += replaceTemperatureValue;
+                     final float newTemperatureMetric = UI.convertTemperatureToMetric(currentTemperatureFahrenheit);
+
+                     _serieTemperature[currentTimeSliceIndex] = newTemperatureMetric;
+
+                  } else {
+
+                     _serieTemperature[currentTimeSliceIndex] += replaceTemperatureValue;
+                  }
+
+               } else {
+
+                  _serieTemperature[currentTimeSliceIndex] = replaceTemperatureValue;
+               }
+
+               isModified = true;
+            }
+         }
+
+         if (isModified == false) {
+            return;
+         }
+
+         // force recompute values, e.g. gradient
+         _tourData.clearComputedSeries();
+
+         // recompute min/max values
+         getDataSeriesFromTourData();
+
+         // update UI
+         updateUI_Tab_1_Tour();
+         updateUI_ReferenceTourRanges();
+
+         _timeSlice_Viewer.getControl().setRedraw(false);
+         {
+            _timeSlice_Viewer.refresh(true);
+         }
+         _timeSlice_Viewer.getControl().setRedraw(true);
+
+         setTourDirty();
+
+         // notify other viewers
+         fireTourIsModified();
+
+         /*
+          * Select back the previously selected indices
+          */
+         final int[] mappedTimeSlicesIndices = mapTimeSlicesIndicesWithRows(allSelectedSliceIndices);
+         final Table table = (Table) _timeSlice_Viewer.getControl();
+
+         table.setSelection(mappedTimeSlicesIndices);
+         table.showSelection();
+      });
    }
 
    private void actionRemovePhotoPosition() {
@@ -2806,8 +2975,8 @@ public class TourDataEditorView extends ViewPart implements
                 */
                final ICommandService cs = PlatformUI.getWorkbench().getService(ICommandService.class);
 
-               cs.refreshElements(AppCommands.COMMAND_NET_TOURBOOK_TOUR_SAVE_TOUR, null);
-               cs.refreshElements(AppCommands.COMMAND_NET_TOURBOOK_TOUR_RESTORE_TOUR, null);
+               cs.refreshElements(AppCommands.COMMAND_NET_TOURBOOK_TOUR_SAVE_TOUR_IN_EDITOR, null);
+               cs.refreshElements(AppCommands.COMMAND_NET_TOURBOOK_TOUR_RESTORE_TOUR_IN_EDITOR, null);
             }
          }
       };
@@ -2984,11 +3153,39 @@ public class TourDataEditorView extends ViewPart implements
 
                final ArrayList<TourData> modifiedTours = tourEvent.getModifiedTours();
 
-               if (modifiedTours == null) {
+               if (modifiedTours == null || modifiedTours.isEmpty()) {
+                  return;
+               }
+
+               if (workbenchPart instanceof TourChartView) {
+
+                  /*
+                   * Currently the modifications in the tour chart are not synched with the tour
+                   * editor -> too complicated
+                   */
+
+                  // set tour editor into the readonly mode
+
+                  if (_isEditMode) {
+
+                     _isEditMode = false;
+
+                     _actionToggleReadEditMode.setChecked(false);
+                     _actionToggleReadEditMode.setEnabled(false);
+
+                     enableActions();
+                     enableControls();
+                  }
+
+                  final TourData modifiedTourData = modifiedTours.get(0);
+
+                  updateUI_FromModel(modifiedTourData, true, true);
+
                   return;
                }
 
                for (final TourData tourData : modifiedTours) {
+
                   if (tourData.getTourId() == tourDataEditorTourId) {
 
                      // update modified tour
@@ -3627,6 +3824,8 @@ public class TourDataEditorView extends ViewPart implements
 
       PhotoManager.addPhotoEventListener(this);
 
+      setupContext();
+
       // this part is a selection provider
       getSite().setSelectionProvider(_postSelectionProvider = new PostSelectionProvider(ID));
 
@@ -3713,7 +3912,7 @@ public class TourDataEditorView extends ViewPart implements
 
          updateUI_BackgroundColor();
 
-         if (IS_DARK_THEME) {
+         if (UI.IS_DARK_THEME) {
 
             _foregroundColor_1stColumn_RefTour = display.getSystemColor(SWT.COLOR_YELLOW);
             _backgroundColor_1stColumn_RefTour = _backgroundColor_Default;
@@ -5462,20 +5661,20 @@ public class TourDataEditorView extends ViewPart implements
 
          if (keyEvent.keyCode == SWT.DEL) {
 
-            final boolean isAdjustTourStartTime = Util.getStateBoolean(_state,
-                  STATE_IS_ADJUST_TOUR_START_TIME,
-                  STATE_IS_ADJUST_TOUR_START_TIME_DEFAULT);
+            final boolean isKeepTime = Util.getStateBoolean(_state,
+                  STATE_DELETE_IS_KEEP_TIME,
+                  STATE_DELETE_IS_KEEP_TIME_DEFAULT);
 
             final boolean isKeepDistance = Util.getStateBoolean(_state,
-                  STATE_IS_DELETE_KEEP_DISTANCE,
-                  STATE_IS_DELETE_KEEP_DISTANCE_DEFAULT);
+                  STATE_DELETE_IS_KEEP_DISTANCE,
+                  STATE_DELETE_IS_KEEP_DISTANCE_DEFAULT);
 
-            final boolean isKeepTime = Util.getStateBoolean(_state,
-                  STATE_IS_DELETE_KEEP_TIME,
-                  STATE_IS_DELETE_KEEP_TIME_DEFAULT);
+            final boolean isAdjustTourStartTime = Util.getStateBoolean(_state,
+                  STATE_DELETE_IS_ADJUST_TOUR_START_TIME,
+                  STATE_DELETE_IS_ADJUST_TOUR_START_TIME_DEFAULT);
 
-            final boolean isRemoveDistance = isKeepDistance == false;
             final boolean isRemoveTime = isKeepTime == false;
+            final boolean isRemoveDistance = isKeepDistance == false;
 
             actionDelete_TimeSlices(isRemoveTime, isRemoveDistance, isAdjustTourStartTime);
          }
@@ -6205,7 +6404,6 @@ public class TourDataEditorView extends ViewPart implements
       final ColumnDefinition colDef = TableColumnFactory.MOTION_DISTANCE.createColumn(_timeSlice_ColumnManager, _pc);
 
       colDef.setIsDefaultColumn();
-      colDef.disableValueFormatter();
 
       colDef.setLabelProvider(new CellLabelProvider() {
          @Override
@@ -6218,13 +6416,7 @@ public class TourDataEditorView extends ViewPart implements
 
                final float distance = _serieDistance[serieIndex] / 1000 / _unitValueDistance;
 
-               if (distance == 0) {
-                  cell.setText(UI.EMPTY_STRING);
-               } else if (distance < 0.001) {
-                  cell.setText(_nf6.format(distance));
-               } else {
-                  cell.setText(_nf3.format(distance));
-               }
+               cell.setText(colDef.printDoubleValue(distance));
 
             } else {
 
@@ -6235,7 +6427,7 @@ public class TourDataEditorView extends ViewPart implements
    }
 
    /**
-    * column: distance difference in seconds to previous slice
+    * Column: Distance difference in seconds to previous slice
     */
    private void defineColumn_TimeSlice_Motion_DistanceDiff() {
 
@@ -6265,13 +6457,7 @@ public class TourDataEditorView extends ViewPart implements
                   distanceDiff = distance - distancePrevious;
                }
 
-               if (distanceDiff == 0) {
-                  cell.setText(UI.EMPTY_STRING);
-               } else if (distanceDiff < 0.001) {
-                  cell.setText(_nf6.format(distanceDiff));
-               } else {
-                  cell.setText(_nf3.format(distanceDiff));
-               }
+               cell.setText(colDef.printDoubleValue(distanceDiff));
 
             } else {
                cell.setText(UI.EMPTY_STRING);
@@ -7062,173 +7248,6 @@ public class TourDataEditorView extends ViewPart implements
       enableControls();
    }
 
-   /**
-    * Edit time slices values :
-    * Altitude, Heartbeat, Temperature, Cadence
-    */
-   void editTimeSlicesValues() {
-
-      if (isRowSelectionMode() == false) {
-         return;
-      }
-
-      // get selected time slices
-      final StructuredSelection selection = (StructuredSelection) _timeSlice_Viewer.getSelection();
-      if (selection.isEmpty()) {
-         return;
-      }
-
-      final DialogEditTimeSlicesValues dialogEditTimeSlicesValues = new DialogEditTimeSlicesValues(Display.getCurrent().getActiveShell(), _tourData);
-
-      if (dialogEditTimeSlicesValues.open() != Window.OK) {
-         return;
-      }
-
-      BusyIndicator.showWhile(Display.getCurrent(), () -> {
-
-// SET_FORMATTING_OFF
-
-         final boolean isAltitudeValueOffset       = dialogEditTimeSlicesValues.getIsAltitudeValueOffset();
-         final boolean isCadenceValueOffset        = dialogEditTimeSlicesValues.getIsCadenceValueOffset();
-         final boolean isPowerValueOffset          = dialogEditTimeSlicesValues.getIsPowerValueOffset();
-         final boolean isPulseValueOffset          = dialogEditTimeSlicesValues.getIsPulseValueOffset();
-         final boolean isTemperatureValueOffset    = dialogEditTimeSlicesValues.getIsTemperatureValueOffset();
-
-         final float replaceAltitudeValue          = dialogEditTimeSlicesValues.getReplaceAltitudeValue();
-         final float replaceCadenceValue           = dialogEditTimeSlicesValues.getReplaceCadenceValue();
-         final float replacePowerValue             = dialogEditTimeSlicesValues.getReplacePowerValue();
-         final float replacePulseValue             = dialogEditTimeSlicesValues.getReplacePulseValue();
-         final float replaceTemperatureValue       = dialogEditTimeSlicesValues.getReplaceTemperatureValue();
-
-// SET_FORMATTING_ON
-
-         final Object[] allSelectedTimeSlices = selection.toArray();
-         final int numTimeSlices = allSelectedTimeSlices.length;
-
-         final int[] allSelectedSliceIndices = new int[numTimeSlices];
-
-         boolean isModified = false;
-
-         for (int sliceIndex = 0; sliceIndex < numTimeSlices; ++sliceIndex) {
-
-            final TimeSlice timeSlice = (TimeSlice) allSelectedTimeSlices[sliceIndex];
-
-            final int currentTimeSliceIndex = timeSlice.serieIndex;
-
-            allSelectedSliceIndices[sliceIndex] = currentTimeSliceIndex;
-
-            if (replaceAltitudeValue != Float.MIN_VALUE && _serieAltitude != null) {
-
-               if (isAltitudeValueOffset) {
-                  _serieAltitude[currentTimeSliceIndex] += replaceAltitudeValue;
-               } else {
-                  _serieAltitude[currentTimeSliceIndex] = replaceAltitudeValue;
-               }
-
-               isModified = true;
-            }
-
-            if (replaceCadenceValue != Integer.MIN_VALUE && _serieCadence != null) {
-
-               if (isCadenceValueOffset) {
-                  _serieCadence[currentTimeSliceIndex] += replaceCadenceValue;
-               } else {
-                  _serieCadence[currentTimeSliceIndex] = replaceCadenceValue;
-               }
-
-               _tourData.setCadenceSerie(_serieCadence);
-               isModified = true;
-            }
-
-            if (replacePowerValue != Integer.MIN_VALUE && _seriePower != null) {
-
-               if (isPowerValueOffset) {
-                  _seriePower[currentTimeSliceIndex] += replacePowerValue;
-               } else {
-                  _seriePower[currentTimeSliceIndex] = replacePowerValue;
-               }
-
-               isModified = true;
-            }
-
-            if (replacePulseValue != Integer.MIN_VALUE && _seriePulse != null) {
-
-               if (isPulseValueOffset) {
-                  _seriePulse[currentTimeSliceIndex] += replacePulseValue;
-               } else {
-                  _seriePulse[currentTimeSliceIndex] = replacePulseValue;
-               }
-
-               isModified = true;
-            }
-
-            if (replaceTemperatureValue != Float.MIN_VALUE && _serieTemperature != null) {
-
-               if (isTemperatureValueOffset) {
-
-                  //If we are currently in imperial system, we can't just convert the offset as it will lead to errors.
-                  // For example : If the user has asked for an offset of 1°F, then it could offset the metric temperature to -17.22222 °C!!!
-
-                  if (UI.UNIT_IS_TEMPERATURE_FAHRENHEIT) {
-
-                     final float currentTemperatureMetric = _serieTemperature[currentTimeSliceIndex];
-                     float currentTemperatureFahrenheit = (currentTemperatureMetric * UI.UNIT_FAHRENHEIT_MULTI) + UI.UNIT_FAHRENHEIT_ADD;
-
-                     currentTemperatureFahrenheit += replaceTemperatureValue;
-                     final float newTemperatureMetric = UI.convertTemperatureToMetric(currentTemperatureFahrenheit);
-
-                     _serieTemperature[currentTimeSliceIndex] = newTemperatureMetric;
-
-                  } else {
-
-                     _serieTemperature[currentTimeSliceIndex] += replaceTemperatureValue;
-                  }
-
-               } else {
-
-                  _serieTemperature[currentTimeSliceIndex] = replaceTemperatureValue;
-               }
-
-               isModified = true;
-            }
-         }
-
-         if (isModified == false) {
-            return;
-         }
-
-         // force recompute values, e.g. gradient
-         _tourData.clearComputedSeries();
-
-         // recompute min/max values
-         getDataSeriesFromTourData();
-
-         // update UI
-         updateUI_Tab_1_Tour();
-         updateUI_ReferenceTourRanges();
-
-         _timeSlice_Viewer.getControl().setRedraw(false);
-         {
-            _timeSlice_Viewer.refresh(true);
-         }
-         _timeSlice_Viewer.getControl().setRedraw(true);
-
-         setTourDirty();
-
-         // notify other viewers
-         fireTourIsModified();
-
-         /*
-          * Select back the previously selected indices
-          */
-         final int[] mappedTimeSlicesIndices = mapTimeSlicesIndicesWithRows(allSelectedSliceIndices);
-         final Table table = (Table) _timeSlice_Viewer.getControl();
-
-         table.setSelection(mappedTimeSlicesIndices);
-         table.showSelection();
-      });
-   }
-
    private void enableActions() {
 
       final boolean isTourInDb = isTourInDb();
@@ -7236,6 +7255,14 @@ public class TourDataEditorView extends ViewPart implements
 
       final boolean canEdit = _isEditMode && isTourInDb;
       final boolean canEditDistance = _isManualTour == false;
+
+      final boolean isTourModifiedInChart = TourManager.isTourModified_InChart()
+
+            /*
+             * Prevent that the tour can be edited when the tour chart hast undo actions because
+             * this could cause conflicts
+             */
+            || TourManager.isTourModified_InChart_History();
 
       // all actions are disabled when a cell editor is activated
       final boolean isCellEditorInactive = _isCellEditorActive == false;
@@ -7268,7 +7295,7 @@ public class TourDataEditorView extends ViewPart implements
                   && (isTimeSlice_ViewerTab || isSwimSlice_ViewerTab)
                   && isTourValid
                   && (_isManualTour == false));
-      _actionToggleReadEditMode.setEnabled(isCellEditorInactive && isTourInDb);
+      _actionToggleReadEditMode.setEnabled(isCellEditorInactive && isTourInDb && isTourModifiedInChart == false);
 
       _actionSetStartDistanceTo_0.setEnabled(isCellEditorInactive && canEditDistance && canEdit && isDistanceLargerThan0);
       _actionDeleteDistanceValues.setEnabled(isCellEditorInactive && canEditDistance && canEdit && isDistanceAvailable);
@@ -7675,10 +7702,12 @@ public class TourDataEditorView extends ViewPart implements
 
             final int sliceSerieIndex = timeSlice.serieIndex;
 
+            /*
+             * Position both sliders at the same time slice that it can be distinguished between
+             * multiple time slices !!!
+             */
             sliderSerieIndex0 = sliceSerieIndex;
-            sliderSerieIndex1 = sliceSerieIndex < numTimeSlices - 1
-                  ? sliceSerieIndex + 1
-                  : sliceSerieIndex;
+            sliderSerieIndex1 = sliceSerieIndex;
 
             sliderSerieIndex2 = SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION;
          }
@@ -9413,16 +9442,16 @@ public class TourDataEditorView extends ViewPart implements
          return;
       }
 
-      final int beforeLeftSliderIndex = sliderPosition.getBeforeLeftSliderIndex();
+      final int sliderOneSliceValueIndex = sliderPosition.getSliderOneSliceValueIndex();
       final int leftSliderValueIndex = sliderPosition.getLeftSliderValueIndex();
       final int rightSliderValueIndex = sliderPosition.getRightSliderValueIndex();
 
       int valueIndex_Start;
       int valueIndex_End;
 
-      if (beforeLeftSliderIndex != SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
+      if (sliderOneSliceValueIndex != SelectionChartXSliderPosition.IGNORE_SLIDER_POSITION) {
 
-         valueIndex_Start = beforeLeftSliderIndex;
+         valueIndex_Start = sliderOneSliceValueIndex;
          valueIndex_End = leftSliderValueIndex;
 
       } else {
@@ -9672,6 +9701,19 @@ public class TourDataEditorView extends ViewPart implements
    }
 
    /**
+    * This context is used for key bindings that Ctrl-Z is working also in other parts, e.g. tour
+    * chart
+    */
+   private void setupContext() {
+
+      // Get the site's local context service
+      final IContextService contextService = getSite().getService(IContextService.class);
+
+      // Activate it. The workbench cleans this up automatically on part disposal.
+      contextService.activateContext("net.tourbook.context.tourEditor"); //$NON-NLS-1$
+   }
+
+   /**
     * Set {@link TourData} into the tour editor and setup dependencies
     *
     * @param tourData
@@ -9740,7 +9782,6 @@ public class TourDataEditorView extends ViewPart implements
       for (final TourMarker tourMarker : tourMarkers) {
          _markerMap.put(tourMarker.getSerieIndex(), tourMarker);
       }
-
    }
 
    /**
@@ -10073,7 +10114,7 @@ public class TourDataEditorView extends ViewPart implements
 
 // SET_FORMATTING_OFF
 
-      if (IS_DARK_THEME) {
+      if (UI.IS_DARK_THEME) {
 
          _linkDefaultTimeZone    .setBackground(_backgroundColor_Default);
          _linkEquipment          .setBackground(_backgroundColor_Default);

@@ -44,6 +44,7 @@ import net.tourbook.data.TourData;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageEquipment;
 import net.tourbook.preferences.PrefPageEquipmentGroups;
+import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProvider;
 import net.tourbook.ui.action.IActionProvider;
 import net.tourbook.ui.action.TourActionCategory;
@@ -218,6 +219,10 @@ public class EquipmentMenuManager implements IActionProvider {
       @Override
       public void run() {
 
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
+
          clipboard_PasteEquipment();
       }
    }
@@ -238,6 +243,10 @@ public class EquipmentMenuManager implements IActionProvider {
       @Override
       public void run() {
 
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
+
          equipment_Add(__equipmentGroup);
       }
    }
@@ -252,6 +261,10 @@ public class EquipmentMenuManager implements IActionProvider {
 
       @Override
       public void run() {
+
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
 
          if (_isAdvMenu) {
 
@@ -299,6 +312,10 @@ public class EquipmentMenuManager implements IActionProvider {
       @Override
       public void run() {
 
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
+
          EquipmentManager.equipment_RemoveAll(_tourProvider, _isSaveTour, _isCheckTourEditor);
       }
    }
@@ -315,6 +332,10 @@ public class EquipmentMenuManager implements IActionProvider {
 
       @Override
       public void run() {
+
+         if (_currentInstance._isSaveTour && TourManager.isTourModified()) {
+            return;
+         }
 
          final boolean isChecked = isChecked();
 

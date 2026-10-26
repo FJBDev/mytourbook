@@ -44,6 +44,10 @@ public class ActionSelectGraphs extends Action {
    @Override
    public void run() {
 
+      if (TourManager.isTourModified()) {
+         return;
+      }
+
       // get selected tour, make sure only one tour is selected
       final ArrayList<TourData> selectedTours = fTourProvider.getSelectedTours();
       if ((selectedTours == null) || (selectedTours.size() != 1)) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -127,51 +127,49 @@ import org.eclipse.ui.part.ViewPart;
  */
 public class TourSegmenterView extends ViewPart implements ITourViewer {
 
-   public static final String   ID                                                 = "net.tourbook.views.TourSegmenter";           //$NON-NLS-1$
+   public static final String  ID                                                 = "net.tourbook.views.TourSegmenter";           //$NON-NLS-1$
    //
-   private static final float   UNIT_MILE                                          = UI.UNIT_MILE;
-   private static final float   UNIT_MILE_2_NAUTICAL_MILE                          = UI.UNIT_MILE_2_NAUTICAL_MILE;
-   private static final float   UNIT_NAUTICAL_MILE                                 = UI.UNIT_NAUTICAL_MILE;
-   private static final float   UNIT_YARD                                          = UI.UNIT_YARD;
+   private static final float  UNIT_MILE                                          = UI.UNIT_MILE;
+   private static final float  UNIT_MILE_2_NAUTICAL_MILE                          = UI.UNIT_MILE_2_NAUTICAL_MILE;
+   private static final float  UNIT_NAUTICAL_MILE                                 = UI.UNIT_NAUTICAL_MILE;
+   private static final float  UNIT_YARD                                          = UI.UNIT_YARD;
    //
-   private static final boolean IS_DARK_THEME                                      = UI.isDarkTheme();
+   private static final String FORMAT_ALTITUDE_DIFF                               = "%d / %d %s";                                 //$NON-NLS-1$
    //
-   private static final String  FORMAT_ALTITUDE_DIFF                               = "%d / %d %s";                                 //$NON-NLS-1$
+   private static final int    SEGMENTER_REQUIRES_ELEVATION                       = 0x01;
+   private static final int    SEGMENTER_REQUIRES_DISTANCE                        = 0x02;
+   private static final int    SEGMENTER_REQUIRES_PULSE                           = 0x04;
+   private static final int    SEGMENTER_REQUIRES_MARKER                          = 0x08;
+   private static final int    SEGMENTER_REQUIRES_POWER                           = 0x10;
    //
-   private static final int     SEGMENTER_REQUIRES_ELEVATION                       = 0x01;
-   private static final int     SEGMENTER_REQUIRES_DISTANCE                        = 0x02;
-   private static final int     SEGMENTER_REQUIRES_PULSE                           = 0x04;
-   private static final int     SEGMENTER_REQUIRES_MARKER                          = 0x08;
-   private static final int     SEGMENTER_REQUIRES_POWER                           = 0x10;
+   private static final int    MAX_DISTANCE_SPINNER_MILE                          = 80;
+   private static final int    MAX_DISTANCE_SPINNER_NAUTICAL_MILE                 = 70;
+   private static final int    MAX_DISTANCE_SPINNER_METRIC                        = 100;
    //
-   private static final int     MAX_DISTANCE_SPINNER_MILE                          = 80;
-   private static final int     MAX_DISTANCE_SPINNER_NAUTICAL_MILE                 = 70;
-   private static final int     MAX_DISTANCE_SPINNER_METRIC                        = 100;
-   //
-   private static final String  STATE_CSV_EXPORT_PATH                              = "STATE_CSV_EXPORT_PATH";                      //$NON-NLS-1$
-   private static final String  STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS         = "STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS"; //$NON-NLS-1$
-   private static final int     STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS_DEFAULT = 100;
-   private static final String  STATE_DP_TOLERANCE_POWER                           = "STATE_DP_TOLERANCE_POWER";                   //$NON-NLS-1$
-   private static final String  STATE_DP_TOLERANCE_PULSE                           = "STATE_DP_TOLERANCE_PULSE";                   //$NON-NLS-1$
-   private static final String  STATE_MINIMUM_ALTITUDE                             = "STATE_MINIMUM_ALTITUDE";                     //$NON-NLS-1$
-   private static final String  STATE_MOUSE_WHEEL_INCREMENTER_DP                   = "STATE_MOUSE_WHEEL_INCREMENTER_DP";           //$NON-NLS-1$
-   private static final String  STATE_MOUSE_WHEEL_INCREMENTER_GRADIENT             = "STATE_MOUSE_WHEEL_INCREMENTER_GRADIENT";     //$NON-NLS-1$
-   private static final String  STATE_SELECTED_DISTANCE                            = "selectedDistance";                           //$NON-NLS-1$
-   private static final String  STATE_SELECTED_SEGMENTER_BY_USER                   = "STATE_SELECTED_SEGMENTER_BY_USER";           //$NON-NLS-1$
+   private static final String STATE_CSV_EXPORT_PATH                              = "STATE_CSV_EXPORT_PATH";                      //$NON-NLS-1$
+   private static final String STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS         = "STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS"; //$NON-NLS-1$
+   private static final int    STATE_DP_TOLERANCE_ALTITUDE_MULTIPLE_TOURS_DEFAULT = 100;
+   private static final String STATE_DP_TOLERANCE_POWER                           = "STATE_DP_TOLERANCE_POWER";                   //$NON-NLS-1$
+   private static final String STATE_DP_TOLERANCE_PULSE                           = "STATE_DP_TOLERANCE_PULSE";                   //$NON-NLS-1$
+   private static final String STATE_MINIMUM_ALTITUDE                             = "STATE_MINIMUM_ALTITUDE";                     //$NON-NLS-1$
+   private static final String STATE_MOUSE_WHEEL_INCREMENTER_DP                   = "STATE_MOUSE_WHEEL_INCREMENTER_DP";           //$NON-NLS-1$
+   private static final String STATE_MOUSE_WHEEL_INCREMENTER_GRADIENT             = "STATE_MOUSE_WHEEL_INCREMENTER_GRADIENT";     //$NON-NLS-1$
+   private static final String STATE_SELECTED_DISTANCE                            = "selectedDistance";                           //$NON-NLS-1$
+   private static final String STATE_SELECTED_SEGMENTER_BY_USER                   = "STATE_SELECTED_SEGMENTER_BY_USER";           //$NON-NLS-1$
    //
    /**
     * Initially this was an int value, with 2 it's a string.
     */
-   private static final String  STATE_SELECTED_BREAK_METHOD2                       = "selectedBreakMethod2";                       //$NON-NLS-1$
+   private static final String STATE_SELECTED_BREAK_METHOD2                       = "selectedBreakMethod2";                       //$NON-NLS-1$
    //
-   private static final String  STATE_BREAK_TIME_MIN_AVG_SPEED_AS                  = "selectedBreakTimeMinAvgSpeedAS";             //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_SLICE_SPEED_AS                = "selectedBreakTimeMinSliceSpeedAS";           //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_SLICE_TIME_AS                 = "selectedBreakTimeMinSliceTimeAS";            //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_AVG_SPEED                     = "selectedBreakTimeMinAvgSpeed";               //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_SLICE_SPEED                   = "selectedBreakTimeMinSliceSpeed";             //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_DISTANCE_VALUE                = "selectedBreakTimeMinDistance";               //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_MIN_TIME_VALUE                    = "selectedBreakTimeMinTime";                   //$NON-NLS-1$
-   private static final String  STATE_BREAK_TIME_SLICE_DIFF                        = "selectedBreakTimeSliceDiff";                 //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_AVG_SPEED_AS                  = "selectedBreakTimeMinAvgSpeedAS";             //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_SLICE_SPEED_AS                = "selectedBreakTimeMinSliceSpeedAS";           //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_SLICE_TIME_AS                 = "selectedBreakTimeMinSliceTimeAS";            //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_AVG_SPEED                     = "selectedBreakTimeMinAvgSpeed";               //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_SLICE_SPEED                   = "selectedBreakTimeMinSliceSpeed";             //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_DISTANCE_VALUE                = "selectedBreakTimeMinDistance";               //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_MIN_TIME_VALUE                    = "selectedBreakTimeMinTime";                   //$NON-NLS-1$
+   private static final String STATE_BREAK_TIME_SLICE_DIFF                        = "selectedBreakTimeSliceDiff";                 //$NON-NLS-1$
    //
    /*
     * Tour segmenter
@@ -415,6 +413,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    private boolean                        _isSegmenterFiltered;
    private boolean                        _isShowFlatGradient;
    private boolean                        _isTourDirty        = false;
+   private boolean                        _isResetBreakTime;
    //
    private int                            _selectedSurfingFilter;
    private float                          _elevationGain;
@@ -1194,6 +1193,13 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
                // tour chart smoothing can be modified
 
+               if (_tourData != null) {
+
+                  // found this clear issue after modifying the chart smoothing algorithm
+
+                  _tourData.clearComputedSeries();
+               }
+
                createSegments(false);
 
             } else if (tourEventId == TourEventId.UPDATE_UI) {
@@ -1385,10 +1391,20 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          return;
       }
 
+      final SegmenterType selectedSegmenterType = selectedSegmenter.segmenterType;
+
+      if (_isResetBreakTime && selectedSegmenterType != SegmenterType.ByBreakTime) {
+
+         // the previous segmenter has modified the break time series
+
+         _isResetBreakTime = false;
+
+         _tourData.segmentSerie_IsUpdateChart = true;
+         _tourData.clearComputedSeries();
+      }
+
       boolean isUpdateVisibleDataPoints = false;
       int[] forcedIndices;
-
-      final SegmenterType selectedSegmenterType = selectedSegmenter.segmenterType;
 
       switch (selectedSegmenterType) {
 
@@ -1429,7 +1445,13 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          break;
 
       case ByBreakTime:
+
+         // reset the break time when the next time another segmenter is selected
+         _isResetBreakTime = true;
+         _tourData.segmentSerie_IsUpdateChart = true;
+
          createSegmentsBy_BreakTime();
+
          break;
 
       case ByComputedAltiUpDown:
@@ -2438,7 +2460,10 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
             // tour title
 
             _txtTitle = new Text(container, SWT.READ_ONLY);
-            GridDataFactory.fillDefaults().grab(true, false).span(4, 1).applyTo(_txtTitle);
+            GridDataFactory.fillDefaults()
+//                  .grab(true, false)
+//                  .hint(_pc.convertWidthInCharsToPixels(50), SWT.DEFAULT)
+                  .span(4, 1).applyTo(_txtTitle);
          }
          {
             // label: create segments with
@@ -3664,7 +3689,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
       defineColumn_Time_ElapsedTimeTotal();
       defineColumn_Time_Elapsed();
       defineColumn_Time_Moving();
-      defineColumn_Time_Paused();
+      defineColumn_Time_Paused_Break();
       defineColumn_Time_TimeOfDay();
 
       defineColumn_Motion_DistanceTotal();
@@ -3684,6 +3709,9 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
       defineColumn_Altitude_Diff_SegmentComputed();
       defineColumn_Altitude_SummarizedComputed_Up();
       defineColumn_Altitude_SummarizedComputed_Down();
+
+      defineColumn_Altitude_InBreak_Up();
+      defineColumn_Altitude_InBreak_Down();
 
       defineColumn_Body_AvgPulse();
       defineColumn_Body_AvgPulse_Difference();
@@ -3863,6 +3891,64 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
                      : (altitudeDiff / UI.UNIT_VALUE_ELEVATION) / movingTime * 3600;
 
                colDef.printValue_0(cell, value);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Elevation loss within the break time
+    */
+   private void defineColumn_Altitude_InBreak_Down() {
+
+      final ColumnDefinition colDef;
+
+      colDef = TableColumnFactory.ALTITUDE_ELEVATION_LOSS_IN_BREAK.createColumn(_columnManager, _pc);
+
+      colDef.setIsDefaultColumn();
+      colDef.setColumnSelectionListener(_columnSortListener);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourSegment segment = (TourSegment) cell.getElement();
+
+            final double value = -segment.elevationLoss_InBreakTime / UI.UNIT_VALUE_ELEVATION;
+
+            colDef.printDetailValue(cell, value);
+
+            if (segment.isTotal) {
+               setStyle_ColumnTotal(cell);
+            }
+         }
+      });
+   }
+
+   /**
+    * Column: Elevation gain within the break time
+    */
+   private void defineColumn_Altitude_InBreak_Up() {
+
+      final ColumnDefinition colDef;
+
+      colDef = TableColumnFactory.ALTITUDE_ELEVATION_GAIN_IN_BREAK.createColumn(_columnManager, _pc);
+
+      colDef.setIsDefaultColumn();
+      colDef.setColumnSelectionListener(_columnSortListener);
+
+      colDef.setLabelProvider(new CellLabelProvider() {
+         @Override
+         public void update(final ViewerCell cell) {
+
+            final TourSegment segment = (TourSegment) cell.getElement();
+
+            final double value = segment.elevationGain_InBreakTime / UI.UNIT_VALUE_ELEVATION;
+
+            colDef.printDetailValue(cell, value);
+
+            if (segment.isTotal) {
+               setStyle_ColumnTotal(cell);
             }
          }
       });
@@ -4464,13 +4550,13 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    }
 
    /**
-    * Column: paused time
+    * Column: Break time
     */
-   private void defineColumn_Time_Paused() {
+   private void defineColumn_Time_Paused_Break() {
 
       final ColumnDefinition colDef;
 
-      colDef = TableColumnFactory.TIME__DEVICE_PAUSED_TIME.createColumn(_columnManager, _pc);
+      colDef = TableColumnFactory.TIME__COMPUTED_BREAK_TIME.createColumn(_columnManager, _pc);
 
       colDef.setIsDefaultColumn();
       colDef.setColumnSelectionListener(_columnSortListener);
@@ -4547,6 +4633,12 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    }
 
    private void enableActions_Surfing() {
+
+      // enable these actions only when the surfing segmenter is selected
+      final TourSegmenter selectedSegmenter = getSelectedSegmenter();
+      if (selectedSegmenter != null && selectedSegmenter.segmenterType != SegmenterType.Surfing) {
+         return;
+      }
 
       final boolean isTourSaved = _tourData != null && _tourData.getTourPerson() != null;
       final boolean isMultipleTours = _tourData != null && _tourData.isMultipleTours();
@@ -5334,7 +5426,6 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
          _selectedSurfingFilter = _comboSurfing_SegmenterFilter.getSelectionIndex();
 
          enableActions_Surfing();
-
       }
 
       updateUI_SegmenterBackground();
@@ -5905,20 +5996,20 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
        */
 // SET_FORMATTING_OFF
 
-      _colorCache.setColor(SEGMENTER_FILTER_1_BACKGROUND,         IS_DARK_THEME
+      _colorCache.setColor(SEGMENTER_FILTER_1_BACKGROUND,         UI.IS_DARK_THEME
                                                                      ? SEGMENTER_FILTER_1_BACKGROUND_RGB_DARK
                                                                      : SEGMENTER_FILTER_1_BACKGROUND_RGB_LIGHT);
 
-      _colorCache.setColor(SEGMENTER_FILTER_2_BACKGROUND,         IS_DARK_THEME
+      _colorCache.setColor(SEGMENTER_FILTER_2_BACKGROUND,         UI.IS_DARK_THEME
                                                                      ? SEGMENTER_FILTER_2_BACKGROUND_RGB_DARK
                                                                      : SEGMENTER_FILTER_2_BACKGROUND_RGB_LIGHT);
 
 
-      _colorCache.setColor(SEGMENTER_FILTER_1_BACKGROUND_HEADER,  IS_DARK_THEME
+      _colorCache.setColor(SEGMENTER_FILTER_1_BACKGROUND_HEADER,  UI.IS_DARK_THEME
                                                                      ? SEGMENTER_FILTER_1_BACKGROUND_RGB_HEADER_DARK
                                                                      : SEGMENTER_FILTER_1_BACKGROUND_RGB_HEADER_LIGHT);
 
-      _colorCache.setColor(SEGMENTER_FILTER_2_BACKGROUND_HEADER,  IS_DARK_THEME
+      _colorCache.setColor(SEGMENTER_FILTER_2_BACKGROUND_HEADER,  UI.IS_DARK_THEME
                                                                      ? SEGMENTER_FILTER_2_BACKGROUND_RGB_HEADER_DARK
                                                                      : SEGMENTER_FILTER_2_BACKGROUND_RGB_HEADER_LIGHT);
 
@@ -6172,7 +6263,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
    private TourData saveTour() {
 
       // check if the tour editor contains a modified tour
-      if (TourManager.isTourEditorModified()) {
+      if (TourManager.isTourModified()) {
          return null;
       }
 
@@ -6296,13 +6387,13 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
       } else if (value > 0) {
 
-         cell.setBackground(IS_DARK_THEME
+         cell.setBackground(UI.IS_DARK_THEME
                ? _colorCache.get(STATE_COLOR_ALTITUDE_UP_DARK)
                : _colorCache.get(STATE_COLOR_ALTITUDE_UP));
 
       } else if (value < 0) {
 
-         cell.setBackground(IS_DARK_THEME
+         cell.setBackground(UI.IS_DARK_THEME
                ? _colorCache.get(STATE_COLOR_ALTITUDE_DOWN_DARK)
                : _colorCache.get(STATE_COLOR_ALTITUDE_DOWN));
       }
@@ -6340,7 +6431,7 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
 
    private void setStyle_ColumnTotal(final ViewerCell cell) {
 
-      cell.setForeground(IS_DARK_THEME
+      cell.setForeground(UI.IS_DARK_THEME
             ? _colorCache.get(STATE_COLOR_TOTALS_DARK)
             : _colorCache.get(STATE_COLOR_TOTALS));
    }
@@ -6598,6 +6689,9 @@ public class TourSegmenterView extends ViewPart implements ITourViewer {
             }
          }
       }
+
+      _elevationGain -= _tourData.segmentSerieTotal_Elevation_InBreak_Gain;
+      _elevationLoss -= _tourData.segmentSerieTotal_Elevation_InBreak_Loss;
 
       /*
        * Show altitude values not as negative values because the values are displayed left aligned

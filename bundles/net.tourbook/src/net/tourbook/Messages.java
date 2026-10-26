@@ -791,6 +791,8 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Checkbox_DeviceWatching;
    public static String        Dialog_ImportConfig_Checkbox_ImportFiles;
    public static String        Dialog_ImportConfig_Checkbox_IsMountDevice;
+   public static String        Dialog_ImportConfig_Checkbox_IsPremountDevice;
+   public static String        Dialog_ImportConfig_Checkbox_IsPremountDevice_Tooltip;
    public static String        Dialog_ImportConfig_Checkbox_IsUnmountDevice;
    public static String        Dialog_ImportConfig_Checkbox_IsVerifyMountCommand;
    public static String        Dialog_ImportConfig_Checkbox_IsVerifyMountCommand_Tooltip;
@@ -948,9 +950,6 @@ public class Messages extends NLS {
    public static String        Dialog_ImportConfig_Tab_Options2;
    public static String        Dialog_ImportConfig_Tab_Tag;
    public static String        Dialog_ImportConfig_Tab_TourType;
-
-   public static String        dialog_is_tour_editor_modified_message;
-   public static String        dialog_is_tour_editor_modified_title;
 
    public static String        Dialog_JoinTours_Checkbox_CreateTourMarker;
    public static String        Dialog_JoinTours_Checkbox_DeleteSourceTours;
@@ -1515,8 +1514,11 @@ public class Messages extends NLS {
    public static String        Import_Data_Log_MountDevice_MountCommand_IsRun_NoVerification;
    public static String        Import_Data_Log_MountDevice_MountCommand_IsRun_WithVerification;
    public static String        Import_Data_Log_MountDevice_MountCommand_IsRun_WithVerification_Error;
-   public static String        Import_Data_Log_MountDevice_MountCommandCannotBeEmpty;
-   public static String        Import_Data_Log_MountDevice_MountCommandFailed;
+   public static String        Import_Data_Log_MountDevice_MountCommand_CannotBeEmpty;
+   public static String        Import_Data_Log_MountDevice_MountCommand_Failed;
+   public static String        Import_Data_Log_MountDevice_PreMount_Failed;
+   public static String        Import_Data_Log_MountDevice_PreMount_IsEmpty;
+   public static String        Import_Data_Log_MountDevice_PreMount_Success;
    public static String        Import_Data_Log_ReimportIsInvalid_DifferentTourId_Message;
    public static String        Import_Data_Log_ReimportIsInvalid_TourNotFoundInFile_Message;
    public static String        Import_Data_Log_ReimportIsInvalid_WrongSliceNumbers;
@@ -1899,6 +1901,10 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Button_RemoveRecentTags_Tooltip;
    public static String        Pref_Appearance_Button_ResetAllToggleDialogs;
    public static String        Pref_Appearance_Button_ResetAllToggleDialogs_Tooltip;
+   public static String        Pref_Appearance_Check_3DMapFix;
+   public static String        Pref_Appearance_Check_3DMapFix_Tooltip;
+   public static String        Pref_Appearance_Check_AppScaling;
+   public static String        Pref_Appearance_Check_AppScaling_Tooltip;
    public static String        Pref_Appearance_Check_AutoOpenTagging;
    public static String        Pref_Appearance_Check_RestartAppInAppToolbar;
    public static String        Pref_Appearance_Check_ShowAppVersionQualifierInAppTitle;
@@ -1907,6 +1913,7 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Check_TaggingAnimation;
    public static String        Pref_Appearance_Combo_ImageSize_Tooltip;
    public static String        Pref_Appearance_Combo_Theme_Tooltip;
+   public static String        Pref_Appearance_Decorator_AppScalingIsModified;
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Message;
    public static String        Pref_Appearance_Dialog_ResetAllToggleDialogs_Title;
    public static String        Pref_Appearance_Dialog_RestartAfter_ChangeDisabledIcons_Message;
@@ -1931,6 +1938,7 @@ public class Messages extends NLS {
    public static String        Pref_Appearance_Label_NotificationMessagesDuration_Tooltip;
    public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption;
    public static String        Pref_Appearance_Label_PaceAndSpeed_ComputationOption_Tooltip;
+   public static String        Pref_Appearance_Label_Scale;
    public static String        Pref_Appearance_Label_Theme;
    public static String        Pref_Appearance_Label_UIFont;
    public static String        Pref_Appearance_Label_UIFontExample;
@@ -2214,6 +2222,9 @@ public class Messages extends NLS {
    public static String        Pref_Statistic_Label_Info;
 
    public static String        Pref_Swimming_Label_Info;
+
+   public static String        Pref_System_Checkbox_SetSystemProperties;
+   public static String        Pref_System_Checkbox_SetSystemProperties_Tooltip;
 
    public static String        Pref_TourDb_Dialog_TourDbSystemIsModified_Message;
    public static String        Pref_TourDb_Dialog_TourDbSystemIsModified_Title;
@@ -3411,6 +3422,14 @@ public class Messages extends NLS {
    public static String        TourManager_Dialog_OutOfSyncError_Message;
    public static String        TourManager_Dialog_OutOfSyncError_Title;
    public static String        TourManager_Dialog_RemovePhoto_Message;
+   public static String        TourManager_Dialog_TourChartIsModified_ClearUndoHistory_Message;
+
+   public static String        TourManager_Dialog_TourChartIsModified_SaveOrRevert_Message;
+
+   public static String        TourManager_Dialog_TourChartIsModified_Title;
+
+   public static String        TourManager_Dialog_TourEditorIsModified_Message;
+   public static String        TourManager_Dialog_TourEditorIsModified_Title;
 
    public static String        Tour_Action_AdjustTemperature;
    public static String        Tour_Action_AdjustTourValues;
@@ -3548,7 +3567,22 @@ public class Messages extends NLS {
 
    public static String        Tour_Chart_Action_Dialog_DeleteTourMarkerError_Message;
    public static String        Tour_Chart_Action_Dialog_DeleteTourMarkerError_Title;
+
+   public static String        Tour_Chart_Dialog_SaveChanges_Message;
+
+   public static String        Tour_Chart_Dialog_SaveChanges_Title;
+
+   public static String        Tour_Chart_Dialog_TourIsModified_Message;
+
+   public static String        Tour_Chart_Info_UndoOperation;
+
    public static String        Tour_Chart_Label_ValuePoint_Title;
+
+   public static String        Tour_Chart_Radio_CancelAndKeepChanges;
+
+   public static String        Tour_Chart_Radio_DiscardChanges;
+
+   public static String        Tour_Chart_Radio_SaveChanges;
 
    public static String        Tour_Compare_ViewName_ElevationComparedTour;
    public static String        Tour_Compare_ViewName_ElevationCompareTimeline;
