@@ -41,6 +41,7 @@ import net.tourbook.chart.ChartSyncMode;
 import net.tourbook.chart.ChartTitleSegment;
 import net.tourbook.chart.ChartTitleSegmentConfig;
 import net.tourbook.chart.ChartType;
+import net.tourbook.chart.ChartXSlider;
 import net.tourbook.chart.ChartYDataMinMaxKeeper;
 import net.tourbook.chart.GraphDrawingData;
 import net.tourbook.chart.IChartLayer;
@@ -1082,7 +1083,7 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       }
 
       // get tour data BEFORE
-      final TourData tourData_Cloned_Before = _tourData.undoRedo_CloneData();
+      final TourData tourData_Cloned_Before = _tourData.undoRedo_Clone_TourData();
 
       TourManager.removeTimeSlices(
 
@@ -1093,9 +1094,10 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
             isRemoveDistance,
             isAdjustTourStartTime);
 
-      final TourData tourData_Cloned_WithRemovedTimeSliced = _tourData.undoRedo_CloneData();
+      // get tour data AFTER
+      final TourData tourData_Cloned_WithRemovedTimeSliced = _tourData.undoRedo_Clone_TourData();
 
-      _tourChartView.undoRedo_DeleteTimeSlice(
+      _tourChartView.undoRedo_ActionDeleteTimeSlice(
 
             tourData_Cloned_Before,
             tourData_Cloned_WithRemovedTimeSliced,
@@ -1112,6 +1114,93 @@ public class TourChart extends Chart implements ITourProvider, ITourMarkerUpdate
       updateTourChart();
 
       setActionChecked(ACTION_ID_IS_GRAPH_OVERLAPPED, isItemChecked);
+   }
+
+   /**
+    * It takes the geo position from the selected time slice and sets this position into all
+    * previous time slices.
+    * <p>
+    * The distance will be set to 0 in these time slices, the total distance is accordingly
+    * adjusted.
+    *
+    * @param slider1
+    * @param slider2
+    */
+   public void actionSetGeoPositionFromHere(final ChartXSlider slider1, final ChartXSlider slider2) {
+
+      // check if the tour editor contains a modified tour
+      if (TourManager.isTourModified_InEditor_WithInfo(true)) {
+         return;
+      }
+
+      final ChartXSlider selectedSlider = slider1 != null ? slider1 : slider2;
+
+      if (selectedSlider == null) {
+         return;
+      }
+
+      // get tour data BEFORE
+      final TourData tourData_Cloned_BeforeModified = _tourData.undoRedo_Clone_TourData();
+
+      actionSetGeoPositionFromSelectedToAllPrevious_Modify(selectedSlider);
+
+      // get tour data AFTER
+      final TourData tourData_Cloned_AfterModified = _tourData.undoRedo_Clone_TourData();
+
+      _tourChartView.undoRedo_ActionSetGeoPositionToAllPrevious(
+
+            tourData_Cloned_BeforeModified,
+            tourData_Cloned_AfterModified);
+   }
+
+   private void actionSetGeoPositionFromSelectedToAllPrevious_Modify(final ChartXSlider selectedSlider) {
+
+      final int selectedSerieIndex = selectedSlider.getValuesIndex();
+
+      final double[] latSerie = _tourData.latitudeSerie;
+      final double[] lonSerie = _tourData.longitudeSerie;
+
+      final double latFrom = latSerie[selectedSerieIndex];
+      final double lonFrom = lonSerie[selectedSerieIndex];
+
+      final float[] distanceSerie = _tourData.distanceSerie;
+      final boolean isDistance = distanceSerie != null && distanceSerie.length > 0;
+
+      final int numSlices = latSerie.length;
+
+      for (int serieIndex = 0; serieIndex < selectedSerieIndex; serieIndex++) {
+
+         if (serieIndex < selectedSerieIndex) {
+
+            // set geo position to the same location
+
+            lonSerie[serieIndex] = lonFrom;
+            latSerie[serieIndex] = latFrom;
+
+            if (isDistance) {
+               distanceSerie[serieIndex] = 0;
+            }
+         }
+      }
+
+      if (isDistance) {
+
+         final float distanceFrom = distanceSerie[selectedSerieIndex];
+
+         for (int serieIndex = selectedSerieIndex; serieIndex < numSlices; serieIndex++) {
+
+            // these are all time slices AFTER the geo positions are the same
+
+            final float distance = distanceSerie[serieIndex];
+
+            distanceSerie[serieIndex] = distance - distanceFrom;
+         }
+
+         _tourData.setTourDistance(distanceSerie[numSlices - 1]);
+      }
+
+      _tourData.clearComputedSeries();
+      _tourData.clearWorldPositions();
    }
 
    public void actionShowTourInfo(final boolean isTourInfoVisible) {
