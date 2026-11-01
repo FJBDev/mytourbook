@@ -24,6 +24,8 @@ import net.tourbook.common.color.ThemeUtil;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourPerson;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.importdata.MCPServerIntegration;
+import net.tourbook.importdata.MCPServerManager;
 import net.tourbook.ui.TourTypeFilter;
 
 import org.eclipse.core.runtime.IStatus;
@@ -342,15 +344,79 @@ public class TourbookPlugin extends AbstractUIPlugin {
        * net.tourbook.common.UI which is initializing the measurement system.
        */
       StatusUtil.logInfo("[AppVersion] " + version.toString());//$NON-NLS-1$
+
+      // Initialize and start the MCP server for AI integration
+      initializeMCPServer();
+   }
+
+   /**
+    * Initialize and start the MCP (Model Context Protocol) server for AI integration
+    */
+   private void initializeMCPServer() {
+
+      try {
+
+         final MCPServerManager mcpManager = MCPServerManager.getInstance();
+
+         // Initialize the server
+         if (!mcpManager.initializeServer()) {
+            StatusUtil.logError("Failed to initialize MCP server"); //$NON-NLS-1$
+            return;
+         }
+
+         // Start the server in background
+         if (!mcpManager.startServer()) {
+            StatusUtil.logError("Failed to start MCP server"); //$NON-NLS-1$
+            return;
+         }
+
+         StatusUtil.logInfo("[MCP Server] MCP Server started successfully for AI integration"); //$NON-NLS-1$
+
+      } catch (final Exception e) {
+
+          StatusUtil.logError("Error starting MCP server: " + e.getMessage()); //$NON-NLS-1$
+          log("Error starting MCP server", e); //$NON-NLS-1$
+      }
    }
 
    @Override
    public void stop(final BundleContext context) throws Exception {
 
+      // Shutdown the MCP server gracefully
+      shutdownMCPServer();
+
       _instance = null;
       _bundleContext = null;
 
       super.stop(context);
+   }
+
+   /**
+    * Shutdown the MCP server gracefully
+    */
+   private void shutdownMCPServer() {
+
+      try {
+
+         final MCPServerManager mcpManager = MCPServerManager.getInstance();
+
+         if (mcpManager.isServerRunning()) {
+
+            if (mcpManager.stopServer()) {
+
+               StatusUtil.logInfo("[MCP Server] MCP Server stopped successfully"); //$NON-NLS-1$
+
+            } else {
+
+               StatusUtil.logError("Error stopping MCP server"); //$NON-NLS-1$
+            }
+         }
+
+      } catch (final Exception e) {
+
+          StatusUtil.logError("Error during MCP server shutdown: " + e.getMessage()); //$NON-NLS-1$
+          log("Error during MCP server shutdown", e); //$NON-NLS-1$
+      }
    }
 
 }
