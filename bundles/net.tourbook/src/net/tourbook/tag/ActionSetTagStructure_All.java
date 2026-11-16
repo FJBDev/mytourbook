@@ -17,8 +17,6 @@ package net.tourbook.tag;
 
 import java.util.HashMap;
 
-import javax.persistence.EntityManager;
-
 import net.tourbook.Messages;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.data.TourTag;
@@ -36,6 +34,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+
+import jakarta.persistence.EntityManager;
 
 public class ActionSetTagStructure_All extends Action implements IMenuCreator {
 

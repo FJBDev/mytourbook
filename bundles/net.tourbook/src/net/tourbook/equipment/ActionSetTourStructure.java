@@ -17,7 +17,7 @@ package net.tourbook.equipment;
 
 import java.util.Set;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import net.tourbook.Messages;
 import net.tourbook.common.util.ITourViewer;

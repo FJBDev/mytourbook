@@ -18,8 +18,6 @@ package net.tourbook.ui.views.referenceTour;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
-
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -35,6 +33,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Display;
+
+import jakarta.persistence.EntityManager;
 
 public class ActionRemoveComparedTours extends Action {
 

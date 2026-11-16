@@ -17,9 +17,6 @@ package net.tourbook.ui.views.referenceTour;
 
 import java.util.ArrayList;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-
 import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
@@ -62,6 +59,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.PageBook;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 // author: Wolfgang Schramm
 // create: 06.09.2007
