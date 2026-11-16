@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.tourbook.common.UI;
+import net.tourbook.common.util.Util;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.css.swt.theme.ITheme;
@@ -34,21 +35,22 @@ import org.eclipse.ui.PlatformUI;
 
 public class ThemeUtil {
 
-   public static final String  DEFAULT_BACKGROUND_LIGHT_THEME = "fff";   //$NON-NLS-1$
-   public static final String  DEFAULT_FOREGROUND_LIGHT_THEME = "333";   //$NON-NLS-1$
+   public static final String DEFAULT_BACKGROUND_LIGHT_THEME = "fff";   //$NON-NLS-1$
+   public static final String DEFAULT_FOREGROUND_LIGHT_THEME = "333";   //$NON-NLS-1$
 
-   public static final String  DEFAULT_FOREGROUND_DARK_THEME  = "ddd";   //$NON-NLS-1$
-   public static final String  DEFAULT_BACKGROUND_DARK_THEME  = "333";   //$NON-NLS-1$
-
-   /**
-    * Currently only .png files are supported for themed images !!!
-    */
-   private static final String IMAGE_NAME_EXTENSION_PNG       = ".png";  //$NON-NLS-1$
+   public static final String DEFAULT_FOREGROUND_DARK_THEME  = "ddd";   //$NON-NLS-1$
+   public static final String DEFAULT_BACKGROUND_DARK_THEME  = "333";   //$NON-NLS-1$
 
    /**
     * All images for the dark theme should have this postfix before the file extension
     */
-   public static final String  DARK_THEME_POSTFIX             = "-dark"; //$NON-NLS-1$
+   public static final String DARK_THEME_POSTFIX             = "-dark"; //$NON-NLS-1$
+
+   /**
+    * HDR is use for win 11 in the dark theme because a selected/hovered image has a very bright
+    * background
+    */
+   public static final String HDR_THEME_POSTFIX              = "-hdr";  //$NON-NLS-1$
 
    /*
     * Copied from org.eclipse.e4.ui.internal.workbench.swt.E4Application
@@ -59,7 +61,7 @@ public class ThemeUtil {
    /*
     * Copied from org.eclipse.e4.ui.css.swt.internal.theme.ThemeEngine
     */
-   public static final String  E4_DARK_THEME_ID = "org.eclipse.e4.ui.css.theme.e4_dark"; //$NON-NLS-1$
+   public static final String  E4_DARK_THEME_ID      = "org.eclipse.e4.ui.css.theme.e4_dark";    //$NON-NLS-1$
 
    private static IThemeEngine _themeEngine;
 
@@ -99,6 +101,27 @@ public class ThemeUtil {
    private static Color        _defaultBackgroundColor_Shell;
 
    private static Color        _defaultForegroundColor_LabelDisabled;
+
+   private static final String SYS_PROP__FORCE_THEME = "forceTheme";                             //$NON-NLS-1$
+   private static final String FORCED_THEME          = System.getProperty(SYS_PROP__FORCE_THEME);
+   private static final String FORCED_THEME_BRIGHT   = "bright";                                 //$NON-NLS-1$
+   private static final String FORCED_THEME_DARK     = "dark";                                   //$NON-NLS-1$
+
+   static {
+
+      if (FORCED_THEME != null) {
+
+         /**
+          * This will NOT work for the whole UI just for MT colors/images. It was introduced to
+          * debug https://github.com/mytourbook/mytourbook/issues/1669
+          */
+
+         Util.logSystemProperty_Value(ThemeUtil.class,
+               SYS_PROP__FORCE_THEME,
+               FORCED_THEME,
+               "This theme is forced"); //$NON-NLS-1$
+      }
+   }
 
    /**
     * These are all Eclipse themes when using W10:
@@ -253,9 +276,15 @@ public class ThemeUtil {
 
       if (UI.IS_DARK_THEME) {
 
-         imageNameThemed = imageName.substring(0, imageName.length() - 4) + DARK_THEME_POSTFIX + IMAGE_NAME_EXTENSION_PNG;
+         final int nameLength = imageName.length();
+         final String nameExtension = imageName.substring(nameLength - 4, nameLength);
+
+         imageNameThemed = imageName.substring(0, nameLength - 4) + DARK_THEME_POSTFIX + nameExtension;
 
       } else {
+
+         // bright theme
+
          imageNameThemed = imageName;
       }
 
@@ -270,7 +299,24 @@ public class ThemeUtil {
     */
    public static String getThemedImageName_Dark(final String imageName) {
 
-      return imageName.substring(0, imageName.length() - 4) + DARK_THEME_POSTFIX + IMAGE_NAME_EXTENSION_PNG;
+      final int nameLength = imageName.length();
+      final String nameExtension = imageName.substring(nameLength - 4, nameLength);
+
+      return imageName.substring(0, nameLength - 4) + DARK_THEME_POSTFIX + nameExtension;
+   }
+
+   /**
+    * @param imageName
+    *
+    * @return Returns the hdr image name. The postfix {@value #HDR_THEME_POSTFIX} is
+    *         appended to the image name when the dark theme image name is returned for windows
+    */
+   public static String getThemedImageName_HDR(final String imageName) {
+
+      final int nameLength = imageName.length();
+      final String nameExtension = imageName.substring(nameLength - 4, nameLength);
+
+      return imageName.substring(0, nameLength - 4) + HDR_THEME_POSTFIX + nameExtension;
    }
 
    /**
@@ -366,12 +412,29 @@ public class ThemeUtil {
 
       _themeEngine = context.get(org.eclipse.e4.ui.css.swt.theme.IThemeEngine.class);
 
-      final ITheme activeTheme = _themeEngine.getActiveTheme();
-      if (activeTheme != null) {
+      boolean isForceBrightTheme = false;
+      boolean isForceDarkTheme = false;
 
-         final boolean isDarkThemeSelected = E4_DARK_THEME_ID.equals(activeTheme.getId());
+      if (FORCED_THEME != null) {
 
-         setDarkTheme(isDarkThemeSelected);
+         isForceBrightTheme = FORCED_THEME.equalsIgnoreCase(FORCED_THEME_BRIGHT);
+         isForceDarkTheme = FORCED_THEME.equalsIgnoreCase(FORCED_THEME_DARK);
+      }
+
+      if (isForceBrightTheme || isForceDarkTheme) {
+
+         setDarkTheme(isForceDarkTheme);
+
+      } else {
+
+         // activeTheme can be null when debugging on Linux
+         final ITheme activeTheme = _themeEngine.getActiveTheme();
+         if (activeTheme != null) {
+
+            final boolean isDarkThemeSelected = E4_DARK_THEME_ID.equals(activeTheme.getId());
+
+            setDarkTheme(isDarkThemeSelected);
+         }
       }
 
       final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

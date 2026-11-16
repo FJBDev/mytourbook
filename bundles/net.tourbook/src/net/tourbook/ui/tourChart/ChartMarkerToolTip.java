@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -244,7 +244,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
             .applyTo(_shellContainer);
 //      _shellContainer.setForeground(_fgColor);
 //      _shellContainer.setBackground(_bgColor);
-      _shellContainer.addPaintListener(this::onPaintShellContainer);
+      _shellContainer.addPaintListener(event -> onPaintShellContainer(event));
       {
          _ttContainer = new Composite(_shellContainer, SWT.NONE);
          GridLayoutFactory.fillDefaults()
@@ -388,7 +388,7 @@ public class ChartMarkerToolTip extends AnimatedToolTipShell implements ITourPro
                final boolean isAvailableAltitude = _tourData.getAltitudeSerie() != null;
                if (isAvailableAltitude) {
 
-                  final float value = _tourData.getAltitudeSmoothedSerie(false)[valueIndex];
+                  final float value = _tourData.getAltitudeSmoothedSerie()[valueIndex];
 
                   createUI_72_ValueField(
                         container,

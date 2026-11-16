@@ -1,0 +1,80 @@
+26.11.0                                                 2. November 2026
+
+All
+===
+
+See milestone 26.11 https://github.com/mytourbook/mytourbook/milestone/32?closed=1
+
+
+New / Improvements
+==================
+
+* Tour Chart Editor
+  The tour chart has now two kinds of actions which can modify a tour:
+  * Previous: An action is performed, e.g. create a tour marker and the tour is saved immediately. These action are still working as before.
+  * New: Added undo/redo support for multi-step edits (e.g., deleting time slices). Tours are no longer saved after every single action.
+
+Important!
+These actions are mutually exclusive. When using the undo/redo feature, the tour must be saved before performing any actions that do not support undo/redo.
+
+  These are the first actions with undo/redo support
+  - Delete time slices
+    https://github.com/mytourbook/mytourbook/issues/1755
+  - Set the geo position from the selected time slice into all previous time sliced (until the tour start)
+    https://github.com/mytourbook/mytourbook/issues/1777
+    
+* Tour Chart
+  - New keyboard actions:
+    - Key "o": Move the other vertical slider to the same position as the selected vertical slider
+  - New context menu actions:
+    - Move the left slider to the tour start
+    - Move the right slider to the tour end
+  
+* Tour Segmenter
+  - Display elevation gain/loss values within break times
+    https://github.com/mytourbook/mytourbook/issues/1545#issuecomment-6164256356
+  - When the break time segmenter is selected, the tour chart displays the updated break times
+  
+
+Changes
+=======
+
+* -vmargs
+  - Command line parameters with -vmargs can cause this issue https://github.com/mytourbook/mytourbook/issues/1773 or similar issues.
+    This is fixed with these new features https://github.com/mytourbook/mytourbook/issues/1773#issuecomment-6310876191
+
+* Tour Chart
+  - Toggle active vertical slider with the keyboard is now "t", before it was the "Ctrl" key
+  
+
+* Tour Editor
+  - When only one time slice is selected in the tour editor, then the tour chart is positioning both vertical sliders at the same position, before there was a gap of 1 time slice
+  - Changed shortcut to revert all tour modifications from Ctrl-Z to Ctrl-R, Ctrl-Z is now the undo action in the tour chart
+  
+    
+
+Bugfix
+======
+  
+* Tour Editor
+  - When time slices were deleted which contained tour markers, the other tour markers positions were wrong
+
+
+Translation    
+===========
+
+- Dutch (Maarten)
+- French (Frederic)
+- German
+- Italian (Doriano)
+
+ 
+System   
+======
+
+* Java 21                        https://adoptium.net/temurin/releases/?version=21
+* Eclipse 2026-06 (4.40)         https://download.eclipse.org/eclipse/downloads/drops4/R-4.40-202606010713
+* NatTable 2.6.0                 https://eclipse.dev/nattable/download
+* Nebula Widgets latest          https://download.eclipse.org/nebula/releases/latest
+* FIT SDK 21.218.0               https://forums.garmin.com/developer/fit-sdk/b/news-announcements
+* 3D Map 2.2.1                   https://github.com/NASAWorldWind/WorldWindJava/releases/tag/v2.2.1

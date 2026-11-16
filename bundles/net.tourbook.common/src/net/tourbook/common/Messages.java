@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ public class Messages extends NLS {
 
    private static final String BUNDLE_NAME = "net.tourbook.common.messages";               //$NON-NLS-1$
 
+   public static String        App_Action_Add_WithConfirm;
    public static String        App_Action_ApplyAndClose;
    public static String        App_Action_Close_Tooltip;
    public static String        App_Action_New_WithConfirm;
@@ -113,6 +114,7 @@ public class Messages extends NLS {
    public static String        ColumnModifyDialog_Checkbox_ShowSortingAnnotations;
    public static String        ColumnModifyDialog_Column_Alignment;
    public static String        ColumnModifyDialog_Column_Category;
+   public static String        ColumnModifyDialog_Column_ColumnTooltip;
    public static String        ColumnModifyDialog_Column_FormatCategory;
    public static String        ColumnModifyDialog_Column_FormatTour;
    public static String        ColumnModifyDialog_Column_HeaderText;
@@ -178,6 +180,7 @@ public class Messages extends NLS {
    public static String        Graph_Label_Distance;
    public static String        Graph_Label_ElevationGain;
    public static String        Graph_Label_Gears;
+   public static String        Graph_Label_GearNumber;
    public static String        Graph_Label_Gradient;
    public static String        Graph_Label_Gradient_Unit;
    public static String        Graph_Label_Heartbeat;
@@ -209,9 +212,14 @@ public class Messages extends NLS {
    public static String        Graph_Label_Tour_Compare_Unit;
    public static String        Graph_Label_Geo_Compare_Unit;
    public static String        Graph_Label_Prefix_AthleteData;
+   public static String        Graph_Label_Prefix_Radar;
    public static String        Graph_Label_Prefix_RunningDynamics;
    public static String        Graph_Label_Prefix_Swimming;
    public static String        Graph_Label_Prefix_Training;
+   public static String        Graph_Label_Radar_PassedVehicles;
+   public static String        Graph_Label_Radar_DistanceToVehicle;
+   public static String        Graph_Label_Radar_PassingSpeed_Absolute;
+   public static String        Graph_Label_Radar_PassingSpeed_Relative;
    public static String        Graph_Label_RunDyn_StanceTime;
    public static String        Graph_Label_RunDyn_StanceTimeBalance;
    public static String        Graph_Label_RunDyn_StepLength;
@@ -329,9 +337,10 @@ public class Messages extends NLS {
 
    public static String        Weather_Clouds_Clouds;
    public static String        Weather_Clouds_Cloudy;
+   public static String        Weather_Clouds_Drizzle;
+   public static String        Weather_Clouds_Fog;
    public static String        Weather_Clouds_IsNotDefined;
    public static String        Weather_Clouds_Lightning;
-   public static String        Weather_Clouds_Drizzle;
    public static String        Weather_Clouds_Rain;
    public static String        Weather_Clouds_ScatteredShowers;
    public static String        Weather_Clouds_SevereWeatherAlert;
@@ -396,6 +405,7 @@ public class Messages extends NLS {
    public static String        Slideout_Dialog_Action_DragSlideout_ToolTip;
    public static String        Slideout_Dialog_Action_KeepSlideoutOpen_Tooltip;
    public static String        Slideout_Dialog_Action_PinSlideoutLocation_Tooltip;
+   public static String        Slideout_Dialog_Action_ResetSlideoutLocation_Tooltip;
 
    public static String        Slideout_Map_TrackColors_Label_Title;
    public static String        Slideout_Map_TrackColors_Label_VisibleColorProfiles;
@@ -413,11 +423,22 @@ public class Messages extends NLS {
    public static String        Time_Tools_DST_North;
    public static String        Time_Tools_DST_South;
 
+   public static String        Value_Formatter_Equipment_Brand;
+   public static String        Value_Formatter_Equipment_BrandModel;
+   public static String        Value_Formatter_Equipment_Model;
+   public static String        Value_Formatter_Equipment_CollateID;
    public static String        Value_Formatter_Number_1_0;
    public static String        Value_Formatter_Number_1_1;
    public static String        Value_Formatter_Number_1_2;
    public static String        Value_Formatter_Number_1_3;
+   public static String        Value_Formatter_Number_1_4;
+   public static String        Value_Formatter_Number_1_5;
    public static String        Value_Formatter_Pace_MM_SS;
+   public static String        Value_Formatter_Period_Day;
+   public static String        Value_Formatter_Period_YearMonthDay;
+   public static String        Value_Formatter_Time_DD_MM_YYY;
+   public static String        Value_Formatter_Time_DD_MM_YYY__HH_MM_SS;
+   public static String        Value_Formatter_Time_Duration;
    public static String        Value_Formatter_Time_HH;
    public static String        Value_Formatter_Time_HH_MM;
    public static String        Value_Formatter_Time_HH_MM_SS;

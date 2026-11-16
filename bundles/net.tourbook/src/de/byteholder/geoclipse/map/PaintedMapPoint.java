@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,20 +30,32 @@ public class PaintedMapPoint {
    public Map2Point          mapPoint;
 
    /**
-    * Rectangle of the painted label or photo
+    * Rectangle of the painted label or photo, 4k scaled
     */
    public Rectangle          labelRectangle;
+
+   /**
+    * Unscaled rectangle to fix UI scaling
+    */
+   public Rectangle          labelRectangle_Unscaled;
 
    /**
     * Rectangle of the painted location symbol
     */
    public Rectangle          symbolRectangle;
 
+   /**
+    * Unscaled rectangle to fix UI scaling
+    */
+   public Rectangle          symbolRectangle_Unscaled;
+
    public PaintedMapPoint(final Map2Point mapPoint,
-                          final Rectangle labelRectangle) {
+                          final Rectangle labelRectangle,
+                          final Rectangle labelRectangle_Unscaled) {
 
       this.mapPoint = mapPoint;
       this.labelRectangle = labelRectangle;
+      this.labelRectangle_Unscaled = labelRectangle_Unscaled;
    }
 
    @Override

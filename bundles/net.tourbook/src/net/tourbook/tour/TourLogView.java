@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -148,7 +148,6 @@ public class TourLogView extends ViewPart {
          setText(Messages.Tour_Log_Action_Clear_Tooltip);
 
          setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_RemoveAll));
-         setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_RemoveAll_Disabled));
       }
 
       @Override
@@ -167,7 +166,6 @@ public class TourLogView extends ViewPart {
          setToolTipText(Messages.Tour_Log_Action_CopyTourLogIntoClipboard_Tooltip);
 
          setImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Copy));
-         setDisabledImageDescriptor(CommonActivator.getThemedImageDescriptor(CommonImages.App_Copy_Disabled));
       }
 
       @Override
@@ -201,13 +199,17 @@ public class TourLogView extends ViewPart {
 
    void addLog(final TourLog tourLog) {
 
-      _tourLog_Queue.add(tourLog);
-
       if (isBrowserAvailable() && _isBrowserCompleted == false) {
 
          // this occurs when the view is opening but not yet ready
          return;
       }
+
+      /*
+       * Very Important: Add item to the log only, when the browser is ready, otherwise some logs
+       * could be duplicated !!!
+       */
+      _tourLog_Queue.add(tourLog);
 
       final long now = System.currentTimeMillis();
 
@@ -255,7 +257,7 @@ public class TourLogView extends ViewPart {
 
    private void addLog_10_UpdateUI() {
 
-      List<TourLog> allLogItems;
+      List<TourLog> allNewLogItems;
 
       // get current log items and cleanup queue
       synchronized (_tourLog_Queue) {
@@ -264,28 +266,30 @@ public class TourLogView extends ViewPart {
             return;
          }
 
-         allLogItems = _tourLog_Queue.stream().toList();
+         allNewLogItems = _tourLog_Queue.stream().toList();
          _tourLog_Queue.clear();
       }
 
       /*
        * Create log text
        */
-      final StringBuilder logsWithJs = new StringBuilder();
+      final StringBuilder sbAllNewJsLogs = new StringBuilder();
       final ArrayList<String> allSimple = new ArrayList<>();
 
-      allLogItems.forEach(tourLog_InQueue -> {
+      allNewLogItems.forEach(newLogItem -> {
 
-         logsWithJs.append(createLogMessage_Js(tourLog_InQueue));
+         sbAllNewJsLogs.append(createLogMessage_Js(newLogItem));
 
-         allSimple.add(createLogMessage_NoJs(tourLog_InQueue, getStateImage_NoBrowser(tourLog_InQueue.state)));
+         final String stateImage_NoBrowser = getStateImage_NoBrowser(newLogItem.state);
+
+         allSimple.add(createLogMessage_NoJs(newLogItem, stateImage_NoBrowser));
       });
 
       if (isBrowserAvailable() && _isUIColorfull) {
 
          // show browser log text
 
-         _browser.execute(logsWithJs.toString());
+         _browser.execute(sbAllNewJsLogs.toString());
 
          // scroll to the bottom
          _browser.execute(UI.EMPTY_STRING
@@ -470,6 +474,8 @@ public class TourLogView extends ViewPart {
 
       String jsText = UI.replaceJS_BackSlash(tourLog.message);
       jsText = UI.replaceJS_Apostrophe(jsText);
+      jsText = WEB.convertHTML_LineBreaks(jsText);
+
       final String message = jsText;
 
       final String subItem = tourLog.isSubLogItem
@@ -706,7 +712,7 @@ public class TourLogView extends ViewPart {
          _txtNoBrowser = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
          _txtNoBrowser.setFont(net.tourbook.ui.UI.getLogFont());
          _txtNoBrowser.setBackground(bgColor);
-         _txtNoBrowser.addMouseWheelListener(this::onMouseWheel);
+         _txtNoBrowser.addMouseWheelListener(event -> onMouseWheel(event));
          GridDataFactory.fillDefaults()
                .grab(true, true)
                .align(SWT.FILL, SWT.FILL)
@@ -802,16 +808,6 @@ public class TourLogView extends ViewPart {
       return UI.EMPTY_STRING;
    }
 
-   private boolean httpAction(final String location) {
-
-      if (location.toLowerCase().startsWith("http://") || //$NON-NLS-1$
-            location.toLowerCase().startsWith("https://")) { //$NON-NLS-1$
-         WEB.openUrl(location);
-         return true;
-      }
-      return false;
-   }
-
    private void initUI() {
 
       /*
@@ -837,6 +833,21 @@ public class TourLogView extends ViewPart {
    public boolean isDisposed() {
 
       return _pageBook == null || _pageBook.isDisposed();
+   }
+
+   private boolean isHttpAction(final String location) {
+
+      final String locationLowerCase = location.toLowerCase();
+
+      if (locationLowerCase.startsWith("http://") || //$NON-NLS-1$
+            locationLowerCase.startsWith("https://")) { //$NON-NLS-1$
+
+         WEB.openUrl(location);
+
+         return true;
+      }
+
+      return false;
    }
 
    private String js_SetStyleBgImage(final String imageUrl) {
@@ -937,15 +948,13 @@ public class TourLogView extends ViewPart {
       _browser.setRedraw(true);
 
       // show already logged items
-      final CopyOnWriteArrayList<TourLog> importLogs = TourLogManager.getLogs();
+      final CopyOnWriteArrayList<TourLog> allLogs = TourLogManager.getLogs();
 
-      final TourLog[] allImportLogs = importLogs.toArray(new TourLog[importLogs.size()]);
-
-      final int numLogs = allImportLogs.length;
+      final int numLogs = allLogs.size();
       final int logIndexStart = Math.max(0, numLogs - MAX_BROWSER_ITEMS);
 
       for (int logIndex = logIndexStart; logIndex < numLogs; logIndex++) {
-         addLog(allImportLogs[logIndex]);
+         addLog(allLogs.get(logIndex));
       }
 
       _isBrowserContentSet = numLogs > 0;
@@ -953,7 +962,7 @@ public class TourLogView extends ViewPart {
 
    private void onBrowser_LocationChanging(final LocationEvent event) {
 
-      if (httpAction(event.location)) {
+      if (isHttpAction(event.location)) {
 
          // keep current page when an action is performed, OTHERWISE the current page will disappear or is replaced :-(
          event.doit = false;
@@ -1016,7 +1025,7 @@ public class TourLogView extends ViewPart {
    }
 
    /**
-    * Set/create dashboard page.
+    * Set/create log page
     */
    private void updateUI() {
 

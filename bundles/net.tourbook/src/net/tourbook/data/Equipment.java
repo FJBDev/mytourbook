@@ -1,0 +1,875 @@
+/*******************************************************************************
+ * Copyright (C) 2025, 2026 Wolfgang Schramm and Contributors
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+ *******************************************************************************/
+package net.tourbook.data;
+
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.FetchType.EAGER;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
+
+import net.tourbook.Messages;
+import net.tourbook.common.UI;
+import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.util.StringUtils;
+import net.tourbook.database.FIELD_VALIDATION;
+import net.tourbook.database.TourDatabase;
+import net.tourbook.equipment.EquipmentManager;
+
+import org.hibernate.annotations.Cascade;
+
+@Entity
+public class Equipment implements Cloneable, Comparable<Object>, Serializable {
+
+   private static final char          NL               = UI.NEW_LINE;
+
+   private static final long          serialVersionUID = 1L;
+
+   private static final AtomicInteger _createCounter   = new AtomicInteger();
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private long                       equipmentId      = TourDatabase.ENTITY_IS_NOT_SAVED;
+
+   /**
+    * Brand/name for the equipment, e.g. Price
+    */
+   private String                     brand;
+
+   /**
+    * Model/subname for the equipment, e.g. Rennvelo 2016
+    */
+   private String                     model;
+
+   /**
+    * Collation ID, e.g. backpack
+    * <p>
+    * In MT 26.6 the wording of this field in the UI was renamed into "Collate ID" but not in the
+    * backend
+    */
+   private String                     type;
+
+   /**
+    * Purchase location
+    */
+   private String                     purchaseLocation;
+
+   /**
+    * Description/notes for the equipment
+    */
+   private String                     description;
+
+   /**
+    * Website
+    */
+   private String                     urlAddress;
+
+   /**
+    *
+    */
+   private String                     imageFilePath;
+
+   /**
+    * e.g.
+    */
+   private String                     size;
+
+   /**
+    * Weight of the equipment, in kg
+    */
+   private float                      weight;
+
+   /**
+    * This is just the unit how the weight is displayed in the UI, the weight is always saved in kg
+    * <p>
+    * 0 ... kg/lbs<br>
+    * 1 ... g/oz
+    */
+   private short                      weightUnit;
+
+   /**
+    * Price
+    */
+   private float                      price;
+
+   /**
+    * Price unit
+    */
+   private String                     priceUnit;
+
+   /**
+    * Initial value
+    */
+   private float                      initialValue;
+
+   /**
+    * Initial value unit
+    */
+   private String                     initialValueUnit;
+
+   /**
+    * Initial distance, in kilometer
+    */
+   private float                      distanceFirstUse;
+
+   /**
+    * When <code>true</code> then this equipment is collated but it can have no parts or services
+    */
+   private boolean                    isCollate;
+
+   /**
+    * When <code>true</code> then this equipment is retired
+    */
+   private boolean                    isRetired;
+
+   /**
+    * When the equipment was created/build, in milliseconds since 1970-01-01T00:00:00Z
+    */
+   private long                       dateBuilt;
+
+   /**
+    * When the equipment was purchased, in milliseconds since 1970-01-01T00:00:00Z
+    */
+   private long                       datePurchased;
+
+   /**
+    * When the equipment was retired/sold, in milliseconds since 1970-01-01T00:00:00Z
+    */
+   private long                       dateRetired;
+
+   /**
+    * When the equipment was firstly used, in milliseconds since 1970-01-01T00:00:00Z
+    */
+   private long                       dateUsed;
+
+   /**
+    * When the equipment was firstly used, in milliseconds since 1970-01-01T00:00:00Z
+    * <p>
+    * This value is computed from the previous equipment.
+    */
+   private long                       dateCollateFrom;
+
+   /**
+    * When the equipment usage was finished, in milliseconds since 1970-01-01T00:00:00Z.
+    * <p>
+    * This value is computed from the previous equipment.
+    */
+   private long                       dateCollateUntil;
+
+   /**
+    * When a part is expanded in the equipment viewer, the tours can be displayed in different
+    * structures
+    * <p>
+    * <li>0 ... EXPAND_TYPE_FLAT</li>
+    * <li>1 ... EXPAND_TYPE_YEAR_TOUR</li>
+    * <li>2 ... EXPAND_TYPE_YEAR_MONTH_TOUR</li>
+    */
+   private int                        expandType       = EquipmentManager.EXPAND_TYPE_FLAT;
+
+   /**
+    * Contains all parts which are associated with this equipment, e.g.
+    * <ul>
+    * <li></li>
+    * </ul>
+    */
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "equipment")
+   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   private Set<EquipmentPart>         parts            = new HashSet<>();
+
+   @Transient
+   private long                       _createId        = 0;
+
+   @Transient
+   private LocalDateTime              _dateBuilt;
+
+   @Transient
+   private LocalDateTime              _datePurchased;
+
+   @Transient
+   private LocalDateTime              _dateRetired;
+
+   @Transient
+   private LocalDateTime              _dateUsed;
+
+   @Transient
+   private LocalDateTime              _dateCollateFrom;
+
+   @Transient
+   private LocalDateTime              _dateCollateUntil;
+
+   @Transient
+   private String                     _equipmentName;
+
+   @Transient
+   private String                     _checkedEmptyCollateID;
+
+   /**
+    * Default constructor used in EJB
+    */
+   public Equipment() {}
+
+   /**
+    * An equipment can only collate when there are no parts/services, otherwise it would be too
+    * complicated
+    *
+    * @return
+    */
+   public boolean canCollate() {
+
+      final int numParts = parts.size();
+
+      return numParts == 0;
+   }
+
+   @Override
+   public Equipment clone() {
+
+      Equipment clonedEquipment = null;
+
+      try {
+
+         clonedEquipment = (Equipment) super.clone();
+
+      } catch (final CloneNotSupportedException e) {
+
+         e.printStackTrace();
+      }
+
+      clonedEquipment.equipmentId = TourDatabase.ENTITY_IS_NOT_SAVED;
+      clonedEquipment._createId = _createCounter.incrementAndGet();
+
+      return clonedEquipment;
+   }
+
+   @Override
+   public int compareTo(final Object obj) {
+
+      if (obj instanceof final Equipment equipment) {
+
+         return getName().compareTo(equipment.getName());
+      }
+
+      return 0;
+   }
+
+   @Override
+   public boolean equals(final Object obj) {
+
+      if (this == obj) {
+         return true;
+      }
+      if (obj == null) {
+         return false;
+      }
+      if (!(obj instanceof Equipment)) {
+         return false;
+      }
+
+      final Equipment other = (Equipment) obj;
+
+      if (_createId == 0) {
+
+         // equipment is from the database
+         if (equipmentId != other.equipmentId) {
+            return false;
+         }
+
+      } else {
+
+         // equipment is created
+         if (_createId != other._createId) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   /**
+    * @return Returns the equipment name or an empty string when not available
+    */
+   public String getBrand() {
+
+      if (brand == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return brand;
+   }
+
+   public String getCollateID() {
+
+      if (type == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return type;
+   }
+
+   public String getCollateIdEmptyChecked() {
+
+      if (_checkedEmptyCollateID == null) {
+
+         _checkedEmptyCollateID = EquipmentManager.isEmptyEquipmentCollateID(type) ? UI.EMPTY_STRING : type;
+      }
+
+      return _checkedEmptyCollateID;
+   }
+
+   public long getDateBuilt() {
+
+      return dateBuilt;
+   }
+
+   public LocalDateTime getDateBuilt_Local() {
+
+      if (_dateBuilt == null) {
+         _dateBuilt = TimeTools.toLocalDateTime(dateBuilt);
+      }
+
+      return _dateBuilt;
+   }
+
+   public long getDateCollateFrom() {
+
+      return dateCollateFrom;
+   }
+
+   public LocalDateTime getDateCollateFrom_Local() {
+
+      if (_dateCollateFrom == null) {
+         _dateCollateFrom = TimeTools.toLocalDateTime(dateCollateFrom);
+      }
+
+      return _dateCollateFrom;
+   }
+
+   public long getDateCollateUntil() {
+
+      return dateCollateUntil;
+   }
+
+   public LocalDateTime getDateCollateUntil_Local() {
+
+      if (_dateCollateUntil == null) {
+         _dateCollateUntil = TimeTools.toLocalDateTime(dateCollateUntil);
+      }
+
+      return _dateCollateUntil;
+   }
+
+   public long getDatePurchased() {
+
+      return datePurchased;
+   }
+
+   public LocalDateTime getDatePurchased_Local() {
+
+      if (_datePurchased == null) {
+         _datePurchased = TimeTools.toLocalDateTime(datePurchased);
+      }
+
+      return _datePurchased;
+   }
+
+   public long getDateRetired() {
+
+      return dateRetired;
+   }
+
+   public LocalDateTime getDateRetired_Local() {
+
+      if (_dateRetired == null) {
+         _dateRetired = TimeTools.toLocalDateTime(dateRetired);
+      }
+
+      return _dateRetired;
+   }
+
+   public long getDateUsed() {
+
+      return dateUsed;
+   }
+
+   /**
+    * @return Return the first use date
+    */
+   public LocalDateTime getDateUsed_Local() {
+
+      if (_dateUsed == null) {
+         _dateUsed = TimeTools.toLocalDateTime(dateUsed);
+      }
+
+      return _dateUsed;
+   }
+
+   public String getDescription() {
+
+      if (description == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return description;
+   }
+
+   /**
+    * @return Returns {@link #distanceFirstUse}
+    */
+   public float getDistanceFirstUse() {
+      return distanceFirstUse;
+   }
+
+   public long getDuration() {
+
+      final long duration = dateCollateUntil - dateCollateFrom;
+
+      return duration;
+   }
+
+   /**
+    * @return Returns the primary key for a {@link Equipment} entity
+    */
+   public long getEquipmentId() {
+      return equipmentId;
+   }
+
+   public int getExpandType() {
+      return expandType;
+   }
+
+   public String getImageFilePath() {
+
+      if (imageFilePath == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return imageFilePath;
+   }
+
+   public float getInitialValue() {
+      return initialValue;
+   }
+
+   public String getInitialValueUnit() {
+
+      if (initialValueUnit == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return initialValueUnit;
+   }
+
+   public String getModel() {
+
+      if (model == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return model;
+   }
+
+   /**
+    * @return Returns a combined name of the equipment with "brand - model"
+    */
+   public String getName() {
+
+      if (_equipmentName != null) {
+
+         return _equipmentName;
+      }
+
+      final StringBuilder sb = new StringBuilder();
+
+      if (StringUtils.hasContent(brand)) {
+         sb.append(brand);
+      }
+
+      if (StringUtils.hasContent(model)) {
+
+         if (sb.length() > 0) {
+            sb.append(UI.DASH_WITH_DOUBLE_SPACE);
+         }
+
+         sb.append(model);
+      }
+
+      _equipmentName = sb.toString();
+
+      return _equipmentName;
+   }
+
+   public Set<EquipmentPart> getParts() {
+      return parts;
+   }
+
+   public float getPrice() {
+      return price;
+   }
+
+   public String getPriceUnit() {
+      return priceUnit;
+   }
+
+   public String getPurchaseLocation() {
+
+      if (purchaseLocation == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return purchaseLocation;
+   }
+
+   public String getSize() {
+
+      if (size == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return size;
+   }
+
+   public String getUrlAddress() {
+
+      if (urlAddress == null) {
+         return UI.EMPTY_STRING;
+      }
+
+      return urlAddress;
+   }
+
+   /**
+    * @return Returns {@link #weight}
+    */
+   public float getWeight() {
+      return weight;
+   }
+
+   /**
+    * @return Returns {@link #weightUnit}
+    */
+   public short getWeightUnit() {
+      return weightUnit;
+   }
+
+   @Override
+   public int hashCode() {
+
+      return Objects.hash(equipmentId, _createId);
+   }
+
+   /**
+    * @return {@link #isCollate}
+    */
+   public boolean isCollate() {
+      return isCollate;
+   }
+
+   public boolean isCollatedFieldsModified(final Equipment otherEquipment) {
+
+      if (isCollate != otherEquipment.isCollate()
+            || dateUsed != otherEquipment.getDateUsed()
+            || type.equalsIgnoreCase(otherEquipment.getCollateID()) == false) {
+
+         // collated fields are modified
+
+         return true;
+      }
+
+      return false;
+   }
+
+   public boolean isRetired() {
+      return isRetired;
+   }
+
+   /**
+    * Checks if VARCHAR fields have the correct length
+    *
+    * @return Returns <code>true</code> when the data are valid and can be saved
+    */
+   public boolean isValidForSave() {
+
+      FIELD_VALIDATION fieldValidation;
+
+      /*
+       * Check: Description
+       */
+      fieldValidation = TourDatabase.isFieldValidForSave(
+            description,
+            TourDatabase.DB_LENGTH_DESCRIPTION,
+            Messages.Db_Field_Description);
+
+      if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
+
+         return false;
+
+      } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
+
+         description = description.substring(0, TourDatabase.DB_LENGTH_DESCRIPTION);
+      }
+
+      return true;
+   }
+
+   /**
+    * This is fixing an exception when an equipment is cloned:
+    *
+    * org.hibernate.HibernateException:
+    * Don't change the reference to a collection with cascade="all-delete-orphan":
+    * net.tourbook.data.Equipment.parts
+    */
+   public void resetParts() {
+
+      parts = new HashSet<>();
+   }
+
+   public void setBrand(final String brand) {
+
+      this.brand = brand;
+
+      _equipmentName = null;
+   }
+
+   public void setCollateID(final String collateID) {
+
+      this.type = collateID;
+
+      _checkedEmptyCollateID = null;
+   }
+
+   public void setDateBuilt(final long dateBuilt) {
+
+      this.dateBuilt = dateBuilt;
+
+      _dateBuilt = null;
+   }
+
+   public void setDateCollateFrom(final long dateCollateFrom) {
+
+      this.dateCollateFrom = dateCollateFrom;
+
+      _dateCollateFrom = null;
+   }
+
+   public void setDateCollateUntil(final long dateCollateUntil) {
+
+      this.dateCollateUntil = dateCollateUntil;
+
+      _dateCollateUntil = null;
+   }
+
+   public void setDatePurchased(final long datePurchased) {
+
+      this.datePurchased = datePurchased;
+
+      _datePurchased = null;
+   }
+
+   public void setDateRetired(final long dateRetired) {
+
+      this.dateRetired = dateRetired;
+
+      _dateRetired = null;
+   }
+
+   public void setDateUsed(final long dateUsed) {
+
+      this.dateUsed = dateUsed;
+
+      _dateUsed = null;
+   }
+
+   public void setDescription(final String description) {
+      this.description = description;
+   }
+
+   public void setDistanceFirstUse(final float distanceFirstUse) {
+      this.distanceFirstUse = distanceFirstUse;
+   }
+
+   public void setExpandType(final int expandType) {
+      this.expandType = expandType;
+   }
+
+   public void setImageFilePath(final String imageFilePath) {
+      this.imageFilePath = imageFilePath;
+   }
+
+   public void setInitialValue(final float initialValue) {
+      this.initialValue = initialValue;
+   }
+
+   public void setInitialValueUnit(final String initialValueUnit) {
+      this.initialValueUnit = initialValueUnit;
+   }
+
+   public void setIsCollate(final boolean isCollate) {
+      this.isCollate = isCollate;
+   }
+
+   public void setIsRetired(final boolean isRetired) {
+      this.isRetired = isRetired;
+   }
+
+   public void setModel(final String model) {
+
+      this.model = model;
+
+      _equipmentName = null;
+   }
+
+   public void setPrice(final float price) {
+      this.price = price;
+   }
+
+   public void setPriceUnit(final String priceUnit) {
+      this.priceUnit = priceUnit;
+   }
+
+   public void setPurchaseLocation(final String purchaseLocation) {
+      this.purchaseLocation = purchaseLocation;
+   }
+
+   public void setSize(final String size) {
+      this.size = size;
+   }
+
+   public void setUrlAddress(final String urlAddress) {
+
+      this.urlAddress = urlAddress;
+   }
+
+   public void setWeight(final float weight) {
+      this.weight = weight;
+   }
+
+   public void setWeightUnit(final short weightUnit) {
+      this.weightUnit = weightUnit;
+   }
+
+   @Override
+   public String toString() {
+
+      final int maxLen = 5;
+
+      String partValues = parts != null ? toString(parts, maxLen) : null;
+
+      partValues = parts == null
+            ? "-" //                                                          //$NON-NLS-1$
+            : "" + parts.size(); //                                           //$NON-NLS-1$
+
+      return UI.EMPTY_STRING
+
+            + "Equipment" + NL //                                             //$NON-NLS-1$
+
+            + "  equipmentId      = " + equipmentId + NL //                   //$NON-NLS-1$
+            + "  brand            = " + brand + NL //                         //$NON-NLS-1$
+            + "  model            = " + model + NL //                         //$NON-NLS-1$
+
+//            + "  isCollate        = " + isCollate + NL //                     //$NON-NLS-1$
+//            + "  isRetired        = " + isRetired + NL //                     //$NON-NLS-1$
+            + "  collateID        = " + type + NL //                          //$NON-NLS-1$
+            + "  name             = " + getName() + NL //                     //$NON-NLS-1$
+
+//            + "  dateUsed         = " + getDateUsed_Local() + NL //           //$NON-NLS-1$
+//            + "  dateCollateFrom  = " + getDateCollateFrom_Local() + NL //    //$NON-NLS-1$
+//            + "  dateCollateUntil = " + getDateCollateUntil_Local() + NL //   //$NON-NLS-1$
+
+//            + " description      = " + description + NL //                  //$NON-NLS-1$
+//            + " equipmentType    = " + equipmentType + NL //                //$NON-NLS-1$
+//            + " distanceFirstUse = " + distanceFirstUse + NL //             //$NON-NLS-1$
+//
+//            + " dateBuilt        = " + dateBuilt + NL //                    //$NON-NLS-1$
+//            + " dateRetired      = " + dateRetired + NL //                  //$NON-NLS-1$
+//
+//            + " weight           = " + weight + NL //                       //$NON-NLS-1$
+//
+//            + " parts            = " + partValues + NL //$NON-NLS-1$
+      ;
+   }
+
+   private String toString(final Collection<?> collection, final int maxLen) {
+
+      final StringBuilder builder = new StringBuilder();
+      builder.append("\n["); //$NON-NLS-1$
+      int i = 0;
+      for (final Iterator<?> iterator = collection.iterator(); iterator.hasNext() && i < maxLen; i++) {
+         if (i > 0) {
+            builder.append(", "); //$NON-NLS-1$
+         }
+         builder.append(iterator.next());
+      }
+      builder.append("]"); //$NON-NLS-1$
+      return builder.toString();
+   }
+
+   public void updateFromOther(final Equipment otherEquipment) {
+
+// SET_FORMATTING_OFF
+
+      setBrand             (otherEquipment.getBrand());
+      setModel             (otherEquipment.getModel());
+      setDescription       (otherEquipment.getDescription());
+      setImageFilePath     (otherEquipment.getImageFilePath());
+      setPurchaseLocation  (otherEquipment.getPurchaseLocation());
+      setUrlAddress        (otherEquipment.getUrlAddress());
+
+      setIsCollate         (otherEquipment.isCollate());
+      setIsRetired         (otherEquipment.isRetired());
+      setCollateID         (otherEquipment.getCollateID());
+
+      setDistanceFirstUse  (otherEquipment.getDistanceFirstUse());
+      setInitialValue      (otherEquipment.getInitialValue());
+      setInitialValueUnit  (otherEquipment.getInitialValueUnit());
+      setPrice             (otherEquipment.getPrice());
+      setPriceUnit         (otherEquipment.getPriceUnit());
+      setSize              (otherEquipment.getSize());
+      setWeight            (otherEquipment.getWeight());
+      setWeightUnit        (otherEquipment.getWeightUnit());
+
+      setDateBuilt         (otherEquipment.getDateBuilt());
+      setDatePurchased     (otherEquipment.getDatePurchased());
+      setDateRetired       (otherEquipment.getDateRetired());
+      setDateUsed          (otherEquipment.getDateUsed());
+
+// SET_FORMATTING_ON
+   }
+
+   /**
+    * Reset {@link #dateCollateUntil} when part is not collated, this makes it easier to see it in
+    * the view
+    */
+   public void updateUntilDate() {
+
+      if (isCollate == false) {
+
+         setDateCollateUntil(0);
+      }
+   }
+}

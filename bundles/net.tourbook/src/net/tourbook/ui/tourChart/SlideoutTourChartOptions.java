@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,13 +26,17 @@ import net.tourbook.common.action.ActionResetToDefaults;
 import net.tourbook.common.action.IActionResetToDefault;
 import net.tourbook.common.font.MTFont;
 import net.tourbook.common.tooltip.ToolbarSlideout;
+import net.tourbook.common.util.Util;
 import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.preferences.PrefPageAppearanceTourChart;
 import net.tourbook.srtm.IPreferences;
 import net.tourbook.srtm.PrefPageSRTMData;
 import net.tourbook.ui.ChartOptions_Grid;
+import net.tourbook.ui.ChartOptions_Layout;
+import net.tourbook.ui.views.tourDataEditor.TourDataEditorView;
 
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -61,25 +65,27 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
  */
 public class SlideoutTourChartOptions extends ToolbarSlideout implements IActionResetToDefault {
 
-   private final IPreferenceStore _prefStore           = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore           = TourbookPlugin.getPrefStore();
+   private static final IDialogSettings  _stateTourEditor     = TourDataEditorView.getState();
 
-   private SelectionListener      _defaultSelectionListener;
-   private MouseWheelListener     _defaultMouseWheelListener;
-   private FocusListener          _keepOpenListener;
+   private SelectionListener             _defaultSelectionListener;
+   private MouseWheelListener            _defaultMouseWheelListener;
+   private FocusListener                 _keepOpenListener;
 
-   private ActionOpenPrefDialog   _actionPrefDialog;
-   private ActionResetToDefaults  _actionRestoreDefaults;
+   private ActionOpenPrefDialog          _actionPrefDialog;
+   private ActionResetToDefaults         _actionRestoreDefaults;
 
-   private ChartOptions_Grid      _gridUI;
+   private ChartOptions_Grid             _gridUI;
+   private ChartOptions_Layout           _layoutUI;
 
-   private boolean                _isNeededToRecomputeValues;
+   private boolean                       _isNeededToRecomputeValues;
 
-   private int                    _speedDistanceIntervalBackup;
+   private int                           _speedDistanceIntervalBackup;
 
    /**
     * Pulse graph values MUST be in sync with pulse graph labels
     */
-   private PulseGraph[]           _allPulseGraph_Value = {
+   private PulseGraph[]                  _allPulseGraph_Value = {
 
          PulseGraph.DEVICE_BPM___2ND_RR_AVERAGE,
          PulseGraph.DEVICE_BPM_ONLY,
@@ -94,7 +100,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
    /**
     * Pulse graph labels MUST be in sync with pulse graph values
     */
-   private String[]               _allPulseGraph_Label = {
+   private String[]                      _allPulseGraph_Label = {
 
          Messages.TourChart_PulseGraph_DeviceBpm_2nd_RRAverage,
          Messages.TourChart_PulseGraph_DeviceBpm_Only,
@@ -105,13 +111,16 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
          Messages.TourChart_PulseGraph_RRAverage_2nd_DeviceBpm,
    };
 
-   private ArrayList<PulseGraph>  _possiblePulseGraph_Values;
+   private ArrayList<PulseGraph>         _possiblePulseGraph_Values;
 
    /*
     * UI controls
     */
    private TourChart _tourChart;
 
+   private Button    _chkDelete_AdjustTourStartTime;
+   private Button    _chkDelete_KeepTime;
+   private Button    _chkDelete_KeepDistance;
    private Button    _chkGraphAntialiasing;
    private Button    _chkInvertPaceGraph;
    private Button    _chkSelectInbetweenTimeSlices;
@@ -142,13 +151,15 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
    public SlideoutTourChartOptions(final Control ownerControl,
                                    final ToolBar toolBar,
                                    final TourChart tourChart,
-                                   final String gridPrefPrefix) {
+                                   final String gridPrefPrefix,
+                                   final String layoutPrefPrefix) {
 
       super(ownerControl, toolBar);
 
       _tourChart = tourChart;
 
       _gridUI = new ChartOptions_Grid(gridPrefPrefix);
+      _layoutUI = new ChartOptions_Layout(layoutPrefPrefix);
    }
 
    private void createActions() {
@@ -192,10 +203,12 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
                createUI_10_Title(titleContainer);
                createUI_12_Actions(titleContainer);
             }
+
             createUI_20_Options(container);
             createUI_30_Graph(container);
 
             _gridUI.createUI(container);
+            _layoutUI.createUI(container);
          }
       }
 
@@ -353,6 +366,44 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
             _chkSelectInbetweenTimeSlices.setToolTipText(Messages.Tour_Action_Select_Inbetween_Timeslices_Tooltip);
             _chkSelectInbetweenTimeSlices.addSelectionListener(_defaultSelectionListener);
          }
+         {
+            /*
+             * DEL key actions
+             */
+            final Composite deleteContainer = new Composite(container, SWT.NONE);
+            GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(deleteContainer);
+            GridLayoutFactory.fillDefaults().numColumns(2).applyTo(deleteContainer);
+            {
+               {
+                  // label
+                  final Label label = new Label(deleteContainer, SWT.NONE);
+                  label.setText(Messages.Slideout_TourEditor_Label_DeleteTimeSlices);
+                  GridDataFactory.fillDefaults().span(2, 1).applyTo(label);
+               }
+               {
+                  // Adjust tour start time
+                  _chkDelete_AdjustTourStartTime = new Button(deleteContainer, SWT.CHECK);
+                  _chkDelete_AdjustTourStartTime.setText(Messages.Slideout_TourEditor_Checkbox_AdjustTourStartTime);
+                  _chkDelete_AdjustTourStartTime.addSelectionListener(_defaultSelectionListener);
+                  GridDataFactory.fillDefaults().indent(16, 0).span(2, 1).applyTo(_chkDelete_AdjustTourStartTime);
+               }
+               {
+                  // Keep time
+                  _chkDelete_KeepTime = new Button(deleteContainer, SWT.CHECK);
+                  _chkDelete_KeepTime.setText(Messages.Slideout_TourEditor_Checkbox_KeepTime);
+                  _chkDelete_KeepTime.setToolTipText(Messages.Slideout_TourEditor_Checkbox_KeepTime_Tooltip);
+                  _chkDelete_KeepTime.addSelectionListener(_defaultSelectionListener);
+                  GridDataFactory.fillDefaults().indent(16, 0).applyTo(_chkDelete_KeepTime);
+               }
+               {
+                  // Keep distance
+                  _chkDelete_KeepDistance = new Button(deleteContainer, SWT.CHECK);
+                  _chkDelete_KeepDistance.setText(Messages.Slideout_TourEditor_Checkbox_KeepDistance);
+                  _chkDelete_KeepDistance.setToolTipText(Messages.Slideout_TourEditor_Checkbox_KeepDistance_Tooltip);
+                  _chkDelete_KeepDistance.addSelectionListener(_defaultSelectionListener);
+               }
+            }
+         }
       }
    }
 
@@ -466,8 +517,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
                _spinnerGraphLineOpacity.setToolTipText(tooltipText);
                _spinnerGraphLineOpacity.addMouseWheelListener(_defaultMouseWheelListener);
                _spinnerGraphLineOpacity.addSelectionListener(_defaultSelectionListener);
-               GridDataFactory.fillDefaults()
-                     .applyTo(_spinnerGraphLineOpacity);
+               GridDataFactory.fillDefaults().applyTo(_spinnerGraphLineOpacity);
             }
             {
                final Label spacer = UI.createSpacer_Horizontal(group, 1);
@@ -614,6 +664,13 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
 
       final TourChartConfiguration tcc = _tourChart.getTourChartConfig();
 
+      /*
+       * Get default values
+       */
+      final boolean delete_IsKeepTime              = TourDataEditorView.STATE_DELETE_IS_KEEP_TIME_DEFAULT;
+      final boolean delete_IsKeepDistance          = TourDataEditorView.STATE_DELETE_IS_KEEP_DISTANCE_DEFAULT;
+      final boolean delete_IsAdjustTourStartTime   = TourDataEditorView.STATE_DELETE_IS_ADJUST_TOUR_START_TIME_DEFAULT;
+
       final boolean isGraphAntialiasing            = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_ANTIALIASING);
       final boolean isSelectInBetweenTimeSlices    = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_SELECT_INBETWEEN_TIME_SLICES);
       final boolean isShowBreaktimeValues          = _prefStore.getDefaultBoolean(ITourbookPreferences.GRAPH_IS_BREAKTIME_VALUES_VISIBLE);
@@ -634,29 +691,43 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
             ? X_AXIS_START_TIME.TOUR_START_TIME
             : X_AXIS_START_TIME.START_WITH_0;
 
-      tcc.isShowBreaktimeValues     = isShowBreaktimeValues;
-      tcc.isShowNightSections       = isShowNightSections;
-      tcc.isShowValuePointValue     = isShowValuePointValue;
-      tcc.isSRTMDataVisible         = isSrtmDataVisible;
-      tcc.pulseGraph                = TourChart.PULSE_GRAPH_DEFAULT;
-      tcc.xAxisTime                 = xAxisStartTime;
+      /*
+       * Update model
+       */
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_KEEP_TIME,         delete_IsKeepTime);
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_KEEP_DISTANCE,     delete_IsKeepDistance);
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_ADJUST_TOUR_START_TIME,   delete_IsAdjustTourStartTime);
 
-      _chkGraphAntialiasing         .setSelection(isGraphAntialiasing);
-      _chkInvertPaceGraph           .setSelection(isShowPaceGraphInverted);
-      _chkSelectInbetweenTimeSlices .setSelection(isSelectInBetweenTimeSlices);
-      _chkShowBreaktimeValues       .setSelection(isShowBreaktimeValues);
-      _chkShowNightSections         .setSelection(isShowNightSections);
-      _chkShowSrtmData              .setSelection(isSrtmDataVisible);
-      _chkShowStartTimeOnXAxis      .setSelection(isTourStartTime);
-      _chkShowValuePointTooltip     .setSelection(isShowValuePointTooltip);
-      _chkShowValuePointValue       .setSelection(isShowValuePointValue);
+      /*
+       * Update UI
+       */
+      tcc.isShowBreaktimeValues        = isShowBreaktimeValues;
+      tcc.isShowNightSections          = isShowNightSections;
+      tcc.isShowValuePointValue        = isShowValuePointValue;
+      tcc.isSRTMDataVisible            = isSrtmDataVisible;
+      tcc.pulseGraph                   = TourChart.PULSE_GRAPH_DEFAULT;
+      tcc.xAxisTime                    = xAxisStartTime;
 
-      _rdoShowSrtm1Values           .setSelection(isShowSrtm1Values);
-      _rdoShowSrtm3Values           .setSelection(isShowSrtm1Values == false);
+      _chkDelete_AdjustTourStartTime   .setSelection(delete_IsAdjustTourStartTime);
+      _chkDelete_KeepDistance          .setSelection(delete_IsKeepDistance);
+      _chkDelete_KeepTime              .setSelection(delete_IsKeepTime);
 
-      _spinnerGraphLineOpacity      .setSelection(UI.transformOpacity_WhenRestored(graphLineOpacity));
-      _spinnerNightSectionsOpacity  .setSelection(UI.transformOpacity_WhenRestored(nightSectionsOpacity));
-      _spinnerSpeedDistanceInterval .setSelection((int) (UI.convertSpeed_FromMetric(speedDistanceInterval) / 100));
+      _chkGraphAntialiasing            .setSelection(isGraphAntialiasing);
+      _chkInvertPaceGraph              .setSelection(isShowPaceGraphInverted);
+      _chkSelectInbetweenTimeSlices    .setSelection(isSelectInBetweenTimeSlices);
+      _chkShowBreaktimeValues          .setSelection(isShowBreaktimeValues);
+      _chkShowNightSections            .setSelection(isShowNightSections);
+      _chkShowSrtmData                 .setSelection(isSrtmDataVisible);
+      _chkShowStartTimeOnXAxis         .setSelection(isTourStartTime);
+      _chkShowValuePointTooltip        .setSelection(isShowValuePointTooltip);
+      _chkShowValuePointValue          .setSelection(isShowValuePointValue);
+
+      _rdoShowSrtm1Values              .setSelection(isShowSrtm1Values);
+      _rdoShowSrtm3Values              .setSelection(isShowSrtm1Values == false);
+
+      _spinnerGraphLineOpacity         .setSelection(UI.transformOpacity_WhenRestored(graphLineOpacity));
+      _spinnerNightSectionsOpacity     .setSelection(UI.transformOpacity_WhenRestored(nightSectionsOpacity));
+      _spinnerSpeedDistanceInterval    .setSelection((int) (UI.convertSpeed_FromMetric(speedDistanceInterval) / 100));
 
       setSelection_PulseGraph(TourChart.PULSE_GRAPH_DEFAULT,
             tcc.canShowPulseSerie,
@@ -667,6 +738,8 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
       _prefStore.setValue(ITourbookPreferences.VALUE_POINT_TOOL_TIP_IS_VISIBLE_CHART, isShowValuePointTooltip);
 
       _gridUI.resetToDefaults();
+      _layoutUI.resetToDefaults();
+
 
       onChangeUI();
    }
@@ -708,6 +781,18 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
       _rdoShowSrtm1Values           .setSelection(isShowSrtm1Values);
       _rdoShowSrtm3Values           .setSelection(isShowSrtm1Values == false);
 
+      _chkDelete_KeepTime           .setSelection(Util.getStateBoolean(_stateTourEditor,
+            TourDataEditorView.STATE_DELETE_IS_KEEP_TIME,
+            TourDataEditorView.STATE_DELETE_IS_KEEP_TIME_DEFAULT));
+
+      _chkDelete_KeepDistance       .setSelection(Util.getStateBoolean(_stateTourEditor,
+            TourDataEditorView.STATE_DELETE_IS_KEEP_DISTANCE,
+            TourDataEditorView.STATE_DELETE_IS_KEEP_DISTANCE_DEFAULT));
+
+      _chkDelete_AdjustTourStartTime.setSelection(Util.getStateBoolean(_stateTourEditor,
+            TourDataEditorView.STATE_DELETE_IS_ADJUST_TOUR_START_TIME,
+            TourDataEditorView.STATE_DELETE_IS_ADJUST_TOUR_START_TIME_DEFAULT));
+
       setSelection_PulseGraph(
 
             tcc.pulseGraph,
@@ -716,6 +801,7 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
             tcc.isShowTimeOnXAxis);
 
       _gridUI.restoreState();
+      _layoutUI.restoreState();
    }
 
    private void saveState() {
@@ -769,7 +855,12 @@ public class SlideoutTourChartOptions extends ToolbarSlideout implements IAction
       _prefStore.setValue(ITourbookPreferences.GRAPH_TRANSPARENCY_LINE,                UI.transformOpacity_WhenSaved(graphLineOpacity));
       _prefStore.setValue(ITourbookPreferences.GRAPH_X_AXIS_STARTTIME,                 isTourStartTime);
 
-      _gridUI.saveState();
+      /*
+       * Update state
+       */
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_KEEP_TIME,               _chkDelete_KeepTime.getSelection());
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_KEEP_DISTANCE,           _chkDelete_KeepDistance.getSelection());
+      _stateTourEditor.put(TourDataEditorView.STATE_DELETE_IS_ADJUST_TOUR_START_TIME,  _chkDelete_AdjustTourStartTime.getSelection());
 
       _tourChart.setupChartConfig();
 

@@ -188,7 +188,7 @@ public class SlideoutMap2_MapProvider extends AdvancedSlideout implements ITourV
 
          super(text, prefPageId);
 
-         setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.MapOptions_Dark));
+         setImageDescriptor(TourbookPlugin.getImageDescriptor_Dark(Images.MapOptions));
       }
    }
 
@@ -426,6 +426,17 @@ public class SlideoutMap2_MapProvider extends AdvancedSlideout implements ITourV
       }
    }
 
+   @Override
+   public void close() {
+
+      UI.disposeResource(_imageYes);
+      UI.disposeResource(_imageNo);
+
+      MapProviderManager.getInstance().removeMapProviderListener(this);
+
+      super.close();
+   }
+
    private void createActions() {
 
       {
@@ -462,7 +473,6 @@ public class SlideoutMap2_MapProvider extends AdvancedSlideout implements ITourV
          };
 
          _action_MapProvider_Next.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowDown_Blue));
-         _action_MapProvider_Next.setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowDown_Blue_Disabled));
          _action_MapProvider_Next.setToolTipText(Messages.Slideout_Map2Provider_MapProvider_Next_Tooltip);
       }
       {
@@ -477,7 +487,6 @@ public class SlideoutMap2_MapProvider extends AdvancedSlideout implements ITourV
          };
 
          _action_MapProvider_Previous.setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowUp_Blue));
-         _action_MapProvider_Previous.setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.ArrowUp_Blue_Disabled));
          _action_MapProvider_Previous.setToolTipText(Messages.Slideout_Map2Provider_MapProvider_Previous_Tooltip);
       }
    }
@@ -1267,17 +1276,6 @@ public class SlideoutMap2_MapProvider extends AdvancedSlideout implements ITourV
       // -> UI is disposed as when the pref page opens to modify map provider's then this slideout is closed
       // _mpViewer.refresh();
 //      selectMapProvider(_selectedMP == null ? null : _selectedMP.getId());
-   }
-
-   @Override
-   protected void onDispose() {
-
-      UI.disposeResource(_imageYes);
-      UI.disposeResource(_imageNo);
-
-      MapProviderManager.getInstance().removeMapProviderListener(this);
-
-      super.onDispose();
    }
 
    @Override

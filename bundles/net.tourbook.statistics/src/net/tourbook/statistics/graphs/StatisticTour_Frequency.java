@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,6 +28,7 @@ import net.tourbook.chart.IChartInfoProvider;
 import net.tourbook.chart.MinMaxKeeper_YData;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.data.TourPerson;
 import net.tourbook.data.TourType;
@@ -200,6 +201,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
     * @param prefLowValue
     * @param prefNumberOfBars
     * @param unitType
+    *
     * @return
     */
    private int[] createGroupValues(final IPreferenceStore store,
@@ -359,7 +361,10 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
 
          @Override
-         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+         public ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                                final Composite parent,
+                                                final int serieIndex,
+                                                final int valueIndex) {
 
             StatisticTour_Frequency.this.createToolTipUI(
                   toolTipProvider,
@@ -367,6 +372,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   serieIndex,
                   valueIndex,
                   FrequencyStatistic.DISTANCE);
+
+            return null;
          }
       });
    }
@@ -376,13 +383,18 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
 
          @Override
-         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+         public ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                                final Composite parent,
+                                                final int serieIndex,
+                                                final int valueIndex) {
 
             StatisticTour_Frequency.this.createToolTipUI(toolTipProvider,
                   parent,
                   serieIndex,
                   valueIndex,
                   FrequencyStatistic.ELEVATION);
+
+            return null;
          }
       });
    }
@@ -392,7 +404,10 @@ public class StatisticTour_Frequency extends TourbookStatistic {
       chartModel.setCustomData(ChartDataModel.BAR_TOOLTIP_INFO_PROVIDER, new IChartInfoProvider() {
 
          @Override
-         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+         public ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                                final Composite parent,
+                                                final int serieIndex,
+                                                final int valueIndex) {
 
             StatisticTour_Frequency.this.createToolTipUI(
                   toolTipProvider,
@@ -400,6 +415,8 @@ public class StatisticTour_Frequency extends TourbookStatistic {
                   serieIndex,
                   valueIndex,
                   FrequencyStatistic.DURATION_TIME);
+
+            return null;
          }
       });
    }
@@ -453,6 +470,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
     * @param allGroupedValues
     * @param counter
     * @param sum
+    *
     * @return
     */
    private int createTourStatData(final int tourValue, final int[] allGroupedValues, final int[] counter, final int[] sum) {
@@ -503,6 +521,11 @@ public class StatisticTour_Frequency extends TourbookStatistic {
    @Override
    protected String getGridPrefPrefix() {
       return GRID_TOUR_FREQUENCY;
+   }
+
+   @Override
+   protected String getLayoutPrefPrefix() {
+      return LAYOUT_TOUR_FREQUENCY;
    }
 
    @Override
@@ -597,7 +620,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          statDistanceMinMaxKeeper.setMinMaxValues(chartDataModel);
       }
 
-      StatisticServices.updateChartProperties(statDistanceChart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(statDistanceChart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the new data fDataModel in the chart
       statDistanceChart.updateChart(chartDataModel, true);
@@ -645,7 +668,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          statElevationMinMaxKeeper.setMinMaxValues(chartDataModel);
       }
 
-      StatisticServices.updateChartProperties(chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the new data in the chart
       chart.updateChart(chartDataModel, true);
@@ -694,7 +717,7 @@ public class StatisticTour_Frequency extends TourbookStatistic {
          statDurationMinMaxKeeper.setMinMaxValues(chartDataModel);
       }
 
-      StatisticServices.updateChartProperties(statDurationChart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(statDurationChart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the new data data model in the chart
       statDurationChart.updateChart(chartDataModel, true);
@@ -790,5 +813,4 @@ public class StatisticTour_Frequency extends TourbookStatistic {
 
    @Override
    public void updateToolBar() {}
-
 }

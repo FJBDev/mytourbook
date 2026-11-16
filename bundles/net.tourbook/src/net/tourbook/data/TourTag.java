@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,23 +39,19 @@ import net.tourbook.database.TourDatabase;
 @Entity
 public class TourTag implements Cloneable, Comparable<Object>, Serializable {
 
-   private static final long          serialVersionUID           = 1L;
+   private static final long          serialVersionUID                  = 1L;
 
-   private static final char          NL                         = UI.NEW_LINE;
+   private static final char          NL                                = UI.NEW_LINE;
 
-   public static final int            DB_LENGTH_FILE_PATH        = 260;
-   public static final int            DB_LENGTH_NAME             = 255;
-   public static final int            DB_LENGTH_NOTES            = 32000;
-
-   public static final int            EXPAND_TYPE_FLAT           = 1;
-   public static final int            EXPAND_TYPE_YEAR_DAY       = 2;
-   public static final int            EXPAND_TYPE_YEAR_MONTH_DAY = 0;
+   public static final int            EXPAND_TYPE__TAG_TOURS            = 1;
+   public static final int            EXPAND_TYPE__TAG_YEAR_TOURS       = 2;
+   public static final int            EXPAND_TYPE__TAG_YEAR_MONTH_TOURS = 0;
 
    /**
     * Manually created marker or imported marker create a unique id to identify them, saved marker
     * are compared with the marker id
     */
-   private static final AtomicInteger _createCounter             = new AtomicInteger();
+   private static final AtomicInteger _createCounter                    = new AtomicInteger();
 
    /*
     * DON'T USE THE FINAL KEYWORD FOR THE ID otherwise the Id cannot be set.
@@ -88,11 +84,11 @@ public class TourTag implements Cloneable, Comparable<Object>, Serializable {
     * When a tag is expanded in the tag tree viewer, the tours can be displayed in different
     * structures
     * <p>
-    * <li>0 ... EXPAND_TYPE_YEAR_MONTH_DAY</li>
-    * <li>1 ... EXPAND_TYPE_FLAT</li>
-    * <li>2 ... EXPAND_TYPE_YEAR_DAY</li>
+    * <li>1 ... {@link #EXPAND_TYPE__TAG_TOURS}</li>
+    * <li>2 ... {@link #EXPAND_TYPE__TAG_YEAR_TOURS}</li>
+    * <li>0 ... {@link #EXPAND_TYPE__TAG_YEAR_MONTH_TOURS}</li>
     */
-   private int    expandType = EXPAND_TYPE_FLAT;
+   private int    expandType = EXPAND_TYPE__TAG_TOURS;
 
    private String imageFilePath;
 
@@ -258,13 +254,13 @@ public class TourTag implements Cloneable, Comparable<Object>, Serializable {
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             name,
-            DB_LENGTH_NAME,
+            TourDatabase.DB_LENGTH_NAME,
             Messages.Db_Field_TourTag_Name);
 
       if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
          return false;
       } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         name = name.substring(0, DB_LENGTH_NAME);
+         name = name.substring(0, TourDatabase.DB_LENGTH_NAME);
       }
 
       /*
@@ -272,13 +268,13 @@ public class TourTag implements Cloneable, Comparable<Object>, Serializable {
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             notes,
-            DB_LENGTH_NOTES,
+            TourDatabase.DB_LENGTH_NOTES,
             Messages.Db_Field_TourTag_Notes);
 
       if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
          return false;
       } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         notes = notes.substring(0, DB_LENGTH_NOTES);
+         notes = notes.substring(0, TourDatabase.DB_LENGTH_NOTES);
       }
 
       /*
@@ -286,13 +282,13 @@ public class TourTag implements Cloneable, Comparable<Object>, Serializable {
        */
       fieldValidation = TourDatabase.isFieldValidForSave(
             imageFilePath,
-            DB_LENGTH_FILE_PATH,
+            TourDatabase.DB_LENGTH_FILE_PATH,
             Messages.Db_Field_TourTag_ImageFilePath);
 
       if (fieldValidation == FIELD_VALIDATION.IS_INVALID) {
          return false;
       } else if (fieldValidation == FIELD_VALIDATION.TRUNCATE) {
-         imageFilePath = imageFilePath.substring(0, DB_LENGTH_FILE_PATH);
+         imageFilePath = imageFilePath.substring(0, TourDatabase.DB_LENGTH_FILE_PATH);
       }
 
       return true;

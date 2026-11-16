@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2011, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -75,6 +75,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -111,49 +112,53 @@ public class TrainingView extends ViewPart {
    private static final String STATE_IS_SHOW_ALL_PULSE_VALUES       = "IsShowAllPulseValues";               //$NON-NLS-1$
    private static final String STATE_IS_SYNC_VERTICAL_CHART_SCALING = "IsSyncVerticalChartScaling";         //$NON-NLS-1$
 
-   private static final String GRID_PREF_PREFIX                     = "GRID_TRAINING__";                    //$NON-NLS-1$
-
 // SET_FORMATTING_OFF
 
-   private static final String         GRID_IS_SHOW_VERTICAL_GRIDLINES     = (GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES);
-   private static final String         GRID_IS_SHOW_HORIZONTAL_GRIDLINES   = (GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES);
-   private static final String         GRID_VERTICAL_DISTANCE              = (GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE);
-   private static final String         GRID_HORIZONTAL_DISTANCE            = (GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE);
+   private static final String   GRID_PREF_PREFIX                    = "GRID_TRAINING__";                   //$NON-NLS-1$
+
+   private static final String   GRID_IS_SHOW_VERTICAL_GRIDLINES     = GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_IS_SHOW_VERTICAL_GRIDLINES;
+   private static final String   GRID_IS_SHOW_HORIZONTAL_GRIDLINES   = GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_IS_SHOW_HORIZONTAL_GRIDLINES;
+   private static final String   GRID_VERTICAL_DISTANCE              = GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_VERTICAL_DISTANCE;
+   private static final String   GRID_HORIZONTAL_DISTANCE            = GRID_PREF_PREFIX + ITourbookPreferences.CHART_GRID_HORIZONTAL_DISTANCE;
+
+   private static final String   LAYOUT_PREF_PREFIX                  = "LAYOUT_TRAINING__";                 //$NON-NLS-1$
+   private static final String   LAYOUT_GRAPH_Y_AXIS_WIDTH           = LAYOUT_PREF_PREFIX   + ITourbookPreferences.CHART_Y_AXIS_WIDTH;
 
 // SET_FORMATTING_ON
 
-   private final IPreferenceStore      _prefStore        = TourbookPlugin.getPrefStore();
-   private final IPreferenceStore      _prefStore_Common = CommonActivator.getPrefStore();
-   private final IDialogSettings       _state            = TourbookPlugin.getState(ID);
+   private static final IDialogSettings  _state            = TourbookPlugin.getState(ID);
+   private static final IPreferenceStore _prefStore        = TourbookPlugin.getPrefStore();
+   private static final IPreferenceStore _prefStore_Common = CommonActivator.getPrefStore();
 
-   private IPartListener2              _partListener;
-   private ISelectionListener          _postSelectionListener;
-   private IPropertyChangeListener     _prefChangeListener;
-   private ITourEventListener          _tourEventListener;
+   private IPartListener2                _partListener;
+   private ISelectionListener            _postSelectionListener;
+   private IPropertyChangeListener       _prefChangeListener;
+   private IPropertyChangeListener       _prefChangeListener_Common;
+   private ITourEventListener            _tourEventListener;
 
-   private ModifyListener              _defaultSpinnerModifyListener;
-   private SelectionListener           _defaultSpinnerSelectionListener;
-   private MouseWheelListener          _defaultSpinnerMouseWheelListener;
+   private ModifyListener                _defaultSpinnerModifyListener;
+   private SelectionListener             _defaultSpinnerSelectionListener;
+   private MouseWheelListener            _defaultSpinnerMouseWheelListener;
 
-   private TourPerson                  _currentPerson;
-   private TourData                    _tourData;
+   private TourPerson                    _currentPerson;
+   private TourData                      _tourData;
 
-   private boolean                     _isUpdateUI;
-   private boolean                     _isShowAllValues;
-   private boolean                     _isSynchChartVerticalValues;
+   private boolean                       _isUpdateUI;
+   private boolean                       _isShowAllValues;
+   private boolean                       _isSynchChartVerticalValues;
 
-   private ToolBarManager              _headerToolbarManager;
+   private ToolBarManager                _headerToolbarManager;
 
-   private ActionShowAllPulseValues    _actionShowAllPulseValues;
-   private ActionSynchChartScale       _actionSynchVerticalChartScaling;
-   private ActionTrainingOptions       _actionTrainingOptions;
+   private ActionShowAllPulseValues      _actionShowAllPulseValues;
+   private ActionSynchChartScale         _actionSynchVerticalChartScaling;
+   private ActionTrainingOptions         _actionTrainingOptions;
 
-   private double[]                    _xSeriePulse;
+   private double[]                      _xSeriePulse;
 
-   private ArrayList<TourPersonHRZone> _personHrZones    = new ArrayList<>();
-   private final MinMaxKeeper_YData    _minMaxKeeper     = new MinMaxKeeper_YData();
+   private ArrayList<TourPersonHRZone>   _personHrZones    = new ArrayList<>();
+   private final MinMaxKeeper_YData      _minMaxKeeper     = new MinMaxKeeper_YData();
 
-   private final NumberFormat          _nf1              = NumberFormat.getNumberInstance();
+   private final NumberFormat            _nf1              = NumberFormat.getNumberInstance();
    {
       _nf1.setMinimumFractionDigits(1);
       _nf1.setMaximumFractionDigits(1);
@@ -197,10 +202,10 @@ public class TrainingView extends ViewPart {
    private Composite _hrZoneDataContainerContent;
 
    private Canvas    _canvasHrZoneImage;
-   private Label[]   _lblTourMinMaxValue;
+   private Label[]   _lblTourMinMaxBpm;
    private Label[]   _lblTourMinMaxHours;
+   private CLabel[]  _lblHRZoneColor;
    private Label[]   _lblHRZoneName;
-   private Label[]   _lblHRZoneColor;
    private Label[]   _lblHrZonePercent;
 
    /**
@@ -213,7 +218,11 @@ public class TrainingView extends ViewPart {
       @Override
       protected ToolbarSlideout createSlideout(final ToolBar toolbar) {
 
-         return new SlideoutTrainingOptions(_pageBook, toolbar, GRID_PREF_PREFIX, TrainingView.this);
+         return new SlideoutTrainingOptions(_pageBook,
+               toolbar,
+               GRID_PREF_PREFIX,
+               LAYOUT_PREF_PREFIX,
+               TrainingView.this);
       }
    }
 
@@ -308,7 +317,9 @@ public class TrainingView extends ViewPart {
                || property.equals(GRID_VERTICAL_DISTANCE)
                || property.equals(GRID_IS_SHOW_HORIZONTAL_GRIDLINES)
                || property.equals(GRID_IS_SHOW_VERTICAL_GRIDLINES)
-         //
+
+               || property.equals(LAYOUT_GRAPH_Y_AXIS_WIDTH)
+
          ) {
 
             setChartProperties();
@@ -318,7 +329,20 @@ public class TrainingView extends ViewPart {
          }
       };
 
+      _prefChangeListener_Common = propertyChangeEvent -> {
+
+         final String property = propertyChangeEvent.getProperty();
+
+         if (property.equals(ICommonPreferences.UI_DRAWING_FONT_IS_MODIFIED)) {
+
+            _chartHrTime.getChartComponents().updateFontScaling();
+
+            updateUI_30_HrZonesFromModel();
+         }
+      };
+
       _prefStore.addPropertyChangeListener(_prefChangeListener);
+      _prefStore_Common.addPropertyChangeListener(_prefChangeListener_Common);
    }
 
    /**
@@ -671,7 +695,6 @@ public class TrainingView extends ViewPart {
          createUI_58_HrZoneFields(container);
       }
       _tk.adapt(container);
-//      container.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA));
 
       return container;
    }
@@ -718,25 +741,25 @@ public class TrainingView extends ViewPart {
 
    private void createUI_58_HrZoneFields(final Composite parent) {
 
-      final int hrZoneSize = _personHrZones.size();
+      final int numHrZones = _personHrZones.size();
 
       /*
        * fields
        */
-      _lblTourMinMaxValue = new Label[hrZoneSize];
-      _lblTourMinMaxHours = new Label[hrZoneSize];
-      _lblHRZoneName = new Label[hrZoneSize];
-      _lblHRZoneColor = new Label[hrZoneSize];
-      _lblHrZonePercent = new Label[hrZoneSize];
+      _lblTourMinMaxBpm = new Label[numHrZones];
+      _lblTourMinMaxHours = new Label[numHrZones];
+      _lblHRZoneName = new Label[numHrZones];
+      _lblHRZoneColor = new CLabel[numHrZones];
+      _lblHrZonePercent = new Label[numHrZones];
 
       // set hr zone colors
       disposeHrZoneResources();
-      _hrZoneColors = new Color[hrZoneSize];
-      _hrZoneColorsBright = new Color[hrZoneSize];
-      _hrZoneColorsDark = new Color[hrZoneSize];
+      _hrZoneColors = new Color[numHrZones];
+      _hrZoneColorsBright = new Color[numHrZones];
+      _hrZoneColorsDark = new Color[numHrZones];
 
       // the sequence of the zones are inverted
-      for (int zoneIndex = hrZoneSize - 1; zoneIndex >= 0; zoneIndex--) {
+      for (int zoneIndex = numHrZones - 1; zoneIndex >= 0; zoneIndex--) {
 
          final TourPersonHRZone hrZone = _personHrZones.get(zoneIndex);
          _hrZoneColors[zoneIndex] = new Color(hrZone.getColor());
@@ -774,7 +797,7 @@ public class TrainingView extends ViewPart {
          /*
           * label: tour hr min/max %
           */
-         final Label lblTourMinMaxBpm = _lblTourMinMaxValue[zoneIndex] = _tk.createLabel(
+         final Label lblTourMinMaxBpm = _lblTourMinMaxBpm[zoneIndex] = _tk.createLabel(
                parent,
                null,
                SWT.TRAIL);
@@ -785,7 +808,8 @@ public class TrainingView extends ViewPart {
          /*
           * label: color
           */
-         final Label label = _lblHRZoneColor[zoneIndex] = new Label(parent, SWT.NONE);
+         final CLabel label = _lblHRZoneColor[zoneIndex] = new CLabel(parent, SWT.NONE);
+         label.setText(UI.SYMBOL_FULL_BLOCK);
          GridDataFactory.fillDefaults().hint(16, 16).applyTo(label);
       }
 
@@ -811,6 +835,7 @@ public class TrainingView extends ViewPart {
       TourManager.getInstance().removeTourEventListener(_tourEventListener);
 
       _prefStore.removePropertyChangeListener(_prefChangeListener);
+      _prefStore_Common.removePropertyChangeListener(_prefChangeListener_Common);
 
       super.dispose();
    }
@@ -871,7 +896,7 @@ public class TrainingView extends ViewPart {
 
          for (int zoneIndex = 0; zoneIndex < _lblHRZoneColor.length; zoneIndex++) {
 
-            final Label label = _lblHRZoneColor[zoneIndex];
+            final CLabel label = _lblHRZoneColor[zoneIndex];
             final Color zoneColor = _hrZoneColors[zoneIndex];
 
             if (label.isDisposed()) {
@@ -881,6 +906,7 @@ public class TrainingView extends ViewPart {
                continue;
             }
 
+            label.setForeground(zoneColor);
             label.setBackground(zoneColor);
          }
       });
@@ -922,7 +948,6 @@ public class TrainingView extends ViewPart {
 
          onModifyHrBorder();
       };
-
    }
 
    private void onModifyHrBorder() {
@@ -1049,7 +1074,7 @@ public class TrainingView extends ViewPart {
 
    private void setChartProperties() {
 
-      net.tourbook.ui.UI.updateChartProperties(_chartHrTime, GRID_PREF_PREFIX);
+      net.tourbook.ui.UI.updateChartProperties(_chartHrTime, GRID_PREF_PREFIX, LAYOUT_PREF_PREFIX);
 
       // show title
       _chartHrTime.getChartTitleSegmentConfig().isShowSegmentTitle = true;
@@ -1232,7 +1257,7 @@ public class TrainingView extends ViewPart {
 
       final String prefGraphName = ICommonPreferences.GRAPH_COLORS + GraphColorManager.PREF_GRAPH_TIME + UI.SYMBOL_DOT;
 
-      final String prefColorText = net.tourbook.common.UI.IS_DARK_THEME
+      final String prefColorText = UI.IS_DARK_THEME
             ? GraphColorManager.PREF_COLOR_TEXT_DARK
             : GraphColorManager.PREF_COLOR_TEXT_LIGHT;
 
@@ -1390,12 +1415,13 @@ public class TrainingView extends ViewPart {
 
    /**
     * @param zoneContext
-    *           Contains age and HR max values.
+    *           Contains age and HR max values
     */
    private void updateUI_42_HrZoneData(final HrZoneContext zoneContext) {
 
       // create hr zones when not yet done or disposed
       if (_hrZoneDataContainerContent == null || _hrZoneDataContainerContent.isDisposed()) {
+
          createUI_52_HrZoneData_ContainerContent();
       }
 
@@ -1405,9 +1431,9 @@ public class TrainingView extends ViewPart {
 
       _tourHrZonePercent = new double[personZoneSize];
 
-      final int tourHrZoneSize = tourHrZoneTimes.length;
+      final int numHrZones = tourHrZoneTimes.length;
 
-      for (int tourZoneIndex = 0; tourZoneIndex < tourHrZoneSize; tourZoneIndex++) {
+      for (int tourZoneIndex = 0; tourZoneIndex < numHrZones; tourZoneIndex++) {
 
          if (tourZoneIndex >= personZoneSize) {
 
@@ -1419,7 +1445,7 @@ public class TrainingView extends ViewPart {
          }
 
          final double zoneTime = tourHrZoneTimes[tourZoneIndex];
-         final double zoneTimePercent = movingTime == 0 //
+         final double zoneTimePercent = movingTime == 0
                ? 0
                : zoneTime * 100.0 / movingTime;
 
@@ -1433,51 +1459,53 @@ public class TrainingView extends ViewPart {
          final TourPersonHRZone hrZone = _personHrZones.get(tourZoneIndex);
 
          final int zoneMaxValue = hrZone.getZoneMaxValue();
-         final String zoneMaxValueText = zoneMaxValue == Integer.MAX_VALUE //
+         final String zoneMaxValueText = zoneMaxValue == Integer.MAX_VALUE
                ? Messages.App_Label_max
                : Integer.toString(zoneMaxValue);
 
          final float zoneMinBpm = zoneContext.zoneMinBpm[tourZoneIndex];
          final float zoneMaxBmp = zoneContext.zoneMaxBpm[tourZoneIndex];
 
-         final String zoneMaxBpmText = zoneMaxBmp == Integer.MAX_VALUE //
+         final String zoneMaxBpmText = zoneMaxBmp == Integer.MAX_VALUE
                ? Messages.App_Label_max
                : Integer.toString((int) zoneMaxBmp);
 
-         final int ageYears = zoneContext.age;
-         final String ageText = UI.SPACE + ageYears + UI.SPACE2 + Messages.Pref_People_Label_Years;
+         final String ageText = "%s %d %s".formatted( //$NON-NLS-1$
+
+               Messages.Pref_People_Label_Age,
+               zoneContext.age,
+               Messages.Pref_People_Label_Years);
 
          final String hrZoneTooltip =
-               //
+
                hrZone.getNameLongShortcutFirst()
-                     //
+
                      + UI.NEW_LINE
                      + UI.NEW_LINE
-                     //
+
                      + hrZone.getZoneMinValue()
                      + UI.DASH
                      + zoneMaxValueText
                      + UI.SPACE
                      + UI.SYMBOL_PERCENTAGE
-                     //
+
                      + UI.SPACE
                      + UI.SYMBOL_EQUAL
                      + UI.SPACE
-                     //
+
                      + Integer.toString((int) zoneMinBpm)
                      + UI.DASH
                      + zoneMaxBpmText
                      + UI.SPACE
                      + OtherMessages.GRAPH_LABEL_HEARTBEAT_UNIT
-                     //
+
                      + UI.NEW_LINE
                      + UI.NEW_LINE
-                     //
-                     + Messages.Pref_People_Label_Age
+
                      + ageText
-                     //
+
                      + UI.DASH_WITH_DOUBLE_SPACE
-                     //
+
                      + Messages.HRMax_Label
                      + UI.SPACE
                      + zoneContext.hrMax
@@ -1488,12 +1516,10 @@ public class TrainingView extends ViewPart {
          _lblHrZonePercent[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          // bpm values
-         _lblTourMinMaxValue[tourZoneIndex].setText(((int) zoneMinBpm) + UI.DASH + zoneMaxBpmText);
-         _lblTourMinMaxValue[tourZoneIndex].setToolTipText(hrZoneTooltip);
+         _lblTourMinMaxBpm[tourZoneIndex].setText(((int) zoneMinBpm) + UI.DASH + zoneMaxBpmText);
+         _lblTourMinMaxBpm[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
-         _lblTourMinMaxHours[tourZoneIndex].setText(net.tourbook.common.UI
-               .format_hh_mm((long) (zoneTime + 30))
-               .toString());
+         _lblTourMinMaxHours[tourZoneIndex].setText(UI.format_hh_mm((long) (zoneTime + 30)).toString());
          _lblTourMinMaxHours[tourZoneIndex].setToolTipText(hrZoneTooltip);
 
          _lblHRZoneName[tourZoneIndex].setToolTipText(hrZoneTooltip);

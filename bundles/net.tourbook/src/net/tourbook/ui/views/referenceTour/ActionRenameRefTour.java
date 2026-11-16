@@ -47,9 +47,9 @@ class ActionRenameRefTour extends Action {
    @Override
    public void run() {
 
-      if (TourManager.isTourEditorModified()) {
-         return;
-      }
+		if (TourManager.isTourModified()) {
+			return;
+		}
 
       final Object selectedItem = (((ITreeSelection) fTourCatalogView.getTourViewer().getSelection()).getFirstElement());
 

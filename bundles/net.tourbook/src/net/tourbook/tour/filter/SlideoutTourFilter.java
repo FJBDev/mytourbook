@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,13 +26,16 @@ import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import net.tourbook.Images;
 import net.tourbook.Messages;
+import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.CommonActivator;
 import net.tourbook.common.UI;
 import net.tourbook.common.dialog.MessageDialog_OnTop;
 import net.tourbook.common.form.SashLeftFixedForm;
 import net.tourbook.common.preferences.ICommonPreferences;
 import net.tourbook.common.tooltip.AdvancedSlideout;
+import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.search.SearchView;
 
@@ -194,7 +197,33 @@ public class SlideoutTourFilter extends AdvancedSlideout {
       _tourFilterItem = toolItem;
 
       setShellFadeOutDelaySteps(30);
+
       setTitleText(Messages.Slideout_TourFilter_Label_Title);
+      setTitleImage(TourbookPlugin.getThemedImageDescriptor(Images.TourFilter));
+   }
+
+   void action_PropertyCopy(final TourFilterProperty filterProperty) {
+
+      // update model
+      try {
+
+         final ArrayList<TourFilterProperty> allFilterProperties = _selectedProfile.filterProperties;
+
+         allFilterProperties.add(filterProperty.clone());
+
+      } catch (final CloneNotSupportedException e) {
+
+         StatusUtil.log(e);
+      }
+
+      // update UI
+      createUI_410_FilterProperties();
+      updateUI_Properties();
+
+      // update number of properties
+      _profileViewer.update(_selectedProfile, null);
+
+      fireModifyEvent();
    }
 
    void action_PropertyDelete(final TourFilterProperty filterProperty) {
@@ -619,6 +648,10 @@ public class SlideoutTourFilter extends AdvancedSlideout {
          return;
       }
 
+      final GridDataFactory gdCombo = GridDataFactory.fillDefaults()
+            .hint(_pc.convertWidthInCharsToPixels(5), SWT.DEFAULT)
+            .grab(true, false);
+
       /*
        * Field listener
        */
@@ -645,7 +678,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
                .applyTo(_filterScrolled_Content);
       }
 
-//		_filterScrolled_Content.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
+//      _filterScrolled_Content.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
 
       _filterScrolled_Content.setRedraw(false);
       {
@@ -677,6 +710,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
                comboFilterField.setVisibleItemCount(99);
                comboFilterField.addFocusListener(_keepOpenListener);
                comboFilterField.addSelectionListener(fieldListener);
+               gdCombo.applyTo(comboFilterField);
 
                // keep combo reference
                filterProperty.comboFieldName = comboFilterField;
@@ -690,11 +724,11 @@ public class SlideoutTourFilter extends AdvancedSlideout {
                comboFieldOperator.setVisibleItemCount(99);
                comboFieldOperator.addFocusListener(_keepOpenListener);
                comboFieldOperator.addSelectionListener(operatorListener);
+               gdCombo.applyTo(comboFieldOperator);
 
                // keep combo reference
                filterProperty.comboFieldOperator = comboFieldOperator;
             }
-
             {
                /*
                 * Container: Field details
@@ -706,7 +740,6 @@ public class SlideoutTourFilter extends AdvancedSlideout {
 
                filterProperty.fieldDetailContainer = fieldContainer;
             }
-
             {
                /*
                 * Toolbar: Property actions
@@ -753,10 +786,10 @@ public class SlideoutTourFilter extends AdvancedSlideout {
       }
 
       final Action_Property_Delete actionDeleteProperty = new Action_Property_Delete(this, filterProperty);
+      final Action_Property_Duplicate actionDuplicateProperty = new Action_Property_Duplicate(this, filterProperty);
 
       final ToolBar toolbar = new ToolBar(filterContainer, SWT.FLAT);
       GridDataFactory.fillDefaults()
-            .grab(true, false)
             .align(SWT.END, SWT.CENTER)
             .applyTo(toolbar);
 
@@ -770,6 +803,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
          tbm.add(new Action_Property_MoveDown(this, filterProperty));
       }
 
+      tbm.add(actionDuplicateProperty);
       tbm.add(actionDeleteProperty);
 
       tbm.update(true);
@@ -1051,6 +1085,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
     * @param filterProperty
     * @param fieldNo
     * @param isShowUnit
+    *
     * @return
     */
    private int createUI_Field_Duration(final Composite parent,
@@ -1193,6 +1228,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
     * @param fieldConfig
     * @param fieldNo
     * @param isShowUnitLabel
+    *
     * @return
     */
    private int createUI_Field_Number_Integer(final Composite parent,
@@ -1490,6 +1526,7 @@ public class SlideoutTourFilter extends AdvancedSlideout {
     * @param filterProperty
     * @param fieldNo
     * @param selectedMonth
+    *
     * @return
     */
    private int getValidSeasonDay(final TourFilterProperty filterProperty, final int fieldNo, final int selectedMonth) {
@@ -2238,21 +2275,25 @@ public class SlideoutTourFilter extends AdvancedSlideout {
 
       case STARTS_WITH:
          break;
+
       case ENDS_WITH:
          break;
 
       case INCLUDE_ANY:
          break;
+
       case EXCLUDE_ALL:
          break;
 
       case IS_EMPTY:
          break;
+
       case IS_NOT_EMPTY:
          break;
 
       case LIKE:
          break;
+
       case NOT_LIKE:
          break;
 

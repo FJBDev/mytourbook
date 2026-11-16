@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@ import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.Util;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.map2.view.Map2View;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.ui.AppFilter;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.graphics.Point;
@@ -184,7 +184,7 @@ public class TourGeoFilter_Loader {
             TourGeoFilter_Manager.STATE_IS_INCLUDE_GEO_PARTS_DEFAULT);
 
       String sqlSelect;
-      SQLFilter appFilter = null;
+      AppFilter appFilter = null;
 
       if (isUseAppFilter) {
 
@@ -193,7 +193,7 @@ public class TourGeoFilter_Loader {
          final String sqlIncludeExcludeGeoParts = isIncludeGeoParts ? UI.EMPTY_STRING : "NOT"; //$NON-NLS-1$
 
          // get app filter without geo location, this is added here
-         appFilter = new SQLFilter(SQLFilter.ONLY_FAST_APP_FILTERS);
+         appFilter = new AppFilter(AppFilter.ONLY_FAST_APP_FILTERS);
 
          sqlSelect = UI.EMPTY_STRING
 
@@ -240,18 +240,17 @@ public class TourGeoFilter_Loader {
           * Fillup parameters
           */
 
-         int lastAppFilterParamIndex = 1;
+         int nextIndex = 1;
 
          // app filter parameters
          if (isUseAppFilter) {
-            appFilter.setParameters(stmtSelect, 1);
-            lastAppFilterParamIndex = appFilter.getLastParameterIndex();
+            nextIndex = appFilter.setParameters(stmtSelect, nextIndex);
          }
 
          // geo part parameter
          for (int partIndex = 0; partIndex < numGeoParts; partIndex++) {
 
-            final int paramIndex = lastAppFilterParamIndex + partIndex;
+            final int paramIndex = nextIndex + partIndex;
 
             stmtSelect.setInt(paramIndex, allLatLonParts.get(partIndex));
          }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2020, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2020, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -85,7 +85,8 @@ public class TourInfoView extends ViewPart {
 
          final String property = propertyChangeEvent.getProperty();
 
-         if (property.equals(ITourbookPreferences.GRAPH_MARKER_IS_MODIFIED)) {
+         if (property.equals(ITourbookPreferences.GRAPH_MARKER_IS_MODIFIED)
+               || property.equals(ITourbookPreferences.VIEW_LAYOUT_CHANGED)) {
 
             updateUI();
          }
@@ -239,7 +240,6 @@ public class TourInfoView extends ViewPart {
       });
       {
          _infoContainer = new Composite(_uiContainer, SWT.NONE);
-         _infoContainer.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
          GridDataFactory.fillDefaults().grab(true, true).applyTo(_infoContainer);
          GridLayoutFactory.fillDefaults().applyTo(_infoContainer);
       }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2020 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -49,12 +49,15 @@ public class PhotoLoadManager {
 //    */
 //   public static final double                           IMAGE_RATIO               = 15.0 / 10;                           //1.41;
 
-// SET_FORMATTING_OFF
+   public static final int[]                                  HQ_IMAGE_SIZES        = {
 
-   public static final int[]                           HQ_IMAGE_SIZES               =
-         { 200, IMAGE_SIZE_LARGE_DEFAULT, 1000, 2000 };
-
-// SET_FORMATTING_ON
+         200,
+         IMAGE_SIZE_LARGE_DEFAULT,
+         1000,
+         2000,
+         3000,
+         4000
+   };
 
    private static Display                                     _display;
 
@@ -77,15 +80,11 @@ public class PhotoLoadManager {
    private static final LinkedBlockingDeque<PhotoSqlLoader>   _waitingQueueSql      = new LinkedBlockingDeque<>();
 
    /*
-    * key is the photo image file path
+    * Key is the photo image file path
     */
    private static final ConcurrentHashMap<String, Object> _photoWithLoadingError   = new ConcurrentHashMap<>();
    private static final ConcurrentHashMap<String, Object> _photoWithThumbSaveError = new ConcurrentHashMap<>();
 
-   public static final String                             IMAGE_FRAMEWORK_SWT      = "SWT";                    //$NON-NLS-1$
-   public static final String                             IMAGE_FRAMEWORK_AWT      = "AWT";                    //$NON-NLS-1$
-
-   private static String                                  _imageFramework;
    private static int                                     _hqImageSize;
 
    static {
@@ -94,7 +93,6 @@ public class PhotoLoadManager {
 
       _prefStore = PhotoActivator.getPrefStore();
 
-      _imageFramework = _prefStore.getString(IPhotoPreferences.PHOTO_VIEWER_IMAGE_FRAMEWORK);
       _hqImageSize = _prefStore.getInt(IPhotoPreferences.PHOTO_VIEWER_HQ_IMAGE_SIZE);
 
       final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -206,7 +204,7 @@ public class PhotoLoadManager {
    }
 
    /**
-    * Check if loading state is reset, it happend VERY OFTEN that it was NOT reset. It happened
+    * Check if loading state is reset, it happened VERY OFTEN that it was NOT reset. It happened
     * when zoomed in and scrolled very quickly, then some images are never loaded until a folder
     * refresh.
     */
@@ -314,6 +312,7 @@ public class PhotoLoadManager {
     *         will be displayed. Possible AWT save error: "Bogus input colorspace"
     */
    public static boolean isThumbSaveError(final String imageFilePath) {
+
       return _photoWithThumbSaveError.containsKey(imageFilePath);
    }
 
@@ -354,23 +353,26 @@ public class PhotoLoadManager {
     *           Gallery item is used to check if it is still visible. Can be <code>null</code>,
     *           then the visibility is not checked.
     * @param photo
+    * @param svgImageSize
     * @param imageQuality
     * @param loadCallBack
     */
    private static void putImageInLoadingQueueHQ_Gallery(final GalleryMT20Item galleryItem,
                                                         final Photo photo,
+                                                        final int svgImageSize,
                                                         final ImageQuality imageQuality,
                                                         final ILoadCallBack loadCallBack) {
       // set state
       photo.setLoadingState(PhotoLoadingState.IMAGE_IS_IN_LOADING_QUEUE, imageQuality);
+
+      final int imageSize = photo.isSvgImage() ? svgImageSize : _hqImageSize;
 
       // set HQ image loading item into the waiting queue
       _waitingQueueHQ.add(new PhotoImageLoader(
             _display,
             photo,
             imageQuality,
-            _imageFramework,
-            _hqImageSize,
+            imageSize,
             loadCallBack));
 
       final Runnable executorTask = new Runnable() {
@@ -406,6 +408,7 @@ public class PhotoLoadManager {
     * @param photo
     * @param imageQuality
     * @param imageLoaderCallback
+    * @param isAWTImage
     */
    public static void putImageInLoadingQueueHQ_Map(final Photo photo,
                                                    final ImageQuality imageQuality,
@@ -419,7 +422,6 @@ public class PhotoLoadManager {
             _display,
             photo,
             imageQuality,
-            _imageFramework,
             _hqImageSize,
             imageLoaderCallback));
 
@@ -452,6 +454,51 @@ public class PhotoLoadManager {
       _executorHQ.submit(executorTask);
    }
 
+   public static void putImageInLoadingQueueHQ_Map_Thumb(final Photo photo,
+                                                         final int thumbImageSize,
+                                                         final ImageQuality imageQuality,
+                                                         final ILoadCallBack imageLoaderCallback) {
+
+      // set state
+      photo.setLoadingState(PhotoLoadingState.IMAGE_IS_IN_LOADING_QUEUE, imageQuality);
+
+      // put image loading item into the waiting queue
+      _waitingQueueHQ.add(new PhotoImageLoader(
+            _display,
+            photo,
+            imageQuality,
+            thumbImageSize,
+            imageLoaderCallback));
+
+      final Runnable executorTask = new Runnable() {
+         @Override
+         public void run() {
+
+            // get last added loader item
+            final PhotoImageLoader imageLoader = _waitingQueueHQ.pollFirst();
+
+            if (imageLoader == null) {
+               return;
+            }
+
+            final String errorKey = imageLoader.getPhoto().imageFilePathName;
+
+            if (_photoWithLoadingError.containsKey(errorKey)) {
+
+               photo.setLoadingState(PhotoLoadingState.IMAGE_IS_INVALID, imageQuality);
+
+            } else {
+
+               imageLoader.loadImageHQThumb_Map(_waitingQueueThumb, _waitingQueueExif, photo, imageQuality);
+            }
+
+            checkLoadingState(photo, imageQuality);
+         }
+      };
+
+      _executorHQ.submit(executorTask);
+   }
+
    /**
     * @param requestedItem
     * @param photo
@@ -471,7 +518,6 @@ public class PhotoLoadManager {
             _display,
             photo,
             imageQuality,
-            _imageFramework,
             _hqImageSize,
             imageLoadCallback));
 
@@ -537,25 +583,28 @@ public class PhotoLoadManager {
    /**
     * @param galleryItem
     *           Gallery item is used to check if it is still visible. Can be <code>null</code>,
-    *           then the visibility is not checked.
+    *           then the visibility is not checked
     * @param photo
+    * @param svgImageSize
     * @param imageQuality
     * @param imageLoadCallback
     */
-   public static void putImageInLoadingQueueThumbGallery(final GalleryMT20Item galleryItem,
-                                                         final Photo photo,
-                                                         final ImageQuality imageQuality,
-                                                         final ILoadCallBack imageLoadCallback) {
+   public static void putImageInLoadingQueueThumb_Gallery(final GalleryMT20Item galleryItem,
+                                                          final Photo photo,
+                                                          final int svgImageSize,
+                                                          final ImageQuality imageQuality,
+                                                          final ILoadCallBack imageLoadCallback) {
       // set state
       photo.setLoadingState(PhotoLoadingState.IMAGE_IS_IN_LOADING_QUEUE, imageQuality);
+
+      final int imageSize = photo.isSvgImage() ? svgImageSize : _hqImageSize;
 
       // put image loading item into the waiting queue
       final PhotoImageLoader imageLoader = new PhotoImageLoader(
             _display,
             photo,
             imageQuality,
-            _imageFramework,
-            _hqImageSize,
+            imageSize,
             imageLoadCallback);
 
       final Runnable executorTask = new Runnable() {
@@ -596,13 +645,16 @@ public class PhotoLoadManager {
                   return;
                }
 
-               if (imageLoader.loadImageThumb(_waitingQueueOriginal)) {
+               final boolean isLoadHqImage = imageLoader.loadImageThumb_SWT(_waitingQueueOriginal);
+
+               if (isLoadHqImage) {
 
                   // HQ image is requested
 
                   putImageInLoadingQueueHQ_Gallery(
                         galleryItem,
                         photo,
+                        svgImageSize,
                         imageQuality,
                         imageLoadCallback);
                } else {
@@ -618,34 +670,41 @@ public class PhotoLoadManager {
       _executorThumb.submit(executorTask);
    }
 
-   public static void putImageInLoadingQueueThumbMap(final Photo photo,
-                                                     final ImageQuality imageQuality,
-                                                     final ILoadCallBack imageLoaderCallback) {
+   /**
+    * @param photo
+    * @param imageQuality
+    * @param imageLoaderCallback
+    * @param isAWTImage
+    *           Has to be <code>false</code> for a SWT image
+    */
+   public static void putImageInLoadingQueueThumb_Map(final Photo photo,
+                                                      final ImageQuality imageQuality,
+                                                      final ILoadCallBack imageLoaderCallback,
+                                                      final boolean isAWTImage) {
 
       // set state
       photo.setLoadingState(PhotoLoadingState.IMAGE_IS_IN_LOADING_QUEUE, imageQuality);
 
       // put image loading item into the waiting queue
-      _waitingQueueThumb.add(new PhotoImageLoader(
+      final PhotoImageLoader imageLoader = new PhotoImageLoader(
             _display,
             photo,
             imageQuality,
-            _imageFramework,
             _hqImageSize,
-            imageLoaderCallback));
+            imageLoaderCallback);
 
       final Runnable executorTask = new Runnable() {
          @Override
          public void run() {
 
             // get last added loader item
-            final PhotoImageLoader imageLoader = _waitingQueueThumb.pollFirst();
+            final PhotoImageLoader photoImageLoader = _waitingQueueThumb.pollFirst();
 
-            if (imageLoader == null) {
+            if (photoImageLoader == null) {
                return;
             }
 
-            final String errorKey = imageLoader.getPhoto().imageFilePathName;
+            final String errorKey = photoImageLoader.getPhoto().imageFilePathName;
 
             if (_photoWithLoadingError.containsKey(errorKey)) {
 
@@ -653,12 +712,21 @@ public class PhotoLoadManager {
 
             } else {
 
-               imageLoader.loadImageThumb(_waitingQueueOriginal);
+               if (isAWTImage) {
+
+                  photoImageLoader.loadImageThumb_AWT(_waitingQueueOriginal);
+
+               } else {
+
+                  photoImageLoader.loadImageThumb_SWT(_waitingQueueOriginal);
+               }
             }
 
             checkLoadingState(photo, imageQuality);
          }
       };
+
+      _waitingQueueThumb.add(imageLoader);
       _executorThumb.submit(executorTask);
    }
 
@@ -690,10 +758,12 @@ public class PhotoLoadManager {
    }
 
    public static void putPhotoInThumbSaveErrorMap(final String errorKey) {
+
       _photoWithThumbSaveError.put(errorKey, new Object());
    }
 
    public static void removeInvalidImageFiles() {
+
       _photoWithLoadingError.clear();
       _photoWithThumbSaveError.clear();
    }
@@ -715,16 +785,14 @@ public class PhotoLoadManager {
    }
 
    private static void resetLoadingState(final Photo photo, final ImageQuality imageQuality) {
+
       // set state to undefined that it will be loaded again when image is visible and not in the cache
+
       photo.setLoadingState(PhotoLoadingState.UNDEFINED, imageQuality);
    }
 
    public static void setFromPrefStore(final int hqImageSize) {
       _hqImageSize = hqImageSize;
-   }
-
-   public static void setFromPrefStore(final String imageFramework) {
-      _imageFramework = imageFramework;
    }
 
    /**

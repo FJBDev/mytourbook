@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.tourbook.Images;
 import net.tourbook.Messages;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
@@ -39,7 +38,7 @@ import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.PrefPageTourType_Definitions;
 import net.tourbook.tag.TagManager;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.ui.ITourProvider2;
@@ -189,7 +188,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
    private TourPerson[]          _people;
    private Point                 _shellDefaultSize;
-   private TagMenuManager        _tagMenuMgr;
+   private TagMenuManager        _tagMenuManager;
 
    /*
     * UI controls
@@ -245,12 +244,16 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       _tourDataEditor = tourDataEditor;
       _tourDataSource = tourData;
 
-      setDefaultImage(TourbookPlugin.getImageDescriptor(Images.MyTourbook16).createImage());
-
       _canRemoveTimeSlices = _tourDataEditor.getTourData().isContainReferenceTour() == false;
 
       // make dialog resizable
       setShellStyle(getShellStyle() | SWT.RESIZE);
+   }
+
+   @Override
+   public boolean close() {
+
+      return super.close();
    }
 
    @Override
@@ -305,11 +308,11 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
    private void createActions() {
 
-      _tagMenuMgr = new TagMenuManager(this, false);
+      _tagMenuManager = new TagMenuManager(this, false);
 
       _actionOpenTourTypePrefs = new ActionOpenPrefDialog(
             Messages.action_tourType_modify_tourTypes,
-            ITourbookPreferences.PREF_PAGE_TOUR_TYPE);
+            PrefPageTourType_Definitions.ID);
    }
 
    @Override
@@ -368,8 +371,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
          final Set<TourTag> targetTourTags = _tourDataTarget.getTourTags();
          final boolean isTagInTour = targetTourTags != null && targetTourTags.size() > 0;
 
-         _tagMenuMgr.fillTagMenu(menuManager, false);
-         _tagMenuMgr.enableTagActions(true, isTagInTour, targetTourTags);
+         _tagMenuManager.fillTagMenu(menuManager);
+         _tagMenuManager.enableTagActions(true, isTagInTour, targetTourTags);
       });
 
       // set menu for the tag item
@@ -379,7 +382,8 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
 
          @Override
          public void menuHidden(final MenuEvent e) {
-            _tagMenuMgr.onHideMenu();
+
+            _tagMenuManager.onHideMenu();
          }
 
          @Override
@@ -389,7 +393,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
             Point pt = new Point(rect.x, rect.y + rect.height);
             pt = _linkTag.getParent().toDisplay(pt);
 
-            _tagMenuMgr.onShowMenu(e, _linkTag, pt, null);
+            _tagMenuManager.onShowMenu(e, _linkTag, pt, null);
          }
       });
 
@@ -695,7 +699,7 @@ public class DialogExtractTour extends TitleAreaDialog implements ITourProvider2
       final float[] tourAltitudeSerie = _tourDataSource.altitudeSerie;
       final float[] tourCadenceSerie = _tourDataSource.getCadenceSerie();
       final float[] tourDistanceSerie = _tourDataSource.distanceSerie;
-      final long[] tourGearSerie = _tourDataSource.gearSerie;
+      final long[] tourGearSerie = _tourDataSource.gearSerieCombined;
       final double[] tourLatitudeSerie = _tourDataSource.latitudeSerie;
       final double[] tourLongitudeSerie = _tourDataSource.longitudeSerie;
       final float[] tourPulseSerie = _tourDataSource.pulseSerie;

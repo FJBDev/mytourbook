@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -40,14 +40,20 @@ public abstract class TableColumnFactory {
    public static final String             ALTITUDE_ELEVATION_DIFF_ID                         = "ALTITUDE_ELEVATION_DIFF_ID";                      //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_ELEVATION_GAIN;
    public static final String             ALTITUDE_ELEVATION_GAIN_ID                         = "ALTITUDE_ELEVATION_GAIN_ID";                      //$NON-NLS-1$
-   public static final TableColumnFactory ALTITUDE_ELEVATION_GAIN_DIFF;
-   public static final String             ALTITUDE_ELEVATION_GAIN_DIFF_ID                    = "ALTITUDE_ELEVATION_GAIN_DIFF_ID";                 //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_ELEVATION_LOSS;
    public static final String             ALTITUDE_ELEVATION_LOSS_ID                         = "ALTITUDE_ELEVATION_LOSS_ID";                      //$NON-NLS-1$
+   public static final TableColumnFactory ALTITUDE_ELEVATION_GAIN_DIFF;
+   public static final String             ALTITUDE_ELEVATION_GAIN_DIFF_ID                    = "ALTITUDE_ELEVATION_GAIN_DIFF_ID";                 //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_ELEVATION_LOSS_DIFF;
    public static final String             ALTITUDE_ELEVATION_LOSS_DIFF_ID                    = "ALTITUDE_ELEVATION_LOSS_DIFF_ID";                 //$NON-NLS-1$
+   public static final TableColumnFactory ALTITUDE_ELEVATION_GAIN_IN_BREAK;
+   public static final String             ALTITUDE_ELEVATION_GAIN_IN_BREAK_ID                = "ALTITUDE_ELEVATION_GAIN_IN_BREAK_ID";             //$NON-NLS-1$
+   public static final TableColumnFactory ALTITUDE_ELEVATION_LOSS_IN_BREAK;
+   public static final String             ALTITUDE_ELEVATION_LOSS_IN_BREAK_ID                = "ALTITUDE_ELEVATION_LOSS_IN_BREAK_ID";             //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_ELEVATION_SEGMENT_UP;
+   public static final String             ALTITUDE_ELEVATION_SEGMENT_UP_ID                   = "ALTITUDE_ELEVATION_SEGMENT_UP";                   //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_ELEVATION_SEGMENT_DOWN;
+   public static final String             ALTITUDE_ELEVATION_SEGMENT_DOWN_ID                 = "ALTITUDE_ELEVATION_SEGMENT_DOWN";                 //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_GRADIENT;
    public static final String             ALTITUDE_GRADIENT_ID                               = "ALTITUDE_GRADIENT";                               //$NON-NLS-1$
    public static final TableColumnFactory ALTITUDE_GRADIENT_AVG;
@@ -279,6 +285,9 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MARKER_SERIE_INDEX;
    public static final TableColumnFactory MARKER_TIME_DELTA;
    public static final TableColumnFactory MARKER_URL;
+   public static final String             MARKER_URL_ID                                      = "MARKER_URL_ID";                                   //$NON-NLS-1$
+   public static final TableColumnFactory MARKER_TYPE;
+   public static final String             MARKER_TYPE_ID                                     = "MARKER_TYPE_ID";                                  //$NON-NLS-1$
 
    public static final TableColumnFactory MOTION_ALTIMETER;
    public static final String             MOTION_ALTIMETER_ID                                = "MOTION_ALTIMETER";                                //$NON-NLS-1$
@@ -292,6 +301,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory MOTION_DISTANCE_DELTA;
    public static final String             MOTION_DISTANCE_DELTA_ID                           = "MOTION_DISTANCE_DELTA_ID";                        //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_DIFF;
+   public static final String             MOTION_DISTANCE_DIFF_ID                            = "MOTION_DISTANCE_DIFF";                            //$NON-NLS-1$
    public static final TableColumnFactory MOTION_DISTANCE_TOTAL;
    public static final TableColumnFactory MOTION_LATITUDE;
    public static final TableColumnFactory MOTION_LONGITUDE;
@@ -303,12 +313,15 @@ public abstract class TableColumnFactory {
 
    public static final TableColumnFactory NUTRITION_NUM_PRODUCTS;
    public static final String             NUTRITION_NUM_PRODUCTS_ID                          = "NUTRITION_NUM_PRODUCTS";                          //$NON-NLS-1$
+   public static final TableColumnFactory NUTRITION_CARBOHYDRATES_AVG_PER_HOUR;
+   public static final String             NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID            = "NUTRITION_CARBOHYDRATES_AVG_PER_HOUR";            //$NON-NLS-1$
 
    public static final TableColumnFactory PHOTO_FILE_PATH;
    public static final TableColumnFactory PHOTO_NUMBER_OF_GPS_PHOTOS;
    public static final TableColumnFactory PHOTO_NUMBER_OF_NO_GPS_PHOTOS;
    public static final TableColumnFactory PHOTO_NUMBER_OF_PHOTOS;
    public static final TableColumnFactory PHOTO_TIME_ADJUSTMENT;
+   public static final TableColumnFactory PHOTO_TIME_ADJUSTMENT_ALL;
    public static final TableColumnFactory PHOTO_TOUR_CAMERA;
 
    public static final TableColumnFactory POWER_AVG;
@@ -346,6 +359,9 @@ public abstract class TableColumnFactory {
    public static final String             POWERTRAIN_SLOW_VS_FAST_CADENCE_ZONES_DELIMITER_ID = "POWERTRAIN_SLOW_VS_FAST_CADENCE_ZONES_DELIMITER"; //$NON-NLS-1$
    public static final TableColumnFactory POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES;
    public static final String             POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES_ID     = "POWERTRAIN_SLOW_VS_FAST_CADENCE_PERCENTAGES";     //$NON-NLS-1$
+
+   public static final TableColumnFactory RADAR_PASSED_VEHICLES;
+   public static final String             RADAR_PASSED_VEHICLES_ID                           = "RADAR_PASSED_VEHICLES";                           //$NON-NLS-1$
 
    public static final TableColumnFactory RUN_DYN_STANCE_TIME_AVG;
    public static final String             RUN_DYN_STANCE_TIME_AVG_ID                         = "RUN_DYN_STANCE_TIME_AVG";                         //$NON-NLS-1$
@@ -388,10 +404,16 @@ public abstract class TableColumnFactory {
    public static final String             SENSOR_NAME_KEY_ID                                 = "SENSOR_NAME_KEY";                                 //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_DESCRIPTION;
    public static final String             SENSOR_DESCRIPTION_ID                              = "SENSOR_DESCRIPTION";                              //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_DEVICE_NAME;
+   public static final String             SENSOR_DEVICE_NAME_ID                              = "SENSOR_DEVICE_NAME";                              //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_DEVICE_TYPE;
+   public static final String             SENSOR_DEVICE_TYPE_ID                              = "SENSOR_DEVICE_TYPE";                              //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NAME;
    public static final String             SENSOR_MANUFACTURER_NAME_ID                        = "SENSOR_MANUFACTURER_NAME";                        //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_MANUFACTURER_NUMBER;
    public static final String             SENSOR_MANUFACTURER_NUMBER_ID                      = "SENSOR_MANUFACTURER_NUMBER";                      //$NON-NLS-1$
+   public static final TableColumnFactory SENSOR_NUMBER_OF_TOURS;
+   public static final String             SENSOR_NUMBER_OF_TOURS_ID                          = "SENSOR_NUMBER_OF_TOURS";                          //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NAME;
    public static final String             SENSOR_PRODUCT_NAME_ID                             = "SENSOR_PRODUCT_NAME";                             //$NON-NLS-1$
    public static final TableColumnFactory SENSOR_PRODUCT_NUMBER;
@@ -425,9 +447,11 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory SURFING_NUMBER_OF_EVENTS;
    public static final String             SURFING_NUMBER_OF_EVENTS_ID                        = "SURFING_NUMBER_OF_EVENTS";                        //$NON-NLS-1$
 
-   public static final TableColumnFactory SWIM__SWIM_STROKE_RATE;
-   public static final TableColumnFactory SWIM__SWIM_STROKES_PER_LENGTH;
-   public static final TableColumnFactory SWIM__SWIM_STROKE_STYLE;
+   public static final TableColumnFactory SWIM_LENGTH_TYPE;
+   public static final String             SWIM_LENGTH_TYPE_ID                                = "SWIM_LENGTH_TYPE";                                //$NON-NLS-1$
+   public static final TableColumnFactory SWIM_STROKE_RATE;
+   public static final TableColumnFactory SWIM_STROKES_PER_LENGTH;
+   public static final TableColumnFactory SWIM_STROKE_STYLE;
 
    public static final TableColumnFactory SWIM__TIME_TOUR_TIME_DIFF;
    public static final TableColumnFactory SWIM__TIME_TOUR_TIME_HH_MM_SS;
@@ -465,6 +489,7 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory TIME_TOUR_START_TIME;
    public static final String             TIME_TOUR_START_TIME_ID                            = "TIME_TOUR_START_TIME";                            //$NON-NLS-1$
    public static final TableColumnFactory TIME_TOUR_END_TIME;
+   public static final String             TIME_TOUR_END_TIME_ID                              = "TIME_TOUR_END_TIME";                              //$NON-NLS-1$
    public static final TableColumnFactory TIME_TOUR_START_DATE;
    public static final TableColumnFactory TIME_TOUR_END_DATE;
    public static final TableColumnFactory TIME_WEEK_DAY;
@@ -474,7 +499,10 @@ public abstract class TableColumnFactory {
    public static final TableColumnFactory TIME_WEEKYEAR;
    public static final String             TIME_WEEKYEAR_ID                                   = "TIME_WEEKYEAR";                                   //$NON-NLS-1$
 
-   public static final TableColumnFactory TOUR_MARKER;
+   public static final TableColumnFactory TOUR_DESCRIPTION;
+   public static final String             TOUR_DESCRIPTION_ID                                = "TOUR_DESCRIPTION";                                //$NON-NLS-1$
+   public static final TableColumnFactory TOUR_EQUIPMENT;
+   public static final String             TOUR_EQUIPMENT_ID                                  = "TOUR_EQUIPMENT";                                  //$NON-NLS-1$
    public static final TableColumnFactory TOUR_LOCATION_START;
    public static final String             TOUR_LOCATION_START_ID                             = "TOUR_LOCATION_START";                             //$NON-NLS-1$
    public static final TableColumnFactory TOUR_LOCATION_END;
@@ -483,10 +511,13 @@ public abstract class TableColumnFactory {
    public static final String             TOUR_LOCATION_ID_START_ID                          = "TOUR_LOCATION_ID_START";                          //$NON-NLS-1$
    public static final TableColumnFactory TOUR_LOCATION_ID_END;
    public static final String             TOUR_LOCATION_ID_END_ID                            = "TOUR_LOCATION_ID_END";                            //$NON-NLS-1$
+   public static final TableColumnFactory TOUR_MARKER;
    public static final TableColumnFactory TOUR_NUM_MARKERS;
    public static final String             TOUR_NUM_MARKERS_ID                                = "TOUR_NUM_MARKERS";                                //$NON-NLS-1$
    public static final TableColumnFactory TOUR_NUM_PHOTOS;
    public static final String             TOUR_NUM_PHOTOS_ID                                 = "TOUR_NUM_PHOTOS";                                 //$NON-NLS-1$
+   public static final TableColumnFactory TOUR_POSITIONED_PHOTO;
+   public static final String             TOUR_POSITIONED_PHOTO_ID                           = "TOUR_POSITIONED_PHOTO";                           //$NON-NLS-1$
    public static final TableColumnFactory TOUR_TAGS;
    public static final String             TOUR_TAGS_ID                                       = "TOUR_TAGS";                                       //$NON-NLS-1$
    public static final TableColumnFactory TOUR_TITLE;
@@ -716,7 +747,7 @@ public abstract class TableColumnFactory {
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
                                                    final PixelConverter pixelConverter) {
 
-            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "ALTITUDE_ELEVATION_SEGMENT_DOWN", SWT.TRAIL); //$NON-NLS-1$
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, ALTITUDE_ELEVATION_SEGMENT_DOWN_ID, SWT.TRAIL);
 
             final String unitLabel = UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_DOWN;
 
@@ -739,7 +770,7 @@ public abstract class TableColumnFactory {
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
                                                    final PixelConverter pixelConverter) {
 
-            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "ALTITUDE_ELEVATION_SEGMENT_UP", SWT.TRAIL); //$NON-NLS-1$
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, ALTITUDE_ELEVATION_SEGMENT_UP_ID, SWT.TRAIL);
 
             final String unitLabel = UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_UP;
 
@@ -751,6 +782,60 @@ public abstract class TableColumnFactory {
             colDef.setColumnUnit(unitLabel);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
+
+            return colDef;
+         }
+      };
+
+      ALTITUDE_ELEVATION_GAIN_IN_BREAK = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, ALTITUDE_ELEVATION_GAIN_IN_BREAK_ID, SWT.TRAIL);
+
+            final String unitLabel = UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_UP + UI.SPACE + UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND;
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Altitude);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Elevation_GainInBreak);
+            colDef.setColumnHeaderText(         unitLabel);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Elevation_GainInBreak);
+            colDef.setColumnUnit(unitLabel);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
+            colDef.setValueFormats(
+                  ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_1,
+                  columnManager);
+
+            return colDef;
+         }
+      };
+
+      ALTITUDE_ELEVATION_LOSS_IN_BREAK = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, ALTITUDE_ELEVATION_LOSS_IN_BREAK_ID, SWT.TRAIL);
+
+            final String unitLabel = UI.UNIT_LABEL_ELEVATION + UI.SPACE + UI.SYMBOL_ARROW_DOWN + UI.SPACE + UI.SYMBOL_HOURGLASS_WITH_FLOWING_SAND;
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Altitude);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Elevation_LossInBreak);
+            colDef.setColumnHeaderText(         unitLabel);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Elevation_LossInBreak);
+            colDef.setColumnUnit(               unitLabel);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
+            colDef.setValueFormats(
+                  ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_1,
+                  columnManager);
 
             return colDef;
          }
@@ -2071,13 +2156,33 @@ public abstract class TableColumnFactory {
          }
       };
 
+      MARKER_TYPE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, MARKER_TYPE_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Marker);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_MarkerType_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_MarkerType_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_MarkerType_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(25));
+
+            return colDef;
+         }
+      };
+
       MARKER_URL = new TableColumnFactory() {
 
          @Override
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
                                                    final PixelConverter pixelConverter) {
 
-            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "MARKER_URL", SWT.LEAD); //$NON-NLS-1$
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, MARKER_URL_ID, SWT.LEAD);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Marker);
 
@@ -2202,10 +2307,7 @@ public abstract class TableColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelWidth);
             colDef.setColumnWeightData(new ColumnPixelData(pixelWidth, true));
-            colDef.setValueFormats(
-                  ValueFormatSet.Number,
-                  ValueFormat.NUMBER_1_3,
-                  columnManager);
+            colDef.setValueFormats(ValueFormatSet.Number_5_Digits, ValueFormat.NUMBER_1_5, columnManager);
 
             return colDef;
          }
@@ -2248,7 +2350,7 @@ public abstract class TableColumnFactory {
 
             final String header = Messages.ColumnFactory_Diff_Header + UI.SPACE + UI.UNIT_LABEL_DISTANCE;
 
-            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "MOTION_DISTANCE_DIFF", SWT.TRAIL); //$NON-NLS-1$
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, MOTION_DISTANCE_DIFF_ID, SWT.TRAIL);
 
             colDef.setColumnCategory(           Messages.ColumnFactory_Category_Motion);
 
@@ -2258,6 +2360,7 @@ public abstract class TableColumnFactory {
             colDef.setColumnUnit(               UI.UNIT_LABEL_DISTANCE);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+            colDef.setValueFormats(ValueFormatSet.Number_5_Digits, ValueFormat.NUMBER_1_5, columnManager);
 
             return colDef;
          }
@@ -2283,10 +2386,7 @@ public abstract class TableColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelWidth);
             colDef.setColumnWeightData(new ColumnPixelData(pixelWidth, true));
-            colDef.setValueFormats(
-                  ValueFormatSet.Number,
-                  ValueFormat.NUMBER_1_3,
-                  columnManager);
+            colDef.setValueFormats(ValueFormatSet.Number, ValueFormat.NUMBER_1_3, columnManager);
 
             return colDef;
          }
@@ -2449,6 +2549,30 @@ public abstract class TableColumnFactory {
          }
       };
 
+      NUTRITION_CARBOHYDRATES_AVG_PER_HOUR = new TableColumnFactory() {
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, NUTRITION_CARBOHYDRATES_AVG_PER_HOUR_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Nutrition);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Nutrition_CarbohydratesAvgPerHour_Tooltip);
+            colDef.setColumnUnit(               UI.UNIT_WEIGHT_G + UI.SLASH + UI.UNIT_LABEL_TIME);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+            colDef.setValueFormats(
+                  ValueFormatSet.Number,
+                  ValueFormat.NUMBER_1_0,
+                  columnManager);
+
+            return colDef;
+         }
+      };
+
       /*
        * Photo
        */
@@ -2548,6 +2672,26 @@ public abstract class TableColumnFactory {
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Photo_TimeAdjustment_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(11)); // 9 ... 54
+
+            return colDef;
+         }
+      };
+
+      PHOTO_TIME_ADJUSTMENT_ALL = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, "PHOTO_TIME_ADJUSTMENT_ALL", SWT.TRAIL); //$NON-NLS-1$
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Photo);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Photo_TimeAdjustmentAll_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Photo_TimeAdjustmentAll_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Photo_TimeAdjustmentAll_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
 
             return colDef;
          }
@@ -3003,6 +3147,30 @@ public abstract class TableColumnFactory {
             colDef.setColumnUnit(               Messages.ColumnFactory_Power_SlowVsFast_CadencePercentages_Header);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
+      /*
+       * Radar
+       */
+
+      RADAR_PASSED_VEHICLES = new TableColumnFactory() {
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, RADAR_PASSED_VEHICLES_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Radar);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Radar_PassedVehicles);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Radar_PassedVehicles);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Radar_PassedVehicles_Header);
+            colDef.setColumnUnit(               UI.SYMBOL_NUMBER_SIGN);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(5));
 
             return colDef;
          }
@@ -3573,6 +3741,26 @@ public abstract class TableColumnFactory {
          }
       };
 
+      SENSOR_NUMBER_OF_TOURS = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_NUMBER_OF_TOURS_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_NumberOfTours);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_NumberOfTours_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_NumberOfTours);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
       SENSOR_PRODUCT_NAME = new TableColumnFactory() {
 
          @Override
@@ -3750,6 +3938,47 @@ public abstract class TableColumnFactory {
          }
       };
 
+      SENSOR_DEVICE_NAME = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_DEVICE_NAME_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_DeviceName_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_DeviceName_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_DeviceName_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
+      SENSOR_DEVICE_TYPE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SENSOR_DEVICE_TYPE_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Sensor);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Sensor_DeviceType_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Sensor_DeviceType_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Sensor_DeviceType_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(10));
+
+            return colDef;
+         }
+      };
+
+
       /*
        * States
        */
@@ -3907,7 +4136,27 @@ public abstract class TableColumnFactory {
       /*
        * Swimming
        */
-      SWIM__SWIM_STROKE_RATE = new TableColumnFactory() {
+      SWIM_LENGTH_TYPE = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, SWIM_LENGTH_TYPE_ID, SWT.TRAIL);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Swimming);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Swim_LengthType_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Swim_LengthType_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Swim_LengthType_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(4));
+
+            return colDef;
+         }
+      };
+
+      SWIM_STROKE_RATE = new TableColumnFactory() {
 
          @Override
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
@@ -3928,7 +4177,7 @@ public abstract class TableColumnFactory {
          }
       };
 
-      SWIM__SWIM_STROKES_PER_LENGTH = new TableColumnFactory() {
+      SWIM_STROKES_PER_LENGTH = new TableColumnFactory() {
 
          @Override
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
@@ -3949,7 +4198,7 @@ public abstract class TableColumnFactory {
          }
       };
 
-      SWIM__SWIM_STROKE_STYLE = new TableColumnFactory() {
+      SWIM_STROKE_STYLE = new TableColumnFactory() {
 
          @Override
          public TableColumnDefinition createColumn(final ColumnManager columnManager,
@@ -4504,6 +4753,11 @@ public abstract class TableColumnFactory {
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(14));
 
+            colDef.setValueFormats(
+                  ValueFormatSet.Time_mmss,
+                  ValueFormat.TIME_HH_MM,
+                  columnManager);
+
             return colDef;
          }
       };
@@ -4606,6 +4860,50 @@ public abstract class TableColumnFactory {
       /*
        * Tour
        */
+
+      TOUR_DESCRIPTION = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, TOUR_DESCRIPTION_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TourDescription_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TourDescription_Label);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_TourDescription_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+            return colDef;
+         }
+      };
+
+      TOUR_EQUIPMENT = new TableColumnFactory() {
+
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, TOUR_EQUIPMENT_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_TourEquipment_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_TourEquipment_Label);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_TourEquipment_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(20));
+
+
+            colDef.setValueFormats(             ValueFormatSet.Equipment,
+                                                ValueFormat.EQUIPMENT_BRAND_MODEL,
+                                                columnManager);
+            return colDef;
+         }
+      };
 
       TOUR_MARKER = new TableColumnFactory() {
 
@@ -4735,6 +5033,25 @@ public abstract class TableColumnFactory {
             colDef.setColumnLabel(              Messages.ColumnFactory_NumberOfPhotos_Label);
             colDef.setColumnHeaderText(         Messages.ColumnFactory_NumberOfPhotos_Header);
             colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_NumberOfPhotos_Tooltip);
+
+            colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
+
+            return colDef;
+         }
+      };
+
+      TOUR_POSITIONED_PHOTO = new TableColumnFactory() {
+         @Override
+         public TableColumnDefinition createColumn(final ColumnManager columnManager,
+                                                   final PixelConverter pixelConverter) {
+
+            final TableColumnDefinition colDef = new TableColumnDefinition(columnManager, TOUR_POSITIONED_PHOTO_ID, SWT.LEAD);
+
+            colDef.setColumnCategory(           Messages.ColumnFactory_Category_Tour);
+
+            colDef.setColumnLabel(              Messages.ColumnFactory_Photo_Positioned_Label);
+            colDef.setColumnHeaderText(         Messages.ColumnFactory_Photo_Positioned_Header);
+            colDef.setColumnHeaderToolTipText(  Messages.ColumnFactory_Photo_Positioned_Tooltip);
 
             colDef.setDefaultColumnWidth(pixelConverter.convertWidthInCharsToPixels(8));
 

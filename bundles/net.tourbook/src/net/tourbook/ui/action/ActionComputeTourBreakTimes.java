@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,13 +19,13 @@ import java.util.Set;
 
 import net.tourbook.Messages;
 import net.tourbook.data.TourData;
-import net.tourbook.database.ITourDataUpdate;
+import net.tourbook.database.ITourDataUpdate_OnlyUpdate;
 import net.tourbook.tour.TourManager;
 import net.tourbook.ui.ITourProviderByID;
 
 import org.eclipse.jface.action.Action;
 
-public class ActionComputeTourBreakTimes extends Action implements ITourDataUpdate {
+public class ActionComputeTourBreakTimes extends Action implements ITourDataUpdate_OnlyUpdate {
 
    private final ITourProviderByID _tourProvider;
 
@@ -40,18 +40,10 @@ public class ActionComputeTourBreakTimes extends Action implements ITourDataUpda
    }
 
    @Override
-   public int getDatabaseVersion() {
-
-      // this is not needed
-
-      return 0;
-   }
-
-   @Override
    public void run() {
 
       // check if the tour editor contains a modified tour
-      if (TourManager.isTourEditorModified()) {
+      if (TourManager.isTourModified()) {
          return;
       }
 

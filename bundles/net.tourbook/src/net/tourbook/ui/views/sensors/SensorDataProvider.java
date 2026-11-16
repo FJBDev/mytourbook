@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,7 +28,7 @@ import net.tourbook.common.util.SQL;
 import net.tourbook.common.util.Util;
 import net.tourbook.data.TourType;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.ui.SQLFilter;
+import net.tourbook.ui.AppFilter;
 
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
@@ -47,6 +47,7 @@ public class SensorDataProvider {
     * @param sensorId
     * @param isUseAppFilter
     * @param state
+    *
     * @return
     */
    SensorData getData(final long sensorId, final boolean useTourFilter, final IDialogSettings state) {
@@ -76,7 +77,7 @@ public class SensorDataProvider {
          /*
           * Setup app filter
           */
-         final SQLFilter appFilter = new SQLFilter(SQLFilter.ONLY_FAST_APP_FILTERS);
+         final AppFilter appFilter = new AppFilter(AppFilter.ONLY_FAST_APP_FILTERS);
          if (isAppFilter) {
 
             final String sqlTourIds = UI.EMPTY_STRING
@@ -130,6 +131,7 @@ public class SensorDataProvider {
                + "WHERE" + NL //                                                       //$NON-NLS-1$
 
                + "   DEVICESENSOR_SensorID = ?" + NL //                                //$NON-NLS-1$
+
                + "   " + sqlAppFilter + NL //                                          //$NON-NLS-1$
                + "   " + sqlDurationFilter + NL //                                     //$NON-NLS-1$
 
@@ -157,17 +159,16 @@ public class SensorDataProvider {
 
          final PreparedStatement stmt = conn.prepareStatement(sql);
 
-         stmt.setLong(1, sensorId);
+         int nextIndex = 1;
 
-         int paramIndex = 2;
+         stmt.setLong(nextIndex++, sensorId);
 
          if (isAppFilter) {
-            appFilter.setParameters(stmt, paramIndex);
-            paramIndex = appFilter.getLastParameterIndex();
+            nextIndex = appFilter.setParameters(stmt, nextIndex);
          }
 
          if (isDurationFilter) {
-            stmt.setLong(paramIndex++, durationFilter_DateTime.toEpochSecond() * 1000);
+            stmt.setLong(nextIndex++, durationFilter_DateTime.toEpochSecond() * 1000);
          }
 
          final ResultSet result = stmt.executeQuery();
@@ -358,6 +359,7 @@ public class SensorDataProvider {
 
    /**
     * @param state
+    *
     * @return Returns the date/time after which the tours should be retrieved
     */
    private ZonedDateTime getDurationFilter_DateTime(final IDialogSettings state) {

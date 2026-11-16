@@ -4,7 +4,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 
-   private static final String BUNDLE_NAME = "net.tourbook.device.garmin.fit.messages"; //$NON-NLS-1$
+   private static final String BUNDLE_NAME = "net.tourbook.device.garmin.fit.messages";  //$NON-NLS-1$
 
    public static String        Import_Error_TourMarkerLabel_ExceededTimeSlice;
 
@@ -12,7 +12,11 @@ public class Messages extends NLS {
    public static String        PrefPage_Fit_Checkbox_IgnoreSpeedValues;
    public static String        PrefPage_Fit_Checkbox_ReplaceTimeSlice;
    public static String        PrefPage_Fit_Checkbox_FitImportTourType;
+   public static String        PrefPage_Fit_Checkbox_LogSensorData;
+   public static String        PrefPage_Fit_Checkbox_LogSensorData_Tooltip;
+   public static String        PrefPage_Fit_Checkbox_SetTourTitleFromImportFileName;
    public static String        PrefPage_Fit_Group_AdjustTemperature;
+   public static String        PrefPage_Fit_Group_Common;
    public static String        PrefPage_Fit_Group_IgnoreLastMarker;
    public static String        PrefPage_Fit_Group_Power;
    public static String        PrefPage_Fit_Group_ReplaceTimeSlice;
@@ -29,6 +33,9 @@ public class Messages extends NLS {
    public static String        PrefPage_Fit_Label_ReplaceTimeSlice_Duration;
    public static String        PrefPage_Fit_Label_ReplaceTimeSlice_Info;
    public static String        PrefPage_Fit_Label_FitImportTourType_Info;
+   public static String        PrefPage_Fit_Radio_ProfileNameFromSession;
+   public static String        PrefPage_Fit_Radio_TourType_From_SportAndSubSport;
+   public static String        PrefPage_Fit_Radio_TourType_From_SportAndSubSport_Tooltip;
    public static String        PrefPage_Fit_Radio_TourTypeFromSport;
    public static String        PrefPage_Fit_Radio_TourTypeFromProfile;
    public static String        PrefPage_Fit_Radio_TourTypeFromProfileElseSport;

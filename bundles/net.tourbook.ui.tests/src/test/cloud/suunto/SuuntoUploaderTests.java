@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2023 Frédéric Bard
+ * Copyright (C) 2022, 2025 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +36,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -88,6 +89,7 @@ public class SuuntoUploaderTests extends UITest {
    }
 
    @Test
+   @Tag("ExternalConnection")
    void testRouteUpload() {
 
       // Arrange
@@ -112,7 +114,7 @@ public class SuuntoUploaderTests extends UITest {
 
       List<?> logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "1/31/2021, 7:15 AM -> Uploaded Route Id: \"634f49bf87e35c5a61e64947\""))); //$NON-NLS-1$
+            "1/31/2021, 7:15 AM -> Uploaded Route Id: \"634f49bf87e35c5a61e64947\""))); //$NON-NLS-1$
 
       // Act
       // Select a tour without GPS coordinates
@@ -128,7 +130,7 @@ public class SuuntoUploaderTests extends UITest {
       // Assert
       logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "2/3/2022, 1:51 AM -> GPS coordinates are missing"))); //$NON-NLS-1$
+            "2/3/2022, 1:51 AM -> GPS coordinates are missing"))); //$NON-NLS-1$
    }
 
    @Test
@@ -154,7 +156,7 @@ public class SuuntoUploaderTests extends UITest {
 
       List<?> logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "1/31/2021, 7:15 AM -> Error while uploading the workout of Id"))); //$NON-NLS-1$
+            "1/31/2021, 7:15 AM -> Error while uploading the workout of Id"))); //$NON-NLS-1$
 
       // Arrange
       final String workoutUploadInitializationResponse = Utils.readFileContent(CLOUD_FILES_PATH
@@ -192,6 +194,6 @@ public class SuuntoUploaderTests extends UITest {
 
       logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "1/31/2021, 7:15 AM -> Uploaded Workout Id: \"642c5admtced4c09af1c49e6\""))); //$NON-NLS-1$
+            "1/31/2021, 7:15 AM -> Uploaded Workout Id: \"642c5admtced4c09af1c49e6\""))); //$NON-NLS-1$
    }
 }
