@@ -57,13 +57,24 @@ public class TVITourBookRoot extends TVITourBookItem {
          setChildren(allYearItems);
 
          final boolean isShowSummaryRow = tourBookView.isShowSummaryRow();
-         final String sqlGroupBy = isShowSummaryRow
 
-               // show a summary row
-               ? "GROUP BY ROLLUP(StartYear)" + NL //          //$NON-NLS-1$
+         String sqlTotal = UI.EMPTY_STRING;
 
-               // hide summary row
-               : "GROUP BY StartYear" + NL; //                 //$NON-NLS-1$
+         if (isShowSummaryRow) {
+
+            sqlTotal = UI.EMPTY_STRING
+
+                  + "   UNION ALL" + NL //                                 //$NON-NLS-1$
+
+                  + "   SELECT" + NL //                                    //$NON-NLS-1$
+                  + "      1 AS sort_order," + NL //                       //$NON-NLS-1$
+                  + "      CAST(NULL AS INTEGER) AS StartYear," + NL //    //$NON-NLS-1$
+
+                  + getSQL_SUM_COLUMNS(UI.EMPTY_STRING, 6)
+
+                  + "   FROM tdFields" + NL //                             //$NON-NLS-1$
+            ;
+         }
 
          final AppFilter appFilter = new AppFilter(AppFilter.ANY_APP_FILTERS);
          final SQLData partFilter_AND_OR = new EquipmentPartFilter_AND_OR(EquipmentViewerType.IS_EQUIPMENT_VIEWER).getSqlData();
@@ -71,19 +82,16 @@ public class TVITourBookRoot extends TVITourBookItem {
 
          sql = UI.EMPTY_STRING
 
-               + "SELECT" + NL //                                    //$NON-NLS-1$
+               + "--" + NL //                                        //$NON-NLS-1$
+               + NL
+               + "---------------" + NL //                           //$NON-NLS-1$
+               + "-- TVITourBookRoot.fetchChildren" + NL //          //$NON-NLS-1$
+               + "---------------" + NL //                           //$NON-NLS-1$
+               + NL
 
-               + "	tdFields.StartYear," + NL //                    //$NON-NLS-1$
-
-               + getSQL_SUM_COLUMNS("tdFields", 3) //                //$NON-NLS-1$
-
-               + "FROM " + NL //                                     //$NON-NLS-1$
-
+               + "WITH tdFields AS " + NL //                         //$NON-NLS-1$
                + "(" + NL //                                         //$NON-NLS-1$
-
-               // Get distinct tours that match the criteria (parts 1 or 6 active at tour start)
                + "   SELECT DISTINCT" + NL //                        //$NON-NLS-1$
-
                + "      TourData.TourID," + NL //                    //$NON-NLS-1$
                + "      TourData.StartYear," + NL //                 //$NON-NLS-1$
 
@@ -95,14 +103,32 @@ public class TVITourBookRoot extends TVITourBookItem {
 
                + "   WHERE 1=1" + NL //                              //$NON-NLS-1$
 
-               + appFilter.getWhereClause() + NL //
+               + appFilter.getWhereClause()
                + partFilter_NOT.getSqlString()
 
-               + ") AS tdFields" + NL //                             //$NON-NLS-1$
+               + ")" + NL //                                         //$NON-NLS-1$
 
-               + sqlGroupBy
+               + "SELECT" + NL //                                    //$NON-NLS-1$
+               + "    StartYear," + NL //                            //$NON-NLS-1$
 
-               + "ORDER BY StartYear" + NL //               //$NON-NLS-1$
+               + getSQL_SUM_FIELD_ALIASES(UI.EMPTY_STRING, 3)
+
+               + "FROM (" + NL //                                    //$NON-NLS-1$
+               + "   SELECT" + NL //                                 //$NON-NLS-1$
+               + "      0 AS sort_order," + NL //                    //$NON-NLS-1$
+               + "      StartYear," + NL //                          //$NON-NLS-1$
+
+               + getSQL_SUM_COLUMNS(UI.EMPTY_STRING, 6)
+
+               + "    FROM tdFields" + NL //                         //$NON-NLS-1$
+               + "    GROUP BY StartYear" + NL //                    //$NON-NLS-1$
+
+               + sqlTotal
+
+               + ") AS results" + NL //                              //$NON-NLS-1$
+               + "ORDER BY " + NL //                                 //$NON-NLS-1$
+               + "   sort_order, " + NL //                           //$NON-NLS-1$
+               + "   StartYear" + NL //                              //$NON-NLS-1$
          ;
 
          final PreparedStatement prepStmt = conn.prepareStatement(sql);

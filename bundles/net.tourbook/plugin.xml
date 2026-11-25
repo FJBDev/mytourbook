@@ -407,7 +407,7 @@
       <page id="net.tourbook.preferences.PrefPagePhoto_PathConversion"
          class="net.tourbook.preferences.PrefPagePhoto_PathConversion"
          category="net.tourbook.preferences.PrefPagePhotoID"
-         name="%PrefPage_Photo_PathConversion"/>
+         name="%Pref_Page_Photo_PathConversion"/>
         
       <!--
          Proxy
@@ -1016,15 +1016,15 @@
          <!-- Database Consistency Check -->
          <command
             commandId   ="net.tourbook.command.dbTool.consistencyCheck"
-            label       ="%command_dbtool_consistency_check"
-            mnemonic    ="%command_dbtool_consistency_check_mnemonic"
+            label       ="%Command_DbTool_ConsistencyCheck"
+            mnemonic    ="%Command_DbTool_ConsistencyCheck_Mnemonic"
             style       ="push"/>
 
          <!-- Database Size Info -->
          <command
             commandId   ="net.tourbook.command.DbTool.CompressDatabase"
-            label       ="%Command_DbTool_CompressDatabase"
-            mnemonic    ="%Command_DbTool_CompressDatabase_Mnemonic"
+            label       ="%Command_DbTool_CompactDatabase"
+            mnemonic    ="%Command_DbTool_CompactDatabase_Mnemonic"
             style       ="push"/>
 
          <!-- Delete Fulltext Index Files -->
@@ -1512,13 +1512,13 @@
 
       <command
          id             ="net.tourbook.command.dbTool.consistencyCheck"
-         name           ="%command_dbtool_consistency_check"
+         name           ="%Command_DbTool_ConsistencyCheck"
          defaultHandler ="net.tourbook.ui.action.ActionHandler_Database_ConsistencyCheck"/>
 
       <command
          id             ="net.tourbook.command.DbTool.CompressDatabase"
-         name           ="%Command_DbTool_CompressDatabase"
-         defaultHandler ="net.tourbook.ui.action.ActionHandler_Database_Compress"/>
+         name           ="%Command_DbTool_CompactDatabase"
+         defaultHandler ="net.tourbook.ui.action.ActionHandler_Database_Compact"/>
 
       <command
          id             ="net.tourbook.command.DbTool.DeleteFulltextIndexFiles"

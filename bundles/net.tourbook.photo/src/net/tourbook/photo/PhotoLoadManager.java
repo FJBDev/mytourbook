@@ -97,7 +97,7 @@ public class PhotoLoadManager {
 
       final int availableProcessors = Runtime.getRuntime().availableProcessors();
 
-      System.out.println(UI.timeStamp() + "Number of processors: " + availableProcessors); //$NON-NLS-1$
+      System.out.println(UI.timeStamp() + " Number of processors: " + availableProcessors); //$NON-NLS-1$
 
       int numberOfProcessors = availableProcessors - 0; // 1 processor for HQ loading
       numberOfProcessors = Math.max(numberOfProcessors, 1);
@@ -286,6 +286,11 @@ public class PhotoLoadManager {
    public static int getImageQueueSize() {
       return _waitingQueueThumb.size();
    }
+
+   /**
+    * This is called to initialize static fields at the app startup
+    */
+   public static void init() {}
 
    public static boolean isImageLoadingError(final String imageFilePath) {
       return _photoWithLoadingError.containsKey(imageFilePath);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,86 +33,86 @@ import jakarta.persistence.EntityTransaction;
 
 class ActionRenameRefTour extends Action {
 
-   /**
-    *
-    */
-   private final ReferenceTourView fTourCatalogView;
+	/**
+	 *
+	 */
+	private final ReferenceTourView	fTourCatalogView;
 
-   public ActionRenameRefTour(final ReferenceTourView tourCatalogView) {
+	public ActionRenameRefTour(final ReferenceTourView tourCatalogView) {
 
-      super(Messages.RefTour_Action_RenameReferenceTour);
-      fTourCatalogView = tourCatalogView;
-   }
+		super(Messages.RefTour_Action_RenameReferenceTour);
+		fTourCatalogView = tourCatalogView;
+	}
 
-   @Override
-   public void run() {
+	@Override
+	public void run() {
 
 		if (TourManager.isTourModified()) {
 			return;
 		}
 
-      final Object selectedItem = (((ITreeSelection) fTourCatalogView.getTourViewer().getSelection()).getFirstElement());
+		final Object selectedItem = (((ITreeSelection) fTourCatalogView.getTourViewer().getSelection()).getFirstElement());
 
-      if (selectedItem instanceof TVIRefTour_RefTourItem) {
+		if (selectedItem instanceof TVIRefTour_RefTourItem) {
 
-         final TVIRefTour_RefTourItem ttiRefTour = (TVIRefTour_RefTourItem) selectedItem;
+			final TVIRefTour_RefTourItem ttiRefTour = (TVIRefTour_RefTourItem) selectedItem;
 
-         // ask for the reference tour name
-         final InputDialog dialog = new InputDialog(this.fTourCatalogView.getSite().getShell(),
-               Messages.RefTour_Dialog_RenameRefTour_Title,
-               Messages.RefTour_Dialog_RenameRefTour_Message,
-               ttiRefTour.label,
-               null);
+			// ask for the reference tour name
+			final InputDialog dialog = new InputDialog(this.fTourCatalogView.getSite().getShell(),
+					Messages.RefTour_Dialog_RenameRefTour_Title,
+					Messages.RefTour_Dialog_RenameRefTour_Message,
+					ttiRefTour.label,
+					null);
 
-         if (dialog.open() != Window.OK) {
-            return;
-         }
+			if (dialog.open() != Window.OK) {
+				return;
+			}
 
-         // get the ref tour from the database
-         final EntityManager em = TourDatabase.getInstance().getEntityManager();
-         final TourReference refTour = em.find(TourReference.class, ttiRefTour.refId);
+			// get the ref tour from the database
+			final EntityManager em = TourDatabase.getInstance().getEntityManager();
+			final TourReference refTour = em.find(TourReference.class, ttiRefTour.refId);
 
-         if (refTour != null) {
+			if (refTour != null) {
 
-            final EntityTransaction ts = em.getTransaction();
+				final EntityTransaction ts = em.getTransaction();
 
-            // persist the changed ref tour
-            try {
-               // change the label
-               refTour.setLabel(dialog.getValue());
+				// persist the changed ref tour
+				try {
+					// change the label
+					refTour.setLabel(dialog.getValue());
 
-               ts.begin();
-               em.merge(refTour);
-               ts.commit();
-            } catch (final Exception e) {
-               e.printStackTrace();
-            } finally {
-               if (ts.isActive()) {
-                  ts.rollback();
-               } else {
+					ts.begin();
+					em.merge(refTour);
+					ts.commit();
+				} catch (final Exception e) {
+					e.printStackTrace();
+				} finally {
+					if (ts.isActive()) {
+						ts.rollback();
+					} else {
 
-                  Display.getCurrent().asyncExec(new Runnable() {
-                     @Override
+						Display.getCurrent().asyncExec(new Runnable() {
+							@Override
                      public void run() {
 
-                        // refresh the tree viewer and resort the ref tours
-                        fTourCatalogView.reloadViewer();
+								// refresh the tree viewer and resort the ref tours
+								fTourCatalogView.reloadViewer();
 
-                        // ref tour is modified, fire event
-                        final Long tourId = refTour.getTourData().getTourId();
-                        TourManager.getInstance().removeTourFromCache(tourId);
+								// ref tour is modified, fire event
+								final Long tourId = refTour.getTourData().getTourId();
+								TourManager.getInstance().removeTourFromCache(tourId);
 
-                        TourManager.fireEventWithCustomData(
-                              TourEventId.UPDATE_UI,
-                              new SelectionTourId(tourId),
-                              null);
-                     }
-                  });
-               }
+								TourManager.fireEventWithCustomData(
+										TourEventId.UPDATE_UI,
+										new SelectionTourId(tourId),
+										null);
+							}
+						});
+					}
 
-               em.close();
-            }
-         }
-      }
-   }
+					em.close();
+				}
+			}
+		}
+	}
 }

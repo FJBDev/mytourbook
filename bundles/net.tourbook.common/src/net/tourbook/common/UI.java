@@ -157,6 +157,7 @@ public class UI {
 
    public static final String       COLON_SPACE                          = ": ";                                        //$NON-NLS-1$
    public static final String       COMMA_SPACE                          = ", ";                                        //$NON-NLS-1$
+   public static final String       COMMA_NEW_LINE                       = ",\n";                                       //$NON-NLS-1$
    /** This is not a real dash it's the negative sign character */
    public static final String       DASH                                 = "-";                                         //$NON-NLS-1$
    public static final String       DASH_WITH_SPACE                      = " - ";                                       //$NON-NLS-1$
@@ -836,6 +837,8 @@ public class UI {
 
    private static AtomicInteger          _statusMessageCounter                  = new AtomicInteger();
 
+   public static Display                 display;
+
    static {
 
 // SET_FORMATTING_OFF
@@ -869,7 +872,7 @@ public class UI {
        * Solution found here: "Sleak in RCP: Device is not tracking resource allocation"
        * https://en.it1352.com/article/fb82e2d4ec294636ba29f786e3335066.html
        */
-      PlatformUI.createDisplay();
+      display = PlatformUI.createDisplay();
 
       updateUnits();
 
@@ -912,8 +915,6 @@ public class UI {
       IMAGE_REGISTRY.put(IMAGE_CONFIGURE_COLUMNS,  CommonActivator.getImageDescriptor(CommonImages.CustomizeProfilesColumns));
       IMAGE_REGISTRY.put(IMAGE_EMPTY_16,           CommonActivator.getImageDescriptor(CommonImages.App_EmptyIcon_Placeholder));
 
-      final Display display = Display.getCurrent();
-
       SYS_COLOR_BLACK               = display.getSystemColor(SWT.COLOR_BLACK);
       SYS_COLOR_BLUE                = display.getSystemColor(SWT.COLOR_BLUE);
       SYS_COLOR_CYAN                = display.getSystemColor(SWT.COLOR_CYAN);
@@ -936,6 +937,8 @@ public class UI {
 
       TRANSFORM_OPACITY_MAX = _prefStore_Common.getInt(ICommonPreferences.TRANSFORM_VALUE_OPACITY_MAX);
 
+// SET_FORMATTING_ON
+
       // add prop listener
       _prefStore_Common.addPropertyChangeListener(propertyChangeEvent -> {
 
@@ -946,8 +949,6 @@ public class UI {
             TRANSFORM_OPACITY_MAX = (int) propertyChangeEvent.getNewValue();
          }
       });
-
-// SET_FORMATTING_ON
 
       final String commaSpace = Messages.Period_Format_CommaSpace; // ,_
       final String spaceANDspace = Messages.Period_Format_SpaceAndSpace; // _and_

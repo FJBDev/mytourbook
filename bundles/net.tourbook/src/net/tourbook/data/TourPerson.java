@@ -15,8 +15,6 @@
  *******************************************************************************/
 package net.tourbook.data;
 
-import static jakarta.persistence.CascadeType.ALL;
-
 import java.io.Serializable;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -34,9 +32,8 @@ import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.training.TrainingManager;
 
-import org.hibernate.annotations.Cascade;
-
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -152,8 +149,7 @@ public class TourPerson implements Comparable<Object>, Serializable {
    /**
     * Tour hr zones
     */
-   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourPerson")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourPerson")
    private Set<TourPersonHRZone>           hrZones                    = new HashSet<>();
 
    /**

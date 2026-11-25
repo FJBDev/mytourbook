@@ -15,9 +15,6 @@
  *******************************************************************************/
 package net.tourbook.data;
 
-import static jakarta.persistence.CascadeType.ALL;
-import static jakarta.persistence.FetchType.EAGER;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -104,10 +101,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -129,7 +125,6 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-
 import pixelitor.filters.curves.ToneCurve;
 import pixelitor.filters.curves.ToneCurvesFilter;
 
@@ -1018,15 +1013,13 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Photos for this tour
     */
-   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    private Set<TourPhoto>              tourPhotos                          = new HashSet<>();
 
    /**
     * Tour markers
     */
-   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true,  mappedBy = "tourData")
    @XmlElementWrapper(name = "TourMarkers")
    @XmlElement(name = "TourMarker")
    @JsonProperty
@@ -1035,38 +1028,34 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
 //   /**
 //    * Tour location points are wrapping {@link TourLocation}s with additional data
 //    */
-//   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-//   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+//   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
 //   @JsonProperty
 //   private Set<TourLocationPoint>      tourLocationPoints                = new HashSet<>();
 
    /**
     * Contains the tour way points
     */
-   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    @JsonProperty
    private  Set<TourWayPoint>          tourWayPoints                       = new HashSet<>();
 
    /**
     * Tour nutrition products
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    @JsonProperty
    private Set<TourNutritionProduct>   tourNutritionProducts               = new HashSet<>();
 
    /**
     * Reference tours
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    private  Set<TourReference>         tourReferences                      = new HashSet<>();
 
    /**
     * Tags
     */
-   @ManyToMany(fetch = EAGER)
+   @ManyToMany(fetch = FetchType.EAGER)
    @JoinTable(inverseJoinColumns = @JoinColumn(name = "TOURTAG_TagID", referencedColumnName = "TagID"))
    @JsonProperty
    private Set<TourTag>                tourTags                            = new HashSet<>();
@@ -1074,7 +1063,7 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Equipment
     */
-   @ManyToMany(fetch = EAGER)
+   @ManyToMany(fetch = FetchType.EAGER)
    @JoinTable(inverseJoinColumns = @JoinColumn(name = "Equipment_EquipmentId", referencedColumnName = "EquipmentId"))
    @JsonProperty
    private Set<Equipment>              equipment                          = new HashSet<>();
@@ -1082,16 +1071,8 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Sensor values
     */
-   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
-   @Cascade(CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    private Set<DeviceSensorValue>      deviceSensorValues                  = new HashSet<>();
-
-//   /**
-//    * SharedMarker
-//    */
-//   @ManyToMany(fetch = EAGER)
-//   @JoinTable(inverseJoinColumns = @JoinColumn(name = "SHAREDMARKER_SharedMarkerID", referencedColumnName = "SharedMarkerID"))
-//   private Set<SharedMarker>                           sharedMarker                  = new HashSet<SharedMarker>();
 
    /**
     * Category of the tour, e.g. bike, mountainbike, jogging, inlinescating
@@ -6700,103 +6681,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
          verticalSpeed_Down_Distance = flatGainLoss.distanceLoss;
          verticalSpeed_Down_Elevation = flatGainLoss.elevationLoss;
       }
-   }
-
-   /**
-    * Convert old int[] data series into float[], this was done in the previous versions in this
-    * method updateDatabase_019_to_020() but did not work in any cases
-    */
-   public void convertDataSeries() {
-
-      if (serieData.altitudeSerie != null) {
-
-         if (isDataSerieWithContent(serieData.altitudeSerie)) {
-            serieData.altitudeSerie20 = convertDataSeries_ToFloat(serieData.altitudeSerie, 0);
-         }
-
-         serieData.altitudeSerie = null;
-      }
-
-      if (serieData.cadenceSerie != null) {
-
-         if (isDataSerieWithContent(serieData.cadenceSerie)) {
-            serieData.cadenceSerie20 = convertDataSeries_ToFloat(serieData.cadenceSerie, 0);
-         }
-
-         serieData.cadenceSerie = null;
-      }
-
-      if (serieData.distanceSerie != null) {
-
-         if (isDataSerieWithContent(serieData.distanceSerie)) {
-            serieData.distanceSerie20 = convertDataSeries_ToFloat(serieData.distanceSerie, 0);
-         }
-
-         serieData.distanceSerie = null;
-      }
-
-      if (serieData.pulseSerie != null) {
-
-         if (isDataSerieWithContent(serieData.pulseSerie)) {
-            serieData.pulseSerie20 = convertDataSeries_ToFloat(serieData.pulseSerie, 0);
-         }
-
-         serieData.pulseSerie = null;
-      }
-
-      if (serieData.temperatureSerie != null) {
-
-         if (isDataSerieWithContent(serieData.temperatureSerie)) {
-            serieData.temperatureSerie20 = convertDataSeries_ToFloat(serieData.temperatureSerie, temperatureScale);
-         }
-
-         serieData.temperatureSerie = null;
-      }
-
-      /*
-       * Don't convert computed data series
-       */
-      if (serieData.speedSerie != null) {
-
-         if (isSpeedSerieFromDevice && isDataSerieWithContent(serieData.speedSerie)) {
-            serieData.speedSerie20 = convertDataSeries_ToFloat(serieData.speedSerie, 10);
-         }
-
-         serieData.speedSerie = null;
-      }
-
-      if (serieData.powerSerie != null) {
-
-         if (isPowerSerieFromDevice && isDataSerieWithContent(serieData.powerSerie)) {
-            serieData.powerSerie20 = convertDataSeries_ToFloat(serieData.powerSerie, 0);
-         }
-
-         serieData.powerSerie = null;
-      }
-
-      for (final TourMarker tourMarker : tourMarkers) {
-         tourMarker.updateDatabase_019_to_020();
-      }
-   }
-
-   private float[] convertDataSeries_ToFloat(final int[] intDataSerie, final int scale) {
-
-      if (intDataSerie == null) {
-         return null;
-      }
-
-      final float[] floatDataSerie = new float[intDataSerie.length];
-
-      for (int serieIndex = 0; serieIndex < intDataSerie.length; serieIndex++) {
-
-         final int intValue = intDataSerie[serieIndex];
-
-         floatDataSerie[serieIndex] = scale > 0
-               ? (float) intValue / scale
-               : (float) intValue;
-      }
-
-      return floatDataSerie;
    }
 
    /**
@@ -12655,24 +12539,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
       return tourReferences.size() > 0;
    }
 
-   /**
-    * @param dataSerie
-    *
-    * @return Returns <code>true</code> when the data serie contains at least one value which is > 0
-    */
-   private boolean isDataSerieWithContent(final int[] dataSerie) {
-
-//      return Arrays.stream(dataSerie).anyMatch(value -> value > 0);
-
-      for (final int dataValue : dataSerie) {
-         if (dataValue > 0) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    public boolean isDistanceSensorPresent() {
       return isDistanceFromSensor == 1;
    }
@@ -12999,10 +12865,6 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    @PostLoad
    @PostUpdate
    public void onPostLoad() {
-
-      if (TourDatabase.getDbVersionOnStartup() < 20) {
-         convertDataSeries();
-      }
 
       onPostLoad_GetDataSeries();
    }

@@ -222,29 +222,8 @@ public class Messages extends NLS {
    public static String        App_Cadence_Rpm;
    public static String        App_Cadence_Spm;
 
-   public static String        App_Db_Compress_Button_CompressByCopying;
-   public static String        App_Db_Compress_Button_CompressByCopying_Tooltip;
-   public static String        App_Db_Compress_Button_CompressDatabase;
-   public static String        App_Db_Compress_Button_CompressInplace;
-   public static String        App_Db_Compress_Button_CompressInplace_Tooltip;
-   public static String        App_Db_Compress_DialogTitle;
-   public static String        App_Db_Compress_Dialog_ConfirmCompress_Message;
-   public static String        App_Db_Compress_LogHeader_After;
-   public static String        App_Db_Compress_LogHeader_Before;
-   public static String        App_Db_Compress_LogHeader_Difference;
-   public static String        App_Db_Compress_LogLabel_After;
-   public static String        App_Db_Compress_LogLabel_Before;
-   public static String        App_Db_Compress_LogLabel_Difference;
-   public static String        App_Db_Compress_LogLabel_Index;
-   public static String        App_Db_Compress_LogLabel_NotUsed;
-   public static String        App_Db_Compress_LogLabel_Table;
-   public static String        App_Db_Compress_LogLabel_Totals;
-   public static String        App_Db_Compress_LogLabel_Used;
-   public static String        App_Db_Compress_Monitor_SubTask;
-   public static String        App_Db_Compress_Monitor_Task;
    public static String        app_db_consistencyCheck_checkFailed;
    public static String        app_db_consistencyCheck_checkIsOK;
-   public static String        app_db_consistencyCheck_dlgTitle;
 
    public static String        App_Default_PersonFirstName;
 
@@ -385,6 +364,10 @@ public class Messages extends NLS {
 
    public static String        Column_SortInfo_CanNotSort;
    public static String        Column_SortInfo_CanSort;
+
+   public static String        CompactDb_H2_Message_CompactingDone;
+   public static String        CompactDb_H2_Message_CompactingFile;
+   public static String        CompactDb_H2_Message_H2DbIsLocked;
 
    public static String        Compare_Result_Action_check_selected_tours;
    public static String        Compare_Result_Action_remove_save_result;
@@ -541,6 +524,27 @@ public class Messages extends NLS {
    public static String        Dialog_BeverageContainer_Label_Name;
    public static String        Dialog_BeverageContainer_Title_Create;
    public static String        Dialog_BeverageContainer_Title_Edit;
+
+   public static String        Dialog_CompactDb_Action_Compact;
+   public static String        Dialog_CompactDb_Action_RestartAndCompact;
+   public static String        Dialog_CompactDb_Button_Compact;
+   public static String        Dialog_CompactDb_Button_Compact_Tooltip;
+   public static String        Dialog_CompactDb_Message_BackupWarning;
+   public static String        Dialog_CompactDb_Message_CompactAndRestart;
+   public static String        Dialog_CompactDb_Message_OnlyForH2;
+   public static String        Dialog_CompactDb_Title;
+
+   public static String        Dialog_ConsistencyCheck_Action_RestartAndCheck;
+   public static String        Dialog_ConsistencyCheck_Message_IsVerified;
+   public static String        Dialog_ConsistencyCheck_Message_RunAfterRestart;
+   public static String        Dialog_ConsistencyCheck_Message_OnlyForH2;
+   public static String        Dialog_ConsistencyCheck_Stage1;
+   public static String        Dialog_ConsistencyCheck_Stage1_OpenStore;
+   public static String        Dialog_ConsistencyCheck_Stage2;
+   public static String        Dialog_ConsistencyCheck_Stage2_StreamDb;
+   public static String        Dialog_ConsistencyCheck_Stage3;
+   public static String        Dialog_ConsistencyCheck_Stage3_Scan2ndIndex;
+   public static String        Dialog_ConsistencyCheck_Title;
 
    public static String        Dialog_CreateTourMarkers_Button_CreateMarkers;
    public static String        Dialog_CreateTourMarkers_Button_ValidateMarkers;
@@ -1732,6 +1736,12 @@ public class Messages extends NLS {
    public static String        Map_Points_LabelTime_None;
    public static String        Map_Points_LabelTime_Time;
 
+   public static String        Migrate_DerbyToH2_Action_MigrateTourDb;
+   public static String        Migrate_DerbyToH2_Dialog_Message_ConfirmMigration;
+   public static String        Migrate_DerbyToH2_Dialog_Message_SuccessfulMigration;
+   public static String        Migrate_DerbyToH2_Dialog_Message_WrongDbVersion;
+   public static String        Migrate_DerbyToH2_Dialog_Migrate_Title;
+
    public static String        Model_Player_Button_MapModel_Tooltip;
    public static String        Model_Player_Button_MapModelCursor_Tooltip;
    public static String        Model_Player_Button_Pause_Tooltip;
@@ -2229,10 +2239,8 @@ public class Messages extends NLS {
    public static String        Pref_TourDb_Dialog_TourDbSystemIsModified_Message;
    public static String        Pref_TourDb_Dialog_TourDbSystemIsModified_Title;
    public static String        Pref_TourDb_Group_TourDB;
-   public static String        Pref_TourDb_Radio_DbSystem_Embedded;
-   public static String        Pref_TourDb_Radio_DbSystem_Embedded_Tooltip;
-   public static String        Pref_TourDb_Radio_DbSystem_Server;
-   public static String        Pref_TourDb_Radio_DbSystem_Server_Tooltip;
+   public static String        Pref_TourDb_Radio_External;
+   public static String        Pref_TourDb_Radio_Internal;
 
    public static String        pref_tourtag_btn_new_tag;
    public static String        pref_tourtag_btn_new_tag_category;
@@ -3598,21 +3606,6 @@ public class Messages extends NLS {
    public static String        Tour_Database_Dialog_ValidateFields_Message;
    public static String        Tour_Database_Dialog_ValidateFields_Title;
    public static String        Tour_Database_load_all_tours;
-   public static String        Tour_Database_PostUpdate011_SetTourCreateTime;
-   public static String        Tour_Database_PostUpdate020_ConvertIntToFloat;
-   public static String        Tour_Database_PostUpdate021_SetTourStartEndTime;
-   public static String        Tour_Database_PostUpdate023_SetTimeSliceNumbers;
-   public static String        Tour_Database_PostUpdate025_SetMarkerFields;
-   public static String        Tour_Database_PostUpdate_028_SetAvgPulse;
-   public static String        Tour_Database_PostUpdate_029_SetImportFileName;
-   public static String        Tour_Database_PostUpdate_032_SetTourTimeZone;
-   public static String        Tour_Database_PostUpdate_034_SetTourGeoParts;
-   public static String        Tour_Database_PostUpdate_037_SetHasGeoData;
-   public static String        Tour_Database_PostUpdate_040_SetTourRecordingTime;
-   public static String        Tour_Database_PostUpdate_043_LatLonE6;
-   public static String        Tour_Database_PostUpdate_047_Weather;
-   public static String        Tour_Database_PostUpdate_050_ComparedTour;
-   public static String        Tour_Database_PostUpdate_051_ComparedTour;
    public static String        Tour_Database_PostUpdate;
    public static String        Tour_Database_TourSaveError;
    public static String        Tour_Database_Update;

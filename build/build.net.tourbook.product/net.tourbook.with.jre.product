@@ -4,7 +4,7 @@
 <product 
 
    name              ="MyTourbook Product - With Java Runtime" 
-   version           ="26.11.0.qualifier" 
+   version           ="26.12.0.qualifier" 
 
    id                ="net.tourbook.productWithJRE" 
    uid               ="net.tourbook.productWithJRE" 
@@ -99,6 +99,7 @@
 
       <feature id="feature.net.tourbook.ext.eclipse"        installMode="root"/>
       <feature id="feature.net.tourbook.ext.eclipse.nl"     installMode="root"/>
+      <feature id="feature.net.tourbook.ext.h2"             installMode="root"/>
       <feature id="feature.net.tourbook.ext.derby"          installMode="root"/>
       <feature id="feature.net.tourbook.ext.jpa"            installMode="root"/>
       <feature id="feature.net.tourbook.ext.jars"           installMode="root"/>

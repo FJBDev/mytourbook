@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -181,6 +181,7 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
     * Distance field before db version 20, this field is required for data conversion AND <b>to load
     * entities</b> !!!
     */
+   @SuppressWarnings("unused")
    private int            distance        = -1;
 
    /**
@@ -1143,18 +1144,6 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
       }
 
       return null;
-   }
-
-   /**
-    * Convert fields from old to new data type.
-    */
-   void updateDatabase_019_to_020() {
-
-      if (distance > 0) {
-
-         distance20 = distance;
-         distance = 0;
-      }
    }
 
 }
