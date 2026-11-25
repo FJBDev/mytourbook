@@ -298,6 +298,7 @@ public class ElevationCompareManager {
     * @param compareTourData
     *           Tour data of the tour which will be compared
     * @param compareTourData2
+    *
     * @return returns the start index for the ref tour in the compare tour
     */
    private static TVIElevationCompareResult_ComparedTour compareTours_OneTour(final RefTourItem refTour_Item,
@@ -502,6 +503,7 @@ public class ElevationCompareManager {
 
    /**
     * @param refId
+    *
     * @return Returns a {@link TVIRefTour_RefTourItem} for the refId or <code>null</code> when not
     *         available
     */
@@ -529,6 +531,7 @@ public class ElevationCompareManager {
 
    /**
     * @param modifiedTours
+    *
     * @return Returns an expression to select tour id's in the WHERE clause
     */
    private static String createRefId_IN(final ArrayList<Long> allSelectedRefTourIds) {
@@ -558,6 +561,7 @@ public class ElevationCompareManager {
     * Create {@link RefTourItem}'s for all provided ref tour id's
     *
     * @param allRefTourIds
+    *
     * @return
     */
    static ArrayList<RefTourItem> createRefTourItems(final ArrayList<Long> allRefTourIds) {
@@ -636,6 +640,7 @@ public class ElevationCompareManager {
    /**
     * @param refId
     *           Reference Id
+    *
     * @return Returns all compared tours for the reference tour with the <code>refId</code> which
     *         are saved in the database
     */
@@ -695,6 +700,7 @@ public class ElevationCompareManager {
     * @param isNextTour
     *           When <code>true</code> then navigate to the next tour, when <code>false</code>
     *           then navigate to the previous tour.
+    *
     * @return Returns the navigated tour or <code>null</code> when there is no next/previous tour.
     */
    static Object navigateTour(final boolean isNextTour) {
