@@ -1037,7 +1037,7 @@ public class TourMarker implements Cloneable, Comparable<Object>, IXmlSerializab
       this.type = markerType;
    }
 
-   public void setupDeepClone(final TourData tourDataFromClone) {
+   void setupDeepClone(final TourData tourDataFromClone) {
 
       _createId = _createCounter.incrementAndGet();
 
