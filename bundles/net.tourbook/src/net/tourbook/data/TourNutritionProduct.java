@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
+=======
 import net.tourbook.Messages;
 import net.tourbook.OtherMessages;
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.common.UI;
 import net.tourbook.common.util.StringUtils;
 import net.tourbook.common.util.Util;
@@ -34,6 +37,15 @@ import net.tourbook.nutrition.openfoodfacts.Product;
 import net.tourbook.tour.TourLogManager;
 
 import org.eclipse.osgi.util.NLS;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

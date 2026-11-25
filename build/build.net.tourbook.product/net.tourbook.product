@@ -101,8 +101,12 @@
       <feature id="feature.net.tourbook.ext.eclipse.nl"     installMode="root"/>
       <feature id="feature.net.tourbook.ext.h2"             installMode="root"/>
       <feature id="feature.net.tourbook.ext.derby"          installMode="root"/>
+<<<<<<< HEAD
+=======
       <feature id="feature.net.tourbook.ext.jpa"            installMode="root"/>
+>>>>>>> refs/remotes/Wolfgang/main
       <feature id="feature.net.tourbook.ext.jars"           installMode="root"/>
+      <feature id="feature.net.tourbook.ext.jpa"            installMode="root"/>
       <feature id="feature.net.tourbook.ext.rxtx"           installMode="root"/>
       <feature id="feature.net.tourbook.ext.vtm"            installMode="root"/>
       <feature id="feature.net.tourbook.ext.worldwind"      installMode="root"/>

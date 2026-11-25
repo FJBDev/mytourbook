@@ -112,9 +112,12 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import jakarta.persistence.EntityManager;
 
+<<<<<<< HEAD
+=======
 /**
  * Manage {@link TourTag} and {@link TourTagCategory}
  */
+>>>>>>> refs/remotes/Wolfgang/main
 public class PrefPageTags extends PreferencePage implements IWorkbenchPreferencePage, ITourViewer, ITreeViewer {
 
    public static final String            ID            = "net.tourbook.preferences.PrefPageTags"; //$NON-NLS-1$

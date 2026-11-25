@@ -15,11 +15,28 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+<<<<<<< HEAD
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.FetchType.LAZY;
+
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
+import jakarta.persistence.Basic;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Transient;
+
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.database.FIELD_VALIDATION;

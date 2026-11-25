@@ -5,17 +5,27 @@ Bundle-SymbolicName: net.tourbook.tests;singleton:=true
 Bundle-Version: 26.12.0.qualifier
 Require-Bundle: net.tourbook,
  net.tourbook.ext.jars,
+<<<<<<< HEAD
+=======
  net.tourbook.ext.jpa,
+>>>>>>> refs/remotes/Wolfgang/main
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
  org.opentest4j,
+ net.tourbook.ext.jpa,
  junit-jupiter-api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
+<<<<<<< HEAD
+ hibernate-core-6.4.0.Final.jar,
+ jsonassert-1.5.1.jar,
+ xmlunit-core-2.10.0.jar,
+=======
  hibernate-entitymanager.jar,
  jsonassert-2.0-rc1.jar,
  xmlunit-core-2.14.0.jar,
+>>>>>>> refs/remotes/Wolfgang/main
  HttpClientMock-1.0.0.jar,
  hamcrest-3.0.jar
 Bundle-Vendor: MyTourbook

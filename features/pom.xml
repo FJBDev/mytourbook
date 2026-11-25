@@ -22,9 +22,14 @@
       <module>feature.net.tourbook.ext.h2</module>
       <module>feature.net.tourbook.ext.derby</module>
       <module>feature.net.tourbook.ext.eclipse</module>
+<<<<<<< HEAD
+      <module>feature.net.tourbook.ext.eclipse.nl</module>
+=======
       <module>feature.net.tourbook.ext.eclipse.nl</module> 
       <module>feature.net.tourbook.ext.jpa</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>feature.net.tourbook.ext.jars</module>
+      <module>feature.net.tourbook.ext.jpa</module>
       <module>feature.net.tourbook.ext.rxtx</module>
       <module>feature.net.tourbook.ext.vtm</module>
       <module>feature.net.tourbook.ext.worldwind</module>

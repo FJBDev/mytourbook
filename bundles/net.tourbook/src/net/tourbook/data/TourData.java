@@ -15,6 +15,12 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+<<<<<<< HEAD
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.FetchType.EAGER;
+
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -44,7 +50,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
+=======
 import java.util.stream.Collectors;
+>>>>>>> refs/remotes/Wolfgang/main
 
 import net.tourbook.Messages;
 import net.tourbook.algorithm.DPPoint;
@@ -101,6 +110,33 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+<<<<<<< HEAD
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.Transient;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
+=======
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -127,6 +163,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import pixelitor.filters.curves.ToneCurve;
 import pixelitor.filters.curves.ToneCurvesFilter;
+>>>>>>> refs/remotes/Wolfgang/main
 
 /**
  * Tour data contains all data for one tour, an entity is saved in the database
@@ -1013,13 +1050,23 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Photos for this tour
     */
+<<<<<<< HEAD
+   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(CascadeType.DELETE_ORPHAN)
+=======
    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
+>>>>>>> refs/remotes/Wolfgang/main
    private Set<TourPhoto>              tourPhotos                          = new HashSet<>();
 
    /**
     * Tour markers
     */
+<<<<<<< HEAD
+   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(CascadeType.DELETE_ORPHAN)
+=======
    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true,  mappedBy = "tourData")
+>>>>>>> refs/remotes/Wolfgang/main
    @XmlElementWrapper(name = "TourMarkers")
    @XmlElement(name = "TourMarker")
    @JsonProperty
@@ -1035,7 +1082,12 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Contains the tour way points
     */
+<<<<<<< HEAD
+   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(CascadeType.DELETE_ORPHAN)
+=======
    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
+>>>>>>> refs/remotes/Wolfgang/main
    @JsonProperty
    private  Set<TourWayPoint>          tourWayPoints                       = new HashSet<>();
 
@@ -1049,8 +1101,14 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Reference tours
     */
+<<<<<<< HEAD
+   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(CascadeType.DELETE_ORPHAN)
+   private  Set<TourReference>    tourReferences                     = new HashSet<>();
+=======
    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourData")
    private  Set<TourReference>         tourReferences                      = new HashSet<>();
+>>>>>>> refs/remotes/Wolfgang/main
 
    /**
     * Tags
@@ -1063,10 +1121,16 @@ public class TourData implements Comparable<Object>, IXmlSerializable, Serializa
    /**
     * Equipment
     */
+<<<<<<< HEAD
+   @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "tourData")
+   @Cascade(CascadeType.DELETE_ORPHAN)
+   private Set<DeviceSensorValue>      deviceSensorValues                  = new HashSet<>();
+=======
    @ManyToMany(fetch = FetchType.EAGER)
    @JoinTable(inverseJoinColumns = @JoinColumn(name = "Equipment_EquipmentId", referencedColumnName = "EquipmentId"))
    @JsonProperty
    private Set<Equipment>              equipment                          = new HashSet<>();
+>>>>>>> refs/remotes/Wolfgang/main
 
    /**
     * Sensor values

@@ -77,7 +77,7 @@ public class ElevationCompareManager {
 
    //
    private static ArrayList<RefTourItem>                                  _allRefTourItems_FromLastCompare;
-   private final static ArrayList<TVIElevationCompareResult_ComparedTour> _allComparedTourItems = new ArrayList<>();
+   private static final ArrayList<TVIElevationCompareResult_ComparedTour> _allComparedTourItems = new ArrayList<>();
 
    //
    private static ThreadPoolExecutor       _compareTour_Executor;

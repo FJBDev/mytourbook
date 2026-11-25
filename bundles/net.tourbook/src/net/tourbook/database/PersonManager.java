@@ -26,7 +26,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
 import jakarta.persistence.EntityManager;
+<<<<<<< HEAD
+import jakarta.persistence.Query;
+=======
 import jakarta.persistence.TypedQuery;
+>>>>>>> refs/remotes/Wolfgang/main
 
 public class PersonManager {
 

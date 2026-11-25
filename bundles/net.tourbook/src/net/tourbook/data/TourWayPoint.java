@@ -21,6 +21,17 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+
+import net.tourbook.Images;
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.Messages;
 import net.tourbook.common.UI;
 import net.tourbook.common.map.GeoPosition;

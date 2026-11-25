@@ -15,7 +15,11 @@
  *******************************************************************************/
 package net.tourbook.tag;
 
+<<<<<<< HEAD
+import java.util.ArrayList;
+=======
 import java.util.List;
+>>>>>>> refs/remotes/Wolfgang/main
 
 import net.tourbook.common.UI;
 import net.tourbook.data.TourTag;
@@ -25,7 +29,11 @@ import net.tourbook.database.TourDatabase;
 import org.eclipse.jface.viewers.TreeViewer;
 
 import jakarta.persistence.EntityManager;
+<<<<<<< HEAD
+import jakarta.persistence.Query;
+=======
 import jakarta.persistence.TypedQuery;
+>>>>>>> refs/remotes/Wolfgang/main
 
 public class TVIPrefTagRoot extends TVIPrefTagItem {
 

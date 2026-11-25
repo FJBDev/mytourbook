@@ -28,8 +28,11 @@ import java.net.URLConnection;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+<<<<<<< HEAD
+=======
 import java.util.List;
 import java.util.Properties;
+>>>>>>> refs/remotes/Wolfgang/main
 
 import net.tourbook.cloud.oauth2.OAuth2Utils;
 import net.tourbook.cloud.oauth2.TokensRetrievalHandler;
@@ -44,11 +47,16 @@ import net.tourbook.device.gpx.GPXDeviceDataReader;
 import net.tourbook.importdata.ImportState_File;
 import net.tourbook.importdata.ImportState_Process;
 
+<<<<<<< HEAD
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+=======
 import org.hibernate.jpa.HibernatePersistenceConfiguration;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+>>>>>>> refs/remotes/Wolfgang/main
 
 public class Initializer {
 
@@ -161,6 +169,14 @@ public class Initializer {
 
    public static void initializeDatabase() {
 
+<<<<<<< HEAD
+      try (EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tourdatabasetests")) {
+
+         entityManagerFactory.createEntityManager();
+
+      } catch (final Exception e) {
+         // Nothing to do
+=======
       if (_isInitDb) {
          return;
       }
@@ -218,6 +234,7 @@ public class Initializer {
       } catch (final Exception e) {
 
          e.printStackTrace();
+>>>>>>> refs/remotes/Wolfgang/main
       }
    }
 

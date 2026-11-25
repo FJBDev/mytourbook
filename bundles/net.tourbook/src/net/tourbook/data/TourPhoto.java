@@ -22,6 +22,16 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.common.UI;
 import net.tourbook.common.time.TimeTools;
 import net.tourbook.common.util.StatusUtil;

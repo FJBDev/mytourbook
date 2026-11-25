@@ -41,12 +41,19 @@
       <module>net.tourbook.ui.tests</module>
       
       <module>net.tourbook.ext.apache</module>
+<<<<<<< HEAD
+=======
       <module>net.tourbook.ext.h2</module>
       <module>net.tourbook.ext.jpa</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>net.tourbook.ext.geoclipse</module>
       <module>net.tourbook.ext.jars</module>
       <module>net.tourbook.ext.jars.printing</module>
+<<<<<<< HEAD
+      <module>net.tourbook.ext.jpa</module>
+=======
       <module>net.tourbook.ext.rxtx_2.2</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>net.tourbook.ext.rxtx.linux64_2.2</module>
       <module>net.tourbook.ext.rxtx.macosx_2.2</module>
       <module>net.tourbook.ext.rxtx.win64_2.2</module>
