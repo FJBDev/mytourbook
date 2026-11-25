@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Frédéric Bard
+ * Copyright (C) 2024, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.nutrition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,7 +32,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
 
+import net.tourbook.Messages;
 import net.tourbook.application.ApplicationVersion;
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
@@ -45,7 +48,12 @@ import net.tourbook.preferences.ITourbookPreferences;
 import net.tourbook.web.WEB;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 
 public class NutritionUtils {
 
@@ -81,16 +89,33 @@ public class NutritionUtils {
    public static String computeAverageCaloriesPerHour(final TourData tourData) {
 
       final int totalCalories = getTotalCalories(tourData.getTourNutritionProducts());
-      final float averageCaloriesPerHour = computeAveragePerHour(tourData, totalCalories);
-      final String averageCaloriesPerHourFormatted = FormatManager.formatNumber_0(averageCaloriesPerHour);
+      final float averageCaloriesPerHour = computeAveragePerHour(
+            tourData.getTourDeviceTime_Elapsed(),
+            totalCalories);
+      final String averageCaloriesPerHourFormatted =
+            FormatManager.formatNumber_0(averageCaloriesPerHour);
 
       return averageCaloriesPerHourFormatted;
+   }
+
+   public static String computeAverageCarbohydratesPerHour(final TourData tourData) {
+
+      final int totalCarbohydrates = getTotalCarbohydrates(tourData.getTourNutritionProducts());
+      final float averageCarbohydratesPerHour = computeAveragePerHour(
+            tourData.getTourDeviceTime_Elapsed(),
+            totalCarbohydrates);
+      final String averageCarbohydratesPerHourFormatted =
+            FormatManager.formatNumber_0(averageCarbohydratesPerHour);
+
+      return averageCarbohydratesPerHourFormatted;
    }
 
    public static String computeAverageFluidsPerHour(final TourData tourData) {
 
       final float totalFluids = getTotalFluids(tourData.getTourNutritionProducts()) * 100 / 100;
-      final float averageFluidsPerHour = computeAveragePerHour(tourData, totalFluids);
+      final float averageFluidsPerHour = computeAveragePerHour(
+            tourData.getTourDeviceTime_Elapsed(),
+            totalFluids);
 
       _nf2.setMinimumFractionDigits(0);
       _nf2.setMaximumFractionDigits(2);
@@ -99,9 +124,7 @@ public class NutritionUtils {
       return averageFluidsPerHourFormatted.equals("0") ? UI.EMPTY_STRING : averageFluidsPerHourFormatted; //$NON-NLS-1$
    }
 
-   private static float computeAveragePerHour(final TourData tourData, final float totalAmount) {
-
-      long tourDeviceTime_Elapsed = tourData.getTourDeviceTime_Elapsed();
+   public static float computeAveragePerHour(long tourDeviceTime_Elapsed, final float totalAmount) {
 
       if (tourDeviceTime_Elapsed > 7200 && _prefStore.getBoolean(ITourbookPreferences.NUTRITION_IGNORE_FIRST_HOUR)) {
          tourDeviceTime_Elapsed -= 3600;
@@ -122,38 +145,35 @@ public class NutritionUtils {
       return averageSodiumPerLiterFormatted;
    }
 
-   private static List<Product> deserializeResponse(final String body, final ProductSearchType productSearchType) {
+   private static List<Product> deserializeResponse(final String body,
+                                                    final ProductSearchType productSearchType)
+         throws JsonProcessingException {
 
       final ObjectMapper mapper = new ObjectMapper();
+      mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
       List<Product> deserializedProductsResults = new ArrayList<>();
 
-      try {
+      if (productSearchType == ProductSearchType.ByCode) {
 
-         if (productSearchType == ProductSearchType.ByCode) {
+         String productResult;
+         productResult = mapper.readValue(body, JsonNode.class)
+               .get("product") //$NON-NLS-1$
+               .toString();
+         deserializedProductsResults.add(mapper.readValue(productResult,
+               new TypeReference<Product>() {}));
 
-            String productResult;
-            productResult = mapper.readValue(body, JsonNode.class)
-                  .get("product") //$NON-NLS-1$
-                  .toString();
-            deserializedProductsResults.add(mapper.readValue(productResult,
-                  new TypeReference<Product>() {}));
+      } else if (productSearchType == ProductSearchType.ByName) {
 
-         } else if (productSearchType == ProductSearchType.ByName) {
+         final String productsResults = mapper.readValue(body, JsonNode.class)
+               .get("products") //$NON-NLS-1$
+               .toString();
+         deserializedProductsResults = mapper.readValue(productsResults,
+               new TypeReference<List<Product>>() {});
 
-            final String productsResults = mapper.readValue(body, JsonNode.class)
-                  .get("products") //$NON-NLS-1$
-                  .toString();
-            deserializedProductsResults = mapper.readValue(productsResults,
-                  new TypeReference<List<Product>>() {});
-
-         }
-      } catch (final JsonProcessingException e) {
-         StatusUtil.log(e);
       }
 
       return deserializedProductsResults;
-
    }
 
    public static int getTotalCalories(final Set<TourNutritionProduct> tourNutritionProducts) {
@@ -162,21 +182,60 @@ public class NutritionUtils {
 
       for (final TourNutritionProduct tourNutritionProduct : tourNutritionProducts) {
 
+         float calories = 0f;
+
          switch (tourNutritionProduct.getQuantityType()) {
 
          case Servings:
 
-            totalCalories += tourNutritionProduct.getCalories_Serving() * tourNutritionProduct.getConsumedQuantity();
+            calories = tourNutritionProduct.getCalories_Serving() * tourNutritionProduct.getConsumedQuantity();
             break;
 
          case Products:
 
-            totalCalories += tourNutritionProduct.getCalories() * tourNutritionProduct.getConsumedQuantity();
+            calories = tourNutritionProduct.getCalories() * tourNutritionProduct.getConsumedQuantity();
             break;
          }
+
+         if (tourNutritionProduct.getTourBeverageContainer() != null) {
+            calories *= tourNutritionProduct.getContainersConsumed();
+         }
+
+         totalCalories += calories;
       }
 
       return totalCalories;
+   }
+
+   public static int getTotalCarbohydrates(final Set<TourNutritionProduct> tourNutritionProducts) {
+
+      int totalCarbohydrates = 0;
+
+      for (final TourNutritionProduct tourNutritionProduct : tourNutritionProducts) {
+
+         float carbohydrates = 0f;
+
+         switch (tourNutritionProduct.getQuantityType()) {
+
+         case Servings:
+
+            carbohydrates = tourNutritionProduct.getCarbohydrates_Serving() * tourNutritionProduct.getConsumedQuantity();
+            break;
+
+         case Products:
+
+            carbohydrates = tourNutritionProduct.getCarbohydrates() * tourNutritionProduct.getConsumedQuantity();
+            break;
+         }
+
+         if (tourNutritionProduct.getTourBeverageContainer() != null) {
+            carbohydrates *= tourNutritionProduct.getContainersConsumed();
+         }
+
+         totalCarbohydrates += carbohydrates;
+      }
+
+      return totalCarbohydrates;
    }
 
    /**
@@ -222,21 +281,42 @@ public class NutritionUtils {
 
       for (final TourNutritionProduct tourNutritionProduct : tourNutritionProducts) {
 
+         float sodium = 0f;
+
          switch (tourNutritionProduct.getQuantityType()) {
 
          case Servings:
 
-            totalSodium += tourNutritionProduct.getSodium_Serving() * tourNutritionProduct.getConsumedQuantity();
+            sodium = tourNutritionProduct.getSodium_Serving() * tourNutritionProduct.getConsumedQuantity();
             break;
 
          case Products:
 
-            totalSodium += tourNutritionProduct.getSodium() * tourNutritionProduct.getConsumedQuantity();
+            sodium = tourNutritionProduct.getSodium() * tourNutritionProduct.getConsumedQuantity();
             break;
          }
+
+         if (tourNutritionProduct.getTourBeverageContainer() != null) {
+            sodium *= tourNutritionProduct.getContainersConsumed();
+         }
+
+         totalSodium += sodium;
       }
 
       return totalSodium;
+   }
+
+   /*
+    * Check if a product doesn't already exist for a given tour.
+    * An existing product can only be added when the existing ones are
+    * attached to a beverage container
+    */
+   public static boolean isProductAlreadyPresent(final String productCode,
+                                                 final Set<TourNutritionProduct> tourNutritionProducts) {
+
+      return tourNutritionProducts.stream().anyMatch(
+            tourNutritionProduct -> tourNutritionProduct.getProductCode().equals(productCode) &&
+                  tourNutritionProduct.getTourBeverageContainer() == null);
    }
 
    public static void openProductWebPage(final String productCode) {
@@ -246,7 +326,8 @@ public class NutritionUtils {
       }
    }
 
-   static List<Product> searchProduct(final String searchText, final ProductSearchType productSearchType) {
+   public static List<Product> searchProduct(final String searchText,
+                                             final ProductSearchType productSearchType) {
 
       String searchUrl = UI.EMPTY_STRING;
 
@@ -257,7 +338,8 @@ public class NutritionUtils {
          break;
 
       case ByName:
-         searchUrl = OPENFOODFACTS_SEARCH_BY_NAME_URL + searchText.replace(UI.SPACE1, UI.SYMBOL_PLUS);
+         searchUrl = OPENFOODFACTS_SEARCH_BY_NAME_URL +
+               searchText.replace(UI.SPACE1, UI.SYMBOL_PLUS);
          break;
       }
 
@@ -268,17 +350,51 @@ public class NutritionUtils {
             .build();
 
       try {
-         final HttpResponse<String> response = _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+         final HttpResponse<String> response =
+               _httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-         if (response.statusCode() == HttpURLConnection.HTTP_OK && net.tourbook.common.util.StringUtils.hasContent(response.body())) {
+         final int statusCode = response.statusCode();
+         final String responseBody = response.body();
+
+         if (statusCode == HttpURLConnection.HTTP_OK &&
+               net.tourbook.common.util.StringUtils.hasContent(responseBody)) {
 
             return deserializeResponse(response.body(), productSearchType);
 
          } else {
-            StatusUtil.logError(response.body());
+
+            // Anything else than 200 is an error for this OpenFoodFacts endpoint
+            throw new RejectedExecutionException("Response from server - " + //$NON-NLS-1$
+                  statusCode + ": " + //$NON-NLS-1$
+                  responseBody);
          }
+      } catch (JsonProcessingException | RejectedExecutionException e) {
+
+         final IStatus status = new Status(
+               IStatus.ERROR,
+               TourbookPlugin.PLUGIN_ID,
+               e.getMessage(),
+               null);
+
+         //Use a multiStatus as, otherwise, long errors create windows that are too
+         //big to be displayed in the error dialog
+         final MultiStatus multiStatus = new MultiStatus(
+               TourbookPlugin.PLUGIN_ID,
+               IStatus.ERROR,
+               new IStatus[] { status },
+               UI.EMPTY_STRING,
+               null);
+         Display.getDefault().syncExec(() -> ErrorDialog.openError(
+               Display.getCurrent().getActiveShell(),
+               Messages.Dialog_SearchProduct_Title,
+               Messages.Dialog_SearchProduct_Label_Error_Message,
+               multiStatus));
+
+         StatusUtil.logError(e.getMessage());
+
       } catch (IOException | InterruptedException e) {
-         StatusUtil.log(e);
+
+         StatusUtil.logError(e.getMessage());
          Thread.currentThread().interrupt();
       }
 

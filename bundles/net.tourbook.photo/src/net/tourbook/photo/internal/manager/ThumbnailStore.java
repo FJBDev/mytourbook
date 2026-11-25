@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,6 +35,7 @@ import net.tourbook.photo.Photo;
 import net.tourbook.photo.PhotoActivator;
 import net.tourbook.photo.internal.Messages;
 
+import org.apache.commons.imaging.ImageFormats;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -53,14 +54,17 @@ public class ThumbnailStore {
 
    private static final long   MBYTE                         = 1024 * 1024L;
 
-   static final String         THUMBNAIL_IMAGE_EXTENSION_JPG = "jpg";             //$NON-NLS-1$
+   private static final String THUMBNAIL_IMAGE_EXTENSION_JPG = "jpg";             //$NON-NLS-1$
+
+   /** The png format is necessary because jpg do not support transparency */
+   private static final String THUMBNAIL_IMAGE_EXTENSION_PNG = "png";             //$NON-NLS-1$
+
    private static final String THUMBNAIL_STORE_OS_PATH       = "thumbnail-store"; //$NON-NLS-1$
 
    /*
-    * photo image properties saved in a properties file
+    * Photo image properties are saved in a properties file
     */
    private static final String        PROPERTIES_FILE_EXTENSION = "properties";                 //$NON-NLS-1$
-//	private static final String			PROPERTIES_FILE_HEADER			= "Image properties ";		//$NON-NLS-1$
    public static final String         ORIGINAL_IMAGE_WIDTH      = "OriginalImageWidth";         //$NON-NLS-1$
    public static final String         ORIGINAL_IMAGE_HEIGHT     = "OriginalImageHeight";        //$NON-NLS-1$
 
@@ -145,10 +149,8 @@ public class ThumbnailStore {
 
       } else {
 
-         final long lastCleanup = _prefStore.getLong(//
-               IPhotoPreferences.PHOTO_THUMBNAIL_STORE_LAST_CLEANUP_DATE_TIME);
-         final int cleanupPeriod = _prefStore.getInt(//
-               IPhotoPreferences.PHOTO_THUMBNAIL_STORE_CLEANUP_PERIOD);
+         final long lastCleanup = _prefStore.getLong(IPhotoPreferences.PHOTO_THUMBNAIL_STORE_LAST_CLEANUP_DATE_TIME);
+         final int cleanupPeriod = _prefStore.getInt(IPhotoPreferences.PHOTO_THUMBNAIL_STORE_CLEANUP_PERIOD);
 
          ZonedDateTime dtLastCleanup;
          if (lastCleanup == 0) {
@@ -198,16 +200,26 @@ public class ThumbnailStore {
 
          final String imageFilePath = imageFile.getPath();
 
-         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.THUMB, Photo.getImageKeyThumb(imageFilePath));
-         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.HQ, Photo.getImageKeyHQ(imageFilePath));
+// SET_FORMATTING_OFF
+
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.THUMB,      Photo.getImageKey_Thumb(imageFilePath),   ImageFormats.JPEG);
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.THUMB_HQ,   Photo.getImageKey_ThumbHQ(imageFilePath), ImageFormats.JPEG);
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.HQ,         Photo.getImageKey_HQ(imageFilePath),      ImageFormats.JPEG);
+
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.THUMB,      Photo.getImageKey_Thumb(imageFilePath),   ImageFormats.PNG);
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.THUMB_HQ,   Photo.getImageKey_ThumbHQ(imageFilePath), ImageFormats.PNG);
+         cleanupStoreFiles_10_QFile(imageFile, ImageQuality.HQ,         Photo.getImageKey_HQ(imageFilePath),      ImageFormats.PNG);
+
+// SET_FORMATTING_ON
       }
    }
 
    private static void cleanupStoreFiles_10_QFile(final File imageFile,
                                                   final ImageQuality imageQuality,
-                                                  final String imageKey) {
+                                                  final String imageKey,
+                                                  final ImageFormats imageFormat) {
 
-      final IPath storeImagePath = getStoreImagePath(imageFile.getName(), imageKey, imageQuality);
+      final IPath storeImagePath = getStoreImagePath(imageFile.getName(), imageKey, imageQuality, imageFormat);
       final IPath propImagePath = getPropertiesPathFromImagePath(storeImagePath);
 
       cleanupStoreFiles_20_Delete(storeImagePath);
@@ -348,6 +360,7 @@ public class ThumbnailStore {
     *
     * @param fileOrFolder
     * @param monitor
+    *
     * @return Returns number of deleted files
     */
    private static int doCleanupDeleteFiles(final File fileOrFolder, final IProgressMonitor monitor) {
@@ -437,6 +450,19 @@ public class ThumbnailStore {
       return isFileFolderDeleted ? 1 : 0;
    }
 
+   private static String getImageFileExtension(final ImageFormats imageFormat) {
+
+      switch (imageFormat) {
+      case PNG: {
+         return THUMBNAIL_IMAGE_EXTENSION_PNG;
+      }
+
+      default:
+         return THUMBNAIL_IMAGE_EXTENSION_JPG;
+      }
+
+   }
+
    static IPath getPropertiesPathFromImagePath(final IPath storeImageFilePath) {
 
       final String rawFileName = storeImageFilePath.removeFileExtension().lastSegment();
@@ -449,7 +475,9 @@ public class ThumbnailStore {
       return propImageFilePath;
    }
 
-   static synchronized IPath getStoreImagePath(final Photo photo, final ImageQuality imageQuality) {
+   static synchronized IPath getStoreImagePath(final Photo photo,
+                                               final ImageQuality imageQuality,
+                                               final ImageFormats imageFormat) {
 
       if (photo.imageFilePathName.startsWith(_storePath.toOSString())) {
 
@@ -461,18 +489,19 @@ public class ThumbnailStore {
       final String rawImageFileName = photo.imageFileName;
       final String imageKey = photo.getImageKey(imageQuality);
 
-      final IPath imageFilePath = getStoreImagePath(rawImageFileName, imageKey, imageQuality);
+      final IPath imageFilePath = getStoreImagePath(rawImageFileName, imageKey, imageQuality, imageFormat);
 
       return imageFilePath;
    }
 
    private static IPath getStoreImagePath(final String rawImageFileName,
                                           final String imageKey,
-                                          final ImageQuality imageQuality) {
+                                          final ImageQuality imageQuality,
+                                          final ImageFormats imageFormat) {
 
       // thumbnail images are stored as jpg file
       IPath jpgPhotoFilePath = new Path(rawImageFileName);
-      jpgPhotoFilePath = jpgPhotoFilePath.removeFileExtension().addFileExtension(THUMBNAIL_IMAGE_EXTENSION_JPG);
+      jpgPhotoFilePath = jpgPhotoFilePath.removeFileExtension().addFileExtension(getImageFileExtension(imageFormat));
 
       final String imageKey1Folder = imageKey.substring(0, 2);
       final String imageFileName = imageKey + "_" + imageQuality.name() + "_" + jpgPhotoFilePath.toOSString(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -489,8 +518,7 @@ public class ThumbnailStore {
     */
    private static IPath getThumbnailStorePath() {
 
-      final boolean useDefaultLocation = _prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_THUMBNAIL_STORE_IS_DEFAULT_LOCATION);
+      final boolean useDefaultLocation = _prefStore.getBoolean(IPhotoPreferences.PHOTO_THUMBNAIL_STORE_IS_DEFAULT_LOCATION);
 
       String tnFolderName;
       if (useDefaultLocation) {
@@ -589,14 +617,47 @@ public class ThumbnailStore {
    }
 
    /**
-    * @param thumbImg
+    * @param awtResizedImage
     * @param storeImageFilePath
     * @param originalImageProperties
+    * @param imageFormat
+    *
     * @return Returns <code>true</code>when the image could be saved in the thumb store.
     */
-   static boolean saveThumbImageWithAWT(final BufferedImage thumbImg,
-                                        final IPath storeImageFilePath,
-                                        final Properties originalImageProperties) {
+   static boolean saveResizedImage_AWT(final BufferedImage awtResizedImage,
+                                       final IPath storeImageFilePath,
+                                       final Properties originalImageProperties,
+                                       final ImageFormats imageFormat) {
+
+      try {
+
+         final IPath imagePathWithoutExt = checkPath(storeImageFilePath);
+
+         if (imagePathWithoutExt == null) {
+            return false;
+         }
+
+         ImageIO.write(awtResizedImage, getImageFileExtension(imageFormat), new File(storeImageFilePath.toOSString()));
+
+         if (originalImageProperties != null) {
+
+            saveProperties(storeImageFilePath, originalImageProperties);
+         }
+
+      } catch (final Exception e) {
+
+         StatusUtil.log("Cannot save resized image with AWT: \"%s\"".formatted(storeImageFilePath.toOSString()), e); //$NON-NLS-1$
+
+         return false;
+      }
+
+      return true;
+   }
+
+   static boolean saveResizedImage_SWT(final Image swtImage,
+                                       final IPath storeImageFilePath,
+                                       final Properties originalImageProperties,
+                                       final ImageFormats imageFormat) {
 
       try {
 
@@ -605,53 +666,38 @@ public class ThumbnailStore {
             return false;
          }
 
-         ImageIO.write(thumbImg, THUMBNAIL_IMAGE_EXTENSION_JPG, new File(storeImageFilePath.toOSString()));
+         final ImageLoader imageLoader = new ImageLoader();
+         imageLoader.data = new ImageData[] { swtImage.getImageData() };
+
+         final IPath fullImageFilePath = imagePathWithoutExt.addFileExtension(getImageFileExtension(imageFormat));
+
+         int imageFileExtension;
+
+         if (ImageFormats.PNG.equals(imageFormat)) {
+
+            imageFileExtension = SWT.IMAGE_PNG;
+
+         } else {
+
+            /*
+             * save thumbnail as jpg image, Eclipse 3.8 M5 saves it with better quality, default is
+             * 75%, compression in the imageloader could be set
+             */
+            imageLoader.compression = 75;
+
+            imageFileExtension = SWT.IMAGE_JPEG;
+         }
+
+         imageLoader.save(fullImageFilePath.toOSString(), imageFileExtension);
 
          saveProperties(storeImageFilePath, originalImageProperties);
 
       } catch (final Exception e) {
 
-         StatusUtil.log(NLS.bind(//
-               "Cannot save thumbnail image with AWT: \"{0}\"", //$NON-NLS-1$
-               storeImageFilePath.toOSString()), e);
-
-         return false;
+         StatusUtil.log("Cannot save thumbnail image with SWT: \"%s\"".formatted(storeImageFilePath.toOSString()), e); //$NON-NLS-1$
       }
 
       return true;
-   }
-
-   static void saveThumbImageWithSWT(final Image thumbnailImage,
-                                     final IPath storeImageFilePath,
-                                     final Properties originalImageProperties) {
-
-      try {
-
-         final IPath imagePathWithoutExt = checkPath(storeImageFilePath);
-         if (imagePathWithoutExt == null) {
-            return;
-         }
-
-         final ImageLoader imageLoader = new ImageLoader();
-         imageLoader.data = new ImageData[] { thumbnailImage.getImageData() };
-
-         final IPath fullImageFilePath = imagePathWithoutExt.addFileExtension(THUMBNAIL_IMAGE_EXTENSION_JPG);
-
-         /*
-          * save thumbnail as jpg image, Eclipse 3.8 M5 saves it with better quality, default is
-          * 75%, compression in the imageloader could be set
-          */
-         imageLoader.compression = 75;
-         imageLoader.save(fullImageFilePath.toOSString(), SWT.IMAGE_JPEG);
-
-         saveProperties(storeImageFilePath, originalImageProperties);
-
-      } catch (final Exception e) {
-
-         StatusUtil.log(NLS.bind(//
-               "Cannot save thumbnail image with SWT: \"{0}\"", //$NON-NLS-1$
-               storeImageFilePath.toOSString()), e);
-      }
    }
 
    public static void updateStoreLocation() {

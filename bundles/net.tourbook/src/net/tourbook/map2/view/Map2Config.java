@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2024, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -94,20 +94,28 @@ public class Map2Config {
    /*
     * Tour markers
     */
-   public boolean                        isShowTourMarker      = true;
+   public boolean                        isShowTourMarker         = true;
 
    /** When <code>true</code> then markers with the same label are grouped together */
    public boolean                        isGroupDuplicatedMarkers;
-   public String                         groupedMarkers        = UI.EMPTY_STRING;
-   public int                            groupGridSize         = Map2ConfigManager.LABEL_GROUP_GRID_SIZE_DEFAULT;
+   public String                         groupedMarkers           = UI.EMPTY_STRING;
+   public int                            groupGridSize            = Map2ConfigManager.LABEL_GROUP_GRID_SIZE_DEFAULT;
 
-   public RGB                            tourMarkerFill_RGB    = Map2ConfigManager.DEFAULT_TOUR_MARKER_FILL_RGB;
-   public RGB                            tourMarkerOutline_RGB = Map2ConfigManager.DEFAULT_TOUR_MARKER_OUTLINE_RGB;
+   public MapTourMarkerTime              tourMarkerDateTimeFormat = MapTourMarkerTime.NONE;
+
+   public RGB                            tourMarkerFill_RGB       = Map2ConfigManager.DEFAULT_TOUR_MARKER_FILL_RGB;
+   public RGB                            tourMarkerOutline_RGB    = Map2ConfigManager.DEFAULT_TOUR_MARKER_OUTLINE_RGB;
 
    public Color                          tourMarkerFill_ColorAWT;
    public Color                          tourMarkerOutline_ColorAWT;
    public org.eclipse.swt.graphics.Color tourMarkerFill_ColorSWT;
    public org.eclipse.swt.graphics.Color tourMarkerOutline_ColorSWT;
+
+   /*
+    * Tour marker filter
+    */
+   public boolean isFilterTourMarkers;
+   public long[]  tourMarkerFilter;
 
    /*
     * Tour marker cluster
@@ -159,6 +167,19 @@ public class Map2Config {
    public TourFilterFieldOperator tourPauseDurationFilter_Operator;
 
    /*
+    * Waypoints
+    */
+   public boolean                        isShowTourWayPoint      = true;
+
+   public RGB                            tourWayPointOutline_RGB = Map2ConfigManager.DEFAULT_TOUR_WAY_POINT_OUTLINE_RGB;
+   public RGB                            tourWayPointFill_RGB    = Map2ConfigManager.DEFAULT_TOUR_WAY_POINT_FILL_RGB;
+
+   public Color                          tourWayPointFill_ColorAWT;
+   public Color                          tourWayPointOutline_ColorAWT;
+   public org.eclipse.swt.graphics.Color tourWayPointFill_ColorSWT;
+   public org.eclipse.swt.graphics.Color tourWayPointOutline_ColorSWT;
+
+   /*
     * Photo
     */
    public RGB                            photoFill_RGB    = Map2ConfigManager.DEFAULT_PHOTO_FILL_RGB;
@@ -205,6 +226,9 @@ public class Map2Config {
       tourPauseFill_ColorSWT              = new org.eclipse.swt.graphics.Color(tourPauseFill_RGB);
       tourPauseOutline_ColorSWT           = new org.eclipse.swt.graphics.Color(tourPauseOutline_RGB);
 
+      tourWayPointFill_ColorSWT           = new org.eclipse.swt.graphics.Color(tourWayPointFill_RGB);
+      tourWayPointOutline_ColorSWT        = new org.eclipse.swt.graphics.Color(tourWayPointOutline_RGB);
+
       photoFill_ColorSWT                  = new org.eclipse.swt.graphics.Color(photoFill_RGB);
       photoOutline_ColorSWT               = new org.eclipse.swt.graphics.Color(photoOutline_RGB);
 
@@ -220,17 +244,20 @@ public class Map2Config {
       tourLocation_EndFill_ColorAWT       = new Color(tourLocation_EndFill_RGB.red,       tourLocation_EndFill_RGB.green,        tourLocation_EndFill_RGB.blue);
       tourLocation_EndOutline_ColorAWT    = new Color(tourLocation_EndOutline_RGB.red,    tourLocation_EndOutline_RGB.green,     tourLocation_EndOutline_RGB.blue);
 
-      tourMarkerFill_ColorAWT             = new Color(tourMarkerFill_RGB.red,    tourMarkerFill_RGB.green,     tourMarkerFill_RGB.blue);
-      tourMarkerOutline_ColorAWT          = new Color(tourMarkerOutline_RGB.red, tourMarkerOutline_RGB.green,  tourMarkerOutline_RGB.blue);
+      tourMarkerFill_ColorAWT             = new Color(tourMarkerFill_RGB.red,       tourMarkerFill_RGB.green,        tourMarkerFill_RGB.blue);
+      tourMarkerOutline_ColorAWT          = new Color(tourMarkerOutline_RGB.red,    tourMarkerOutline_RGB.green,     tourMarkerOutline_RGB.blue);
 
-      clusterFill_ColorAWT                = new Color(clusterFill_RGB.red,       clusterFill_RGB.green,        clusterFill_RGB.blue);
-      clusterOutline_ColorAWT             = new Color(clusterOutline_RGB.red,    clusterOutline_RGB.green,     clusterOutline_RGB.blue);
+      clusterFill_ColorAWT                = new Color(clusterFill_RGB.red,          clusterFill_RGB.green,           clusterFill_RGB.blue);
+      clusterOutline_ColorAWT             = new Color(clusterOutline_RGB.red,       clusterOutline_RGB.green,        clusterOutline_RGB.blue);
 
-      tourPauseFill_ColorAWT              = new Color(tourPauseFill_RGB.red,     tourPauseFill_RGB.green,      tourPauseFill_RGB.blue);
-      tourPauseOutline_ColorAWT           = new Color(tourPauseOutline_RGB.red,  tourPauseOutline_RGB.green,   tourPauseOutline_RGB.blue);
+      tourPauseFill_ColorAWT              = new Color(tourPauseFill_RGB.red,        tourPauseFill_RGB.green,         tourPauseFill_RGB.blue);
+      tourPauseOutline_ColorAWT           = new Color(tourPauseOutline_RGB.red,     tourPauseOutline_RGB.green,      tourPauseOutline_RGB.blue);
 
-      photoFill_ColorAWT                  = new Color(photoFill_RGB.red,         photoFill_RGB.green,          photoFill_RGB.blue);
-      photoOutline_ColorAWT               = new Color(photoOutline_RGB.red,      photoOutline_RGB.green,       photoOutline_RGB.blue);
+      tourWayPointFill_ColorAWT           = new Color(tourWayPointFill_RGB.red,     tourWayPointFill_RGB.green,      tourWayPointFill_RGB.blue);
+      tourWayPointOutline_ColorAWT        = new Color(tourWayPointOutline_RGB.red,  tourWayPointOutline_RGB.green,   tourWayPointOutline_RGB.blue);
+
+      photoFill_ColorAWT                  = new Color(photoFill_RGB.red,            photoFill_RGB.green,             photoFill_RGB.blue);
+      photoOutline_ColorAWT               = new Color(photoOutline_RGB.red,         photoOutline_RGB.green,          photoOutline_RGB.blue);
 
       /*
        * Log color which is used when defining defaults
@@ -263,6 +290,11 @@ public class Map2Config {
          logColor(sb, tourPauseFill_ColorSWT,               "DEFAULT_TOUR_PAUSE_FILL_RGB");                 //$NON-NLS-1$
          logColor(sb, tourPauseOutline_ColorSWT,            "DEFAULT_TOUR_PAUSE_OUTLINE_RGB");              //$NON-NLS-1$
 
+         logColor(sb, tourWayPointFill_ColorSWT,            "DEFAULT_TOUR_WAY_POINT_FILL_RGB");             //$NON-NLS-1$
+         logColor(sb, tourWayPointOutline_ColorSWT,         "DEFAULT_TOUR_WAY_POINT_OUTLINE_RGB");          //$NON-NLS-1$
+
+         System.out.println("Map2Config hint: Replace these constants in Map2ConfigManager"); //$NON-NLS-1$
+         System.out.println();
          System.out.println(sb.toString());
          System.out.println();
          System.out.println();

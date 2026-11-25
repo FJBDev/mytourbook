@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,170 +15,121 @@
  *******************************************************************************/
 package net.tourbook.ui.views.tagging;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import net.tourbook.application.TourbookPlugin;
 import net.tourbook.common.UI;
 import net.tourbook.common.util.TreeViewerItem;
-import net.tourbook.database.TourDatabase;
 import net.tourbook.preferences.ITourbookPreferences;
-import net.tourbook.ui.SQLFilter;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.TreeViewer;
 
 public abstract class TVITaggingView_Item extends TreeViewerItem {
 
-   static final String         SQL_SUM_COLUMNS;
-   static final String         SQL_SUM_COLUMNS_TOUR;
+   static final String                   SQL_SUM_COLUMNS;
+   static final String                   SQL_SUM_COLUMNS_TOUR;
 
-   private static final String SCRAMBLE_FIELD_PREFIX = "col"; //$NON-NLS-1$
+   private static final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
    static {
 
       SQL_SUM_COLUMNS = UI.EMPTY_STRING
 
-            + "SUM(tourDistance)," + NL //                  0  //$NON-NLS-1$
-            + "SUM(TourDeviceTime_Elapsed)," + NL //        1  //$NON-NLS-1$
-            + "SUM(tourComputedTime_Moving)," + NL //       2  //$NON-NLS-1$
-            + "SUM(tourAltUp)," + NL //                     3  //$NON-NLS-1$
-            + "SUM(tourAltDown)," + NL //                   4  //$NON-NLS-1$
+            + "   SUM(tourDistance)," + NL //                  0  //$NON-NLS-1$
+            + "   SUM(TourDeviceTime_Elapsed)," + NL //        1  //$NON-NLS-1$
+            + "   SUM(tourComputedTime_Moving)," + NL //       2  //$NON-NLS-1$
+            + "   SUM(tourAltUp)," + NL //                     3  //$NON-NLS-1$
+            + "   SUM(tourAltDown)," + NL //                   4  //$NON-NLS-1$
 
-            + "MAX(maxPulse)," + NL //                      5  //$NON-NLS-1$
-            + "MAX(maxAltitude)," + NL //                   6  //$NON-NLS-1$
-            + "MAX(maxSpeed)," + NL //                      7  //$NON-NLS-1$
+            + "   MAX(maxPulse)," + NL //                      5  //$NON-NLS-1$
+            + "   MAX(maxAltitude)," + NL //                   6  //$NON-NLS-1$
+            + "   MAX(maxSpeed)," + NL //                      7  //$NON-NLS-1$
 
-            + "AVG( CASE WHEN AVGPULSE = 0      THEN NULL ELSE AVGPULSE END)," + NL //                8  //$NON-NLS-1$
-            + "AVG( CASE WHEN AVGCADENCE = 0    THEN NULL ELSE AVGCADENCE END )," + NL //             9  //$NON-NLS-1$
-            + "AVG( CASE WHEN weather_Temperature_Average_Device = 0 " //                                //$NON-NLS-1$
-            + "  THEN NULL" //                                                                           //$NON-NLS-1$
-            + "  ELSE DOUBLE(weather_Temperature_Average_Device) / TemperatureScale END )," + NL //   10 //$NON-NLS-1$
+            + "   AVG( CASE WHEN AVGPULSE = 0      THEN NULL ELSE AVGPULSE END)," + NL //                8  //$NON-NLS-1$
+            + "   AVG( CASE WHEN AVGCADENCE = 0    THEN NULL ELSE AVGCADENCE END )," + NL //             9  //$NON-NLS-1$
+            + "   AVG( CASE WHEN weather_Temperature_Average_Device = 0 " //                                //$NON-NLS-1$
+            + "     THEN NULL" //                                                                           //$NON-NLS-1$
+            + "     ELSE CAST(weather_Temperature_Average_Device AS DOUBLE PRECISION) / TemperatureScale END )," + NL //   10 //$NON-NLS-1$
 
-            + "SUM(TourDeviceTime_Recorded)" + NL //        11 //$NON-NLS-1$
+            + "   SUM(TourDeviceTime_Recorded)" + NL //        11 //$NON-NLS-1$
       ;
 
       SQL_SUM_COLUMNS_TOUR = UI.EMPTY_STRING
 
-            + "tourDistance," + NL //                       0  //$NON-NLS-1$
-            + "TourDeviceTime_Elapsed," + NL //             1  //$NON-NLS-1$
-            + "tourComputedTime_Moving," + NL //            2  //$NON-NLS-1$
-            + "tourAltUp," + NL //                          3  //$NON-NLS-1$
-            + "tourAltDown," + NL //                        4  //$NON-NLS-1$
+            + "   tourDistance," + NL //                       0  //$NON-NLS-1$
+            + "   TourDeviceTime_Elapsed," + NL //             1  //$NON-NLS-1$
+            + "   tourComputedTime_Moving," + NL //            2  //$NON-NLS-1$
+            + "   tourAltUp," + NL //                          3  //$NON-NLS-1$
+            + "   tourAltDown," + NL //                        4  //$NON-NLS-1$
 
-            + "maxPulse," + NL //                           5  //$NON-NLS-1$
-            + "maxAltitude," + NL //                        6  //$NON-NLS-1$
-            + "maxSpeed," + NL //                           7  //$NON-NLS-1$
+            + "   maxPulse," + NL //                           5  //$NON-NLS-1$
+            + "   maxAltitude," + NL //                        6  //$NON-NLS-1$
+            + "   maxSpeed," + NL //                           7  //$NON-NLS-1$
 
-            + "avgPulse," + NL //                           8  //$NON-NLS-1$
-            + "avgCadence," + NL //                         9  //$NON-NLS-1$
-            + "(DOUBLE(weather_Temperature_Average_Device) / TemperatureScale)," + NL //     10 //$NON-NLS-1$
-            + "TourDeviceTime_Recorded" + NL //             11 //$NON-NLS-1$
+            + "   avgPulse," + NL //                           8  //$NON-NLS-1$
+            + "   avgCadence," + NL //                         9  //$NON-NLS-1$
+            + "   (CAST(weather_Temperature_Average_Device AS DOUBLE PRECISION) / TemperatureScale)," + NL //     10 //$NON-NLS-1$
+
+            + "   TourDeviceTime_Recorded" + NL //             11 //$NON-NLS-1$
       ;
    }
-
-   protected final IPreferenceStore _prefStore = TourbookPlugin.getPrefStore();
 
    /**
     * Content which is displayed in the first tree column
     */
-   String                           firstColumn;
+   String firstColumn;
 
-   long                             colDistance;
+   /*
+    * THESE FIELD MUST BE PUBLIC THAT net.tourbook.common.util.TreeViewerItem.scrambleValues() HAS
+    * ACCESS !!!
+    */
+   public long        colDistance;
 
-   long                             colElapsedTime;
+   public long        colElapsedTime;
+   public long        colRecordedTime;
+   public long        colMovingTime;
+   public long        colPausedTime;
 
-   long                             colRecordedTime;
-   long                             colMovingTime;
-   long                             colPausedTime;
-   long                             colAltitudeUp;
-   long                             colAltitudeDown;
+   public long        colAltitudeUp;
+   public long        colAltitudeDown;
 
-   float                            colMaxSpeed;
-   long                             colMaxPulse;
-   long                             colMaxAltitude;
+   public long        colMaxAltitude;
+   public long        colMaxPulse;
+   public float       colMaxSpeed;
 
-   float                            colAvgSpeed;
-   float                            colAvgPace;
+   public float       colAvgCadence;
+   public float       colAvgPace;
+   public float       colAvgPulse;
+   public float       colAvgSpeed;
+   public float       colAvgTemperature_Device;
 
-   float                            colAvgPulse;
-   float                            colAvgCadence;
-   float                            colAvgTemperature_Device;
+   public AtomicLong  numTours          = new AtomicLong();
 
-   long                             numTours;
-   int                              numTags_NoTours;
+   /**
+    * This is needed for the tag filter to identify tag categories which contains tags which do not
+    * have tours
+    */
+   public AtomicLong  numNoTours        = new AtomicLong();
 
-   int                              temperatureDigits;
+   public AtomicLong  numNotLoadedItems = new AtomicLong();
 
-   private TreeViewer               _tagViewer;
+   private TreeViewer _tagViewer;
 
    public TVITaggingView_Item(final TreeViewer tagViewer) {
 
       _tagViewer = tagViewer;
    }
 
-   /**
-    * Read sum totals from the database for the tagItem
-    *
-    * @param tagItem
-    */
-   public static void readTagTotals(final TVITaggingView_Tag tagItem) {
-
-      try (Connection conn = TourDatabase.getInstance().getConnection()) {
-
-         final SQLFilter sqlFilter = new SQLFilter();
-
-         /*
-          * Get tags
-          */
-         final String sql = UI.EMPTY_STRING
-
-               + "SELECT " + SQL_SUM_COLUMNS + NL //                                               //$NON-NLS-1$
-               + " FROM " + TourDatabase.JOINTABLE__TOURDATA__TOURTAG + " jtblTagData" + NL //     //$NON-NLS-1$ //$NON-NLS-2$
-
-               // get data for a tour
-               + " LEFT OUTER JOIN " + TourDatabase.TABLE_TOUR_DATA + " TourData ON " + NL //      //$NON-NLS-1$ //$NON-NLS-2$
-               + " jtblTagData.TourData_tourId = TourData.tourId" + NL //                          //$NON-NLS-1$
-
-               + " WHERE jtblTagData.TourTag_TagId = ?" + NL //                                    //$NON-NLS-1$
-               + sqlFilter.getWhereClause();
-
-         final PreparedStatement statement = conn.prepareStatement(sql);
-
-         statement.setLong(1, tagItem.getTagId());
-         sqlFilter.setParameters(statement, 2);
-
-         final ResultSet result = statement.executeQuery();
-
-         while (result.next()) {
-            tagItem.readSumColumnData(result, 1);
-         }
-
-         if (tagItem.numTours == 0) {
-
-            /*
-             * to hide the '+' for an item which has no children, an empty list of children will be
-             * created
-             */
-//            tagItem.setChildren(new ArrayList<>());
-         }
-
-      } catch (final SQLException e) {
-
-         net.tourbook.ui.UI.showSQLException(e);
-      }
-   }
-
-   public TreeViewer getTagViewer() {
+   TreeViewer getTagViewer() {
 
       return _tagViewer;
    }
 
-   void readDefaultColumnData(final ResultSet result, final int startIndex) throws SQLException {
+   void readSumColumnData(final ResultSet result, final int startIndex) throws SQLException {
 
 // SET_FORMATTING_OFF
 
@@ -211,54 +162,135 @@ public abstract class TVITaggingView_Item extends TreeViewerItem {
 // SET_FORMATTING_ON
 
       if (UI.IS_SCRAMBLE_DATA) {
-         scrambleData();
+         scrambleValues(TVITaggingView_Item.class.getDeclaredFields());
       }
    }
 
-   public void readSumColumnData(final ResultSet result, final int startIndex) throws SQLException {
+   /**
+    * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    * <p>
+    * <b>RECURSIVE</b>
+    * <p>
+    * Add number of loaded items
+    * <p>
+    * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    */
+   void updateNumLoadedItems_Add(final int numItems) {
 
-      readDefaultColumnData(result, startIndex);
+      numNotLoadedItems.addAndGet(numItems);
+
+      final TreeViewerItem parentItem = getParentItem();
+
+      if (parentItem instanceof final TVITaggingView_Item taggingItem) {
+
+         taggingItem.updateNumLoadedItems_Add(numItems);
+      }
    }
 
    /**
-    * Scramble all fields which fieldname is starting with "col"
+    * <b>!!! RECURSIVE !!!</b>
+    * <p>
+    * Decrement number of loaded items
     */
-   private void scrambleData() {
+   void updateNumLoadedItems_Decrement() {
 
-      try {
+      numNotLoadedItems.decrementAndGet();
 
-         for (final Field field : TVITaggingView_Item.class.getDeclaredFields()) {
+      final TreeViewerItem parentItem = getParentItem();
 
-            final String fieldName = field.getName();
+      if (parentItem instanceof final TVITaggingView_Item taggingItem) {
 
-            if (fieldName.startsWith(SCRAMBLE_FIELD_PREFIX)) {
+         taggingItem.updateNumLoadedItems_Decrement();
+      }
+   }
 
-               final Type fieldType = field.getGenericType();
+   /**
+    * <b>!!! RECURSIVE !!!</b>
+    * <p>
+    * Increment number of loaded items
+    */
+   void updateNumLoadedItems_Increment() {
 
-               if (Integer.TYPE.equals(fieldType)) {
+      numNotLoadedItems.incrementAndGet();
 
-                  field.set(this, UI.scrambleNumbers(field.getInt(this)));
+      final TreeViewerItem parentItem = getParentItem();
 
-               } else if (Long.TYPE.equals(fieldType)) {
+      if (parentItem instanceof final TVITaggingView_Item taggingItem) {
 
-                  field.set(this, UI.scrambleNumbers(field.getLong(this)));
+         taggingItem.updateNumLoadedItems_Increment();
+      }
+   }
 
-               } else if (Float.TYPE.equals(fieldType)) {
+   void updateParent_NumNoTours(final TVITaggingView_Item taggingItem) {
 
-                  field.set(this, UI.scrambleNumbers(field.getFloat(this)));
+      final TreeViewerItem parentItem = getParentItem();
 
-               } else if (String.class.equals(fieldType)) {
+      if (parentItem instanceof final TVITaggingView_Item parentTaggingItem) {
 
-                  final String fieldValue = (String) field.get(this);
-                  final String scrambledText = UI.scrambleText(fieldValue);
+         parentTaggingItem.numNoTours.addAndGet(taggingItem.numNoTours.get());
+      }
+   }
 
-                  field.set(this, scrambledText);
-               }
-            }
+   /**
+    * <b>!!! RECURSIVE !!!</b>
+    * <p>
+    * Update number of tours
+    *
+    * @param newNumTours
+    * @param newNumNoTours
+    * @param allUpdatedItems
+    */
+   void updateParent_NumToursAndNoTours(final int newNumTours,
+                                        final int newNumNoTours,
+                                        final Set<TVITaggingView_Item> allUpdatedItems) {
+
+      final TreeViewerItem parentItem = getParentItem();
+
+      if (parentItem instanceof final TVITaggingView_Item taggingItem) {
+
+         if (taggingItem instanceof TVITaggingView_Root) {
+
+            // skip root
+
+            return;
          }
 
-      } catch (IllegalArgumentException | IllegalAccessException e) {
-         e.printStackTrace();
+         taggingItem.numTours.addAndGet(newNumTours);
+         taggingItem.numNoTours.addAndGet(newNumNoTours);
+
+         allUpdatedItems.add(taggingItem);
+
+         taggingItem.updateParent_NumToursAndNoTours(newNumTours, newNumNoTours, allUpdatedItems);
+
+//         String item = UI.EMPTY_STRING;
+//         String name = UI.EMPTY_STRING;
+//
+//         if (taggingItem instanceof final TVITaggingView_Tag tagItem) {
+//
+//            item = "tag";
+//            name = tagItem.getTourTag().getTagName();
+//
+//         } else if (taggingItem instanceof final TVITaggingView_TagCategory categoryItem) {
+//
+//            item = "cat";
+//            name = categoryItem.getTourTagCategory().getCategoryName();
+//         }
+//
+//         final String text = "%-5s %-30s %5d %5d+  %-15s".formatted(
+//
+//               item,
+//               name,
+//
+//               newAddedTours,
+//               newNumTours,
+//
+//               Thread.currentThread().getName()
+//
+//         );
+//
+//         System.out.println(text);
+
+// TODO remove SYSTEM.OUT.PRINTLN
       }
    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -127,6 +128,7 @@ public class WEB {
    private static final String          CONTENT_TYPE_IMAGE_GIF                    = "image/gif";                               //$NON-NLS-1$
    private static final String          CONTENT_TYPE_IMAGE_JPG                    = "image/jpeg";                              //$NON-NLS-1$
    private static final String          CONTENT_TYPE_IMAGE_PNG                    = "image/png";                               //$NON-NLS-1$
+   private static final String          CONTENT_TYPE_IMAGE_SVG                    = "image/svg+xml";                           //$NON-NLS-1$
    private static final String          CONTENT_TYPE_IMAGE_X_ICO                  = "image/x-icon";                            //$NON-NLS-1$
    private static final String          CONTENT_TYPE_TEXT_CSS                     = "text/css";                                //$NON-NLS-1$
    private static final String          CONTENT_TYPE_TEXT_HTML                    = "text/html";                               //$NON-NLS-1$
@@ -141,6 +143,7 @@ public class WEB {
    private static final String          FILE_EXTENSION_JS                         = "js";                                      //$NON-NLS-1$
    private static final String          FILE_EXTENSION_MAP                        = "map";                                     //$NON-NLS-1$
    private static final String          FILE_EXTENSION_PNG                        = "png";                                     //$NON-NLS-1$
+   private static final String          FILE_EXTENSION_SVG                        = "svg";                                     //$NON-NLS-1$
 
    /**
     * This file extension is for HTML pages which contain variable replacements, processed in
@@ -156,8 +159,12 @@ public class WEB {
    public static final boolean          STATE_USE_EXTERNAL_WEB_BROWSER_DEFAULT    = false;
 
    /**
-    * Common html body size for all web pages (when applied)
+    * Common html body font/size for all web pages (when applied)
     */
+   public static final String           STATE_BODY_FONT                           = "STATE_BODY_FONT";                         //$NON-NLS-1$
+   public static final String           STATE_BODY_FONT_CSS_REPLACEMENT_TAG       = "$BODY_FONT$";                             //$NON-NLS-1$
+   public static final String           STATE_BODY_FONT_DEFAULT                   = "courier";                                 //$NON-NLS-1$
+
    public static final String           STATE_BODY_FONT_SIZE                      = "STATE_BODY_FONT_SIZE";                    //$NON-NLS-1$
    public static final String           STATE_BODY_FONT_SIZE_CSS_REPLACEMENT_TAG  = "$BODY_FONT_SIZE$";                        //$NON-NLS-1$
    public static final int              STATE_BODY_FONT_SIZE_DEFAULT              = 13;
@@ -167,22 +174,51 @@ public class WEB {
    /*
     * Tags which are replaced in the css file to support the dark mode
     */
-   public static final String CSS_TAG__BODY__COLOR                        = "$BODY_COLOR$";                         //$NON-NLS-1$
-   public static final String CSS_TAG__BODY__BACKGROUND_COLOR             = "$BODY_BACKGROUND_COLOR$";              //$NON-NLS-1$
-   public static final String CSS_TAG__A_LINK__COLOR                      = "$A_LINK__COLOR$";                      //$NON-NLS-1$
-   public static final String CSS_TAG__A_VISITED__COLOR                   = "$A_VISITED__COLOR$";                   //$NON-NLS-1$
-   public static final String CSS_TAG__ACTION_CONTAINER__BACKGROUND_COLOR = "$ACTION_CONTAINER__BACKGROUND_COLOR$"; //$NON-NLS-1$
+   public static final String CSS_TAG__BODY__COLOR                        = "$BODY_COLOR$";                            //$NON-NLS-1$
+   public static final String CSS_TAG__BODY__BACKGROUND_COLOR             = "$BODY_BACKGROUND_COLOR$";                 //$NON-NLS-1$
+   public static final String CSS_TAG__A_LINK__COLOR                      = "$A_LINK__COLOR$";                         //$NON-NLS-1$
+   public static final String CSS_TAG__A_VISITED__COLOR                   = "$A_VISITED__COLOR$";                      //$NON-NLS-1$
+   public static final String CSS_TAG__ACTION_CONTAINER__BACKGROUND_COLOR = "$ACTION_CONTAINER__BACKGROUND_COLOR$";    //$NON-NLS-1$
 
-   public static final String CSS_TAG__BODY_SCROLLBAR                     = "$BODY_SCROLLBAR$";                     //$NON-NLS-1$
+   public static final String CSS_TAG__BODY_SCROLLBAR                     = "$BODY_SCROLLBAR$";                        //$NON-NLS-1$
+   public static final String CSS_TAG__BODY_SCROLLBAR_EXTENDED            = "$BODY_SCROLLBAR_EXTENDED$";               //$NON-NLS-1$
+
    public static final String CSS_CONTENT__BODY_SCROLLBAR__DARK           = UI.EMPTY_STRING
 
-         + "   scrollbar-face-color:         #4d4d4d;" + NL                                                         //$NON-NLS-1$
-         + "   scrollbar-shadow-color:       #4d4d4d;" + NL                                                         //$NON-NLS-1$
-         + "   scrollbar-track-color:        #292929;" + NL                                                         //$NON-NLS-1$
-         + "   scrollbar-highlight-color:    #8f8;" + NL                                                            //$NON-NLS-1$
-         + "   scrollbar-arrow-color:        #888;" + NL                                                            //$NON-NLS-1$
-         + "   scrollbar-3dlight-color:      #000;" + NL                                                            //$NON-NLS-1$
-         + "   scrollbar-darkshadow-color:   #000;" + NL                                                            //$NON-NLS-1$
+         + "   scrollbar-face-color:         #4d4d4d;" + NL                                                            //$NON-NLS-1$
+         + "   scrollbar-shadow-color:       #4d4d4d;" + NL                                                            //$NON-NLS-1$
+         + "   scrollbar-track-color:        #292929;" + NL                                                            //$NON-NLS-1$
+         + "   scrollbar-highlight-color:    #8f8;" + NL                                                               //$NON-NLS-1$
+         + "   scrollbar-arrow-color:        #888;" + NL                                                               //$NON-NLS-1$
+         + "   scrollbar-3dlight-color:      #000;" + NL                                                               //$NON-NLS-1$
+         + "   scrollbar-darkshadow-color:   #000;" + NL                                                               //$NON-NLS-1$
+   ;
+
+   /**
+    * This is needed since eclipse 4.36, it is using by default the Edge browser in windows
+    */
+   public static final String CSS_CONTENT__BODY_SCROLLBAR__DARK_EXTENDED  = UI.EMPTY_STRING
+
+         + "body::-webkit-scrollbar,                     " + NL                                                        //$NON-NLS-1$
+         + ".dgrid-scroller::-webkit-scrollbar           " + NL                                                        //$NON-NLS-1$
+         + "{                                            " + NL                                                        //$NON-NLS-1$
+         + "   width:               14px;                " + NL                                                        //$NON-NLS-1$ /* width of the entire scrollbar */
+         + "   height:              14px;                " + NL                                                        //$NON-NLS-1$ /* width of the entire scrollbar */
+         + " }                                           " + NL                                                        //$NON-NLS-1$
+
+         + "body::-webkit-scrollbar-track,               " + NL                                                        //$NON-NLS-1$
+         + ".dgrid-scroller::-webkit-scrollbar-track     " + NL                                                        //$NON-NLS-1$
+         + "{                                            " + NL                                                        //$NON-NLS-1$
+         + "   xxxbackground:       orange;              " + NL                                                        //$NON-NLS-1$ /* color of the tracking area */
+         + "}                                            " + NL                                                        //$NON-NLS-1$
+
+         + "body::-webkit-scrollbar-thumb,               " + NL                                                        //$NON-NLS-1$
+         + ".dgrid-scroller::-webkit-scrollbar-thumb     " + NL                                                        //$NON-NLS-1$
+         + "{                                            " + NL                                                        //$NON-NLS-1$
+         + "   background-color:    #4D4D4D;             " + NL                                                        //$NON-NLS-1$ /* color of the scroll thumb */
+         + "   border-radius:       0px;                 " + NL                                                        //$NON-NLS-1$ /* roundness of the scroll thumb */
+         + "   border:              0px solid #222;      " + NL                                                        //$NON-NLS-1$ /* creates padding around scroll thumb */
+         + " }                                           " + NL                                                        //$NON-NLS-1$
    ;
 
    /**
@@ -232,11 +268,14 @@ public class WEB {
             + "{" + NL //                             //$NON-NLS-1$
             + CSS_CONTENT__BODY_SCROLLBAR__DARK
             + "}" + NL //                             //$NON-NLS-1$
-      ;
 
-      return UI.IS_DARK_THEME
-            ? darkThemeScrollbar
-            : UI.EMPTY_STRING;
+            + CSS_CONTENT__BODY_SCROLLBAR__DARK_EXTENDED;
+
+//      return UI.IS_DARK_THEME
+//            ? darkThemeScrollbar
+//            : UI.EMPTY_STRING;
+
+      return darkThemeScrollbar;
    }
 
    /**
@@ -468,7 +507,7 @@ public class WEB {
       } else if (href.startsWith("http") == false) { //$NON-NLS-1$
 
          // Ensure that a protocol is set otherwise a MalformedURLException exception occurs
-         href = "http://" + href; //$NON-NLS-1$
+         href = "https://" + href; //$NON-NLS-1$
       }
 
       final boolean useExternalWebBrowser = _state_WEB.getBoolean(STATE_USE_EXTERNAL_WEB_BROWSER);
@@ -495,9 +534,9 @@ public class WEB {
       try {
 
          final IWebBrowser browser = support.getExternalBrowser();
-         browser.openURL(new URL(encodeSpace(href)));
+         browser.openURL(new URI(encodeSpace(href)).toURL());
 
-      } catch (final MalformedURLException | PartInitException e) {
+      } catch (final MalformedURLException | PartInitException | URISyntaxException e) {
          StatusUtil.showStatus(e);
       }
    }
@@ -517,14 +556,14 @@ public class WEB {
             final String appCmd = appCmdLines[cmdIndex];
 
             if (cmdIndex == 0) {
-               commands.add("\"" + appCmd + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+               commands.add(UI.SYMBOL_QUOTATION_MARK + appCmd + UI.SYMBOL_QUOTATION_MARK);
             } else {
                // don't add apostrophes, this causes errors
                commands.add(appCmd);
             }
          }
 
-         commands.add("\"" + encodedUrl + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+         commands.add(UI.SYMBOL_QUOTATION_MARK + encodedUrl + UI.SYMBOL_QUOTATION_MARK);
 
       } else if (UI.IS_OSX) {
 
@@ -747,6 +786,10 @@ public class WEB {
 
          case FILE_EXTENSION_PNG:
             contentType = CONTENT_TYPE_IMAGE_PNG;
+            break;
+
+         case FILE_EXTENSION_SVG:
+            contentType = CONTENT_TYPE_IMAGE_SVG;
             break;
          }
       }

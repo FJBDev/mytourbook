@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -44,12 +44,15 @@ public class ActionEditQuick extends Action {
       setText(Messages.app_action_quick_edit);
 
       setImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit));
-      setDisabledImageDescriptor(TourbookPlugin.getThemedImageDescriptor(Images.App_Edit_Disabled));
 
       _tourProvider = tourProvider;
    }
 
    public static void doAction(final ITourProvider tourProvider) {
+
+      if (TourManager.isTourModified()) {
+         return;
+      }
 
       // check tour, make sure only one tour is selected
       final ArrayList<TourData> selectedTours = tourProvider.getSelectedTours();

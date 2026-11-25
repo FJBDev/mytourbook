@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,12 +21,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.tourbook.Messages;
 import net.tourbook.data.TourData;
 import net.tourbook.data.TourTag;
 import net.tourbook.database.TourDatabase;
+import net.tourbook.tour.TourManager;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -42,7 +44,7 @@ import org.eclipse.swt.widgets.MenuItem;
 /**
  * Removes a tag from the selected tours
  */
-class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
+public class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
 
    private TagMenuManager      _tagMenuMgr;
    private Menu                _menu;
@@ -73,6 +75,11 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
 
       @Override
       public void run() {
+
+         if (_tagMenuMgr.isSaveTour() && TourManager.isTourModified()) {
+            return;
+         }
+
          _tagMenuMgr.saveTourTags(_tourTag, false);
       }
    }
@@ -94,7 +101,7 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
 
    private void createTagActions(final TagCollection tagCollection, final Menu menu) {
 
-      final ArrayList<TourTag> allTourTags = tagCollection.tourTags;
+      final List<TourTag> allTourTags = tagCollection.tourTags;
       if (allTourTags == null) {
          return;
       }
@@ -205,7 +212,7 @@ class Action_RemoveTourTag_SubMenu extends Action implements IMenuCreator {
 
       // remove tags, create actions for all tags of all selected tours
 
-      final ArrayList<TourTag> sortedTags = new ArrayList<>(_selectedTags);
+      final List<TourTag> sortedTags = new ArrayList<>(_selectedTags);
       Collections.sort(sortedTags);
 
       createTagActions(new TagCollection(sortedTags), _menu);

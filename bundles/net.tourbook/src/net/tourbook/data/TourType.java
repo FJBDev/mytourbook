@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+<<<<<<< HEAD
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,11 +30,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.common.UI;
 import net.tourbook.common.color.ColorUtil;
 import net.tourbook.database.TourDatabase;
 
 import org.eclipse.swt.graphics.RGB;
+
+import jakarta.persistence.Basic;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "typeId")
@@ -88,6 +98,17 @@ public class TourType implements Comparable<Object>, Serializable {
    private int                        color_Text_DarkTheme;
 
    /**
+    * This name is used to apply a tour type during the tour import to a tour when this name fits
+    */
+   private String                     importCategory;
+
+   /**
+    *
+    * This name is used to apply a tour type during the tour import to a tour when this name fits
+    */
+   private String                     importSubCategory;
+
+   /**
     * unique id for manually created tour types because the {@link #typeId} is -1 when it's not
     * persisted
     */
@@ -111,8 +132,8 @@ public class TourType implements Comparable<Object>, Serializable {
 
       // default sorting for tour types is by name
 
-      if (other instanceof TourType) {
-         final TourType otherTourType = (TourType) other;
+      if (other instanceof final TourType otherTourType) {
+
          return name.compareTo(otherTourType.getName());
       }
 
@@ -160,6 +181,24 @@ public class TourType implements Comparable<Object>, Serializable {
 
    public long getCreateId() {
       return _createId;
+   }
+
+   /**
+    * @return This name is used to apply a tour type during the tour import to a tour when this name
+    *         fits
+    */
+   public String getImportCategory() {
+
+      return importCategory;
+   }
+
+   /**
+    * @return This name is used to apply a tour type during the tour import to a tour when this name
+    *         fits
+    */
+   public String getImportSubCategory() {
+
+      return importSubCategory;
    }
 
    /**
@@ -280,6 +319,16 @@ public class TourType implements Comparable<Object>, Serializable {
 
       setColor_Line(line_LightTheme, line_DarkTheme);
       setColor_Text(text_LightTheme, text_DarkTheme);
+   }
+
+   public void setImportCategory(final String importCategory) {
+
+      this.importCategory = importCategory;
+   }
+
+   public void setImportSubCategory(final String importSubCategory) {
+
+      this.importSubCategory = importSubCategory;
    }
 
    public void setName(final String name) {

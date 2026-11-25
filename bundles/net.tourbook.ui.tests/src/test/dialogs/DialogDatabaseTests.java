@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2024 Frédéric Bard
+ * Copyright (C) 2022, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,6 +21,7 @@ import net.tourbook.Messages;
 import net.tourbook.common.UI;
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
@@ -28,7 +29,10 @@ import utils.Utils;
 
 public class DialogDatabaseTests extends UITest {
 
+   private static final char NL = UI.NEW_LINE;
+
    @Test
+   @Disabled // compress is completly different with H2
    void testCompressDatabase() {
 
       bot.menu("Help").menu("Compress Database...").click(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -41,38 +45,48 @@ public class DialogDatabaseTests extends UITest {
    }
 
    @Test
+   @Disabled // consistency check is completly different with H2
    void testDatabaseConsistency() {
 
       bot.menu("Help").menu("Database Consistency Check").click(); //$NON-NLS-1$ //$NON-NLS-2$
 
       final SWTBotShell shell = bot.shell("Database Consistency Check"); //$NON-NLS-1$
 
-      final String message = Messages.app_db_consistencyCheck_checkIsOK +
-            "✓" + UI.SPACE2 + "USER.TOURDATA" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURPERSON" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURPERSONHRZONE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURTYPE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURMARKER" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURPHOTO" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURREFERENCE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURCOMPARED" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURBIKE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURGEOPARTS" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DBVERSION" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURDATA_TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAG" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAGCATEGORY" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURWAYPOINT" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DB_VERSION_DATA" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DEVICESENSOR" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.DEVICESENSORVALUE" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURLOCATION" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURBEVERAGECONTAINER" + UI.NEW_LINE + //$NON-NLS-1$ //$NON-NLS-2$
-            "✓" + UI.SPACE2 + "USER.TOURNUTRITIONPRODUCT" + UI.NEW_LINE; //$NON-NLS-1$ //$NON-NLS-2$
+      final String message = Messages.app_db_consistencyCheck_checkIsOK
 
-      assertEquals(message, shell.bot().label(message).getText());
+            + "✓" + UI.SPACE2 + "USER.TOURDATA" + NL //                             //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURPERSON" + NL //                           //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURPERSONHRZONE" + NL //                     //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURTYPE" + NL //                             //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURMARKER" + NL //                           //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURPHOTO" + NL //                            //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURREFERENCE" + NL //                        //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURCOMPARED" + NL //                         //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURBIKE" + NL //                             //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURGEOPARTS" + NL //                         //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.DBVERSION" + NL //                            //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURTAG" + NL //                              //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURDATA_TOURTAG" + NL //                     //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY" + NL //                      //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAG" + NL //              //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURTAGCATEGORY_TOURTAGCATEGORY" + NL //      //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURWAYPOINT" + NL //                         //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.DB_VERSION_DATA" + NL //                      //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.DEVICESENSOR" + NL //                         //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.DEVICESENSORVALUE" + NL //                    //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURLOCATION" + NL //                         //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURBEVERAGECONTAINER" + NL //                //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURNUTRITIONPRODUCT" + NL //                 //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURMARKERTYPE" + NL //                       //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.EQUIPMENT" + NL //                            //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.TOURDATA_EQUIPMENT" + NL //                   //$NON-NLS-1$ //$NON-NLS-2$
+            + "✓" + UI.SPACE2 + "USER.EQUIPMENTPART" + NL //                        //$NON-NLS-1$ //$NON-NLS-2$
+
+      ;
+
+      final String text = shell.bot().label(message).getText();
+
+      assertEquals(message, text);
 
       Utils.clickOkButton(bot);
    }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -38,9 +38,15 @@ public class TVITourBookTour extends TVITourBookItem implements Comparable<TVITo
    long                    colStartDistance;
    short                   colTimeInterval;
 
-   Set<Long>               sqlTagIds;
+   Set<Long>               allSqlEquipmentIDs;
    Set<Long>               sqlMarkerIds;
    Set<Long>               sqlNutritionProductsIds;
+   Set<Long>               sqlTagIds;
+
+   /**
+    * ID's for equipment or <code>null</code> when equipment is not available
+    */
+   private ArrayList<Long> _allEquipmentIDs;
 
    /**
     * Id's for the tags or <code>null</code> when tags are not available
@@ -71,14 +77,20 @@ public class TVITourBookTour extends TVITourBookItem implements Comparable<TVITo
    @Override
    public void clearChildren() {
 
-      // cleanup
-      sqlTagIds = null;
-      sqlMarkerIds = null;
-      sqlNutritionProductsIds = null;
+// SET_FORMATTING_OFF
 
-      _tagIds = null;
-      _markerIds = null;
-      _nutritionProductsIds = null;
+      // cleanup
+      allSqlEquipmentIDs         = null;
+      sqlMarkerIds               = null;
+      sqlNutritionProductsIds    = null;
+      sqlTagIds                  = null;
+
+      _allEquipmentIDs           = null;
+      _markerIds                 = null;
+      _nutritionProductsIds      = null;
+      _tagIds                    = null;
+
+// SET_FORMATTING_ON
 
       super.clearChildren();
    }
@@ -116,7 +128,17 @@ public class TVITourBookTour extends TVITourBookItem implements Comparable<TVITo
       return colTimeInterval;
    }
 
+   public List<Long> getEquipmentIds() {
+
+      if (allSqlEquipmentIDs != null && _allEquipmentIDs == null) {
+         _allEquipmentIDs = new ArrayList<>(allSqlEquipmentIDs);
+      }
+
+      return _allEquipmentIDs;
+   }
+
    public List<Long> getMarkerIds() {
+
       if (sqlMarkerIds != null && _markerIds == null) {
          _markerIds = new ArrayList<>(sqlMarkerIds);
       }
@@ -159,6 +181,10 @@ public class TVITourBookTour extends TVITourBookItem implements Comparable<TVITo
       return false;
    }
 
+   public void setEquipmentIDs(final Set<Long> allSqlEquipmentIDs) {
+      this.allSqlEquipmentIDs = allSqlEquipmentIDs;
+   }
+
    public void setMarkerIds(final Set<Long> markerIds) {
       sqlMarkerIds = markerIds;
    }
@@ -176,15 +202,14 @@ public class TVITourBookTour extends TVITourBookItem implements Comparable<TVITo
 
       return NL
 
-            + "TVITourBookTour" + NL //                           //$NON-NLS-1$
+            + "TVITourBookTour" + NL //                              //$NON-NLS-1$
 
-            + "[" + NL //                                         //$NON-NLS-1$
+            + " tourId            = " + tourId + NL //               //$NON-NLS-1$
+//          + " colDateTimeText   = " + colDateTime_Text + NL //     //$NON-NLS-1$
+//          + " colTourDateTime   = " + colTourDateTime + NL //      //$NON-NLS-1$
+//          + " colTourTitle      = " + colTourTitle + NL //         //$NON-NLS-1$
 
-            + "colDateTimeText   = " + colDateTime_Text + NL //    //$NON-NLS-1$
-//          + "colTourDateTime   = " + colTourDateTime + NL //     //$NON-NLS-1$
-            + "colTourTitle      = " + colTourTitle + NL //        //$NON-NLS-1$
-
-            + "]" + NL //                                         //$NON-NLS-1$
+            + NL //
       ;
    }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,9 +27,9 @@ import net.tourbook.common.UI;
 import net.tourbook.common.util.StatusUtil;
 import net.tourbook.common.util.TreeViewerItem;
 import net.tourbook.common.util.Util;
-import net.tourbook.photo.PhotoActivator;
 import net.tourbook.photo.IPhotoPreferences;
 import net.tourbook.photo.ImageUtils;
+import net.tourbook.photo.PhotoActivator;
 import net.tourbook.photo.PhotoCache;
 import net.tourbook.photo.PhotoImageCache;
 import net.tourbook.photo.PhotoLoadManager;
@@ -81,11 +81,8 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -352,6 +349,8 @@ public class PicDirFolder {
                tree.setTopItem(topItem);
             }
             tree.setRedraw(true);
+
+            System.gc();
          }
       });
    }
@@ -377,11 +376,11 @@ public class PicDirFolder {
 
       String extApp = null;
       if (actionRunExternalApp == _actionRunExternalApp1) {
-         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_1).trim();
+         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_1).trim();
       } else if (actionRunExternalApp == _actionRunExternalApp2) {
-         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_2).trim();
+         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_2).trim();
       } else if (actionRunExternalApp == _actionRunExternalApp3) {
-         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_3).trim();
+         extApp = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_3).trim();
       }
 
       final String folder = _selectedTVIFolder._treeItemFolder.getAbsolutePath();
@@ -389,8 +388,11 @@ public class PicDirFolder {
       String commands[] = null;
       if (UI.IS_WIN) {
 
-         final String[] commandsWin = { "\"" + extApp + "\"", //$NON-NLS-1$ //$NON-NLS-2$
-               "\"" + folder + "\"" }; //$NON-NLS-1$ //$NON-NLS-2$
+         final String[] commandsWin = {
+
+               UI.SYMBOL_QUOTATION_MARK + extApp + UI.SYMBOL_QUOTATION_MARK,
+               UI.SYMBOL_QUOTATION_MARK + folder + UI.SYMBOL_QUOTATION_MARK
+         };
 
          commands = commandsWin;
 
@@ -521,31 +523,6 @@ public class PicDirFolder {
          public void mouseDown(final MouseEvent e) {
             _doAutoCollapseExpand = true;
             _isMouseContextMenu = e.button == 3;
-         }
-      });
-
-      final Display display = parent.getDisplay();
-      final Color listBackgroundColor = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-
-      tree.addListener(SWT.EraseItem, event -> {
-
-         if ((event.detail & SWT.SELECTED) != 0 && (event.detail & SWT.HOT) != 0) {
-
-            // item is selected + hovered
-
-            paintFolderBackground(event, tree, listBackgroundColor, 0xff);
-
-         } else if ((event.detail & SWT.SELECTED) != 0) {
-
-            // item is selected
-
-            paintFolderBackground(event, tree, listBackgroundColor, 0xb0);
-
-         } else if ((event.detail & SWT.HOT) != 0) {
-
-            // item is hovered
-
-            paintFolderBackground(event, tree, listBackgroundColor, 0x40);
          }
       });
 
@@ -719,58 +696,50 @@ public class PicDirFolder {
 
       menuMgr.add(_actionRunExternalAppTitle);
 
-      /*
-       * App1
-       */
-      final String prefExtApp1 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_1).trim();
-      if (prefExtApp1.length() > 0) {
+      final String prefExtApp1 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_1).trim();
+      final String prefExtApp2 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_2).trim();
+      final String prefExtApp3 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_FOLDER_VIEWER_3).trim();
+      {
+         /*
+          * App1
+          */
+         if (prefExtApp1.length() > 0) {
 
-         _actionRunExternalApp1.setText(
-               NLS.bind(
-                     Messages.Pic_Dir_Label_ExternalApp, //
-                     1,
-                     new Path(prefExtApp1).lastSegment()
-               //					prefExtApp1
-               //
-               ));
+            _actionRunExternalApp1.setText(NLS.bind(
+                  Messages.Pic_Dir_Label_ExternalApp,
+                  1,
+                  new Path(prefExtApp1).lastSegment()));
 
-         menuMgr.add(_actionRunExternalApp1);
+            menuMgr.add(_actionRunExternalApp1);
+         }
       }
+      {
+         /*
+          * App2
+          */
+         if (prefExtApp2.length() > 0) {
 
-      /*
-       * App2
-       */
-      final String prefExtApp2 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_2).trim();
-      if (prefExtApp2.length() > 0) {
+            _actionRunExternalApp2.setText(NLS.bind(
+                  Messages.Pic_Dir_Label_ExternalApp,
+                  2,
+                  new Path(prefExtApp2).lastSegment()));
 
-         _actionRunExternalApp2.setText(
-               NLS.bind(
-                     Messages.Pic_Dir_Label_ExternalApp, //
-                     2,
-                     new Path(prefExtApp2).lastSegment()
-               //					prefExtApp2
-               //
-               ));
-
-         menuMgr.add(_actionRunExternalApp2);
+            menuMgr.add(_actionRunExternalApp2);
+         }
       }
+      {
+         /*
+          * App3
+          */
+         if (prefExtApp3.length() > 0) {
 
-      /*
-       * App3
-       */
-      final String prefExtApp3 = _prefStore.getString(IPhotoPreferences.PHOTO_EXTERNAL_PHOTO_VIEWER_3).trim();
-      if (prefExtApp3.length() > 0) {
+            _actionRunExternalApp3.setText(NLS.bind(
+                  Messages.Pic_Dir_Label_ExternalApp,
+                  3,
+                  new Path(prefExtApp3).lastSegment()));
 
-         _actionRunExternalApp3.setText(
-               NLS.bind(
-                     Messages.Pic_Dir_Label_ExternalApp, //
-                     3,
-                     new Path(prefExtApp3).lastSegment()
-               //					prefExtApp3
-               //
-               ));
-
-         menuMgr.add(_actionRunExternalApp3);
+            menuMgr.add(_actionRunExternalApp3);
+         }
       }
 
       // show default when app is not defined
@@ -1040,22 +1009,6 @@ public class PicDirFolder {
       displayFolderImages(selectedFolderItem, isFromNavigationHistory, false);
    }
 
-   private void paintFolderBackground(final Event event, final Tree tree, final Color listBackgroundColor, final int alpha) {
-
-      final GC gc = event.gc;
-      final Color bgColorBackup = gc.getBackground();
-
-      final Rectangle clientArea = tree.getClientArea();
-      final Rectangle eventBounds = event.getBounds();
-
-      gc.setAlpha(alpha);
-      gc.setBackground(listBackgroundColor);
-      gc.fillRectangle(0, eventBounds.y, clientArea.width, eventBounds.height);
-
-      // restore colors for subsequent drawing
-      gc.setBackground(bgColorBackup);
-   }
-
    private void putFolderInWaitingQueue(final TVIFolderFolder queueFolderItem, final boolean isExpandFolder) {
 
       // get and set queue state
@@ -1157,79 +1110,79 @@ public class PicDirFolder {
 //				removeFolderFromWaitingQueue((TVIFolderFolder) treeViewerItem);
 //			}
 //		}
-}
+   }
 
-public void restoreState() {
+   public void restoreState() {
 
-   _isBehaviourAutoExpandCollapse = Util.getStateBoolean(_state, STATE_IS_SINGLE_CLICK_EXPAND, false);
-   _actionAutoExpandCollapse.setChecked(_isBehaviourAutoExpandCollapse);
+      _isBehaviourAutoExpandCollapse = Util.getStateBoolean(_state, STATE_IS_SINGLE_CLICK_EXPAND, false);
+      _actionAutoExpandCollapse.setChecked(_isBehaviourAutoExpandCollapse);
 
-   _isBehaviourSingleExpandedOthersCollapse = Util.getStateBoolean(
-         _state,
-         STATE_IS_SINGLE_EXPAND_COLLAPSE_OTHERS,
-         false);
-   _actionSingleExpandCollapseOthers.setChecked(_isBehaviourSingleExpandedOthersCollapse);
+      _isBehaviourSingleExpandedOthersCollapse = Util.getStateBoolean(
+            _state,
+            STATE_IS_SINGLE_EXPAND_COLLAPSE_OTHERS,
+            false);
+      _actionSingleExpandCollapseOthers.setChecked(_isBehaviourSingleExpandedOthersCollapse);
 
-   updateColors(true);
-   enableActions();
+      updateColors(true);
+      enableActions();
 
-   /*
-    * delay folder retrieval so that the UI can be updated immediately
-    */
-   final Job folderJob = new UIJob(UI.EMPTY_STRING) {
+      /*
+       * delay folder retrieval so that the UI can be updated immediately
+       */
+      final Job folderJob = new UIJob(UI.EMPTY_STRING) {
 
-      @Override
-      public IStatus runInUIThread(final IProgressMonitor monitor) {
+         @Override
+         public IStatus runInUIThread(final IProgressMonitor monitor) {
 
-         final String previousSelectedFolder = Util.getStateString(_state, STATE_SELECTED_FOLDER, null);
+            final String previousSelectedFolder = Util.getStateString(_state, STATE_SELECTED_FOLDER, null);
 
-         restoreStateFolder(previousSelectedFolder);
+            restoreStateFolder(previousSelectedFolder);
 
-         return Status.OK_STATUS;
-      }
-   };
+            return Status.OK_STATUS;
+         }
+      };
 
-   folderJob.setSystem(true);
-   folderJob.schedule();
-}
+      folderJob.setSystem(true);
+      folderJob.schedule();
+   }
 
-private void restoreStateFolder(final String restoreFolderName) {
+   private void restoreStateFolder(final String restoreFolderName) {
 
-   BusyIndicator.showWhile(_display, new Runnable() {
-      @Override
-      public void run() {
+      BusyIndicator.showWhile(_display, new Runnable() {
+         @Override
+         public void run() {
 
-         // set root item
-         _rootItem = new TVIFolderRoot(PicDirFolder.this, _folderViewer, getRootsSorted());
+            // set root item
+            _rootItem = new TVIFolderRoot(PicDirFolder.this, _folderViewer, getRootsSorted());
 
-         _folderViewer.setInput(new Object());
+            _folderViewer.setInput(new Object());
 
-         _selectedFolder = null;
-         _selectedTVIFolder = null;
+            _selectedFolder = null;
+            _selectedTVIFolder = null;
 
-         _picDirImages.showRestoreFolder(restoreFolderName);
+            _picDirImages.showRestoreFolder(restoreFolderName);
 
 //				/*
 //				 * first select only the root item because there is an effect, that the restored
 //				 * folder is expanded and ms later the last device is displayed multiple times (for
 //				 * each root entry)
 //				 */
-         selectFolder(restoreFolderName, true, false, false);
+            selectFolder(restoreFolderName, true, false, false);
 
 //				_display.asyncExec(new Runnable() {
 //					public void run() {
 //						selectFolder(restoreFolderName, true, false, false);
 //					}
 //				});
-      }
-   });
-}
+         }
+      });
+   }
 
-public void saveState() {
+   public void saveState() {
 
-   // selected folder
-   if (_selectedFolder != null) {
-      _state.put(STATE_SELECTED_FOLDER, _selectedFolder.getAbsolutePath());
+      // selected folder
+      if (_selectedFolder != null) {
+         _state.put(STATE_SELECTED_FOLDER, _selectedFolder.getAbsolutePath());
       }
 
       _state.put(STATE_IS_SINGLE_CLICK_EXPAND, _actionAutoExpandCollapse.isChecked());
@@ -1243,6 +1196,7 @@ public void saveState() {
     *           Set <code>true</code> when the folder was selected from the navigations history
     *           which prevents that the navigation history is updated.
     * @param isRootItem
+    *
     * @return Return <code>false</code> when the folder which should be selected is not available
     */
    boolean selectFolder(final String requestedFolderName,
@@ -1389,8 +1343,7 @@ public void saveState() {
 
    private void updateColors(final boolean isRestore) {
 
-      _isStateShowFileFolderInFolderItem = _prefStore.getBoolean(//
-            IPhotoPreferences.PHOTO_VIEWER_IS_SHOW_FILE_FOLDER);
+      _isStateShowFileFolderInFolderItem = _prefStore.getBoolean(IPhotoPreferences.PHOTO_VIEWER_IS_SHOW_FILE_FOLDER);
 
       final ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
       final Color fgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_FOREGROUND);
@@ -1398,10 +1351,6 @@ public void saveState() {
       final Color selectionFgColor = colorRegistry.get(IPhotoPreferences.PHOTO_VIEWER_COLOR_SELECTION_FOREGROUND);
 
       final Color noFocusSelectionFgColor = Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND);
-
-      final Tree tree = _folderViewer.getTree();
-      tree.setForeground(fgColor);
-      tree.setBackground(bgColor);
 
       _picDirImages.updateColors(fgColor, bgColor, selectionFgColor, noFocusSelectionFgColor, isRestore);
    }

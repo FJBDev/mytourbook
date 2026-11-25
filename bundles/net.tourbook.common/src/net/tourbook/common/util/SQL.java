@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2014, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -27,11 +27,15 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * SQL utilities.
+ * SQL utilities
  */
 public final class SQL {
 
-   public static final String SQL_STRING_SEPARATOR = "'"; //$NON-NLS-1$
+   private static final String SQL_PARAMETERS_FIRST = "?";   //$NON-NLS-1$
+   private static final String SQL_PARAMETERS_OTHER = ", ?"; //$NON-NLS-1$
+   public static final String  SQL_STRING_SEPARATOR = "'";   //$NON-NLS-1$
+
+   private static boolean      _isErrorDialogOpen   = false;
 
    public static void close(final Connection conn) {
 
@@ -76,12 +80,12 @@ public final class SQL {
 
          if (isFirst) {
 
-            sb.append('?');
+            sb.append(SQL_PARAMETERS_FIRST);
 
             isFirst = false;
 
          } else {
-            sb.append(", ?"); //$NON-NLS-1$
+            sb.append(SQL_PARAMETERS_OTHER);
          }
       }
 
@@ -90,6 +94,7 @@ public final class SQL {
 
    /**
     * @param text
+    *
     * @return Returns a text with all removed string separators {@value #SQL_STRING_SEPARATOR}.
     */
    public static String getCleanString(final String text) {
@@ -99,6 +104,7 @@ public final class SQL {
 
    /**
     * @param string
+    *
     * @return Returns a string with leading/trailing string separators
     *         {@value #SQL_STRING_SEPARATOR}, this separator {@link #SQL_STRING_SEPARATOR}
     *         <strong>must</strong> not be contained in the string which can be done with
@@ -171,26 +177,34 @@ public final class SQL {
       }
    }
 
-   public static void showException(final SQLException exception, final String sqlStatement) {
+   public static void showException(final SQLException sqlException,
+                                    final String sqlStatement) {
 
-      // log without line number that it can be easily copy/pasted into a sql tool
-      System.out.println();
-      System.out.println(sqlStatement);
+      final String stackTrace = Util.getStackTrace(sqlException);
 
-      // add line numbers
-      final String sqlStatementWithNumber = Util.addLineNumbers(sqlStatement);
+      // truncate for the message dialog
+      final String message = Util.truncateLines(stackTrace, 50);
 
-      final Display display = Display.getDefault();
-      display.asyncExec(() -> {
+      // log in app
+      StatusUtil.log(stackTrace, sqlException);
 
-         final String message = "SQL statement: " + UI.NEW_LINE2 // //$NON-NLS-1$
-               + sqlStatementWithNumber + UI.NEW_LINE2
-               + Util.getSQLExceptionText(exception);
+      if (_isErrorDialogOpen) {
 
-         StatusUtil.logError(message);
-         StatusUtil.log(exception);
+         // prevent "endless" or stacked dialogs
 
-         SQLMessageDialog.openError(display.getActiveShell(), "SQL Error", message); //$NON-NLS-1$
+         return;
+      }
+
+      _isErrorDialogOpen = true;
+
+      Display.getDefault().asyncExec(() -> {
+
+         SQLMessageDialog.openError(
+               Display.getDefault().getActiveShell(),
+               "SQL Error", //$NON-NLS-1$
+               message);
+
+         _isErrorDialogOpen = false;
       });
    }
 }

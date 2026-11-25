@@ -4,7 +4,7 @@
 <product 
 
    name              ="MyTourbook Product" 
-   version           ="24.8.0.qualifier" 
+   version           ="26.12.0.qualifier" 
 
    id                ="net.tourbook.productWithoutJRE" 
    uid               ="net.tourbook.productWithoutJRE" 
@@ -51,7 +51,7 @@
 
    <launcherArgs>
       <!-- VERY IMPORTANT: vmArgs MUST BE IN ONE LINE otherwise they are wrongly formatted and DO NOT WORK !!! -->
-      <vmArgs>-Xmx8g --add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=warn --add-opens=java.base/java.lang=ALL-UNNAMED</vmArgs>
+      <vmArgs>-Xmx8g --add-exports=java.base/java.lang=ALL-UNNAMED --add-exports=java.desktop/sun.awt=ALL-UNNAMED --add-exports=java.desktop/sun.java2d=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED</vmArgs>
       <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
@@ -99,7 +99,12 @@
 
       <feature id="feature.net.tourbook.ext.eclipse"        installMode="root"/>
       <feature id="feature.net.tourbook.ext.eclipse.nl"     installMode="root"/>
+      <feature id="feature.net.tourbook.ext.h2"             installMode="root"/>
       <feature id="feature.net.tourbook.ext.derby"          installMode="root"/>
+<<<<<<< HEAD
+=======
+      <feature id="feature.net.tourbook.ext.jpa"            installMode="root"/>
+>>>>>>> refs/remotes/Wolfgang/main
       <feature id="feature.net.tourbook.ext.jars"           installMode="root"/>
       <feature id="feature.net.tourbook.ext.jpa"            installMode="root"/>
       <feature id="feature.net.tourbook.ext.rxtx"           installMode="root"/>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2023 Frédéric Bard
+ * Copyright (C) 2022, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,11 +39,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import utils.UITest;
 import utils.Utils;
 
+@Disabled("Disabled because of the external connection to Strava")
 public class StravaUploaderTests extends UITest {
 
    private static final String           OAUTH_PASSEUR_APP_URL_TOKEN = OAuth2Utils.createOAuthPasseurUri("/strava/token").toString();   //$NON-NLS-1$
@@ -95,6 +98,7 @@ public class StravaUploaderTests extends UITest {
    }
 
    @Test
+   @Tag("ExternalConnection")
    void testManualTourUpload() {
 
       final String stravaResponse = Utils.readFileContent(CLOUD_FILES_PATH
@@ -159,7 +163,7 @@ public class StravaUploaderTests extends UITest {
             .called();
       final List<?> logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "message      = 1/1/2005, 5:00 AM -> Uploaded Activity Link: <br><a href=\"https://www.strava.com/activities/6468063624\">https://www.strava.com/activities/6468063624</a></br>\n"))); //$NON-NLS-1$
+            "message      = 1/1/2005, 5:00 AM -> Uploaded Activity Link: <br><a href=\"https://www.strava.com/activities/6468063624\">https://www.strava.com/activities/6468063624</a></br>"))); //$NON-NLS-1$
 
       // Cleanup
       tour = Utils.selectManualTour(bot);
@@ -190,6 +194,6 @@ public class StravaUploaderTests extends UITest {
       // Assert
       final List<?> logs = TourLogManager.getLogs();
       assertTrue(logs.stream().map(log -> log.toString()).anyMatch(log -> log.contains(
-            "message      = 1/31/2021, 7:15 AM -> Upload Id: \"6877121234\". Creation Activity Status: \"Your activity is still being processed.\"\n")));//$NON-NLS-1$
+            "message      = 1/31/2021, 7:15 AM -> Upload Id: \"6877121234\". Creation Activity Status: \"Your activity is still being processed.\"")));//$NON-NLS-1$
    }
 }

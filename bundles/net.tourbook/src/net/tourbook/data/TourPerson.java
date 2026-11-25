@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -15,8 +15,11 @@
  *******************************************************************************/
 package net.tourbook.data;
 
+<<<<<<< HEAD
 import static jakarta.persistence.CascadeType.ALL;
 
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import java.io.Serializable;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.tourbook.common.UI;
@@ -33,7 +37,18 @@ import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
 import net.tourbook.training.TrainingManager;
 
-import org.hibernate.annotations.Cascade;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
@@ -61,6 +76,7 @@ public class TourPerson implements Comparable<Object>, Serializable {
          0,
          0,
          TimeTools.getDefaultTimeZone());
+
    public static final int                 DB_LENGTH_LAST_NAME        = 80;
    public static final int                 DB_LENGTH_FIRST_NAME       = 80;
    public static final int                 DB_LENGTH_RAW_DATA_PATH    = 255;
@@ -150,8 +166,7 @@ public class TourPerson implements Comparable<Object>, Serializable {
    /**
     * Tour hr zones
     */
-   @OneToMany(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "tourPerson")
-   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tourPerson")
    private Set<TourPersonHRZone>           hrZones                    = new HashSet<>();
 
    /**
@@ -304,13 +319,15 @@ public class TourPerson implements Comparable<Object>, Serializable {
    }
 
    /**
-    * @param dateTime
+    * @param persondBirthDay
+    * @param tourDateTime
     *
-    * @return Returns age for this person at a specific day
+    * @return Returns the age for this person at a specific day, this is used to get the persons age
+    *         when a tour was created
     */
-   private int getAge(final ZonedDateTime zonedBirthDay, final ZonedDateTime dateTime) {
+   private int getAge(final ZonedDateTime persondBirthDay, final ZonedDateTime tourDateTime) {
 
-      final Period age = Period.between(zonedBirthDay.toLocalDate(), dateTime.toLocalDate());
+      final Period age = Period.between(persondBirthDay.toLocalDate(), tourDateTime.toLocalDate());
 
       return age.getYears();
    }
@@ -363,7 +380,7 @@ public class TourPerson implements Comparable<Object>, Serializable {
    /**
     * @param hrMaxFormulaKey
     * @param hrMaxPulse
-    * @param dateTime
+    * @param tourDateTime
     *           Date when the HR zones should be computed, this is the tour date.
     *
     * @return Returns HR zone min/max bpm values or <code>null</code> when hr zones are not
@@ -371,61 +388,63 @@ public class TourPerson implements Comparable<Object>, Serializable {
     */
    public HrZoneContext getHrZoneContext(final int hrMaxFormulaKey,
                                          final int hrMaxPulse,
-                                         final ZonedDateTime birthDay,
-                                         final ZonedDateTime dateTime) {
+                                         final ZonedDateTime personBirthDay,
+                                         final ZonedDateTime tourDateTime) {
 
       if (hrZones == null || hrZones.isEmpty()) {
          return null;
       }
 
-      final int age = getAge(birthDay, dateTime);
-      final HrZoneContext hrZoneMinMax = _hrZoneMinMaxBpm.get(age);
+      final int age = getAge(personBirthDay, tourDateTime);
+      final HrZoneContext ageHrZoneMinMax = _hrZoneMinMaxBpm.get(age);
 
-      if (hrZoneMinMax != null) {
+      if (ageHrZoneMinMax != null) {
+
          // hr zones for the age is already available
-         return hrZoneMinMax;
+         return ageHrZoneMinMax;
       }
 
-      final int hrMax = getHrMax(hrMaxFormulaKey, hrMaxPulse, age);
-      final int zoneSize = hrZones.size();
+      final float hrMax = getHrMax(hrMaxFormulaKey, hrMaxPulse, age);
 
-      final float[] zoneMinBmps = new float[zoneSize];
-      final float[] zoneMaxBmps = new float[zoneSize];
+      final int numZones = hrZones.size();
 
-      final ArrayList<TourPersonHRZone> hrZonesList = new ArrayList<>(hrZones);
-      Collections.sort(hrZonesList);
+      final float[] allZoneMinBpm = new float[numZones];
+      final float[] allZoneMaxBpm = new float[numZones];
 
-      int prevMaxBpm = -1;
+      final List<TourPersonHRZone> allHrZones = new ArrayList<>(hrZones);
+      Collections.sort(allHrZones);
 
-      // fill zone min/max values
-      for (int zoneIndex = 0; zoneIndex < hrZones.size(); zoneIndex++) {
+      // fill zone min values
+      for (int zoneIndex = 0; zoneIndex < numZones; zoneIndex++) {
 
-         final TourPersonHRZone hrZone = hrZonesList.get(zoneIndex);
+         final TourPersonHRZone hrZone = allHrZones.get(zoneIndex);
 
-         final int zoneMaxValue = hrZone.getZoneMaxValue();
+         final float zoneMinValue = hrZone.getZoneMinValue();
+         final float minBpm = zoneMinValue * hrMax / 100;
 
-         int minBpm = hrZone.getZoneMinValue() * hrMax / 100;
-
-         final int maxBpm = zoneMaxValue == Integer.MAX_VALUE ? //
-               Integer.MAX_VALUE
-               : (zoneMaxValue * hrMax / 100);
-
-         if (prevMaxBpm != -1) {
-            // make sure that "min" is last "max + 1"
-            minBpm = prevMaxBpm + 1;
-         }
-
-         zoneMinBmps[zoneIndex] = minBpm - 0.5f;
-         zoneMaxBmps[zoneIndex] = maxBpm + 0.5f;
-
-         prevMaxBpm = maxBpm;
+         allZoneMinBpm[zoneIndex] = Math.round(minBpm);
       }
 
-      final HrZoneContext hrZoneMinMax1 = new HrZoneContext(zoneMinBmps, zoneMaxBmps, age, hrMax);
+      // fill zone max values
+      for (int zoneIndex = 1; zoneIndex < numZones; zoneIndex++) {
 
-      _hrZoneMinMaxBpm.put(age, hrZoneMinMax1);
+         final float minBpm = allZoneMinBpm[zoneIndex];
+         final float prevMaxBpm = minBpm - 1;
 
-      return hrZoneMinMax1;
+         allZoneMaxBpm[zoneIndex - 1] = Math.round(prevMaxBpm);
+      }
+
+      /*
+       * The last zone max is always Integer.MAX_VALUE to fix
+       * https://github.com/mytourbook/mytourbook/issues/1710#issuecomment-5157160956
+       */
+      allZoneMaxBpm[numZones - 1] = Integer.MAX_VALUE;
+
+      final HrZoneContext hrZoneContext = new HrZoneContext(allZoneMinBpm, allZoneMaxBpm, age, (int) hrMax);
+
+      _hrZoneMinMaxBpm.put(age, hrZoneContext);
+
+      return hrZoneContext;
    }
 
    /**

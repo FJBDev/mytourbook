@@ -5,12 +5,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>mytourbook-features</artifactId>    <groupId>net.tourbook</groupId>
-                                                   <version>24.8.0-SNAPSHOT</version>
+                                                   <version>26.12.0-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <parent>
       <artifactId>mytourbook-app</artifactId>      <groupId>net.tourbook</groupId>
-                                                   <version>24.8.0-SNAPSHOT</version>
+                                                   <version>26.12.0-SNAPSHOT</version>
       <relativePath>..</relativePath>
    </parent>
    
@@ -19,9 +19,15 @@
       <module>feature.net.tourbook.app.nl</module>
       <module>feature.net.tourbook.app.version</module>
       
+      <module>feature.net.tourbook.ext.h2</module>
       <module>feature.net.tourbook.ext.derby</module>
       <module>feature.net.tourbook.ext.eclipse</module>
+<<<<<<< HEAD
       <module>feature.net.tourbook.ext.eclipse.nl</module>
+=======
+      <module>feature.net.tourbook.ext.eclipse.nl</module> 
+      <module>feature.net.tourbook.ext.jpa</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>feature.net.tourbook.ext.jars</module>
       <module>feature.net.tourbook.ext.jpa</module>
       <module>feature.net.tourbook.ext.rxtx</module>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2021, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import net.tourbook.chart.SelectionBarChart;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipHideListener;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.Util;
@@ -201,9 +202,10 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
          public void keyTraversed(final TraverseEvent event) {
 
             if (event.detail == SWT.TRAVERSE_RETURN) {
+               
                final ISelection selection = _chart.getSelection();
-               if (selection instanceof SelectionBarChart) {
-                  final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+               
+               if (selection instanceof final SelectionBarChart barChartSelection) {
 
                   if (barChartSelection.serieIndex != -1) {
 
@@ -288,6 +290,11 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
    }
 
    @Override
+   protected String getLayoutPrefPrefix() {
+      return LAYOUT_BATTERY;
+   }
+
+   @Override
    public String getRawStatisticValues(final boolean isShowSequenceNumbers) {
       return _batteryDataProvider.getRawStatisticValues(isShowSequenceNumbers);
    }
@@ -347,9 +354,9 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
       if (_batteryData != null
             && _batteryData.allTourIds != null
             && _batteryData.allTourIds.length > 0
-            && selection instanceof SelectionBarChart) {
+            && selection instanceof final SelectionBarChart barChartSelection) {
 
-         final Long selectedTourId = _batteryData.allTourIds[((SelectionBarChart) selection).valueIndex];
+         final Long selectedTourId = _batteryData.allTourIds[barChartSelection.valueIndex];
 
          viewState.put(STATE_SELECTED_TOUR_ID, Long.toString(selectedTourId));
       }
@@ -401,8 +408,14 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
       final IChartInfoProvider chartInfoProvider = new IChartInfoProvider() {
 
          @Override
-         public void createToolTipUI(final IToolTipProvider toolTipProvider, final Composite parent, final int serieIndex, final int valueIndex) {
+         public ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
+                                                final Composite parent,
+                                                final int serieIndex,
+                                                final int valueIndex) {
+
             StatisticBattery.this.createToolTipUI(toolTipProvider, parent, serieIndex, valueIndex);
+
+            return _tourInfoUI;
          }
       };
 
@@ -465,7 +478,7 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
          _minMaxKeeper.setMinMaxValues(chartModel);
       }
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the data in the chart
       _chart.updateChart(chartModel, false, true);
@@ -493,8 +506,7 @@ public class StatisticBattery extends TourbookStatistic implements IBarSelection
           * Get currently selected tour id
           */
          final ISelection selection = _chart.getSelection();
-         if (selection instanceof SelectionBarChart) {
-            final SelectionBarChart barChartSelection = (SelectionBarChart) selection;
+         if (selection instanceof final SelectionBarChart barChartSelection) {
 
             if (barChartSelection.serieIndex != -1 && _batteryData != null) {
 

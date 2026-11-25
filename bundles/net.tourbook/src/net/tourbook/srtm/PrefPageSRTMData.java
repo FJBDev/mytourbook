@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2022 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -91,6 +91,12 @@ public class PrefPageSRTMData extends PreferencePage implements IWorkbenchPrefer
 
    @Override
    public void applyData(final Object data) {
+
+      if (_prefContainer == null) {
+
+         // this happened during debugging
+         return;
+      }
 
       // run async otherwise the button do not have the focus !!!
       _prefContainer.getDisplay().asyncExec(() -> {

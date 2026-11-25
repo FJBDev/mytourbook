@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 2024 Frédéric Bard
+ * Copyright (C) 2022, 2026 Frédéric Bard
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,7 @@ import net.tourbook.weather.WeatherUtils;
 
 public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
-   private static final String BASE_API_URL    = WeatherUtils.OAUTH_PASSEUR_APP_URL + "/weatherapi"; //$NON-NLS-1$
+   private static final String BASE_API_URL  = WeatherUtils.OAUTH_PASSEUR_APP_URL + "/weatherapi"; //$NON-NLS-1$
 
    private HistoryResult       historyResult = null;
 
@@ -45,10 +45,13 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
       // Weather Icons and Codes  : https://www.weatherapi.com/docs/#weather-icons
       switch (weatherCode) {
+      case 1135:
+         weatherType = IWeather.WEATHER_ID_FOG;
+         break;
+
       case 1006:
       case 1009:
       case 1030:
-      case 1135:
       case 1147:
          weatherType = IWeather.WEATHER_ID_OVERCAST;
          break;
@@ -251,6 +254,9 @@ public class WeatherApiRetriever extends HistoricalWeatherRetriever {
 
          historyResult.addHourList(newHistoryResult.getForecastdayHourList());
          final List<Hour> hourList = historyResult.getHourList();
+         if (hourList == null || hourList.isEmpty()) {
+            return false;
+         }
 
          final int lastWeatherDataHour = hourList.get(hourList.size() - 1).time_epoch();
          if (WeatherUtils.isTourWeatherDataComplete(

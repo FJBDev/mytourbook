@@ -8,12 +8,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>mytourbook-bundles</artifactId>     <groupId>net.tourbook</groupId>
-                                                   <version>24.8.0-SNAPSHOT</version>
+                                                   <version>26.12.0-SNAPSHOT</version>
    <packaging>pom</packaging>
 
    <parent>
       <artifactId>mytourbook-app</artifactId>      <groupId>net.tourbook</groupId>
-                                                   <version>24.8.0-SNAPSHOT</version>
+                                                   <version>26.12.0-SNAPSHOT</version>
 
       <relativePath>../../MT/mytourbook/pom.xml</relativePath>
    </parent>
@@ -41,23 +41,31 @@
       <module>net.tourbook.ui.tests</module>
       
       <module>net.tourbook.ext.apache</module>
+<<<<<<< HEAD
+=======
+      <module>net.tourbook.ext.h2</module>
+      <module>net.tourbook.ext.jpa</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>net.tourbook.ext.geoclipse</module>
       <module>net.tourbook.ext.jars</module>
       <module>net.tourbook.ext.jars.printing</module>
+<<<<<<< HEAD
       <module>net.tourbook.ext.jpa</module>
+=======
+      <module>net.tourbook.ext.rxtx_2.2</module>
+>>>>>>> refs/remotes/Wolfgang/main
       <module>net.tourbook.ext.rxtx.linux64_2.2</module>
       <module>net.tourbook.ext.rxtx.macosx_2.2</module>
       <module>net.tourbook.ext.rxtx.win64_2.2</module>
-      <module>net.tourbook.ext.rxtx_2.2</module>
       <module>net.tourbook.ext.velocity</module>
       <module>net.tourbook.ext.vtm</module>
       <module>net.tourbook.ext.vtm.linux</module>
       <module>net.tourbook.ext.vtm.macosx</module>
       <module>net.tourbook.ext.vtm.windows</module>
+      <module>net.tourbook.ext.worldwind</module>
       <module>net.tourbook.ext.worldwind.linux64</module>
       <module>net.tourbook.ext.worldwind.macosx</module>
       <module>net.tourbook.ext.worldwind.win64</module>
-      <module>net.tourbook.ext.worldwind</module>
 
    </modules>
 

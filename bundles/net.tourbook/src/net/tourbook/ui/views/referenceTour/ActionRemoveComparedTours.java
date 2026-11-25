@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -45,7 +49,6 @@ public class ActionRemoveComparedTours extends Action {
       _tourView = view;
 
       setImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete));
-      setDisabledImageDescriptor(TourbookPlugin.getImageDescriptor(Images.App_Delete_Disabled));
 
       setText(Messages.RefTour_Action_DeleteTours);
 
@@ -186,7 +189,7 @@ public class ActionRemoveComparedTours extends Action {
    @Override
    public void run() {
 
-      if (TourManager.isTourEditorModified()) {
+      if (TourManager.isTourModified()) {
          return;
       }
 

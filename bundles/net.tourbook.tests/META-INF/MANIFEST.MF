@@ -2,9 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Integration tests suite for MyTourbook
 Bundle-SymbolicName: net.tourbook.tests;singleton:=true
-Bundle-Version: 24.8.0.qualifier
+Bundle-Version: 26.12.0.qualifier
 Require-Bundle: net.tourbook,
  net.tourbook.ext.jars,
+<<<<<<< HEAD
+=======
+ net.tourbook.ext.jpa,
+>>>>>>> refs/remotes/Wolfgang/main
  net.tourbook.cloud,
  org.eclipse.ui,
  net.tourbook.common,
@@ -13,13 +17,19 @@ Require-Bundle: net.tourbook,
  junit-jupiter-api
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
+<<<<<<< HEAD
  hibernate-core-6.4.0.Final.jar,
  jsonassert-1.5.1.jar,
  xmlunit-core-2.10.0.jar,
+=======
+ hibernate-entitymanager.jar,
+ jsonassert-2.0-rc1.jar,
+ xmlunit-core-2.14.0.jar,
+>>>>>>> refs/remotes/Wolfgang/main
  HttpClientMock-1.0.0.jar,
- hamcrest-all-1.3.jar
+ hamcrest-3.0.jar
 Bundle-Vendor: MyTourbook
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: com.fasterxml.jackson.core.type,
  com.fasterxml.jackson.databind,
  net.tourbook.cloud.oauth2,

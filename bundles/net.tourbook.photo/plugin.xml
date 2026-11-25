@@ -35,7 +35,7 @@
       <menuContribution locationURI="menu:m_Directory?after=net.tourbook.separator.OtherDirectories" >
                   
          <command commandId="command.net.tourbook.photo.PicDirView"
-            icon="icons/photo-directory.png"
+            icon="icons/photo-directory.svg"
             label="%View_Name_Photos"
             mnemonic="%View_Name_Photos_Mnemonic"/>
       
@@ -49,7 +49,7 @@
          </separator>
 
          <command commandId="command.net.tourbook.photo.RefreshFolder"
-            icon="icons/refresh.png"
+            icon="icons/refresh.svg"
             label="%Action_PhotoDirectory_RefreshFolder"
             mnemonic="%Action_PhotoDirectory_RefreshFolder_Mnemonic"/>
          
@@ -60,7 +60,7 @@
          <toolbar id="mc_tb_Directory">
          
             <command commandId="command.net.tourbook.photo.PicDirView"
-               icon="icons/photo-directory.png"
+               icon="icons/photo-directory.svg"
                label="%View_Name_Photos"
                mnemonic="%View_Name_Photos_Mnemonic"/>
          
@@ -98,44 +98,32 @@
       <page
          class="net.tourbook.photo.internal.preferences.PrefPagePhoto"
          id="net.tourbook.preferences.PrefPagePhotoID"
-         name="%PrefPage_Photo">
-      </page>
+         name="%PrefPage_Photo"/>
       
          <page id="net.tourbook.preferences.PrefPagePhotoExternalAppID"
             class="net.tourbook.photo.internal.preferences.PrefPagePhotoExternalApp"
             category="net.tourbook.preferences.PrefPagePhotoID"
-            name="%PrefPage_Photo_PhotoExternalApp">
-         </page>
+            name="%PrefPage_Photo_PhotoExternalApp"/>
    
          <page id="net.tourbook.preferences.PrefPagePhotoFullsizeViewerID"
             class="net.tourbook.photo.internal.preferences.PrefPagePhotoFullsizeViewer"
             category="net.tourbook.preferences.PrefPagePhotoID"
-            name="%PrefPage_Photo_PhotoFullsizeViewer">
-         </page>
+            name="%PrefPage_Photo_PhotoFullsizeViewer"/>
          
          <page id="net.tourbook.preferences.PrefPagePhotoDirectoryID"
             class="net.tourbook.photo.internal.preferences.PrefPagePhotoDirectory"
             category="net.tourbook.preferences.PrefPagePhotoID"
-            name="%PrefPage_Photo_PhotoViewer">
-         </page>
-   
-         <page id="net.tourbook.preferences.PrefPagePhotoSystemID"
-            class="net.tourbook.photo.internal.preferences.PrefPagePhotoSystem"
-            category="net.tourbook.preferences.PrefPagePhotoID"
-            name="%PrefPage_Photo_Sytem">
-         </page>
-         
-            <page id="net.tourbook.preferences.PrefPagePhotoImageCacheID"
-               class="net.tourbook.photo.internal.preferences.PrefPagePhotoImageCache"
-               category="net.tourbook.preferences.PrefPagePhotoSystemID"
-               name="%PrefPage_Photo_ImageCache">
-            </page>
+            name="%PrefPage_Photo_PhotoViewer"/>
             
-            <page id="net.tourbook.preferences.PrefPagePhotoThumbnailStoreID"
-               class="net.tourbook.photo.internal.preferences.PrefPagePhotoThumbnailStore"
-               category="net.tourbook.preferences.PrefPagePhotoSystemID"
-               name="%PrefPage_Photo_ThumbnailStore">
-            </page>
+         <page id="net.tourbook.preferences.PrefPagePhotoImageCacheID"
+            class="net.tourbook.photo.internal.preferences.PrefPagePhotoImageCache"
+            category="net.tourbook.preferences.PrefPagePhotoID"
+            name="%PrefPage_Photo_ImageCache"/>
+         
+         <page id="net.tourbook.preferences.PrefPagePhotoThumbnailStoreID"
+            class="net.tourbook.photo.internal.preferences.PrefPagePhotoThumbnailStore"
+            category="net.tourbook.preferences.PrefPagePhotoID"
+            name="%PrefPage_Photo_ThumbnailStore"/>
 
    </extension>
 
@@ -146,7 +134,7 @@
       <view
          category="net.tourbook.category.photo"
          class="net.tourbook.photo.PicDirView"
-         icon="icons/photo-directory.png"
+         icon="icons/photo-directory.svg"
          id="net.tourbook.photo.PicDirView"
          name="%View_Name_Photos"/>
    

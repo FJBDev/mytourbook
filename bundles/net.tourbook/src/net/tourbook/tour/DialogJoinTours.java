@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,7 +42,7 @@ import net.tourbook.data.TourType;
 import net.tourbook.data.TourWayPoint;
 import net.tourbook.database.PersonManager;
 import net.tourbook.database.TourDatabase;
-import net.tourbook.preferences.ITourbookPreferences;
+import net.tourbook.preferences.PrefPageTourType_Definitions;
 import net.tourbook.tag.TagManager;
 import net.tourbook.tag.TagMenuManager;
 import net.tourbook.ui.ITourProvider;
@@ -159,7 +159,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
    private final IDialogSettings _state                                 = TourbookPlugin.getState("DialogJoinTours"); //$NON-NLS-1$
 
-   private TagMenuManager        _tagMenuMgr;
+   private TagMenuManager        _tagMenuManager;
    private ActionOpenPrefDialog  _actionOpenTourTypePrefs;
 
    private TourData              _joinedTourData;
@@ -287,11 +287,11 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
 
    private void createActions() {
 
-      _tagMenuMgr = new TagMenuManager(this, false);
+      _tagMenuManager = new TagMenuManager(this, false);
 
       _actionOpenTourTypePrefs = new ActionOpenPrefDialog(
             Messages.action_tourType_modify_tourTypes,
-            ITourbookPreferences.PREF_PAGE_TOUR_TYPE);
+            PrefPageTourType_Definitions.ID);
    }
 
    @Override
@@ -338,8 +338,8 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          final Set<TourTag> joinedTourTags = _joinedTourData.getTourTags();
          final boolean isTagInTour = joinedTourTags != null && !joinedTourTags.isEmpty();
 
-         _tagMenuMgr.fillTagMenu(menuManager, false);
-         _tagMenuMgr.enableTagActions(true, isTagInTour, joinedTourTags);
+         _tagMenuManager.fillTagMenu(menuManager);
+         _tagMenuManager.enableTagActions(true, isTagInTour, joinedTourTags);
       });
 
       // set menu for the tag item
@@ -348,7 +348,8 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
       tagContextMenu.addMenuListener(new MenuAdapter() {
          @Override
          public void menuHidden(final MenuEvent e) {
-            _tagMenuMgr.onHideMenu();
+
+            _tagMenuManager.onHideMenu();
          }
 
          @Override
@@ -358,7 +359,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
             Point pt = new Point(rect.x, rect.y + rect.height);
             pt = _linkTag.getParent().toDisplay(pt);
 
-            _tagMenuMgr.onShowMenu(menuEvent, _linkTag, pt, null);
+            _tagMenuManager.onShowMenu(menuEvent, _linkTag, pt, null);
          }
       });
 
@@ -1555,8 +1556,10 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
          final int tourAltUp = _joinedTourData.getTourAltUp();
          final int tourAltDown = _joinedTourData.getTourAltDown();
 
-         _joinedTourData.setTourAltUp(tourAltUp - joinedElevationDiffUp);
-         _joinedTourData.setTourAltDown(tourAltDown - joinedElevationDiffDown);
+         final float elevationGain = tourAltUp - joinedElevationDiffUp;
+         final float elevationLoss = tourAltDown - joinedElevationDiffDown;
+
+         _joinedTourData.setElevationGainLoss(elevationGain, elevationLoss);
       }
 
       _joinedTourData.computeComputedValues();
@@ -1577,7 +1580,7 @@ public class DialogJoinTours extends TitleAreaDialog implements ITourProvider2 {
        */
       _joinedTourData.setSpeedSerie(null);
 
-      _joinedTourData.cleanupDataSeries();
+      _joinedTourData.cleanupDataSeries(null);
 
       // set joined speed again otherwise it was killed 2 lines above, highly complicated
       if (isJoinSpeed) {

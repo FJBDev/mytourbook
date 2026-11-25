@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -45,35 +45,37 @@ import org.eclipse.swt.widgets.ToolBar;
  */
 public class Chart extends ViewForm {
 
-   private static final String                       ACTION_ID_MOVE_LEFT_SLIDER_HERE  = "ACTION_ID_MOVE_LEFT_SLIDER_HERE";  //$NON-NLS-1$
-   private static final String                       ACTION_ID_MOVE_RIGHT_SLIDER_HERE = "ACTION_ID_MOVE_RIGHT_SLIDER_HERE"; //$NON-NLS-1$
-   private static final String                       ACTION_ID_MOVE_SLIDERS_TO_BORDER = "ACTION_ID_MOVE_SLIDERS_TO_BORDER"; //$NON-NLS-1$
-   private static final String                       ACTION_ID_ZOOM_FIT_GRAPH         = "ACTION_ID_ZOOM_FIT_GRAPH";         //$NON-NLS-1$
-   private static final String                       ACTION_ID_ZOOM_IN_TO_SLIDER      = "ACTION_ID_ZOOM_IN_TO_SLIDER";      //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_LEFT_SLIDER_HERE     = "ACTION_ID_MOVE_LEFT_SLIDER_HERE";     //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_LEFT_SLIDER_TO_START = "ACTION_ID_MOVE_LEFT_SLIDER_TO_START"; //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_RIGHT_SLIDER_HERE    = "ACTION_ID_MOVE_RIGHT_SLIDER_HERE";    //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_RIGHT_SLIDER_TO_END  = "ACTION_ID_MOVE_RIGHT_SLIDER_TO_END";  //$NON-NLS-1$
+   private static final String                       ACTION_ID_MOVE_SLIDERS_TO_BORDER    = "ACTION_ID_MOVE_SLIDERS_TO_BORDER";    //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_FIT_GRAPH            = "ACTION_ID_ZOOM_FIT_GRAPH";            //$NON-NLS-1$
+   private static final String                       ACTION_ID_ZOOM_IN_TO_SLIDER         = "ACTION_ID_ZOOM_IN_TO_SLIDER";         //$NON-NLS-1$
 
-   static final int                                  NO_BAR_SELECTION                 = -1;
+   static final int                                  NO_BAR_SELECTION                    = -1;
 
-   public static final String                        CUSTOM_DATA_TOUR_ID              = "tourId";                           //$NON-NLS-1$
+   public static final String                        CUSTOM_DATA_TOUR_ID                 = "tourId";                              //$NON-NLS-1$
 
-   private static final int                          MouseMove                        = 10;
-   private static final int                          MouseDown                        = 20;
-   private static final int                          MouseUp                          = 30;
-   private static final int                          MouseDoubleClick                 = 40;
-   private static final int                          MouseExit                        = 50;
-   private static final int                          KeyDown                          = 110;
-   private static final int                          ChartResized                     = 999;
+   private static final int                          MouseMove                           = 10;
+   private static final int                          MouseDown                           = 20;
+   private static final int                          MouseUp                             = 30;
+   private static final int                          MouseDoubleClick                    = 40;
+   private static final int                          MouseExit                           = 50;
+   private static final int                          KeyDown                             = 110;
+   private static final int                          ChartResized                        = 999;
 
    public static Color                               FOREGROUND_COLOR_GRID;
    public static Color                               FOREGROUND_COLOR_UNITS;
 
-   private final ListenerList<IBarSelectionListener> _barSelectionListeners           = new ListenerList<>();
-   private final ListenerList<IBarSelectionListener> _barDoubleClickListeners         = new ListenerList<>();
-   private final ListenerList<IHoveredValueListener> _chartHoveredValueListener       = new ListenerList<>();
-   private final ListenerList<IKeyListener>          _chartKeyListener                = new ListenerList<>();
-   private final ListenerList<IMouseListener>        _chartMouseListener              = new ListenerList<>();
-   private final ListenerList<IMouseListener>        _chartMouseMoveListener          = new ListenerList<>();
-   private final ListenerList<IChartOverlay>         _chartOverlayListener            = new ListenerList<>();
-   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners             = new ListenerList<>();
+   private final ListenerList<IBarSelectionListener> _barSelectionListeners              = new ListenerList<>();
+   private final ListenerList<IBarSelectionListener> _barDoubleClickListeners            = new ListenerList<>();
+   private final ListenerList<IHoveredValueListener> _chartHoveredValueListener          = new ListenerList<>();
+   private final ListenerList<IKeyListener>          _chartKeyListener                   = new ListenerList<>();
+   private final ListenerList<IMouseListener>        _chartMouseListener                 = new ListenerList<>();
+   private final ListenerList<IMouseListener>        _chartMouseMoveListener             = new ListenerList<>();
+   private final ListenerList<IChartOverlay>         _chartOverlayListener               = new ListenerList<>();
+   private final ListenerList<ISliderMoveListener>   _sliderMoveListeners                = new ListenerList<>();
 
    private ActionMouseWheelMode                      _action_MouseWheelMode;
    private ActionZoomIn                              _action_ZoomIn;
@@ -88,8 +90,8 @@ public class Chart extends ViewForm {
    private IToolBarManager                           _toolbarMgr;
    private IChartContextProvider                     _chartContextProvider;
 
-   private boolean                                   _isShowZoomActions               = false;
-   private boolean                                   _isShowMouseMode                 = false;
+   private boolean                                   _isShowZoomActions                  = false;
+   private boolean                                   _isShowMouseMode                    = false;
 
    private Color                                     _backgroundColor;
 
@@ -101,7 +103,7 @@ public class Chart extends ViewForm {
    private IHoveredValueTooltipListener              _hoveredValueTooltipListener;
 
    private HashMap<String, Action>                   _allChartActions;
-   private boolean                                   _isFillToolbar                   = true;
+   private boolean                                   _isFillToolbar                      = true;
    private boolean                                   _isToolbarCreated;
 
    private int                                       _barSelectionSerieIndex;
@@ -112,27 +114,27 @@ public class Chart extends ViewForm {
    /**
     * <code>true</code> to start the bar chart at the bottom of the chart
     */
-   private boolean                                   _isDrawBarChartAtBottom          = true;
+   private boolean                                   _isDrawBarChartAtBottom             = true;
 
    /**
     * minimum width in pixel for one unit, this is only an approximate value because the pixel is
     * rounded up or down to fit a rounded unit
     */
-   protected int                                     gridVerticalDistance             = 30;
-   protected int                                     gridHorizontalDistance           = 70;
+   protected int                                     gridVerticalDistance                = 30;
+   protected int                                     gridHorizontalDistance              = 70;
 
-   protected boolean                                 isShowHorizontalGridLines        = false;
-   protected boolean                                 isShowVerticalGridLines          = false;
+   protected boolean                                 isShowHorizontalGridLines           = false;
+   protected boolean                                 isShowVerticalGridLines             = false;
 
    /**
     * Transparency of the graph lines
     */
-   protected int                                     graphTransparency_Line           = 0xFF;
+   protected int                                     graphTransparency_Line              = 0xFF;
 
    /**
     * Transparency of the graph fillings
     */
-   protected int                                     graphTransparency_Filling        = 0xE0;
+   protected int                                     graphTransparency_Filling           = 0xE0;
 
    /**
     * The graph transparency can be adjusted with this value. This value is multiplied with the
@@ -140,12 +142,17 @@ public class Chart extends ViewForm {
     * <p>
     * Opacity: 0.0 = transparent, 1.0 = opaque.
     */
-   double                                            graphTransparencyAdjustment      = 1.0;
+   double                                            graphTransparencyAdjustment         = 1.0;
 
    /**
     * Antialiasing for the graph, can be {@link SWT#ON} or {@link SWT#OFF}.
     */
-   public int                                        graphAntialiasing                = SWT.OFF;
+   public int                                        graphAntialiasing                   = SWT.OFF;
+
+   /**
+    * Width of the vertical axis
+    */
+   public int                                        yAxisWidth                          = 50;
 
    /*
     * Segment alternate color
@@ -268,17 +275,23 @@ public class Chart extends ViewForm {
          return;
       }
 
-      _allChartActions = new HashMap<>();
+// SET_FORMATTING_OFF
 
-      _action_MouseWheelMode = new ActionMouseWheelMode(this);
-      _action_ZoomIn = new ActionZoomIn(this);
-      _action_ZoomOut = new ActionZoomOut(this);
+      _allChartActions        = new HashMap<>();
 
-      _allChartActions.put(ACTION_ID_MOVE_LEFT_SLIDER_HERE, new ActionMoveLeftSliderHere(this));
-      _allChartActions.put(ACTION_ID_MOVE_RIGHT_SLIDER_HERE, new ActionMoveRightSliderHere(this));
-      _allChartActions.put(ACTION_ID_MOVE_SLIDERS_TO_BORDER, new ActionMoveSlidersToBorder(this));
-      _allChartActions.put(ACTION_ID_ZOOM_FIT_GRAPH, new ActionZoomFitGraph(this));
-      _allChartActions.put(ACTION_ID_ZOOM_IN_TO_SLIDER, new ActionZoomToSlider(this));
+      _action_MouseWheelMode  = new ActionMouseWheelMode(this);
+      _action_ZoomIn          = new ActionZoomIn(this);
+      _action_ZoomOut         = new ActionZoomOut(this);
+
+      _allChartActions.put(ACTION_ID_MOVE_LEFT_SLIDER_HERE,       new ActionMoveLeftSlider_Here(this));
+      _allChartActions.put(ACTION_ID_MOVE_LEFT_SLIDER_TO_START,   new ActionMoveLeftSlider_ToStart(this));
+      _allChartActions.put(ACTION_ID_MOVE_RIGHT_SLIDER_HERE,      new ActionMoveRightSlider_Here(this));
+      _allChartActions.put(ACTION_ID_MOVE_RIGHT_SLIDER_TO_END,    new ActionMoveRightSlider_ToEnd(this));
+      _allChartActions.put(ACTION_ID_MOVE_SLIDERS_TO_BORDER,      new ActionMoveSlidersToBorder(this));
+      _allChartActions.put(ACTION_ID_ZOOM_FIT_GRAPH,              new ActionZoomFitGraph(this));
+      _allChartActions.put(ACTION_ID_ZOOM_IN_TO_SLIDER,           new ActionZoomToSlider(this));
+
+// SET_FORMATTING_ON
 
       enableActions();
    }
@@ -373,15 +386,17 @@ public class Chart extends ViewForm {
       _allChartActions.get(ACTION_ID_ZOOM_FIT_GRAPH).setEnabled(true);
 
       _allChartActions.get(ACTION_ID_MOVE_LEFT_SLIDER_HERE).setEnabled(true);
+      _allChartActions.get(ACTION_ID_MOVE_LEFT_SLIDER_TO_START).setEnabled(true);
       _allChartActions.get(ACTION_ID_MOVE_RIGHT_SLIDER_HERE).setEnabled(true);
+      _allChartActions.get(ACTION_ID_MOVE_RIGHT_SLIDER_TO_END).setEnabled(true);
       _allChartActions.get(ACTION_ID_MOVE_SLIDERS_TO_BORDER).setEnabled(true);
 
       _action_MouseWheelMode.setEnabled(true);
    }
 
    void fillContextMenu(final IMenuManager menuMgr,
-                        final ChartXSlider leftSlider,
-                        final ChartXSlider rightSlider,
+                        final ChartXSlider slider1,
+                        final ChartXSlider slider2,
                         final int hoveredBarSerieIndex,
                         final int hoveredBarValueIndex,
                         final int mouseDownDevPositionX,
@@ -392,7 +407,7 @@ public class Chart extends ViewForm {
       }
 
       // check if this is slider context
-      final boolean isSliderContext = leftSlider != null || rightSlider != null;
+      final boolean isSliderContext = slider1 != null || slider2 != null;
       final boolean showOnlySliderContext = isSliderContext
             && _chartContextProvider != null
             && _chartContextProvider.showOnlySliderContextMenu();
@@ -401,7 +416,7 @@ public class Chart extends ViewForm {
          _chartContextProvider.fillContextMenu(menuMgr, mouseDownDevPositionX, mouseDownDevPositionY);
       }
 
-      fillContextMenu_ChartDefault(menuMgr, leftSlider, rightSlider, hoveredBarSerieIndex, hoveredBarValueIndex);
+      fillContextMenu_ChartDefault(menuMgr, slider1, slider2, hoveredBarSerieIndex, hoveredBarValueIndex);
 
       if (_chartContextProvider != null && showOnlySliderContext == false && _isTopMenuPosition == false) {
          menuMgr.add(new Separator());
@@ -410,8 +425,8 @@ public class Chart extends ViewForm {
    }
 
    private void fillContextMenu_ChartDefault(final IMenuManager menuMgr,
-                                             final ChartXSlider leftSlider,
-                                             final ChartXSlider rightSlider,
+                                             final ChartXSlider slider1,
+                                             final ChartXSlider slider2,
                                              final int hoveredBarSerieIndex,
                                              final int hoveredBarValueIndex) {
 
@@ -461,7 +476,7 @@ public class Chart extends ViewForm {
          if (_chartContextProvider != null) {
 
             menuMgr.add(new Separator());
-            _chartContextProvider.fillXSliderContextMenu(menuMgr, leftSlider, rightSlider);
+            _chartContextProvider.fillXSliderContextMenu(menuMgr, slider1, slider2);
          }
 
          if (_isShowZoomActions) {
@@ -470,6 +485,8 @@ public class Chart extends ViewForm {
             menuMgr.add(_action_MouseWheelMode);
             menuMgr.add(_allChartActions.get(ACTION_ID_MOVE_LEFT_SLIDER_HERE));
             menuMgr.add(_allChartActions.get(ACTION_ID_MOVE_RIGHT_SLIDER_HERE));
+            menuMgr.add(_allChartActions.get(ACTION_ID_MOVE_LEFT_SLIDER_TO_START));
+            menuMgr.add(_allChartActions.get(ACTION_ID_MOVE_RIGHT_SLIDER_TO_END));
             menuMgr.add(_allChartActions.get(ACTION_ID_MOVE_SLIDERS_TO_BORDER));
             menuMgr.add(_allChartActions.get(ACTION_ID_ZOOM_IN_TO_SLIDER));
             menuMgr.add(_allChartActions.get(ACTION_ID_ZOOM_FIT_GRAPH));
@@ -707,7 +724,7 @@ public class Chart extends ViewForm {
     *         title height and/or horizontal slider label height.
     */
    public int getMarginTop() {
-      return _chartComponents.getDevChartMarginTop();
+      return _chartComponents.getDevChartMargin_Top();
    }
 
    public MouseWheelMode getMouseWheelMode() {
@@ -813,19 +830,20 @@ public class Chart extends ViewForm {
       return _isInUpdateUI;
    }
 
-   /**
-    * @return Returns <code>true</code> when the x-sliders are visible
-    */
-   public boolean isXSliderVisible() {
-      return _chartComponents.devSliderBarHeight != 0;
-   }
-
    void onExecuteMouseWheelMode(final MouseWheelMode mouseWheelMode) {
       setMouseWheelMode(mouseWheelMode);
    }
 
+   void onExecuteMoveLeftSlider_ToStart() {
+      _chartComponents.getChartComponentGraph().moveLeftSlider_ToStart();
+   }
+
    void onExecuteMoveLeftSliderHere() {
       _chartComponents.getChartComponentGraph().moveLeftSliderHere();
+   }
+
+   void onExecuteMoveRightSlider_ToEnd() {
+      _chartComponents.getChartComponentGraph().moveRightSlider_ToEnd();
    }
 
    void onExecuteMoveRightSliderHere() {
@@ -845,11 +863,17 @@ public class Chart extends ViewForm {
 
    void onExecuteZoomIn(final double accelerator) {
 
-      if (_chartComponents.devSliderBarHeight == 0) {
-         _chartComponents.getChartComponentGraph().zoomInWithoutSlider();
-         _chartComponents.onResize();
+      final ChartComponentGraph chartComponentGraph = _chartComponents.getChartComponentGraph();
+
+      if (chartComponentGraph.isXSliderVisible()) {
+
+         chartComponentGraph.zoomInWithMouse(Integer.MIN_VALUE, accelerator);
+
       } else {
-         _chartComponents.getChartComponentGraph().zoomInWithMouse(Integer.MIN_VALUE, accelerator);
+
+         chartComponentGraph.zoomInWithoutSlider();
+
+         _chartComponents.onResize();
       }
    }
 
@@ -1460,7 +1484,8 @@ public class Chart extends ViewForm {
                                 final boolean isVGridVisible,
                                 final boolean isAlternateColor,
                                 final RGB rgbAlternateColor_Light,
-                                final RGB rgbAlternateColor_Dark) {
+                                final RGB rgbAlternateColor_Dark,
+                                final int yAxisWidth_Value) {
 
       gridHorizontalDistance = horizontalGrid;
       gridVerticalDistance = verticalGrid;
@@ -1471,6 +1496,8 @@ public class Chart extends ViewForm {
       isShowSegmentAlternateColor = isAlternateColor;
       segmentAlternateColor_Light = rgbAlternateColor_Light;
       segmentAlternateColor_Dark = rgbAlternateColor_Dark;
+
+      yAxisWidth = yAxisWidth_Value;
 
       _chartComponents.onResize();
    }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -74,7 +74,7 @@ public class ActionSetTagStructure extends Action implements IMenuCreator {
             public void run() {
 
                // check if the tour editor contains a modified tour
-               if (TourManager.isTourEditorModified()) {
+               if (TourManager.isTourModified()) {
                   return;
                }
 

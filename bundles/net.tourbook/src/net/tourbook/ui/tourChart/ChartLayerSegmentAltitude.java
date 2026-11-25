@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -323,6 +323,9 @@ public class ChartLayerSegmentAltitude implements IChartLayer, IChartOverlay {
 
             if (_isShowSegmenterLine /* && isShowValueText */) {
 
+               // fix https://github.com/mytourbook/mytourbook/issues/1533
+               defaultLineAttributes.width = 1;
+
                gc.setAlpha(_lineOpacity);
                gc.setForeground(textAndLineColor);
                gc.setLineAttributes(defaultLineAttributes);
@@ -346,7 +349,7 @@ public class ChartLayerSegmentAltitude implements IChartLayer, IChartOverlay {
                   devXSegment,
                   devYSegment);
 
-            // use ALLWAYS the same instance
+            // use ALWAYS the same instance
             segmenterSegment.paintedRGB = paintedRGB;
 
             /*
@@ -360,6 +363,9 @@ public class ChartLayerSegmentAltitude implements IChartLayer, IChartOverlay {
                } else {
                   devYLine = devYSegment + 1 * textHeight;
                }
+
+               // fix https://github.com/mytourbook/mytourbook/issues/1533
+               markerLineAttribute.width = 1f;
 
                gc.setAlpha(0xff);
                gc.setForeground(textAndLineColor);

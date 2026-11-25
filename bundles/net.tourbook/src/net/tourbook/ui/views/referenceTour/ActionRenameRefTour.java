@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
  * Copyright (C) 2005, 2023 Wolfgang Schramm and Contributors
+=======
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
+>>>>>>> refs/remotes/Wolfgang/main
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,10 +37,17 @@ import jakarta.persistence.EntityTransaction;
 
 class ActionRenameRefTour extends Action {
 
+<<<<<<< HEAD
    /**
     *
     */
    private final ReferenceTourView fTourCatalogView;
+=======
+	/**
+	 *
+	 */
+	private final ReferenceTourView	fTourCatalogView;
+>>>>>>> refs/remotes/Wolfgang/main
 
    public ActionRenameRefTour(final ReferenceTourView tourCatalogView) {
 
@@ -47,9 +58,15 @@ class ActionRenameRefTour extends Action {
    @Override
    public void run() {
 
+<<<<<<< HEAD
       if (TourManager.isTourEditorModified()) {
          return;
       }
+=======
+		if (TourManager.isTourModified()) {
+			return;
+		}
+>>>>>>> refs/remotes/Wolfgang/main
 
       final Object selectedItem = (((ITreeSelection) fTourCatalogView.getTourViewer().getSelection()).getFirstElement());
 
@@ -91,8 +108,13 @@ class ActionRenameRefTour extends Action {
                   ts.rollback();
                } else {
 
+<<<<<<< HEAD
                   Display.getCurrent().asyncExec(new Runnable() {
                      @Override
+=======
+						Display.getCurrent().asyncExec(new Runnable() {
+							@Override
+>>>>>>> refs/remotes/Wolfgang/main
                      public void run() {
 
                         // refresh the tree viewer and resort the ref tours

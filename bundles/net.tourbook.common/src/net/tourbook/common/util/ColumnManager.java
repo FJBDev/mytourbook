@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,10 +31,14 @@ import net.tourbook.common.UI;
 import net.tourbook.common.formatter.IValueFormatter;
 import net.tourbook.common.formatter.ValueFormat;
 import net.tourbook.common.formatter.ValueFormatter_Default;
+import net.tourbook.common.formatter.ValueFormatter_Dummy;
 import net.tourbook.common.formatter.ValueFormatter_Number_1_0;
 import net.tourbook.common.formatter.ValueFormatter_Number_1_1;
 import net.tourbook.common.formatter.ValueFormatter_Number_1_2;
 import net.tourbook.common.formatter.ValueFormatter_Number_1_3;
+import net.tourbook.common.formatter.ValueFormatter_Number_1_4;
+import net.tourbook.common.formatter.ValueFormatter_Number_1_5;
+import net.tourbook.common.formatter.ValueFormatter_Time_Duration;
 import net.tourbook.common.formatter.ValueFormatter_Time_HH;
 import net.tourbook.common.formatter.ValueFormatter_Time_HHMM;
 import net.tourbook.common.formatter.ValueFormatter_Time_HHMMSS;
@@ -67,6 +71,7 @@ import org.eclipse.nebula.widgets.nattable.print.command.TurnViewportOnCommand;
 import org.eclipse.nebula.widgets.nattable.reorder.ColumnReorderLayer;
 import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
 import org.eclipse.nebula.widgets.nattable.util.GCFactory;
+import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -142,6 +147,12 @@ public class ColumnManager {
     */
    static final int            COLUMN_WIDTH_MAXIMUM                      = 5_000;
 
+   /**
+    * This is needed to adjust 4k display column widths, otherwise they get smaler and smaler every
+    * time when they are retrieved from the NatTable
+    */
+   private static float        _dpiScaleFactor                           = -1;
+
    /*
     * Value formatter
     */
@@ -212,10 +223,14 @@ public class ColumnManager {
    private IValueFormatter                   _valueFormatter_Number_1_1    = new ValueFormatter_Number_1_1();
    private IValueFormatter                   _valueFormatter_Number_1_2    = new ValueFormatter_Number_1_2();
    private IValueFormatter                   _valueFormatter_Number_1_3    = new ValueFormatter_Number_1_3();
+   private IValueFormatter                   _valueFormatter_Number_1_4    = new ValueFormatter_Number_1_4();
+   private IValueFormatter                   _valueFormatter_Number_1_5    = new ValueFormatter_Number_1_5();
    private IValueFormatter                   _valueFormatter_Time_HH       = new ValueFormatter_Time_HH();
    private IValueFormatter                   _valueFormatter_Time_HHMM     = new ValueFormatter_Time_HHMM();
    private IValueFormatter                   _valueFormatter_Time_HHMMSS   = new ValueFormatter_Time_HHMMSS();
    private IValueFormatter                   _valueFormatter_Time_SSS      = new ValueFormatter_Time_SSS();
+   private IValueFormatter                   _valueFormatter_Time_Duration = new ValueFormatter_Time_Duration();
+   private ValueFormatter_Dummy              _valueFormatter_Dummy         = new ValueFormatter_Dummy();
 
    {
       _colMenuItem_Listener = event -> onSelectColumnItem(event);
@@ -548,7 +563,7 @@ public class ColumnManager {
       _allDefinedColumnDefinitions.clear();
    }
 
-   private String createColumnLabel(final ColumnDefinition colDef, final boolean isWithCategory) {
+   private String createColumnLabel(final ColumnDefinition colDef) {
 
       final String category = colDef.getColumnCategory();
       final String label = colDef.getColumnLabel();
@@ -557,13 +572,13 @@ public class ColumnManager {
       final StringBuilder sb = new StringBuilder();
 
       // add category
-      if (isWithCategory && _isCategoryAvailable && _isShowCategory && category != null) {
+      if (_isCategoryAvailable && _isShowCategory && category != null) {
          sb.append(category);
       }
 
       // add label
       if (label != null) {
-         if (isWithCategory && sb.length() > 0) {
+         if (sb.length() > 0) {
             sb.append(COLUMN_CATEGORY_SEPARATOR);
          }
          sb.append(label);
@@ -588,7 +603,7 @@ public class ColumnManager {
 
          final MenuItem colMenuItem = new MenuItem(contextMenu, SWT.CHECK);
 
-         final String columnLabel = createColumnLabel(colDef, true);
+         final String columnLabel = createColumnLabel(colDef);
 
          colMenuItem.setText(columnLabel);
          colMenuItem.setEnabled(colDef.canModifyVisibility());
@@ -1226,7 +1241,7 @@ public class ColumnManager {
           */
 
          // create menu item text
-         final String menuItemText = NLS.bind(Messages.Action_ColumnManager_ColumnActions_Info, createColumnLabel(colDef, false));
+         final String menuItemText = NLS.bind(Messages.Action_ColumnManager_ColumnActions_Info, createColumnLabel(colDef));
 
          final MenuItem menuItem = new MenuItem(contextMenu, SWT.PUSH);
          menuItem.setText(menuItemText);
@@ -1552,11 +1567,10 @@ public class ColumnManager {
             final ColumnDefinition colDef = getColDef_ByCreateIndex(colIndexByPos);
             if (colDef != null) {
 
-               final int colWidthByPos = dataLayer.getColumnWidthByPosition(reorderColIndex);
-
+               final int columnWidth = getColumnWidth_NatTable(dataLayer, reorderColIndex);
                final String columnId = colDef.getColumnId();
 
-               setColumnIdAndWidth(allColumnIdsAndWidth, columnId, colWidthByPos);
+               setColumnIdAndWidth(allColumnIdsAndWidth, columnId, columnWidth);
             }
          }
 
@@ -1727,6 +1741,25 @@ public class ColumnManager {
       }
 
       return columnWidth;
+   }
+
+   private int getColumnWidth_NatTable(final DataLayer dataLayer, final int createdColumnIndex) {
+
+      int colWidthByPos = dataLayer.getColumnWidthByPosition(createdColumnIndex);
+
+      if (UI.IS_4K_DISPLAY) {
+
+         if (_dpiScaleFactor == -1) {
+
+            final int displayDpi = Display.getDefault().getDPI().x;
+
+            _dpiScaleFactor = GUIHelper.getDpiFactor(displayDpi);
+         }
+
+         colWidthByPos = (int) (colWidthByPos / _dpiScaleFactor);
+      }
+
+      return colWidthByPos;
    }
 
    /**
@@ -1991,9 +2024,10 @@ public class ColumnManager {
    /**
     * Get a value formatter for a {@link ValueFormat}.
     *
-    * @param valueFormat_Category
+    * @param valueFormat
     *
-    * @return Returns the {@link IValueFormatter} or <code>null</code> when not available.
+    * @return Returns the {@link IValueFormatter} or {@link #_valueFormatter_Dummy} when not
+    *         available
     */
    IValueFormatter getValueFormatter(final ValueFormat valueFormat) {
 
@@ -2001,35 +2035,38 @@ public class ColumnManager {
          return null;
       }
 
+// SET_FORMATTING_OFF
+
       switch (valueFormat) {
 
-      case NUMBER_1_0:
-         return _valueFormatter_Number_1_0;
+      case NUMBER_1_0:              return _valueFormatter_Number_1_0;
+      case NUMBER_1_1:              return _valueFormatter_Number_1_1;
+      case NUMBER_1_2:              return _valueFormatter_Number_1_2;
+      case NUMBER_1_3:              return _valueFormatter_Number_1_3;
+      case NUMBER_1_4:              return _valueFormatter_Number_1_4;
+      case NUMBER_1_5:              return _valueFormatter_Number_1_5;
 
-      case NUMBER_1_1:
-         return _valueFormatter_Number_1_1;
+      case TIME_HH:                 return _valueFormatter_Time_HH;
+      case TIME_HH_MM:              return _valueFormatter_Time_HHMM;
+      case TIME_HH_MM_SS:           return _valueFormatter_Time_HHMMSS;
+      case TIME_SSS:                return _valueFormatter_Time_SSS;
+      case TIME_DURATION:           return _valueFormatter_Time_Duration;
 
-      case NUMBER_1_2:
-         return _valueFormatter_Number_1_2;
+      case DATE_TIME:
+      case DATE_TIME_HH_MM_SS:
+      case EQUIPMENT_BRAND:
+      case EQUIPMENT_BRAND_MODEL:
+      case EQUIPMENT_MODEL:
+      case EQUIPMENT_TYPE:
+      case PACE_MM_SS:
+      case PERIOD_DAY:
+      case PERIOD_YEAR_MONTH_DAY:
+      case TEXT:                    return _valueFormatter_Dummy;
 
-      case NUMBER_1_3:
-         return _valueFormatter_Number_1_3;
-
-      case TIME_HH:
-         return _valueFormatter_Time_HH;
-
-      case TIME_HH_MM:
-         return _valueFormatter_Time_HHMM;
-
-      case TIME_HH_MM_SS:
-         return _valueFormatter_Time_HHMMSS;
-
-      case TIME_SSS:
-         return _valueFormatter_Time_SSS;
-
-      default:
-         return null;
+      default:                      return null;
       }
+
+// SET_FORMATTING_ON
    }
 
    /**
@@ -2330,7 +2367,7 @@ public class ColumnManager {
 //      System.out.println();
 //
 //      for (final ColumnDefinition colDefLog : _allDefinedColumnDefinitions) {
-//         System.out.println("  \"" + colDefLog.getColumnId() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+//         System.out.println("  \"" + colDefLog.getColumnId() + UI.SYMBOL_QUOTATION_MARK); //$NON-NLS-1$ //$NON-NLS-2$
 //      }
 //
 //      System.out.println();
@@ -2357,12 +2394,11 @@ public class ColumnManager {
          final ColumnDefinition colDef = getColDef_ByCreateIndex(colIndexByPos);
          if (colDef != null) {
 
-            final int colWidthByPos = dataLayer.getColumnWidthByPosition(createdColumnIndex);
-
+            final int columnWidth = getColumnWidth_NatTable(dataLayer, createdColumnIndex);
             final String columnId = colDef.getColumnId();
 
             allOrderedColumnIds.add(columnId);
-            setColumnIdAndWidth(allColumnIdsAndWidth, columnId, colWidthByPos);
+            setColumnIdAndWidth(allColumnIdsAndWidth, columnId, columnWidth);
          }
       }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2021 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2025 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import net.tourbook.chart.SelectionBarChart;
 import net.tourbook.common.UI;
 import net.tourbook.common.color.GraphColorManager;
 import net.tourbook.common.time.TimeTools;
+import net.tourbook.common.tooltip.ICanHideTooltip;
 import net.tourbook.common.util.IToolTipProvider;
 import net.tourbook.common.util.PostSelectionProvider;
 import net.tourbook.common.util.Util;
@@ -268,8 +269,10 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
     *           serieIndex
     * @param hoveredBar_HorizontalIndex
     *           valueIndex
+    *
+    * @return
     */
-   private void createToolTipUI(final IToolTipProvider toolTipProvider,
+   private ICanHideTooltip createToolTipUI(final IToolTipProvider toolTipProvider,
                                 final Composite parent,
                                 int valueIndex) {
 
@@ -280,7 +283,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       }
 
       if (valueIndex >= tourDOYValues.length) {
-         return;
+
+         return _tourInfoUI;
       }
 
       final long tourId = _statisticData_Day.allTourIds[valueIndex];
@@ -308,6 +312,8 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
       }
 
       parent.addDisposeListener(disposeEvent -> _tourInfoUI.dispose());
+
+      return _tourInfoUI;
    }
 
    /**
@@ -768,7 +774,7 @@ public abstract class StatisticDay extends TourbookStatistic implements IBarSele
          setGraphLabel_Duration(_yData_Duration, durationTime);
       }
 
-      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix());
+      StatisticServices.updateChartProperties(_chart, getGridPrefPrefix(), getLayoutPrefPrefix());
 
       // show the data in the chart
       _chart.updateChart(chartModel, false, true);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2005, 2024 Wolfgang Schramm and Contributors
+ * Copyright (C) 2005, 2026 Wolfgang Schramm and Contributors
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package net.tourbook.data;
 
 import java.io.Serializable;
 
+<<<<<<< HEAD
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +25,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
 
+=======
+>>>>>>> refs/remotes/Wolfgang/main
 import net.tourbook.common.UI;
 import net.tourbook.common.util.HSLColor;
 import net.tourbook.common.util.StatusUtil;
@@ -31,8 +34,17 @@ import net.tourbook.database.TourDatabase;
 
 import org.eclipse.swt.graphics.RGB;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+
 @Entity
 public class TourPersonHRZone implements Cloneable, Comparable<TourPersonHRZone>, Serializable {
+
+   private static final char   NL                    = UI.NEW_LINE;
 
    private static final long   serialVersionUID      = 1L;
 
@@ -175,10 +187,8 @@ public class TourPersonHRZone implements Cloneable, Comparable<TourPersonHRZone>
    @Override
    public int compareTo(final TourPersonHRZone otherHrZone) {
 
-      return zoneMinValue < otherHrZone.zoneMinValue ? //
-            -1
-            : zoneMinValue == otherHrZone.zoneMinValue ? //
-                  0
+      return zoneMinValue < otherHrZone.zoneMinValue ? -1
+            : zoneMinValue == otherHrZone.zoneMinValue ? 0
                   : 1;
    }
 
@@ -380,13 +390,16 @@ public class TourPersonHRZone implements Cloneable, Comparable<TourPersonHRZone>
 
    @Override
    public String toString() {
-      return "TourPersonHRZone [zoneMinValue=" //$NON-NLS-1$
-            + zoneMinValue
-            + ", zoneMaxValue=" //$NON-NLS-1$
-            + zoneMaxValue
-            + ", zoneName=" //$NON-NLS-1$
-            + zoneName
-            + "]"; //$NON-NLS-1$
+
+      return UI.EMPTY_STRING
+
+            + "TourPersonHRZone" + NL //                          //$NON-NLS-1$
+
+            + "  zoneMinValue = " + zoneMinValue + NL //          //$NON-NLS-1$
+            + "  zoneMaxValue = " + zoneMaxValue + NL //          //$NON-NLS-1$
+            + "  zoneName		= " + zoneName + NL //              //$NON-NLS-1$
+
+      ;
    }
 
 }
